@@ -25,7 +25,7 @@ With Maven:
 With Gradle:
 
 ```groovy
-compile(group: 'com.expedia.www', artifact: 'graphql-kotlin': version: '0.0.1')
+compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.1')
 ```
 
 ## Generating a schema
