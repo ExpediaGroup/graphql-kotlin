@@ -1,5 +1,7 @@
 # GraphQL Kotlin
 
+[![Build Status](https://travis-ci.org/ExpediaDotCom/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/graphql-kotlin)
+
 Most GraphQL libraries for the JVM require developers to maintain two sources of truth for their GraphQL API, the schema and the corresponding code (data fetchers and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema should be able to be generated from Kotlin code without any separate schema specification. `bex-api-graphql` builds upon `graphql-java` to allow code-only GraphQL services to be built.
 
 For information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
