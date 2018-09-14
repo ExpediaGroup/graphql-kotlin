@@ -32,7 +32,7 @@ compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.1')
 
 ## Generating a schema
 
-`bex-api-sdk` provides a single function, `toSchema`, to generate a schema from Kotlin objects.
+`graphql-kotlin` provides a single function, `toSchema`, to generate a schema from Kotlin objects.
 
 ```kotlin
 import graphql.schema.GraphQLSchema
