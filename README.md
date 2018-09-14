@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ExpediaDotCom/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/graphql-kotlin) [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
-Most GraphQL libraries for the JVM require developers to maintain two sources of truth for their GraphQL API, the schema and the corresponding code (data fetchers and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema should be able to be generated from Kotlin code without any separate schema specification. `bex-api-graphql` builds upon `graphql-java` to allow code-only GraphQL services to be built.
+Most GraphQL libraries for the JVM require developers to maintain two sources of truth for their GraphQL API, the schema and the corresponding code (data fetchers and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema should be able to be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only GraphQL services to be built.
 
 For information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
 
@@ -12,7 +12,7 @@ For information on `graphql-java`, please visit [GraphQL Java](https://graphql-j
 
 ## Installation
 
-Using a JVM dependency manager, simply link `bex-api-graphql` to your project.
+Using a JVM dependency manager, simply link `graphql-kotlin` to your project.
 
 With Maven:
 
@@ -36,7 +36,7 @@ compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.1')
 
 ```kotlin
 import graphql.schema.GraphQLSchema
-import com.expedia.api.graphql.toSchema
+import com.expedia.graphql.toSchema
 
 class Query {
   fun getNumber() = 1
@@ -117,7 +117,7 @@ Any `public` properties and functions defined on a query or mutation Kotlin clas
 
 ### Types
 
-For the most part, `bex-api-graphql` can directly map most Kotlin "primitive" types to standard GraphQL scalar types:
+For the most part, `graphql-kotlin` can directly map most Kotlin "primitive" types to standard GraphQL scalar types:
 
 #### Scalars
 
@@ -134,7 +134,7 @@ For the most part, `bex-api-graphql` can directly map most Kotlin "primitive" ty
 | `kotlin.String`     | `String`     |
 | `kotlin.Boolean`    | `Boolean`    |
 
-`bex-api-graphql` also ships with a few extension scalar types:
+`graphql-kotlin` also ships with a few extension scalar types:
 
 #### Extension Scalars
 
@@ -181,7 +181,7 @@ TBD
 
 ## Annotations
 
-`bex-api-graphql` ships with a number of annotation classes to allow you to enhance your GraphQL schema for things that can't be directly derived from Kotlin reflection.
+`graphql-kotlin` ships with a number of annotation classes to allow you to enhance your GraphQL schema for things that can't be directly derived from Kotlin reflection.
 
 ### `@Context`
 
@@ -252,7 +252,7 @@ Note that the public property `notPartOfSchema` is not included in the schema.
 
 ### `@Description`
 
-Since Javadocs are not available at runtime for introspection, `bex-api-graphql` includes an annotation class `@Description` that can be used to add schema descriptions to *any* GraphQL schema element:
+Since Javadocs are not available at runtime for introspection, `graphql-kotlin` includes an annotation class `@Description` that can be used to add schema descriptions to *any* GraphQL schema element:
 
 ```kotlin
 @Description("A useful widget")
