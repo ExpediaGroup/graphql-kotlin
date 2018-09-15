@@ -4,6 +4,7 @@ import com.expedia.graphql.KotlinDataFetcher
 import com.expedia.graphql.Parameter
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
+import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.schema.models.KGraphQLType
