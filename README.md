@@ -183,19 +183,19 @@ TBD
 
 `graphql-kotlin` ships with a number of annotation classes to allow you to enhance your GraphQL schema for things that can't be directly derived from Kotlin reflection.
 
-### `@Context`
+### `@GraphQLContext`
 
 All GraphQL servers have a concept of a "context". A GraphQL context contains metadata that is useful to the GraphQL server, but shouldn't necessarily be part of the GraphQL query's API. A prime example of something that is appropriate for the GraphQL context would be trace headers for an OpenTracing system such as Zipkin or Haystack. The GraphQL query itself does not need the information to perform its function, but the server itself needs the information to ensure observability.
 
 The contents of the GraphQL context vary across GraphQL applications. For JVM based applications, `graphql-java` provides a `GraphQLContext` interface that can be extended.
 
-Simply add `@Context` to any argument to a field, and the GraphQL context for the environment will be injected. These arguments will be omitted by the schema generator.
+Simply add `@GraphQLContext` to any argument to a field, and the GraphQL context for the environment will be injected. These arguments will be omitted by the schema generator.
 
 ```kotlin
 class Query {
   fun doSomething(
-    @Description("A value") value: Int,
-    @Context context: MyGraphQLContextImpl
+    @GraphQLDescription("A value") value: Int,
+    @GraphQLContext context: MyGraphQLContextImpl
   ): Boolean! {
     doSomething(context.getResult());
     return true
@@ -215,17 +215,17 @@ type TopLevelQuery {
 }
 ```
 
-Note that the `@Context` annotated argument is not reflected in the GraphQL schema.
+Note that the `@GraphQLContext` annotated argument is not reflected in the GraphQL schema.
 
-### @Ignore
+### @GraphQLIgnore
 
 There are two ways to ensure the GraphQL schema generation omits fields when using Kotlin reflection:
 
-The first is by marking the field as `private` scope. The second method is by annotating the field with `@Ignore`:
+The first is by marking the field as `private` scope. The second method is by annotating the field with `@GraphQLIgnore`:
 
 ```kotlin
 class Query {
-  @Ignore
+  @GraphQLIgnore
   val notPartOfSchema = "ignore me!"
 
   fun doSomething(
@@ -250,21 +250,21 @@ type TopLevelQuery {
 
 Note that the public property `notPartOfSchema` is not included in the schema.
 
-### `@Description`
+### `@GraphQLDescription`
 
-Since Javadocs are not available at runtime for introspection, `graphql-kotlin` includes an annotation class `@Description` that can be used to add schema descriptions to *any* GraphQL schema element:
+Since Javadocs are not available at runtime for introspection, `graphql-kotlin` includes an annotation class `@GraphQLDescription` that can be used to add schema descriptions to *any* GraphQL schema element:
 
 ```kotlin
-@Description("A useful widget")
+@GraphQLDescription("A useful widget")
 data class Widget(
-  @Description("The widget's value")
+  @property:GraphQLDescription("The widget's value")
   val value: Boolean?
 )
 
 class Query {
-  @Description("Does something very special")
+  @GraphQLDescription("Does something very special")
   fun doSomething(
-    @Description("The special ingredient") value: Int
+    @GraphQLDescription("The special ingredient") value: Int
   ): Widget! {
     return Widget(value !== 1)
   }
@@ -292,6 +292,8 @@ type TopLevelQuery {
   ): Boolean!
 }
 ```
+
+Note that the data class property is annotated as `@property:GraphQLDescription`. This is due the way kotlin [maps back to the java elements](https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets). If you do not add the `property` prefix the annotation is actually on the contructor argument and will not be picked up by the generator.
 
 ## Configuration
 
