@@ -187,17 +187,17 @@ TBD
 
 All GraphQL servers have a concept of a "context". A GraphQL context contains metadata that is useful to the GraphQL server, but shouldn't necessarily be part of the GraphQL query's API. A prime example of something that is appropriate for the GraphQL context would be trace headers for an OpenTracing system such as Zipkin or Haystack. The GraphQL query itself does not need the information to perform its function, but the server itself needs the information to ensure observability.
 
-The contents of the GraphQL context vary across GraphQL applications. For JVM based applications, `graphql-java` provides a `GraphQLContext` interface that can be extended.
+The contents of the GraphQL context vary across GraphQL applications. For JVM based applications, `graphql-java` provides a context interface that can be extended.
 
 Simply add `@GraphQLContext` to any argument to a field, and the GraphQL context for the environment will be injected. These arguments will be omitted by the schema generator.
 
 ```kotlin
 class Query {
   fun doSomething(
-    @GraphQLDescription("A value") value: Int,
+    value: Int,
     @GraphQLContext context: MyGraphQLContextImpl
-  ): Boolean! {
-    doSomething(context.getResult());
+  ): Boolean {
+    doSomething(context.getResult())
     return true
   }
 }
@@ -217,11 +217,11 @@ type TopLevelQuery {
 
 Note that the `@GraphQLContext` annotated argument is not reflected in the GraphQL schema.
 
-### @GraphQLIgnore
+### `@GraphQLIgnore`
 
 There are two ways to ensure the GraphQL schema generation omits fields when using Kotlin reflection:
 
-The first is by marking the field as `private` scope. The second method is by annotating the field with `@GraphQLIgnore`:
+The first is by marking the field as `private` scope. The second method is by annotating the field with `@GraphQLIgnore`.
 
 ```kotlin
 class Query {
@@ -230,7 +230,7 @@ class Query {
 
   fun doSomething(
     value: Int
-  ): Boolean! {
+  ): Boolean {
     return true
   }
 }
@@ -257,16 +257,16 @@ Since Javadocs are not available at runtime for introspection, `graphql-kotlin` 
 ```kotlin
 @GraphQLDescription("A useful widget")
 data class Widget(
-  @property:GraphQLDescription("The widget's value")
-  val value: Boolean?
+  @property:GraphQLDescription("The widget's value that can be null")
+  val value: Int?
 )
 
 class Query {
   @GraphQLDescription("Does something very special")
   fun doSomething(
-    @GraphQLDescription("The special ingredient") value: Int
-  ): Widget! {
-    return Widget(value !== 1)
+    @GraphQLDescription("The special ingredient") value: Int?
+  ): Widget {
+    return Widget(value)
   }
 }
 ```
@@ -280,20 +280,50 @@ schema {
 
 # A useful widget
 type Widget {
-  # The widget's value
-  value: Boolean
+  # The widget's value that can be null
+  value: Int
 }
 
 type TopLevelQuery {
   # Does something very useful
   doSomething(
     # The special ingredient
-    value: Int!
-  ): Boolean!
+    value: Int
+  ): Widget!
 }
 ```
 
 Note that the data class property is annotated as `@property:GraphQLDescription`. This is due to the way kotlin [maps back to the java elements](https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets). If you do not add the `property` prefix the annotation is actually on the contructor argument and will not be picked up by the generator.
+
+
+### `@Deprecated`
+
+GraphQL schemas can have fields marked as deprecated. Instead of creating a custom annotation, `graphql-kotlin` just looks for the `kotlin.Deprecated` annotation and will use the message for the deprecated reason.
+
+```
+class Query {
+  @Deprecated("Do not use this anymore")
+  val restApi = "example.com/api"
+  
+  val graphQLApi = "example.com/graphql"
+}
+```
+
+The above query would produce the following GraphQL schema:
+
+```graphql
+schema {
+  query: TopLevelQuery
+}
+
+type TopLevelQuery {
+
+  # DEPRECATED: Do not use this anymore
+  restApi: String!
+  
+  graphQLApi: String!
+}
+```
 
 ## Configuration
 
