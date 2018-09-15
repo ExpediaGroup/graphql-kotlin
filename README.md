@@ -293,7 +293,7 @@ type TopLevelQuery {
 }
 ```
 
-Note that the data class property is annotated as `@property:GraphQLDescription`. This is due the way kotlin [maps back to the java elements](https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets). If you do not add the `property` prefix the annotation is actually on the contructor argument and will not be picked up by the generator.
+Note that the data class property is annotated as `@property:GraphQLDescription`. This is due to the way kotlin [maps back to the java elements](https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets). If you do not add the `property` prefix the annotation is actually on the contructor argument and will not be picked up by the generator.
 
 ## Configuration
 
