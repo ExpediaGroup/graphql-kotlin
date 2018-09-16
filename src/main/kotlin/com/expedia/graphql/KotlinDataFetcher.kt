@@ -15,8 +15,17 @@ internal data class Parameter(val klazz: Class<*>, val annotations: List<Annotat
 
 /**
  * Simple DataFetcher that invokes function on the target object.
+ *
+ * @param target    The target object that performs the data fetching
+ * @param fn        The Kotlin function being invoked
+ * @param args      The GraphQL arguments passed to the data fetcher
  */
-internal class KotlinDataFetcher(val target: Any?, val fn: KFunction<*>, val args: Map<String, Parameter>, val instrumentable: Boolean) : DataFetcher<Any> {
+internal class KotlinDataFetcher(
+        val target: Any?,
+        val fn: KFunction<*>,
+        val args: Map<String, Parameter>,
+        val instrumentable: Boolean
+) : DataFetcher<Any> {
 
     override fun get(environment: DataFetchingEnvironment): Any? {
         val instance = target ?: environment.getSource<Any>()
