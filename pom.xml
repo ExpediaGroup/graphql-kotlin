@@ -9,6 +9,53 @@
 
     <packaging>jar</packaging>
 
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Rick Fast</name>
+            <email>rfast@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Brennan Taylor</name>
+            <email>brentaylor@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Dariusz Kuc</name>
+            <email>dkuc@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Shane Myrick</name>
+            <email>smyrick@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Amanda Ducrou</name>
+            <email>aducrou@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/ExpediaDotCom/graphql-kotlin.git</connection>
+        <developerConnection>scm:git:git://github.com/ExpediaDotCom/graphql-kotlin.git</developerConnection>
+        <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+    </scm>
+    
     <properties>
         <reflections.version>0.9.11</reflections.version>
         <kotlin.version>1.2.70</kotlin.version>
