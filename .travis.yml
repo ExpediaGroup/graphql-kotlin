@@ -22,8 +22,7 @@ deploy:
   skip_cleanup: true
   on:
     branch: master
-    repo: ExpediaDotCom/graphql-kotlin
-    condition: $TRAVIS_PULL_REQUEST = false
+    tags: true
 
 notifications:
   email:
