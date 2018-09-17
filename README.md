@@ -20,14 +20,14 @@ With Maven:
 <dependency>
   <groupId>com.expedia.www</groupId>
   <artifactId>graphql-kotlin</artifactId>
-  <version>0.0.3</version>
+  <version>0.0.5</version>
 </dependency>
 ```
 
 With Gradle:
 
 ```groovy
-compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.3')
+compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.5')
 ```
 
 ## Generating a schema
