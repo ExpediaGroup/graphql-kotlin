@@ -21,7 +21,7 @@ deploy:
   script: bash .travis/deploy.sh
   skip_cleanup: true
   on:
-    repo: ExpediaDotCom/graphql-java
+    repo: ExpediaDotCom/graphql-kotlin
     condition: $TRAVIS_PULL_REQUEST = false
 
 notifications:

@@ -55,7 +55,7 @@
         <developerConnection>scm:git:git://github.com/ExpediaDotCom/graphql-kotlin.git</developerConnection>
         <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
     </scm>
-    
+
     <properties>
         <reflections.version>0.9.11</reflections.version>
         <kotlin.version>1.2.70</kotlin.version>
