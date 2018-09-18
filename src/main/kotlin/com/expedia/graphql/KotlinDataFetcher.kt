@@ -14,6 +14,18 @@ private val mapper = jacksonObjectMapper()
 internal data class Parameter(val klazz: Class<*>, val annotations: List<Annotation>)
 
 /**
+ * Interface that exposes access to the [instrumentable] property for
+ * internal [KotlinDataFetcher]
+ */
+interface Instrumentable {
+    /**
+     * Determines whether or not the fetcher should be instrumented
+     * using GraphQL instrumentation
+     */
+    val instrumentable: Boolean
+}
+
+/**
  * Simple DataFetcher that invokes function on the target object.
  *
  * @param target    The target object that performs the data fetching
@@ -24,8 +36,8 @@ internal class KotlinDataFetcher(
         val target: Any?,
         val fn: KFunction<*>,
         val args: Map<String, Parameter>,
-        val instrumentable: Boolean
-) : DataFetcher<Any> {
+        override val instrumentable: Boolean
+) : DataFetcher<Any>, Instrumentable {
 
     override fun get(environment: DataFetchingEnvironment): Any? {
         val instance = target ?: environment.getSource<Any>()
