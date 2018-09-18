@@ -5,8 +5,7 @@ cache:
     - $HOME/.m2
 
 script:
-  # build and deploy if master branch else just build
-  - if ([ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]) || [ -n "$TRAVIS_TAG" ]; then .travis/deploy.sh; else ./mvnw clean install; fi
+  - .travis/deploy.sh
 
 
 jdk: oraclejdk8
