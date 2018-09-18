@@ -23,6 +23,8 @@ import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import org.reflections.Reflections
+import javax.validation.Validation
+import javax.validation.Validator
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -45,6 +47,7 @@ internal class SchemaGenerator(
     private val propertyFilters: List<PropertyFilter> = listOf(isPublic, isNotGraphQLIgnored)
     private val functionFilters: List<FunctionFilter> = listOf(isPublic, isNotGraphQLIgnored, isNotBlackListed)
     private val additionTypes = mutableSetOf<GraphQLType>()
+    private val validator = Validation.buildDefaultValidatorFactory().validator
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
@@ -71,7 +74,7 @@ internal class SchemaGenerator(
                 .filter { hooks.isValidFunction(it) }
                 .filter { func -> functionFilters.all { it.invoke(func) } }
                 .forEach {
-                    val function = function(it, query.obj)
+                    val function = function(it, query.obj, validator)
                     val functionFromHook = hooks.didGenerateQueryType(it, function)
                     queryBuilder.field(functionFromHook)
                 }
@@ -89,7 +92,7 @@ internal class SchemaGenerator(
                     .filter { hooks.isValidFunction(it) }
                     .filter { func -> functionFilters.all { it.invoke(func) } }
                     .forEach {
-                        val function = function(it, mutation.obj)
+                        val function = function(it, mutation.obj, validator)
                         val functionFromHook = hooks.didGenerateMutationType(it, function)
                         mutationBuilder.field(functionFromHook)
                     }
@@ -99,7 +102,7 @@ internal class SchemaGenerator(
         }
     }
 
-    private fun function(fn: KFunction<*>, target: Any? = null): GraphQLFieldDefinition {
+    private fun function(fn: KFunction<*>, target: Any? = null, validator: Validator): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
         builder.description(fn.graphQLDescription())
@@ -122,7 +125,7 @@ internal class SchemaGenerator(
                 args[name!!] = Parameter(it.type.jvmErasure.java, it.annotations)
             }
         }
-        val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args, fn.isGraphQLInstrumentable())
+        val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args, fn.isGraphQLInstrumentable(), validator)
         val hookDataFetcher = hooks.didGenerateDataFetcher(fn, dataFetcher)
         builder.dataFetcher(hookDataFetcher)
         builder.type(graphQLTypeOf(fn.returnType) as GraphQLOutputType)
@@ -235,7 +238,7 @@ internal class SchemaGenerator(
         klass.declaredMemberFunctions
             .filter { hooks.isValidFunction(it) }
             .filter { func -> functionFilters.all { it.invoke(func) } }
-            .forEach { builder.field(function(it)) }
+            .forEach { builder.field(function(it, validator = validator)) }
 
         return builder.build()
     }
