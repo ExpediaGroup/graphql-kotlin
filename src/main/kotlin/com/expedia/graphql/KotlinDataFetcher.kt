@@ -24,7 +24,7 @@ class KotlinDataFetcher(
         val target: Any?,
         val fn: KFunction<*>,
         val args: Map<String, Parameter>,
-        override val instrumentable: Boolean
+        val instrumentable: Boolean
 ) : DataFetcher<Any> {
 
     override fun get(environment: DataFetchingEnvironment): Any? {
