@@ -4,23 +4,28 @@ import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.annotations.GraphQLInstrumentationIgnore
+import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
+import javax.validation.Valid
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
-import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
+import kotlin.reflect.jvm.jvmName
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
     val prefix = this.getDeprecationReason()?.let { "DEPRECATED" }
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
-    return if (null != description) {
+    val prefixedDescription = if (null != description) {
         if (null != prefix) {
             "$prefix: $description"
         } else {
@@ -28,8 +33,73 @@ internal fun KAnnotatedElement.graphQLDescription(): String? {
         }
     } else {
         prefix
+    }.orEmpty()
+
+    val validationDescription = when {
+        this is KFunction<*> -> addValidationDescription(this)
+        this is KClass<*> -> addValidationDescription(this)
+        else -> ""
+    }
+
+    return if(validationDescription !=null && validationDescription != "") {
+        """$prefixedDescription
+            |
+            |$validationDescription
+            """.trimMargin()
+    } else {
+        prefixedDescription
     }
 }
+
+private fun addValidationDescription(kClass: KClass<*>): String? {
+
+    fun Annotation.formatValidationProperties(): List<String> =
+            annotationParser.findAll(this.toString())
+                .map { it.value }
+                .filterNot { it.startsWith("message=") }
+                .filterNot { it == "" }
+                .toList()
+
+    fun List<Annotation>.formatValidationRules(): String =
+        this.joinToStringIfNonEmpty(
+            transform = {
+                """${it.annotationClass.simpleName}
+                   |
+                   |${it.formatValidationProperties().joinToStringIfNonEmpty(prefix = "```\n", separator = "\n", postfix = "\n```\n")}
+                """.trimMargin()},
+            postfix = "\n"
+        )
+
+
+    val rules = kClass.declaredMemberProperties
+        .map { it.name to it.getter.findValidationAnnotation() }
+        .filter{ (_, validations) -> validations.isNotEmpty() }
+
+      return rules.joinToStringIfNonEmpty(
+              prefix = "\n#### Properties with validation:\n",
+              transform =  {(propertyName, validationRules) ->
+                  """**$propertyName**:
+                    |
+                    |${validationRules.formatValidationRules()}
+                  """.trimMargin()},
+              separator = "\n",
+              postfix = "\n")
+}
+
+private fun <R> KProperty.Getter<R>.findValidationAnnotation()=
+    this.annotations.filter { it.annotationClass.jvmName.startsWith("javax.validation")}
+
+private fun addValidationDescription(func: KFunction<*>): String? {
+    val paramWithValidation = func.parameters.filter { it.mustBeValid() }
+
+    return paramWithValidation
+            .joinToStringIfNonEmpty (
+                prefix = "##### Arguments with validation:\n",
+                transform = {"* ${it.name}\n"}
+            )
+}
+
+internal fun KParameter.mustBeValid(): Boolean = this.findAnnotation<Valid>() != null
 
 internal fun KType.graphQLDescription(): String? = (classifier as? KClass<*>)?.graphQLDescription()
 
@@ -77,3 +147,19 @@ internal fun KAnnotatedElement.directives() =
     }
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
+
+internal fun <T> List<T>.joinToStringIfNonEmpty(valueIfEmpty: String = "",
+                                                separator: CharSequence = ", ",
+                                                prefix: CharSequence = "",
+                                                postfix: CharSequence = "",
+                                                limit: Int = -1,
+                                                truncated: CharSequence = "...",
+                                                transform: ((T) -> CharSequence)? = null):String {
+    return if (this.isNotEmpty() ) {
+        this.joinToString(separator, prefix, postfix, limit, truncated, transform)
+    } else {
+        valueIfEmpty
+    }
+}
+
+private val annotationParser = "\\w*=[{}a-zA-Z.\\[\\]\\d]*".toRegex()

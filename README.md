@@ -298,3 +298,23 @@ Note that the data class property is annotated as `@property:GraphQLDescription`
 ## Configuration
 
 ### Documentation Enforcement
+
+## Validation
+
+Query parameter validation can be performed using [Bean Validation 2.0 (JSR-380)](https://beanvalidation.org/2.0/) annotations like `@Min`, `@Max` `@Size` or nested validation for example.
+
+For a top level query argument to be validated, it must be annotated with `@javax.validation.Valid`.
+
+```kotlin
+class Query {
+
+    fun doSomething(@javax.validation.Valid val arg: AnArgument)
+    fun doSomethingWithoutValidation(val arg: AnArgument) //in this context `arg` will not be validated
+}
+
+data class AnArgument (
+    @get:javax.validation.constraints.Min(2) val mustBeGreaterThan2: Int
+)
+```
+
+If the site target `@get:` is used on a validation annotation, the properties of the annotation will be added to the schema documentation. 
