@@ -1,12 +1,9 @@
 package com.expedia.graphql.schema
 
-import com.expedia.graphql.KotlinDataFetcher
-import com.expedia.graphql.Parameter
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
-import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
@@ -37,18 +34,15 @@ import kotlin.reflect.jvm.jvmErasure
 internal class SchemaGenerator(
     private val queries: List<TopLevelObjectDef>,
     private val mutations: List<TopLevelObjectDef>,
-    private val config: SchemaConfig,
-    private val hooks: SchemaGeneratorHooks
+    private val config: SchemaGeneratorConfig
 ) {
 
     private val typesCache: MutableMap<String, KGraphQLType> = mutableMapOf()
-    private val propertyFilters: List<PropertyFilter> = listOf(isPublic, isNotGraphQLIgnored)
-    private val functionFilters: List<FunctionFilter> = listOf(isPublic, isNotGraphQLIgnored, isNotBlackListed)
     private val additionTypes = mutableSetOf<GraphQLType>()
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
-        return hooks.willBuildSchema(builder).build()
+        return config.hooks.willBuildSchema(builder).build()
     }
 
     private fun generateWithReflection(): GraphQLSchema.Builder {
@@ -68,11 +62,11 @@ internal class SchemaGenerator(
         queryBuilder.name(config.topLevelQueryName)
         for (query in queries) {
             query.klazz.declaredMemberFunctions
-                .filter { hooks.isValidFunction(it) }
+                .filter { config.hooks.isValidFunction(it) }
                 .filter { func -> functionFilters.all { it.invoke(func) } }
                 .forEach {
                     val function = function(it, query.obj)
-                    val functionFromHook = hooks.didGenerateQueryType(it, function)
+                    val functionFromHook = config.hooks.didGenerateQueryType(it, function)
                     queryBuilder.field(functionFromHook)
                 }
         }
@@ -86,11 +80,11 @@ internal class SchemaGenerator(
 
             for (mutation in mutations) {
                 mutation.klazz.declaredMemberFunctions
-                    .filter { hooks.isValidFunction(it) }
+                    .filter { config.hooks.isValidFunction(it) }
                     .filter { func -> functionFilters.all { it.invoke(func) } }
                     .forEach {
                         val function = function(it, mutation.obj)
-                        val functionFromHook = hooks.didGenerateMutationType(it, function)
+                        val functionFromHook = config.hooks.didGenerateMutationType(it, function)
                         mutationBuilder.field(functionFromHook)
                     }
             }
@@ -123,7 +117,7 @@ internal class SchemaGenerator(
             }
         }
         val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args, fn.isGraphQLInstrumentable())
-        val hookDataFetcher = hooks.didGenerateDataFetcher(fn, dataFetcher)
+        val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
         builder.dataFetcher(hookDataFetcher)
         builder.type(graphQLTypeOf(fn.returnType) as GraphQLOutputType)
         return builder.build()
@@ -143,10 +137,10 @@ internal class SchemaGenerator(
         .build()
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false): GraphQLType {
-        val hookGraphQLType = hooks.willGenerateGraphQLType(type)
+        val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
         val graphQLType = hookGraphQLType ?: graphQLScalar(type) ?: objectFromReflection(type, inputType)
         val typeWithNullityTakenIntoAccount = graphQLType.wrapInNonNull(type)
-        hooks.didGenerateGraphQLType(type, typeWithNullityTakenIntoAccount)
+        config.hooks.didGenerateGraphQLType(type, typeWithNullityTakenIntoAccount)
         return typeWithNullityTakenIntoAccount
     }
 
@@ -228,12 +222,12 @@ internal class SchemaGenerator(
         if (interfaceType != null) builder.withInterface(interfaceType)
 
         klass.declaredMemberProperties
-            .filter { hooks.isValidProperty(it) }
+            .filter { config.hooks.isValidProperty(it) }
             .filter { prop -> propertyFilters.all { it.invoke(prop) } }
             .forEach { builder.field(property(it)) }
 
         klass.declaredMemberFunctions
-            .filter { hooks.isValidFunction(it) }
+            .filter { config.hooks.isValidFunction(it) }
             .filter { func -> functionFilters.all { it.invoke(func) } }
             .forEach { builder.field(function(it)) }
 
@@ -249,7 +243,7 @@ internal class SchemaGenerator(
 
         // It does not make sense to run functions against the input types so we only process data fields
         klass.declaredMemberProperties
-            .filter { hooks.isValidProperty(it) }
+            .filter { config.hooks.isValidProperty(it) }
             .filter { prop -> propertyFilters.all { it.invoke(prop) } }
             .forEach { builder.field(inputProperty(it)) }
 
@@ -273,7 +267,7 @@ internal class SchemaGenerator(
         builder.description(kClass.graphQLDescription())
 
         kClass.declaredMemberProperties
-            .filter { hooks.isValidProperty(it) }
+            .filter { config.hooks.isValidProperty(it) }
             .filter { prop -> propertyFilters.all { it.invoke(prop) } }
             .forEach { builder.field(property(it)) }
 
