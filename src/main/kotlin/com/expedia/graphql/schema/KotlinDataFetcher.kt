@@ -1,4 +1,4 @@
-package com.expedia.graphql
+package com.expedia.graphql.schema
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

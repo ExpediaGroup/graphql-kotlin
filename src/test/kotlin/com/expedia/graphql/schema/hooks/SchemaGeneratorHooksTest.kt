@@ -2,7 +2,7 @@ package com.expedia.graphql.schema.hooks
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.ext.deepName
-import com.expedia.graphql.schema.testSchemaConfig
+import com.expedia.graphql.schema.getTestSchemaConfigWithHooks
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.schema.DataFetcher
@@ -38,8 +38,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.willBuildSchemaCalled)
         assertNotNull(schema.getType("InjectedFromHook"))
@@ -58,8 +57,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         val topLevelQuery = schema.getObjectType("TopLevelQuery")
         val query = topLevelQuery.getFieldDefinition("query")
@@ -81,8 +79,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.calledFilterFunction)
         assertFalse(schema.queryType.fieldDefinitions.isEmpty())
@@ -103,8 +100,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.calledFilterFunction)
         assertTrue(schema.queryType.fieldDefinitions.isEmpty())
@@ -124,8 +120,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         assertEquals(SomeData::class.createType(), hooks.lastSeenType)
         assertEquals("SomeData!", hooks.lastSeenGeneratedType?.deepName)
@@ -149,8 +144,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ query { someNumber } }")
@@ -179,8 +173,7 @@ class SchemaGeneratorHooksTest {
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
             listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         val topLevelQuery = schema.getObjectType("TopLevelQuery")
         val query = topLevelQuery.getFieldDefinition("query")
@@ -207,8 +200,7 @@ class SchemaGeneratorHooksTest {
         val schema = toSchema(
             queries = emptyList(),
             mutations = listOf(TopLevelObjectDef(TestQuery())),
-            config = testSchemaConfig,
-            hooks = hooks
+            config = getTestSchemaConfigWithHooks(hooks)
         )
         val topLevelQuery = schema.getObjectType("TopLevelMutation")
         val query = topLevelQuery.getFieldDefinition("query")

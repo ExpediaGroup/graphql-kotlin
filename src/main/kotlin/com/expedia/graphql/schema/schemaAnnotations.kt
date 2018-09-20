@@ -4,6 +4,7 @@ import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.annotations.GraphQLInstrumentationIgnore
+import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -57,10 +58,10 @@ internal fun KAnnotatedElement.directives() =
     this.annotations.mapNotNull { annotation ->
         annotation.getDirectiveInfo()?.let { directiveInfo ->
             val builder = GraphQLDirective.newDirective()
-            val name = if (directiveInfo.name.isNotEmpty()) {
+            val name: String = if (directiveInfo.name.isNotEmpty()) {
                 directiveInfo.name
             } else {
-                annotation.annotationClass.simpleName
+                annotation.annotationClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(annotation.annotationClass)
             }
             builder.name(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name))
 
