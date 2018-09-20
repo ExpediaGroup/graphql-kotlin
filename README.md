@@ -165,6 +165,35 @@ type TopLevelQuery {
 
 #### Nullability
 
+Both GraphQL and Kotin have nullable as a marked typed so we can generated null safe schemas.
+
+```kotlin
+class Query {
+  fun getNullNumber(): Int? {
+    val num = (0..10).random()
+    return num < 5 ? num : null
+  }
+  
+  fun getNumber(): Int {
+    return (0..10).random()
+  }
+}
+```
+
+The above Kotlin code would produce the following GraphQL schema:
+
+```graphql
+schema {
+  query: TopLevelQuery
+}
+
+type TopLevelQuery {
+  getNullNumber(): Int
+  
+  getNumber(): Int!
+}
+```
+
 ### Fields
 
 ### Arguments
@@ -185,7 +214,7 @@ TBD
 
 ### `@GraphQLContext`
 
-All GraphQL servers have a concept of a "context". A GraphQL context contains metadata that is useful to the GraphQL server, but shouldn't necessarily be part of the GraphQL query's API. A prime example of something that is appropriate for the GraphQL context would be trace headers for an OpenTracing system such as Zipkin or Haystack. The GraphQL query itself does not need the information to perform its function, but the server itself needs the information to ensure observability.
+All GraphQL servers have a concept of a "context". A GraphQL context contains metadata that is useful to the GraphQL server, but shouldn't necessarily be part of the GraphQL query's API. A prime example of something that is appropriate for the GraphQL context would be trace headers for an OpenTracing system such as [Haystack](https://expediadotcom.github.io/haystack). The GraphQL query itself does not need the information to perform its function, but the server itself needs the information to ensure observability.
 
 The contents of the GraphQL context vary across GraphQL applications. For JVM based applications, `graphql-java` provides a context interface that can be extended.
 
