@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.expedia.www</groupId>
+    <artifactId>graphql-kotlin-example</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
+    <name>graphql-kotlin-example</name>
+    <description>Example SpringBoot app using graphql-kotlin</description>
+    <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+
+    <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Rick Fast</name>
+            <email>rfast@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Brennan Taylor</name>
+            <email>brentaylor@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Dariusz Kuc</name>
+            <email>dkuc@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Shane Myrick</name>
+            <email>smyrick@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Amanda Ducrou</name>
+            <email>aducrou@expedia.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://www.expediagroup.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <kotlin.version>1.2.70</kotlin.version>
+        <junit.version>4.12</junit.version>
+        <graphiql.version>5.0.2</graphiql.version>
+        <graphql-servlet.version>6.1.2</graphql-servlet.version>
+    </properties>
+
+    <build>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <compilerPlugins>
+                        <plugin>spring</plugin>
+                    </compilerPlugins>
+                    <jvmTarget>${java.version}</jvmTarget>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.expedia.www</groupId>
+            <artifactId>graphql-kotlin</artifactId>
+            <version>0.0.10-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.0.5.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphiql-spring-boot-starter</artifactId>
+            <version>${graphiql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java-servlet</artifactId>
+            <version>${graphql-servlet.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>

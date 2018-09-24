@@ -2,8 +2,8 @@ package com.expedia.graphql.schema
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.annotations.GraphQLExperimental
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.annotations.GraphQLInstrumentationIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
@@ -18,7 +18,11 @@ import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
-    val prefix = this.getDeprecationReason()?.let { "DEPRECATED" }
+    var prefix = this.getDeprecationReason()?.let { "DEPRECATED" }
+    if (null == prefix && this.isGraphQLExperimental()) {
+        prefix = "EXPERIMENTAL"
+    }
+
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
     return if (null != description) {
@@ -47,7 +51,7 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? {
 
 internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLIgnore>() != null
 
-internal fun KAnnotatedElement.isGraphQLInstrumentable() = this.findAnnotation<GraphQLInstrumentationIgnore>() == null
+internal fun KAnnotatedElement.isGraphQLExperimental() = this.findAnnotation<GraphQLExperimental>() != null
 
 internal fun Annotation.getDirectiveInfo() =
     this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation

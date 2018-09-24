@@ -20,14 +20,14 @@ With Maven:
 <dependency>
   <groupId>com.expedia.www</groupId>
   <artifactId>graphql-kotlin</artifactId>
-  <version>0.0.9</version>
+  <version>0.0.10</version>
 </dependency>
 ```
 
 With Gradle:
 
 ```groovy
-compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.9')
+compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '0.0.10')
 ```
 
 ## Generating a schema
@@ -85,7 +85,7 @@ val def = TopLevelObjectDef(query, Query::class)
 toSchema(listOf(def))
 ``` 
 
-More about writing schemas with Kotlin below.
+More about writing schemas with Kotlin below. All examples below are based on the example project included in this repo.
 
 # Writing schemas with Kotlin
 
@@ -97,23 +97,40 @@ A query type is simply a Kotlin class that specifies *fields*, which can be func
 
 ```kotlin
 class WidgetQuery {
-  val widgetCount: Int
   fun widgetById(id: Int): Widget? {
     // grabs widget from a data source
   } 
+}
+
+class SimpleMutation: Mutation {
+
+  private val data: MutableList<String> = mutableListOf()
+
+  fun addToList(entry: String): MutableList<String> {
+    data.add(entry)
+    return data
+  }
 }
 ```
 
 will generate:
 
 ```graphql
+schema {
+  query: TopLevelQuery
+  mutation: TopLevelMutation
+}
+
 type TopLevelQuery {
-  widgetCount: Int!
-  widgetById(id: Int!): Widget
+    widgetById(id: Int!): Widget
+}
+
+type TopLevelMutation {
+  addToList(entry: String!): [String!]!
 }
 ```
 
-Any `public` properties and functions defined on a query or mutation Kotlin class will be translated into GraphQL fields on the object type. `toSchema` will recursively use Kotlin reflection to generate all object types, fields, arguments and enums.
+Any `public` functions defined on a query or mutation Kotlin class will be translated into GraphQL fields on the object type. `toSchema` will recursively use Kotlin reflection to generate all object types, fields, arguments and enums.
 
 ### Types
 
@@ -138,8 +155,25 @@ For the most part, `graphql-kotlin` can directly map most Kotlin "primitive" typ
 
 #### Extension Scalars
 
-- `UUID` is a custom scalar type (string) that provides runtime validation to ensure the string is a valid v4 UUID. Fields and arguments of type `java.util.UUID` are mapped to this custom scalar.
-- `URL` is a custom scalar type (string) that provides runtime validation to ensure the string is a valid URL (protocol, host, port, file, etc). Fields and arguments of type `java.util.URL` are mapped to this custom scalar.
+By default, `graphql-kotlin` uses Kotlin reflections to generate all schema objects. If you want to apply custom behavior to the objects, you can define custom scalars and expose it to your schema using `com.expedia.graphql.schema.hooks.SchemaGeneratorHooks`. Example usage
+
+```kotlin
+class CustomSchemaGeneratorHooks: NoopSchemaGeneratorHooks() {
+
+  override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
+    UUID::class -> graphqlUUIDType
+    else -> null
+  }
+}
+
+val graphqlUUIDType = GraphQLScalarType("UUID",
+    "A type representing a formatted java.util.UUID",
+    object: Coercing<UUID, String> { ... }
+)
+```
+
+Once the scalars are registered you can use them anywhere in the schema as regular objects.
+
 
 #### List Types
 
@@ -147,7 +181,10 @@ Both `kotlin.Array` and `kotlin.collections.List` are automatically mapped to th
 
 ```kotlin
 class SimpleQuery {
-  val numbers = listOf(1, 2, 3)
+  fun generateList(): List<Int> {
+    val random = Random()
+    return (1..10).map { random.nextInt(100) }.toList()
+  }
 }
 ```
 
@@ -159,24 +196,22 @@ schema {
 }
 
 type TopLevelQuery {
-  numbers: List[Int!]
+  generateList: [Int!]!
 }
 ```
 
 #### Nullability
 
-Both GraphQL and Kotin have nullable as a marked typed so we can generated null safe schemas.
+Both GraphQL and Kotlin have nullable as a marked typed so we can generated null safe schemas.
 
 ```kotlin
-class Query {
-  fun getNullNumber(): Int? {
-    val num = (0..10).random()
-    return num < 5 ? num : null
+class SimpleQuery {
+  fun generateNullableNumber(): Int? {
+    val num = Random().nextInt(100)
+    return if (num < 50) num else null
   }
-  
-  fun getNumber(): Int {
-    return (0..10).random()
-  }
+
+  fun generateNumber(): Int = Random().nextInt(100)
 }
 ```
 
@@ -188,21 +223,167 @@ schema {
 }
 
 type TopLevelQuery {
-  getNullNumber(): Int
-  
-  getNumber(): Int!
+  generateNullableNumber: Int
+
+  generateNumber: Int!
 }
 ```
 
 ### Fields
 
+Any public fields on the returned objects will be exposed as part of the schema unless they are explicitly marked to be ignored with `@GraphQLIgnore` annotation. Documentation and deprecation information is also supported. For more details about different annotations see sections below.
+
+```kotlin
+@GraphQLDescription("A useful widget")
+data class Widget(
+    @property:GraphQLDescription("The widget's value that can be null")
+    val value: Int?,
+    @property:Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
+    @property:GraphQLDescription("The widget's deprecated value that shouldn't be used")
+    val deprecatedValue: Int? = value,
+    @property:GraphQLIgnore
+    val ignoredField: String? = "ignored",
+    private val hiddenField: String? = "hidden"
+)
+```
+
+The above Kotlin code would produce the following GraphQL object type:
+
+```graphql
+"""A useful widget"""
+type Widget {
+  """DEPRECATED: The widget's deprecated value that shouldn't be used"""
+  deprecatedValue: Int @deprecated(reason: "This field is deprecated, replace with value")
+
+  """The widget's value that can be null"""
+  value: Int
+```
+
 ### Arguments
+
+Method arguments are automatically exposed as part of the arguments to the corresponding GraphQL fields.
+
+```kotlin
+class SimpleQuery{
+
+  @GraphQLDescription("performs some operation")
+  fun doSomething(@GraphQLDescription("super important value") value: Int): Boolean = true
+}
+```
+
+The above Kotlin code will generate following GraphQL schema:
+
+```graphql
+type TopLevelQuery {
+  """performs some operation"""
+  doSomething(
+    """super important value"""
+    value: Int!
+  ): Boolean!
+}
+```
+
+This behavior is true for all arguments except for the GraphQL context objects. See section below for detailed information about `@GraphQLContext`.
 
 ### Enums
 
+Enums are automatically mapped to GraphQL enum type.
+
+```kotlin
+enum class MyEnumType {
+  ONE,
+  TWO
+}
+```
+
+Above enum will be generated as following GraphQL object
+
+```graphql
+enum MyEnumType {
+  ONE
+  TWO
+}
+
+```
+
+
 ### Interfaces
 
-TBD
+Functions returning interfaces will automatically expose all the types implementing this interface that are available on the classpath.
+
+```kotlin
+interface Animal {
+    val type: AnimalType
+    fun sound(): String
+}
+
+enum class AnimalType {
+    CAT,
+    DOG
+}
+
+class Dog: Animal {
+    override val type: AnimalType
+        get() = AnimalType.DOG
+
+    override fun sound() = "bark"
+    fun doSomethingUseful(): String = "something useful"
+}
+
+class Cat: Animal {
+    override val type: AnimalType
+        get() = AnimalType.CAT
+
+    override fun sound() = "meow"
+    fun ignoreEveryone(): String = "ignore everyone"
+}
+
+class PolymorphicQuery {
+
+    fun animal(type: AnimalType): Animal? = when (type) {
+        AnimalType.CAT -> Cat()
+        AnimalType.DOG -> Dog()
+        else -> null
+    }
+}
+```
+
+Code above will produce the following GraphQL code
+
+```graphql
+interface Animal {
+  type: AnimalType!
+  sound: String!
+}
+
+enum AnimalType {
+  CAT
+  DOG
+}
+
+type Cat implements Animal {
+  type: AnimalType!
+  ignoreEveryone: String!
+  sound: String!
+}
+
+type Dog implements Animal {
+  type: AnimalType!
+  doSomethingUseful: String!
+  sound: String!
+}
+
+type TopLevelQuery {
+  animal(
+    type: AnimalType!
+  ): Animal
+}
+
+```
+
+### Unions
+
+Unions are not supported.
 
 ## Subscriptions
 
@@ -221,14 +402,12 @@ The contents of the GraphQL context vary across GraphQL applications. For JVM ba
 Simply add `@GraphQLContext` to any argument to a field, and the GraphQL context for the environment will be injected. These arguments will be omitted by the schema generator.
 
 ```kotlin
-class Query {
-  fun doSomething(
-    value: Int,
-    @GraphQLContext context: MyGraphQLContextImpl
-  ): Boolean {
-    doSomething(context.getResult())
-    return true
-  }
+class ContextualQuery {
+
+    fun contextualQuery(
+        value: Int,
+        @GraphQLContext context: MyGraphQLContext
+    ): ContextualResponse = ContextualResponse(value, context.myCustomValue)
 }
 ```
 
@@ -240,7 +419,9 @@ schema {
 }
 
 type TopLevelQuery {
-  doSomething(value: Int!): Boolean!
+  contextualQuery(
+    value: Int!
+  ): ContextualResponse!
 }
 ```
 
@@ -253,9 +434,11 @@ There are two ways to ensure the GraphQL schema generation omits fields when usi
 The first is by marking the field as `private` scope. The second method is by annotating the field with `@GraphQLIgnore`.
 
 ```kotlin
-class Query {
+class SimpleQuery {
   @GraphQLIgnore
-  val notPartOfSchema = "ignore me!"
+  fun notPartOfSchema() = "ignore me!"
+
+  private fun privateFunctionsAreNotVisible() = "ignored private function"
 
   fun doSomething(
     value: Int
@@ -277,7 +460,7 @@ type TopLevelQuery {
 }
 ```
 
-Note that the public property `notPartOfSchema` is not included in the schema.
+Note that the public method `notPartOfSchema` is not included in the schema.
 
 ### `@GraphQLDescription`
 
@@ -290,13 +473,10 @@ data class Widget(
   val value: Int?
 )
 
-class Query {
-  @GraphQLDescription("Does something very special")
-  fun doSomething(
-    @GraphQLDescription("The special ingredient") value: Int?
-  ): Widget {
-    return Widget(value)
-  }
+class WidgetQuery: Query {
+
+  @GraphQLDescription("creates new widget for given ID")
+  fun widgetById(@GraphQLDescription("The special ingredient") id: Int): Widget? = Widget(id)
 }
 ```
 
@@ -307,19 +487,18 @@ schema {
   query: TopLevelQuery
 }
 
-# A useful widget
+"""A useful widget"""
 type Widget {
-  # The widget's value that can be null
+  """The widget's value that can be null"""
   value: Int
 }
 
 type TopLevelQuery {
-  # Does something very useful
-  doSomething(
-    # The special ingredient
-    value: Int
-  ): Widget!
-}
+  """creates new widget for given ID"""
+  widgetById(
+    """The special ingredient"""
+    id: Int!
+  ): Widget
 ```
 
 Note that the data class property is annotated as `@property:GraphQLDescription`. This is due to the way kotlin [maps back to the java elements](https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets). If you do not add the `property` prefix the annotation is actually on the contructor argument and will not be picked up by the generator.
@@ -330,11 +509,13 @@ Note that the data class property is annotated as `@property:GraphQLDescription`
 GraphQL schemas can have fields marked as deprecated. Instead of creating a custom annotation, `graphql-kotlin` just looks for the `kotlin.Deprecated` annotation and will use the message for the deprecated reason.
 
 ```
-class Query {
-  @Deprecated("Do not use this anymore")
-  val restApi = "example.com/api"
-  
-  val graphQLApi = "example.com/graphql"
+class SimpleQuery {
+  @Deprecated(message = "this query is deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
+  @GraphQLDescription("old query that should not be used always returns false")
+  fun simpleDeprecatedQuery(): Boolean = false
+
+  @GraphQLDescription("new query that always returns true")
+  fun shinyNewQuery(): Boolean = true
 }
 ```
 
@@ -347,12 +528,43 @@ schema {
 
 type TopLevelQuery {
 
-  # DEPRECATED: Do not use this anymore
-  restApi: String!
-  
-  graphQLApi: String!
+  """DEPRECATED: old query that should not be used always returns false"""
+  simpleDeprecatedQuery: Boolean! @deprecated(reason: "this query is deprecated, replace with shinyNewQuery")
+
+  """new query that always returns true"""
+  shinyNewQuery: Boolean!
 }
 ```
+
+While you can deprecate any fields/methods in your code, GraphQL only supports deprecation directive on the queries, mutations and output types. All deprecated objects will have "DEPRECATED" prefix in their description.
+
+### `@GraphQLExperimental`
+
+Schemas are often evoling over time and while some feature are getting removed others can be added. Some of those new features may be experimental meaning they are still being tested out and can change without any notice. Functions annotated with `@GraphQLExperimental` annotations will have set `@experimental` directive. You can access those directives during instrumentation to provide some custom logic. Experimental methods will also have `EXPERIMENTAL` prefix in their description.
+
+```kotlin
+class SimpleQuery {
+
+    /*
+    * NOTE: currently GraphQL directives are not exposed in the schema through introspection but they
+    * are available on the server that exposes the schema
+    */
+    @GraphQLExperimental("this is an experimental feature")
+    @GraphQLDescription("echoes back the msg")
+    fun experimentalEcho(msg: String): String = msg
+}
+```
+
+
+Will translate to
+```graphql
+type TopLevelQuery {
+  """EXPERIMENTAL: echoes back the msg"""
+  experimentalEcho(msg: String!): String!
+}
+```
+
+Note that GraphQL directives are currently not available through introspection. See: https://github.com/facebook/graphql/issues/300 and https://github.com/graphql-java/graphql-java/issues/1017 for more details.
 
 ## Configuration
 

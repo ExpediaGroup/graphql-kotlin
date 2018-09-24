@@ -1,6 +1,7 @@
 package com.expedia.graphql.schema
 
 import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.schema.directives.ExperimentalDirective
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
@@ -42,6 +43,8 @@ internal class SchemaGenerator(
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
+        builder.additionalDirective(ExperimentalDirective)
+        builder.additionalDirectives(config.directives)
         return config.hooks.willBuildSchema(builder).build()
     }
 
@@ -93,12 +96,16 @@ internal class SchemaGenerator(
         }
     }
 
-    private fun function(fn: KFunction<*>, target: Any? = null): GraphQLFieldDefinition {
+    private fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
         builder.description(fn.graphQLDescription())
         fn.getDeprecationReason()?.let {
             builder.deprecate(it)
+        }
+
+        if (fn.isGraphQLExperimental()) {
+            builder.withDirective(ExperimentalDirective)
         }
 
         val args = mutableMapOf<String, Parameter>()
@@ -116,9 +123,12 @@ internal class SchemaGenerator(
                 args[name!!] = Parameter(it.type.jvmErasure.java, it.annotations)
             }
         }
-        val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args, fn.isGraphQLInstrumentable())
-        val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
-        builder.dataFetcher(hookDataFetcher)
+
+        if (!abstract) {
+            val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args)
+            val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
+            builder.dataFetcher(hookDataFetcher)
+        }
         builder.type(graphQLTypeOf(fn.returnType) as GraphQLOutputType)
         return builder.build()
     }
@@ -267,19 +277,20 @@ internal class SchemaGenerator(
         builder.description(kClass.graphQLDescription())
 
         kClass.declaredMemberProperties
-            .filter { config.hooks.isValidProperty(it) }
-            .filter { prop -> propertyFilters.all { it.invoke(prop) } }
-            .forEach { builder.field(property(it)) }
+                .filter { config.hooks.isValidProperty(it) }
+                .filter { prop -> propertyFilters.all { it.invoke(prop) } }
+                .forEach { builder.field(property(it)) }
+
+        kClass.declaredMemberFunctions
+                .filter { config.hooks.isValidFunction(it) }
+                .filter { func -> functionFilters.all { it.invoke(func) } }
+                .forEach { builder.field(function(it, abstract = true)) }
+
+        builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+        val interfaceType = builder.build()
 
         val reflections = Reflections(config.supportedPackages)
         val implementations = reflections.getSubTypesOf(Class.forName(kClass.javaObjectType.name))
-
-        implementations.forEach {
-            builder.typeResolver { env: TypeResolutionEnvironment? -> env?.schema?.getObjectType(it?.simpleName) }
-        }
-
-        val interfaceType = builder.build()
-
         implementations.forEach {
             additionTypes.add(objectType(it.kotlin, interfaceType))
         }
