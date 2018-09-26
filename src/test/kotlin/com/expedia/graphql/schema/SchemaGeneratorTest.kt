@@ -8,6 +8,9 @@ import com.expedia.graphql.ext.deepName
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
+import graphql.introspection.Introspection
+import graphql.introspection.Introspection.DirectiveLocation.FIELD
+import graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
@@ -15,6 +18,7 @@ import java.net.CookieManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class SchemaGeneratorTest {
@@ -237,12 +241,19 @@ class SchemaGeneratorTest {
 
         val geographyType = schema.getType("Geography") as? GraphQLObjectType
         assertNotNull(geographyType?.getDirective("whatever"))
-        assertNotNull(geographyType?.getFieldDefinition("somethingCool")?.getDirective("whatever"))
+        assertNotNull(geographyType?.getFieldDefinition("somethingCool")?.getDirective("directiveOnFunction"))
         assertNotNull((schema.getType("Location") as? GraphQLObjectType)?.getDirective("renamedDirective"))
+        assertNotNull(schema.directives.any { it.name == "whatever" })
+        val directiveOnFunction = schema.getDirective("directiveOnFunction")
+        assertNotNull(directiveOnFunction)
+        assertEquals(directiveOnFunction.validLocations()?.toSet(), setOf(FIELD_DEFINITION, FIELD))
     }
 
     @GraphQLDirective
     annotation class Whatever
+
+    @GraphQLDirective(locations = [FIELD_DEFINITION, FIELD])
+    annotation class DirectiveOnFunction
 
     @GraphQLDirective(name = "RenamedDirective")
     annotation class RenamedDirective(val x: Boolean)
@@ -293,7 +304,7 @@ class SchemaGeneratorTest {
         val type: GeoType,
         val locations: List<Location>
     ) {
-        @Whatever
+        @DirectiveOnFunction
         fun somethingCool(): String = "Something cool"
     }
 
