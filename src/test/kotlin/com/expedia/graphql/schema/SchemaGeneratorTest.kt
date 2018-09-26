@@ -241,17 +241,6 @@ class SchemaGeneratorTest {
         assertNotNull((schema.getType("Location") as? GraphQLObjectType)?.getDirective("renamedDirective"))
     }
 
-    @Test
-    fun `SchemaGenerator adds built directives to the schema`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithInputObject())), config = testSchemaConfig)
-
-        val experimentalDirective = schema.directives.find { "experimental" == it.name }
-        assertNotNull(experimentalDirective)
-
-        assertTrue(experimentalDirective?.validLocations()?.isNotEmpty() ?: false)
-        assertTrue(experimentalDirective?.description?.isNotEmpty() ?: false)
-    }
-
     @GraphQLDirective
     annotation class Whatever
 

@@ -538,37 +538,6 @@ type TopLevelQuery {
 
 While you can deprecate any fields/methods in your code, GraphQL only supports deprecation directive on the queries, mutations and output types. All deprecated objects will have "DEPRECATED" prefix in their description.
 
-### `@GraphQLExperimental`
-
-Schemas are often evoling over time and while some feature are getting removed others can be added. Some of those new features may be experimental meaning they are still being tested out and can change without any notice. Functions annotated with `@GraphQLExperimental` annotations will have set `@experimental` directive. You can access those directives during instrumentation to provide some custom logic. Experimental methods will also have `EXPERIMENTAL` prefix in their description.
-
-```kotlin
-class SimpleQuery {
-
-    /*
-    * NOTE: currently GraphQL directives are not exposed in the schema through introspection but they
-    * are available on the server that exposes the schema
-    */
-    @GraphQLExperimental("this is an experimental feature")
-    @GraphQLDescription("echoes back the msg")
-    fun experimentalEcho(msg: String): String = msg
-}
-```
-
-
-Will translate to
-```graphql
-type TopLevelQuery {
-  """echoes back the msg
-  
-    Directives: Experimental
-  """
-  experimentalEcho(msg: String!): String!
-}
-```
-
-Note that GraphQL directives are currently not available through introspection. See: https://github.com/facebook/graphql/issues/300 and https://github.com/graphql-java/graphql-java/issues/1017 for more details.
-
 
 ### Custom directives
 
@@ -602,6 +571,7 @@ type MyQuery {
 
 Directives can be added to various places in the schema, to see the full list see the [graphql.introspection.Introspection.DirectiveLocation enum](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/introspection/Introspection.java#L296) from graphql-java.
 
+Note that GraphQL directives are currently not available through introspection. See: https://github.com/facebook/graphql/issues/300 and https://github.com/graphql-java/graphql-java/issues/1017 for more details.
 
 ## Configuration
 

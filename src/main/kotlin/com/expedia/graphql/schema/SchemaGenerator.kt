@@ -1,7 +1,6 @@
 package com.expedia.graphql.schema
 
 import com.expedia.graphql.TopLevelObjectDef
-import com.expedia.graphql.annotations.GraphQLExperimental
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
@@ -9,7 +8,6 @@ import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputObjectField
@@ -44,16 +42,8 @@ internal class SchemaGenerator(
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
-        val builtInDirectives = builtInDirectives()
-        builder.additionalDirectives(builtInDirectives)
         builder.additionalDirectives(config.directives)
         return config.hooks.willBuildSchema(builder).build()
-    }
-
-    private fun builtInDirectives(): Set<GraphQLDirective> {
-        return listOf( GraphQLExperimental::class )
-                .flatMap { it.directives() }
-                .toSet()
     }
 
     private fun generateWithReflection(): GraphQLSchema.Builder {

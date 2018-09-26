@@ -3,6 +3,7 @@ package com.expedia.graphql.sample.query
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLExperimental
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.sample.directives.CustomDirective
 import org.springframework.stereotype.Component
 import java.util.Random
 
@@ -33,7 +34,9 @@ class SimpleQuery: Query {
     private fun privateFunctionsAreNotVisible() = "ignored private function"
 
     @GraphQLDescription("performs some operation")
-    fun doSomething(@GraphQLDescription("super important value") value: Int): Boolean = true
+    fun doSomething(@GraphQLDescription("super important value")
+                    @CustomDirective
+                    value: Int): Boolean = true
 
     @GraphQLDescription("generates pseudo random int and returns it if it is less than 50")
     fun generateNullableNumber(): Int? {
