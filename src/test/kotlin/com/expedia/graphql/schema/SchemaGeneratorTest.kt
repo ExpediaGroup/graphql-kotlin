@@ -106,7 +106,7 @@ class SchemaGeneratorTest {
             config = testSchemaConfig
         )
         val geo = schema.getObjectType("Geography")
-        assertEquals("A place", geo.description)
+        assertTrue(geo.description.startsWith("A place"))
     }
 
     @Test
@@ -193,7 +193,7 @@ class SchemaGeneratorTest {
         val deprecatedField = result?.getFieldDefinition("deprecatedField")
 
         assertTrue(deprecatedField?.isDeprecated == true)
-        assertEquals("DEPRECATED", deprecatedField?.description)
+        assertEquals("Directives: DEPRECATED", deprecatedField?.description)
         assertEquals("this field is deprecated", deprecatedField?.deprecationReason)
     }
 
@@ -204,7 +204,7 @@ class SchemaGeneratorTest {
         val query = topLevelQuery.getFieldDefinition("deprecatedArgumentQuery")
         val argument = query.getArgument("input")
         val deprecatedInputField = ((argument.type as? GraphQLNonNull)?.wrappedType as? GraphQLInputObjectType)?.getFieldDefinition("deprecatedField")
-        assertEquals("DEPRECATED", deprecatedInputField?.description)
+        assertEquals("Directives: DEPRECATED", deprecatedInputField?.description)
     }
 
     @Test(expected = RuntimeException::class)
@@ -235,8 +235,21 @@ class SchemaGeneratorTest {
     fun `SchemaGenerator creates directives`() {
         val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
 
-        assertNotNull((schema.getType("Geography") as? GraphQLObjectType)?.getDirective("whatever"))
+        val geographyType = schema.getType("Geography") as? GraphQLObjectType
+        assertNotNull(geographyType?.getDirective("whatever"))
+        assertNotNull(geographyType?.getFieldDefinition("somethingCool")?.getDirective("whatever"))
         assertNotNull((schema.getType("Location") as? GraphQLObjectType)?.getDirective("renamedDirective"))
+    }
+
+    @Test
+    fun `SchemaGenerator adds built directives to the schema`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithInputObject())), config = testSchemaConfig)
+
+        val experimentalDirective = schema.directives.find { "experimental" == it.name }
+        assertNotNull(experimentalDirective)
+
+        assertTrue(experimentalDirective?.validLocations()?.isNotEmpty() ?: false)
+        assertTrue(experimentalDirective?.description?.isNotEmpty() ?: false)
     }
 
     @GraphQLDirective
@@ -290,7 +303,10 @@ class SchemaGeneratorTest {
         val id: Int?,
         val type: GeoType,
         val locations: List<Location>
-    )
+    ) {
+        @Whatever
+        fun somethingCool(): String = "Something cool"
+    }
 
     enum class GeoType {
         CITY, STATE

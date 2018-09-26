@@ -559,12 +559,49 @@ class SimpleQuery {
 Will translate to
 ```graphql
 type TopLevelQuery {
-  """EXPERIMENTAL: echoes back the msg"""
+  """echoes back the msg
+  
+    Directives: Experimental
+  """
   experimentalEcho(msg: String!): String!
 }
 ```
 
 Note that GraphQL directives are currently not available through introspection. See: https://github.com/facebook/graphql/issues/300 and https://github.com/graphql-java/graphql-java/issues/1017 for more details.
+
+
+### Custom directives
+
+Custom directives can be added to the schema using custom annotations:
+
+```kotlin
+@GraphQLDirective(
+        name = "Awesome",
+        description = "This element is great",
+        locations = [FIELD, FIELD_DEFINITION]
+)
+annotation class AwesomeDirective(val value: String)
+
+class MyQuery {
+    @AwesomeDirective("cool stuff")
+    val somethingGreat: String = "Hello World"
+}
+```
+
+The directive will then added to the schema as:
+
+```graphql
+# This element is great
+directive @awesome(value: String) on FIELD | FIELD_DEFINITION
+
+# Directives: Awesome 
+type MyQuery {
+   somethingGreat: String @awesome("cool stuff")
+}
+```
+
+Directives can be added to various places in the schema, to see the full list see the [graphql.introspection.Introspection.DirectiveLocation enum](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/introspection/Introspection.java#L296) from graphql-java.
+
 
 ## Configuration
 

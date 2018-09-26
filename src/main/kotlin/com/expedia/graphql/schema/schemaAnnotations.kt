@@ -2,7 +2,6 @@ package com.expedia.graphql.schema
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.annotations.GraphQLExperimental
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
 import com.google.common.base.CaseFormat
@@ -11,29 +10,47 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
-    var prefix = this.getDeprecationReason()?.let { "DEPRECATED" }
-    if (null == prefix && this.isGraphQLExperimental()) {
-        prefix = "EXPERIMENTAL"
-    }
+    val directiveNames = listOfDirectives()
 
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
-    return if (null != description) {
-        if (null != prefix) {
-            "$prefix: $description"
-        } else {
-            description
+    return when {
+        description != null && directiveNames.isNotEmpty() -> {
+            """$description
+            |
+            | Directives: ${directiveNames.joinToString(", ")}
+            """.trimMargin()
+            }
+        description == null && directiveNames.isNotEmpty() -> {
+            "Directives: ${directiveNames.joinToString(", ")}"
         }
-    } else {
-        prefix
+        else -> description
     }
+}
+
+private fun KAnnotatedElement.listOfDirectives(): List<String> {
+    val directiveNames = mutableListOf(this.getDeprecationReason()?.let { "DEPRECATED" })
+
+    directiveNames.addAll(this.annotations
+            .filter { it.getDirectiveInfo() != null }
+            .map {
+                when {
+                    it.getDirectiveInfo()?.name != "" -> it.getDirectiveInfo()?.name
+                    else -> it.annotationClass.simpleName
+                }
+            }
+    )
+    return directiveNames.filterNotNull()
 }
 
 internal fun KType.graphQLDescription(): String? = (classifier as? KClass<*>)?.graphQLDescription()
@@ -51,10 +68,11 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? {
 
 internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLIgnore>() != null
 
-internal fun KAnnotatedElement.isGraphQLExperimental() = this.findAnnotation<GraphQLExperimental>() != null
-
 internal fun Annotation.getDirectiveInfo() =
-    this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
+    when {
+        this is DirectiveAnnotation -> this
+        else -> this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
+    }
 
 internal fun KClass<out Annotation>.properties() = this.declaredMemberFunctions.filter(isNotBlackListed)
 
@@ -68,17 +86,35 @@ internal fun KAnnotatedElement.directives() =
                 annotation.annotationClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(annotation.annotationClass)
             }
             builder.name(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name))
+                .validLocations(*directiveInfo.locations)
+                .description(directiveInfo.description)
 
-            annotation::class.properties().forEach { prop ->
-                val propertyName = prop.name
-                val value = prop.call(annotation)
-                @Suppress("Detekt.UnsafeCast")
-                val type = graphQLScalar(prop.returnType) as GraphQLInputType
-                builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
+            when {
+                (this is KClass<*>) && this.javaObjectType.isAnnotation -> this.memberProperties.forEach(buildArgument(builder))
+                else -> annotation::class.properties().forEach(buildArgument(annotation, builder))
             }
 
-            builder.build()
-        }
+        builder.build()
     }
+}
+
+private fun buildArgument(annotation: Annotation, builder: GraphQLDirective.Builder): (KFunction<*>) -> Unit {
+    return { fn ->
+        val propertyName = fn.name
+        val value = fn.call(annotation)
+        @Suppress("Detekt.UnsafeCast")
+        val type = graphQLScalar(fn.returnType) as GraphQLInputType
+        builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
+    }
+}
+
+private fun buildArgument(builder: GraphQLDirective.Builder): (KProperty1<out Any, Any?>) -> Unit {
+    return { prop ->
+        val propertyName = prop.name
+        @Suppress("Detekt.UnsafeCast")
+        val type = graphQLScalar(prop.returnType) as GraphQLInputType
+        builder.argument(GraphQLArgument.newArgument().name(propertyName).type(type).build())
+    }
+}
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
