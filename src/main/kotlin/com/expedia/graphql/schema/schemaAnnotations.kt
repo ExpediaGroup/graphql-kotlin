@@ -28,7 +28,7 @@ internal fun KAnnotatedElement.graphQLDescription(): String? {
         description != null && directiveNames.isNotEmpty() -> {
             """$description
             |
-            | Directives: ${directiveNames.joinToString(", ")}
+            |Directives: ${directiveNames.joinToString(", ")}
             """.trimMargin()
             }
         description == null && directiveNames.isNotEmpty() -> {
@@ -45,8 +45,8 @@ private fun KAnnotatedElement.listOfDirectives(): List<String> {
             .filter { it.getDirectiveInfo() != null }
             .map {
                 when {
-                    it.getDirectiveInfo()?.name != "" -> it.getDirectiveInfo()?.name
-                    else -> it.annotationClass.simpleName
+                    it.getDirectiveInfo()?.name != "" -> "@${it.getDirectiveInfo()?.name}"
+                    else -> "@${it.annotationClass.simpleName}"
                 }
             }
     )
@@ -69,10 +69,7 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? {
 internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLIgnore>() != null
 
 internal fun Annotation.getDirectiveInfo() =
-    when {
-        this is DirectiveAnnotation -> this
-        else -> this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
-    }
+    this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
 
 internal fun KClass<out Annotation>.properties() = this.declaredMemberFunctions.filter(isNotBlackListed)
 
@@ -89,31 +86,15 @@ internal fun KAnnotatedElement.directives() =
                 .validLocations(*directiveInfo.locations)
                 .description(directiveInfo.description)
 
-            when {
-                (this is KClass<*>) && this.javaObjectType.isAnnotation -> this.memberProperties.forEach(buildArgument(builder))
-                else -> annotation::class.properties().forEach(buildArgument(annotation, builder))
+            annotation::class.properties().forEach{ prop ->
+                val propertyName = prop.name
+                val value = prop.call(annotation)
+                @Suppress("Detekt.UnsafeCast")
+                val type = graphQLScalar(prop.returnType) as GraphQLInputType
+                builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
             }
 
         builder.build()
-    }
-}
-
-private fun buildArgument(annotation: Annotation, builder: GraphQLDirective.Builder): (KFunction<*>) -> Unit {
-    return { fn ->
-        val propertyName = fn.name
-        val value = fn.call(annotation)
-        @Suppress("Detekt.UnsafeCast")
-        val type = graphQLScalar(fn.returnType) as GraphQLInputType
-        builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
-    }
-}
-
-private fun buildArgument(builder: GraphQLDirective.Builder): (KProperty1<out Any, Any?>) -> Unit {
-    return { prop ->
-        val propertyName = prop.name
-        @Suppress("Detekt.UnsafeCast")
-        val type = graphQLScalar(prop.returnType) as GraphQLInputType
-        builder.argument(GraphQLArgument.newArgument().name(propertyName).type(type).build())
     }
 }
 
