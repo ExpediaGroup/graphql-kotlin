@@ -6,6 +6,7 @@ import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLType
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -35,3 +36,11 @@ internal fun getGraphQLClassName(klass: KClass<*>, inputClass: Boolean): String?
 }
 
 private fun getInputClassName(className: String?) = "${className}Input"
+
+internal val completableFutureResolver = { type: KType ->
+    if (type.classifier == CompletableFuture::class) {
+        type.arguments.firstOrNull()?.type ?: type
+    } else {
+        type
+    }
+}
