@@ -1,7 +1,6 @@
 package com.expedia.graphql.schema
 
 import com.expedia.graphql.TopLevelObjectDef
-import com.expedia.graphql.schema.directives.ExperimentalDirective
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
@@ -9,6 +8,7 @@ import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputObjectField
@@ -40,11 +40,10 @@ internal class SchemaGenerator(
 
     private val typesCache: MutableMap<String, KGraphQLType> = mutableMapOf()
     private val additionTypes = mutableSetOf<GraphQLType>()
+    private val directives = mutableSetOf<GraphQLDirective>()
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
-        builder.additionalDirective(ExperimentalDirective)
-        builder.additionalDirectives(config.directives)
         return config.hooks.willBuildSchema(builder).build()
     }
 
@@ -53,12 +52,13 @@ internal class SchemaGenerator(
         addQueries(builder)
         addMutations(builder)
         addAdditionalTypes(builder)
+        addDirectives(builder)
         return builder
     }
 
-    private fun addAdditionalTypes(builder: GraphQLSchema.Builder) {
-        builder.additionalTypes(additionTypes)
-    }
+    private fun addAdditionalTypes(builder: GraphQLSchema.Builder) = builder.additionalTypes(additionTypes)
+
+    private fun addDirectives(builder: GraphQLSchema.Builder)= builder.additionalDirectives(directives)
 
     private fun addQueries(builder: GraphQLSchema.Builder) {
         val queryBuilder = GraphQLObjectType.Builder()
@@ -104,8 +104,9 @@ internal class SchemaGenerator(
             builder.deprecate(it)
         }
 
-        if (fn.isGraphQLExperimental()) {
-            builder.withDirective(ExperimentalDirective)
+        fn.directives().forEach {
+            builder.withDirective(it)
+            directives.add(it)
         }
 
         val args = mutableMapOf<String, Parameter>()
@@ -227,6 +228,7 @@ internal class SchemaGenerator(
 
         klass.directives().map {
             builder.withDirective(it)
+            directives.add(it)
         }
 
         if (interfaceType != null) builder.withInterface(interfaceType)

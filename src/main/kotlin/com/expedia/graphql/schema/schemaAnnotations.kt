@@ -2,7 +2,6 @@ package com.expedia.graphql.schema
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.annotations.GraphQLExperimental
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
 import com.google.common.base.CaseFormat
@@ -11,29 +10,47 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
-    var prefix = this.getDeprecationReason()?.let { "DEPRECATED" }
-    if (null == prefix && this.isGraphQLExperimental()) {
-        prefix = "EXPERIMENTAL"
-    }
+    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
 
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
-    return if (null != description) {
-        if (null != prefix) {
-            "$prefix: $description"
-        } else {
-            description
+    return when {
+        description != null && directiveNames.isNotEmpty() -> {
+            """$description
+            |
+            |Directives: ${directiveNames.joinToString(", ")}
+            """.trimMargin()
+            }
+        description == null && directiveNames.isNotEmpty() -> {
+            "Directives: ${directiveNames.joinToString(", ")}"
         }
-    } else {
-        prefix
+        else -> description
     }
+}
+
+private fun KAnnotatedElement.listOfDirectives(): List<String> {
+    val directiveNames = mutableListOf(this.getDeprecationReason()?.let { "deprecated" })
+
+    directiveNames.addAll(this.annotations
+            .filter { it.getDirectiveInfo() != null }
+            .map {
+                when {
+                    it.getDirectiveInfo()?.name != "" -> "@${it.getDirectiveInfo()?.name}"
+                    else -> "@${it.annotationClass.simpleName}"
+                }
+            }
+    )
+    return directiveNames.filterNotNull()
 }
 
 internal fun KType.graphQLDescription(): String? = (classifier as? KClass<*>)?.graphQLDescription()
@@ -51,8 +68,6 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? {
 
 internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLIgnore>() != null
 
-internal fun KAnnotatedElement.isGraphQLExperimental() = this.findAnnotation<GraphQLExperimental>() != null
-
 internal fun Annotation.getDirectiveInfo() =
     this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
 
@@ -67,9 +82,11 @@ internal fun KAnnotatedElement.directives() =
             } else {
                 annotation.annotationClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(annotation.annotationClass)
             }
-            builder.name(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name))
+            builder.name(name.normalizeDirectiveName())
+                .validLocations(*directiveInfo.locations)
+                .description(directiveInfo.description)
 
-            annotation::class.properties().forEach { prop ->
+            annotation::class.properties().forEach{ prop ->
                 val propertyName = prop.name
                 val value = prop.call(annotation)
                 @Suppress("Detekt.UnsafeCast")
@@ -77,8 +94,10 @@ internal fun KAnnotatedElement.directives() =
                 builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
             }
 
-            builder.build()
-        }
+        builder.build()
     }
+}
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
+
+private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)

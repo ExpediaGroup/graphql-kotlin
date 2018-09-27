@@ -8,6 +8,9 @@ import com.expedia.graphql.ext.deepName
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
+import graphql.introspection.Introspection
+import graphql.introspection.Introspection.DirectiveLocation.FIELD
+import graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
@@ -15,6 +18,7 @@ import java.net.CookieManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class SchemaGeneratorTest {
@@ -106,7 +110,7 @@ class SchemaGeneratorTest {
             config = testSchemaConfig
         )
         val geo = schema.getObjectType("Geography")
-        assertEquals("A place", geo.description)
+        assertTrue(geo.description.startsWith("A place"))
     }
 
     @Test
@@ -193,7 +197,7 @@ class SchemaGeneratorTest {
         val deprecatedField = result?.getFieldDefinition("deprecatedField")
 
         assertTrue(deprecatedField?.isDeprecated == true)
-        assertEquals("DEPRECATED", deprecatedField?.description)
+        assertEquals("Directives: deprecated", deprecatedField?.description)
         assertEquals("this field is deprecated", deprecatedField?.deprecationReason)
     }
 
@@ -204,7 +208,7 @@ class SchemaGeneratorTest {
         val query = topLevelQuery.getFieldDefinition("deprecatedArgumentQuery")
         val argument = query.getArgument("input")
         val deprecatedInputField = ((argument.type as? GraphQLNonNull)?.wrappedType as? GraphQLInputObjectType)?.getFieldDefinition("deprecatedField")
-        assertEquals("DEPRECATED", deprecatedInputField?.description)
+        assertEquals("Directives: deprecated", deprecatedInputField?.description)
     }
 
     @Test(expected = RuntimeException::class)
@@ -235,12 +239,22 @@ class SchemaGeneratorTest {
     fun `SchemaGenerator creates directives`() {
         val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
 
-        assertNotNull((schema.getType("Geography") as? GraphQLObjectType)?.getDirective("whatever"))
+        val geographyType = schema.getType("Geography") as? GraphQLObjectType
+        assertNotNull(geographyType?.getDirective("whatever"))
+        assertNotNull(geographyType?.getFieldDefinition("somethingCool")?.getDirective("directiveOnFunction"))
         assertNotNull((schema.getType("Location") as? GraphQLObjectType)?.getDirective("renamedDirective"))
+        assertNotNull(schema.getDirective("whatever"))
+        assertNotNull(schema.getDirective("renamedDirective"))
+        val directiveOnFunction = schema.getDirective("directiveOnFunction")
+        assertNotNull(directiveOnFunction)
+        assertEquals(directiveOnFunction.validLocations()?.toSet(), setOf(FIELD_DEFINITION, FIELD))
     }
 
     @GraphQLDirective
     annotation class Whatever
+
+    @GraphQLDirective(locations = [FIELD_DEFINITION, FIELD])
+    annotation class DirectiveOnFunction
 
     @GraphQLDirective(name = "RenamedDirective")
     annotation class RenamedDirective(val x: Boolean)
@@ -290,7 +304,10 @@ class SchemaGeneratorTest {
         val id: Int?,
         val type: GeoType,
         val locations: List<Location>
-    )
+    ) {
+        @DirectiveOnFunction
+        fun somethingCool(): String = "Something cool"
+    }
 
     enum class GeoType {
         CITY, STATE

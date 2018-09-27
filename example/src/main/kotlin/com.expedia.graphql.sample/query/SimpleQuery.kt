@@ -1,8 +1,8 @@
 package com.expedia.graphql.sample.query
 
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.annotations.GraphQLExperimental
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.sample.directives.CustomDirective
 import org.springframework.stereotype.Component
 import java.util.Random
 
@@ -19,11 +19,6 @@ class SimpleQuery: Query {
     @GraphQLDescription("new query that always returns true")
     fun shinyNewQuery(): Boolean = true
 
-    /*
-    * NOTE: currently GraphQL directives are not exposed in the schema through introspection but they
-    * are available on the server that exposes the schema
-    */
-    @GraphQLExperimental("this is an experimental feature")
     @GraphQLDescription("echoes back the msg")
     fun experimentalEcho(msg: String): String = msg
 
@@ -33,7 +28,9 @@ class SimpleQuery: Query {
     private fun privateFunctionsAreNotVisible() = "ignored private function"
 
     @GraphQLDescription("performs some operation")
-    fun doSomething(@GraphQLDescription("super important value") value: Int): Boolean = true
+    @CustomDirective
+    fun doSomething(@GraphQLDescription("super important value")
+                    value: Int): Boolean = true
 
     @GraphQLDescription("generates pseudo random int and returns it if it is less than 50")
     fun generateNullableNumber(): Int? {
