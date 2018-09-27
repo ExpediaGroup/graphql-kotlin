@@ -228,6 +228,7 @@ internal class SchemaGenerator(
 
         klass.directives().map {
             builder.withDirective(it)
+            directives.add(it)
         }
 
         if (interfaceType != null) builder.withInterface(interfaceType)
