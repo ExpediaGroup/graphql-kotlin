@@ -6,4 +6,4 @@ import kotlin.reflect.KClass
 /**
  * Container for the types cache information.
  */
-data class KGraphQLType(val kClass: KClass<*>, val graphQLType: GraphQLType)
+internal data class KGraphQLType(val kClass: KClass<*>, val graphQLType: GraphQLType)

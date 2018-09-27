@@ -4,11 +4,10 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.ext.deepName
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
+import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
-import graphql.introspection.Introspection
 import graphql.introspection.Introspection.DirectiveLocation.FIELD
 import graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION
 import graphql.schema.GraphQLInputObjectType
@@ -18,7 +17,6 @@ import java.net.CookieManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class SchemaGeneratorTest {
@@ -404,6 +402,6 @@ class SchemaGeneratorTest {
         fun type1() = GeoType.CITY
 
         @GraphQLDescription("A second conflicting GraphQL query method")
-        fun type2() = com.expedia.graphql.schema.conflicts.GeoType.CITY
+        fun type2() = com.expedia.graphql.conflicts.GeoType.CITY
     }
 }
