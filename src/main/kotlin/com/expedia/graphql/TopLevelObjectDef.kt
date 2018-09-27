@@ -9,4 +9,4 @@ import kotlin.reflect.KClass
  * @param obj   The target object (or proxy to target object)
  * @param klazz Optional class of the target (or the proxied object)
  */
-class TopLevelObjectDef(val obj: Any, val klazz: KClass<*> = obj::class)
+data class TopLevelObjectDef(val obj: Any, val klazz: KClass<*> = obj::class)

@@ -8,6 +8,9 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
+/**
+ * Collection of all the hooks when generating a schema.
+ */
 interface SchemaGeneratorHooks {
     /**
      * Called before the final GraphQL schema is built.

@@ -19,6 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@Suppress("Detekt.UnusedPrivateMember", "Detekt.FunctionOnlyReturningConstant")
 class SchemaGeneratorTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
@@ -360,7 +361,7 @@ class SchemaGeneratorTest {
             ResultWithFunction(something)
     }
 
-    data class ResultWithFunction(val something: String) {
+    class ResultWithFunction(private val something: String) {
         fun repeat(n: Int) = something.repeat(n)
     }
 
@@ -368,7 +369,7 @@ class SchemaGeneratorTest {
         fun query(something: String): ResultWithPrivateParts? = null
     }
 
-    data class ResultWithPrivateParts(val something: String) {
+    class ResultWithPrivateParts(val something: String) {
 
         private val privateSomething: String = "soPrivate"
 
