@@ -131,7 +131,7 @@ internal class SchemaGenerator(
             val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
             builder.dataFetcher(hookDataFetcher)
         }
-        builder.type(graphQLTypeOf(fn.returnType) as GraphQLOutputType)
+        builder.type(graphQLTypeOf(config.monadResolver(fn.returnType)) as GraphQLOutputType)
         return builder.build()
     }
 
