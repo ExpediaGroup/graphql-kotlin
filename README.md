@@ -528,7 +528,10 @@ schema {
 
 type TopLevelQuery {
 
-  """DEPRECATED: old query that should not be used always returns false"""
+  """old query that should not be used always returns false
+  
+  Directives: deprecated
+  """
   simpleDeprecatedQuery: Boolean! @deprecated(reason: "this query is deprecated, replace with shinyNewQuery")
 
   """new query that always returns true"""
@@ -563,7 +566,7 @@ The directive will then added to the schema as:
 # This element is great
 directive @awesome(value: String) on FIELD | FIELD_DEFINITION
 
-# Directives: Awesome 
+# Directives: awesome 
 type MyQuery {
    somethingGreat: String @awesome("cool stuff")
 }

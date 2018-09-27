@@ -20,7 +20,7 @@ import kotlin.reflect.full.memberProperties
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
-    val directiveNames = listOfDirectives()
+    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
 
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
@@ -39,7 +39,7 @@ internal fun KAnnotatedElement.graphQLDescription(): String? {
 }
 
 private fun KAnnotatedElement.listOfDirectives(): List<String> {
-    val directiveNames = mutableListOf(this.getDeprecationReason()?.let { "DEPRECATED" })
+    val directiveNames = mutableListOf(this.getDeprecationReason()?.let { "deprecated" })
 
     directiveNames.addAll(this.annotations
             .filter { it.getDirectiveInfo() != null }
@@ -82,7 +82,7 @@ internal fun KAnnotatedElement.directives() =
             } else {
                 annotation.annotationClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(annotation.annotationClass)
             }
-            builder.name(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name))
+            builder.name(name.normalizeDirectiveName())
                 .validLocations(*directiveInfo.locations)
                 .description(directiveInfo.description)
 
@@ -99,3 +99,5 @@ internal fun KAnnotatedElement.directives() =
 }
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
+
+private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)

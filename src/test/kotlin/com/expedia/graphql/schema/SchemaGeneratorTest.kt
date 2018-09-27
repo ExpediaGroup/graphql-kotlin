@@ -197,7 +197,7 @@ class SchemaGeneratorTest {
         val deprecatedField = result?.getFieldDefinition("deprecatedField")
 
         assertTrue(deprecatedField?.isDeprecated == true)
-        assertEquals("Directives: DEPRECATED", deprecatedField?.description)
+        assertEquals("Directives: deprecated", deprecatedField?.description)
         assertEquals("this field is deprecated", deprecatedField?.deprecationReason)
     }
 
@@ -208,7 +208,7 @@ class SchemaGeneratorTest {
         val query = topLevelQuery.getFieldDefinition("deprecatedArgumentQuery")
         val argument = query.getArgument("input")
         val deprecatedInputField = ((argument.type as? GraphQLNonNull)?.wrappedType as? GraphQLInputObjectType)?.getFieldDefinition("deprecatedField")
-        assertEquals("Directives: DEPRECATED", deprecatedInputField?.description)
+        assertEquals("Directives: deprecated", deprecatedInputField?.description)
     }
 
     @Test(expected = RuntimeException::class)
