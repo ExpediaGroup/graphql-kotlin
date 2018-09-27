@@ -1,8 +1,6 @@
 package com.expedia.graphql.schema
 
-import com.expedia.graphql.schema.exceptions.NestingNonNullTypeException
 import graphql.Scalars
-import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLType
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -20,13 +18,6 @@ internal fun graphQLScalar(type: KType): GraphQLType? = when (type.classifier as
     String::class -> Scalars.GraphQLString
     Boolean::class -> Scalars.GraphQLBoolean
     else -> null
-}
-
-@Throws(NestingNonNullTypeException::class)
-internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
-    this is GraphQLNonNull -> throw NestingNonNullTypeException(this, type)
-    type.isMarkedNullable -> this
-    else -> GraphQLNonNull.nonNull(this)
 }
 
 internal fun getGraphQLClassName(klass: KClass<*>, inputClass: Boolean): String? {
