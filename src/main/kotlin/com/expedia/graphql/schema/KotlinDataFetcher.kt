@@ -11,7 +11,7 @@ private val mapper = jacksonObjectMapper()
 /**
  * Custom wrapper for a class and its annotations
  */
-internal data class Parameter(val klazz: Class<*>, val annotations: List<Annotation>)
+data class Parameter(val klazz: Class<*>, val annotations: List<Annotation>)
 
 /**
  * Simple DataFetcher that invokes function on the target object.
@@ -20,7 +20,7 @@ internal data class Parameter(val klazz: Class<*>, val annotations: List<Annotat
  * @param fn The Kotlin function being invoked
  * @param args The GraphQL arguments passed to the data fetcher
  */
-internal class KotlinDataFetcher(
+class KotlinDataFetcher(
         private val target: Any?,
         private val fn: KFunction<*>,
         private val args: Map<String, Parameter>
