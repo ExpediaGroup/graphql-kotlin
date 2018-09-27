@@ -573,6 +573,13 @@ Directives can be added to various places in the schema, to see the full list se
 
 Note that GraphQL directives are currently not available through introspection. See: https://github.com/facebook/graphql/issues/300 and https://github.com/graphql-java/graphql-java/issues/1017 for more details.
 
+#### Naming Convention
+
+As described in the example above, the directive name in the schema will by default come from the `@GraphQLDirective.name` attribute.
+If this value is not specified like an empty string, the directive name will be the name of the annotated annotation (eg: `AwesomeDirective`). 
+
+For more readibility, the name used by the schema will be decapitalized so `Awesome` becomes `awesome` and `AwesomeDirective` would be `awesomeDirective`.
+
 ## Configuration
 
 ### Documentation Enforcement
