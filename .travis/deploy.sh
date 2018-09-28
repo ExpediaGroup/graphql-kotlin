@@ -1,10 +1,9 @@
 #!/bin/bash
 cd `dirname $0`/..
 
-echo "TRAVIS:"
-echo $TRAVIS_BRANCH
-echo $TRAVIS_PULL_REQUEST
-echo $TRAVIS_TAG
+echo TRAVIS_BRANCH=$TRAVIS_BRANCH
+echo TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST
+echo TRAVIS_TAG=$TRAVIS_TAG
 
 if [ "$TRAVIS_BRANCH" == 'master' ] || [ "$TRAVIS_PULL_REQUEST" == 'true' ]; then
     echo "Skipping artifact deployment for a non-release build"
