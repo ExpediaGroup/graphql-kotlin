@@ -2,6 +2,7 @@ package com.expedia.graphql
 
 import com.expedia.graphql.schema.SchemaGenerator
 import com.expedia.graphql.schema.SchemaGeneratorConfig
+import com.expedia.graphql.schema.exceptions.InvalidSchemaException
 import graphql.schema.GraphQLSchema
 
 /**
@@ -12,7 +13,12 @@ import graphql.schema.GraphQLSchema
  * @param config    Schema generation configuration
  */
 fun toSchema(
-    queries: List<TopLevelObjectDef>,
+    queries: List<TopLevelObjectDef> = emptyList(),
     mutations: List<TopLevelObjectDef> = emptyList(),
     config: SchemaGeneratorConfig
-): GraphQLSchema = SchemaGenerator(queries, mutations, config).generate()
+): GraphQLSchema {
+    if (queries.isEmpty() && mutations.isEmpty()) {
+        throw InvalidSchemaException()
+    }
+    return SchemaGenerator(queries, mutations, config).generate()
+}
