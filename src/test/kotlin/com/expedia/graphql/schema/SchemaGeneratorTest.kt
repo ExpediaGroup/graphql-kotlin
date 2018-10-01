@@ -11,8 +11,10 @@ import graphql.GraphQL
 import graphql.introspection.Introspection.DirectiveLocation.FIELD
 import graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION
 import graphql.schema.GraphQLInputObjectType
+import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLUnionType
 import java.net.CookieManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -250,6 +252,18 @@ class SchemaGeneratorTest {
         assertEquals(directiveOnFunction.validLocations()?.toSet(), setOf(FIELD_DEFINITION, FIELD))
     }
 
+    @Test
+    fun `Schema generator creates union types from marked up interface`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithUnion())), config = testSchemaConfig)
+
+        val union = schema.getType("AUnionType") as? GraphQLUnionType
+        assertNotNull(union)
+        union?.let {
+            assertTrue(it.types.any{ it.name == "LeftHand"})
+            assertTrue(it.types.any{ it.name == "RightHand"})
+        }
+    }
+
     @GraphQLDirective
     annotation class Whatever
 
@@ -258,6 +272,23 @@ class SchemaGeneratorTest {
 
     @GraphQLDirective(name = "RenamedDirective")
     annotation class RenamedDirective(val x: Boolean)
+
+    class QueryWithUnion {
+        fun query(whichHand: String): AUnionType = when(whichHand) {
+            "right" -> RightHand(12)
+            else -> LeftHand("hello world")
+        }
+    }
+
+    interface AUnionType
+
+    data class LeftHand(
+        val field: String
+    ): AUnionType
+
+    data class RightHand(
+        val property: Int
+    ): AUnionType
 
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
