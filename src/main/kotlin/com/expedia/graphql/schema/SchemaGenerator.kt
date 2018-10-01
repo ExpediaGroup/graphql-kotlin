@@ -20,6 +20,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLUnionType
 import org.reflections.Reflections
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -178,7 +179,7 @@ internal class SchemaGenerator(
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
         kClass.isSubclassOf(Enum::class) -> enumType(kClass)
         kClass.isSubclassOf(List::class) || kClass.java.isArray -> listType(type, inputType)
-        kClass.java.isInterface -> interfaceType(kClass)
+        kClass.java.isInterface -> abstractType(kClass)
         else -> if (inputType) inputObjectType(kClass) else objectType(kClass)
     }
 
@@ -220,7 +221,7 @@ internal class SchemaGenerator(
     private fun listType(type: KType, inputType: Boolean): GraphQLList =
         GraphQLList.list(graphQLTypeOf(type.arguments.first().type!!, inputType))
 
-    private fun objectType(klass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
+    private fun objectType(klass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLObjectType {
         val builder = GraphQLObjectType.newObject()
 
         builder.name(klass.simpleName)
@@ -272,6 +273,12 @@ internal class SchemaGenerator(
         return builder.build()
     }
 
+    private fun abstractType(kClass: KClass<*>): GraphQLType = if (kClass.declaredMemberFunctions.isEmpty() && kClass.declaredMemberProperties.isEmpty()) {
+        unionType(kClass)
+    } else {
+        interfaceType(kClass)
+    }
+
     private fun interfaceType(kClass: KClass<*>): GraphQLType {
         val builder = GraphQLInterfaceType.newInterface()
 
@@ -298,5 +305,23 @@ internal class SchemaGenerator(
         }
 
         return interfaceType
+    }
+
+    private fun unionType(kClass: KClass<*>): GraphQLType {
+        val builder = GraphQLUnionType.newUnionType()
+
+        builder.name(kClass.simpleName)
+        builder.description(kClass.graphQLDescription())
+
+        builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+
+        val reflections = Reflections(config.supportedPackages)
+        val implementations = reflections.getSubTypesOf(Class.forName(kClass.javaObjectType.name))
+        implementations.forEach {
+            val possibleType = objectType(it.kotlin, null)
+            builder.possibleType(possibleType)
+            additionTypes.add(possibleType)
+        }
+        return builder.build()
     }
 }
