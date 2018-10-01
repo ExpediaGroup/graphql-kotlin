@@ -1,10 +1,13 @@
 package com.expedia.graphql.sample.query
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.sample.model.AUnionType
 import com.expedia.graphql.sample.model.Animal
 import com.expedia.graphql.sample.model.AnimalType
 import com.expedia.graphql.sample.model.Cat
 import com.expedia.graphql.sample.model.Dog
+import com.expedia.graphql.sample.model.LeftHand
+import com.expedia.graphql.sample.model.RightHand
 import org.springframework.stereotype.Component
 
 /**
@@ -18,5 +21,11 @@ class PolymorphicQuery: Query {
         AnimalType.CAT -> Cat()
         AnimalType.DOG -> Dog()
         else -> null
+    }
+
+    @GraphQLDescription("this query can return either a RightHand or a LeftHand as part of the union of both type")
+    fun whichHand(whichHand: String): AUnionType = when(whichHand) {
+        "right" -> RightHand(12)
+        else -> LeftHand("hello world")
     }
 }
