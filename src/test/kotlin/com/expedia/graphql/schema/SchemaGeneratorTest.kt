@@ -262,6 +262,9 @@ class SchemaGeneratorTest {
             assertTrue(it.types.any{ it.name == "LeftHand"})
             assertTrue(it.types.any{ it.name == "RightHand"})
         }
+
+        assertNotNull(schema.getType("RightHand"))
+        assertNotNull(schema.getType("LeftHand"))
     }
 
     @GraphQLDirective
