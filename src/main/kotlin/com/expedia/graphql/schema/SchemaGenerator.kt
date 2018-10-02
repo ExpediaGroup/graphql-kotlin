@@ -33,6 +33,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.jvmErasure
 
+@Suppress("Detekt.UnsafeCast")
 internal class SchemaGenerator(
     private val queries: List<TopLevelObjectDef>,
     private val mutations: List<TopLevelObjectDef>,
