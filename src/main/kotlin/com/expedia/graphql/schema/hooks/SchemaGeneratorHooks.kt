@@ -10,6 +10,8 @@ import kotlin.reflect.KType
 
 /**
  * Collection of all the hooks when generating a schema.
+ * Hooks are lifecycle events that are called and triggered while the schema is building
+ * that allow users to customize the schema.
  */
 interface SchemaGeneratorHooks {
     /**
