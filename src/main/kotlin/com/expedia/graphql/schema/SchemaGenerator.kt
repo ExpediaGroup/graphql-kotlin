@@ -4,6 +4,7 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
+import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
@@ -184,7 +185,7 @@ internal class SchemaGenerator(
 
     private fun getCacheKey(kClass: KClass<*>, type: KType, inputType: Boolean): String {
         if (kClass.isSubclassOf(Enum::class)) {
-            return kClass.simpleName ?: throw CouldNotGetNameOfEnumException()
+            return kClass.simpleName ?: throw CouldNotGetNameOfEnumException(kClass)
         }
         val cacheKeyFromTypeName = when {
             kClass.isSubclassOf(List::class) -> "List<${type.arguments.first().type!!.jvmErasure.simpleName}>"

@@ -8,6 +8,12 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
+/**
+ * Default hooks that do not override or set anything.
+ *
+ * To set your own custom hooks, it is easier to extend this class instead of SchemaGeneratorHooks
+ * and just override the methods you need.
+ */
 open class NoopSchemaGeneratorHooks : SchemaGeneratorHooks {
 
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder = builder
