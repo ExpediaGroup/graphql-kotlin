@@ -155,6 +155,7 @@ class SchemaGeneratorTest {
         assertEquals("thingthingthing", data["query"]?.get("repeat"))
     }
 
+    @Suppress("Detekt.UnsafeCast")
     @Test
     fun `SchemaGenerator ignores private fields`() {
         val schema =

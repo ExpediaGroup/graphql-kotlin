@@ -1,17 +1,10 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <Blacklist timestamp="1526422183633"></Blacklist>
   <Whitelist timestamp="1535123065325">
     <ID>ComplexMethod:SchemaGenerator.kt$SchemaGenerator$private fun function(fn: KFunction&lt;*&gt;, target: Any? = null): GraphQLFieldDefinition</ID>
     <ID>LargeClass:SchemaGenerator.kt$SchemaGenerator</ID>
     <ID>TooManyFunctions:SchemaGenerator.kt$SchemaGenerator</ID>
     <ID>UnsafeCallOnNullableType:SchemaGenerator.kt$SchemaGenerator$name!!</ID>
     <ID>UnsafeCallOnNullableType:SchemaGenerator.kt$SchemaGenerator$type.arguments.first().type!!</ID>
-    <ID>UnsafeCast:SchemaGenerator.kt$SchemaGenerator$graphQLTypeOf(fn.returnType) as GraphQLOutputType</ID>
-    <ID>UnsafeCast:SchemaGenerator.kt$SchemaGenerator$graphQLTypeOf(parameter.type, true) as GraphQLInputType</ID>
-    <ID>UnsafeCast:SchemaGenerator.kt$SchemaGenerator$graphQLTypeOf(prop.returnType) as GraphQLOutputType</ID>
-    <ID>UnsafeCast:SchemaGenerator.kt$SchemaGenerator$graphQLTypeOf(prop.returnType, true) as GraphQLInputType</ID>
-    <ID>UnsafeCast:SchemaGenerator.kt$SchemaGenerator$type.classifier as KClass&lt;*&gt;</ID>
-    <ID>UnsafeCast:SchemaGeneratorTest.kt$SchemaGeneratorTest$query.type as GraphQLObjectType</ID>
   </Whitelist>
 </SmellBaseline>
