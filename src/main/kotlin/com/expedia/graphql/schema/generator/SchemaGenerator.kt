@@ -1,9 +1,16 @@
-package com.expedia.graphql.schema
+package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.schema.KotlinDataFetcher
+import com.expedia.graphql.schema.Parameter
+import com.expedia.graphql.schema.SchemaGeneratorConfig
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
+import com.expedia.graphql.schema.extensions.directives
+import com.expedia.graphql.schema.extensions.getDeprecationReason
+import com.expedia.graphql.schema.extensions.graphQLDescription
+import com.expedia.graphql.schema.extensions.isGraphQLContext
 import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment

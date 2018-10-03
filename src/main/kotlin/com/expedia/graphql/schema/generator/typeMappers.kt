@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema
+package com.expedia.graphql.schema.generator
 
 import graphql.Scalars
 import graphql.schema.GraphQLType
@@ -26,7 +26,7 @@ internal fun getGraphQLClassName(klass: KClass<*>, inputClass: Boolean): String?
     return if (simpleName != null && inputClass) getInputClassName(simpleName) else simpleName
 }
 
-private fun getInputClassName(className: String?) = "${className}Input"
+private fun getInputClassName(className: String) = "${className}Input"
 
 internal val completableFutureResolver = { type: KType ->
     if (type.classifier == CompletableFuture::class) {

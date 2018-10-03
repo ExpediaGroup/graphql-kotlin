@@ -1,12 +1,13 @@
-package com.expedia.graphql.schema
+package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.InvalidSchemaException
+import com.expedia.graphql.schema.extensions.deepName
+import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.introspection.Introspection.DirectiveLocation.FIELD
@@ -282,7 +283,7 @@ class SchemaGeneratorTest {
     annotation class RenamedDirective(val x: Boolean)
 
     class QueryWithUnion {
-        fun query(whichHand: String): BodyPart = when(whichHand) {
+        fun query(whichHand: String): BodyPart = when (whichHand) {
             "right" -> RightHand(12)
             else -> LeftHand("hello world")
         }
@@ -292,11 +293,11 @@ class SchemaGeneratorTest {
 
     data class LeftHand(
         val field: String
-    ): BodyPart
+    ) : BodyPart
 
     data class RightHand(
         val property: Int
-    ): BodyPart
+    ) : BodyPart
 
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")

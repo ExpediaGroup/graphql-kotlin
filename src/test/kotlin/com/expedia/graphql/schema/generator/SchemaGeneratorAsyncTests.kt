@@ -1,6 +1,8 @@
-package com.expedia.graphql.schema
+package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.schema.SchemaGeneratorConfig
+import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.schema.GraphQLNonNull
 import io.reactivex.Maybe
