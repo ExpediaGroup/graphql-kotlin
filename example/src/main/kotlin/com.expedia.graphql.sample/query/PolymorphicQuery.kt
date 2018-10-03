@@ -1,7 +1,7 @@
 package com.expedia.graphql.sample.query
 
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.sample.model.AUnionType
+import com.expedia.graphql.sample.model.BodyPart
 import com.expedia.graphql.sample.model.Animal
 import com.expedia.graphql.sample.model.AnimalType
 import com.expedia.graphql.sample.model.Cat
@@ -24,7 +24,7 @@ class PolymorphicQuery: Query {
     }
 
     @GraphQLDescription("this query can return either a RightHand or a LeftHand as part of the union of both type")
-    fun whichHand(whichHand: String): AUnionType = when(whichHand) {
+    fun whichHand(whichHand: String): BodyPart = when(whichHand) {
         "right" -> RightHand(12)
         else -> LeftHand("hello world")
     }

@@ -1,7 +1,7 @@
 package com.expedia.graphql.sample.model
 
-interface AUnionType
+interface BodyPart
 
-data class LeftHand(val field: String): AUnionType
+data class LeftHand(val field: String): BodyPart
 
-data class RightHand(val property: Int): AUnionType
+data class RightHand(val property: Int): BodyPart

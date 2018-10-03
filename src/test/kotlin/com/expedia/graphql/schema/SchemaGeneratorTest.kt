@@ -11,7 +11,6 @@ import graphql.GraphQL
 import graphql.introspection.Introspection.DirectiveLocation.FIELD
 import graphql.introspection.Introspection.DirectiveLocation.FIELD_DEFINITION
 import graphql.schema.GraphQLInputObjectType
-import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
@@ -256,7 +255,7 @@ class SchemaGeneratorTest {
     fun `Schema generator creates union types from marked up interface`() {
         val schema = toSchema(listOf(TopLevelObjectDef(QueryWithUnion())), config = testSchemaConfig)
 
-        val union = schema.getType("AUnionType") as? GraphQLUnionType
+        val union = schema.getType("BodyPart") as? GraphQLUnionType
         assertNotNull(union)
         union?.let {
             assertTrue(it.types.any{ it.name == "LeftHand"})
@@ -277,21 +276,21 @@ class SchemaGeneratorTest {
     annotation class RenamedDirective(val x: Boolean)
 
     class QueryWithUnion {
-        fun query(whichHand: String): AUnionType = when(whichHand) {
+        fun query(whichHand: String): BodyPart = when(whichHand) {
             "right" -> RightHand(12)
             else -> LeftHand("hello world")
         }
     }
 
-    interface AUnionType
+    interface BodyPart
 
     data class LeftHand(
         val field: String
-    ): AUnionType
+    ): BodyPart
 
     data class RightHand(
         val property: Int
-    ): AUnionType
+    ): BodyPart
 
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
