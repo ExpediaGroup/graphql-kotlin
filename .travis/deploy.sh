@@ -17,6 +17,7 @@ fi
 
 if [ ! -z "$TRAVIS_TAG" ]; then
     echo "travis tag is set -> updating pom.xml <version> attribute to $TRAVIS_TAG"
+    ./mvnw --batch-mode release:update-versions -DdevelopmentVersion=$TRAVIS_TAG-SNAPSHOT
     ./mvnw --batch-mode --settings .travis/settings.xml --no-snapshot-updates -Prelease -DskipTests=true -DreleaseVersion=$TRAVIS_TAG release:prepare
 else
     echo "no travis tag is set, hence keeping the snapshot version in pom.xml"
