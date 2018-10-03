@@ -22,7 +22,7 @@ class SchemaGeneratorAsyncTests {
         } ?: type
     }
     private val testSchemaConfigWithRxJavaMonads =
-            SchemaGeneratorConfig(supportedPackages = "com.expedia", monadResolver = rxJavaMonadResolver)
+        SchemaGeneratorConfig(supportedPackages = "com.expedia", monadResolver = rxJavaMonadResolver)
 
     @Test
     fun `SchemaGenerator strips type argument from CompletableFuture to support async servlet`() {

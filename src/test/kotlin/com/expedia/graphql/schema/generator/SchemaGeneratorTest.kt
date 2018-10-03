@@ -4,9 +4,9 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.InvalidSchemaException
+import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
@@ -283,7 +283,7 @@ class SchemaGeneratorTest {
     annotation class RenamedDirective(val x: Boolean)
 
     class QueryWithUnion {
-        fun query(whichHand: String): BodyPart = when(whichHand) {
+        fun query(whichHand: String): BodyPart = when (whichHand) {
             "right" -> RightHand(12)
             else -> LeftHand("hello world")
         }
@@ -293,11 +293,11 @@ class SchemaGeneratorTest {
 
     data class LeftHand(
         val field: String
-    ): BodyPart
+    ) : BodyPart
 
     data class RightHand(
         val property: Int
-    ): BodyPart
+    ) : BodyPart
 
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
@@ -341,9 +341,9 @@ class SchemaGeneratorTest {
     @GraphQLDescription("A place")
     @Whatever
     data class Geography(
-            val id: Int?,
-            val type: GeoType,
-            val locations: List<Location>
+        val id: Int?,
+        val type: GeoType,
+        val locations: List<Location>
     ) {
         @DirectiveOnFunction
         fun somethingCool(): String = "Something cool"
@@ -358,21 +358,21 @@ class SchemaGeneratorTest {
 
     class QueryWithRepeatedTypes {
         fun query(): Result =
-                Result(
-                        listOf(),
-                        listOf(),
-                        listOf(),
-                        listOf(),
-                        SomeObject("something")
-                )
+            Result(
+                listOf(),
+                listOf(),
+                listOf(),
+                listOf(),
+                SomeObject("something")
+            )
     }
 
     data class Result(
-            val someIntValues: List<Int>,
-            val someBooleanValues: List<Boolean>,
-            val someObjectValues: List<SomeObject>,
-            val someOtherObjectValues: List<SomeOtherObject>,
-            val someObject: SomeObject?
+        val someIntValues: List<Int>,
+        val someBooleanValues: List<Boolean>,
+        val someObjectValues: List<SomeObject>,
+        val someOtherObjectValues: List<SomeOtherObject>,
+        val someObject: SomeObject?
     )
 
     data class SomeObject(val name: String)
@@ -380,26 +380,26 @@ class SchemaGeneratorTest {
 
     class QueryWithNullableAndNonNullTypes {
         fun query(): MixedNullityResult =
-                MixedNullityResult("hey", "ho")
+            MixedNullityResult("hey", "ho")
     }
 
     data class MixedNullityResult(val oneThing: String?, val theNextThing: String)
 
     class QueryWithInputObject {
         fun query(someObject: SomeObject): SomeObject =
-                SomeObject("someName")
+            SomeObject("someName")
     }
 
     class QueryWithInputEnum {
         fun query(someEnum: SomeEnum): SomeEnum =
-                SomeEnum.SomeValue
+            SomeEnum.SomeValue
     }
 
     enum class SomeEnum { SomeValue }
 
     class QueryWithDataThatContainsFunction {
         fun query(something: String): ResultWithFunction? =
-                ResultWithFunction(something)
+            ResultWithFunction(something)
     }
 
     class ResultWithFunction(private val something: String) {
