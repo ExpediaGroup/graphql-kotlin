@@ -4,8 +4,9 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.extensions.deepName
+import com.expedia.graphql.schema.exceptions.ConflictingTypesException
+import com.expedia.graphql.schema.exceptions.InvalidSchemaException
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.introspection.Introspection.DirectiveLocation.FIELD
@@ -258,12 +259,17 @@ class SchemaGeneratorTest {
         val union = schema.getType("BodyPart") as? GraphQLUnionType
         assertNotNull(union)
         union?.let {
-            assertTrue(it.types.any{ it.name == "LeftHand"})
-            assertTrue(it.types.any{ it.name == "RightHand"})
+            assertTrue(it.types.any { it.name == "LeftHand" })
+            assertTrue(it.types.any { it.name == "RightHand" })
         }
 
         assertNotNull(schema.getType("RightHand"))
         assertNotNull(schema.getType("LeftHand"))
+    }
+
+    @Test(expected = InvalidSchemaException::class)
+    fun `SchemaGenerator should throw exception if no queries and no mutations are specified`() {
+        toSchema(emptyList(), emptyList(), config = testSchemaConfig)
     }
 
     @GraphQLDirective
