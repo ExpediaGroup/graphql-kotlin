@@ -1,9 +1,11 @@
-package com.expedia.graphql.schema
+package com.expedia.graphql.schema.extensions
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
+import com.expedia.graphql.schema.generator.graphQLScalar
+import com.expedia.graphql.schema.generator.isNotBlackListed
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective

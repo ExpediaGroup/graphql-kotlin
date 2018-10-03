@@ -1,8 +1,8 @@
 package com.expedia.graphql
 
-import com.expedia.graphql.schema.SchemaGenerator
 import com.expedia.graphql.schema.SchemaGeneratorConfig
 import com.expedia.graphql.schema.exceptions.InvalidSchemaException
+import com.expedia.graphql.schema.generator.SchemaGenerator
 import graphql.schema.GraphQLSchema
 
 /**
