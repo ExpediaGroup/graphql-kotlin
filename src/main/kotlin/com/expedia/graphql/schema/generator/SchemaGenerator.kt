@@ -35,9 +35,11 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.superclasses
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.jvmErasure
 
@@ -67,7 +69,11 @@ internal class SchemaGenerator(
         return builder
     }
 
-    private fun addAdditionalTypes(builder: GraphQLSchema.Builder) = builder.additionalTypes(additionTypes)
+    private fun addAdditionalTypes(builder: GraphQLSchema.Builder) {
+        additionTypes
+            .filter { typesCache.none { (_, v) -> v.graphQLType.name == it.name } }
+            .forEach { builder.additionalType(it) }
+    }
 
     private fun addDirectives(builder: GraphQLSchema.Builder)= builder.additionalDirectives(directives)
 
@@ -248,7 +254,15 @@ internal class SchemaGenerator(
             directives.add(it)
         }
 
-        if (interfaceType != null) builder.withInterface(interfaceType)
+        if (interfaceType != null) {
+            builder.withInterface(interfaceType)
+        } else {
+            klass.superclasses
+                .asSequence()
+                .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion()}
+                .map{ objectFromReflection(it.createType(), false) as GraphQLInterfaceType}
+                .forEach { builder.withInterface(it)}
+        }
 
         klass.declaredMemberProperties
             .filter { config.hooks.isValidProperty(it) }

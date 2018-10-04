@@ -23,6 +23,8 @@ class PolymorphicQuery: Query {
         else -> null
     }
 
+    fun dog(): Dog = Dog()
+
     @GraphQLDescription("this query can return either a RightHand or a LeftHand as part of the union of both type")
     fun whichHand(whichHand: String): BodyPart = when(whichHand) {
         "right" -> RightHand(12)
