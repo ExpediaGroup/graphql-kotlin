@@ -33,6 +33,32 @@ class SchemaGeneratorTest {
     }
 
     @Test
+    fun `Schema generator exposes arrays of primitive types as function arguments`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithArray())), config = testSchemaConfig)
+        val firstArgumentType = schema.queryType.getFieldDefinition("sumOf").arguments[0].type.deepName
+        assertEquals("[Int!]!", firstArgumentType)
+
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.execute("{ sumOf(ints: [1, 2, 3]) }")
+        val sum = result.getData<Map<String, Int>>().values.first()
+
+        assertEquals(6, sum)
+    }
+
+    @Test
+    fun `Schema generator exposes arrays of complex types as function arguments`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithArray())), config = testSchemaConfig)
+        val firstArgumentType = schema.queryType.getFieldDefinition("sumOfComplexArray").arguments[0].type.deepName
+        assertEquals("[ComplexWrappingTypeInput!]!", firstArgumentType)
+
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.execute("{sumOfComplexArray(objects: [{value: 1}, {value: 2}, {value: 3}])}")
+        val sum = result.getData<Map<String, Int>>().values.first()
+
+        assertEquals(6, sum)
+    }
+
+    @Test
     fun `SchemaGenerator ignores fields and functions with @Ignore`() {
         val schema = toSchema(listOf(TopLevelObjectDef(QueryWithIgnored())), config = testSchemaConfig)
 
@@ -179,6 +205,11 @@ class SchemaGeneratorTest {
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
     }
 
+    class QueryWithArray {
+        fun sumOf(ints: Array<Int>): Int = ints.sum()
+        fun sumOfComplexArray(objects: Array<ComplexWrappingType>): Int = objects.map { it.value }.sum()
+    }
+
     class QueryWithIgnored {
         fun query(): ResultWithIgnored? = null
 
@@ -199,6 +230,8 @@ class SchemaGeneratorTest {
     class MutationObject {
         fun mutation(value: Int): Boolean = value > 0
     }
+
+    data class ComplexWrappingType(val value: Int)
 
     @GraphQLDescription("A place")
     data class Geography(

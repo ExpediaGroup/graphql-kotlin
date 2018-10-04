@@ -41,6 +41,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
 @Suppress("Detekt.UnsafeCast")
@@ -138,7 +139,7 @@ internal class SchemaGenerator(
                 throw IllegalArgumentException("argument name is null or blank, $it")
             } else {
                 // Kotlin 1.3 will support contracts, until then we need to force non-null
-                args[name!!] = Parameter(it.type.jvmErasure.java, it.annotations)
+                args[name!!] = Parameter(it.type.javaType as Class<*>, it.annotations)
             }
         }
 
