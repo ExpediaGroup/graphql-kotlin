@@ -323,6 +323,7 @@ class SchemaGeneratorTest {
 
     class QueryWithInterface {
         fun query(): AnInterface = AnImplementation()
+        fun fromImplementation(): AnImplementation = AnImplementation()
     }
 
     interface AnInterface {
