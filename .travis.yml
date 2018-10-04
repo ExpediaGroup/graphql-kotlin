@@ -12,8 +12,24 @@ before_install:
 
 script:
   - ./mvnw test -B
-  - .travis/deploy.sh
 
+deploy:
+  -
+    provider: script
+    script: .travis/deploy.sh
+    skip_cleanup: true
+    on:
+      repo: ExpediaDotCom/graphql-kotlin
+      branch: master
+      jdk: oraclejdk8
+  -
+    provider: script
+    script: .travis/deploy.sh
+    skip_cleanup: true
+    on:
+      repo: ExpediaDotCom/graphql-kotlin
+      tags: true
+      jdk: oraclejdk8
 
 jdk: oraclejdk8
 
