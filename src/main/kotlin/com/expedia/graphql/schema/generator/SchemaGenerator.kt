@@ -4,10 +4,7 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.KotlinDataFetcher
 import com.expedia.graphql.schema.Parameter
 import com.expedia.graphql.schema.SchemaGeneratorConfig
-import com.expedia.graphql.schema.exceptions.ConflictingTypesException
-import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
-import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getDeprecationReason
 import com.expedia.graphql.schema.extensions.graphQLDescription
@@ -52,7 +49,7 @@ internal class SchemaGenerator(
     private val config: SchemaGeneratorConfig
 ) {
 
-    private val typesCache: MutableMap<String, KGraphQLType> = mutableMapOf()
+    private val cache = TypesCache(config.supportedPackages)
     private val additionTypes = mutableSetOf<GraphQLType>()
     private val directives = mutableSetOf<GraphQLDirective>()
     private val reflections = Reflections(config.supportedPackages)
@@ -73,7 +70,7 @@ internal class SchemaGenerator(
 
     private fun addAdditionalTypes(builder: GraphQLSchema.Builder) {
         additionTypes
-            .filter { typesCache.none { (_, v) -> v.graphQLType.name == it.name } }
+            .filter { cache.doesNotContainGraphQLType(it) }
             .forEach { builder.additionalType(it) }
     }
 
@@ -83,9 +80,7 @@ internal class SchemaGenerator(
         val queryBuilder = GraphQLObjectType.Builder()
         queryBuilder.name(config.topLevelQueryName)
         for (query in queries) {
-            query.klazz.declaredMemberFunctions
-                .filter { config.hooks.isValidFunction(it) }
-                .filter { func -> functionFilters.all { it.invoke(func) } }
+            query.klazz.getValidFunctions(config.hooks)
                 .forEach {
                     val function = function(it, query.obj)
                     val functionFromHook = config.hooks.didGenerateQueryType(it, function)
@@ -101,9 +96,7 @@ internal class SchemaGenerator(
             mutationBuilder.name(config.topLevelMutationName)
 
             for (mutation in mutations) {
-                mutation.klazz.declaredMemberFunctions
-                    .filter { config.hooks.isValidFunction(it) }
-                    .filter { func -> functionFilters.all { it.invoke(func) } }
+                mutation.klazz.getValidFunctions(config.hooks)
                     .forEach {
                         val function = function(it, mutation.obj)
                         val functionFromHook = config.hooks.didGenerateMutationType(it, function)
@@ -163,10 +156,10 @@ internal class SchemaGenerator(
     private fun argument(parameter: KParameter): GraphQLArgument {
         throwIfInterfaceIsNotAuthorized(parameter)
         return GraphQLArgument.newArgument()
-                .name(parameter.name)
-                .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
-                .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
-                .build()
+            .name(parameter.name)
+            .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
+            .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
+            .build()
     }
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false): GraphQLType {
@@ -178,21 +171,18 @@ internal class SchemaGenerator(
     }
 
     private fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
-        val kClass = type.classifier as KClass<*>
-        val cacheKey = getCacheKey(kClass, type, inputType)
-        val cachedType = typesCache[cacheKey]
+        val cacheKey = TypesCacheKey(type, inputType)
+        val cachedType = cache.get(cacheKey)
 
         if (cachedType != null) {
-            val isSameNameButNotSameClass = cachedType.kClass != kClass
-            when {
-                isSameNameButNotSameClass -> throw ConflictingTypesException(cachedType.kClass, kClass)
-                else -> return cachedType.graphQLType
-            }
+            return cachedType
         }
 
+        val kClass = type.classifier as KClass<*>
         val graphQLType = getGraphQLType(kClass, inputType, type)
+        val kGraphQLType = KGraphQLType(kClass, graphQLType)
 
-        typesCache[cacheKey] = KGraphQLType(kClass, graphQLType)
+        cache.put(cacheKey, kGraphQLType)
 
         return graphQLType
     }
@@ -209,31 +199,6 @@ internal class SchemaGenerator(
 
     private fun KClass<*>.canBeGraphQLUnion(): Boolean =
             this.canBeGraphQLInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
-
-    private fun getCacheKey(kClass: KClass<*>, type: KType, inputType: Boolean): String {
-        if (kClass.isSubclassOf(Enum::class)) {
-            return kClass.simpleName ?: throw CouldNotGetNameOfEnumException(kClass)
-        }
-        val cacheKeyFromTypeName = when {
-            kClass.isSubclassOf(List::class) -> "List<${type.arguments.first().type!!.jvmErasure.simpleName}>"
-            kClass.java.isArray -> "Array<${type.arguments.first().type!!.jvmErasure.simpleName}>"
-            else -> {
-                throwIfTypeIsNotSupported(type)
-                type.jvmErasure.simpleName
-            }
-        }
-
-        return "$cacheKeyFromTypeName:$inputType"
-    }
-
-    @Throws(TypeNotSupportedException::class)
-    private fun throwIfTypeIsNotSupported(type: KType) {
-        val qualifiedName = type.jvmErasure.qualifiedName ?: ""
-        val comesFromSupportedPackageName = qualifiedName.startsWith(config.supportedPackages)
-        if (!comesFromSupportedPackageName) {
-            throw TypeNotSupportedException(qualifiedName, config.supportedPackages)
-        }
-    }
 
     @Throws(InvalidInputFieldTypeException::class)
     private fun throwIfInterfaceIsNotAuthorized(parameter: KParameter) {
@@ -253,13 +218,13 @@ internal class SchemaGenerator(
     private fun listType(type: KType, inputType: Boolean): GraphQLList =
         GraphQLList.list(graphQLTypeOf(type.arguments.first().type!!, inputType))
 
-    private fun objectType(klass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
+    private fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
         val builder = GraphQLObjectType.newObject()
 
-        builder.name(klass.simpleName)
-        builder.description(klass.graphQLDescription())
+        builder.name(kClass.simpleName)
+        builder.description(kClass.graphQLDescription())
 
-        klass.directives().map {
+        kClass.directives().map {
             builder.withDirective(it)
             directives.add(it)
         }
@@ -267,37 +232,31 @@ internal class SchemaGenerator(
         if (interfaceType != null) {
             builder.withInterface(interfaceType)
         } else {
-            klass.superclasses
+            kClass.superclasses
                 .asSequence()
                 .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion() }
                 .map { objectFromReflection(it.createType(), false) as GraphQLInterfaceType }
                 .forEach { builder.withInterface(it) }
         }
 
-        klass.declaredMemberProperties
-            .filter { config.hooks.isValidProperty(it) }
-            .filter { prop -> propertyFilters.all { it.invoke(prop) } }
+        kClass.getValidProperties(config.hooks)
             .forEach { builder.field(property(it)) }
 
-        klass.declaredMemberFunctions
-            .filter { config.hooks.isValidFunction(it) }
-            .filter { func -> functionFilters.all { it.invoke(func) } }
+        kClass.getValidFunctions(config.hooks)
             .forEach { builder.field(function(it)) }
 
         return builder.build()
     }
 
-    private fun inputObjectType(klass: KClass<*>): GraphQLType {
+    private fun inputObjectType(kClass: KClass<*>): GraphQLType {
         val builder = GraphQLInputObjectType.newInputObject()
-        val name = getGraphQLClassName(klass, true)
+        val name = getGraphQLClassName(kClass, true)
 
         builder.name(name)
-        builder.description(klass.graphQLDescription())
+        builder.description(kClass.graphQLDescription())
 
         // It does not make sense to run functions against the input types so we only process data fields
-        klass.declaredMemberProperties
-            .filter { config.hooks.isValidProperty(it) }
-            .filter { prop -> propertyFilters.all { it.invoke(prop) } }
+        kClass.getValidProperties(config.hooks)
             .forEach { builder.field(inputProperty(it)) }
 
         return builder.build()
@@ -319,20 +278,16 @@ internal class SchemaGenerator(
         builder.name(kClass.simpleName)
         builder.description(kClass.graphQLDescription())
 
-        kClass.declaredMemberProperties
-                .filter { config.hooks.isValidProperty(it) }
-                .filter { prop -> propertyFilters.all { it.invoke(prop) } }
-                .forEach { builder.field(property(it)) }
+        kClass.getValidProperties(config.hooks)
+            .forEach { builder.field(property(it)) }
 
-        kClass.declaredMemberFunctions
-                .filter { config.hooks.isValidFunction(it) }
-                .filter { func -> functionFilters.all { it.invoke(func) } }
-                .forEach { builder.field(function(it, abstract = true)) }
+        kClass.getValidFunctions(config.hooks)
+            .forEach { builder.field(function(it, abstract = true)) }
 
         builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
         val interfaceType = builder.build()
 
-        val implementations = reflections.getSubTypesOf(Class.forName(kClass.javaObjectType.name))
+        val implementations = getSubTypesOf(kClass)
         implementations.forEach {
             additionTypes.add(objectType(it.kotlin, interfaceType))
         }
@@ -347,7 +302,7 @@ internal class SchemaGenerator(
         builder.description(kClass.graphQLDescription())
         builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
 
-        val implementations = reflections.getSubTypesOf(Class.forName(kClass.javaObjectType.name))
+        val implementations = getSubTypesOf(kClass)
         implementations
             .forEach {
                 builder.possibleType(objectType(it.kotlin) as GraphQLObjectType)
@@ -355,4 +310,7 @@ internal class SchemaGenerator(
 
         return builder.build()
     }
+
+    private fun getSubTypesOf(kclass: KClass<*>): MutableSet<out Class<out Any>> =
+        reflections.getSubTypesOf(Class.forName(kclass.javaObjectType.name))
 }
