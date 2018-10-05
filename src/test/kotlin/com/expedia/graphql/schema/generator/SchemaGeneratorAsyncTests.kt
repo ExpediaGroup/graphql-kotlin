@@ -57,22 +57,14 @@ class SchemaGeneratorAsyncTests {
     }
 
     class AsyncQuery {
-        fun asynchronouslyDo(): CompletableFuture<Int> {
-            return CompletableFuture.completedFuture(1)
-        }
+        fun asynchronouslyDo(): CompletableFuture<Int> = CompletableFuture.completedFuture(1)
     }
 
     class RxJava2Query {
-        fun asynchronouslyDo(): Observable<Int> {
-            return Observable.just(1)
-        }
+        fun asynchronouslyDo(): Observable<Int> = Observable.just(1)
 
-        fun asynchronouslyDoSingle(): Single<Int> {
-            return Single.just(1)
-        }
+        fun asynchronouslyDoSingle(): Single<Int> = Single.just(1)
 
-        fun maybe(): Maybe<Int> {
-            return Maybe.empty()
-        }
+        fun maybe(): Maybe<Int> = Maybe.empty()
     }
 }

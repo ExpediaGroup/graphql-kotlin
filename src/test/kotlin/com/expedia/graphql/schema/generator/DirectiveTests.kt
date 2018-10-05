@@ -84,10 +84,10 @@ annotation class DirectiveOnFunction
 annotation class RenamedDirective(val x: Boolean)
 
 @Whatever
-data class Geography(
-        val id: Int?,
-        val type: GeoType,
-        val locations: List<Location>
+class Geography(
+    val id: Int?,
+    val type: GeoType,
+    val locations: List<Location>
 ) {
     @DirectiveOnFunction
     fun somethingCool(): String = "Something cool"
@@ -104,7 +104,6 @@ class QueryObject {
     fun query(value: Int): Geography = Geography(value, GeoType.CITY, listOf())
 }
 
-
 class QueryWithDeprecatedFields {
     @Deprecated("this query is deprecated")
     fun deprecatedQuery(something: String) = something
@@ -117,9 +116,8 @@ class QueryWithDeprecatedFields {
     fun deprecatedArgumentQuery(input: ClassWithDeprecatedField) = input.something
 }
 
-
 data class ClassWithDeprecatedField(
-        val something: String,
-        @Deprecated("this field is deprecated")
-        val deprecatedField: String
+    val something: String,
+    @Deprecated("this field is deprecated")
+    val deprecatedField: String
 )

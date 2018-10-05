@@ -24,15 +24,13 @@ internal fun KAnnotatedElement.graphQLDescription(): String? {
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
     return when {
-        description != null && directiveNames.isNotEmpty() -> {
+        description != null && directiveNames.isNotEmpty() ->
             """$description
             |
             |Directives: ${directiveNames.joinToString(", ")}
             """.trimMargin()
-            }
-        description == null && directiveNames.isNotEmpty() -> {
+        description == null && directiveNames.isNotEmpty() ->
             "Directives: ${directiveNames.joinToString(", ")}"
-        }
         else -> description
     }
 }
@@ -85,7 +83,7 @@ internal fun KAnnotatedElement.directives() =
                 .validLocations(*directiveInfo.locations)
                 .description(directiveInfo.description)
 
-            annotation::class.properties().forEach{ prop ->
+            annotation::class.properties().forEach { prop ->
                 val propertyName = prop.name
                 val value = prop.call(annotation)
                 @Suppress("Detekt.UnsafeCast")

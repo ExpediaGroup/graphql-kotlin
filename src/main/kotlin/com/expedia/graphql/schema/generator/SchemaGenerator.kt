@@ -77,7 +77,7 @@ internal class SchemaGenerator(
             .forEach { builder.additionalType(it) }
     }
 
-    private fun addDirectives(builder: GraphQLSchema.Builder)= builder.additionalDirectives(directives)
+    private fun addDirectives(builder: GraphQLSchema.Builder) = builder.additionalDirectives(directives)
 
     private fun addQueries(builder: GraphQLSchema.Builder) {
         val queryBuilder = GraphQLObjectType.Builder()
@@ -237,7 +237,7 @@ internal class SchemaGenerator(
 
     @Throws(InvalidInputFieldTypeException::class)
     private fun throwIfInterfaceIsNotAuthorized(parameter: KParameter) {
-        if(parameter.type.jvmErasure.java.isInterface) throw InvalidInputFieldTypeException()
+        if (parameter.type.jvmErasure.java.isInterface) throw InvalidInputFieldTypeException()
     }
 
     private fun enumType(kClass: KClass<*>): GraphQLEnumType {
@@ -269,9 +269,9 @@ internal class SchemaGenerator(
         } else {
             klass.superclasses
                 .asSequence()
-                .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion()}
-                .map{ objectFromReflection(it.createType(), false) as GraphQLInterfaceType}
-                .forEach { builder.withInterface(it)}
+                .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion() }
+                .map { objectFromReflection(it.createType(), false) as GraphQLInterfaceType }
+                .forEach { builder.withInterface(it) }
         }
 
         klass.declaredMemberProperties
@@ -352,7 +352,6 @@ internal class SchemaGenerator(
             .forEach {
                 builder.possibleType(objectType(it.kotlin) as GraphQLObjectType)
             }
-
 
         return builder.build()
     }

@@ -21,9 +21,9 @@ data class Parameter(val klazz: Class<*>, val annotations: List<Annotation>)
  * @param args The GraphQL arguments passed to the data fetcher
  */
 class KotlinDataFetcher(
-        private val target: Any?,
-        private val fn: KFunction<*>,
-        private val args: Map<String, Parameter>
+    private val target: Any?,
+    private val fn: KFunction<*>,
+    private val args: Map<String, Parameter>
 ) : DataFetcher<Any> {
 
     override fun get(environment: DataFetchingEnvironment): Any? {
