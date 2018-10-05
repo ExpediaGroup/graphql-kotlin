@@ -6,6 +6,7 @@ import com.expedia.graphql.schema.Parameter
 import com.expedia.graphql.schema.SchemaGeneratorConfig
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
+import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getDeprecationReason
@@ -159,11 +160,14 @@ internal class SchemaGenerator(
         .deprecate(prop.getDeprecationReason())
         .build()
 
-    private fun argument(parameter: KParameter): GraphQLArgument = GraphQLArgument.newArgument()
-        .name(parameter.name)
-        .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
-        .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
-        .build()
+    private fun argument(parameter: KParameter): GraphQLArgument {
+        throwIfInterfaceIsNotAuthorized(parameter)
+        return GraphQLArgument.newArgument()
+                .name(parameter.name)
+                .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
+                .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
+                .build()
+    }
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
@@ -229,6 +233,11 @@ internal class SchemaGenerator(
         if (!comesFromSupportedPackageName) {
             throw TypeNotSupportedException(qualifiedName, config.supportedPackages)
         }
+    }
+
+    @Throws(InvalidInputFieldTypeException::class)
+    private fun throwIfInterfaceIsNotAuthorized(parameter: KParameter) {
+        if(parameter.type.jvmErasure.java.isInterface) throw InvalidInputFieldTypeException()
     }
 
     private fun enumType(kClass: KClass<*>): GraphQLEnumType {
