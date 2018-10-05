@@ -1,6 +1,7 @@
 package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.schema.GraphQLUnionType
@@ -38,11 +39,29 @@ class PolymorphicTests {
         assertEquals(1, implementationType.interfaces.size)
         assertEquals(implementationType.interfaces.first(), interfaceType)
     }
+
+    @Test(expected = InvalidInputFieldTypeException::class)
+    fun `Interfaces cannot be used as input field types`() {
+        toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedInterfaceArgument())), config = testSchemaConfig)
+    }
+
+    @Test(expected = InvalidInputFieldTypeException::class)
+    fun `Union cannot be used as input field types`() {
+        toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedUnionArgument())), config = testSchemaConfig)
+    }
 }
 
 class QueryWithInterface {
     fun query(): AnInterface = AnImplementation()
     fun fromImplementation(): AnImplementation = AnImplementation()
+}
+
+class QueryWithUnAuthorizedInterfaceArgument {
+    fun notAllowed(arg: AnInterface): AnInterface = arg
+}
+
+class QueryWithUnAuthorizedUnionArgument {
+    fun notAllowed(body: BodyPart): BodyPart = body
 }
 
 interface AnInterface {
