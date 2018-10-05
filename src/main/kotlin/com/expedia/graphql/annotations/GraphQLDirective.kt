@@ -12,7 +12,7 @@ import graphql.introspection.Introspection.DirectiveLocation.QUERY
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 annotation class GraphQLDirective(
-        val name: String = "",
-        val description: String = "",
-        val locations: Array<DirectiveLocation> = [QUERY, MUTATION, FIELD, FIELD_DEFINITION, OBJECT]
+    val name: String = "",
+    val description: String = "",
+    val locations: Array<DirectiveLocation> = [QUERY, MUTATION, FIELD, FIELD_DEFINITION, OBJECT]
 )

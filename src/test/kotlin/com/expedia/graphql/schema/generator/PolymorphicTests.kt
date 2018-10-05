@@ -69,8 +69,8 @@ interface AnInterface {
 }
 
 data class AnImplementation(
-        override val property: String = "A value",
-        val implementationSpecific: String = "It's implementation specific"
+    override val property: String = "A value",
+    val implementationSpecific: String = "It's implementation specific"
 ) : AnInterface
 
 class QueryWithUnion {
@@ -83,9 +83,9 @@ class QueryWithUnion {
 interface BodyPart
 
 data class LeftHand(
-        val field: String
+    val field: String
 ) : BodyPart
 
 data class RightHand(
-        val property: Int
+    val property: Int
 ) : BodyPart

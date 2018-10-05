@@ -72,6 +72,8 @@
     <properties>
         <reflections.version>0.9.11</reflections.version>
         <kotlin.version>1.2.70</kotlin.version>
+        <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
+        <kotlin-detekt.version>1.0.0.RC8</kotlin-detekt.version>
         <junit.version>4.12</junit.version>
     </properties>
 
@@ -120,6 +122,61 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <!-- those can be run separately with mvn clean antrun:run@<target_id> -->
+                    <execution>
+                        <id>detekt</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target name="detekt">
+                                <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true" classname="io.gitlab.arturbosch.detekt.cli.Main" classpathref="maven.plugin.classpath">
+                                    <arg value="-i" />
+                                    <arg value="${project.basedir}${file.separator}src" />
+                                    <arg value="-b" />
+                                    <arg value="${project.basedir}${file.separator}detekt_baseline.xml" />
+                                    <arg value="-c" />
+                                    <arg value="${project.basedir}${file.separator}detekt.yml" />
+                                    <arg value="-o" />
+                                    <arg value="${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt" />
+                                </java>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>ktlint</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target name="ktlint">
+                                <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true" classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
+                                    <arg value="src/**/*.kt" />
+                                    <arg value="--reporter=plain" />
+                                    <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml" />
+                                </java>
+                            </target>
+                        </configuration>
+                        <goals><goal>run</goal></goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.gitlab.arturbosch.detekt</groupId>
+                        <artifactId>detekt-cli</artifactId>
+                        <version>${kotlin-detekt.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.github.shyiko</groupId>
+                        <artifactId>ktlint</artifactId>
+                        <version>${kotlin-ktlint.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

@@ -1,10 +1,18 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <Whitelist timestamp="1535123065325">
-    <ID>ComplexMethod:SchemaGenerator.kt$SchemaGenerator$private fun function(fn: KFunction&lt;*&gt;, target: Any? = null): GraphQLFieldDefinition</ID>
+  <Blacklist timestamp="1538767296980"></Blacklist>
+  <Whitelist timestamp="1538768092037">
+    <ID>ComplexMethod:typeMappers.kt$internal fun graphQLScalar(type: KType): GraphQLType?</ID>
+    <ID>FunctionMaxLength:SchemaGenerator.kt$SchemaGenerator$@Throws(InvalidInputFieldTypeException::class) private fun throwIfInterfaceIsNotAuthorized(parameter: KParameter)</ID>
+    <ID>FunctionOnlyReturningConstant:DirectiveTests.kt$Geography$@DirectiveOnFunction fun somethingCool(): String</ID>
     <ID>LargeClass:SchemaGenerator.kt$SchemaGenerator</ID>
+    <ID>MethodOverloading:SchemaGeneratorTest.kt$SchemaGeneratorTest</ID>
+    <ID>SpreadOperator:annotationExtensions.kt$(*directiveInfo.locations)</ID>
     <ID>TooManyFunctions:SchemaGenerator.kt$SchemaGenerator</ID>
     <ID>UnsafeCallOnNullableType:SchemaGenerator.kt$SchemaGenerator$name!!</ID>
     <ID>UnsafeCallOnNullableType:SchemaGenerator.kt$SchemaGenerator$type.arguments.first().type!!</ID>
+    <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as GraphQLNonNull</ID>
+    <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDoSingle").type as GraphQLNonNull</ID>
+    <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("maybe").type as GraphQLNonNull</ID>
   </Whitelist>
 </SmellBaseline>

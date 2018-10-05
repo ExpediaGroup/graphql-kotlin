@@ -28,4 +28,4 @@ package com.expedia.graphql.schema.exceptions
  *
  * data class PartOfUnion( val property: Int) : UnionMarkup
  */
-class InvalidInputFieldTypeException: RuntimeException("Object field argument cannot be an interface or a union")
+class InvalidInputFieldTypeException : RuntimeException("Object field argument cannot be an interface or a union")
