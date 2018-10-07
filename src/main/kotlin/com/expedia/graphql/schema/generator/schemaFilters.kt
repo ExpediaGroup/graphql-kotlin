@@ -19,9 +19,7 @@ private val isNotGraphQLIgnored: AnnotatedElementFilter = { it.isGraphQLIgnored(
 private typealias PropertyFilter = (KProperty<*>) -> Boolean
 private typealias FunctionFilter = (KFunction<*>) -> Boolean
 
-internal val isNotBlackListed: FunctionFilter = {
-    (blackListFunctions.contains(it.name) || it.name.matches(componentFunctionRegex)).not()
-}
+internal val isNotBlackListed: FunctionFilter = { (blackListFunctions.contains(it.name) || it.name.matches(componentFunctionRegex)).not() }
 
 internal val propertyFilters: List<PropertyFilter> = listOf(isPublic, isNotGraphQLIgnored)
 internal val functionFilters: List<FunctionFilter> = listOf(isPublic, isNotGraphQLIgnored, isNotBlackListed)
