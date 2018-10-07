@@ -6,7 +6,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 
-class KClassExtensionsKtTest {
+class KClassExtensionsTest {
 
     @Suppress("Detekt.FunctionOnlyReturningConstant", "Detekt.UnusedPrivateMember")
     class MyTestClass(
