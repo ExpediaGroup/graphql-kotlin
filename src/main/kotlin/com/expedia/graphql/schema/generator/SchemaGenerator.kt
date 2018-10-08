@@ -146,12 +146,19 @@ internal class SchemaGenerator(
         return builder.build()
     }
 
-    private fun property(prop: KProperty<*>): GraphQLFieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
-        .description(prop.graphQLDescription())
-        .name(prop.name)
-        .type(graphQLTypeOf(prop.returnType) as GraphQLOutputType)
-        .deprecate(prop.getDeprecationReason())
-        .build()
+    private fun property(prop: KProperty<*>): GraphQLFieldDefinition {
+        val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
+                .description(prop.graphQLDescription())
+                .name(prop.name)
+                .type(graphQLTypeOf(prop.returnType) as GraphQLOutputType)
+                .deprecate(prop.getDeprecationReason())
+
+        return if (config.dataFetcherFactory != null && prop.isLateinit) {
+                fieldBuilder.dataFetcherFactory(config.dataFetcherFactory)
+            } else {
+            fieldBuilder
+        }.build()
+    }
 
     private fun argument(parameter: KParameter): GraphQLArgument {
         throwIfInterfaceIsNotAuthorized(parameter)
