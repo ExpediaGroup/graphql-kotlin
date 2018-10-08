@@ -2,6 +2,7 @@ package com.expedia.graphql.sample
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
+import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
 import com.expedia.graphql.sample.query.Query
@@ -30,7 +31,11 @@ class Application {
     private val logger = LoggerFactory.getLogger(Application::class.java)
 
     @Bean
-    fun schemaConfig(): SchemaGeneratorConfig = SchemaGeneratorConfig(supportedPackages = "com.expedia", hooks = CustomSchemaGeneratorHooks())
+    fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory): SchemaGeneratorConfig = SchemaGeneratorConfig(
+            supportedPackages = "com.expedia",
+            hooks = CustomSchemaGeneratorHooks(),
+            dataFetcherFactory = dataFetcherFactory
+    )
 
     @Bean
     fun schema(
