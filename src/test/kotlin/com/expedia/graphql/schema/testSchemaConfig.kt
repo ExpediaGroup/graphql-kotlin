@@ -2,6 +2,7 @@ package com.expedia.graphql.schema
 
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 
-val testSchemaConfig = SchemaGeneratorConfig(supportedPackages = "com.expedia")
+val defaultSupportedPackages = listOf("com.expedia")
+val testSchemaConfig = SchemaGeneratorConfig(defaultSupportedPackages)
 
-fun getTestSchemaConfigWithHooks(hooks: SchemaGeneratorHooks) = SchemaGeneratorConfig(supportedPackages = "com.expedia", hooks = hooks)
+fun getTestSchemaConfigWithHooks(hooks: SchemaGeneratorHooks) = SchemaGeneratorConfig(defaultSupportedPackages, hooks = hooks)

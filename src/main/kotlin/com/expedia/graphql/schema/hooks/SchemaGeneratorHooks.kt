@@ -27,6 +27,12 @@ interface SchemaGeneratorHooks {
     fun willGenerateGraphQLType(type: KType): GraphQLType?
 
     /**
+     * Called before resolving a Monad or Future type to its wrapped KType.
+     * This allows for a custom resolver on how to extract the wrapped value.
+     */
+    fun willResolveMonad(type: KType): KType
+
+    /**
      * Called when looking at the KClass properties to determine if it valid for adding to the generated schema.
      * If any filter returns false, it is rejected.
      */

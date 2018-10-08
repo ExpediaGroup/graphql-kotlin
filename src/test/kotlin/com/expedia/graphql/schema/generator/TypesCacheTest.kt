@@ -18,7 +18,7 @@ class TypesCacheTest {
 
     @Test
     fun `basic get and put with non input type`() {
-        val cache = TypesCache("com.expedia.graphql")
+        val cache = TypesCache(listOf("com.expedia.graphql"))
         val cacheKey = TypesCacheKey(MyType::class.starProjectedType, false)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
@@ -31,7 +31,7 @@ class TypesCacheTest {
 
     @Test
     fun `basic get and put with input type`() {
-        val cache = TypesCache("com.expedia.graphql")
+        val cache = TypesCache(listOf("com.expedia.graphql"))
         val cacheKey = TypesCacheKey(MyType::class.starProjectedType, true)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
@@ -44,7 +44,7 @@ class TypesCacheTest {
 
     @Test
     fun `verify doesNotContainGraphQLType()`() {
-        val cache = TypesCache("com.expedia.graphql")
+        val cache = TypesCache(listOf("com.expedia.graphql"))
         val cacheKey = TypesCacheKey(MyType::class.starProjectedType, true)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 

@@ -13,7 +13,7 @@ import kotlin.reflect.jvm.jvmErasure
 
 internal data class TypesCacheKey(val type: KType, val inputType: Boolean)
 
-internal class TypesCache(private val supportedPackages: String) {
+internal class TypesCache(private val supportedPackages: List<String>) {
 
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
 
@@ -73,7 +73,11 @@ internal class TypesCache(private val supportedPackages: String) {
     @Throws(TypeNotSupportedException::class)
     private fun throwIfTypeIsNotSupported(type: KType) {
         val qualifiedName = type.jvmErasure.qualifiedName ?: ""
-        val comesFromSupportedPackageName = qualifiedName.startsWith(supportedPackages)
+
+        val comesFromSupportedPackageName = supportedPackages.any {
+            qualifiedName.startsWith(it)
+        }
+
         if (!comesFromSupportedPackageName) {
             throw TypeNotSupportedException(qualifiedName, supportedPackages)
         }
