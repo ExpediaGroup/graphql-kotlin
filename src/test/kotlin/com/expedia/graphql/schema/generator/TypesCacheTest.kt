@@ -2,7 +2,7 @@ package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.schema.GraphQLType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

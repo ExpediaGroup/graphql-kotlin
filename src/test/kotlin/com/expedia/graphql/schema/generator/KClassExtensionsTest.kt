@@ -1,7 +1,7 @@
 package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.test.assertEquals

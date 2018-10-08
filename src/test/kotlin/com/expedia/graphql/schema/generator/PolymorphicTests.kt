@@ -5,7 +5,8 @@ import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.schema.GraphQLUnionType
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -40,14 +41,18 @@ class PolymorphicTests {
         assertEquals(implementationType.interfaces.first(), interfaceType)
     }
 
-    @Test(expected = InvalidInputFieldTypeException::class)
+    @Test
     fun `Interfaces cannot be used as input field types`() {
-        toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedInterfaceArgument())), config = testSchemaConfig)
+        assertThrows(InvalidInputFieldTypeException::class.java) {
+            toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedInterfaceArgument())), config = testSchemaConfig)
+        }
     }
 
-    @Test(expected = InvalidInputFieldTypeException::class)
+    @Test
     fun `Union cannot be used as input field types`() {
-        toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedUnionArgument())), config = testSchemaConfig)
+        assertThrows(InvalidInputFieldTypeException::class.java) {
+            toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedUnionArgument())), config = testSchemaConfig)
+        }
     }
 }
 
