@@ -4,6 +4,7 @@ import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -19,6 +20,13 @@ open class NoopSchemaGeneratorHooks : SchemaGeneratorHooks {
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder = builder
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = null
+
+    override fun willResolveMonad(type: KType): KType =
+        if (type.classifier == CompletableFuture::class) {
+            type.arguments.firstOrNull()?.type ?: type
+        } else {
+            type
+        }
 
     override fun isValidProperty(property: KProperty<*>) = true
 
