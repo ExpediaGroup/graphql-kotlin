@@ -75,6 +75,7 @@
         <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
         <kotlin-detekt.version>1.0.0.RC8</kotlin-detekt.version>
         <junit.version>4.12</junit.version>
+        <mockk.version>1.8.9.kotlin13</mockk.version>
     </properties>
 
     <pluginRepositories>
@@ -209,14 +210,14 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test-junit</artifactId>
+            <artifactId>kotlin-test-junit5</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk</artifactId>
+            <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

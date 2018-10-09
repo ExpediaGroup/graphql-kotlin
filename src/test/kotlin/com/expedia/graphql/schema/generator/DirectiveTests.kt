@@ -8,7 +8,7 @@ import graphql.introspection.Introspection
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

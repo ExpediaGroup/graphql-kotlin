@@ -10,6 +10,7 @@ import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
+import org.junit.jupiter.api.Assertions.assertThrows
 import java.net.CookieManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -185,19 +186,25 @@ class SchemaGeneratorTest {
         assertEquals("something", resultWithPrivateParts.fieldDefinitions[0].name)
     }
 
-    @Test(expected = RuntimeException::class)
+    @Test
     fun `SchemaGenerator throws when encountering java stdlib`() {
-        toSchema(listOf(TopLevelObjectDef(QueryWithJavaClass())), config = testSchemaConfig)
+        assertThrows(RuntimeException::class.java) {
+            toSchema(listOf(TopLevelObjectDef(QueryWithJavaClass())), config = testSchemaConfig)
+        }
     }
 
-    @Test(expected = ConflictingTypesException::class)
+    @Test
     fun `SchemaGenerator throws when encountering conflicting types`() {
-        toSchema(queries = listOf(TopLevelObjectDef(QueryWithConflictingTypes())), config = testSchemaConfig)
+        assertThrows(ConflictingTypesException::class.java) {
+            toSchema(queries = listOf(TopLevelObjectDef(QueryWithConflictingTypes())), config = testSchemaConfig)
+        }
     }
 
-    @Test(expected = InvalidSchemaException::class)
+    @Test
     fun `SchemaGenerator should throw exception if no queries and no mutations are specified`() {
-        toSchema(emptyList(), emptyList(), config = testSchemaConfig)
+        assertThrows(InvalidSchemaException::class.java) {
+            toSchema(emptyList(), emptyList(), config = testSchemaConfig)
+        }
     }
 
     class QueryObject {
