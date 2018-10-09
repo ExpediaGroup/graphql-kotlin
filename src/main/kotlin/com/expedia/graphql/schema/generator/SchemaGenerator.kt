@@ -22,6 +22,7 @@ import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInputType
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
@@ -147,17 +148,28 @@ internal class SchemaGenerator(
     }
 
     private fun property(prop: KProperty<*>): GraphQLFieldDefinition {
+        val propertyType = graphQLTypeOf(prop.returnType) as GraphQLOutputType
+
         val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
                 .description(prop.graphQLDescription())
                 .name(prop.name)
-                .type(graphQLTypeOf(prop.returnType) as GraphQLOutputType)
+                .type(propertyType)
                 .deprecate(prop.getDeprecationReason())
 
         return if (config.dataFetcherFactory != null && prop.isLateinit) {
-                fieldBuilder.dataFetcherFactory(config.dataFetcherFactory)
-            } else {
+            updatePropertyFieldBuilder(propertyType, fieldBuilder)
+        } else {
             fieldBuilder
         }.build()
+    }
+
+    private fun updatePropertyFieldBuilder(propertyType: GraphQLOutputType, fieldBuilder: GraphQLFieldDefinition.Builder): GraphQLFieldDefinition.Builder {
+        val updatedFieldBuilder = if (propertyType is GraphQLNonNull) {
+            fieldBuilder.type(propertyType.wrappedType as GraphQLOutputType)
+        } else {
+            fieldBuilder
+        }
+        return updatedFieldBuilder.dataFetcherFactory(config.dataFetcherFactory)
     }
 
     private fun argument(parameter: KParameter): GraphQLArgument {
