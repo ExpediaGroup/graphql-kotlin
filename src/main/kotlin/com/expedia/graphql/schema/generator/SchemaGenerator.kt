@@ -309,9 +309,14 @@ internal class SchemaGenerator(
         val interfaceType = builder.build()
 
         val implementations = getSubTypesOf(kClass)
-        implementations.forEach {
-            additionTypes.add(objectType(it.kotlin, interfaceType))
-        }
+        implementations
+            .filterNot { it.kotlin.isAbstract }
+            .forEach {
+                val objectType = objectType(it.kotlin, interfaceType)
+                val key = TypesCacheKey(it.kotlin.createType(), false)
+                additionTypes.add(objectType)
+                cache.put(key, KGraphQLType(it.kotlin, objectType))
+            }
 
         return interfaceType
     }
@@ -325,8 +330,12 @@ internal class SchemaGenerator(
 
         val implementations = getSubTypesOf(kClass)
         implementations
+            .filterNot { it.kotlin.isAbstract }
             .forEach {
+                val objectType = objectType(it.kotlin)
+                val key = TypesCacheKey(it.kotlin.createType(), false)
                 builder.possibleType(objectType(it.kotlin) as GraphQLObjectType)
+                cache.put(key, KGraphQLType(it.kotlin, objectType))
             }
 
         return builder.build()
