@@ -4,6 +4,7 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
+import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -54,6 +55,25 @@ class PolymorphicTests {
             toSchema(listOf(TopLevelObjectDef(QueryWithUnAuthorizedUnionArgument())), config = testSchemaConfig)
         }
     }
+
+    @Test
+    fun `Object types implementing union and interfaces are only created once`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithInterfaceAnUnion())), config = testSchemaConfig)
+
+        val carType = schema.getType("Car") as? GraphQLObjectType
+        assertNotNull(carType)
+
+        carType?.let {
+            assertNotNull(it.getFieldDefinition("model"))
+            assertNotNull(it.getFieldDefinition("color"))
+        }
+
+        val productType = schema.getType("Product") as? GraphQLUnionType
+        assertNotNull(productType)
+        productType?.let {
+            assertTrue { it.types.contains(carType) }
+        }
+    }
 }
 
 class QueryWithInterface {
@@ -94,3 +114,15 @@ data class LeftHand(
 data class RightHand(
     val property: Int
 ) : BodyPart
+
+class QueryWithInterfaceAnUnion {
+    fun product(): Product = Car("DB9", "black")
+}
+
+interface Vehicle {
+    val color: String
+}
+
+interface Product
+
+data class Car(val model: String, override val color: String) : Vehicle, Product
