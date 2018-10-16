@@ -10,10 +10,12 @@ import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import java.net.CookieManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateMember", "Detekt.FunctionOnlyReturningConstant")
@@ -207,6 +209,25 @@ class SchemaGeneratorTest {
         }
     }
 
+    @Test
+    fun `SchemaGenerator supports type references`() {
+        val schema = toSchema(queries = listOf(TopLevelObjectDef(QueryWithParentChildRelationship())), config = testSchemaConfig)
+
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.execute("{ query { name children { name } } }")
+        val data = result.getData<Map<String, Map<String, Any>>>()
+
+        assertNotNull(data)
+        val res = data["query"]
+        assertEquals("Bob", res?.get("name").toString())
+        val bobChildren = res?.get("children") as? List<Map<String, Any>>
+        assertNotNull(bobChildren)
+
+        val firstChild = bobChildren?.get(0)
+        assertEquals("Alice", firstChild?.get("name"))
+        assertNull(firstChild?.get("children"))
+    }
+
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
@@ -325,4 +346,13 @@ class SchemaGeneratorTest {
         @GraphQLDescription("A second conflicting GraphQL query method")
         fun type2() = com.expedia.graphql.conflicts.GeoType.CITY
     }
+
+    class QueryWithParentChildRelationship {
+        fun query(): Person {
+            val children = listOf(Person("Alice"))
+            return Person("Bob", children)
+        }
+    }
+
+    data class Person(val name: String, val children: List<Person>? = null)
 }
