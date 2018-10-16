@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions")
 package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
@@ -16,6 +17,7 @@ internal data class TypesCacheKey(val type: KType, val inputType: Boolean)
 internal class TypesCache(private val supportedPackages: List<String>) {
 
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
+    private val typeUnderConstruction: MutableSet<KClass<*>> = mutableSetOf()
 
     fun get(cacheKey: TypesCacheKey): GraphQLType? {
         val cacheKeyString = getCacheKeyString(cacheKey)
@@ -33,7 +35,10 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         return null
     }
 
-    fun put(key: TypesCacheKey, kGraphQLType: KGraphQLType) = cache.put(getCacheKeyString(key), kGraphQLType)
+    fun put(key: TypesCacheKey, kGraphQLType: KGraphQLType): KGraphQLType? {
+        typeUnderConstruction.remove(kGraphQLType.kClass)
+        return cache.put(getCacheKeyString(key), kGraphQLType)
+    }
 
     fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }
@@ -82,4 +87,8 @@ internal class TypesCache(private val supportedPackages: List<String>) {
             throw TypeNotSupportedException(qualifiedName, supportedPackages)
         }
     }
+
+    fun putTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.add(kClass)
+
+    fun isTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.contains(kClass)
 }

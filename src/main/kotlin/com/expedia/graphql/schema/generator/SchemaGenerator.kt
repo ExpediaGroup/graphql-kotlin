@@ -27,6 +27,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLUnionType
 import org.reflections.Reflections
 import kotlin.reflect.KClass
@@ -240,33 +241,39 @@ internal class SchemaGenerator(
         GraphQLList.list(graphQLTypeOf(type.arguments.first().type!!, inputType))
 
     private fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
-        val builder = GraphQLObjectType.newObject()
-
-        builder.name(kClass.simpleName)
-        builder.description(kClass.graphQLDescription())
-
-        kClass.directives().map {
-            builder.withDirective(it)
-            directives.add(it)
-        }
-
-        if (interfaceType != null) {
-            builder.withInterface(interfaceType)
+        if (cache.isTypeUnderConstruction(kClass)) {
+            return GraphQLTypeReference.typeRef(kClass.simpleName)
         } else {
-            kClass.superclasses
-                .asSequence()
-                .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion() }
-                .map { objectFromReflection(it.createType(), false) as GraphQLInterfaceType }
-                .forEach { builder.withInterface(it) }
+            cache.putTypeUnderConstruction(kClass)
+
+            val builder = GraphQLObjectType.newObject()
+
+            builder.name(kClass.simpleName)
+            builder.description(kClass.graphQLDescription())
+
+            kClass.directives().map {
+                builder.withDirective(it)
+                directives.add(it)
+            }
+
+            if (interfaceType != null) {
+                builder.withInterface(interfaceType)
+            } else {
+                kClass.superclasses
+                        .asSequence()
+                        .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion() }
+                        .map { objectFromReflection(it.createType(), false) as GraphQLInterfaceType }
+                        .forEach { builder.withInterface(it) }
+            }
+
+            kClass.getValidProperties(config.hooks)
+                    .forEach { builder.field(property(it)) }
+
+            kClass.getValidFunctions(config.hooks)
+                    .forEach { builder.field(function(it)) }
+
+            return builder.build()
         }
-
-        kClass.getValidProperties(config.hooks)
-            .forEach { builder.field(property(it)) }
-
-        kClass.getValidFunctions(config.hooks)
-            .forEach { builder.field(function(it)) }
-
-        return builder.build()
     }
 
     private fun inputObjectType(kClass: KClass<*>): GraphQLType {
