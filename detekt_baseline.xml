@@ -14,5 +14,6 @@
     <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as GraphQLNonNull</ID>
     <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDoSingle").type as GraphQLNonNull</ID>
     <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("maybe").type as GraphQLNonNull</ID>
+    <ID>ComplexInterface:SchemaGeneratorHooks.kt$SchemaGeneratorHooks</ID>
   </Whitelist>
 </SmellBaseline>

@@ -140,7 +140,7 @@ internal class SchemaGenerator(
         }
 
         if (!abstract) {
-            val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args)
+            val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args, config.hooks.dataFetcherExecutionPredicate)
             val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
             builder.dataFetcher(hookDataFetcher)
         }

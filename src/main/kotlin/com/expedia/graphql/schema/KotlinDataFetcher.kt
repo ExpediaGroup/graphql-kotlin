@@ -1,6 +1,7 @@
 package com.expedia.graphql.schema
 
 import com.expedia.graphql.annotations.GraphQLContext
+import com.expedia.graphql.schema.hooks.DataFetcherExecutionPredicate
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -23,7 +24,8 @@ data class Parameter(val klazz: Class<*>, val annotations: List<Annotation>)
 class KotlinDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val args: Map<String, Parameter>
+    private val args: Map<String, Parameter>,
+    private val executionPredicate: DataFetcherExecutionPredicate?
 ) : DataFetcher<Any> {
 
     override fun get(environment: DataFetchingEnvironment): Any? {
@@ -38,7 +40,13 @@ class KotlinDataFetcher(
                 if (annotations.any { it.annotationClass == GraphQLContext::class }) {
                     environment.getContext()
                 } else {
-                    mapper.convertValue(environment.arguments[name], klazz)
+                    val value = mapper.convertValue(environment.arguments[name], klazz)
+
+                    if (executionPredicate != null && !executionPredicate.test(value)) {
+                        executionPredicate.onFailure(name, klazz)
+                    } else {
+                        value
+                    }
                 }
             }.toTypedArray())
         } else {
