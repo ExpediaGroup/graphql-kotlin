@@ -241,11 +241,7 @@ internal class SchemaGenerator(
         GraphQLList.list(graphQLTypeOf(type.arguments.first().type!!, inputType))
 
     private fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
-        if (cache.isTypeUnderConstruction(kClass)) {
-            return GraphQLTypeReference.typeRef(kClass.simpleName)
-        } else {
-            cache.putTypeUnderConstruction(kClass)
-
+        return cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLObjectType.newObject()
 
             builder.name(kClass.simpleName)
@@ -272,7 +268,7 @@ internal class SchemaGenerator(
             kClass.getValidFunctions(config.hooks)
                     .forEach { builder.field(function(it)) }
 
-            return builder.build()
+            builder.build()
         }
     }
 
@@ -301,51 +297,59 @@ internal class SchemaGenerator(
     }
 
     private fun interfaceType(kClass: KClass<*>): GraphQLType {
-        val builder = GraphQLInterfaceType.newInterface()
+        return cache.buildIfNotUnderConstruction(kClass) {
+            val builder = GraphQLInterfaceType.newInterface()
 
-        builder.name(kClass.simpleName)
-        builder.description(kClass.graphQLDescription())
+            builder.name(kClass.simpleName)
+            builder.description(kClass.graphQLDescription())
 
-        kClass.getValidProperties(config.hooks)
-            .forEach { builder.field(property(it)) }
+            kClass.getValidProperties(config.hooks)
+                    .forEach { builder.field(property(it)) }
 
-        kClass.getValidFunctions(config.hooks)
-            .forEach { builder.field(function(it, abstract = true)) }
+            kClass.getValidFunctions(config.hooks)
+                    .forEach { builder.field(function(it, abstract = true)) }
 
-        builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
-        val interfaceType = builder.build()
+            builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+            val interfaceType = builder.build()
 
-        val implementations = getSubTypesOf(kClass)
-        implementations
-            .filterNot { it.kotlin.isAbstract }
-            .forEach {
-                val objectType = objectType(it.kotlin, interfaceType)
-                val key = TypesCacheKey(it.kotlin.createType(), false)
-                additionTypes.add(objectType)
-                cache.put(key, KGraphQLType(it.kotlin, objectType))
-            }
+            val implementations = getSubTypesOf(kClass)
+            implementations
+                    .filterNot { it.kotlin.isAbstract }
+                    .forEach {
+                        val objectType = objectType(it.kotlin, interfaceType)
+                        val key = TypesCacheKey(it.kotlin.createType(), false)
+                        additionTypes.add(objectType)
+                        cache.put(key, KGraphQLType(it.kotlin, objectType))
+                    }
 
-        return interfaceType
+            interfaceType
+        }
     }
 
     private fun unionType(kClass: KClass<*>): GraphQLType {
-        val builder = GraphQLUnionType.newUnionType()
+        return cache.buildIfNotUnderConstruction(kClass) {
+            val builder = GraphQLUnionType.newUnionType()
 
-        builder.name(kClass.simpleName)
-        builder.description(kClass.graphQLDescription())
-        builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+            builder.name(kClass.simpleName)
+            builder.description(kClass.graphQLDescription())
+            builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
 
-        val implementations = getSubTypesOf(kClass)
-        implementations
-            .filterNot { it.kotlin.isAbstract }
-            .forEach {
-                val objectType = objectType(it.kotlin)
-                val key = TypesCacheKey(it.kotlin.createType(), false)
-                builder.possibleType(objectType(it.kotlin) as GraphQLObjectType)
-                cache.put(key, KGraphQLType(it.kotlin, objectType))
-            }
+            val implementations = getSubTypesOf(kClass)
+            implementations
+                    .filterNot { it.kotlin.isAbstract }
+                    .forEach {
+                        val objectType = objectType(it.kotlin)
+                        val key = TypesCacheKey(it.kotlin.createType(), false)
+                        if (objectType is GraphQLTypeReference) {
+                            builder.possibleType(objectType)
+                        } else {
+                            builder.possibleType(objectType as GraphQLObjectType)
+                        }
+                        cache.put(key, KGraphQLType(it.kotlin, objectType))
+                    }
 
-        return builder.build()
+            builder.build()
+        }
     }
 
     private fun getSubTypesOf(kclass: KClass<*>): MutableSet<out Class<out Any>> =

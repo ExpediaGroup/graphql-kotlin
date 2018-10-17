@@ -23,10 +23,14 @@ class PolymorphicTests {
         graphqlType?.let { union ->
             assertTrue(union.types.any { it.name == "LeftHand" })
             assertTrue(union.types.any { it.name == "RightHand" })
+            assertTrue(union.types.any { it.name == "Arm" })
         }
 
         assertNotNull(schema.getType("RightHand"))
-        assertNotNull(schema.getType("LeftHand"))
+        val leftHandType = schema.getType("LeftHand") as? GraphQLObjectType
+
+        assertNotNull(leftHandType)
+        assertNotNull(leftHandType?.getFieldDefinition("associatedWith"))
     }
 
     @Test
@@ -74,6 +78,14 @@ class PolymorphicTests {
             assertTrue { it.types.contains(carType) }
         }
     }
+
+    @Test
+    fun `Interfaces can declare properties of their own type`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithRecursiveType())), config = testSchemaConfig)
+
+        val personType = schema.getType("Person")
+        assertNotNull(personType)
+    }
 }
 
 class QueryWithInterface {
@@ -101,18 +113,23 @@ data class AnImplementation(
 class QueryWithUnion {
     fun query(whichHand: String): BodyPart = when (whichHand) {
         "right" -> RightHand(12)
-        else -> LeftHand("hello world")
+        else -> LeftHand("hello world", Arm(true))
     }
 }
 
 interface BodyPart
 
 data class LeftHand(
-    val field: String
+    val field: String,
+    val associatedWith: BodyPart
 ) : BodyPart
 
 data class RightHand(
     val property: Int
+) : BodyPart
+
+data class Arm(
+    val value: Boolean
 ) : BodyPart
 
 class QueryWithInterfaceAnUnion {
@@ -126,3 +143,20 @@ interface Vehicle {
 interface Product
 
 data class Car(val model: String, override val color: String) : Vehicle, Product
+
+class QueryWithRecursiveType {
+    fun query(): Person = Father("knock knock", Child())
+}
+
+interface Person {
+    val child: Person?
+}
+
+data class Child(
+    override val child: Person? = null
+) : Person
+
+data class Father(
+    val dadJoke: String,
+    override val child: Person?
+) : Person

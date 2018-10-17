@@ -7,6 +7,7 @@ import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
 import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
@@ -88,7 +89,14 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         }
     }
 
-    fun putTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.add(kClass)
+    private fun putTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.add(kClass)
 
-    fun isTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.contains(kClass)
+    fun buildIfNotUnderConstruction(kClass: KClass<*>, build: (KClass<*>) -> GraphQLType): GraphQLType {
+        return if (typeUnderConstruction.contains(kClass)) {
+            GraphQLTypeReference.typeRef(kClass.simpleName)
+        } else {
+            putTypeUnderConstruction(kClass)
+            build(kClass)
+        }
+    }
 }
