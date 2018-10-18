@@ -3,14 +3,18 @@ package com.expedia.graphql.sample
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
 import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
+import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
 import com.expedia.graphql.sample.query.Query
 import com.expedia.graphql.schema.SchemaGeneratorConfig
 import com.expedia.graphql.toSchema
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import graphql.execution.AsyncExecutionStrategy
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
+import graphql.servlet.DefaultExecutionStrategyProvider
+import graphql.servlet.GraphQLErrorHandler
 import graphql.servlet.GraphQLInvocationInputFactory
 import graphql.servlet.GraphQLObjectMapper
 import graphql.servlet.GraphQLQueryInvoker
@@ -23,6 +27,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import javax.servlet.http.HttpServlet
+import javax.validation.Validator
 
 @SpringBootApplication
 @ComponentScan("com.expedia.graphql")
@@ -31,9 +36,9 @@ class Application {
     private val logger = LoggerFactory.getLogger(Application::class.java)
 
     @Bean
-    fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory): SchemaGeneratorConfig = SchemaGeneratorConfig(
-            supportedPackages = "com.expedia",
-            hooks = CustomSchemaGeneratorHooks(),
+    fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory, validator: Validator): SchemaGeneratorConfig = SchemaGeneratorConfig(
+            supportedPackages = listOf("com.expedia"),
+            hooks = CustomSchemaGeneratorHooks(validator),
             dataFetcherFactory = dataFetcherFactory
     )
 
@@ -68,12 +73,19 @@ class Application {
             .build()
 
     @Bean
-    fun graphQLQueryInvoker(): GraphQLQueryInvoker = GraphQLQueryInvoker.newBuilder()
-            .build()
+    fun graphQLQueryInvoker(): GraphQLQueryInvoker {
+        val exceptionHandler = CustomDataFetcherExceptionHandler()
+        val executionStrategyProvider = DefaultExecutionStrategyProvider(AsyncExecutionStrategy(exceptionHandler))
+
+        return GraphQLQueryInvoker.newBuilder()
+                .withExecutionStrategyProvider(executionStrategyProvider)
+                .build()
+    }
 
     @Bean
     fun graphQLObjectMapper(): GraphQLObjectMapper = GraphQLObjectMapper.newBuilder()
             .withObjectMapperConfigurer(ObjectMapperConfigurer { it.registerModule(KotlinModule()) })
+            .withGraphQLErrorHandler( GraphQLErrorHandler { it })
             .build()
 
     @Bean
