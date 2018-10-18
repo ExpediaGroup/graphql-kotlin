@@ -1,5 +1,7 @@
-package com.expedia.graphql.schema.generator
+package com.expedia.graphql.schema.extensions
 
+import com.expedia.graphql.schema.generator.functionFilters
+import com.expedia.graphql.schema.generator.propertyFilters
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
