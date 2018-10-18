@@ -3,14 +3,13 @@ package com.expedia.graphql.schema.generator.types
 import graphql.schema.GraphQLEnumType
 import kotlin.reflect.KClass
 
-internal fun enumType(kClass: KClass<*>): GraphQLEnumType {
-    val enumKClass = @Suppress("UNCHECKED_CAST") (kClass as KClass<Enum<*>>)
+internal fun enumType(kClass: KClass<out Enum<*>>): GraphQLEnumType {
     val builder = GraphQLEnumType.newEnum()
 
-    enumKClass.java.enumConstants.forEach {
+    kClass.java.enumConstants.forEach {
         builder.value(it.name)
     }
 
-    builder.name(enumKClass.simpleName)
+    builder.name(kClass.simpleName)
     return builder.build()
 }

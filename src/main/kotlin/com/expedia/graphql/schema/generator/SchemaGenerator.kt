@@ -213,7 +213,7 @@ internal class SchemaGenerator(
     }
 
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
-        kClass.isSubclassOf(Enum::class) -> enumType(kClass)
+        kClass.isSubclassOf(Enum::class) -> @Suppress("UNCHECKED_CAST") enumType(kClass as KClass<Enum<*>>)
         kClass.isSubclassOf(List::class) || kClass.java.isArray -> listType(type, inputType)
         kClass.canBeGraphQLUnion() -> unionType(kClass)
         kClass.canBeGraphQLInterface() -> interfaceType(kClass)

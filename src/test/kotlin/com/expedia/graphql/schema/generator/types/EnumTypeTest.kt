@@ -14,6 +14,7 @@ internal class EnumTypeTest {
     fun enumType() {
         val actual = enumType(MyTestEnum::class)
         assertEquals(expected = 2, actual = actual.values.size)
+        assertEquals(expected = "MyTestEnum", actual = actual.name)
         assertEquals(expected = "ONE", actual = actual.values[0].value)
         assertEquals(expected = "TWO", actual = actual.values[1].value)
     }
