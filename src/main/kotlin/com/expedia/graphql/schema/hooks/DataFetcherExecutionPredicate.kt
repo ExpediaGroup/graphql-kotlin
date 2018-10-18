@@ -1,6 +1,7 @@
 package com.expedia.graphql.schema.hooks
 
 import com.expedia.graphql.schema.Parameter
+import graphql.schema.DataFetchingEnvironment
 
 /**
  * Perform runtime evaluations of each parameter passed to any datafetcher.
@@ -26,12 +27,12 @@ abstract class DataFetcherExecutionPredicate {
      * @param argumentName the name of the argument as declared in the query / kotlin function
      * @param value the value passed in the query by the user
      */
-    fun execute(parameter: Parameter, argumentName: String, value: Any): Any {
-        val result = evaluate(parameter, argumentName, value)
+    fun <T> execute(value: T, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): T {
+        val evaluationResult = evaluate(value, parameter, argumentName, environment)
 
         return when {
-            test(result) -> value
-            else -> onFailure(parameter, argumentName, result)
+            test(evaluationResult) -> value
+            else -> onFailure(evaluationResult, parameter, argumentName, environment)
         }
     }
 
@@ -42,7 +43,7 @@ abstract class DataFetcherExecutionPredicate {
      *
      * @return the result of the evaluation eg: List of errors
      */
-    abstract fun <T> evaluate(parameter: Parameter, argumentName: String, value: T): Any
+    abstract fun <T> evaluate(value: T, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Any
 
     /**
      * Assert than the result of the {@link #evaluate(Parameter)} method is as expected eg: the list of errors is empty
@@ -58,5 +59,5 @@ abstract class DataFetcherExecutionPredicate {
      *
      * An exception can then be thrown to block the data fetcher execution
      */
-    abstract fun onFailure(parameter: Parameter, argumentName: String, result: Any): Nothing
+    abstract fun onFailure(result: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing
 }

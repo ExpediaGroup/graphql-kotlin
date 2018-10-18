@@ -42,7 +42,7 @@ class KotlinDataFetcher(
                 } else {
                     val value = mapper.convertValue(environment.arguments[name], klazz)
 
-                    executionPredicate?.execute(it.value, name, value) ?: value
+                    executionPredicate?.execute(value = value, parameter = it.value, argumentName = name, environment = environment) ?: value
                 }
             }.toTypedArray())
         } else {

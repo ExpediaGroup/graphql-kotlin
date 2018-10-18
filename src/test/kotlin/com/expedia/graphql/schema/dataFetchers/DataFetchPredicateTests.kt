@@ -8,6 +8,7 @@ import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.toSchema
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
+import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -62,7 +63,7 @@ class PredicateHooks : NoopSchemaGeneratorHooks() {
 
 class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
 
-    override fun <T> evaluate(parameter: Parameter, argumentName: String, value: T): Any = when {
+    override fun <T> evaluate(value: T, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Any = when {
         argumentName == "greaterThan2" && value is Int && value <= 2 -> listOf(Error("greaterThan2 is actually $value"))
         value is Person -> {
             val errors = mutableListOf<Error>()
@@ -78,7 +79,7 @@ class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
         else -> true
     }
 
-    override fun onFailure(parameter: Parameter, argumentName: String, result: Any): Nothing {
+    override fun onFailure(result: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
         throw IllegalArgumentException("The datafetcher cannot be executed due to: $result")
     }
 
