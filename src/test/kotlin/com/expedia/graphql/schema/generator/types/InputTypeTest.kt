@@ -9,7 +9,7 @@ internal class InputTypeTest {
 
     @Test
     fun getGraphQLInputClassName() {
-        val actual = getGraphQLInputClassName(TestClass::class)
+        val actual = getInputClassName(TestClass::class)
         assertEquals(expected = "TestClassInput", actual = actual)
     }
 }

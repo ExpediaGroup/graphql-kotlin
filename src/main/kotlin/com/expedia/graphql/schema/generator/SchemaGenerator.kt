@@ -14,7 +14,7 @@ import com.expedia.graphql.schema.extensions.isGraphQLContext
 import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.expedia.graphql.schema.generator.types.enumType
-import com.expedia.graphql.schema.generator.types.getGraphQLInputClassName
+import com.expedia.graphql.schema.generator.types.getInputClassName
 import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
@@ -267,7 +267,7 @@ internal class SchemaGenerator(
 
     private fun inputObjectType(kClass: KClass<*>): GraphQLType {
         val builder = GraphQLInputObjectType.newInputObject()
-        val name = getGraphQLInputClassName(kClass)
+        val name = getInputClassName(kClass)
 
         builder.name(name)
         builder.description(kClass.graphQLDescription())
