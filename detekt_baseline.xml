@@ -2,7 +2,6 @@
 <SmellBaseline>
   <Blacklist timestamp="1538767296980"></Blacklist>
   <Whitelist timestamp="1538768092037">
-    <ID>ComplexMethod:typeMappers.kt$internal fun graphQLScalar(type: KType): GraphQLType?</ID>
     <ID>FunctionMaxLength:SchemaGenerator.kt$SchemaGenerator$@Throws(InvalidInputFieldTypeException::class) private fun throwIfInterfaceIsNotAuthorized(parameter: KParameter)</ID>
     <ID>FunctionOnlyReturningConstant:DirectiveTests.kt$Geography$@DirectiveOnFunction fun somethingCool(): String</ID>
     <ID>LargeClass:SchemaGenerator.kt$SchemaGenerator</ID>

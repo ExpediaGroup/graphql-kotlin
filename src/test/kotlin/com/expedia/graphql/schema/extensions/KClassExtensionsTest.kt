@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.generator
+package com.expedia.graphql.schema.extensions
 
 import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
 import org.junit.jupiter.api.Test

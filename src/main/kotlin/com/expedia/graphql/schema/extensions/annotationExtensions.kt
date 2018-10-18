@@ -4,8 +4,8 @@ import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
-import com.expedia.graphql.schema.generator.graphQLScalar
 import com.expedia.graphql.schema.generator.isNotBlackListed
+import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -87,7 +87,7 @@ internal fun KAnnotatedElement.directives() =
                 val propertyName = prop.name
                 val value = prop.call(annotation)
                 @Suppress("Detekt.UnsafeCast")
-                val type = graphQLScalar(prop.returnType) as GraphQLInputType
+                val type = defaultGraphQLScalars(prop.returnType) as GraphQLInputType
                 builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
             }
 
