@@ -4,13 +4,16 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.KotlinDataFetcher
 import com.expedia.graphql.schema.Parameter
 import com.expedia.graphql.schema.SchemaGeneratorConfig
-import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
+import com.expedia.graphql.schema.extensions.canBeGraphQLInterface
+import com.expedia.graphql.schema.extensions.canBeGraphQLUnion
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getDeprecationReason
+import com.expedia.graphql.schema.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.schema.extensions.getValidFunctions
 import com.expedia.graphql.schema.extensions.getValidProperties
 import com.expedia.graphql.schema.extensions.graphQLDescription
 import com.expedia.graphql.schema.extensions.isGraphQLContext
+import com.expedia.graphql.schema.extensions.throwIfUnathorizedInterface
 import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.expedia.graphql.schema.generator.types.enumType
@@ -26,7 +29,6 @@ import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInputType
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
-import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLSchema
@@ -39,13 +41,10 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.declaredMemberFunctions
-import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.javaType
-import kotlin.reflect.jvm.jvmErasure
 
 @Suppress("Detekt.UnsafeCast")
 internal class SchemaGenerator(
@@ -84,6 +83,7 @@ internal class SchemaGenerator(
     private fun addQueries(builder: GraphQLSchema.Builder) {
         val queryBuilder = GraphQLObjectType.Builder()
         queryBuilder.name(config.topLevelQueryName)
+
         for (query in queries) {
             query.klazz.getValidFunctions(config.hooks)
                 .forEach {
@@ -92,6 +92,7 @@ internal class SchemaGenerator(
                     queryBuilder.field(functionFromHook)
                 }
         }
+
         builder.query(queryBuilder.build())
     }
 
@@ -117,6 +118,7 @@ internal class SchemaGenerator(
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
         builder.description(fn.graphQLDescription())
+
         fn.getDeprecationReason()?.let {
             builder.deprecate(it)
         }
@@ -163,23 +165,14 @@ internal class SchemaGenerator(
                 .deprecate(prop.getDeprecationReason())
 
         return if (config.dataFetcherFactory != null && prop.isLateinit) {
-            updatePropertyFieldBuilder(propertyType, fieldBuilder)
+            updatePropertyFieldBuilder(propertyType, fieldBuilder, config.dataFetcherFactory)
         } else {
             fieldBuilder
         }.build()
     }
 
-    private fun updatePropertyFieldBuilder(propertyType: GraphQLOutputType, fieldBuilder: GraphQLFieldDefinition.Builder): GraphQLFieldDefinition.Builder {
-        val updatedFieldBuilder = if (propertyType is GraphQLNonNull) {
-            fieldBuilder.type(propertyType.wrappedType as GraphQLOutputType)
-        } else {
-            fieldBuilder
-        }
-        return updatedFieldBuilder.dataFetcherFactory(config.dataFetcherFactory)
-    }
-
     private fun argument(parameter: KParameter): GraphQLArgument {
-        throwIfInterfaceIsNotAuthorized(parameter)
+        parameter.throwIfUnathorizedInterface()
         return GraphQLArgument.newArgument()
             .name(parameter.name)
             .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
@@ -220,21 +213,11 @@ internal class SchemaGenerator(
         else -> if (inputType) inputObjectType(kClass) else objectType(kClass)
     }
 
-    private fun KClass<*>.canBeGraphQLInterface(): Boolean = this.java.isInterface
-
-    private fun KClass<*>.canBeGraphQLUnion(): Boolean =
-            this.canBeGraphQLInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
-
-    @Throws(InvalidInputFieldTypeException::class)
-    private fun throwIfInterfaceIsNotAuthorized(parameter: KParameter) {
-        if (parameter.type.jvmErasure.java.isInterface) throw InvalidInputFieldTypeException()
-    }
-
     private fun listType(type: KType, inputType: Boolean): GraphQLList =
-        GraphQLList.list(graphQLTypeOf(type.arguments.first().type!!, inputType))
+        GraphQLList.list(graphQLTypeOf(type.getTypeOfFirstArgument(), inputType))
 
     private fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
-        return cache.buildIfNotUnderConstruction(kClass) {
+        return cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLObjectType.newObject()
 
             builder.name(kClass.simpleName)
@@ -290,7 +273,7 @@ internal class SchemaGenerator(
     }
 
     private fun interfaceType(kClass: KClass<*>): GraphQLType {
-        return cache.buildIfNotUnderConstruction(kClass) {
+        return cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLInterfaceType.newInterface()
 
             builder.name(kClass.simpleName)
@@ -311,6 +294,7 @@ internal class SchemaGenerator(
                     .forEach {
                         val objectType = objectType(it.kotlin, interfaceType)
                         val key = TypesCacheKey(it.kotlin.createType(), false)
+
                         additionTypes.add(objectType)
                         cache.put(key, KGraphQLType(it.kotlin, objectType))
                     }
@@ -320,7 +304,7 @@ internal class SchemaGenerator(
     }
 
     private fun unionType(kClass: KClass<*>): GraphQLType {
-        return cache.buildIfNotUnderConstruction(kClass) {
+        return cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLUnionType.newUnionType()
 
             builder.name(kClass.simpleName)
@@ -333,11 +317,13 @@ internal class SchemaGenerator(
                     .forEach {
                         val objectType = objectType(it.kotlin)
                         val key = TypesCacheKey(it.kotlin.createType(), false)
+
                         if (objectType is GraphQLTypeReference) {
                             builder.possibleType(objectType)
                         } else {
                             builder.possibleType(objectType as GraphQLObjectType)
                         }
+
                         cache.put(key, KGraphQLType(it.kotlin, objectType))
                     }
 
