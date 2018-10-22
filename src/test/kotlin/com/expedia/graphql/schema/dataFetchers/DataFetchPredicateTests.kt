@@ -74,13 +74,10 @@ class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
         else -> emptyList()
     }
 
-    override fun test(result: Any): Boolean = when (result) {
-        is List<*> -> result.isEmpty()
-        else -> true
-    }
+    override fun test(evaluationResult: Any): Boolean = (evaluationResult as? List<*>)?.isEmpty() ?: true
 
-    override fun onFailure(result: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
-        throw IllegalArgumentException("The datafetcher cannot be executed due to: $result")
+    override fun onFailure(evaluationResult: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
+        throw IllegalArgumentException("The datafetcher cannot be executed due to: $evaluationResult")
     }
 
     data class Error(val message: String)
