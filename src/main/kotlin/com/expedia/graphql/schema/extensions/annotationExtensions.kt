@@ -1,6 +1,5 @@
 package com.expedia.graphql.schema.extensions
 
-import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
@@ -12,8 +11,6 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.KType
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
@@ -49,8 +46,6 @@ private fun KAnnotatedElement.listOfDirectives(): List<String> {
     )
     return directiveNames.filterNotNull()
 }
-
-internal fun KType.graphQLDescription(): String? = (classifier as? KClass<*>)?.graphQLDescription()
 
 internal fun KAnnotatedElement.getDeprecationReason(): String? {
     val annotation = this.findAnnotation<Deprecated>() ?: return null
@@ -94,7 +89,5 @@ internal fun KAnnotatedElement.directives() =
         builder.build()
     }
 }
-
-internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
 
 private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
