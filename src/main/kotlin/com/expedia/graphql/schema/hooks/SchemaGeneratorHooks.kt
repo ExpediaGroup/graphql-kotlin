@@ -64,4 +64,10 @@ interface SchemaGeneratorHooks {
      * Called after converting the function to a field definition but before adding to the schema to allow customization
      */
     fun didGenerateMutationType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition
+
+    /**
+     * Execute a predicate on each function parameters after their deserialization
+     * If the execution is unsuccessful the `onFailure` method will be invoked
+     */
+    val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate?
 }

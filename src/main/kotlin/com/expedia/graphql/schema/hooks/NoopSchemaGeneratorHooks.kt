@@ -39,4 +39,6 @@ open class NoopSchemaGeneratorHooks : SchemaGeneratorHooks {
     override fun didGenerateQueryType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition) = fieldDefinition
 
     override fun didGenerateMutationType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition) = fieldDefinition
+
+    override val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate? = null
 }
