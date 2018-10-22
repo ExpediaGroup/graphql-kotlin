@@ -66,8 +66,8 @@ interface SchemaGeneratorHooks {
     fun didGenerateMutationType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition
 
     /**
-     * Execute a execute on each function parameters after their deserialization
-     * If the execute is unsuccessful the `onFailure` method will be invoke
+     * Execute a predicate on each function parameters after their deserialization
+     * If the execution is unsuccessful the `onFailure` method will be invoked
      */
     val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate?
 }
