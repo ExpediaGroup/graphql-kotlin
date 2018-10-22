@@ -15,7 +15,7 @@ import kotlin.reflect.KType
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomSchemaGeneratorHooks(validator: Validator? = null) : NoopSchemaGeneratorHooks() {
+class CustomSchemaGeneratorHooks(validator: Validator) : NoopSchemaGeneratorHooks() {
 
     /**
      * Register additional GraphQL scalar types.
