@@ -7,4 +7,4 @@ import kotlin.reflect.KType
  * Throws on nesting a non-null graphql type twice.
  */
 class NestingNonNullTypeException(gType: GraphQLType, kType: KType)
-    : RuntimeException("Already non null, don't need to nest, $gType, $kType")
+    : GraphQLKotlinException("Already non null, don't need to nest, $gType, $kType")

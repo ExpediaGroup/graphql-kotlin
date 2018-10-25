@@ -8,4 +8,4 @@ import kotlin.reflect.KClass
  * in the GraphQLType so all names must be unique.
  */
 class ConflictingTypesException(kClass1: KClass<*>, kClass2: KClass<*>)
-    : RuntimeException("Conflicting class names in schema generation [$kClass1, $kClass2]")
+    : GraphQLKotlinException("Conflicting class names in schema generation [$kClass1, $kClass2]")
