@@ -6,7 +6,7 @@ import com.expedia.graphql.annotations.GraphQLIgnore
 @GraphQLDescription("A useful widget")
 data class Widget(
     @property:GraphQLDescription("The widget's value that can be null")
-    val value: Int?,
+    var value: Int? = null,
     @property:Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
     @property:GraphQLDescription("The widget's deprecated value that shouldn't be used")
     val deprecatedValue: Int? = value,
