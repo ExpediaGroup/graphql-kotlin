@@ -13,6 +13,7 @@ import com.expedia.graphql.schema.extensions.getValidFunctions
 import com.expedia.graphql.schema.extensions.getValidProperties
 import com.expedia.graphql.schema.extensions.graphQLDescription
 import com.expedia.graphql.schema.extensions.isGraphQLContext
+import com.expedia.graphql.schema.extensions.isGraphQLID
 import com.expedia.graphql.schema.extensions.throwIfUnathorizedInterface
 import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
@@ -156,7 +157,7 @@ internal class SchemaGenerator(
     }
 
     private fun property(prop: KProperty<*>): GraphQLFieldDefinition {
-        val propertyType = graphQLTypeOf(prop.returnType) as GraphQLOutputType
+        val propertyType = graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isGraphQLID()) as GraphQLOutputType
 
         val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
                 .description(prop.graphQLDescription())
@@ -180,9 +181,9 @@ internal class SchemaGenerator(
             .build()
     }
 
-    private fun graphQLTypeOf(type: KType, inputType: Boolean = false): GraphQLType {
+    private fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
-        val graphQLType = hookGraphQLType ?: defaultGraphQLScalars(type) ?: objectFromReflection(type, inputType)
+        val graphQLType = hookGraphQLType ?: defaultGraphQLScalars(type, annotatedAsID) ?: objectFromReflection(type, inputType)
         val typeWithNullityTakenIntoAccount = graphQLType.wrapInNonNull(type)
         config.hooks.didGenerateGraphQLType(type, typeWithNullityTakenIntoAccount)
         return typeWithNullityTakenIntoAccount

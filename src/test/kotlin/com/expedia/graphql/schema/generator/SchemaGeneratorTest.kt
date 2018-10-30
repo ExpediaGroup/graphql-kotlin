@@ -2,6 +2,7 @@ package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.InvalidSchemaException
@@ -9,16 +10,18 @@ import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
+import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import java.net.CookieManager
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@Suppress("Detekt.UnusedPrivateMember", "Detekt.FunctionOnlyReturningConstant")
+@Suppress("Detekt.UnusedPrivateMember", "Detekt.FunctionOnlyReturningConstant", "Detekt.LargeClass")
 class SchemaGeneratorTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
@@ -228,6 +231,26 @@ class SchemaGeneratorTest {
         assertNull(firstChild?.get("children"))
     }
 
+    @Test
+    fun `SchemaGenerator support GraphQLID scalar`() {
+        val schema = toSchema(queries = listOf(TopLevelObjectDef(QueryWithId())), config = testSchemaConfig)
+
+        val placeType = schema.getObjectType("PlaceOfIds")
+        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("intId").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("longId").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("stringId").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("uuid").type as? GraphQLNonNull)?.wrappedType)
+    }
+
+    @Test
+    fun `SchemaGenerator throws an exception for invalid GraphQLID`() {
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            toSchema(queries = listOf(TopLevelObjectDef(QueryWithInvalidId())), config = testSchemaConfig)
+        }
+
+        assertEquals("Person is not a valid ID type, only [kotlin.Int, kotlin.String, kotlin.Long, java.util.UUID] are accepted", exception.message)
+    }
+
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
@@ -355,4 +378,21 @@ class SchemaGeneratorTest {
     }
 
     data class Person(val name: String, val children: List<Person>? = null)
+
+    data class PlaceOfIds(
+        @property:GraphQLID val intId: Int,
+        @property:GraphQLID val longId: Long,
+        @property:GraphQLID val stringId: String,
+        @property:GraphQLID val uuid: UUID
+    )
+
+    data class InvalidIds(@property:GraphQLID val person: Person)
+
+    class QueryWithId {
+        fun query(): PlaceOfIds = PlaceOfIds(42, 24, "42", UUID.randomUUID())
+    }
+
+    class QueryWithInvalidId {
+        fun query(): InvalidIds = InvalidIds(Person("person id not a valid type id"))
+    }
 }
