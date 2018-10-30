@@ -268,7 +268,7 @@ internal class SchemaGenerator(
 
         builder.description(prop.graphQLDescription())
         builder.name(prop.name)
-        builder.type(graphQLTypeOf(prop.returnType, true) as GraphQLInputType)
+        builder.type(graphQLTypeOf(prop.returnType, true, prop.isGraphQLID()) as GraphQLInputType)
 
         return builder.build()
     }
