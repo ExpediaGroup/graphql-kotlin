@@ -16,14 +16,15 @@ import com.expedia.graphql.schema.extensions.isGraphQLContext
 import com.expedia.graphql.schema.extensions.isGraphQLID
 import com.expedia.graphql.schema.extensions.throwIfUnathorizedInterface
 import com.expedia.graphql.schema.extensions.wrapInNonNull
+import com.expedia.graphql.schema.generator.state.SchemaGeneratorState
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.expedia.graphql.schema.generator.types.enumType
 import com.expedia.graphql.schema.generator.types.getInputClassName
 import com.expedia.graphql.schema.models.KGraphQLType
+import com.sun.corba.se.impl.util.RepositoryId.cache
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
@@ -54,10 +55,8 @@ internal class SchemaGenerator(
     private val config: SchemaGeneratorConfig
 ) {
 
-    private val cache = TypesCache(config.supportedPackages)
+    private val state = SchemaGeneratorState(config.supportedPackages)
     private val subTypeMapper = SubTypeMapper(config.supportedPackages)
-    private val additionTypes = mutableSetOf<GraphQLType>()
-    private val directives = mutableSetOf<GraphQLDirective>()
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
@@ -74,12 +73,10 @@ internal class SchemaGenerator(
     }
 
     private fun addAdditionalTypes(builder: GraphQLSchema.Builder) {
-        additionTypes
-            .filter { cache.doesNotContainGraphQLType(it) }
-            .forEach { builder.additionalType(it) }
+        state.getValidAdditionTypes().forEach { builder.additionalType(it) }
     }
 
-    private fun addDirectives(builder: GraphQLSchema.Builder) = builder.additionalDirectives(directives)
+    private fun addDirectives(builder: GraphQLSchema.Builder) = builder.additionalDirectives(state.directives)
 
     private fun addQueries(builder: GraphQLSchema.Builder) {
         val queryBuilder = GraphQLObjectType.Builder()
@@ -126,7 +123,7 @@ internal class SchemaGenerator(
 
         fn.directives().forEach {
             builder.withDirective(it)
-            directives.add(it)
+            state.directives.add(it)
         }
 
         val args = mutableMapOf<String, Parameter>()
@@ -191,7 +188,7 @@ internal class SchemaGenerator(
 
     private fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
         val cacheKey = TypesCacheKey(type, inputType)
-        val cachedType = cache.get(cacheKey)
+        val cachedType = state.cache.get(cacheKey)
 
         if (cachedType != null) {
             return cachedType
@@ -201,7 +198,7 @@ internal class SchemaGenerator(
         val graphQLType = getGraphQLType(kClass, inputType, type)
         val kGraphQLType = KGraphQLType(kClass, graphQLType)
 
-        cache.put(cacheKey, kGraphQLType)
+        cache[cacheKey] = kGraphQLType
 
         return graphQLType
     }
@@ -218,7 +215,7 @@ internal class SchemaGenerator(
         GraphQLList.list(graphQLTypeOf(type.getTypeOfFirstArgument(), inputType))
 
     private fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
-        return cache.buildIfNotUnderConstruction(kClass) { _ ->
+        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLObjectType.newObject()
 
             builder.name(kClass.simpleName)
@@ -226,7 +223,7 @@ internal class SchemaGenerator(
 
             kClass.directives().map {
                 builder.withDirective(it)
-                directives.add(it)
+                state.directives.add(it)
             }
 
             if (interfaceType != null) {
@@ -274,7 +271,7 @@ internal class SchemaGenerator(
     }
 
     private fun interfaceType(kClass: KClass<*>): GraphQLType {
-        return cache.buildIfNotUnderConstruction(kClass) { _ ->
+        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLInterfaceType.newInterface()
 
             builder.name(kClass.simpleName)
@@ -296,8 +293,8 @@ internal class SchemaGenerator(
                         val objectType = objectType(it.kotlin, interfaceType)
                         val key = TypesCacheKey(it.kotlin.createType(), false)
 
-                        additionTypes.add(objectType)
-                        cache.put(key, KGraphQLType(it.kotlin, objectType))
+                        state.additionTypes.add(objectType)
+                        cache[key] = KGraphQLType(it.kotlin, objectType)
                     }
 
             interfaceType
@@ -305,7 +302,7 @@ internal class SchemaGenerator(
     }
 
     private fun unionType(kClass: KClass<*>): GraphQLType {
-        return cache.buildIfNotUnderConstruction(kClass) { _ ->
+        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLUnionType.newUnionType()
 
             builder.name(kClass.simpleName)
@@ -325,7 +322,7 @@ internal class SchemaGenerator(
                             builder.possibleType(objectType as GraphQLObjectType)
                         }
 
-                        cache.put(key, KGraphQLType(it.kotlin, objectType))
+                        cache[key] = KGraphQLType(it.kotlin, objectType)
                     }
 
             builder.build()
