@@ -4,18 +4,7 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.KotlinDataFetcher
 import com.expedia.graphql.schema.Parameter
 import com.expedia.graphql.schema.SchemaGeneratorConfig
-import com.expedia.graphql.schema.extensions.canBeGraphQLInterface
-import com.expedia.graphql.schema.extensions.canBeGraphQLUnion
-import com.expedia.graphql.schema.extensions.directives
-import com.expedia.graphql.schema.extensions.getDeprecationReason
-import com.expedia.graphql.schema.extensions.getTypeOfFirstArgument
-import com.expedia.graphql.schema.extensions.getValidFunctions
-import com.expedia.graphql.schema.extensions.getValidProperties
-import com.expedia.graphql.schema.extensions.graphQLDescription
-import com.expedia.graphql.schema.extensions.isGraphQLContext
-import com.expedia.graphql.schema.extensions.isGraphQLID
-import com.expedia.graphql.schema.extensions.throwIfUnathorizedInterface
-import com.expedia.graphql.schema.extensions.wrapInNonNull
+import com.expedia.graphql.schema.extensions.*
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.expedia.graphql.schema.generator.types.enumType
 import com.expedia.graphql.schema.generator.types.getInputClassName
@@ -174,11 +163,15 @@ internal class SchemaGenerator(
 
     private fun argument(parameter: KParameter): GraphQLArgument {
         parameter.throwIfUnathorizedInterface()
-        return GraphQLArgument.newArgument()
+        val graphQLArgumentBuilder = GraphQLArgument.newArgument()
             .name(parameter.name)
             .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
-            .build()
+
+        if(parameter.hasDefaultValue()) {
+            graphQLArgumentBuilder.defaultValue(parameter.getDefaultValueAsString())
+        }
+        return graphQLArgumentBuilder.build()
     }
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
@@ -264,10 +257,19 @@ internal class SchemaGenerator(
     }
 
     private fun inputProperty(prop: KProperty<*>): GraphQLInputObjectField {
+
+        var defaultAsString = ""
+        if(prop.hasDefaultValue()) {
+            defaultAsString = prop.getDefaultValueAsString()
+        }
+
         val builder = GraphQLInputObjectField.newInputObjectField()
 
         builder.description(prop.graphQLDescription())
         builder.name(prop.name)
+        if(!defaultAsString.isNullOrEmpty()) {
+            builder.defaultValue(defaultAsString)
+        }
         builder.type(graphQLTypeOf(prop.returnType, true) as GraphQLInputType)
 
         return builder.build()

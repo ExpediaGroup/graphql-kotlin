@@ -1,5 +1,6 @@
 package com.expedia.graphql.schema.extensions
 
+import com.expedia.graphql.annotations.GraphQLDefaultValue
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
@@ -62,6 +63,10 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? {
 internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLIgnore>() != null
 
 internal fun KAnnotatedElement.isGraphQLID() = this.findAnnotation<GraphQLID>() != null
+
+internal fun KAnnotatedElement.hasDefaultValue() = this.findAnnotation<GraphQLDefaultValue>() != null
+
+internal fun KAnnotatedElement.getDefaultValueAsString() = this.findAnnotation<GraphQLDefaultValue>()?.valueAsString ?: ""
 
 internal fun Annotation.getDirectiveInfo() =
     this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation

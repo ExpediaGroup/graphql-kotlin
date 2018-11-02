@@ -1,5 +1,6 @@
 package com.expedia.graphql.sample.query
 
+import com.expedia.graphql.annotations.GraphQLDefaultValue
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.sample.model.Widget
 import org.springframework.stereotype.Component
@@ -11,5 +12,5 @@ import org.springframework.stereotype.Component
 class WidgetQuery: Query {
 
     @GraphQLDescription("creates new widget for given ID")
-    fun widgetById(@GraphQLDescription("The special ingredient") id: Int): Widget? = Widget(id)
+    fun widgetById(@GraphQLDescription("The special ingredient") id: Int, type: String?): Widget = Widget(value = id, type = type)
 }
