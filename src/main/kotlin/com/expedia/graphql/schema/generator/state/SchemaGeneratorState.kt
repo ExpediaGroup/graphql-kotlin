@@ -6,8 +6,8 @@ import graphql.schema.GraphQLType
 
 internal class SchemaGeneratorState(supportedPackages: List<String>) {
     val cache = TypesCache(supportedPackages)
-    val additionTypes = mutableSetOf<GraphQLType>()
+    val additionalTypes = mutableSetOf<GraphQLType>()
     val directives = mutableSetOf<GraphQLDirective>()
 
-    fun getValidAdditionTypes(): List<GraphQLType> = additionTypes.filter { cache.doesNotContainGraphQLType(it) }
+    fun getValidAdditionalTypes(): List<GraphQLType> = additionalTypes.filter { cache.doesNotContainGraphQLType(it) }
 }

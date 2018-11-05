@@ -89,6 +89,7 @@ class Geography(
     val type: GeoType,
     val locations: List<Location>
 ) {
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
     @DirectiveOnFunction
     fun somethingCool(): String = "Something cool"
 }

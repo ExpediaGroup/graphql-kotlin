@@ -21,7 +21,6 @@ import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.expedia.graphql.schema.generator.types.enumType
 import com.expedia.graphql.schema.generator.types.getInputClassName
 import com.expedia.graphql.schema.models.KGraphQLType
-import com.sun.corba.se.impl.util.RepositoryId.cache
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
@@ -73,7 +72,7 @@ internal class SchemaGenerator(
     }
 
     private fun addAdditionalTypes(builder: GraphQLSchema.Builder) {
-        state.getValidAdditionTypes().forEach { builder.additionalType(it) }
+        state.getValidAdditionalTypes().forEach { builder.additionalType(it) }
     }
 
     private fun addDirectives(builder: GraphQLSchema.Builder) = builder.additionalDirectives(state.directives)
@@ -138,6 +137,7 @@ internal class SchemaGenerator(
                 throw IllegalArgumentException("argument name is null or blank, $it")
             } else {
                 // Kotlin 1.3 will support contracts, until then we need to force non-null
+                @Suppress("Detekt.UnsafeCallOnNullableType")
                 args[name!!] = Parameter(it.type.javaType as Class<*>, it.annotations)
             }
         }
@@ -198,7 +198,7 @@ internal class SchemaGenerator(
         val graphQLType = getGraphQLType(kClass, inputType, type)
         val kGraphQLType = KGraphQLType(kClass, graphQLType)
 
-        cache[cacheKey] = kGraphQLType
+        state.cache.put(cacheKey, kGraphQLType)
 
         return graphQLType
     }
@@ -221,7 +221,7 @@ internal class SchemaGenerator(
             builder.name(kClass.simpleName)
             builder.description(kClass.graphQLDescription())
 
-            kClass.directives().map {
+            kClass.directives().forEach {
                 builder.withDirective(it)
                 state.directives.add(it)
             }
@@ -293,8 +293,8 @@ internal class SchemaGenerator(
                         val objectType = objectType(it.kotlin, interfaceType)
                         val key = TypesCacheKey(it.kotlin.createType(), false)
 
-                        state.additionTypes.add(objectType)
-                        cache[key] = KGraphQLType(it.kotlin, objectType)
+                        state.additionalTypes.add(objectType)
+                        state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                     }
 
             interfaceType
@@ -322,7 +322,7 @@ internal class SchemaGenerator(
                             builder.possibleType(objectType as GraphQLObjectType)
                         }
 
-                        cache[key] = KGraphQLType(it.kotlin, objectType)
+                        state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                     }
 
             builder.build()
