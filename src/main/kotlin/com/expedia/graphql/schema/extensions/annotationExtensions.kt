@@ -76,11 +76,12 @@ internal fun KClass<out Annotation>.properties() = this.declaredMemberFunctions.
 internal fun KAnnotatedElement.directives() =
     this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
-        .map { it.getGraphQLDirective(it.annotationClass) }
+        .map { it.getGraphQLDirective() }
         .toList()
 
 @Throws(CouldNotGetNameOfAnnotationException::class)
-private fun DirectiveAnnotation.getGraphQLDirective(kClass: KClass<out DirectiveAnnotation>): GraphQLDirective {
+private fun DirectiveAnnotation.getGraphQLDirective(): GraphQLDirective {
+    val kClass: KClass<out DirectiveAnnotation> = this.annotationClass
     val builder = GraphQLDirective.newDirective()
     val name: String = if (this.name.isNotEmpty()) {
         this.name
