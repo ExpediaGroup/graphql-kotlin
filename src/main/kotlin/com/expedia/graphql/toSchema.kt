@@ -17,7 +17,7 @@ fun toSchema(
     mutations: List<TopLevelObjectDef> = emptyList(),
     config: SchemaGeneratorConfig
 ): GraphQLSchema {
-    if (queries.isEmpty() && mutations.isEmpty()) {
+    if (queries.isEmpty()) {
         throw InvalidSchemaException()
     }
     return SchemaGenerator(queries, mutations, config).generate()

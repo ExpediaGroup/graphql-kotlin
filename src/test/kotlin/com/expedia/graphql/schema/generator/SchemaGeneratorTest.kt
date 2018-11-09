@@ -18,6 +18,7 @@ import java.net.CookieManager
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -36,6 +37,17 @@ class SchemaGeneratorTest {
         val geo: Map<String, Map<String, Any>>? = result.getData()
 
         assertEquals(1, geo?.get("query")?.get("id"))
+    }
+
+    @Test
+    fun `SchemaGenerator throws exception on a mutation only schema`() {
+        assertFailsWith(InvalidSchemaException::class) {
+            toSchema(
+                emptyList(),
+                listOf(TopLevelObjectDef(MutationObject())),
+                config = testSchemaConfig
+            )
+        }
     }
 
     @Test
