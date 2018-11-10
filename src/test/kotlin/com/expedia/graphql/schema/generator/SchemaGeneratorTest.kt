@@ -10,6 +10,7 @@ import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
+import graphql.Scalars
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Assertions.assertNull
@@ -248,10 +249,10 @@ class SchemaGeneratorTest {
         val schema = toSchema(queries = listOf(TopLevelObjectDef(QueryWithId())), config = testSchemaConfig)
 
         val placeType = schema.getObjectType("PlaceOfIds")
-        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("intId").type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("longId").type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("stringId").type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(graphql.Scalars.GraphQLID, (placeType.getFieldDefinition("uuid").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("intId").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("longId").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("stringId").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("uuid").type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -261,6 +262,15 @@ class SchemaGeneratorTest {
         }
 
         assertEquals("Person is not a valid ID type, only [kotlin.Int, kotlin.String, kotlin.Long, java.util.UUID] are accepted", exception.message)
+    }
+
+    @Test
+    fun `SchemaGenerator supports Scalar GraphQLID for input types`() {
+        val schema = toSchema(mutations = listOf(TopLevelObjectDef(MutationWithId())), config = testSchemaConfig)
+
+        val furnitureType = schema.getObjectType("Furniture")
+        val serialField = furnitureType.getFieldDefinition("serial").type as? GraphQLNonNull
+        assertEquals(Scalars.GraphQLID, serialField?.wrappedType)
     }
 
     class QueryObject {
@@ -407,4 +417,13 @@ class SchemaGeneratorTest {
     class QueryWithInvalidId {
         fun query(): InvalidIds = InvalidIds(Person("person id not a valid type id"))
     }
+
+    class MutationWithId {
+        fun mutate(furniture: Furniture): Furniture = furniture
+    }
+
+    data class Furniture(
+        @property:GraphQLID val serial: UUID,
+        val type: String
+    )
 }
