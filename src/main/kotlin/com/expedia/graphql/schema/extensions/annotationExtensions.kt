@@ -34,18 +34,23 @@ internal fun KAnnotatedElement.graphQLDescription(): String? {
 }
 
 private fun KAnnotatedElement.listOfDirectives(): List<String> {
-    val directiveNames = mutableListOf(this.getDeprecationReason()?.let { "deprecated" })
+    val deprecationReason: String? = this.getDeprecationReason()?.let { "deprecated" }
 
-    directiveNames.addAll(this.annotations
-            .filter { it.getDirectiveInfo() != null }
-            .map {
-                when {
-                    it.getDirectiveInfo()?.name != "" -> "@${it.getDirectiveInfo()?.name}"
-                    else -> "@${it.annotationClass.simpleName}"
-                }
+    return this.annotations.asSequence()
+        .mapNotNull { it.getDirectiveInfo() }
+        .map {
+            val directiveName = it.getDirectiveInfo()?.name
+            val simpleName = it.annotationClass.simpleName
+
+            when {
+                directiveName.isNullOrEmpty().not() -> "@$directiveName"
+                simpleName.isNullOrEmpty().not() -> "@$simpleName"
+                else -> null
             }
-    )
-    return directiveNames.filterNotNull()
+        }
+        .plus(deprecationReason)
+        .filterNotNull()
+        .toList()
 }
 
 internal fun KAnnotatedElement.getDeprecationReason(): String? {
@@ -63,34 +68,41 @@ internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLI
 
 internal fun KAnnotatedElement.isGraphQLID() = this.findAnnotation<GraphQLID>() != null
 
-internal fun Annotation.getDirectiveInfo() =
+internal fun Annotation.getDirectiveInfo(): DirectiveAnnotation? =
     this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
 
 internal fun KClass<out Annotation>.properties() = this.declaredMemberFunctions.filter(isNotBlackListed)
 
 internal fun KAnnotatedElement.directives() =
-    this.annotations.mapNotNull { annotation ->
-        annotation.getDirectiveInfo()?.let { directiveInfo ->
-            val builder = GraphQLDirective.newDirective()
-            val name: String = if (directiveInfo.name.isNotEmpty()) {
-                directiveInfo.name
-            } else {
-                annotation.annotationClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(annotation.annotationClass)
-            }
-            builder.name(name.normalizeDirectiveName())
-                .validLocations(*directiveInfo.locations)
-                .description(directiveInfo.description)
+    this.annotations.asSequence()
+        .mapNotNull { it.getDirectiveInfo() }
+        .map { it.getGraphQLDirective() }
+        .toList()
 
-            annotation::class.properties().forEach { prop ->
-                val propertyName = prop.name
-                val value = prop.call(annotation)
-                @Suppress("Detekt.UnsafeCast")
-                val type = defaultGraphQLScalars(prop.returnType) as GraphQLInputType
-                builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
-            }
-
-        builder.build()
+@Throws(CouldNotGetNameOfAnnotationException::class)
+private fun DirectiveAnnotation.getGraphQLDirective(): GraphQLDirective {
+    val kClass: KClass<out DirectiveAnnotation> = this.annotationClass
+    val builder = GraphQLDirective.newDirective()
+    val name: String = if (this.name.isNotEmpty()) {
+        this.name
+    } else {
+        kClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(kClass)
     }
+
+    @Suppress("Detekt.SpreadOperator")
+    builder.name(name.normalizeDirectiveName())
+        .validLocations(*this.locations)
+        .description(this.description)
+
+    kClass.properties().forEach { prop ->
+        val propertyName = prop.name
+        val value = prop.call(kClass)
+        @Suppress("Detekt.UnsafeCast")
+        val type = defaultGraphQLScalars(prop.returnType) as GraphQLInputType
+        builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
+    }
+
+    return builder.build()
 }
 
 private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
