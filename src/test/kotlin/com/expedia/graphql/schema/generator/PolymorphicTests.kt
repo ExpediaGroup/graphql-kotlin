@@ -89,6 +89,7 @@ class PolymorphicTests {
 }
 
 class QueryWithInterface {
+    fun fromUnion(): Union = AnImplementation()
     fun query(): AnInterface = AnImplementation()
     fun fromImplementation(): AnImplementation = AnImplementation()
 }
@@ -101,6 +102,8 @@ class QueryWithUnAuthorizedUnionArgument {
     fun notAllowed(body: BodyPart): BodyPart = body
 }
 
+interface Union
+
 interface AnInterface {
     val property: String
 }
@@ -108,7 +111,7 @@ interface AnInterface {
 data class AnImplementation(
     override val property: String = "A value",
     val implementationSpecific: String = "It's implementation specific"
-) : AnInterface
+) : AnInterface, Union
 
 class QueryWithUnion {
     fun query(whichHand: String): BodyPart = when (whichHand) {
