@@ -4,6 +4,7 @@ import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.starProjectedType
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -11,7 +12,7 @@ import kotlin.test.assertTrue
 
 class TypesCacheTest {
 
-    data class MyType(val id: Int = 0)
+    internal data class MyType(val id: Int = 0)
 
     private val graphQLType: GraphQLType = GraphQLType { "MyType" }
     private val secondGraphQLType: GraphQLType = GraphQLType { "MySecondType" }
@@ -26,7 +27,9 @@ class TypesCacheTest {
 
         cache.put(cacheKey, cacheValue)
 
-        assertNotNull(cache.get(cacheKey))
+        val cacheHit = cache.get(cacheKey)
+        assertNotNull(cacheHit)
+        assertEquals(expected = cacheValue.graphQLType, actual = cacheHit)
     }
 
     @Test

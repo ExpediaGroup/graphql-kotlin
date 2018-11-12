@@ -7,12 +7,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 
-internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks) = this.declaredMemberProperties
-    .filter { hooks.isValidProperty(it) }
+internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks? = null) = this.declaredMemberProperties
+    .filter { hooks?.isValidProperty(it) ?: true }
     .filter { prop -> propertyFilters.all { it.invoke(prop) } }
 
-internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks) = this.declaredMemberFunctions
-    .filter { hooks.isValidFunction(it) }
+internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks? = null) = this.declaredMemberFunctions
+    .filter { hooks?.isValidFunction(it) ?: true }
     .filter { func -> functionFilters.all { it.invoke(func) } }
 
 internal fun KClass<*>.canBeGraphQLInterface(): Boolean = this.java.isInterface

@@ -71,7 +71,7 @@
 
     <properties>
         <reflections.version>0.9.11</reflections.version>
-        <kotlin.version>1.2.70</kotlin.version>
+        <kotlin.version>1.2.71</kotlin.version>
         <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
         <kotlin-detekt.version>1.0.0.RC8</kotlin-detekt.version>
         <junit.version>4.12</junit.version>
@@ -178,6 +178,25 @@
                         <version>${kotlin-ktlint.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
