@@ -44,6 +44,8 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }
 
+    fun doesNotContain(kClass: KClass<*>): Boolean = cache.none { (_, ktype) -> ktype.kClass == kClass }
+
     @Throws(CouldNotGetNameOfEnumException::class)
     private fun getCacheKeyString(cacheKey: TypesCacheKey): String {
         val kClass = getKClassFromKType(cacheKey.type)
@@ -90,6 +92,8 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     }
 
     private fun putTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.add(kClass)
+
+    fun removeTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.remove(kClass)
 
     fun buildIfNotUnderConstruction(kClass: KClass<*>, build: (KClass<*>) -> GraphQLType): GraphQLType {
         return if (typeUnderConstruction.contains(kClass)) {

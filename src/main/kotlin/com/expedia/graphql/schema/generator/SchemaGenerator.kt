@@ -271,7 +271,7 @@ internal class SchemaGenerator(
     }
 
     private fun interfaceType(kClass: KClass<*>): GraphQLType {
-        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
+        return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLInterfaceType.newInterface()
 
             builder.name(kClass.simpleName)
@@ -293,8 +293,11 @@ internal class SchemaGenerator(
                         val objectType = objectType(it.kotlin, interfaceType)
                         val key = TypesCacheKey(it.kotlin.createType(), false)
 
-                        state.additionalTypes.add(objectType)
                         state.cache.put(key, KGraphQLType(it.kotlin, objectType))
+                        if (objectType !is GraphQLTypeReference) {
+                            state.additionalTypes.add(objectType)
+                        }
+                        state.cache.removeTypeUnderConstruction(it.kotlin)
                     }
 
             interfaceType
@@ -302,7 +305,7 @@ internal class SchemaGenerator(
     }
 
     private fun unionType(kClass: KClass<*>): GraphQLType {
-        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
+        return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLUnionType.newUnionType()
 
             builder.name(kClass.simpleName)
@@ -313,7 +316,8 @@ internal class SchemaGenerator(
             implementations
                     .filterNot { it.kotlin.isAbstract }
                     .forEach {
-                        val objectType = objectType(it.kotlin)
+                        val objectType = state.cache.get(TypesCacheKey(it.kotlin.createType(), false)) ?: objectType(it.kotlin)
+
                         val key = TypesCacheKey(it.kotlin.createType(), false)
 
                         if (objectType is GraphQLTypeReference) {
@@ -323,6 +327,9 @@ internal class SchemaGenerator(
                         }
 
                         state.cache.put(key, KGraphQLType(it.kotlin, objectType))
+                        if (state.cache.doesNotContain(it.kotlin)) {
+                            state.cache.put(key, KGraphQLType(it.kotlin, objectType))
+                        }
                     }
 
             builder.build()
