@@ -31,7 +31,7 @@ class KClassExtensionsTest {
 
     @Test
     fun `test getting valid properties with no hooks`() {
-        val properties = MyTestClass::class.getValidProperties(NoopSchemaGeneratorHooks())
+        val properties = MyTestClass::class.getValidProperties()
         assertEquals(listOf("filteredProperty", "publicProperty"), properties.map { it.name })
     }
 
@@ -43,7 +43,7 @@ class KClassExtensionsTest {
 
     @Test
     fun `test getting valid functions with no hooks`() {
-        val properties = MyTestClass::class.getValidFunctions(NoopSchemaGeneratorHooks())
+        val properties = MyTestClass::class.getValidFunctions()
         assertEquals(listOf("filteredFunction", "publicFunction"), properties.map { it.name })
     }
 
