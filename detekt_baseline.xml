@@ -5,9 +5,6 @@
     <ID>LargeClass:SchemaGenerator.kt$SchemaGenerator</ID>
     <ID>MethodOverloading:SchemaGeneratorTest.kt$SchemaGeneratorTest</ID>
     <ID>TooManyFunctions:SchemaGenerator.kt$SchemaGenerator</ID>
-    <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as GraphQLNonNull</ID>
-    <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDoSingle").type as GraphQLNonNull</ID>
-    <ID>UnsafeCast:SchemaGeneratorAsyncTests.kt$SchemaGeneratorAsyncTests$schema.getObjectType("TopLevelQuery").getFieldDefinition("maybe").type as GraphQLNonNull</ID>
     <ID>ComplexInterface:SchemaGeneratorHooks.kt$SchemaGeneratorHooks</ID>
   </Whitelist>
 </SmellBaseline>

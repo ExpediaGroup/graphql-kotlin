@@ -16,11 +16,11 @@ import com.expedia.graphql.schema.extensions.isGraphQLContext
 import com.expedia.graphql.schema.extensions.isGraphQLID
 import com.expedia.graphql.schema.extensions.throwIfUnathorizedInterface
 import com.expedia.graphql.schema.extensions.wrapInNonNull
+import com.expedia.graphql.schema.generator.models.KGraphQLType
 import com.expedia.graphql.schema.generator.state.SchemaGeneratorState
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
 import com.expedia.graphql.schema.generator.types.enumType
 import com.expedia.graphql.schema.generator.types.getInputClassName
-import com.expedia.graphql.schema.models.KGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
@@ -271,7 +271,7 @@ internal class SchemaGenerator(
     }
 
     private fun interfaceType(kClass: KClass<*>): GraphQLType {
-        return state.cache.buildIfNotUnderConstruction(kClass) {
+        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLInterfaceType.newInterface()
 
             builder.name(kClass.simpleName)
@@ -287,23 +287,21 @@ internal class SchemaGenerator(
             val interfaceType = builder.build()
 
             val implementations = subTypeMapper.getSubTypesOf(kClass)
-            implementations
-                    .filterNot { it.kotlin.isAbstract }
-                    .forEach {
-                        val objectType = objectType(it.kotlin, interfaceType)
+            implementations.forEach {
+                val objectType = objectType(it.kotlin, interfaceType)
 
-                        if (objectType !is GraphQLTypeReference) {
-                            state.additionalTypes.add(objectType)
-                        }
-                        state.cache.removeTypeUnderConstruction(it.kotlin)
-                    }
+                if (objectType !is GraphQLTypeReference) {
+                    state.additionalTypes.add(objectType)
+                }
+                state.cache.removeTypeUnderConstruction(it.kotlin)
+            }
 
             interfaceType
         }
     }
 
     private fun unionType(kClass: KClass<*>): GraphQLType {
-        return state.cache.buildIfNotUnderConstruction(kClass) {
+        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLUnionType.newUnionType()
 
             builder.name(kClass.simpleName)
@@ -311,23 +309,21 @@ internal class SchemaGenerator(
             builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
 
             val implementations = subTypeMapper.getSubTypesOf(kClass)
-            implementations
-                    .filterNot { it.kotlin.isAbstract }
-                    .forEach {
-                        val objectType = state.cache.get(TypesCacheKey(it.kotlin.createType(), false)) ?: objectType(it.kotlin)
+            implementations.forEach {
+                val objectType = state.cache.get(TypesCacheKey(it.kotlin.createType(), false)) ?: objectType(it.kotlin)
 
-                        val key = TypesCacheKey(it.kotlin.createType(), false)
+                val key = TypesCacheKey(it.kotlin.createType(), false)
 
-                        if (objectType is GraphQLTypeReference) {
-                            builder.possibleType(objectType)
-                        } else {
-                            builder.possibleType(objectType as GraphQLObjectType)
-                        }
+                if (objectType is GraphQLTypeReference) {
+                    builder.possibleType(objectType)
+                } else {
+                    builder.possibleType(objectType as GraphQLObjectType)
+                }
 
-                        if (state.cache.doesNotContain(it.kotlin)) {
-                            state.cache.put(key, KGraphQLType(it.kotlin, objectType))
-                        }
-                    }
+                if (state.cache.doesNotContain(it.kotlin)) {
+                    state.cache.put(key, KGraphQLType(it.kotlin, objectType))
+                }
+            }
 
             builder.build()
         }

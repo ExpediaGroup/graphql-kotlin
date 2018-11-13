@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.models
+package com.expedia.graphql.schema.generator.models
 
 import graphql.schema.GraphQLType
 import kotlin.reflect.KClass

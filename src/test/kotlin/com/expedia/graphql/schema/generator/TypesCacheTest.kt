@@ -1,6 +1,6 @@
 package com.expedia.graphql.schema.generator
 
-import com.expedia.graphql.schema.models.KGraphQLType
+import com.expedia.graphql.schema.generator.models.KGraphQLType
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.starProjectedType
