@@ -7,6 +7,7 @@ internal class SubTypeMapper(supportedPackages: List<String>) {
 
     private val reflections = Reflections(supportedPackages)
 
-    fun getSubTypesOf(kclass: KClass<*>): MutableSet<out Class<out Any>> =
+    fun getSubTypesOf(kclass: KClass<*>): List<Class<*>> =
         reflections.getSubTypesOf(Class.forName(kclass.javaObjectType.name))
+            .filterNot { it.kotlin.isAbstract }
 }

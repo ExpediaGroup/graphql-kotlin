@@ -23,7 +23,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@Suppress("Detekt.UnusedPrivateMember", "Detekt.FunctionOnlyReturningConstant", "Detekt.LargeClass")
+@Suppress("Detekt.UnusedPrivateMember",
+    "Detekt.FunctionOnlyReturningConstant",
+    "Detekt.LargeClass",
+    "Detekt.MethodOverloading")
 class SchemaGeneratorTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
@@ -266,7 +269,7 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator supports Scalar GraphQLID for input types`() {
-        val schema = toSchema(mutations = listOf(TopLevelObjectDef(MutationWithId())), config = testSchemaConfig)
+        val schema = toSchema(queries = emptyList(), mutations = listOf(TopLevelObjectDef(MutationWithId())), config = testSchemaConfig)
 
         val furnitureType = schema.getObjectType("Furniture")
         val serialField = furnitureType.getFieldDefinition("serial").type as? GraphQLNonNull

@@ -13,7 +13,7 @@ import graphql.schema.GraphQLSchema
  * @param config Schema generation configuration
  */
 fun toSchema(
-    queries: List<TopLevelObjectDef> = emptyList(),
+    queries: List<TopLevelObjectDef>,
     mutations: List<TopLevelObjectDef> = emptyList(),
     config: SchemaGeneratorConfig
 ): GraphQLSchema {

@@ -15,7 +15,7 @@ import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
-    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
+    val directiveNames = listOfDirectives().map { normalizeDirectiveName(it) }
 
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
@@ -86,7 +86,7 @@ private fun DirectiveAnnotation.getGraphQLDirective(): GraphQLDirective {
     }
 
     @Suppress("Detekt.SpreadOperator")
-    builder.name(name.normalizeDirectiveName())
+    builder.name(normalizeDirectiveName(name))
         .validLocations(*this.locations)
         .description(this.description)
 
@@ -95,10 +95,15 @@ private fun DirectiveAnnotation.getGraphQLDirective(): GraphQLDirective {
         val value = kFunction.call(kClass)
         @Suppress("Detekt.UnsafeCast")
         val type = defaultGraphQLScalars(kFunction.returnType) as GraphQLInputType
-        builder.argument(GraphQLArgument.newArgument().name(propertyName).value(value).type(type).build())
+        val argument = GraphQLArgument.newArgument()
+            .name(propertyName)
+            .value(value)
+            .type(type)
+            .build()
+        builder.argument(argument)
     }
 
     return builder.build()
 }
 
-private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
+private fun normalizeDirectiveName(string: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, string)

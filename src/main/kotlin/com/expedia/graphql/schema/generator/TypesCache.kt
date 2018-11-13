@@ -5,7 +5,7 @@ import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetJvmNameOfKTypeException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
-import com.expedia.graphql.schema.models.KGraphQLType
+import com.expedia.graphql.schema.generator.models.KGraphQLType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
