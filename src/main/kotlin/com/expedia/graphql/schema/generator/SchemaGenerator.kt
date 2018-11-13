@@ -291,9 +291,7 @@ internal class SchemaGenerator(
                     .filterNot { it.kotlin.isAbstract }
                     .forEach {
                         val objectType = objectType(it.kotlin, interfaceType)
-                        val key = TypesCacheKey(it.kotlin.createType(), false)
 
-                        state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                         if (objectType !is GraphQLTypeReference) {
                             state.additionalTypes.add(objectType)
                         }
@@ -326,7 +324,6 @@ internal class SchemaGenerator(
                             builder.possibleType(objectType as GraphQLObjectType)
                         }
 
-                        state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                         if (state.cache.doesNotContain(it.kotlin)) {
                             state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                         }
