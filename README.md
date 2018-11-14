@@ -27,7 +27,7 @@ With Maven:
 With Gradle:
 
 ```groovy
-compile(group: 'com.expedia.www', artifact: 'graphql-kotlin', version: '${latestVersion}')
+compile(group: 'com.expedia.www', name: 'graphql-kotlin', version: "$latestVersion")
 ```
 
 ## Usage
