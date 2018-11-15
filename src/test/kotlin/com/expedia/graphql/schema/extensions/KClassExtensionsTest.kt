@@ -1,6 +1,6 @@
 package com.expedia.graphql.schema.extensions
 
-import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
+import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -21,7 +21,7 @@ class KClassExtensionsTest {
         private fun privateTestFunction() = "private function"
     }
 
-    class FilterHooks : NoopSchemaGeneratorHooks() {
+    class FilterHooks : SchemaGeneratorHooks {
         override fun isValidProperty(property: KProperty<*>) =
             property.name.contains("filteredProperty").not()
 

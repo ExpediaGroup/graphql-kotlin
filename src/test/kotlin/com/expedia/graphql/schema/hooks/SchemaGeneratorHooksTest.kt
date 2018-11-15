@@ -26,7 +26,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook before schema is built`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var willBuildSchemaCalled = false
             override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
                 willBuildSchemaCalled = true
@@ -46,7 +46,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook before generating object type`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var willGenerateGraphQLTypeCalled = false
             override fun willGenerateGraphQLType(type: KType): GraphQLType? {
                 willGenerateGraphQLTypeCalled = true
@@ -67,7 +67,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook to filter property`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var calledFilterFunction = false
 
             override fun isValidProperty(property: KProperty<*>): Boolean {
@@ -88,7 +88,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook to filter functions`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var calledFilterFunction = false
 
             override fun isValidFunction(function: KFunction<*>): Boolean {
@@ -108,7 +108,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook after generating object type`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var lastSeenType: KType? = null
             var lastSeenGeneratedType: GraphQLType? = null
             override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) {
@@ -128,7 +128,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook before adding data fetcher`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var didGenerateDataFetcherCalled = false
             var lastSeenFunction: KFunction<*>? = null
             var lastReturnedDataFetcher: WrappingDataFetcher? = null
@@ -156,7 +156,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook before adding query to schema`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             override fun didGenerateQueryType(
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition
@@ -182,7 +182,7 @@ class SchemaGeneratorHooksTest {
 
     @Test
     fun `calls hook before adding mutation to schema`() {
-        class MockSchemaGeneratorHooks : NoopSchemaGeneratorHooks() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             override fun didGenerateMutationType(
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition

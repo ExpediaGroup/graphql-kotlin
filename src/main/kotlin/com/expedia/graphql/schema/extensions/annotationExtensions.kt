@@ -5,6 +5,7 @@ import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
 import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
+import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -69,14 +70,14 @@ private fun Annotation.getDirectiveInfo(): DirectiveInfo? {
     }
 }
 
-internal fun KAnnotatedElement.directives() =
+internal fun KAnnotatedElement.directives(hooks: SchemaGeneratorHooks) =
     this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
-        .map { it.getGraphQLDirective() }
+        .map { it.getGraphQLDirective(hooks) }
         .toList()
 
 @Throws(CouldNotGetNameOfAnnotationException::class)
-private fun DirectiveInfo.getGraphQLDirective(): GraphQLDirective {
+private fun DirectiveInfo.getGraphQLDirective(hooks: SchemaGeneratorHooks): GraphQLDirective {
     val kClass: KClass<out DirectiveAnnotation> = this.annotation.annotationClass
     val builder = GraphQLDirective.newDirective()
     val name: String = this.effectiveName ?: throw CouldNotGetNameOfAnnotationException(kClass)
@@ -87,7 +88,7 @@ private fun DirectiveInfo.getGraphQLDirective(): GraphQLDirective {
         .validLocations(*this.annotation.locations)
         .description(this.annotation.description)
 
-    kClass.getValidFunctions().forEach { kFunction ->
+    kClass.getValidFunctions(hooks).forEach { kFunction ->
         val propertyName = kFunction.name
         val value = kFunction.call(kClass)
         @Suppress("Detekt.UnsafeCast")

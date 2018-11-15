@@ -4,7 +4,7 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.Parameter
 import com.expedia.graphql.schema.getTestSchemaConfigWithHooks
 import com.expedia.graphql.schema.hooks.DataFetcherExecutionPredicate
-import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
+import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.toSchema
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
@@ -57,7 +57,7 @@ class QueryWithValidations {
 
 data class Person(val name: String, val age: Int)
 
-class PredicateHooks : NoopSchemaGeneratorHooks() {
+class PredicateHooks : SchemaGeneratorHooks {
     override val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate? = TestDataFetcherPredicate()
 }
 
