@@ -13,14 +13,13 @@ import graphql.GraphQL
 import graphql.Scalars
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertThrows
 import java.net.CookieManager
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateMember",
@@ -209,21 +208,21 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator throws when encountering java stdlib`() {
-        assertThrows(RuntimeException::class.java) {
+        assertFailsWith(RuntimeException::class) {
             toSchema(listOf(TopLevelObjectDef(QueryWithJavaClass())), config = testSchemaConfig)
         }
     }
 
     @Test
     fun `SchemaGenerator throws when encountering conflicting types`() {
-        assertThrows(ConflictingTypesException::class.java) {
+        assertFailsWith(ConflictingTypesException::class) {
             toSchema(queries = listOf(TopLevelObjectDef(QueryWithConflictingTypes())), config = testSchemaConfig)
         }
     }
 
     @Test
     fun `SchemaGenerator should throw exception if no queries and no mutations are specified`() {
-        assertThrows(InvalidSchemaException::class.java) {
+        assertFailsWith(InvalidSchemaException::class) {
             toSchema(emptyList(), emptyList(), config = testSchemaConfig)
         }
     }
@@ -260,7 +259,7 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator throws an exception for invalid GraphQLID`() {
-        val exception = assertThrows(IllegalArgumentException::class.java) {
+        val exception = assertFailsWith(IllegalArgumentException::class) {
             toSchema(queries = listOf(TopLevelObjectDef(QueryWithInvalidId())), config = testSchemaConfig)
         }
 

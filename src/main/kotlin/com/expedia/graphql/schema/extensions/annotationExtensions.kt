@@ -37,8 +37,9 @@ private fun KAnnotatedElement.listOfDirectives(): List<String> {
 
     return this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
-        .map { when {
-                it.effectiveName != null -> "@${it.effectiveName}"
+        .map {
+            when {
+                it.effectiveName.isNullOrEmpty().not() -> "@${it.effectiveName}"
                 else -> null
             }
         }
