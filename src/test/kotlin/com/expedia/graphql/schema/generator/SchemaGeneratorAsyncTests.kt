@@ -2,7 +2,7 @@ package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.getTestSchemaConfigWithHooks
-import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
+import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.schema.GraphQLNonNull
@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 
 class SchemaGeneratorAsyncTests {
 
-    private class MonadHooks : NoopSchemaGeneratorHooks() {
+    private class MonadHooks : SchemaGeneratorHooks {
         override fun willResolveMonad(type: KType): KType = when (type.classifier) {
             Observable::class, Single::class, Maybe::class -> type.arguments.firstOrNull()?.type
             else -> type

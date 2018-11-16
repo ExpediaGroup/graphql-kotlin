@@ -120,7 +120,7 @@ internal class SchemaGenerator(
             builder.deprecate(it)
         }
 
-        fn.directives().forEach {
+        fn.directives(config.hooks).forEach {
             builder.withDirective(it)
             state.directives.add(it)
         }
@@ -221,7 +221,7 @@ internal class SchemaGenerator(
             builder.name(kClass.simpleName)
             builder.description(kClass.graphQLDescription())
 
-            kClass.directives().forEach {
+            kClass.directives(config.hooks).forEach {
                 builder.withDirective(it)
                 state.directives.add(it)
             }

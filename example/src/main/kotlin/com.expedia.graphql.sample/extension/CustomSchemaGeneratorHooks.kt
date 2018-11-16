@@ -2,7 +2,7 @@ package com.expedia.graphql.sample.extension
 
 import com.expedia.graphql.sample.validation.DataFetcherExecutionValidator
 import com.expedia.graphql.schema.hooks.DataFetcherExecutionPredicate
-import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
+import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
@@ -15,7 +15,7 @@ import kotlin.reflect.KType
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomSchemaGeneratorHooks(validator: Validator) : NoopSchemaGeneratorHooks() {
+class CustomSchemaGeneratorHooks(validator: Validator) : SchemaGeneratorHooks {
 
     /**
      * Register additional GraphQL scalar types.
