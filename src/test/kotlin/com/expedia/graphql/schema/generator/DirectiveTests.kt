@@ -70,7 +70,10 @@ class DirectiveTests {
         assertNotNull(schema.getDirective("renamedDirective"))
         val directiveOnFunction = schema.getDirective("directiveOnFunction")
         assertNotNull(directiveOnFunction)
-        assertEquals(directiveOnFunction.validLocations()?.toSet(), setOf(Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.FIELD))
+        assertEquals(
+            directiveOnFunction.validLocations()?.toSet(),
+            setOf(Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.FIELD)
+        )
     }
 }
 

@@ -198,7 +198,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
-            queries = emptyList(),
+            queries = listOf(TopLevelObjectDef(TestQuery())),
             mutations = listOf(TopLevelObjectDef(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )

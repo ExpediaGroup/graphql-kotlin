@@ -74,8 +74,9 @@
         <kotlin.version>1.2.71</kotlin.version>
         <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
         <kotlin-detekt.version>1.0.0.RC8</kotlin-detekt.version>
-        <junit.version>4.12</junit.version>
         <mockk.version>1.8.9.kotlin13</mockk.version>
+        <surefire-plugin.version>2.22.1</surefire-plugin.version>
+        <junit-jupiter.version>5.3.1</junit-jupiter.version>
     </properties>
 
     <pluginRepositories>
@@ -124,6 +125,37 @@
                     </execution>
                 </executions>
             </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire-plugin.version}</version>
+            <configuration>
+              <failIfNoTests>true</failIfNoTests>
+              <includes>
+                <include>**/*Test.java</include>
+                <include>**/*Test.kt</include>
+                <include>**/*Tests.java</include>
+                <include>**/*Tests.kt</include>
+              </includes>
+              <properties>
+                <excludeTags>integration-test</excludeTags>
+              </properties>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>runtime</scope>
+              </dependency>
+              <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>runtime</scope>
+              </dependency>
+            </dependencies>
+          </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -245,6 +277,18 @@
             <version>2.1.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+          <version>${junit-jupiter.version}</version>
+          <scope>test</scope>
+        </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
 
     <profiles>
