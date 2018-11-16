@@ -15,7 +15,7 @@ import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
-    val directiveNames = listOfDirectives().map { normalizeDirectiveName(it) }
+    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
 
     val description = this.findAnnotation<GraphQLDescription>()?.value
 
@@ -36,13 +36,8 @@ private fun KAnnotatedElement.listOfDirectives(): List<String> {
 
     return this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
-        .map {
-            val directiveName = it.getDirectiveInfo()?.name
-            val simpleName = it.annotationClass.simpleName
-
-            when {
-                directiveName.isNullOrEmpty().not() -> "@$directiveName"
-                simpleName.isNullOrEmpty().not() -> "@$simpleName"
+        .map { when {
+                it.effectiveName != null -> "@${it.effectiveName}"
                 else -> null
             }
         }
@@ -66,8 +61,13 @@ internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLI
 
 internal fun KAnnotatedElement.isGraphQLID() = this.findAnnotation<GraphQLID>() != null
 
-internal fun Annotation.getDirectiveInfo(): DirectiveAnnotation? =
-    this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
+private fun Annotation.getDirectiveInfo(): DirectiveInfo? {
+    val directiveAnnotation = this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
+    return when {
+        directiveAnnotation != null -> DirectiveInfo(this.annotationClass.simpleName ?: "", directiveAnnotation)
+        else -> null
+    }
+}
 
 internal fun KAnnotatedElement.directives() =
     this.annotations.asSequence()
@@ -76,19 +76,16 @@ internal fun KAnnotatedElement.directives() =
         .toList()
 
 @Throws(CouldNotGetNameOfAnnotationException::class)
-private fun DirectiveAnnotation.getGraphQLDirective(): GraphQLDirective {
-    val kClass: KClass<out DirectiveAnnotation> = this.annotationClass
+private fun DirectiveInfo.getGraphQLDirective(): GraphQLDirective {
+    val kClass: KClass<out DirectiveAnnotation> = this.annotation.annotationClass
     val builder = GraphQLDirective.newDirective()
-    val name: String = if (this.name.isNotEmpty()) {
-        this.name
-    } else {
-        kClass.simpleName ?: throw CouldNotGetNameOfAnnotationException(kClass)
-    }
+    val name: String = this.effectiveName ?: throw CouldNotGetNameOfAnnotationException(kClass)
 
     @Suppress("Detekt.SpreadOperator")
-    builder.name(normalizeDirectiveName(name))
-        .validLocations(*this.locations)
-        .description(this.description)
+
+    builder.name(name.normalizeDirectiveName())
+        .validLocations(*this.annotation.locations)
+        .description(this.annotation.description)
 
     kClass.getValidFunctions().forEach { kFunction ->
         val propertyName = kFunction.name
@@ -106,4 +103,12 @@ private fun DirectiveAnnotation.getGraphQLDirective(): GraphQLDirective {
     return builder.build()
 }
 
-private fun normalizeDirectiveName(string: String) = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, string)
+private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
+
+private data class DirectiveInfo(private val name: String, val annotation: DirectiveAnnotation) {
+    val effectiveName: String? = when {
+        annotation.name.isNotEmpty() -> annotation.name
+        name.isNotEmpty() -> name
+        else -> null
+    }
+}

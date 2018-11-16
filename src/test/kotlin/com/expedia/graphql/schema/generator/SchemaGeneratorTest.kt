@@ -269,7 +269,7 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator supports Scalar GraphQLID for input types`() {
-        val schema = toSchema(queries = emptyList(), mutations = listOf(TopLevelObjectDef(MutationWithId())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObjectDef(QueryObject())), mutations = listOf(TopLevelObjectDef(MutationWithId())), config = testSchemaConfig)
 
         val furnitureType = schema.getObjectType("Furniture")
         val serialField = furnitureType.getFieldDefinition("serial").type as? GraphQLNonNull
