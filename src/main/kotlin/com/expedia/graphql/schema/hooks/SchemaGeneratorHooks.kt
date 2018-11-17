@@ -1,5 +1,6 @@
 package com.expedia.graphql.schema.hooks
 
+import com.expedia.graphql.schema.generator.WiringContext
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
@@ -52,6 +53,12 @@ interface SchemaGeneratorHooks {
      */
     @Suppress("Detekt.FunctionOnlyReturningConstant")
     fun isValidFunction(function: KFunction<*>): Boolean = true
+
+    /**
+     * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
+     * Enables you to change the wiring, e.g. directives to alter data fetchers.
+     */
+    fun onRewireGraphQLType(type: KType, generatedType: GraphQLType, context: WiringContext): GraphQLType = generatedType
 
     /**
      * Called after wrapping the type based on nullity but before adding the generated type to the schema

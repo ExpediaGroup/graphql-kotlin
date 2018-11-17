@@ -4,6 +4,7 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
+import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLNonNull
@@ -67,7 +68,16 @@ class DirectiveTests {
         assertNotNull(geographyType?.getFieldDefinition("somethingCool")?.getDirective("directiveOnFunction"))
         assertNotNull((schema.getType("Location") as? GraphQLObjectType)?.getDirective("renamedDirective"))
         assertNotNull(schema.getDirective("whatever"))
-        assertNotNull(schema.getDirective("renamedDirective"))
+
+        val renamedDirective = assertNotNull(schema.getDirective("renamedDirective"))
+        assertEquals(55L, renamedDirective.arguments[0].value)
+        assertEquals("count", renamedDirective.arguments[0].name)
+        assertEquals(Scalars.GraphQLLong, renamedDirective.arguments[0].type)
+
+        assertEquals("strawberries", renamedDirective.arguments[1].value)
+        assertEquals("fruit", renamedDirective.arguments[1].name)
+        assertEquals(Scalars.GraphQLString, renamedDirective.arguments[1].type)
+
         val directiveOnFunction = schema.getDirective("directiveOnFunction")
         assertNotNull(directiveOnFunction)
         assertEquals(
@@ -84,7 +94,7 @@ annotation class Whatever
 annotation class DirectiveOnFunction
 
 @GraphQLDirective(name = "RenamedDirective")
-annotation class RenamedDirective(val x: Boolean)
+annotation class RenamedDirective(val count: Long, val fruit: String)
 
 @Whatever
 class Geography(
@@ -101,7 +111,7 @@ enum class GeoType {
     CITY, STATE
 }
 
-@RenamedDirective(x = false)
+@RenamedDirective(55L, "strawberries")
 data class Location(val lat: Double, val lon: Double)
 
 class QueryObject {
