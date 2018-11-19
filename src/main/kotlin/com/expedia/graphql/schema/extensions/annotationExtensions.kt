@@ -93,19 +93,15 @@ private fun DirectiveInfo.getGraphQLDirective(hooks: SchemaGeneratorHooks): Grap
         .validLocations(*this.directiveAnnotation.locations)
         .description(this.directiveAnnotation.description)
 
-    directiveClass.getValidProperties(hooks).forEach { property ->
-        val propertyName = property.name
-        val value = property.call(this.directive)
+    directiveClass.getValidProperties(hooks).forEach { prop ->
+        val propertyName = prop.name
+        val value = prop.call(this.directive)
 
-        @Suppress("Detekt.UnsafeCast")
-        var type: GraphQLInputType? = defaultGraphQLScalars(property.returnType) as? GraphQLInputType
-        if (type == null) {
-            type = hooks.willGenerateGraphQLType(property.returnType) as? GraphQLInputType
-        }
+        val type = defaultGraphQLScalars(prop.returnType) ?: hooks.willGenerateGraphQLType(prop.returnType)
         val argument = GraphQLArgument.newArgument()
             .name(propertyName)
             .value(value)
-            .type(type)
+            .type(type as? GraphQLInputType)
             .build()
         builder.argument(argument)
     }
