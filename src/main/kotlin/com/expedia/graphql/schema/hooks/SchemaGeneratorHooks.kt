@@ -54,6 +54,12 @@ interface SchemaGeneratorHooks {
     fun isValidFunction(function: KFunction<*>): Boolean = true
 
     /**
+     * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
+     * Enables you to change the wiring, e.g. directives to alter data fetchers.
+     */
+    fun onRewireGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
+
+    /**
      * Called after wrapping the type based on nullity but before adding the generated type to the schema
      */
     fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) = Unit

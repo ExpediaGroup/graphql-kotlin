@@ -150,7 +150,8 @@ internal class SchemaGenerator(
 
         val monadType = config.hooks.willResolveMonad(fn.returnType)
         builder.type(graphQLTypeOf(monadType) as GraphQLOutputType)
-        return builder.build()
+        val graphQLType = builder.build()
+        return config.hooks.onRewireGraphQLType(monadType, graphQLType) as GraphQLFieldDefinition
     }
 
     private fun property(prop: KProperty<*>): GraphQLFieldDefinition {
@@ -162,20 +163,33 @@ internal class SchemaGenerator(
                 .type(propertyType)
                 .deprecate(prop.getDeprecationReason())
 
-        return if (config.dataFetcherFactory != null && prop.isLateinit) {
+        prop.directives(config.hooks).forEach {
+            fieldBuilder.withDirective(it)
+            state.directives.add(it)
+        }
+
+        val field = if (config.dataFetcherFactory != null && prop.isLateinit) {
             updatePropertyFieldBuilder(propertyType, fieldBuilder, config.dataFetcherFactory)
         } else {
             fieldBuilder
         }.build()
+
+        return config.hooks.onRewireGraphQLType(prop.returnType, field) as GraphQLFieldDefinition
     }
 
     private fun argument(parameter: KParameter): GraphQLArgument {
         parameter.throwIfUnathorizedInterface()
-        return GraphQLArgument.newArgument()
+        val builder = GraphQLArgument.newArgument()
             .name(parameter.name)
             .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
-            .build()
+
+        parameter.directives(config.hooks).forEach {
+            builder.withDirective(it)
+            state.directives.add(it)
+        }
+
+        return config.hooks.onRewireGraphQLType(parameter.type, builder.build()) as GraphQLArgument
     }
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {

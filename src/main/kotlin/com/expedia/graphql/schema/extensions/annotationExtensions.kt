@@ -11,7 +11,7 @@ import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KAnnotatedElement
-import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
@@ -64,11 +64,10 @@ internal fun KAnnotatedElement.isGraphQLIgnored() = this.findAnnotation<GraphQLI
 internal fun KAnnotatedElement.isGraphQLID() = this.findAnnotation<GraphQLID>() != null
 
 private fun Annotation.getDirectiveInfo(): DirectiveInfo? {
-    val directiveAnnotation = this.annotationClass.annotations.find { it is DirectiveAnnotation } as? DirectiveAnnotation
-    return when {
-        directiveAnnotation != null -> DirectiveInfo(this.annotationClass.simpleName ?: "", directiveAnnotation)
-        else -> null
-    }
+    return this.annotationClass.annotations
+        .filterIsInstance(DirectiveAnnotation::class.java)
+        .map { DirectiveInfo(this, it) }
+        .firstOrNull()
 }
 
 internal fun KAnnotatedElement.directives(hooks: SchemaGeneratorHooks) =
@@ -77,27 +76,32 @@ internal fun KAnnotatedElement.directives(hooks: SchemaGeneratorHooks) =
         .map { it.getGraphQLDirective(hooks) }
         .toList()
 
+internal fun KParameter.directives(hooks: SchemaGeneratorHooks) =
+    this.annotations.asSequence()
+        .mapNotNull { it.getDirectiveInfo() }
+        .map { it.getGraphQLDirective(hooks) }
+        .toList()
+
 @Throws(CouldNotGetNameOfAnnotationException::class)
 private fun DirectiveInfo.getGraphQLDirective(hooks: SchemaGeneratorHooks): GraphQLDirective {
-    val kClass: KClass<out DirectiveAnnotation> = this.annotation.annotationClass
-    val builder = GraphQLDirective.newDirective()
-    val name: String = this.effectiveName ?: throw CouldNotGetNameOfAnnotationException(kClass)
+    val directiveClass = this.directive.annotationClass
+    val name: String = this.effectiveName ?: throw CouldNotGetNameOfAnnotationException(directiveClass)
 
     @Suppress("Detekt.SpreadOperator")
+    val builder = GraphQLDirective.newDirective()
+        .name(name.normalizeDirectiveName())
+        .validLocations(*this.directiveAnnotation.locations)
+        .description(this.directiveAnnotation.description)
 
-    builder.name(name.normalizeDirectiveName())
-        .validLocations(*this.annotation.locations)
-        .description(this.annotation.description)
+    directiveClass.getValidProperties(hooks).forEach { prop ->
+        val propertyName = prop.name
+        val value = prop.call(this.directive)
 
-    kClass.getValidFunctions(hooks).forEach { kFunction ->
-        val propertyName = kFunction.name
-        val value = kFunction.call(kClass)
-        @Suppress("Detekt.UnsafeCast")
-        val type = defaultGraphQLScalars(kFunction.returnType) as GraphQLInputType
+        val type = defaultGraphQLScalars(prop.returnType) ?: hooks.willGenerateGraphQLType(prop.returnType)
         val argument = GraphQLArgument.newArgument()
             .name(propertyName)
             .value(value)
-            .type(type)
+            .type(type as? GraphQLInputType)
             .build()
         builder.argument(argument)
     }
@@ -107,10 +111,10 @@ private fun DirectiveInfo.getGraphQLDirective(hooks: SchemaGeneratorHooks): Grap
 
 private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
 
-private data class DirectiveInfo(private val name: String, val annotation: DirectiveAnnotation) {
+private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: DirectiveAnnotation) {
     val effectiveName: String? = when {
-        annotation.name.isNotEmpty() -> annotation.name
-        name.isNotEmpty() -> name
+        directiveAnnotation.name.isNotEmpty() -> directiveAnnotation.name
+        directive.annotationClass.simpleName.isNullOrEmpty().not() -> directive.annotationClass.simpleName
         else -> null
     }
 }
