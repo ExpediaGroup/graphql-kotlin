@@ -11,6 +11,7 @@ import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
@@ -70,6 +71,12 @@ private fun Annotation.getDirectiveInfo(): DirectiveInfo? {
 }
 
 internal fun KAnnotatedElement.directives(hooks: SchemaGeneratorHooks) =
+    this.annotations.asSequence()
+        .mapNotNull { it.getDirectiveInfo() }
+        .map { it.getGraphQLDirective(hooks) }
+        .toList()
+
+internal fun KParameter.directives(hooks: SchemaGeneratorHooks) =
     this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
         .map { it.getGraphQLDirective(hooks) }

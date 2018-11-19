@@ -180,11 +180,17 @@ internal class SchemaGenerator(
 
     private fun argument(parameter: KParameter): GraphQLArgument {
         parameter.throwIfUnathorizedInterface()
-        return GraphQLArgument.newArgument()
+        val builder = GraphQLArgument.newArgument()
             .name(parameter.name)
             .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
-            .build()
+
+        parameter.directives(config.hooks).forEach {
+            builder.withDirective(it)
+            state.directives.add(it)
+        }
+
+        return config.hooks.onRewireGraphQLType(parameter.type, builder.build(), wiringContext) as GraphQLArgument
     }
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
