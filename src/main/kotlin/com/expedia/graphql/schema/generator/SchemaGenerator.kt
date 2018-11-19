@@ -56,7 +56,6 @@ internal class SchemaGenerator(
 
     private val state = SchemaGeneratorState(config.supportedPackages)
     private val subTypeMapper = SubTypeMapper(config.supportedPackages)
-    private val wiringContext = WiringContext()
 
     internal fun generate(): GraphQLSchema {
         val builder = generateWithReflection()
@@ -152,7 +151,7 @@ internal class SchemaGenerator(
         val monadType = config.hooks.willResolveMonad(fn.returnType)
         builder.type(graphQLTypeOf(monadType) as GraphQLOutputType)
         val graphQLType = builder.build()
-        return config.hooks.onRewireGraphQLType(monadType, graphQLType, wiringContext) as GraphQLFieldDefinition
+        return config.hooks.onRewireGraphQLType(monadType, graphQLType) as GraphQLFieldDefinition
     }
 
     private fun property(prop: KProperty<*>): GraphQLFieldDefinition {
@@ -175,7 +174,7 @@ internal class SchemaGenerator(
             fieldBuilder
         }.build()
 
-        return config.hooks.onRewireGraphQLType(prop.returnType, field, wiringContext) as GraphQLFieldDefinition
+        return config.hooks.onRewireGraphQLType(prop.returnType, field) as GraphQLFieldDefinition
     }
 
     private fun argument(parameter: KParameter): GraphQLArgument {
@@ -190,7 +189,7 @@ internal class SchemaGenerator(
             state.directives.add(it)
         }
 
-        return config.hooks.onRewireGraphQLType(parameter.type, builder.build(), wiringContext) as GraphQLArgument
+        return config.hooks.onRewireGraphQLType(parameter.type, builder.build()) as GraphQLArgument
     }
 
     private fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
