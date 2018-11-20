@@ -1,6 +1,5 @@
 package com.expedia.graphql.sample.directives
 
-import com.expedia.graphql.sample.directives.DirectiveWiring.Companion.getDirectiveName
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment

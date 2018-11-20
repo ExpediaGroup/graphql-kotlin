@@ -1,6 +1,5 @@
 package com.expedia.graphql.sample.directives
 
-import com.expedia.graphql.sample.directives.DirectiveWiring.Companion.getDirectiveName
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironmentBuilder
 import graphql.schema.GraphQLFieldDefinition
@@ -9,14 +8,9 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 class StringEvalDirectiveWiring : DirectiveWiring {
     private val dirName = getDirectiveName(StringEval::class)
 
-    override fun isResponsible(environment: SchemaDirectiveWiringEnvironment<*>): Boolean {
-        (environment.element as? GraphQLFieldDefinition)?.arguments?.forEach { arg ->
-            if (arg.getDirective(dirName) != null) {
-                return true
-            }
-        }
-        return false
-    }
+    override fun isResponsible(environment: SchemaDirectiveWiringEnvironment<*>): Boolean =
+            (environment.element as? GraphQLFieldDefinition)?.arguments?.any { it.getDirective(dirName) != null }
+                    ?: false
 
     override fun onField(wiringEnv: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
         val field = wiringEnv.element

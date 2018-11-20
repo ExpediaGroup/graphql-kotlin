@@ -7,11 +7,9 @@ import kotlin.reflect.KClass
 
 interface DirectiveWiring : SchemaDirectiveWiring {
 
-    companion object {
-        fun getDirectiveName(kClass: KClass<out Annotation>): String =
-                CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, kClass.simpleName!!)
-    }
-
     fun isResponsible(environment: SchemaDirectiveWiringEnvironment<*>): Boolean
 
 }
+
+fun getDirectiveName(kClass: KClass<out Annotation>): String =
+        CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, kClass.simpleName!!)

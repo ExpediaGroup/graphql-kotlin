@@ -10,13 +10,11 @@ class DirectiveWiringFactory : WiringFactory {
             CakeOnlyDirectiveWiring()
     )
 
-    override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean {
-        return true
-    }
+    override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = true
 
-    override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): SchemaDirectiveWiring? {
-        return wiring.asSequence()
-                .filter { it.isResponsible(environment) }
-                .singleOrNull()
-    }
+    override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): SchemaDirectiveWiring? =
+            wiring.asSequence()
+                    .filter { it.isResponsible(environment) }
+                    .singleOrNull()
+
 }
