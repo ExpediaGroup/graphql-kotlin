@@ -3,6 +3,7 @@ package com.expedia.graphql.sample
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
 import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
+import com.expedia.graphql.sample.directives.DirectiveWiringFactory
 import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
@@ -36,9 +37,12 @@ class Application {
     private val logger = LoggerFactory.getLogger(Application::class.java)
 
     @Bean
-    fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory, validator: Validator): SchemaGeneratorConfig = SchemaGeneratorConfig(
+    fun wiringFactory() = DirectiveWiringFactory()
+
+    @Bean
+    fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory, validator: Validator, wiringFactory: DirectiveWiringFactory): SchemaGeneratorConfig = SchemaGeneratorConfig(
             supportedPackages = listOf("com.expedia"),
-            hooks = CustomSchemaGeneratorHooks(validator),
+            hooks = CustomSchemaGeneratorHooks(validator, wiringFactory),
             dataFetcherFactory = dataFetcherFactory
     )
 
@@ -85,7 +89,7 @@ class Application {
     @Bean
     fun graphQLObjectMapper(): GraphQLObjectMapper = GraphQLObjectMapper.newBuilder()
             .withObjectMapperConfigurer(ObjectMapperConfigurer { it.registerModule(KotlinModule()) })
-            .withGraphQLErrorHandler( GraphQLErrorHandler { it })
+            .withGraphQLErrorHandler(GraphQLErrorHandler { it })
             .build()
 
     @Bean
