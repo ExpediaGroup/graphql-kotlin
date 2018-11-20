@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 interface DirectiveWiring : SchemaDirectiveWiring {
 
-    fun isResponsible(environment: SchemaDirectiveWiringEnvironment<*>): Boolean
+    fun isApplicable(environment: SchemaDirectiveWiringEnvironment<*>): Boolean
 
 }
 

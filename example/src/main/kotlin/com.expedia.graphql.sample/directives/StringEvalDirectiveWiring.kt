@@ -8,7 +8,7 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 class StringEvalDirectiveWiring : DirectiveWiring {
     private val dirName = getDirectiveName(StringEval::class)
 
-    override fun isResponsible(environment: SchemaDirectiveWiringEnvironment<*>): Boolean =
+    override fun isApplicable(environment: SchemaDirectiveWiringEnvironment<*>): Boolean =
             (environment.element as? GraphQLFieldDefinition)?.arguments?.any { it.getDirective(dirName) != null }
                     ?: false
 

@@ -14,7 +14,7 @@ class DirectiveWiringFactory : WiringFactory {
 
     override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): SchemaDirectiveWiring? =
             wiring.asSequence()
-                    .filter { it.isResponsible(environment) }
+                    .filter { it.isApplicable(environment) }
                     .singleOrNull()
 
 }

@@ -6,9 +6,9 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 
 class CakeOnlyDirectiveWiring : DirectiveWiring {
 
-    override fun isResponsible(environment: SchemaDirectiveWiringEnvironment<*>): Boolean {
-        return environment.directive.name == getDirectiveName(CakeOnly::class)
-    }
+    override fun isApplicable(environment: SchemaDirectiveWiringEnvironment<*>): Boolean =
+            environment.directive.name == getDirectiveName(CakeOnly::class)
+
 
     override fun onField(wiringEnv: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
         val field = wiringEnv.element
