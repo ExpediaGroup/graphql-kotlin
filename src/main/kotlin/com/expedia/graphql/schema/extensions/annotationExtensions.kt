@@ -10,6 +10,7 @@ import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInputType
+import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
@@ -17,19 +18,25 @@ import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
 internal fun KAnnotatedElement.graphQLDescription(): String? {
     val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
-
     val description = this.findAnnotation<GraphQLDescription>()?.value
+    return formatGraphQLDescription(description, directiveNames)
+}
 
-    return when {
-        description != null && directiveNames.isNotEmpty() ->
-            """$description
+internal fun Field.graphQLDescription(): String? {
+    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
+    val description = this.getAnnotation(GraphQLDescription::class.java)?.value
+    return formatGraphQLDescription(description, directiveNames)
+}
+
+private fun formatGraphQLDescription(description: String?, directiveNames: List<String>): String? = when {
+    description != null && directiveNames.isNotEmpty() ->
+        """$description
             |
             |Directives: ${directiveNames.joinToString(", ")}
             """.trimMargin()
-        description == null && directiveNames.isNotEmpty() ->
-            "Directives: ${directiveNames.joinToString(", ")}"
-        else -> description
-    }
+    description == null && directiveNames.isNotEmpty() ->
+        "Directives: ${directiveNames.joinToString(", ")}"
+    else -> description
 }
 
 private fun KAnnotatedElement.listOfDirectives(): List<String> {
@@ -48,13 +55,32 @@ private fun KAnnotatedElement.listOfDirectives(): List<String> {
         .toList()
 }
 
-internal fun KAnnotatedElement.getDeprecationReason(): String? {
-    val annotation = this.findAnnotation<Deprecated>() ?: return null
+private fun Field.listOfDirectives(): List<String> {
+    val deprecationReason: String? = this.getDeprecationReason()?.let { "deprecated" }
+
+    return this.declaredAnnotations.asSequence()
+        .mapNotNull { it.getDirectiveInfo() }
+        .map {
+            when {
+                it.effectiveName.isNullOrEmpty().not() -> "@${it.effectiveName}"
+                else -> null
+            }
+        }
+        .plus(deprecationReason)
+        .filterNotNull()
+        .toList()
+}
+
+internal fun KAnnotatedElement.getDeprecationReason(): String? = this.findAnnotation<Deprecated>()?.getReason()
+
+internal fun Field.getDeprecationReason(): String? = this.getDeclaredAnnotation(Deprecated::class.java)?.getReason()
+
+internal fun Deprecated.getReason(): String? {
     val builder = StringBuilder()
-    builder.append(annotation.message)
-    if (!annotation.replaceWith.expression.isBlank()) {
+    builder.append(this.message)
+    if (!this.replaceWith.expression.isBlank()) {
         builder.append(", replace with ")
-        builder.append(annotation.replaceWith.expression)
+        builder.append(this.replaceWith.expression)
     }
     return builder.toString()
 }
