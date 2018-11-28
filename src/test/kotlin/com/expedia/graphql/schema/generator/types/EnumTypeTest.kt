@@ -9,10 +9,13 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class EnumTypeTest : TypeTestHelper() {
+
+    @GraphQLDescription("MyTestEnum description")
     private enum class MyTestEnum {
         @GraphQLDescription("enum 'ONE' description")
         ONE,
 
+        @GraphQLDescription("enum 'TWO' description")
         @Deprecated("Deprecated enum value")
         TWO
     }
@@ -26,7 +29,6 @@ internal class EnumTypeTest : TypeTestHelper() {
 
     @Test
     fun enumType() {
-
         val actual = builder.enumType(MyTestEnum::class)
         assertEquals(expected = 2, actual = actual.values.size)
         assertEquals(expected = "MyTestEnum", actual = actual.name)
@@ -39,8 +41,8 @@ internal class EnumTypeTest : TypeTestHelper() {
         val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
         assertEquals("MyTestEnum description", gqlEnum.description)
 
-        val one = assertNotNull(gqlEnum.getValue("ONE"))
-        assertEquals("enum 'ONE' description", one.description)
+        assertEquals("enum 'ONE' description", assertNotNull(gqlEnum.getValue("ONE")).description)
+        assertEquals("enum 'TWO' description", assertNotNull(gqlEnum.getValue("TWO")).description)
     }
 
     @Test

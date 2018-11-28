@@ -39,14 +39,14 @@ internal class FunctionTypeTest : TypeTestHelper() {
     fun `Test description`() {
         val kFunction = Happy::class.getValidFunctions(hooks)[0]
         val result = builder.function(kFunction)
-        assertEquals("By bob\n\nDirectives: @FunctionDirective, deprecated", result.description)
+        assertEquals("By bob", result.description)
     }
 
     @Test
     fun `Test description on argument`() {
         val kFunction = Happy::class.getValidFunctions(hooks)[1]
         val result = builder.function(kFunction).arguments[0]
-        assertEquals("brush color\n\nDirectives: @ArgumentDirective", result.description)
+        assertEquals("brush color", result.description)
     }
 
     @Test

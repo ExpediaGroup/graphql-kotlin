@@ -50,7 +50,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
         val prop = HappyClass::class.getValidProperties(hooks)[0]
         val result = builder.property(prop)
 
-        assertEquals("The truth\n\nDirectives: @PropertyDirective, deprecated", result.description)
+        assertEquals("The truth", result.description)
     }
 
     @Test

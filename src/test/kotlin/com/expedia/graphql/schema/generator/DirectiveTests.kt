@@ -5,8 +5,6 @@ import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.Scalars
-import graphql.schema.GraphQLInputObjectType
-import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test

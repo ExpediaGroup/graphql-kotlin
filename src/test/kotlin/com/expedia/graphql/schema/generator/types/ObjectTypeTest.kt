@@ -36,7 +36,7 @@ internal class ObjectTypeTest : TypeTestHelper() {
     fun `Test description`() {
         val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
-        assertEquals("The truth\n\nDirectives: @ObjectDirective", result.description)
+        assertEquals("The truth", result.description)
     }
 
     @Test
