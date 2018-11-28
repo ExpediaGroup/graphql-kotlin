@@ -10,8 +10,8 @@ internal class InputTypeTest : TypeTestHelper() {
     @Test
     fun `Test building`() {
         val builder = InputObjectTypeBuilder(generator)
-        val inputObjectType = builder.inputObjectType(TestClass::class)
+        val result = builder.inputObjectType(TestClass::class)
 
-        assertEquals(expected = "TestClassInput", actual = inputObjectType.name)
+        assertEquals(expected = "TestClassInput", actual = result.name)
     }
 }

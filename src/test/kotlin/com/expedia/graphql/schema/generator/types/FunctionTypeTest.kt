@@ -5,6 +5,7 @@ import com.expedia.graphql.schema.extensions.getValidFunctions
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class FunctionTypeTest : TypeTestHelper() {
 
@@ -21,6 +22,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
     private class Happy {
 
         @GraphQLDescription("By bob")
+        @Deprecated("No more little trees >:|")
         fun littleTrees() = UUID.randomUUID().toString()
     }
 
@@ -28,6 +30,14 @@ internal class FunctionTypeTest : TypeTestHelper() {
     fun `Test description`() {
         val kFunction = Happy::class.getValidFunctions(hooks)[0]
         val result = builder.function(kFunction)
-        assertEquals("By bob", result.description)
+        assertEquals("By bob\n\nDirectives: deprecated", result.description)
+    }
+
+    @Test
+    fun `Test deprecation`() {
+        val kFunction = Happy::class.getValidFunctions(hooks)[0]
+        val result = builder.function(kFunction)
+        assertTrue(result.isDeprecated)
+        assertEquals("No more little trees >:|", result.deprecationReason)
     }
 }

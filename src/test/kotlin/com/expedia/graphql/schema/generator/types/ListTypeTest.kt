@@ -24,15 +24,15 @@ internal class ListTypeTest : TypeTestHelper() {
     fun `Test list`() {
         val listProp = HappyClass::class.getValidProperties(hooks)[0]
 
-        val actual = builder.listType(listProp.returnType, false)
-        assertEquals(String::class.simpleName, (actual.wrappedType as GraphQLNonNull).wrappedType.name)
+        val result = builder.listType(listProp.returnType, false)
+        assertEquals(String::class.simpleName, (result.wrappedType as GraphQLNonNull).wrappedType.name)
     }
 
     @Test
     fun `Test array`() {
         val arrayProp = HappyClass::class.getValidProperties(hooks)[0]
 
-        val actual = builder.listType(arrayProp.returnType, false)
-        assertEquals(String::class.simpleName, (actual.wrappedType as GraphQLNonNull).wrappedType.name)
+        val result = builder.listType(arrayProp.returnType, false)
+        assertEquals(String::class.simpleName, (result.wrappedType as GraphQLNonNull).wrappedType.name)
     }
 }
