@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+@Suppress("Detekt.NestedClassesVisibility")
 internal class ObjectTypeTest : TypeTestHelper() {
 
     private lateinit var builder: ObjectTypeBuilder
@@ -18,11 +19,18 @@ internal class ObjectTypeTest : TypeTestHelper() {
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.OBJECT])
-    private annotation class ObjectDirective(val arg: String)
+    annotation class ObjectDirective(val arg: String)
 
     @GraphQLDescription("The truth")
     @ObjectDirective("Don't worry")
     private class BeHappy
+
+    @Test
+    fun `Test naming`() {
+        val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
+        assertNotNull(result)
+        assertEquals("BeHappy", result.name)
+    }
 
     @Test
     fun `Test description`() {
@@ -35,8 +43,8 @@ internal class ObjectTypeTest : TypeTestHelper() {
     fun `Test custom directive`() {
         val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
-
         assertEquals(1, result.directives.size)
+
         val directive = result.directives[0]
         assertEquals("objectDirective", directive.name)
         assertEquals("Don't worry", directive.arguments[0].value)

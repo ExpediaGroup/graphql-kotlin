@@ -16,6 +16,12 @@ internal class InputObjectTypeTest : TypeTestHelper() {
     private class HappyClass
 
     @Test
+    fun `Test naming`() {
+        val result = builder.inputObjectType(HappyClass::class)
+        assertEquals("HappyClassInput", result.name)
+    }
+
+    @Test
     fun `Test description`() {
         val result = builder.inputObjectType(HappyClass::class)
         assertEquals("The truth", result.description)

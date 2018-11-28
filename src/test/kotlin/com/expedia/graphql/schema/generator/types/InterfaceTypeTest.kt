@@ -18,6 +18,12 @@ internal class InterfaceTypeTest : TypeTestHelper() {
     private interface HappyInterface
 
     @Test
+    fun `Test naming`() {
+        val result = builder.interfaceType(HappyInterface::class) as GraphQLInterfaceType
+        assertEquals("HappyInterface", result.name)
+    }
+
+    @Test
     fun `Test description`() {
         val result = builder.interfaceType(HappyInterface::class) as GraphQLInterfaceType
         assertEquals("The truth", result.description)

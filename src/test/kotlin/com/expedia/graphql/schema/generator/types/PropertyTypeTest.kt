@@ -9,10 +9,11 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Suppress("Detekt.NestedClassesVisibility")
 internal class PropertyTypeTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD])
-    private annotation class PropertyDirective(val arg: String)
+    annotation class PropertyDirective(val arg: String)
 
     private class HappyClass {
         @GraphQLDescription("The truth")
@@ -28,10 +29,18 @@ internal class PropertyTypeTest : TypeTestHelper() {
     }
 
     @Test
+    fun `Test naming`() {
+        val prop = HappyClass::class.getValidProperties(hooks)[0]
+        val result = builder.property(prop)
+
+        assertEquals("cake", result.name)
+    }
+
+    @Test
     fun `Test deprecation`() {
         val prop = HappyClass::class.getValidProperties(hooks)[0]
-
         val result = builder.property(prop)
+
         assertTrue(result.isDeprecated)
         assertEquals("It's not a lie", result.deprecationReason)
     }
@@ -39,15 +48,14 @@ internal class PropertyTypeTest : TypeTestHelper() {
     @Test
     fun `Test description`() {
         val prop = HappyClass::class.getValidProperties(hooks)[0]
-
         val result = builder.property(prop)
+
         assertEquals("The truth\n\nDirectives: @PropertyDirective, deprecated", result.description)
     }
 
     @Test
     fun `Test custom directive`() {
         val prop = HappyClass::class.getValidProperties(hooks)[0]
-
         val result = builder.property(prop)
 
         assertEquals(1, result.directives.size)

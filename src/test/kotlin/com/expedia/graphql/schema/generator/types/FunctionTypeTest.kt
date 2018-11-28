@@ -10,7 +10,7 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@Suppress("Detekt.UnusedPrivateMember")
+@Suppress("Detekt.UnusedPrivateMember", "Detekt.NestedClassesVisibility")
 internal class FunctionTypeTest : TypeTestHelper() {
 
     private lateinit var builder: FunctionTypeBuilder
@@ -20,10 +20,10 @@ internal class FunctionTypeTest : TypeTestHelper() {
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.QUERY])
-    private annotation class FunctionDirective(val arg: String)
+    annotation class FunctionDirective(val arg: String)
 
     @GraphQLDirective
-    private annotation class ArgumentDirective(val arg: String)
+    annotation class ArgumentDirective(val arg: String)
 
     private class Happy {
 
@@ -32,7 +32,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
         @FunctionDirective("happy")
         fun littleTrees() = UUID.randomUUID().toString()
 
-        fun paint(@ArgumentDirective("red") color: String) = UUID.randomUUID().toString()
+        fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = UUID.randomUUID().toString()
     }
 
     @Test
@@ -40,6 +40,13 @@ internal class FunctionTypeTest : TypeTestHelper() {
         val kFunction = Happy::class.getValidFunctions(hooks)[0]
         val result = builder.function(kFunction)
         assertEquals("By bob\n\nDirectives: @FunctionDirective, deprecated", result.description)
+    }
+
+    @Test
+    fun `Test description on argument`() {
+        val kFunction = Happy::class.getValidFunctions(hooks)[1]
+        val result = builder.function(kFunction).arguments[0]
+        assertEquals("brush color\n\nDirectives: @ArgumentDirective", result.description)
     }
 
     @Test
