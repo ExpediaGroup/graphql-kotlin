@@ -20,6 +20,9 @@ internal class PropertyTypeTest : TypeTestHelper() {
         @Deprecated("It's not a lie")
         @PropertyDirective("trust me")
         lateinit var cake: String
+
+        @Deprecated("Healthy food is deprecated", replaceWith = ReplaceWith("cake"))
+        lateinit var healthyFood: String
     }
 
     private lateinit var builder: PropertyTypeBuilder
@@ -43,6 +46,15 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
         assertTrue(result.isDeprecated)
         assertEquals("It's not a lie", result.deprecationReason)
+    }
+
+    @Test
+    fun `Test deprecation with replacement`() {
+        val prop = HappyClass::class.getValidProperties(hooks)[1]
+        val result = builder.property(prop)
+
+        assertTrue(result.isDeprecated)
+        assertEquals("Healthy food is deprecated, replace with cake", result.deprecationReason)
     }
 
     @Test

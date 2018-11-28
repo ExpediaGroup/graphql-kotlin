@@ -33,6 +33,9 @@ internal class FunctionTypeTest : TypeTestHelper() {
         fun littleTrees() = UUID.randomUUID().toString()
 
         fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = UUID.randomUUID().toString()
+
+        @Deprecated("No saw, just paint", replaceWith = ReplaceWith("littleTrees"))
+        fun saw(tree: String) = tree
     }
 
     @Test
@@ -55,6 +58,14 @@ internal class FunctionTypeTest : TypeTestHelper() {
         val result = builder.function(kFunction)
         assertTrue(result.isDeprecated)
         assertEquals("No more little trees >:|", result.deprecationReason)
+    }
+
+    @Test
+    fun `Test deprecation with replacement`() {
+        val kFunction = Happy::class.getValidFunctions(hooks)[2]
+        val result = builder.function(kFunction)
+        assertTrue(result.isDeprecated)
+        assertEquals("No saw, just paint, replace with littleTrees", result.deprecationReason)
     }
 
     @Test
