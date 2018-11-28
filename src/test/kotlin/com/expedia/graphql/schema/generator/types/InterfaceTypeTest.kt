@@ -11,9 +11,6 @@ internal class InterfaceTypeTest : TypeTestHelper() {
     private lateinit var builder: InterfaceTypeBuilder
 
     override fun beforeTest() {
-        mockTypeCache()
-        mockSubTypeMapper()
-
         builder = InterfaceTypeBuilder(generator)
     }
 

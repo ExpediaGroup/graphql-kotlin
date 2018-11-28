@@ -21,9 +21,9 @@ import kotlin.test.BeforeTest
 internal open class TypeTestHelper {
     var generator = mockk<SchemaGenerator>()
     var config = mockk<SchemaGeneratorConfig>()
-    var state = mockk<SchemaGeneratorState>()
-    var subTypeMapper = mockk<SubTypeMapper>()
-    var cache = mockk<TypesCache>()
+    var state = spyk(SchemaGeneratorState(listOf("com.expedia.graphql.schema.generator.types")))
+    var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql.schema.generator.types")))
+    var cache = spyk(TypesCache(listOf("com.expedia.graphql.schema.generator.types")))
     var hooks = NoopSchemaGeneratorHooks()
     var scalarTypeBuilder: ScalarTypeBuilder? = null
     var objectTypeBuilder: ObjectTypeBuilder? = null
@@ -37,31 +37,17 @@ internal open class TypeTestHelper {
         every { config.hooks } returns hooks
         every { config.dataFetcherFactory } returns null
 
-        beforeTest()
-    }
-
-    fun mockScalarTypeBuilder() {
         scalarTypeBuilder = spyk(ScalarTypeBuilder(generator))
         every { generator.scalarType(any(), any()) } answers {
             scalarTypeBuilder!!.scalarType(it.invocation.args[0] as KType, it.invocation.args[1] as Boolean)
         }
-    }
 
-    fun mockObjectTypeBuilder() {
         objectTypeBuilder = spyk(ObjectTypeBuilder(generator))
         every { generator.objectType(any(), any()) } answers {
             objectTypeBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
         }
-    }
 
-    fun mockTypeCache() {
-        cache = spyk(TypesCache(listOf("com.expedia.graphql.schema.generator.types")))
-        every { state.cache } returns cache
-    }
-
-    fun mockSubTypeMapper() {
-        subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql.schema.generator.types")))
-        every { generator.subTypeMapper } returns subTypeMapper
+        beforeTest()
     }
 
     open fun beforeTest() {}

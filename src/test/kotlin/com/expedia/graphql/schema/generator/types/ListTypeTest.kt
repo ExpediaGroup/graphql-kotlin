@@ -16,7 +16,6 @@ internal class ListTypeTest : TypeTestHelper() {
     private lateinit var builder: ListTypeBuilder
 
     override fun beforeTest() {
-        mockScalarTypeBuilder()
         builder = ListTypeBuilder(generator)
     }
 

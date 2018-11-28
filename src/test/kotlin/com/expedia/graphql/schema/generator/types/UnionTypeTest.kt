@@ -11,10 +11,6 @@ internal class UnionTypeTest : TypeTestHelper() {
     private lateinit var builder: UnionTypeBuilder
 
     override fun beforeTest() {
-        mockTypeCache()
-        mockSubTypeMapper()
-        mockObjectTypeBuilder()
-
         builder = UnionTypeBuilder(generator)
     }
 

@@ -5,6 +5,7 @@ import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.Scalars
+import graphql.schema.GraphQLInputObjectType
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
@@ -59,82 +60,17 @@ class DirectiveTests {
         assertEquals("arg", renamedDirective.arguments[0].name)
         assertEquals(Scalars.GraphQLString, renamedDirective.arguments[0].type)
     }
-
-    @Test
-    @Suppress("Detekt.UnsafeCast")
-    fun `Directives on classes`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
-
-        val directive = assertNotNull(
-            (schema.getType("Geography") as? GraphQLObjectType)
-                ?.getDirective("onClassDirective")
-        )
-
-        assertEquals("aclass", directive.arguments[0].value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
-    }
-
-    @Test
-    @Suppress("Detekt.UnsafeCast")
-    fun `Directives on functions`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
-
-        val directive = assertNotNull(
-            (schema.getType("Geography") as? GraphQLObjectType)
-                ?.getFieldDefinition("somethingCool")
-                ?.getDirective("onFunctionDirective")
-        )
-
-        assertEquals("afunction", directive.arguments[0].value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
-
-        assertNotNull(directive)
-        assertEquals(
-            directive.validLocations()?.toSet(),
-            setOf(Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.FIELD)
-        )
-    }
-
-    @Test
-    @Suppress("Detekt.UnsafeCast")
-    fun `Directives on arguments`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
-
-        val directive = assertNotNull(
-            schema.queryType
-                .getFieldDefinition("query")
-                .getArgument("value")
-                .getDirective("onArgumentDirective")
-        )
-
-        assertEquals("anargument", directive.arguments[0].value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
-    }
 }
 
 @GraphQLDirective(name = "RightNameDirective")
 annotation class WrongNameDirective(val arg: String)
 
-@GraphQLDirective
-annotation class OnClassDirective(val arg: String)
-
-@GraphQLDirective
-annotation class OnArgumentDirective(val arg: String)
-
-@GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.FIELD])
-annotation class OnFunctionDirective(val arg: String)
-
-@OnClassDirective(arg = "aclass")
 class Geography(
     val id: Int?,
     val type: GeoType,
     val locations: List<Location>
 ) {
     @Suppress("Detekt.FunctionOnlyReturningConstant")
-    @OnFunctionDirective(arg = "afunction")
     fun somethingCool(): String = "Something cool"
 }
 
@@ -146,7 +82,7 @@ enum class GeoType {
 data class Location(val lat: Double, val lon: Double)
 
 class QueryObject {
-    fun query(@OnArgumentDirective(arg = "anargument") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
+    fun query(value: Int): Geography = Geography(value, GeoType.CITY, listOf())
 }
 
 class QueryWithDeprecatedFields {
