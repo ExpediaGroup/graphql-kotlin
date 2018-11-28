@@ -4,8 +4,7 @@ import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
-import com.expedia.graphql.schema.generator.types.defaultGraphQLScalars
-import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
+import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -45,20 +44,20 @@ private fun Annotation.getDirectiveInfo(): DirectiveInfo? {
         .firstOrNull()
 }
 
-internal fun KAnnotatedElement.directives(hooks: SchemaGeneratorHooks) =
+internal fun KAnnotatedElement.directives(generator: SchemaGenerator) =
     this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
-        .map { it.getGraphQLDirective(hooks) }
+        .map { it.getGraphQLDirective(generator) }
         .toList()
 
-internal fun KParameter.directives(hooks: SchemaGeneratorHooks) =
+internal fun KParameter.directives(generator: SchemaGenerator) =
     this.annotations.asSequence()
         .mapNotNull { it.getDirectiveInfo() }
-        .map { it.getGraphQLDirective(hooks) }
+        .map { it.getGraphQLDirective(generator) }
         .toList()
 
 @Throws(CouldNotGetNameOfAnnotationException::class)
-private fun DirectiveInfo.getGraphQLDirective(hooks: SchemaGeneratorHooks): GraphQLDirective {
+private fun DirectiveInfo.getGraphQLDirective(generator: SchemaGenerator): GraphQLDirective {
     val directiveClass = this.directive.annotationClass
     val name: String = this.effectiveName ?: throw CouldNotGetNameOfAnnotationException(directiveClass)
 
@@ -68,11 +67,12 @@ private fun DirectiveInfo.getGraphQLDirective(hooks: SchemaGeneratorHooks): Grap
         .validLocations(*this.directiveAnnotation.locations)
         .description(this.directiveAnnotation.description)
 
-    directiveClass.getValidProperties(hooks).forEach { prop ->
+    directiveClass.getValidProperties(generator.config.hooks).forEach { prop ->
         val propertyName = prop.name
         val value = prop.call(this.directive)
 
-        val type = defaultGraphQLScalars(prop.returnType) ?: hooks.willGenerateGraphQLType(prop.returnType)
+        val type = generator.scalarType(prop.returnType)
+            ?: generator.config.hooks.willGenerateGraphQLType(prop.returnType)
         val argument = GraphQLArgument.newArgument()
             .name(propertyName)
             .value(value)
