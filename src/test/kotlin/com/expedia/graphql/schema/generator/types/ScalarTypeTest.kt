@@ -9,7 +9,13 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 
-internal class DefaultGraphQLScalarsTest {
+internal class ScalarTypeTest : TypeTestHelper() {
+
+    private lateinit var builder: ScalarTypeBuilder
+
+    override fun beforeTest() {
+        builder = ScalarTypeBuilder(generator)
+    }
 
     @Test
     fun `test all types`() {
@@ -27,7 +33,7 @@ internal class DefaultGraphQLScalarsTest {
     }
 
     private fun verify(kClass: KClass<*>, expected: GraphQLScalarType?) {
-        val actual = defaultGraphQLScalars(kClass.createType())
+        val actual = builder.scalarType(kClass.createType())
         assertEquals(expected = expected, actual = actual)
     }
 }
