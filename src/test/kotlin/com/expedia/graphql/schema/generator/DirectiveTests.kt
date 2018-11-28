@@ -6,7 +6,6 @@ import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.Scalars
 import graphql.introspection.Introspection
-import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
@@ -24,19 +23,7 @@ class DirectiveTests {
         val deprecatedField = result?.getFieldDefinition("deprecatedField")
 
         assertEquals(deprecatedField?.isDeprecated, true)
-        assertEquals("Directives: deprecated", deprecatedField?.description)
         assertEquals("this field is deprecated", deprecatedField?.deprecationReason)
-    }
-
-    @Test
-    fun `SchemaGenerator includes deprecated notice for deprecated fields`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(QueryWithDeprecatedFields())), config = testSchemaConfig)
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
-        val query = topLevelQuery.getFieldDefinition("deprecatedArgumentQuery")
-        val argument = query.getArgument("input")
-        val deprecatedInputField = ((argument.type as? GraphQLNonNull)?.wrappedType as? GraphQLInputObjectType)?.getFieldDefinition("deprecatedField")
-
-        assertEquals("Directives: deprecated", deprecatedInputField?.description)
     }
 
     @Test

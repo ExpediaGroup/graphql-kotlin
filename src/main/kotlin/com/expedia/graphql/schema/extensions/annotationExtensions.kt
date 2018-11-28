@@ -16,60 +16,9 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import com.expedia.graphql.annotations.GraphQLDirective as DirectiveAnnotation
 
-internal fun KAnnotatedElement.graphQLDescription(): String? {
-    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
-    val description = this.findAnnotation<GraphQLDescription>()?.value
-    return formatGraphQLDescription(description, directiveNames)
-}
+internal fun KAnnotatedElement.graphQLDescription(): String? = this.findAnnotation<GraphQLDescription>()?.value
 
-internal fun Field.graphQLDescription(): String? {
-    val directiveNames = listOfDirectives().map { it.normalizeDirectiveName() }
-    val description = this.getAnnotation(GraphQLDescription::class.java)?.value
-    return formatGraphQLDescription(description, directiveNames)
-}
-
-private fun formatGraphQLDescription(description: String?, directiveNames: List<String>): String? = when {
-    description != null && directiveNames.isNotEmpty() ->
-        """$description
-            |
-            |Directives: ${directiveNames.joinToString(", ")}
-            """.trimMargin()
-    description == null && directiveNames.isNotEmpty() ->
-        "Directives: ${directiveNames.joinToString(", ")}"
-    else -> description
-}
-
-private fun KAnnotatedElement.listOfDirectives(): List<String> {
-    val deprecationReason: String? = this.getDeprecationReason()?.let { "deprecated" }
-
-    return this.annotations.asSequence()
-        .mapNotNull { it.getDirectiveInfo() }
-        .map {
-            when {
-                it.effectiveName.isNullOrEmpty().not() -> "@${it.effectiveName}"
-                else -> null
-            }
-        }
-        .plus(deprecationReason)
-        .filterNotNull()
-        .toList()
-}
-
-private fun Field.listOfDirectives(): List<String> {
-    val deprecationReason: String? = this.getDeprecationReason()?.let { "deprecated" }
-
-    return this.declaredAnnotations.asSequence()
-        .mapNotNull { it.getDirectiveInfo() }
-        .map {
-            when {
-                it.effectiveName.isNullOrEmpty().not() -> "@${it.effectiveName}"
-                else -> null
-            }
-        }
-        .plus(deprecationReason)
-        .filterNotNull()
-        .toList()
-}
+internal fun Field.graphQLDescription(): String? = this.getAnnotation(GraphQLDescription::class.java)?.value
 
 internal fun KAnnotatedElement.getDeprecationReason(): String? = this.findAnnotation<Deprecated>()?.getReason()
 
