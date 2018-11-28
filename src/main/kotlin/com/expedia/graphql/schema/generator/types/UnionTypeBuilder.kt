@@ -13,7 +13,7 @@ import graphql.schema.GraphQLUnionType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal class UnionTypeBuilder(generator: SchemaGenerator) : TypeBuilder<GraphQLUnionType>(generator) {
+internal class UnionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     internal fun unionType(kClass: KClass<*>): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLUnionType.newUnionType()

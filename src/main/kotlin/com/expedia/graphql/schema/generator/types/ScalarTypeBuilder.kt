@@ -10,7 +10,7 @@ import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-internal class ScalarTypeBuilder(generator: SchemaGenerator) : TypeBuilder<GraphQLScalarType>(generator) {
+internal class ScalarTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     private val defaultScalarsMap = mapOf(
         Int::class to Scalars.GraphQLInt,
         Long::class to Scalars.GraphQLLong,

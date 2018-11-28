@@ -11,7 +11,7 @@ import graphql.schema.GraphQLInputType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder<GraphQLInputObjectType>(generator) {
+internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     internal fun inputObjectType(kClass: KClass<*>): GraphQLInputObjectType {
         val builder = GraphQLInputObjectType.newInputObject()
         val name = getInputClassName(kClass)

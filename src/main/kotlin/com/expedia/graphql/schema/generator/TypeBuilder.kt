@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 
-internal open class TypeBuilder<out T : GraphQLType> constructor(val generator: SchemaGenerator) {
+internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
     val state = generator.state
     val config = generator.config
     val subTypeMapper = generator.subTypeMapper

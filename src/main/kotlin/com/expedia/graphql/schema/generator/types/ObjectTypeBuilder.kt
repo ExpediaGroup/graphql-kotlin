@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.superclasses
 
-internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder<GraphQLObjectType>(generator) {
+internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
