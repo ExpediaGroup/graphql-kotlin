@@ -1,19 +1,19 @@
 package com.expedia.graphql.schema.generator.directive
 
 import graphql.Assert.assertNotNull
+import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
-import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLObjectType
-import graphql.schema.GraphQLInterfaceType
-import graphql.schema.GraphQLUnionType
-import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
-import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
-import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLInterfaceType
+import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLUnionType
 import graphql.schema.idl.SchemaDirectiveWiring
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 import graphql.schema.idl.SchemaDirectiveWiringEnvironmentImpl
@@ -25,6 +25,9 @@ import graphql.schema.idl.WiringFactory
  */
 class DirectiveWiringHelper(private val wiringFactory: WiringFactory, private val manualWiring: Map<String, SchemaDirectiveWiring> = mutableMapOf()) {
 
+    /**
+     * Wire up the directive based on the GraphQL type
+     */
     @Suppress("UNCHECKED_CAST", "Detekt.ComplexMethod")
     fun onWire(generatedType: GraphQLType): GraphQLType {
         if (generatedType !is GraphQLDirectiveContainer) return generatedType
