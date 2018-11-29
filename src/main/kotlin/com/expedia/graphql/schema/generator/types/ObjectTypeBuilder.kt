@@ -1,7 +1,7 @@
 package com.expedia.graphql.schema.generator.types
 
-import com.expedia.graphql.schema.extensions.isGraphQLInterface
-import com.expedia.graphql.schema.extensions.isGraphQLUnion
+import com.expedia.graphql.schema.extensions.canBeGraphQLInterface
+import com.expedia.graphql.schema.extensions.canBeGraphQLUnion
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getValidFunctions
 import com.expedia.graphql.schema.extensions.getValidProperties
@@ -34,7 +34,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
             } else {
                 kClass.superclasses
                     .asSequence()
-                    .filter { it.isGraphQLInterface() && !it.isGraphQLUnion() }
+                    .filter { it.canBeGraphQLInterface() && !it.canBeGraphQLUnion() }
                     .map { objectFromReflection(it.createType(), false) as? GraphQLInterfaceType }
                     .forEach { builder.withInterface(it) }
             }

@@ -15,7 +15,7 @@ internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks) = this.dec
     .filter { hooks.isValidFunction(it) }
     .filter { func -> functionFilters.all { it.invoke(func) } }
 
-internal fun KClass<*>.isGraphQLInterface(): Boolean = this.java.isInterface
+internal fun KClass<*>.canBeGraphQLInterface(): Boolean = this.java.isInterface
 
-internal fun KClass<*>.isGraphQLUnion(): Boolean =
-    this.isGraphQLInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+internal fun KClass<*>.canBeGraphQLUnion(): Boolean =
+    this.canBeGraphQLInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
