@@ -14,7 +14,6 @@ import kotlin.reflect.KType
  * Hooks are lifecycle events that are called and triggered while the schema is building
  * that allow users to customize the schema.
  */
-@Suppress("Detekt.ComplexInterface")
 interface SchemaGeneratorHooks {
     /**
      * Called before the final GraphQL schema is built.

@@ -1,4 +1,3 @@
-@file:Suppress("TooManyFunctions")
 package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException

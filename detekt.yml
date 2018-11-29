@@ -25,6 +25,12 @@ complexity:
   LongParameterList:
     threshold: 10
     active: true
+  TooManyFunctions:
+    thresholdInInterfaces: 15
+    thresholdInClasses: 15
+    thresholdInFiles: 15
+  ComplexInterface:
+    threshold: 15
 
 style:
   MagicNumber:
