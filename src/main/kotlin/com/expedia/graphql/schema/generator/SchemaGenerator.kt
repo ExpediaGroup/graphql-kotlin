@@ -21,6 +21,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
+@Suppress("Detekt.TooManyFunctions")
 internal class SchemaGenerator(
     private val queries: List<TopLevelObjectDef>,
     private val mutations: List<TopLevelObjectDef>,
