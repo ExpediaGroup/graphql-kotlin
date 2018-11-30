@@ -45,6 +45,7 @@ internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
         kClass.isSubclassOf(List::class) || kClass.java.isArray -> generator.listType(type, inputType)
         kClass.canBeGraphQLUnion() -> generator.unionType(kClass)
         kClass.canBeGraphQLInterface() -> generator.interfaceType(kClass)
-        else -> if (inputType) generator.inputObjectType(kClass) else generator.objectType(kClass)
+        inputType -> generator.inputObjectType(kClass)
+        else -> generator.objectType(kClass)
     }
 }

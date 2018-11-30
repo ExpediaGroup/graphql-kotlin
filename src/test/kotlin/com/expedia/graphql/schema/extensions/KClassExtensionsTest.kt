@@ -1,5 +1,6 @@
 package com.expedia.graphql.schema.extensions
 
+import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
@@ -29,9 +30,11 @@ class KClassExtensionsTest {
             function.name.contains("filteredFunction").not()
     }
 
+    private val noopHooks = NoopSchemaGeneratorHooks()
+
     @Test
     fun `test getting valid properties with no hooks`() {
-        val properties = MyTestClass::class.getValidProperties()
+        val properties = MyTestClass::class.getValidProperties(noopHooks)
         assertEquals(listOf("filteredProperty", "publicProperty"), properties.map { it.name })
     }
 
@@ -43,7 +46,7 @@ class KClassExtensionsTest {
 
     @Test
     fun `test getting valid functions with no hooks`() {
-        val properties = MyTestClass::class.getValidFunctions()
+        val properties = MyTestClass::class.getValidFunctions(noopHooks)
         assertEquals(listOf("filteredFunction", "publicFunction"), properties.map { it.name })
     }
 

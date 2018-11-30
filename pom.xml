@@ -170,8 +170,6 @@
                                 <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true" classname="io.gitlab.arturbosch.detekt.cli.Main" classpathref="maven.plugin.classpath">
                                     <arg value="-i" />
                                     <arg value="${project.basedir}${file.separator}src" />
-                                    <arg value="-b" />
-                                    <arg value="${project.basedir}${file.separator}detekt_baseline.xml" />
                                     <arg value="-c" />
                                     <arg value="${project.basedir}${file.separator}detekt.yml" />
                                     <arg value="-o" />
