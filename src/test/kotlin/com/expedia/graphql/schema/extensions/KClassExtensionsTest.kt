@@ -2,19 +2,21 @@ package com.expedia.graphql.schema.extensions
 
 import com.expedia.graphql.schema.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
-import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-class KClassExtensionsTest {
+internal class KClassExtensionsTest {
 
     @Suppress("Detekt.FunctionOnlyReturningConstant", "Detekt.UnusedPrivateMember")
-    class MyTestClass(
+    private class MyTestClass(
         val publicProperty: String = "public",
         val filteredProperty: String = "filtered",
         private val privateVal: String = "hidden"
-    ) {
+    ) : TestInterface {
         fun publicFunction() = "public function"
 
         fun filteredFunction() = "filtered function"
@@ -22,12 +24,29 @@ class KClassExtensionsTest {
         private fun privateTestFunction() = "private function"
     }
 
-    class FilterHooks : SchemaGeneratorHooks {
+    private class FilterHooks : SchemaGeneratorHooks {
         override fun isValidProperty(property: KProperty<*>) =
             property.name.contains("filteredProperty").not()
 
         override fun isValidFunction(function: KFunction<*>) =
             function.name.contains("filteredFunction").not()
+    }
+
+    private enum class MyTestEnum {
+        ONE,
+        TWO
+    }
+
+    private interface TestInterface
+
+    private interface InvalidPropertyUnionInterface {
+        val test: Int
+            get() = 1
+    }
+
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
+    private interface InvalidFunctionUnionInterface {
+        fun getTest() = 1
     }
 
     private val noopHooks = NoopSchemaGeneratorHooks()
@@ -54,5 +73,32 @@ class KClassExtensionsTest {
     fun `test getting valid functions with filter hooks`() {
         val properties = MyTestClass::class.getValidFunctions(FilterHooks())
         assertEquals(listOf("publicFunction"), properties.map { it.name })
+    }
+
+    @Test
+    fun `test enum extension`() {
+        assertTrue(MyTestEnum::class.isEnum())
+        assertFalse(MyTestClass::class.isEnum())
+    }
+
+    @Test
+    fun `test list extension`() {
+        assertTrue(listOf(1)::class.canBeGraphQLList())
+        assertTrue(arrayListOf(1)::class.canBeGraphQLList())
+        assertTrue(arrayOf(1)::class.canBeGraphQLList())
+        assertFalse(MyTestClass::class.canBeGraphQLList())
+    }
+
+    @Test
+    fun `test graphql interface extension`() {
+        assertTrue(TestInterface::class.canBeGraphQLInterface())
+        assertFalse(MyTestClass::class.canBeGraphQLInterface())
+    }
+
+    @Test
+    fun `test graphql union extension`() {
+        assertTrue(TestInterface::class.canBeGraphQLUnion())
+        assertFalse(InvalidPropertyUnionInterface::class.canBeGraphQLUnion())
+        assertFalse(InvalidFunctionUnionInterface::class.canBeGraphQLUnion())
     }
 }

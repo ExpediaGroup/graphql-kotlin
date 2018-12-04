@@ -6,6 +6,7 @@ import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSubclassOf
 
 internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks) = this.declaredMemberProperties
     .filter { hooks.isValidProperty(it) }
@@ -19,3 +20,7 @@ internal fun KClass<*>.canBeGraphQLInterface(): Boolean = this.java.isInterface
 
 internal fun KClass<*>.canBeGraphQLUnion(): Boolean =
     this.canBeGraphQLInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+
+internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
+
+internal fun KClass<*>.canBeGraphQLList(): Boolean = this.isSubclassOf(List::class) || this.java.isArray
