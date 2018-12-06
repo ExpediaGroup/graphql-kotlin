@@ -6,7 +6,7 @@ Most GraphQL libraries for the JVM require developers to maintain two sources of
 
 For information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
 
-For information on `graphql-java`, please visit [GraphQL Java](https://graphql-java.readthedocs.io/en/latest/).
+For information on `graphql-java`, please visit [GraphQL Java](https://www.graphql-java.com/documentation/latest/).
 
 # Getting started
 
