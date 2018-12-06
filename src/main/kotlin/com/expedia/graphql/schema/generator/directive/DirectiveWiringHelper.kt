@@ -23,34 +23,24 @@ import graphql.schema.idl.WiringFactory
  * Based on
  * https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/idl/SchemaGeneratorDirectiveHelper.java
  */
-class DirectiveWiringHelper(private val wiringFactory: WiringFactory, private val manualWiring: Map<String, SchemaDirectiveWiring> = mutableMapOf()) {
+internal class DirectiveWiringHelper(private val wiringFactory: WiringFactory, private val manualWiring: Map<String, SchemaDirectiveWiring> = mutableMapOf()) {
 
     /**
      * Wire up the directive based on the GraphQL type
      */
-    @Suppress("UNCHECKED_CAST", "Detekt.ComplexMethod")
     fun onWire(generatedType: GraphQLType): GraphQLType {
         if (generatedType !is GraphQLDirectiveContainer) return generatedType
 
-        return wireDirectives(generatedType, getDirectives(generatedType),
-            { outputElement, directive -> createWiringEnvironment(outputElement, directive) },
-            { wiring, environment ->
-                when (environment.element) {
-                    is GraphQLObjectType -> wiring.onObject(environment as SchemaDirectiveWiringEnvironment<GraphQLObjectType>)
-                    is GraphQLFieldDefinition -> wiring.onField(environment as SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>)
-                    is GraphQLInterfaceType -> wiring.onInterface(environment as SchemaDirectiveWiringEnvironment<GraphQLInterfaceType>)
-                    is GraphQLUnionType -> wiring.onUnion(environment as SchemaDirectiveWiringEnvironment<GraphQLUnionType>)
-                    is GraphQLScalarType -> wiring.onScalar(environment as SchemaDirectiveWiringEnvironment<GraphQLScalarType>)
-                    is GraphQLEnumType -> wiring.onEnum(environment as SchemaDirectiveWiringEnvironment<GraphQLEnumType>)
-                    is GraphQLEnumValueDefinition -> wiring.onEnumValue(environment as SchemaDirectiveWiringEnvironment<GraphQLEnumValueDefinition>)
-                    is GraphQLArgument -> wiring.onArgument(environment as SchemaDirectiveWiringEnvironment<GraphQLArgument>)
-                    is GraphQLInputObjectType -> wiring.onInputObjectType(environment as SchemaDirectiveWiringEnvironment<GraphQLInputObjectType>)
-                    is GraphQLInputObjectField -> wiring.onInputObjectField(environment as SchemaDirectiveWiringEnvironment<GraphQLInputObjectField>)
-                    else -> generatedType
-                }
-            }
+        return wireDirectives(
+            generatedType,
+            getDirectives(generatedType),
+            ::createWiringEnvironment,
+            getInvoker(generatedType)
         )
     }
+
+    private fun getInvoker(generatedType: GraphQLDirectiveContainer) =
+        { wiring: SchemaDirectiveWiring, environment: SchemaDirectiveWiringEnvironment<GraphQLDirectiveContainer> -> wireOnEnvironment(environment, wiring, generatedType) }
 
     private fun getDirectives(generatedType: GraphQLDirectiveContainer): MutableList<GraphQLDirective> {
         // A function without directives may still be rewired if the arguments have directives
@@ -90,4 +80,20 @@ class DirectiveWiringHelper(private val wiringFactory: WiringFactory, private va
             manualWiring[directiveName]
         }
     }
+
+    @Suppress("UNCHECKED_CAST", "Detekt.ComplexMethod")
+    private fun wireOnEnvironment(environment: SchemaDirectiveWiringEnvironment<GraphQLDirectiveContainer>, wiring: SchemaDirectiveWiring, generatedType: GraphQLDirectiveContainer) =
+        when (environment.element) {
+            is GraphQLObjectType -> wiring.onObject(environment as SchemaDirectiveWiringEnvironment<GraphQLObjectType>)
+            is GraphQLFieldDefinition -> wiring.onField(environment as SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>)
+            is GraphQLInterfaceType -> wiring.onInterface(environment as SchemaDirectiveWiringEnvironment<GraphQLInterfaceType>)
+            is GraphQLUnionType -> wiring.onUnion(environment as SchemaDirectiveWiringEnvironment<GraphQLUnionType>)
+            is GraphQLScalarType -> wiring.onScalar(environment as SchemaDirectiveWiringEnvironment<GraphQLScalarType>)
+            is GraphQLEnumType -> wiring.onEnum(environment as SchemaDirectiveWiringEnvironment<GraphQLEnumType>)
+            is GraphQLEnumValueDefinition -> wiring.onEnumValue(environment as SchemaDirectiveWiringEnvironment<GraphQLEnumValueDefinition>)
+            is GraphQLArgument -> wiring.onArgument(environment as SchemaDirectiveWiringEnvironment<GraphQLArgument>)
+            is GraphQLInputObjectType -> wiring.onInputObjectType(environment as SchemaDirectiveWiringEnvironment<GraphQLInputObjectType>)
+            is GraphQLInputObjectField -> wiring.onInputObjectField(environment as SchemaDirectiveWiringEnvironment<GraphQLInputObjectField>)
+            else -> generatedType
+        }
 }

@@ -1,18 +1,19 @@
 package com.expedia.graphql.schema.generator
 
-import com.expedia.graphql.schema.extensions.canBeGraphQLInterface
-import com.expedia.graphql.schema.extensions.canBeGraphQLUnion
+import com.expedia.graphql.schema.extensions.isGraphQLInterface
+import com.expedia.graphql.schema.extensions.isGraphQLList
+import com.expedia.graphql.schema.extensions.isGraphQLUnion
+import com.expedia.graphql.schema.extensions.isEnum
 import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.generator.models.KGraphQLType
 import graphql.schema.GraphQLType
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubclassOf
 
 internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
-    val state = generator.state
-    val config = generator.config
-    val subTypeMapper = generator.subTypeMapper
+    protected val state = generator.state
+    protected val config = generator.config
+    protected val subTypeMapper = generator.subTypeMapper
 
     internal fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
@@ -41,10 +42,10 @@ internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
     }
 
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
-        kClass.isSubclassOf(Enum::class) -> @Suppress("UNCHECKED_CAST") (generator.enumType(kClass as KClass<Enum<*>>))
-        kClass.isSubclassOf(List::class) || kClass.java.isArray -> generator.listType(type, inputType)
-        kClass.canBeGraphQLUnion() -> generator.unionType(kClass)
-        kClass.canBeGraphQLInterface() -> generator.interfaceType(kClass)
+        kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generator.enumType(kClass as KClass<Enum<*>>))
+        kClass.isGraphQLList() -> generator.listType(type, inputType)
+        kClass.isGraphQLUnion() -> generator.unionType(kClass)
+        kClass.isGraphQLInterface() -> generator.interfaceType(kClass)
         inputType -> generator.inputObjectType(kClass)
         else -> generator.objectType(kClass)
     }

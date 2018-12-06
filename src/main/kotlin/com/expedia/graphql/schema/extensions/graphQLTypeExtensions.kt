@@ -10,7 +10,7 @@ import kotlin.reflect.KType
  * Renders a readable string from the given graphql type no matter how deeply nested
  * Eg: [[Int!]]!
  */
-val GraphQLType.deepName: String
+internal val GraphQLType.deepName: String
     get() = when {
         this is GraphQLNonNull -> "${this.wrappedType.deepName}!"
         this is GraphQLList -> "[${this.wrappedType.deepName}]"
