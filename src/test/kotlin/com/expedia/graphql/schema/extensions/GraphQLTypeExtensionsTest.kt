@@ -12,30 +12,28 @@ internal class GraphQLTypeExtensionsTest {
         override fun getName() = "BasicType"
     }
 
+    private val basicType = BasicType()
+
     @Test
     fun `deepname of basic type`() {
-        val type = BasicType()
-        assertEquals(expected = "BasicType", actual = type.deepName)
+        assertEquals(expected = "BasicType", actual = basicType.deepName)
     }
 
     @Test
     fun `deepname of list`() {
-        val type = BasicType()
-        val list = GraphQLList(type)
+        val list = GraphQLList(basicType)
         assertEquals(expected = "[BasicType]", actual = list.deepName)
     }
 
     @Test
     fun `deepname of non null`() {
-        val type = BasicType()
-        val nonNull = GraphQLNonNull(type)
+        val nonNull = GraphQLNonNull(basicType)
         assertEquals(expected = "BasicType!", actual = nonNull.deepName)
     }
 
     @Test
     fun `deepname of non null list of non nulls`() {
-        val type = BasicType()
-        val complicated = GraphQLNonNull(GraphQLList(GraphQLNonNull(type)))
+        val complicated = GraphQLNonNull(GraphQLList(GraphQLNonNull(basicType)))
         assertEquals(expected = "[BasicType!]!", actual = complicated.deepName)
     }
 }
