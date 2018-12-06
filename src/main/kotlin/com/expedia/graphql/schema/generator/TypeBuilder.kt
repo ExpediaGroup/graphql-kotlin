@@ -1,8 +1,8 @@
 package com.expedia.graphql.schema.generator
 
-import com.expedia.graphql.schema.extensions.canBeGraphQLInterface
-import com.expedia.graphql.schema.extensions.canBeGraphQLList
-import com.expedia.graphql.schema.extensions.canBeGraphQLUnion
+import com.expedia.graphql.schema.extensions.isGraphQLInterface
+import com.expedia.graphql.schema.extensions.isGraphQLList
+import com.expedia.graphql.schema.extensions.isGraphQLUnion
 import com.expedia.graphql.schema.extensions.isEnum
 import com.expedia.graphql.schema.extensions.wrapInNonNull
 import com.expedia.graphql.schema.generator.models.KGraphQLType
@@ -43,9 +43,9 @@ internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
 
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generator.enumType(kClass as KClass<Enum<*>>))
-        kClass.canBeGraphQLList() -> generator.listType(type, inputType)
-        kClass.canBeGraphQLUnion() -> generator.unionType(kClass)
-        kClass.canBeGraphQLInterface() -> generator.interfaceType(kClass)
+        kClass.isGraphQLList() -> generator.listType(type, inputType)
+        kClass.isGraphQLUnion() -> generator.unionType(kClass)
+        kClass.isGraphQLInterface() -> generator.interfaceType(kClass)
         inputType -> generator.inputObjectType(kClass)
         else -> generator.objectType(kClass)
     }

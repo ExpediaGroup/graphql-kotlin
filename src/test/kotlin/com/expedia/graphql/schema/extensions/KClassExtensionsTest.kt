@@ -83,22 +83,22 @@ internal class KClassExtensionsTest {
 
     @Test
     fun `test list extension`() {
-        assertTrue(listOf(1)::class.canBeGraphQLList())
-        assertTrue(arrayListOf(1)::class.canBeGraphQLList())
-        assertTrue(arrayOf(1)::class.canBeGraphQLList())
-        assertFalse(MyTestClass::class.canBeGraphQLList())
+        assertTrue(listOf(1)::class.isGraphQLList())
+        assertTrue(arrayListOf(1)::class.isGraphQLList())
+        assertTrue(arrayOf(1)::class.isGraphQLList())
+        assertFalse(MyTestClass::class.isGraphQLList())
     }
 
     @Test
     fun `test graphql interface extension`() {
-        assertTrue(TestInterface::class.canBeGraphQLInterface())
-        assertFalse(MyTestClass::class.canBeGraphQLInterface())
+        assertTrue(TestInterface::class.isGraphQLInterface())
+        assertFalse(MyTestClass::class.isGraphQLInterface())
     }
 
     @Test
     fun `test graphql union extension`() {
-        assertTrue(TestInterface::class.canBeGraphQLUnion())
-        assertFalse(InvalidPropertyUnionInterface::class.canBeGraphQLUnion())
-        assertFalse(InvalidFunctionUnionInterface::class.canBeGraphQLUnion())
+        assertTrue(TestInterface::class.isGraphQLUnion())
+        assertFalse(InvalidPropertyUnionInterface::class.isGraphQLUnion())
+        assertFalse(InvalidFunctionUnionInterface::class.isGraphQLUnion())
     }
 }

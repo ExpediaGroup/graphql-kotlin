@@ -26,10 +26,8 @@ internal class AnnotationExtensionsTest {
 
     private enum class AnnotatedEnum {
         @GraphQLDescription("field description")
-        ONE
-    }
-
-    private enum class NoAnnoationsEnum {
+        @Deprecated("do not use", ReplaceWith("THREE"))
+        ONE,
         TWO
     }
 
@@ -42,14 +40,18 @@ internal class AnnotationExtensionsTest {
     @Test
     fun `verify @GraphQLDescrption on fields`() {
         val description = AnnotatedEnum::class.java.getField("ONE")
-        val noDescription = NoAnnoationsEnum::class.java.getField("TWO")
+        val noDescription = AnnotatedEnum::class.java.getField("TWO")
         assertEquals(expected = "field description", actual = description.graphQLDescription())
         assertNull(noDescription.graphQLDescription())
     }
 
     @Test
     fun `verify @Deprecated`() {
-        assertEquals(expected = "class deprecated", actual = WithAnnotations::class.getDeprecationReason())
+        val classDeprecation = WithAnnotations::class.getDeprecationReason()
+        val propertyDeprecation = AnnotatedEnum::class.java.getField("ONE")?.getDeprecationReason()
+
+        assertEquals(expected = "class deprecated", actual = classDeprecation)
+        assertEquals(expected = "do not use, replace with THREE", actual = propertyDeprecation)
         assertNull(NoAnnotations::class.getDeprecationReason())
     }
 
