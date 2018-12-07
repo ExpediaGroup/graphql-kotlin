@@ -1,6 +1,7 @@
 dist: trusty
 
 language: java
+jdk: oraclejdk8
 
 cache:
   directories:
@@ -13,8 +14,6 @@ before_install:
 script:
   - ./mvnw test -B
 
-jdk: oraclejdk8
-
 deploy:
   -
     provider: script
@@ -24,17 +23,9 @@ deploy:
       repo: ExpediaDotCom/graphql-kotlin
       branch: master
       jdk: oraclejdk8
-  -
-    provider: script
-    script: .travis/deploy.sh
-    skip_cleanup: true
-    on:
-      repo: ExpediaDotCom/graphql-kotlin
-      tags: true
-      jdk: oraclejdk8
 
 after_success:
-  - mvn clean test jacoco:report coveralls:report
+  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email:

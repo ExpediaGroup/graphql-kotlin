@@ -1,19 +1,19 @@
 #!/bin/bash -x
 cd `dirname $0`/.. 
 
-if [ -z "$SONATYPE_USERNAME" ]
+if [[ -z "$SONATYPE_USERNAME" ]]
 then
     echo "ERROR! Please set SONATYPE_USERNAME environment variable"
     exit 1
 fi
 
-if [ -z "$SONATYPE_PASSWORD" ]
+if [[ -z "$SONATYPE_PASSWORD" ]]
 then
     echo "ERROR! Please set SONATYPE_PASSWORD environment variable"
     exit 1
 fi
 
-if [ ! -z "$TRAVIS_TAG" ]
+if [[ ! -z "$TRAVIS_TAG" ]]
 then
     SKIP_GPG_SIGN=false
     echo "travis tag is set -> updating pom.xml <version> attribute to $TRAVIS_TAG"
