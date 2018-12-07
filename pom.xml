@@ -70,13 +70,21 @@
     </scm>
 
     <properties>
-        <reflections.version>0.9.11</reflections.version>
+        <!-- Project Versions -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.3.10</kotlin.version>
+
+        <!-- Dependency Versions -->
+        <reflections.version>0.9.11</reflections.version>
+
+        <!-- Test Dependency Versions -->
         <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
         <kotlin-detekt.version>1.0.0.RC8</kotlin-detekt.version>
         <mockk.version>1.8.9.kotlin13</mockk.version>
-        <surefire-plugin.version>2.22.1</surefire-plugin.version>
         <junit-jupiter.version>5.3.1</junit-jupiter.version>
+
+        <!-- Build Plugin Versions -->
+        <surefire-plugin.version>2.22.1</surefire-plugin.version>
     </properties>
 
     <pluginRepositories>
@@ -227,6 +235,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.3.0</version>
             </plugin>
         </plugins>
     </build>
