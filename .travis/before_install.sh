@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash -x
 
 if [[ ! -z "$GPG_SECRET_KEYS" ]]
 then
