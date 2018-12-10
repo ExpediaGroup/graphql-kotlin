@@ -1,0 +1,5 @@
+ignore:
+  - "example"
+  - "src/test"
+  - ".mvn"
+  - ".travis"
