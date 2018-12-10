@@ -8,7 +8,8 @@ cache:
     - $HOME/.m2
 
 before_install:
-  - ./.travis/before_install.sh
+  - if [ ! -z "$GPG_SECRET_KEYS" ]; then echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import; fi
+  - if [ ! -z "$GPG_OWNERTRUST" ]; then echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust; fi
 
 script:
   - ./mvnw test -B
