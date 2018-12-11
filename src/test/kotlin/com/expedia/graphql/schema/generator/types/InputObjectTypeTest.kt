@@ -12,18 +12,19 @@ internal class InputObjectTypeTest : TypeTestHelper() {
         builder = InputObjectTypeBuilder(generator)
     }
 
+    @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
-    private class HappyClass
+    private class InputClass
 
     @Test
     fun `Test naming`() {
-        val result = builder.inputObjectType(HappyClass::class)
-        assertEquals("HappyClassInput", result.name)
+        val result = builder.inputObjectType(InputClass::class)
+        assertEquals("InputClassInput", result.name)
     }
 
     @Test
     fun `Test description`() {
-        val result = builder.inputObjectType(HappyClass::class)
+        val result = builder.inputObjectType(InputClass::class)
         assertEquals("The truth", result.description)
     }
 }

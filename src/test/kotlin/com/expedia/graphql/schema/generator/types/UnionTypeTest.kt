@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-@Suppress("Detekt.UnsafeCast")
+@Suppress("Detekt.UnusedPrivateClass")
 internal class UnionTypeTest : TypeTestHelper() {
 
     private lateinit var builder: UnionTypeBuilder
@@ -27,9 +27,9 @@ internal class UnionTypeTest : TypeTestHelper() {
         val result = builder.unionType(Cake::class) as? GraphQLUnionType
         assertNotNull(result)
 
-        assertEquals("Cake", result.name)
+        assertEquals(Cake::class.java.simpleName, result.name)
         assertEquals(1, result.types.size)
-        assertEquals("StrawBerryCake", result.types[0].name)
+        assertEquals(StrawBerryCake::class.java.simpleName, result.types[0].name)
     }
 
     @Test
@@ -39,6 +39,6 @@ internal class UnionTypeTest : TypeTestHelper() {
 
         assertEquals("The truth", result.description)
         assertEquals(1, result.types.size)
-        assertEquals("so red", (result.types[0] as GraphQLObjectType).description)
+        assertEquals("so red", (result.types[0] as? GraphQLObjectType)?.description)
     }
 }

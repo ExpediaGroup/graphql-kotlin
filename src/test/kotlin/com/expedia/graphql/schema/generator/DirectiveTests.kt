@@ -45,7 +45,6 @@ class DirectiveTests {
     }
 
     @Test
-    @Suppress("Detekt.UnsafeCast")
     fun `Directive renaming`() {
         val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
 

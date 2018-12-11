@@ -5,10 +5,10 @@ import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-@Suppress("Detekt.UnsafeCast")
 internal class ListTypeTest : TypeTestHelper() {
 
-    private class HappyClass {
+    @Suppress("Detekt.UnusedPrivateClass")
+    private class ClassWithListAndArray {
         val testList = listOf<String>()
         val testArray = arrayOf<String>()
     }
@@ -21,17 +21,17 @@ internal class ListTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test list`() {
-        val listProp = HappyClass::class.getValidProperties(hooks)[0]
+        val listProp = ClassWithListAndArray::class.getValidProperties(hooks)[0]
 
         val result = builder.listType(listProp.returnType, false)
-        assertEquals(String::class.simpleName, (result.wrappedType as GraphQLNonNull).wrappedType.name)
+        assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
     @Test
     fun `Test array`() {
-        val arrayProp = HappyClass::class.getValidProperties(hooks)[0]
+        val arrayProp = ClassWithListAndArray::class.getValidProperties(hooks)[0]
 
         val result = builder.listType(arrayProp.returnType, false)
-        assertEquals(String::class.simpleName, (result.wrappedType as GraphQLNonNull).wrappedType.name)
+        assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 }

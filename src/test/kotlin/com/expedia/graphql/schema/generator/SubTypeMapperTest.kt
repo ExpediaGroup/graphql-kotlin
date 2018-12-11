@@ -3,7 +3,7 @@ package com.expedia.graphql.schema.generator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-@Suppress("Detekt.MethodOverloading")
+@Suppress("Detekt.UnusedPrivateClass")
 internal class SubTypeMapperTest {
 
     private interface MyInterface {
@@ -20,17 +20,17 @@ internal class SubTypeMapperTest {
 
     @Suppress("Detekt.UnnecessaryAbstractClass")
     private abstract class MyAbstractClass {
-        abstract fun getValue(): Int
+        abstract fun someValue(): Int
     }
 
     private class ThirdClass : MyAbstractClass() {
-        override fun getValue() = 3
+        override fun someValue() = 3
     }
 
     private abstract class FourthClass : MyAbstractClass() {
-        override fun getValue() = 3
+        override fun someValue() = 3
 
-        abstract fun getSecondAbsctractValue(): Int
+        abstract fun getOtherValue(): Int
     }
 
     @Test

@@ -5,7 +5,6 @@ import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-@Suppress("Detekt.UnsafeCast")
 internal class InterfaceTypeTest : TypeTestHelper() {
 
     private lateinit var builder: InterfaceTypeBuilder
@@ -14,18 +13,19 @@ internal class InterfaceTypeTest : TypeTestHelper() {
         builder = InterfaceTypeBuilder(generator)
     }
 
+    @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
     private interface HappyInterface
 
     @Test
     fun `Test naming`() {
-        val result = builder.interfaceType(HappyInterface::class) as GraphQLInterfaceType
-        assertEquals("HappyInterface", result.name)
+        val result = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
+        assertEquals("HappyInterface", result?.name)
     }
 
     @Test
     fun `Test description`() {
-        val result = builder.interfaceType(HappyInterface::class) as GraphQLInterfaceType
-        assertEquals("The truth", result.description)
+        val result = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
+        assertEquals("The truth", result?.description)
     }
 }

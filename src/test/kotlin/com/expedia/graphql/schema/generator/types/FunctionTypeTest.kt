@@ -10,7 +10,7 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@Suppress("Detekt.UnusedPrivateMember", "Detekt.NestedClassesVisibility")
+@Suppress("Detekt.UnusedPrivateClass")
 internal class FunctionTypeTest : TypeTestHelper() {
 
     private lateinit var builder: FunctionTypeBuilder
@@ -20,10 +20,10 @@ internal class FunctionTypeTest : TypeTestHelper() {
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.QUERY])
-    annotation class FunctionDirective(val arg: String)
+    internal annotation class FunctionDirective(val arg: String)
 
     @GraphQLDirective
-    annotation class ArgumentDirective(val arg: String)
+    internal annotation class ArgumentDirective(val arg: String)
 
     private class Happy {
 
@@ -32,7 +32,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
         @FunctionDirective("happy")
         fun littleTrees() = UUID.randomUUID().toString()
 
-        fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = UUID.randomUUID().toString()
+        fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = color.reversed()
 
         @Deprecated("No saw, just paint", replaceWith = ReplaceWith("littleTrees"))
         fun saw(tree: String) = tree

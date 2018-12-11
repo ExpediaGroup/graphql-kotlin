@@ -72,14 +72,18 @@
     <properties>
         <!-- Project Versions -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.3.10</kotlin.version>
+
+        <graphql-java.version>10.0</graphql-java.version>
+
+        <!-- kotlin -->
+        <kotlin.version>1.3.11</kotlin.version>
+        <kotlin-detekt.version>1.0.0-RC12</kotlin-detekt.version>
+        <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
 
         <!-- Dependency Versions -->
         <reflections.version>0.9.11</reflections.version>
 
         <!-- Test Dependency Versions -->
-        <kotlin-ktlint.version>0.29.0</kotlin-ktlint.version>
-        <kotlin-detekt.version>1.0.0.RC8</kotlin-detekt.version>
         <mockk.version>1.8.9.kotlin13</mockk.version>
         <junit-jupiter.version>5.3.1</junit-jupiter.version>
 
@@ -176,12 +180,14 @@
                         <configuration>
                             <target name="detekt">
                                 <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true" classname="io.gitlab.arturbosch.detekt.cli.Main" classpathref="maven.plugin.classpath">
-                                    <arg value="-i" />
+                                    <arg value="--input" />
                                     <arg value="${project.basedir}${file.separator}src" />
-                                    <arg value="-c" />
+                                    <arg value="--config" />
                                     <arg value="${project.basedir}${file.separator}detekt.yml" />
-                                    <arg value="-o" />
-                                    <arg value="${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt" />
+                                    <arg value="--report" />
+                                    <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html" />
+                                    <arg value="--report" />
+                                    <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml" />
                                 </java>
                             </target>
                         </configuration>
@@ -243,7 +249,7 @@
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>10.0</version>
+            <version>${graphql-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -253,7 +259,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
-            <version>1.2.70</version>
+            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>

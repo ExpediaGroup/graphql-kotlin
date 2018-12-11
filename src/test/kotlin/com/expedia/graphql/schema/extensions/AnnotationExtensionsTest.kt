@@ -10,6 +10,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@Suppress("Detekt.UnusedPrivateClass")
 internal class AnnotationExtensionsTest {
 
     @GraphQLDescription("class description")

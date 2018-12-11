@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@Suppress("Detekt.NestedClassesVisibility")
+@Suppress("Detekt.UnusedPrivateClass")
 internal class PropertyTypeTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD])
-    annotation class PropertyDirective(val arg: String)
+    internal annotation class PropertyDirective(val arg: String)
 
-    private class HappyClass {
+    private class ClassWithProperties {
         @GraphQLDescription("The truth")
         @Deprecated("It's not a lie")
         @PropertyDirective("trust me")
@@ -33,7 +33,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test naming`() {
-        val prop = HappyClass::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
         val result = builder.property(prop)
 
         assertEquals("cake", result.name)
@@ -41,7 +41,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation`() {
-        val prop = HappyClass::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
         val result = builder.property(prop)
 
         assertTrue(result.isDeprecated)
@@ -50,7 +50,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation with replacement`() {
-        val prop = HappyClass::class.getValidProperties(hooks)[1]
+        val prop = ClassWithProperties::class.getValidProperties(hooks)[1]
         val result = builder.property(prop)
 
         assertTrue(result.isDeprecated)
@@ -59,7 +59,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test description`() {
-        val prop = HappyClass::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
         val result = builder.property(prop)
 
         assertEquals("The truth", result.description)
@@ -67,7 +67,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test custom directive`() {
-        val prop = HappyClass::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
         val result = builder.property(prop)
 
         assertEquals(1, result.directives.size)
