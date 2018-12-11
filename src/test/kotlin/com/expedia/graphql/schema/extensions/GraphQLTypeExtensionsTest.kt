@@ -3,6 +3,9 @@ package com.expedia.graphql.schema.extensions
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeVisitor
+import graphql.util.TraversalControl
+import graphql.util.TraverserContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -10,6 +13,8 @@ internal class GraphQLTypeExtensionsTest {
 
     private class BasicType : GraphQLType {
         override fun getName() = "BasicType"
+
+        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
     }
 
     private val basicType = BasicType()
