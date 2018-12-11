@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class NestedQueries : Query {
-    fun findAnimal(context: String): NestedAnimal = NestedAnimal(1, "cat")
+    fun findAnimal(): NestedAnimal = NestedAnimal(1, "cat")
 }
 
 data class NestedAnimal(

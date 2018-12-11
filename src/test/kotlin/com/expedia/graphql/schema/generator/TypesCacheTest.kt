@@ -2,6 +2,9 @@ package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.schema.generator.models.KGraphQLType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeVisitor
+import graphql.util.TraversalControl
+import graphql.util.TraverserContext
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
@@ -14,8 +17,17 @@ class TypesCacheTest {
 
     internal data class MyType(val id: Int = 0)
 
-    private val graphQLType: GraphQLType = GraphQLType { "MyType" }
-    private val secondGraphQLType: GraphQLType = GraphQLType { "MySecondType" }
+    private val graphQLType: GraphQLType = object : GraphQLType {
+        override fun getName(): String = "MyType"
+
+        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+    }
+
+    private val secondGraphQLType: GraphQLType = object : GraphQLType {
+        override fun getName(): String = "MySecondType"
+
+        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+    }
 
     @Test
     fun `basic get and put with non input type`() {

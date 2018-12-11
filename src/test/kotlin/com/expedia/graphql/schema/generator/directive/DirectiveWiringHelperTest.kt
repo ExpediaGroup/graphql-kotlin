@@ -1,6 +1,7 @@
 package com.expedia.graphql.schema.generator.directive
 
 import com.expedia.graphql.schema.exceptions.GraphQLKotlinException
+import graphql.Scalars
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
@@ -12,12 +13,16 @@ import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeVisitor
 import graphql.schema.GraphQLUnionType
 import graphql.schema.idl.SchemaDirectiveWiring
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 import graphql.schema.idl.WiringFactory
+import graphql.util.TraversalControl
+import graphql.util.TraverserContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -115,6 +120,8 @@ internal class DirectiveWiringHelperTest {
             override fun getName(): String = "MyCustomType"
 
             override fun getDirectives(): MutableList<GraphQLDirective> = mutableListOf(graphQLDirective)
+
+            override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
         }
 
         val manualWiringMap = mapOf("MyDirective" to InvalidWiring())
@@ -166,12 +173,18 @@ internal class DirectiveWiringHelperTest {
     fun `An field with directives and arguments with no directives`() {
         val arugment = GraphQLArgument.newArgument()
             .name("MyArgument")
-            .type { "GraphQLEnum" }
+            .type(Scalars.GraphQLString)
             .build()
 
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { "GraphQLField" }
+            .type(
+                object : GraphQLOutputType {
+                    override fun getName(): String = "GraphQLField"
+
+                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                }
+            )
             .argument(arugment)
             .withDirective(graphQLDirective)
             .build()
@@ -190,13 +203,19 @@ internal class DirectiveWiringHelperTest {
     fun `An field with arguments that has directives`() {
         val arugment = GraphQLArgument.newArgument()
             .name("MyArgument")
-            .type { "GraphQLEnum" }
+            .type(Scalars.GraphQLString)
             .withDirective(graphQLDirective)
             .build()
 
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { "GraphQLField" }
+            .type(
+                    object : GraphQLOutputType {
+                        override fun getName(): String = "GraphQLField"
+
+                        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                    }
+            )
             .argument(arugment)
             .build()
 
