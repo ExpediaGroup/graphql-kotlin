@@ -9,7 +9,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class SchenaFiltersTest {
+@Suppress("Detekt.UnusedPrivateClass")
+internal class SchemaFiltersTest {
 
     private data class MyDataClass(val id: Int = 0)
 

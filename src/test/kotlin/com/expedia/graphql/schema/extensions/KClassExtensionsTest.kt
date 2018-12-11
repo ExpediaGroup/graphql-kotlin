@@ -9,6 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@Suppress("Detekt.UnusedPrivateClass")
 internal class KClassExtensionsTest {
 
     @Suppress("Detekt.FunctionOnlyReturningConstant", "Detekt.UnusedPrivateMember")
@@ -22,14 +23,6 @@ internal class KClassExtensionsTest {
         fun filteredFunction() = "filtered function"
 
         private fun privateTestFunction() = "private function"
-    }
-
-    private class FilterHooks : SchemaGeneratorHooks {
-        override fun isValidProperty(property: KProperty<*>) =
-            property.name.contains("filteredProperty").not()
-
-        override fun isValidFunction(function: KFunction<*>) =
-            function.name.contains("filteredFunction").not()
     }
 
     private enum class MyTestEnum {
@@ -47,6 +40,14 @@ internal class KClassExtensionsTest {
     @Suppress("Detekt.FunctionOnlyReturningConstant")
     private interface InvalidFunctionUnionInterface {
         fun getTest() = 1
+    }
+
+    private class FilterHooks : SchemaGeneratorHooks {
+        override fun isValidProperty(property: KProperty<*>) =
+            property.name.contains("filteredProperty").not()
+
+        override fun isValidFunction(function: KFunction<*>) =
+            function.name.contains("filteredFunction").not()
     }
 
     private val noopHooks = NoopSchemaGeneratorHooks()

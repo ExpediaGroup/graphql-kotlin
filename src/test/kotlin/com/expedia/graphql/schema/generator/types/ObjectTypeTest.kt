@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-@Suppress("Detekt.NestedClassesVisibility")
+@Suppress("Detekt.UnusedPrivateClass")
 internal class ObjectTypeTest : TypeTestHelper() {
 
     private lateinit var builder: ObjectTypeBuilder
@@ -19,7 +19,7 @@ internal class ObjectTypeTest : TypeTestHelper() {
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.OBJECT])
-    annotation class ObjectDirective(val arg: String)
+    internal annotation class ObjectDirective(val arg: String)
 
     @GraphQLDescription("The truth")
     @ObjectDirective("Don't worry")

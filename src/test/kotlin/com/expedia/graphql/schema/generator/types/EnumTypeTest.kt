@@ -10,6 +10,7 @@ import kotlin.test.assertTrue
 
 internal class EnumTypeTest : TypeTestHelper() {
 
+    @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("MyTestEnum description")
     private enum class MyTestEnum {
         @GraphQLDescription("enum 'ONE' description")

@@ -193,14 +193,14 @@ class SchemaGeneratorTest {
         assertEquals("thingthingthing", data["query"]?.get("repeat"))
     }
 
-    @Suppress("Detekt.UnsafeCast")
     @Test
     fun `SchemaGenerator ignores private fields`() {
         val schema =
             toSchema(listOf(TopLevelObjectDef(QueryWithPrivateParts())), config = testSchemaConfig)
         val topLevelQuery = schema.getObjectType("TopLevelQuery")
         val query = topLevelQuery.getFieldDefinition("query")
-        val resultWithPrivateParts = query.type as GraphQLObjectType
+        val resultWithPrivateParts = query.type as? GraphQLObjectType
+        assertNotNull(resultWithPrivateParts)
         assertEquals("ResultWithPrivateParts", resultWithPrivateParts.deepName)
         assertEquals(1, resultWithPrivateParts.fieldDefinitions.size)
         assertEquals("something", resultWithPrivateParts.fieldDefinitions[0].name)
@@ -281,6 +281,7 @@ class SchemaGeneratorTest {
     }
 
     class QueryWithArray {
+        @Suppress("Detekt.ArrayPrimitive")
         fun sumOf(ints: Array<Int>): Int = ints.sum()
         fun sumOfComplexArray(objects: Array<ComplexWrappingType>): Int = objects.map { it.value }.sum()
     }
