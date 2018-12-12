@@ -47,6 +47,15 @@ class SimpleQuery: Query {
         return (1..10).map { random.nextInt(100) }.toList()
     }
 
+    @GraphQLDescription("generates pseudo random array of ints")
+    fun generatePrimitiveArray(): IntArray {
+        val random = Random()
+        return (1..10).map { random.nextInt(100) }.toIntArray()
+    }
+
+    @GraphQLDescription("query with array input")
+    fun doSomethingWithIntArray(ints: IntArray) = "received ints=[${ints.joinToString()}]"
+
     @GraphQLDescription("query with optional input")
     fun doSomethingWithOptionalInput(
             @GraphQLDescription("this field is required") requiredValue: Int,

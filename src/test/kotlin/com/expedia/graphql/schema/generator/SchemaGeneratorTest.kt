@@ -241,9 +241,9 @@ class SchemaGeneratorTest {
         val bobChildren = res?.get("children") as? List<Map<String, Any>>
         assertNotNull(bobChildren)
 
-        val firstChild = bobChildren?.get(0)
-        assertEquals("Alice", firstChild?.get("name"))
-        assertNull(firstChild?.get("children"))
+        val firstChild = bobChildren.get(0)
+        assertEquals("Alice", firstChild["name"])
+        assertNull(firstChild["children"])
     }
 
     @Test
@@ -281,8 +281,7 @@ class SchemaGeneratorTest {
     }
 
     class QueryWithArray {
-        @Suppress("Detekt.ArrayPrimitive")
-        fun sumOf(ints: Array<Int>): Int = ints.sum()
+        fun sumOf(ints: IntArray): Int = ints.sum()
         fun sumOfComplexArray(objects: Array<ComplexWrappingType>): Int = objects.map { it.value }.sum()
     }
 

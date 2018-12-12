@@ -21,6 +21,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
+@Suppress("Detekt.TooManyFunctions")
 internal class SchemaGenerator(
     private val queries: List<TopLevelObjectDef>,
     private val mutations: List<TopLevelObjectDef>,
@@ -99,6 +100,9 @@ internal class SchemaGenerator(
 
     internal fun listType(type: KType, inputType: Boolean) =
         listTypeBuilder.listType(type, inputType)
+
+    internal fun arrayType(type: KType, inputType: Boolean) =
+            listTypeBuilder.arrayType(type, inputType)
 
     internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null) =
         objectTypeBuilder.objectType(kClass, interfaceType)
