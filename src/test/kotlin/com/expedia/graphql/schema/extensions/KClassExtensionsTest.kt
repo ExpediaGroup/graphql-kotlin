@@ -84,10 +84,18 @@ internal class KClassExtensionsTest {
 
     @Test
     fun `test list extension`() {
-        assertTrue(listOf(1)::class.isGraphQLList())
-        assertTrue(arrayListOf(1)::class.isGraphQLList())
-        assertTrue(arrayOf(1)::class.isGraphQLList())
-        assertFalse(MyTestClass::class.isGraphQLList())
+        assertTrue(listOf(1)::class.isList())
+        assertTrue(arrayListOf(1)::class.isList())
+        assertFalse(arrayOf(1)::class.isList())
+        assertFalse(MyTestClass::class.isList())
+    }
+
+    @Test
+    fun `test array extension`() {
+        assertTrue(arrayOf(1)::class.isArray())
+        assertTrue(intArrayOf(1)::class.isArray())
+        assertFalse(listOf(1)::class.isArray())
+        assertFalse(MyTestClass::class.isArray())
     }
 
     @Test

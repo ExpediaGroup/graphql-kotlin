@@ -4,6 +4,10 @@ import com.expedia.graphql.schema.exceptions.ConflictingTypesException
 import com.expedia.graphql.schema.exceptions.CouldNotGetJvmNameOfKTypeException
 import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
+import com.expedia.graphql.schema.extensions.getKClass
+import com.expedia.graphql.schema.extensions.getTypeOfFirstArgument
+import com.expedia.graphql.schema.extensions.isArray
+import com.expedia.graphql.schema.extensions.isList
 import com.expedia.graphql.schema.generator.models.KGraphQLType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
@@ -24,7 +28,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         val cachedType = cache[cacheKeyString]
 
         if (cachedType != null) {
-            val kClass = getKClassFromKType(cacheKey.type)
+            val kClass = cacheKey.type.getKClass()
             val isSameNameButNotSameClass = cachedType.kClass != kClass
             when {
                 isSameNameButNotSameClass -> throw ConflictingTypesException(cachedType.kClass, kClass)
@@ -47,23 +51,31 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     @Throws(CouldNotGetNameOfEnumException::class)
     private fun getCacheKeyString(cacheKey: TypesCacheKey): String {
-        val kClass = getKClassFromKType(cacheKey.type)
+        val kClass = cacheKey.type.getKClass()
 
         if (kClass.isSubclassOf(Enum::class)) {
             return kClass.simpleName ?: throw CouldNotGetNameOfEnumException(kClass)
         }
 
         val cacheKeyFromTypeName = when {
-            kClass.isSubclassOf(List::class) -> "List<${getJvmErasureNameFromList(cacheKey.type)}>"
-            kClass.java.isArray -> "Array<${getJvmErasureNameFromList(cacheKey.type)}>"
+            kClass.isList() -> "List<${getJvmErasureNameFromList(cacheKey.type)}>"
+            kClass.isArray() -> getArrayTypeName(kClass, cacheKey.type)
             else -> getCacheTypeName(cacheKey.type)
         }
 
         return "$cacheKeyFromTypeName:${cacheKey.inputType}"
     }
 
-    @Suppress("Detekt.UnsafeCast")
-    private fun getKClassFromKType(kType: KType) = kType.classifier as KClass<*>
+    private fun getArrayTypeName(kClass: KClass<*>, kType: KType) = when {
+        kClass.isSubclassOf(IntArray::class) -> IntArray::class.simpleName
+        kClass.isSubclassOf(LongArray::class) -> LongArray::class.simpleName
+        kClass.isSubclassOf(ShortArray::class) -> ShortArray::class.simpleName
+        kClass.isSubclassOf(FloatArray::class) -> FloatArray::class.simpleName
+        kClass.isSubclassOf(DoubleArray::class) -> DoubleArray::class.simpleName
+        kClass.isSubclassOf(CharArray::class) -> CharArray::class.simpleName
+        kClass.isSubclassOf(BooleanArray::class) -> BooleanArray::class.simpleName
+        else -> "Array<${getJvmErasureNameFromList(kType)}>"
+    }
 
     private fun getCacheTypeName(kType: KType): String {
         throwIfTypeIsNotSupported(kType)
@@ -71,11 +83,11 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     }
 
     private fun getJvmErasureNameFromList(type: KType): String =
-        getJvmErasureName(type.arguments.first().type)
+        getJvmErasureName(type.getTypeOfFirstArgument())
 
     @Throws(CouldNotGetJvmNameOfKTypeException::class)
-    private fun getJvmErasureName(kType: KType?): String =
-        kType?.jvmErasure?.simpleName ?: throw CouldNotGetJvmNameOfKTypeException(kType)
+    private fun getJvmErasureName(kType: KType): String =
+        kType.jvmErasure.simpleName ?: throw CouldNotGetJvmNameOfKTypeException(kType)
 
     @Throws(TypeNotSupportedException::class)
     private fun throwIfTypeIsNotSupported(type: KType) {

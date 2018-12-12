@@ -23,4 +23,6 @@ internal fun KClass<*>.isGraphQLUnion(): Boolean =
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
-internal fun KClass<*>.isGraphQLList(): Boolean = this.isSubclassOf(List::class) || this.java.isArray
+internal fun KClass<*>.isList(): Boolean = this.isSubclassOf(List::class)
+
+internal fun KClass<*>.isArray(): Boolean = this.java.isArray

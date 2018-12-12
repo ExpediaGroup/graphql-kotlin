@@ -20,17 +20,15 @@ internal class PolymorphicTests {
 
         val graphqlType = schema.getType("BodyPart") as? GraphQLUnionType
         assertNotNull(graphqlType)
-        graphqlType?.let { union ->
-            assertTrue(union.types.any { it.name == "LeftHand" })
-            assertTrue(union.types.any { it.name == "RightHand" })
-            assertTrue(union.types.any { it.name == "Arm" })
-        }
+        assertTrue(graphqlType.types.any { it.name == "LeftHand" })
+        assertTrue(graphqlType.types.any { it.name == "RightHand" })
+        assertTrue(graphqlType.types.any { it.name == "Arm" })
 
         assertNotNull(schema.getType("RightHand"))
         val leftHandType = schema.getType("LeftHand") as? GraphQLObjectType
 
         assertNotNull(leftHandType)
-        assertNotNull(leftHandType?.getFieldDefinition("associatedWith"))
+        assertNotNull(leftHandType.getFieldDefinition("associatedWith"))
     }
 
     @Test
@@ -66,17 +64,12 @@ internal class PolymorphicTests {
 
         val carType = schema.getType("Car") as? GraphQLObjectType
         assertNotNull(carType)
-
-        carType?.let {
-            assertNotNull(it.getFieldDefinition("model"))
-            assertNotNull(it.getFieldDefinition("color"))
-        }
+        assertNotNull(carType.getFieldDefinition("model"))
+        assertNotNull(carType.getFieldDefinition("color"))
 
         val productType = schema.getType("Product") as? GraphQLUnionType
         assertNotNull(productType)
-        productType?.let {
-            assertTrue { it.types.contains(carType) }
-        }
+        assertTrue(productType.types.contains(carType))
     }
 
     @Test

@@ -9,8 +9,9 @@ internal class ListTypeTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     private class ClassWithListAndArray {
-        val testList = listOf<String>()
+        val testList = listOf<Int>()
         val testArray = arrayOf<String>()
+        val primitiveArray = booleanArrayOf(true)
     }
 
     private lateinit var builder: ListTypeBuilder
@@ -20,18 +21,26 @@ internal class ListTypeTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test list`() {
-        val listProp = ClassWithListAndArray::class.getValidProperties(hooks)[0]
+    fun `test list`() {
+        val listProp = ClassWithListAndArray::class.getValidProperties(hooks).first { it.name == "testList" }
 
         val result = builder.listType(listProp.returnType, false)
+        assertEquals(Int::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+    }
+
+    @Test
+    fun `test array`() {
+        val arrayProp = ClassWithListAndArray::class.getValidProperties(hooks).first { it.name == "testArray" }
+
+        val result = builder.arrayType(arrayProp.returnType, false)
         assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
     @Test
-    fun `Test array`() {
-        val arrayProp = ClassWithListAndArray::class.getValidProperties(hooks)[0]
+    fun `test array of primitives`() {
+        val primitiveArray = ClassWithListAndArray::class.getValidProperties(hooks).first { it.name == "primitiveArray" }
 
-        val result = builder.listType(arrayProp.returnType, false)
-        assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+        val result = builder.arrayType(primitiveArray.returnType, false)
+        assertEquals(Boolean::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 }
