@@ -1,5 +1,6 @@
 package com.expedia.graphql.schema.extensions
 
+import com.expedia.graphql.schema.exceptions.CouldNotCastToKClassException
 import com.expedia.graphql.schema.exceptions.InvalidListTypeException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -10,8 +11,7 @@ import kotlin.reflect.full.isSubclassOf
 internal fun KType.getTypeOfFirstArgument(): KType =
     this.arguments.firstOrNull()?.type ?: throw InvalidListTypeException(this)
 
-@Suppress("Detekt.UnsafeCast")
-internal fun KType.getKClass() = this.classifier as KClass<*>
+internal fun KType.getKClass() = this.classifier as? KClass<*> ?: throw CouldNotCastToKClassException(this)
 
 internal fun KType.getArrayType(): KType {
     val kClass = this.getKClass()

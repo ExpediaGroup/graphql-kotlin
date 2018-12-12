@@ -5,6 +5,7 @@ import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.schema.exceptions.ConflictingTypesException
+import com.expedia.graphql.schema.exceptions.InvalidIdTypeException
 import com.expedia.graphql.schema.exceptions.InvalidSchemaException
 import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.testSchemaConfig
@@ -259,7 +260,7 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator throws an exception for invalid GraphQLID`() {
-        val exception = assertFailsWith(IllegalArgumentException::class) {
+        val exception = assertFailsWith(InvalidIdTypeException::class) {
             toSchema(queries = listOf(TopLevelObjectDef(QueryWithInvalidId())), config = testSchemaConfig)
         }
 

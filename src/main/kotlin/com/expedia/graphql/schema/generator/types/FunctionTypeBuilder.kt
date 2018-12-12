@@ -2,6 +2,7 @@ package com.expedia.graphql.schema.generator.types
 
 import com.expedia.graphql.schema.KotlinDataFetcher
 import com.expedia.graphql.schema.Parameter
+import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfArgumentException
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getDeprecationReason
 import com.expedia.graphql.schema.extensions.getGraphQLDescription
@@ -22,6 +23,7 @@ import kotlin.reflect.jvm.javaType
 @Suppress("Detekt.UnsafeCast")
 internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
+    @Throws(CouldNotGetNameOfArgumentException::class)
     internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
@@ -45,7 +47,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
             val name = it.name
             if (name.isNullOrBlank()) {
-                throw IllegalArgumentException("argument name is null or blank, $it")
+                throw CouldNotGetNameOfArgumentException(it)
             } else {
                 // Kotlin 1.3 will support contracts, until then we need to force non-null
                 @Suppress("Detekt.UnsafeCallOnNullableType")

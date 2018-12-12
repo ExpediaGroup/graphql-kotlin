@@ -66,7 +66,16 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         return "$cacheKeyFromTypeName:${cacheKey.inputType}"
     }
 
-    private fun getArrayTypeName(kClass: KClass<*>, kType: KType) = when {
+    private fun getArrayTypeName(kClass: KClass<*>, kType: KType): String {
+        val kClassName = getArrayTypeNameFromKClass(kClass)
+
+        return when {
+            kClassName != null -> kClassName
+            else -> "Array<${getJvmErasureNameFromList(kType)}>"
+        }
+    }
+
+    private fun getArrayTypeNameFromKClass(kClass: KClass<*>): String? = when {
         kClass.isSubclassOf(IntArray::class) -> IntArray::class.simpleName
         kClass.isSubclassOf(LongArray::class) -> LongArray::class.simpleName
         kClass.isSubclassOf(ShortArray::class) -> ShortArray::class.simpleName
@@ -74,7 +83,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         kClass.isSubclassOf(DoubleArray::class) -> DoubleArray::class.simpleName
         kClass.isSubclassOf(CharArray::class) -> CharArray::class.simpleName
         kClass.isSubclassOf(BooleanArray::class) -> BooleanArray::class.simpleName
-        else -> "Array<${getJvmErasureNameFromList(kType)}>"
+        else -> null
     }
 
     private fun getCacheTypeName(kType: KType): String {
