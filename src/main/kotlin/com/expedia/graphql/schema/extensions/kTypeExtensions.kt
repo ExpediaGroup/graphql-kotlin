@@ -6,8 +6,6 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
 
-internal fun KType.graphQLDescription(): String? = (classifier as? KClass<*>)?.graphQLDescription()
-
 @Throws(InvalidListTypeException::class)
 internal fun KType.getTypeOfFirstArgument(): KType =
     this.arguments.firstOrNull()?.type ?: throw InvalidListTypeException(this)

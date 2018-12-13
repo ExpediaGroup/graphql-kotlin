@@ -5,12 +5,12 @@ import com.expedia.graphql.annotations.GraphQLIgnore
 
 @GraphQLDescription("A useful widget")
 data class Widget(
-    @property:GraphQLDescription("The widget's value that can be null")
+    @GraphQLDescription("The widget's value that can be null")
     var value: Int? = null,
-    @property:Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
-    @property:GraphQLDescription("The widget's deprecated value that shouldn't be used")
+    @Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
+    @GraphQLDescription("The widget's deprecated value that shouldn't be used")
     val deprecatedValue: Int? = value,
-    @property:GraphQLIgnore
+    @GraphQLIgnore
     val ignoredField: String? = "ignored",
     private val hiddenField: String? = "hidden"
 ) {

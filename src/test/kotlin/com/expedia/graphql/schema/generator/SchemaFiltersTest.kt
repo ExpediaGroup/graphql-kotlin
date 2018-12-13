@@ -1,6 +1,7 @@
 package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.annotations.GraphQLIgnore
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberFunctions
@@ -12,7 +13,12 @@ import kotlin.test.assertTrue
 @Suppress("Detekt.UnusedPrivateClass")
 internal class SchemaFiltersTest {
 
-    private data class MyDataClass(val id: Int = 0)
+    private data class MyDataClass(
+        val id: Int = 0,
+
+        @GraphQLIgnore
+        internal val ignoredProperty: Int = 0
+    )
 
     private class MyClass {
 
@@ -47,13 +53,14 @@ internal class SchemaFiltersTest {
 
     @Test
     fun `test property filters`() {
-        assertTrue(testProperty(MyClass::publicProperty))
-        assertFalse(testProperty(MyClass::nonPublicProperty))
-        assertFalse(testProperty(MyClass::ignoredProperty))
-        assertTrue(testProperty(MyDataClass::id))
+        assertTrue(testProperty(MyClass::publicProperty, MyClass::class))
+        assertFalse(testProperty(MyClass::nonPublicProperty, MyClass::class))
+        assertFalse(testProperty(MyClass::ignoredProperty, MyClass::class))
+        assertTrue(testProperty(MyDataClass::id, MyDataClass::class))
+        assertFalse(testProperty(MyDataClass::ignoredProperty, MyDataClass::class))
     }
 
     private fun testFunction(function: KFunction<*>): Boolean = functionFilters.all { it(function) }
 
-    private fun testProperty(property: KProperty<*>): Boolean = propertyFilters.all { it(property) }
+    private fun testProperty(property: KProperty<*>, parentClass: KClass<*>): Boolean = propertyFilters.all { it(property, parentClass) }
 }

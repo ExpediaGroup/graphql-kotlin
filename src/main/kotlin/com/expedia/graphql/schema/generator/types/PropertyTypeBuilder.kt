@@ -1,27 +1,28 @@
 package com.expedia.graphql.schema.generator.types
 
 import com.expedia.graphql.schema.extensions.directives
-import com.expedia.graphql.schema.extensions.getDeprecationReason
-import com.expedia.graphql.schema.extensions.graphQLDescription
-import com.expedia.graphql.schema.extensions.isGraphQLID
+import com.expedia.graphql.schema.extensions.getPropertyDeprecationReason
+import com.expedia.graphql.schema.extensions.getPropertyDescription
+import com.expedia.graphql.schema.extensions.isPropertyGraphQLID
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.expedia.graphql.schema.generator.TypeBuilder
 import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLOutputType
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 @Suppress("Detekt.UnsafeCast")
 internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
-    internal fun property(prop: KProperty<*>): GraphQLFieldDefinition {
-        val propertyType = graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isGraphQLID()) as GraphQLOutputType
+    internal fun property(prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
+        val propertyType = graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass)) as GraphQLOutputType
 
         val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
-            .description(prop.graphQLDescription())
+            .description(prop.getPropertyDescription(parentClass))
             .name(prop.name)
             .type(propertyType)
-            .deprecate(prop.getDeprecationReason())
+            .deprecate(prop.getPropertyDeprecationReason(parentClass))
 
         prop.directives(generator).forEach {
             fieldBuilder.withDirective(it)

@@ -1,9 +1,9 @@
 package com.expedia.graphql.schema.generator.types
 
 import com.expedia.graphql.schema.extensions.directives
+import com.expedia.graphql.schema.extensions.getGraphQLDescription
 import com.expedia.graphql.schema.extensions.getValidFunctions
 import com.expedia.graphql.schema.extensions.getValidProperties
-import com.expedia.graphql.schema.extensions.graphQLDescription
 import com.expedia.graphql.schema.extensions.isGraphQLInterface
 import com.expedia.graphql.schema.extensions.isGraphQLUnion
 import com.expedia.graphql.schema.generator.SchemaGenerator
@@ -22,7 +22,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
             val builder = GraphQLObjectType.newObject()
 
             builder.name(kClass.simpleName)
-            builder.description(kClass.graphQLDescription())
+            builder.description(kClass.getGraphQLDescription())
 
             kClass.directives(generator).forEach {
                 builder.withDirective(it)
@@ -40,7 +40,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
             }
 
             kClass.getValidProperties(config.hooks)
-                .forEach { builder.field(generator.property(it)) }
+                .forEach { builder.field(generator.property(it, kClass)) }
 
             kClass.getValidFunctions(config.hooks)
                 .forEach { builder.field(generator.function(it)) }

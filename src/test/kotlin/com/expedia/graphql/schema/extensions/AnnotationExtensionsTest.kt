@@ -17,7 +17,7 @@ internal class AnnotationExtensionsTest {
     @Deprecated("class deprecated")
     @GraphQLIgnore
     private data class WithAnnotations(
-        @Deprecated("property deprecated")
+        @property:Deprecated("property deprecated")
         @property:GraphQLDescription("property description")
         @property:GraphQLID
         val id: String
@@ -25,34 +25,19 @@ internal class AnnotationExtensionsTest {
 
     private data class NoAnnotations(val id: String)
 
-    private enum class AnnotatedEnum {
-        @GraphQLDescription("field description")
-        @Deprecated("do not use", ReplaceWith("TWO"))
-        ONE,
-        TWO
-    }
-
     @Test
     fun `verify @GraphQLDescrption on classes`() {
-        assertEquals(expected = "class description", actual = WithAnnotations::class.graphQLDescription())
-        assertNull(NoAnnotations::class.graphQLDescription())
-    }
-
-    @Test
-    fun `verify @GraphQLDescrption on fields`() {
-        val description = AnnotatedEnum::class.java.getField("ONE")
-        val noDescription = AnnotatedEnum::class.java.getField("TWO")
-        assertEquals(expected = "field description", actual = description.graphQLDescription())
-        assertNull(noDescription.graphQLDescription())
+        assertEquals(expected = "class description", actual = WithAnnotations::class.getGraphQLDescription())
+        assertNull(NoAnnotations::class.getGraphQLDescription())
     }
 
     @Test
     fun `verify @Deprecated`() {
         val classDeprecation = WithAnnotations::class.getDeprecationReason()
-        val propertyDeprecation = AnnotatedEnum::class.java.getField("ONE")?.getDeprecationReason()
+        val classPropertyDeprecation = WithAnnotations::class.declaredMemberProperties.find { it.name == "id" }?.getDeprecationReason()
 
         assertEquals(expected = "class deprecated", actual = classDeprecation)
-        assertEquals(expected = "do not use, replace with TWO", actual = propertyDeprecation)
+        assertEquals(expected = "property deprecated", actual = classPropertyDeprecation)
         assertNull(NoAnnotations::class.getDeprecationReason())
     }
 
@@ -66,7 +51,7 @@ internal class AnnotationExtensionsTest {
     fun `verify @GraphQLID`() {
         val id = WithAnnotations::class.declaredMemberProperties.find { it.name == "id" }
         val notId = NoAnnotations::class.declaredMemberProperties.find { it.name == "id" }
-        assertTrue { id?.isGraphQLID() == true }
-        assertTrue { notId?.isGraphQLID() == false }
+        assertTrue { id?.isGraphQLID().isTrue() }
+        assertFalse { notId?.isGraphQLID().isTrue() }
     }
 }

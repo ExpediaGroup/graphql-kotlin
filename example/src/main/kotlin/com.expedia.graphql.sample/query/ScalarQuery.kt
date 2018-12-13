@@ -24,7 +24,7 @@ class ScalarMutation : Mutation {
 }
 
 data class Person(
-    @property:GraphQLID
+    @GraphQLID
     val id: Int,
 
     val name: String

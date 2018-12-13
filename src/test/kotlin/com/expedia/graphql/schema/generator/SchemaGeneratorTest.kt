@@ -404,13 +404,13 @@ class SchemaGeneratorTest {
     data class Person(val name: String, val children: List<Person>? = null)
 
     data class PlaceOfIds(
-        @property:GraphQLID val intId: Int,
-        @property:GraphQLID val longId: Long,
-        @property:GraphQLID val stringId: String,
-        @property:GraphQLID val uuid: UUID
+        @GraphQLID val intId: Int,
+        @GraphQLID val longId: Long,
+        @GraphQLID val stringId: String,
+        @GraphQLID val uuid: UUID
     )
 
-    data class InvalidIds(@property:GraphQLID val person: Person)
+    data class InvalidIds(@GraphQLID val person: Person)
 
     class QueryWithId {
         fun query(): PlaceOfIds = PlaceOfIds(42, 24, "42", UUID.randomUUID())
@@ -425,7 +425,7 @@ class SchemaGeneratorTest {
     }
 
     data class Furniture(
-        @property:GraphQLID val serial: UUID,
+        @GraphQLID val serial: UUID,
         val type: String
     )
 }
