@@ -32,6 +32,10 @@ internal class KClassExtensionsTest {
         TWO
     }
 
+    private class EmptyConstructorClass {
+        val id = 1
+    }
+
     private interface TestInterface
 
     private interface InvalidPropertyUnionInterface {
@@ -82,6 +86,8 @@ internal class KClassExtensionsTest {
     fun `test findConstructorParamter`() {
         assertNotNull(MyTestClass::class.findConstructorParamter("publicProperty"))
         assertNull(MyTestClass::class.findConstructorParamter("foobar"))
+        assertNull(EmptyConstructorClass::class.findConstructorParamter("id"))
+        assertNull(TestInterface::class.findConstructorParamter("foobar"))
     }
 
     @Test
