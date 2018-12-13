@@ -7,6 +7,8 @@ import kotlin.reflect.KProperty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
@@ -74,6 +76,12 @@ internal class KClassExtensionsTest {
     fun `test getting valid functions with filter hooks`() {
         val properties = MyTestClass::class.getValidFunctions(FilterHooks())
         assertEquals(listOf("publicFunction"), properties.map { it.name })
+    }
+
+    @Test
+    fun `test findConstructorParamter`() {
+        assertNotNull(MyTestClass::class.findConstructorParamter("publicProperty"))
+        assertNull(MyTestClass::class.findConstructorParamter("foobar"))
     }
 
     @Test

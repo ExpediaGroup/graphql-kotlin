@@ -22,10 +22,10 @@ internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks): List<KFun
         .filter { hooks.isValidFunction(it) }
         .filter { func -> functionFilters.all { it.invoke(func) } }
 
-internal fun KClass<*>.findConstructorParamter(kProperty: KProperty<*>): KParameter? =
+internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
     this.primaryConstructor
         ?.parameters
-        ?.find { it.isSameType(kProperty) }
+        ?.find { it.name == name }
 
 internal fun KClass<*>.isGraphQLInterface(): Boolean = this.java.isInterface
 
