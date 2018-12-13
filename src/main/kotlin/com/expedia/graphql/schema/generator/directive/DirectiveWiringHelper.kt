@@ -20,10 +20,11 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironmentImpl
 import graphql.schema.idl.WiringFactory
 
 /**
- * Based on
- * https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/idl/SchemaGeneratorDirectiveHelper.java
+ * Based on [SchemaGeneratorDirectiveHelper](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/idl/SchemaGeneratorDirectiveHelper.java) from graphql-java.
+ *
+ * Relies on [WiringFactory] for providing applicable [SchemaDirectiveWiring]. If manual directive wiring map is provided it will take precedence over the wiring factory.
  */
-class DirectiveWiringHelper(private val wiringFactory: WiringFactory, private val manualWiring: Map<String, SchemaDirectiveWiring> = mutableMapOf()) {
+class DirectiveWiringHelper(private val wiringFactory: WiringFactory? = null, private val manualWiring: Map<String, SchemaDirectiveWiring> = mapOf()) {
 
     /**
      * Wire up the directive based on the GraphQL type
@@ -73,13 +74,12 @@ class DirectiveWiringHelper(private val wiringFactory: WiringFactory, private va
         return outputObject
     }
 
-    private fun <T : GraphQLDirectiveContainer> discoverWiringProvider(directiveName: String, env: SchemaDirectiveWiringEnvironment<T>): SchemaDirectiveWiring? {
-        return if (wiringFactory.providesSchemaDirectiveWiring(env)) {
-            wiringFactory.getSchemaDirectiveWiring(env)
-        } else {
-            manualWiring[directiveName]
+    private fun <T : GraphQLDirectiveContainer> discoverWiringProvider(directiveName: String, env: SchemaDirectiveWiringEnvironment<T>): SchemaDirectiveWiring? =
+        when {
+            directiveName in manualWiring -> manualWiring[directiveName]
+            true == wiringFactory?.providesSchemaDirectiveWiring(env) -> wiringFactory.getSchemaDirectiveWiring(env)
+            else -> null
         }
-    }
 
     @Suppress("UNCHECKED_CAST", "Detekt.ComplexMethod")
     private fun wireOnEnvironment(environment: SchemaDirectiveWiringEnvironment<GraphQLDirectiveContainer>, wiring: SchemaDirectiveWiring, generatedType: GraphQLDirectiveContainer) =

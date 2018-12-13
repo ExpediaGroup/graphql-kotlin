@@ -13,8 +13,7 @@ class DirectiveWiringFactory : WiringFactory {
     override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = true
 
     override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): SchemaDirectiveWiring? =
-            wiring.asSequence()
-                    .filter { it.isApplicable(environment) }
-                    .singleOrNull()
-
+        wiring.firstOrNull {
+            it.isApplicable(environment)
+        }
 }
