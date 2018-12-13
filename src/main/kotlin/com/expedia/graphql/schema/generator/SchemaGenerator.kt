@@ -95,8 +95,8 @@ internal class SchemaGenerator(
     internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false) =
         functionTypeBuilder.function(fn, target, abstract)
 
-    internal fun property(prop: KProperty<*>) =
-        propertyTypeBuilder.property(prop)
+    internal fun property(prop: KProperty<*>, parentClass: KClass<*>) =
+        propertyTypeBuilder.property(prop, parentClass)
 
     internal fun listType(type: KType, inputType: Boolean) =
         listTypeBuilder.listType(type, inputType)

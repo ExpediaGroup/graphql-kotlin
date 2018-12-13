@@ -4,7 +4,7 @@ import com.expedia.graphql.schema.KotlinDataFetcher
 import com.expedia.graphql.schema.Parameter
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getDeprecationReason
-import com.expedia.graphql.schema.extensions.graphQLDescription
+import com.expedia.graphql.schema.extensions.getGraphQLDescription
 import com.expedia.graphql.schema.extensions.isGraphQLContext
 import com.expedia.graphql.schema.extensions.throwIfUnathorizedInterface
 import com.expedia.graphql.schema.generator.SchemaGenerator
@@ -25,7 +25,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
     internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
-        builder.description(fn.graphQLDescription())
+        builder.description(fn.getGraphQLDescription())
 
         fn.getDeprecationReason()?.let {
             builder.deprecate(it)
@@ -69,7 +69,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         parameter.throwIfUnathorizedInterface()
         val builder = GraphQLArgument.newArgument()
             .name(parameter.name)
-            .description(parameter.graphQLDescription() ?: parameter.type.graphQLDescription())
+            .description(parameter.getGraphQLDescription() ?: parameter.type.getGraphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
 
         parameter.directives(generator).forEach {

@@ -1,8 +1,9 @@
 package com.expedia.graphql.schema.generator.types
 
+import com.expedia.graphql.schema.extensions.getPropertyDescription
 import com.expedia.graphql.schema.extensions.getValidProperties
-import com.expedia.graphql.schema.extensions.graphQLDescription
-import com.expedia.graphql.schema.extensions.isGraphQLID
+import com.expedia.graphql.schema.extensions.getGraphQLDescription
+import com.expedia.graphql.schema.extensions.isPropertyGraphQLID
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.expedia.graphql.schema.generator.TypeBuilder
 import graphql.schema.GraphQLInputObjectField
@@ -17,21 +18,21 @@ internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(
         val name = getInputClassName(kClass)
 
         builder.name(name)
-        builder.description(kClass.graphQLDescription())
+        builder.description(kClass.getGraphQLDescription())
 
         // It does not make sense to run functions against the input types so we only process data fields
         kClass.getValidProperties(config.hooks)
-            .forEach { builder.field(inputProperty(it)) }
+            .forEach { builder.field(inputProperty(it, kClass)) }
 
         return builder.build()
     }
 
-    private fun inputProperty(prop: KProperty<*>): GraphQLInputObjectField {
+    private fun inputProperty(prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
         val builder = GraphQLInputObjectField.newInputObjectField()
 
-        builder.description(prop.graphQLDescription())
+        builder.description(prop.getPropertyDescription(parentClass))
         builder.name(prop.name)
-        builder.type(graphQLTypeOf(prop.returnType, true, prop.isGraphQLID()) as? GraphQLInputType)
+        builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)) as? GraphQLInputType)
 
         return builder.build()
     }

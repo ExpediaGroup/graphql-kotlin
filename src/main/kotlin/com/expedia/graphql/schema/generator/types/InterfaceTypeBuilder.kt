@@ -2,7 +2,7 @@ package com.expedia.graphql.schema.generator.types
 
 import com.expedia.graphql.schema.extensions.getValidFunctions
 import com.expedia.graphql.schema.extensions.getValidProperties
-import com.expedia.graphql.schema.extensions.graphQLDescription
+import com.expedia.graphql.schema.extensions.getGraphQLDescription
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.expedia.graphql.schema.generator.TypeBuilder
 import graphql.TypeResolutionEnvironment
@@ -17,10 +17,10 @@ internal class InterfaceTypeBuilder(generator: SchemaGenerator) : TypeBuilder(ge
             val builder = GraphQLInterfaceType.newInterface()
 
             builder.name(kClass.simpleName)
-            builder.description(kClass.graphQLDescription())
+            builder.description(kClass.getGraphQLDescription())
 
             kClass.getValidProperties(config.hooks)
-                .forEach { builder.field(generator.property(it)) }
+                .forEach { builder.field(generator.property(it, kClass)) }
 
             kClass.getValidFunctions(config.hooks)
                 .forEach { builder.field(generator.function(it, abstract = true)) }

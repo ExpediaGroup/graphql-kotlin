@@ -1,6 +1,6 @@
 package com.expedia.graphql.schema.generator.types
 
-import com.expedia.graphql.schema.extensions.graphQLDescription
+import com.expedia.graphql.schema.extensions.getGraphQLDescription
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.expedia.graphql.schema.generator.TypeBuilder
 import com.expedia.graphql.schema.generator.TypesCacheKey
@@ -19,7 +19,7 @@ internal class UnionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             val builder = GraphQLUnionType.newUnionType()
 
             builder.name(kClass.simpleName)
-            builder.description(kClass.graphQLDescription())
+            builder.description(kClass.getGraphQLDescription())
             builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
 
             val implementations = subTypeMapper.getSubTypesOf(kClass)
