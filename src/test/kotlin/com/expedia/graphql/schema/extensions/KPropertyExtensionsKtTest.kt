@@ -20,12 +20,6 @@ internal class KPropertyExtensionsKtTest {
         @property:GraphQLIgnore
         val propertyAnnotation: String,
 
-        @property:Deprecated("property Int deprecated")
-        @property:GraphQLDescription("property Int description")
-        @property:GraphQLID
-        @property:GraphQLIgnore
-        val propertyAnnotationInt: Int,
-
         @Deprecated("constructor deprecated")
         @GraphQLDescription("constructor description")
         @GraphQLID
@@ -38,7 +32,6 @@ internal class KPropertyExtensionsKtTest {
     @Test
     fun isPropertyGraphQLID() {
         assertTrue(MyClass::propertyAnnotation.isPropertyGraphQLID(MyClass::class))
-        assertTrue(MyClass::propertyAnnotationInt.isPropertyGraphQLID(MyClass::class))
         assertTrue(MyClass::constructorAnnotation.isPropertyGraphQLID(MyClass::class))
         assertFalse(MyClass::noAnnotations.isPropertyGraphQLID(MyClass::class))
     }
@@ -46,7 +39,6 @@ internal class KPropertyExtensionsKtTest {
     @Test
     fun isPropertyGraphQLIgnored() {
         assertTrue(MyClass::propertyAnnotation.isPropertyGraphQLIgnored(MyClass::class))
-        assertTrue(MyClass::propertyAnnotationInt.isPropertyGraphQLIgnored(MyClass::class))
         assertTrue(MyClass::constructorAnnotation.isPropertyGraphQLIgnored(MyClass::class))
         assertFalse(MyClass::noAnnotations.isPropertyGraphQLIgnored(MyClass::class))
     }
@@ -54,7 +46,6 @@ internal class KPropertyExtensionsKtTest {
     @Test
     fun getPropertyDeprecationReason() {
         assertEquals("property deprecated", MyClass::propertyAnnotation.getPropertyDeprecationReason(MyClass::class))
-        assertEquals("property Int deprecated", MyClass::propertyAnnotationInt.getPropertyDeprecationReason(MyClass::class))
         assertEquals("constructor deprecated", MyClass::constructorAnnotation.getPropertyDeprecationReason(MyClass::class))
         assertEquals(null, MyClass::noAnnotations.getPropertyDeprecationReason(MyClass::class))
     }
@@ -62,7 +53,6 @@ internal class KPropertyExtensionsKtTest {
     @Test
     fun getPropertyDescription() {
         assertEquals("property description", MyClass::propertyAnnotation.getPropertyDescription(MyClass::class))
-        assertEquals("property Int description", MyClass::propertyAnnotationInt.getPropertyDescription(MyClass::class))
         assertEquals("constructor description", MyClass::constructorAnnotation.getPropertyDescription(MyClass::class))
         assertEquals(null, MyClass::noAnnotations.getPropertyDescription(MyClass::class))
     }
