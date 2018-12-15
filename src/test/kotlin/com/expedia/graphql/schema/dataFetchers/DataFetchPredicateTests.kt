@@ -2,7 +2,7 @@ package com.expedia.graphql.schema.dataFetchers
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.Parameter
-import com.expedia.graphql.schema.exceptions.GraphQLKotlinException
+import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.schema.getTestSchemaConfigWithHooks
 import com.expedia.graphql.schema.hooks.DataFetcherExecutionPredicate
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
@@ -77,6 +77,7 @@ class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
 
     override fun test(evaluationResult: Any): Boolean = (evaluationResult as? List<*>)?.isEmpty() ?: true
 
+    @Throws(GraphQLKotlinException::class)
     override fun onFailure(evaluationResult: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
         throw GraphQLKotlinException("The datafetcher cannot be executed due to: $evaluationResult")
     }

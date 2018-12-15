@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.exceptions
+package com.expedia.graphql.exceptions
 
 import graphql.schema.GraphQLType
 import kotlin.reflect.KType

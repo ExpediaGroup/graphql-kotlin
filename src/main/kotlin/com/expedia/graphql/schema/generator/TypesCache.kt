@@ -1,9 +1,9 @@
 package com.expedia.graphql.schema.generator
 
-import com.expedia.graphql.schema.exceptions.ConflictingTypesException
-import com.expedia.graphql.schema.exceptions.CouldNotGetJvmNameOfKTypeException
-import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfEnumException
-import com.expedia.graphql.schema.exceptions.TypeNotSupportedException
+import com.expedia.graphql.exceptions.ConflictingTypesException
+import com.expedia.graphql.exceptions.CouldNotGetJvmNameOfKTypeException
+import com.expedia.graphql.exceptions.CouldNotGetNameOfEnumException
+import com.expedia.graphql.exceptions.TypeNotSupportedException
 import com.expedia.graphql.schema.extensions.getKClass
 import com.expedia.graphql.schema.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.schema.extensions.isArray
@@ -23,6 +23,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
     private val typeUnderConstruction: MutableSet<KClass<*>> = mutableSetOf()
 
+    @Throws(ConflictingTypesException::class)
     fun get(cacheKey: TypesCacheKey): GraphQLType? {
         val cacheKeyString = getCacheKeyString(cacheKey)
         val cachedType = cache[cacheKeyString]

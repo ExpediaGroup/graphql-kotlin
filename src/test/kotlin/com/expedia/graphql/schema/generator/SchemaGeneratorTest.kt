@@ -4,9 +4,8 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.schema.exceptions.ConflictingTypesException
-import com.expedia.graphql.schema.exceptions.InvalidIdTypeException
-import com.expedia.graphql.schema.exceptions.InvalidSchemaException
+import com.expedia.graphql.exceptions.ConflictingTypesException
+import com.expedia.graphql.exceptions.InvalidIdTypeException
 import com.expedia.graphql.schema.extensions.deepName
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
@@ -41,17 +40,6 @@ class SchemaGeneratorTest {
         val geo: Map<String, Map<String, Any>>? = result.getData()
 
         assertEquals(1, geo?.get("query")?.get("id"))
-    }
-
-    @Test
-    fun `SchemaGenerator throws exception on a mutation only schema`() {
-        assertFailsWith(InvalidSchemaException::class) {
-            toSchema(
-                emptyList(),
-                listOf(TopLevelObjectDef(MutationObject())),
-                config = testSchemaConfig
-            )
-        }
     }
 
     @Test
@@ -221,13 +209,7 @@ class SchemaGeneratorTest {
         }
     }
 
-    @Test
-    fun `SchemaGenerator should throw exception if no queries and no mutations are specified`() {
-        assertFailsWith(InvalidSchemaException::class) {
-            toSchema(emptyList(), emptyList(), config = testSchemaConfig)
-        }
-    }
-
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun `SchemaGenerator supports type references`() {
         val schema = toSchema(queries = listOf(TopLevelObjectDef(QueryWithParentChildRelationship())), config = testSchemaConfig)
@@ -237,7 +219,7 @@ class SchemaGeneratorTest {
         val data = result.getData<Map<String, Map<String, Any>>>()
 
         assertNotNull(data)
-        val res = data["query"]
+        val res: Map<String, Any>? = data["query"]
         assertEquals("Bob", res?.get("name").toString())
         val bobChildren = res?.get("children") as? List<Map<String, Any>>
         assertNotNull(bobChildren)

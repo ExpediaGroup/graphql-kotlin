@@ -20,6 +20,7 @@ class DataFetcherExecutionValidator(private val validator: Validator) : DataFetc
         }
     }
 
+    @Throws(ValidationException::class)
     override fun onFailure(evaluationResult: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
         val violations = evaluationResult as Set<ConstraintViolation<*>>
         throw ValidationException(violations.map { it.asConstraintError() })

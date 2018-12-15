@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.exceptions
+package com.expedia.graphql.exceptions
 
 /**
  * Base exception that all our library exceptions extend from.

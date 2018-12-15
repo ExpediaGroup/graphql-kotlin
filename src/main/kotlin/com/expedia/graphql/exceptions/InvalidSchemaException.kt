@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.exceptions
+package com.expedia.graphql.exceptions
 
 /**
  * Exception thrown on schema creation if no queries and no mutations are specified.

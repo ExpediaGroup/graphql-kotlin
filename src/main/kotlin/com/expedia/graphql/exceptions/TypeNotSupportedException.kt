@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.exceptions
+package com.expedia.graphql.exceptions
 
 /**
  * Thrown when the generator does not have a type to map to in GraphQL or in the hooks.

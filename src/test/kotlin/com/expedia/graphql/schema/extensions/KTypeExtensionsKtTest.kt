@@ -1,6 +1,6 @@
 package com.expedia.graphql.schema.extensions
 
-import com.expedia.graphql.schema.exceptions.InvalidListTypeException
+import com.expedia.graphql.exceptions.InvalidListTypeException
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType

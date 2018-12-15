@@ -1,6 +1,6 @@
 package com.expedia.graphql.schema.generator.types
 
-import com.expedia.graphql.schema.exceptions.InvalidIdTypeException
+import com.expedia.graphql.exceptions.InvalidIdTypeException
 import com.expedia.graphql.schema.extensions.getKClass
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.expedia.graphql.schema.generator.TypeBuilder

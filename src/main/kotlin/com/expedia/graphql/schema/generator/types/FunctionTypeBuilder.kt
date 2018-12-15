@@ -2,7 +2,7 @@ package com.expedia.graphql.schema.generator.types
 
 import com.expedia.graphql.schema.KotlinDataFetcher
 import com.expedia.graphql.schema.Parameter
-import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfArgumentException
+import com.expedia.graphql.exceptions.CouldNotGetNameOfArgumentException
 import com.expedia.graphql.schema.extensions.directives
 import com.expedia.graphql.schema.extensions.getDeprecationReason
 import com.expedia.graphql.schema.extensions.getGraphQLDescription
