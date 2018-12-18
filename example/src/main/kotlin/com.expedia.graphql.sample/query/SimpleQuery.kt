@@ -19,9 +19,6 @@ class SimpleQuery: Query {
     @GraphQLDescription("new query that always returns true")
     fun shinyNewQuery(): Boolean = true
 
-    @GraphQLDescription("echoes back the msg")
-    fun experimentalEcho(msg: String): String = msg
-
     @GraphQLIgnore
     fun notPartOfSchema() = "ignore me!"
 

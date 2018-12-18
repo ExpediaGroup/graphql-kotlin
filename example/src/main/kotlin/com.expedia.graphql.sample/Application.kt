@@ -4,11 +4,13 @@ import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
 import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
 import com.expedia.graphql.sample.directives.DirectiveWiringFactory
+import com.expedia.graphql.sample.directives.LowercaseDirectiveWiring
 import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
 import com.expedia.graphql.sample.query.Query
 import com.expedia.graphql.schema.SchemaGeneratorConfig
+import com.expedia.graphql.schema.generator.directive.DirectiveWiringHelper
 import com.expedia.graphql.toSchema
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import graphql.execution.AsyncExecutionStrategy
@@ -42,7 +44,7 @@ class Application {
     @Bean
     fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory, validator: Validator, wiringFactory: DirectiveWiringFactory): SchemaGeneratorConfig = SchemaGeneratorConfig(
             supportedPackages = listOf("com.expedia"),
-            hooks = CustomSchemaGeneratorHooks(validator, wiringFactory),
+            hooks = CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring()))),
             dataFetcherFactory = dataFetcherFactory
     )
 
@@ -61,7 +63,14 @@ class Application {
                 mutations = mutations.toTopLevelObjectDefs(),
                 config = schemaConfig
         )
-        logger.info(SchemaPrinter().print(schema))
+        logger.info(SchemaPrinter(
+                SchemaPrinter.Options.defaultOptions()
+                        .includeScalarTypes(true)
+                        .includeExtendedScalarTypes(true)
+                        .includeIntrospectionTypes(true)
+                        .includeSchemaDefintion(true)
+            ).print(schema)
+        )
         return schema
     }
 
