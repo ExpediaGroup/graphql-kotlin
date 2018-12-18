@@ -23,6 +23,14 @@ deploy:
       repo: ExpediaDotCom/graphql-kotlin
       branch: master
       jdk: oraclejdk8
+  -
+    provider: script
+    script: .travis/deploy.sh
+    skip_cleanup: true
+    on:
+      repo: ExpediaDotCom/graphql-kotlin
+      tags: true
+      jdk: oraclejdk8
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
