@@ -54,7 +54,6 @@ private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseForm
 private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: GraphQLDirective) {
     val effectiveName: String? = when {
         directiveAnnotation.name.isNotEmpty() -> directiveAnnotation.name
-        directive.annotationClass.simpleName.isNullOrBlank().not() -> directive.annotationClass.simpleName?.normalizeDirectiveName()
-        else -> null
+        else -> directive.annotationClass.simpleName?.normalizeDirectiveName()
     }
 }
