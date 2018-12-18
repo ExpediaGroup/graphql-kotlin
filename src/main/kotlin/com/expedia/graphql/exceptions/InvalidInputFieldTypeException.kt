@@ -1,4 +1,4 @@
-package com.expedia.graphql.schema.exceptions
+package com.expedia.graphql.exceptions
 
 /**
  * GraphQL Interfaces and Unions cannot be used as arguments.

@@ -39,6 +39,7 @@ class AnimalDetailsDataFetcher : DataFetcher<NestedAnimalDetails>, BeanFactoryAw
         this.beanFactory = beanFactory
     }
 
+    @Throws(Exception::class)
     override fun get(environment: DataFetchingEnvironment?): NestedAnimalDetails {
         val id = environment?.getSource<NestedAnimal>()?.id
         if (id == null) {

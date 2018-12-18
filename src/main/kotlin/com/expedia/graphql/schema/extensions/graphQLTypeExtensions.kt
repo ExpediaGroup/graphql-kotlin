@@ -1,6 +1,6 @@
 package com.expedia.graphql.schema.extensions
 
-import com.expedia.graphql.schema.exceptions.NestingNonNullTypeException
+import com.expedia.graphql.exceptions.NestingNonNullTypeException
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLType

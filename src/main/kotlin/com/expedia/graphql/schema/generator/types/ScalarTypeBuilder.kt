@@ -1,5 +1,7 @@
 package com.expedia.graphql.schema.generator.types
 
+import com.expedia.graphql.exceptions.InvalidIdTypeException
+import com.expedia.graphql.schema.extensions.getKClass
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.expedia.graphql.schema.generator.TypeBuilder
 import graphql.Scalars
@@ -7,7 +9,6 @@ import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.UUID
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 internal class ScalarTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -26,8 +27,9 @@ internal class ScalarTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
 
     private val validIdTypes = listOf(Int::class, String::class, Long::class, UUID::class)
 
+    @Throws(InvalidIdTypeException::class)
     internal fun scalarType(type: KType, annotatedAsID: Boolean = false): GraphQLScalarType? {
-        val kClass = type.classifier as? KClass<*>
+        val kClass = type.getKClass()
         return if (annotatedAsID) {
             if (validIdTypes.contains(kClass)) {
                 Scalars.GraphQLID
@@ -35,7 +37,7 @@ internal class ScalarTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
                 val types = validIdTypes.joinToString(prefix = "[", postfix = "]", separator = ", ") {
                     it.qualifiedName ?: ""
                 }
-                throw IllegalArgumentException("${kClass?.simpleName} is not a valid ID type, only $types are accepted")
+                throw InvalidIdTypeException(kClass, types)
             }
         } else {
             defaultScalarsMap[kClass]

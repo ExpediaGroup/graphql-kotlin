@@ -1,7 +1,7 @@
 package com.expedia.graphql.schema.extensions
 
 import com.expedia.graphql.annotations.GraphQLContext
-import com.expedia.graphql.schema.exceptions.InvalidInputFieldTypeException
+import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.jvmErasure

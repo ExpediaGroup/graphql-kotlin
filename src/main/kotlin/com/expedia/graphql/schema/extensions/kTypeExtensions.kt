@@ -1,17 +1,20 @@
 package com.expedia.graphql.schema.extensions
 
-import com.expedia.graphql.schema.exceptions.InvalidListTypeException
+import com.expedia.graphql.exceptions.CouldNotCastToKClassException
+import com.expedia.graphql.exceptions.CouldNotGetJvmNameOfKTypeException
+import com.expedia.graphql.exceptions.InvalidListTypeException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.jvmErasure
 
 @Throws(InvalidListTypeException::class)
 internal fun KType.getTypeOfFirstArgument(): KType =
     this.arguments.firstOrNull()?.type ?: throw InvalidListTypeException(this)
 
-@Suppress("Detekt.UnsafeCast")
-internal fun KType.getKClass() = this.classifier as KClass<*>
+@Throws(CouldNotCastToKClassException::class)
+internal fun KType.getKClass() = this.classifier as? KClass<*> ?: throw CouldNotCastToKClassException(this)
 
 internal fun KType.getArrayType(): KType {
     val kClass = this.getKClass()
@@ -26,3 +29,7 @@ internal fun KType.getArrayType(): KType {
         else -> this.getTypeOfFirstArgument()
     }
 }
+
+@Throws(CouldNotGetJvmNameOfKTypeException::class)
+internal fun KType.getJvmErasureName(): String =
+    this.jvmErasure.simpleName ?: throw CouldNotGetJvmNameOfKTypeException(this)

@@ -1,7 +1,7 @@
 package com.expedia.graphql.schema.extensions
 
 import com.expedia.graphql.annotations.GraphQLDirective
-import com.expedia.graphql.schema.exceptions.CouldNotGetNameOfAnnotationException
+import com.expedia.graphql.exceptions.CouldNotGetNameOfAnnotationException
 import com.expedia.graphql.schema.generator.SchemaGenerator
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument

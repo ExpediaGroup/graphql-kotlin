@@ -2,6 +2,7 @@ package com.expedia.graphql.schema.dataFetchers
 
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.schema.Parameter
+import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.schema.getTestSchemaConfigWithHooks
 import com.expedia.graphql.schema.hooks.DataFetcherExecutionPredicate
 import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
@@ -29,7 +30,7 @@ class DataFetchPredicateTests {
         assertEquals("DataFetchingException", graphQLError.errorType.name)
         val exception = (graphQLError as? ExceptionWhileDataFetching)?.exception
         assertEquals("The datafetcher cannot be executed due to: [Error(message=greaterThan2 is actually 1)]", exception?.message)
-        assertTrue(exception is java.lang.IllegalArgumentException)
+        assertTrue(exception is GraphQLKotlinException)
     }
 
     @Test
@@ -46,7 +47,7 @@ class DataFetchPredicateTests {
         assertEquals("DataFetchingException", graphQLError.errorType.name)
         val exception = (graphQLError as? ExceptionWhileDataFetching)?.exception
         assertEquals("The datafetcher cannot be executed due to: [Error(message=Not the right age), Error(message=Not the right name)]", exception?.message)
-        assertTrue(exception is java.lang.IllegalArgumentException)
+        assertTrue(exception is GraphQLKotlinException)
     }
 }
 
@@ -76,8 +77,9 @@ class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
 
     override fun test(evaluationResult: Any): Boolean = (evaluationResult as? List<*>)?.isEmpty() ?: true
 
+    @Throws(GraphQLKotlinException::class)
     override fun onFailure(evaluationResult: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
-        throw IllegalArgumentException("The datafetcher cannot be executed due to: $evaluationResult")
+        throw GraphQLKotlinException("The datafetcher cannot be executed due to: $evaluationResult")
     }
 
     data class Error(val message: String)

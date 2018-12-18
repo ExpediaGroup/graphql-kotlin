@@ -1,5 +1,6 @@
 package com.expedia.graphql.schema.generator
 
+import com.expedia.graphql.schema.extensions.getKClass
 import com.expedia.graphql.schema.extensions.isArray
 import com.expedia.graphql.schema.extensions.isEnum
 import com.expedia.graphql.schema.extensions.isGraphQLInterface
@@ -33,7 +34,7 @@ internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
             return cachedType
         }
 
-        val kClass = checkNotNull(type.classifier as? KClass<*>)
+        val kClass = type.getKClass()
         val graphQLType = getGraphQLType(kClass, inputType, type)
         val kGraphQLType = KGraphQLType(kClass, graphQLType)
 
