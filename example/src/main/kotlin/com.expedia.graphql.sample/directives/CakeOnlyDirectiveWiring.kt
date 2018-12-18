@@ -9,13 +9,12 @@ class CakeOnlyDirectiveWiring : DirectiveWiring {
     override fun isApplicable(environment: SchemaDirectiveWiringEnvironment<*>): Boolean =
             environment.directive.name == getDirectiveName(CakeOnly::class)
 
-
     override fun onField(wiringEnv: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
         val field = wiringEnv.element
         val originalDataFetcher: DataFetcher<Any> = field.dataFetcher
         val cakeOnlyFetcher = DataFetcher<Any> { dataEnv ->
             val strArg: String? = dataEnv.getArgument(wiringEnv.element.arguments[0].name) as String?
-            if (strArg != "Cake") {
+            if (!"cake".equals(other = strArg, ignoreCase = true)) {
                 throw RuntimeException("The cake is a lie!")
             }
             originalDataFetcher.get(dataEnv)

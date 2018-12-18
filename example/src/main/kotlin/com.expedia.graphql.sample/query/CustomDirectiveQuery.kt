@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 class CustomDirectiveQuery : Query {
 
     @GraphQLDescription("Returns a message modified by directives, lower case and non-empty")
-    fun justWhisper(@StringEval(default = "Default String", lowerCase = true) msg: String): String = msg
+    fun justWhisper(@StringEval(default = "default string", lowerCase = true) msg: String?): String? = msg
 
     @GraphQLDescription("This will only accept 'Cake' as input")
     @CakeOnly

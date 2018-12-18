@@ -1,23 +1,13 @@
 package com.expedia.graphql.schema.generator.directive
 
-import com.expedia.graphql.schema.exceptions.GraphQLKotlinException
 import graphql.Scalars
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
-import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
-import graphql.schema.GraphQLEnumValueDefinition
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLInputObjectField
-import graphql.schema.GraphQLInputObjectType
-import graphql.schema.GraphQLInterfaceType
-import graphql.schema.GraphQLList
-import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
-import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeVisitor
-import graphql.schema.GraphQLUnionType
 import graphql.schema.idl.SchemaDirectiveWiring
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 import graphql.schema.idl.WiringFactory
@@ -25,207 +15,194 @@ import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
+import kotlin.test.assertNotEquals
 
 internal class DirectiveWiringHelperTest {
 
-    private class DescriptionWiring(private val description: String) : SchemaDirectiveWiring {
-        override fun onEnum(environment: SchemaDirectiveWiringEnvironment<GraphQLEnumType>?): GraphQLEnumType =
-            GraphQLEnumType.newEnum(environment?.element).description(description).build()
+    private class UpdateDescriptionWiring(
+        private val newDescription: String? = null,
+        private val lowerCase: Boolean = false
+    ) : SchemaDirectiveWiring {
+        override fun onEnum(environment: SchemaDirectiveWiringEnvironment<GraphQLEnumType>): GraphQLEnumType =
+            GraphQLEnumType.newEnum(environment.element).description(getNewDescription(environment.element.description)).build()
 
-        override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>?): GraphQLFieldDefinition =
-            GraphQLFieldDefinition.newFieldDefinition(environment?.element).description(description).build()
-
-        override fun onArgument(environment: SchemaDirectiveWiringEnvironment<GraphQLArgument>?): GraphQLArgument =
-            GraphQLArgument.newArgument(environment?.element).description(description).build()
-    }
-
-    private class InvalidWiring : SchemaDirectiveWiring {
-        override fun onEnum(environment: SchemaDirectiveWiringEnvironment<GraphQLEnumType>?): GraphQLEnumType =
-            throw GraphQLKotlinException()
-
-        override fun onInputObjectType(environment: SchemaDirectiveWiringEnvironment<GraphQLInputObjectType>?): GraphQLInputObjectType =
-            throw GraphQLKotlinException()
-
-        override fun onUnion(environment: SchemaDirectiveWiringEnvironment<GraphQLUnionType>?): GraphQLUnionType =
-            throw GraphQLKotlinException()
-
-        override fun onInputObjectField(environment: SchemaDirectiveWiringEnvironment<GraphQLInputObjectField>?): GraphQLInputObjectField =
-            throw GraphQLKotlinException()
-
-        override fun onArgument(environment: SchemaDirectiveWiringEnvironment<GraphQLArgument>?): GraphQLArgument =
-            throw GraphQLKotlinException()
-
-        override fun onInterface(environment: SchemaDirectiveWiringEnvironment<GraphQLInterfaceType>?): GraphQLInterfaceType =
-            throw GraphQLKotlinException()
-
-        override fun onEnumValue(environment: SchemaDirectiveWiringEnvironment<GraphQLEnumValueDefinition>?): GraphQLEnumValueDefinition =
-            throw GraphQLKotlinException()
-
-        override fun onObject(environment: SchemaDirectiveWiringEnvironment<GraphQLObjectType>?): GraphQLObjectType =
-            throw GraphQLKotlinException()
-
-        override fun onScalar(environment: SchemaDirectiveWiringEnvironment<GraphQLScalarType>?): GraphQLScalarType =
-            throw GraphQLKotlinException()
-
-        override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>?): GraphQLFieldDefinition =
-            throw GraphQLKotlinException()
-    }
-
-    private val graphQLDirective = GraphQLDirective.newDirective().name("MyDirective").build()
-
-    private class SimpleWiringFactory : WiringFactory
-
-    @Test
-    fun `An enum with no directives`() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").build()
-        val actual = DirectiveWiringHelper(SimpleWiringFactory()).onWire(enum)
-        val directives = (actual as? GraphQLEnumType)?.directives
-        assertEquals(expected = 0, actual = directives?.size)
-    }
-
-    @Test
-    fun `A list of enums with no directives `() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").build()
-        val list = GraphQLList(enum)
-        val actual = DirectiveWiringHelper(SimpleWiringFactory()).onWire(list)
-        val directives = ((actual as? GraphQLList)?.wrappedType as? GraphQLEnumType)?.directives
-        assertEquals(expected = 0, actual = directives?.size)
-    }
-
-    @Test
-    fun `An enum with directives and no wiring`() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLDirective).build()
-        val actual = DirectiveWiringHelper(SimpleWiringFactory()).onWire(enum)
-        val directives = (actual as? GraphQLEnumType)?.directives
-        assertEquals(expected = 1, actual = directives?.size)
-    }
-
-    @Test
-    fun `An enum with directives with manual wiring`() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLDirective).build()
-        val description = "foo bar"
-        val manualWiringMap = mapOf("MyDirective" to DescriptionWiring(description))
-        val actual = DirectiveWiringHelper(SimpleWiringFactory(), manualWiringMap).onWire(enum)
-        val enumType = actual as? GraphQLEnumType
-        val directives = enumType?.directives
-        assertEquals(expected = 1, actual = directives?.size)
-        assertEquals(expected = description, actual = enumType?.description)
-    }
-
-    @Test
-    fun `A custum type with directives with manual wiring but no matching wiring type`() {
-        class MyCustomType : GraphQLType, GraphQLDirectiveContainer {
-            override fun getName(): String = "MyCustomType"
-
-            override fun getDirectives(): MutableList<GraphQLDirective> = mutableListOf(graphQLDirective)
-
-            override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+        override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
+            val field = environment.element
+            val newArguments = mutableListOf<GraphQLArgument>()
+            for (argument in field.arguments) {
+                newArguments.add(GraphQLArgument.newArgument(argument).description(getNewDescription(argument.description)).build())
+            }
+            return GraphQLFieldDefinition.newFieldDefinition(environment.element)
+                    .description(getNewDescription(environment.element.description))
+                    .argument(newArguments)
+                    .build()
         }
 
-        val manualWiringMap = mapOf("MyDirective" to InvalidWiring())
+        override fun onArgument(environment: SchemaDirectiveWiringEnvironment<GraphQLArgument>): GraphQLArgument =
+            GraphQLArgument.newArgument(environment.element).description(getNewDescription(environment.element.description)).build()
 
-        val actual = DirectiveWiringHelper(SimpleWiringFactory(), manualWiringMap).onWire(MyCustomType())
-        val enumType = actual as? MyCustomType
-        val directives = enumType?.directives
-        assertEquals(expected = 1, actual = directives?.size)
-    }
-
-    @Test
-    fun `An enum with directives with invalid wiring and matching wiring type`() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLDirective).build()
-
-        val manualWiringMap = mapOf("MyDirective" to InvalidWiring())
-
-        assertFailsWith(GraphQLKotlinException::class) {
-            DirectiveWiringHelper(SimpleWiringFactory(), manualWiringMap).onWire(enum)
+        private fun getNewDescription(original: String?) = when {
+            null != newDescription -> newDescription
+            lowerCase -> original?.toLowerCase()
+            else -> original
         }
     }
 
-    @Test
-    fun `An enum with directives with basic wiring and matching wiring type`() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLDirective).build()
-        val description = "test"
+    private val graphQLOverrideDescriptionDirective = GraphQLDirective.newDirective().name("overrideDescription").build()
+    private val graphQLLowercaseDirective = GraphQLDirective.newDirective().name("lowercase").build()
 
-        class MyWiringFactory : WiringFactory {
-            override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>?) = true
+    private class SimpleWiringFactory : WiringFactory {
+        val lowercaseWiring = UpdateDescriptionWiring(lowerCase = true)
 
-            override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>?) = DescriptionWiring(description)
-        }
+        override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): SchemaDirectiveWiring? =
+            if (environment.element is GraphQLFieldDefinition && environment.element.directives.any { it.name == "lowercase" }) {
+                lowercaseWiring
+            } else {
+                null
+            }
 
-        val actual = DirectiveWiringHelper(MyWiringFactory()).onWire(enum)
-        val enumType = actual as? GraphQLEnumType
-        val directives = enumType?.directives
-        assertEquals(expected = 1, actual = directives?.size)
-        assertEquals(expected = description, actual = enumType?.description)
+        override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = true
     }
 
     @Test
-    fun `An enum with directives with no wiring`() {
-        val enum = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLDirective).build()
-        val actual = DirectiveWiringHelper(SimpleWiringFactory()).onWire(enum)
-        val directives = (actual as? GraphQLEnumType)?.directives
-        assertEquals(expected = 1, actual = directives?.size)
+    fun `verify no action is taken if GraphQL object does not have directive`() {
+        val original = GraphQLEnumType.newEnum().name("MyEnum").build()
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+
+        assertEquals(original, actual)
     }
 
     @Test
-    fun `An field with directives and arguments with no directives`() {
-        val arugment = GraphQLArgument.newArgument()
-            .name("MyArgument")
-            .type(Scalars.GraphQLString)
-            .build()
+    fun `verify directive is not executed if no wirings are specified`() {
+        val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
+        val actual = DirectiveWiringHelper().onWire(original)
 
-        val field = GraphQLFieldDefinition.newFieldDefinition()
-            .name("MyField")
-            .type(
-                object : GraphQLOutputType {
-                    override fun getName(): String = "GraphQLField"
-
-                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                }
-            )
-            .argument(arugment)
-            .withDirective(graphQLDirective)
-            .build()
-
-        val description = "arguments"
-        val manualWiringMap = mapOf("MyDirective" to DescriptionWiring(description))
-
-        val actual = DirectiveWiringHelper(SimpleWiringFactory(), manualWiringMap).onWire(field)
-        val fieldDefinition = actual as? GraphQLFieldDefinition
-        assertEquals(expected = 1, actual = fieldDefinition?.directives?.size)
-        assertEquals(expected = description, actual = fieldDefinition?.description)
-        assertNull(fieldDefinition?.arguments?.first()?.description)
+        assertEquals(original, actual)
     }
 
     @Test
-    fun `An field with arguments that has directives`() {
-        val arugment = GraphQLArgument.newArgument()
-            .name("MyArgument")
-            .type(Scalars.GraphQLString)
-            .withDirective(graphQLDirective)
-            .build()
+    fun `verify directive is not executed if no corresponding wirings are specified`() {
+        val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
 
-        val field = GraphQLFieldDefinition.newFieldDefinition()
-            .name("MyField")
-            .type(
-                    object : GraphQLOutputType {
-                        override fun getName(): String = "GraphQLField"
+        assertEquals(original, actual)
+    }
 
-                        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                    }
-            )
-            .argument(arugment)
-            .build()
+    @Test
+    fun `verify directive wirings provided by wiring factory are applied on a field with directives`() {
+        val original = GraphQLFieldDefinition.newFieldDefinition()
+                .name("MyField")
+                .type(
+                        object : GraphQLOutputType {
+                            override fun getName(): String = "MyOutputType"
 
-        val description = "arguments"
-        val manualWiringMap = mapOf("MyDirective" to DescriptionWiring(description))
+                            override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                        }
+                )
+                .description("My Field Description")
+                .withDirective(graphQLLowercaseDirective)
+                .build()
 
-        val actual = DirectiveWiringHelper(SimpleWiringFactory(), manualWiringMap).onWire(field)
-        val fieldDefinition = actual as? GraphQLFieldDefinition
-        assertEquals(expected = 0, actual = fieldDefinition?.directives?.size)
-        assertEquals(expected = description, actual = fieldDefinition?.description)
-        assertNull(fieldDefinition?.arguments?.first()?.description)
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+        assertNotEquals(original, actual)
+        val updatedField = actual as? GraphQLFieldDefinition
+        assertEquals("my field description", updatedField?.description)
+    }
+
+    @Test
+    fun `verify manual directive wirings are applied on a field arguments with directives`() {
+        val argument = GraphQLArgument.newArgument()
+                .name("MyArgument")
+                .description("My Argument Description")
+                .type(Scalars.GraphQLString)
+                .withDirective(graphQLOverrideDescriptionDirective)
+                .build()
+
+        val newDescription = "overwritten description"
+        assertNotEquals(argument.description, newDescription)
+
+        val actual = DirectiveWiringHelper(manualWiring = mapOf("overrideDescription" to UpdateDescriptionWiring(newDescription))).onWire(argument)
+        assertNotEquals(argument, actual)
+        val updatedArgument = actual as? GraphQLArgument
+        assertEquals(newDescription, updatedArgument?.description)
+    }
+
+    @Test
+    fun `verify directive wirings are applied on a field without directives if it has arguments with directives`() {
+        val argument = GraphQLArgument.newArgument()
+                .name("MyArgument")
+                .type(Scalars.GraphQLString)
+                .description("My Argument Description")
+                .withDirective(graphQLOverrideDescriptionDirective)
+                .build()
+
+        val original = GraphQLFieldDefinition.newFieldDefinition()
+                .name("MyField")
+                .type(
+                        object : GraphQLOutputType {
+                            override fun getName(): String = "MyOutputType"
+
+                            override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                        }
+                )
+                .argument(argument)
+                .description("My Field Description")
+                .build()
+
+        val newDescription = "overwritten"
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("overrideDescription" to UpdateDescriptionWiring(newDescription))).onWire(original)
+        assertNotEquals(original, actual)
+        val actualField = actual as? GraphQLFieldDefinition
+        assertEquals(newDescription, actualField?.description)
+        val actualArgument = actualField?.getArgument("MyArgument")
+        assertEquals(newDescription, actualArgument?.description)
+    }
+
+    @Test
+    fun `verify manual wirings take precedence over wiring factory`() {
+        val original = GraphQLFieldDefinition.newFieldDefinition()
+                .name("MyField")
+                .type(
+                        object : GraphQLOutputType {
+                            override fun getName(): String = "MyOutputType"
+
+                            override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                        }
+                )
+                .description("My Field Description")
+                .withDirective(graphQLLowercaseDirective)
+                .build()
+
+        val overwrittenDescription = "overwritten"
+        // reusing lower case directive that just overwrites the description
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("lowercase" to UpdateDescriptionWiring(overwrittenDescription))).onWire(original)
+        assertNotEquals(original, actual)
+
+        val updatedField = actual as? GraphQLFieldDefinition
+        assertEquals(overwrittenDescription, updatedField?.description)
+    }
+
+    @Test
+    fun `verify directives are applied in order they were declared`() {
+        val original = GraphQLFieldDefinition.newFieldDefinition()
+                .name("MyField")
+                .type(
+                        object : GraphQLOutputType {
+                            override fun getName(): String = "MyOutputType"
+
+                            override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                        }
+                )
+                .description("My Field Description")
+                .withDirective(graphQLOverrideDescriptionDirective)
+                .withDirective(graphQLLowercaseDirective)
+                .build()
+
+        val overwrittenDescription = "OverWriTTen"
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("overrideDescription" to UpdateDescriptionWiring(overwrittenDescription))).onWire(original)
+        assertNotEquals(original, actual)
+
+        val updatedField = actual as? GraphQLFieldDefinition
+        assertEquals(overwrittenDescription.toLowerCase(), updatedField?.description)
     }
 }

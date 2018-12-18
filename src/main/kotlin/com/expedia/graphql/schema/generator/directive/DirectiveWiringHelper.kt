@@ -22,37 +22,39 @@ import graphql.schema.idl.WiringFactory
 /**
  * Based on [SchemaGeneratorDirectiveHelper](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/schema/idl/SchemaGeneratorDirectiveHelper.java) from graphql-java.
  *
- * Relies on [WiringFactory] for providing applicable [SchemaDirectiveWiring]. If manual directive wiring map is provided it will take precedence over the wiring factory.
+ * Relies on [WiringFactory] for providing applicable [SchemaDirectiveWiring] but if manual directive wiring map is provided it will take precedence over the wiring factory.
  */
 class DirectiveWiringHelper(private val wiringFactory: WiringFactory? = null, private val manualWiring: Map<String, SchemaDirectiveWiring> = mapOf()) {
 
     /**
      * Wire up the directive based on the GraphQL type
      */
-    fun onWire(generatedType: GraphQLType): GraphQLType {
-        if (generatedType !is GraphQLDirectiveContainer) return generatedType
+    fun onWire(graphQLType: GraphQLType): GraphQLType {
+        if (graphQLType !is GraphQLDirectiveContainer) return graphQLType
 
         return wireDirectives(
-            generatedType,
-            getDirectives(generatedType),
+            graphQLType,
+            getDirectives(graphQLType),
             ::createWiringEnvironment,
-            getInvoker(generatedType)
+            getInvoker(graphQLType)
         )
     }
 
-    private fun getInvoker(generatedType: GraphQLDirectiveContainer) =
-        { wiring: SchemaDirectiveWiring, environment: SchemaDirectiveWiringEnvironment<GraphQLDirectiveContainer> -> wireOnEnvironment(environment, wiring, generatedType) }
-
-    private fun getDirectives(generatedType: GraphQLDirectiveContainer): MutableList<GraphQLDirective> {
+    private fun getDirectives(graphQLType: GraphQLDirectiveContainer): MutableList<GraphQLDirective> {
         // A function without directives may still be rewired if the arguments have directives
-        val directives = generatedType.directives
-        if (generatedType is GraphQLFieldDefinition) {
-            generatedType.arguments.forEach { directives.addAll(it.directives) }
+        // see https://github.com/ExpediaDotCom/graphql-kotlin/wiki/Schema-Directives for details
+        val directives = graphQLType.directives
+        if (graphQLType is GraphQLFieldDefinition) {
+            graphQLType.arguments.forEach { directives.addAll(it.directives) }
         }
         return directives
     }
 
+    private fun getInvoker(graphQLType: GraphQLDirectiveContainer) =
+        { wiring: SchemaDirectiveWiring, environment: SchemaDirectiveWiringEnvironment<GraphQLDirectiveContainer> -> wireOnEnvironment(environment, wiring, graphQLType) }
+
     private fun <T : GraphQLDirectiveContainer> createWiringEnvironment(element: T, directive: GraphQLDirective): SchemaDirectiveWiringEnvironment<T> =
+        // we are only specifying element and directive, other fields are not used by graphql-kotlin
         SchemaDirectiveWiringEnvironmentImpl(element, directive, null, null, null)
 
     private fun <T : GraphQLDirectiveContainer> wireDirectives(
