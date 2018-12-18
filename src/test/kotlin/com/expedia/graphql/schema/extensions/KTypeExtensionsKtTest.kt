@@ -1,7 +1,11 @@
 package com.expedia.graphql.schema.extensions
 
+import com.expedia.graphql.exceptions.CouldNotCastToKClassException
 import com.expedia.graphql.exceptions.InvalidListTypeException
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KType
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
@@ -30,6 +34,15 @@ internal class KTypeExtensionsKtTest {
     }
 
     @Test
+    fun `getKClass exception`() {
+        assertFailsWith(CouldNotCastToKClassException::class) {
+            val mockType: KType = mockk()
+            every { mockType.classifier } returns null
+            mockType.getKClass()
+        }
+    }
+
+    @Test
     fun getArrayType() {
         assertEquals(Int::class.starProjectedType, IntArray::class.starProjectedType.getArrayType())
         assertEquals(Long::class.starProjectedType, LongArray::class.starProjectedType.getArrayType())
@@ -43,5 +56,10 @@ internal class KTypeExtensionsKtTest {
         assertFailsWith(InvalidListTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getArrayType()
         }
+    }
+
+    @Test
+    fun getJvmErasureName() {
+        assertEquals("MyClass", MyClass::class.starProjectedType.getJvmErasureName())
     }
 }

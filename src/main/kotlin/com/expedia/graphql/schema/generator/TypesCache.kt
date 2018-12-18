@@ -1,9 +1,9 @@
 package com.expedia.graphql.schema.generator
 
 import com.expedia.graphql.exceptions.ConflictingTypesException
-import com.expedia.graphql.exceptions.CouldNotGetJvmNameOfKTypeException
 import com.expedia.graphql.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.exceptions.TypeNotSupportedException
+import com.expedia.graphql.schema.extensions.getJvmErasureName
 import com.expedia.graphql.schema.extensions.getKClass
 import com.expedia.graphql.schema.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.schema.extensions.isArray
@@ -89,15 +89,11 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     private fun getCacheTypeName(kType: KType): String {
         throwIfTypeIsNotSupported(kType)
-        return getJvmErasureName(kType)
+        return kType.getJvmErasureName()
     }
 
     private fun getJvmErasureNameFromList(type: KType): String =
-        getJvmErasureName(type.getTypeOfFirstArgument())
-
-    @Throws(CouldNotGetJvmNameOfKTypeException::class)
-    private fun getJvmErasureName(kType: KType): String =
-        kType.jvmErasure.simpleName ?: throw CouldNotGetJvmNameOfKTypeException(kType)
+        type.getTypeOfFirstArgument().getJvmErasureName()
 
     @Throws(TypeNotSupportedException::class)
     private fun throwIfTypeIsNotSupported(type: KType) {
