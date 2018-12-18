@@ -45,22 +45,34 @@ class DirectiveTests {
     }
 
     @Test
-    fun `Directive renaming`() {
+    fun `Default directive names are normalized`() {
         val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
 
-        val renamedDirective = assertNotNull(
-            (schema.getType("Location") as? GraphQLObjectType)
-                ?.getDirective("rightNameDirective")
+        val query = schema.queryType.getFieldDefinition("query")
+        assertNotNull(query)
+        assertNotNull(query.getDirective("dummyDirective"))
+    }
+
+    @Test
+    fun `Custom directive names are not modified`() {
+        val schema = toSchema(listOf(TopLevelObjectDef(QueryObject())), config = testSchemaConfig)
+
+        val directive = assertNotNull(
+                (schema.getType("Location") as? GraphQLObjectType)
+                        ?.getDirective("RightNameDirective")
         )
 
-        assertEquals("arenaming", renamedDirective.arguments[0].value)
-        assertEquals("arg", renamedDirective.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, renamedDirective.arguments[0].type)
+        assertEquals("arenaming", directive.arguments[0].value)
+        assertEquals("arg", directive.arguments[0].name)
+        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
     }
 }
 
 @GraphQLDirective(name = "RightNameDirective")
 annotation class WrongNameDirective(val arg: String)
+
+@GraphQLDirective
+annotation class DummyDirective
 
 class Geography(
     val id: Int?,
@@ -79,6 +91,8 @@ enum class GeoType {
 data class Location(val lat: Double, val lon: Double)
 
 class QueryObject {
+
+    @DummyDirective
     fun query(value: Int): Geography = Geography(value, GeoType.CITY, listOf())
 }
 

@@ -28,7 +28,7 @@ private fun DirectiveInfo.getGraphQLDirective(generator: SchemaGenerator): graph
 
     @Suppress("Detekt.SpreadOperator")
     val builder = graphql.schema.GraphQLDirective.newDirective()
-        .name(name.normalizeDirectiveName())
+        .name(name)
         .validLocations(*this.directiveAnnotation.locations)
         .description(this.directiveAnnotation.description)
 
@@ -54,7 +54,7 @@ private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseForm
 private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: GraphQLDirective) {
     val effectiveName: String? = when {
         directiveAnnotation.name.isNotEmpty() -> directiveAnnotation.name
-        directive.annotationClass.simpleName.isNullOrEmpty().not() -> directive.annotationClass.simpleName
+        directive.annotationClass.simpleName.isNullOrBlank().not() -> directive.annotationClass.simpleName?.normalizeDirectiveName()
         else -> null
     }
 }

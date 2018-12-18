@@ -61,7 +61,7 @@ internal class DirectiveWiringHelperTest {
                 null
             }
 
-        override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = true
+        override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = environment.directive.name == "lowercase"
     }
 
     @Test
