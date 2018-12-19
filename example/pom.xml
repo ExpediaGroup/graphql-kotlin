@@ -63,7 +63,7 @@
         <kotlin.version>1.3.11</kotlin.version>
         <junit.version>4.12</junit.version>
         <graphiql.version>5.0.2</graphiql.version>
-        <graphql-kotlin.version>0.0.27-SNAPSHOT</graphql-kotlin.version>
+        <graphql-kotlin.version>0.0.28-SNAPSHOT</graphql-kotlin.version>
         <graphql-servlet.version>6.1.2</graphql-servlet.version>
     </properties>
 
