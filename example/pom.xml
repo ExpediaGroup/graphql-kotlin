@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.expedia.www</groupId>
+    <groupId>com.expedia</groupId>
     <artifactId>graphql-kotlin-example</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>graphql-kotlin-example</name>
@@ -109,7 +109,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.expedia.www</groupId>
+            <groupId>com.expedia</groupId>
             <artifactId>graphql-kotlin</artifactId>
             <version>${graphql-kotlin.version}</version>
         </dependency>

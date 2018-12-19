@@ -1,6 +1,9 @@
 # GraphQL Kotlin
 
-[![Build Status](https://travis-ci.org/ExpediaDotCom/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/graphql-kotlin) [![codecov](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.expedia.www/graphql-kotlin/badge.png)](https://maven-badges.herokuapp.com/maven-central/com.expedia.www/graphql-kotlin) [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
+[![Build Status](https://travis-ci.org/ExpediaDotCom/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/graphql-kotlin)
+[![codecov](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.expedia/graphql-kotlin/badge.png)](https://maven-badges.herokuapp.com/maven-central/com.expedia/graphql-kotlin)
+[![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
 Most GraphQL libraries for the JVM require developers to maintain two sources of truth for their GraphQL API, the schema and the corresponding code (data fetchers and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema should be able to be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only GraphQL services to be built.
 
@@ -16,7 +19,7 @@ With Maven:
 
 ```xml
 <dependency>
-  <groupId>com.expedia.www</groupId>
+  <groupId>com.expedia</groupId>
   <artifactId>graphql-kotlin</artifactId>
   <version>${latestVersion}</version>
 </dependency>
@@ -25,7 +28,7 @@ With Maven:
 With Gradle:
 
 ```groovy
-compile(group: 'com.expedia.www', name: 'graphql-kotlin', version: "$latestVersion")
+compile(group: 'com.expedia', name: 'graphql-kotlin', version: "$latestVersion")
 ```
 
 ## Usage
