@@ -12,7 +12,8 @@ before_install:
   - if [ ! -z "$GPG_OWNERTRUST" ]; then echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust; fi
 
 script:
-  - ./mvnw test -B
+  - ./mvnw install
+  - ./mvnw -f example/pom.xml verify
 
 deploy:
   -
