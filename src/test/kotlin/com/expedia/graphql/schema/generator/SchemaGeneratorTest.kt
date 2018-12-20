@@ -6,7 +6,7 @@ import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.exceptions.ConflictingTypesException
 import com.expedia.graphql.exceptions.InvalidIdTypeException
-import com.expedia.graphql.schema.extensions.deepName
+import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.schema.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
