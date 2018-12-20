@@ -1,7 +1,7 @@
 package com.expedia.graphql.schema.hooks
 
 import com.expedia.graphql.TopLevelObjectDef
-import com.expedia.graphql.schema.extensions.deepName
+import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.schema.getTestSchemaConfigWithHooks
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
