@@ -1,5 +1,6 @@
 package com.expedia.graphql.sample.dataFetchers
 
+import com.expedia.graphql.extensions.deepName
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetcherFactoryEnvironment
@@ -25,11 +26,3 @@ class SpringDataFetcherFactory: DataFetcherFactory<Any>, BeanFactoryAware {
         return beanFactory.getBean("${targetedTypeName}DataFetcher") as DataFetcher<Any>
     }
 }
-
-// keeping it internal
-internal val GraphQLType.deepName: String
-    get() = when {
-        this is GraphQLNonNull -> "${this.wrappedType.deepName}!"
-        this is GraphQLList -> "[${this.wrappedType.deepName}]"
-        else -> name
-    }
