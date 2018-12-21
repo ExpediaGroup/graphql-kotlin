@@ -2,7 +2,7 @@ package com.expedia.graphql.sample
 
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObjectDef
-import com.expedia.graphql.generator.directive.DirectiveWiringHelper
+import com.expedia.graphql.DirectiveWiringHelper
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
 import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
 import com.expedia.graphql.sample.directives.DirectiveWiringFactory

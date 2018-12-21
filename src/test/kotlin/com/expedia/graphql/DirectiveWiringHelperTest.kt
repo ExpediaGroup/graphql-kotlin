@@ -1,4 +1,4 @@
-package com.expedia.graphql.generator.directive
+package com.expedia.graphql
 
 import graphql.Scalars
 import graphql.schema.GraphQLArgument

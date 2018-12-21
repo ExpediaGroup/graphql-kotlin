@@ -1,4 +1,4 @@
-package com.expedia.graphql.generator.directive
+package com.expedia.graphql
 
 import graphql.Assert.assertNotNull
 import graphql.schema.GraphQLArgument
