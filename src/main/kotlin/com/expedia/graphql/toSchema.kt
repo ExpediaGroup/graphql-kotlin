@@ -1,8 +1,8 @@
 package com.expedia.graphql
 
 import com.expedia.graphql.exceptions.InvalidSchemaException
-import com.expedia.graphql.schema.SchemaGeneratorConfig
-import com.expedia.graphql.schema.generator.SchemaGenerator
+import com.expedia.graphql.generator.SchemaGenerator
+import graphql.GraphQLException
 import graphql.schema.GraphQLSchema
 
 /**
@@ -12,7 +12,7 @@ import graphql.schema.GraphQLSchema
  * @param mutations List of [TopLevelObjectDef] objects to use for GraphQL mutations
  * @param config Schema generation configuration
  */
-@Throws(InvalidSchemaException::class)
+@Throws(GraphQLException::class)
 fun toSchema(
     queries: List<TopLevelObjectDef>,
     mutations: List<TopLevelObjectDef> = emptyList(),

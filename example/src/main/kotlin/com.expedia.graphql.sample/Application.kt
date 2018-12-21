@@ -1,6 +1,8 @@
 package com.expedia.graphql.sample
 
+import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.generator.directive.DirectiveWiringHelper
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
 import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
 import com.expedia.graphql.sample.directives.DirectiveWiringFactory
@@ -9,8 +11,6 @@ import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
 import com.expedia.graphql.sample.query.Query
-import com.expedia.graphql.schema.SchemaGeneratorConfig
-import com.expedia.graphql.schema.generator.directive.DirectiveWiringHelper
 import com.expedia.graphql.toSchema
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import graphql.execution.AsyncExecutionStrategy
@@ -43,9 +43,9 @@ class Application {
 
     @Bean
     fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory, validator: Validator, wiringFactory: DirectiveWiringFactory): SchemaGeneratorConfig = SchemaGeneratorConfig(
-            supportedPackages = listOf("com.expedia"),
-            hooks = CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring()))),
-            dataFetcherFactory = dataFetcherFactory
+        supportedPackages = listOf("com.expedia"),
+        hooks = CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring()))),
+        dataFetcherFactory = dataFetcherFactory
     )
 
     @Bean
