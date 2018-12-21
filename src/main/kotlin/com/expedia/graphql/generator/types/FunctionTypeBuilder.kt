@@ -46,8 +46,6 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
             val name = it.getName()
 
-            // Kotlin 1.3 will support contracts, until then we need to force non-null
-            @Suppress("Detekt.UnsafeCallOnNullableType")
             args[name] = Parameter(it.type.javaType as Class<*>, it.annotations)
         }
 
