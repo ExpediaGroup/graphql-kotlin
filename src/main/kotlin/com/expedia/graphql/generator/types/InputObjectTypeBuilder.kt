@@ -6,6 +6,7 @@ import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
+import com.expedia.graphql.generator.extensions.getSimpleName
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInputType
@@ -37,5 +38,5 @@ internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(
         return builder.build()
     }
 
-    private fun getInputClassName(klass: KClass<*>): String? = klass.simpleName?.let { "${it}Input" }
+    private fun getInputClassName(klass: KClass<*>): String = klass.getSimpleName().let { "${it}Input" }
 }

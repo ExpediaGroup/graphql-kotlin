@@ -3,9 +3,9 @@ package com.expedia.graphql.generator
 import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.isArray
 import com.expedia.graphql.generator.extensions.isEnum
-import com.expedia.graphql.generator.extensions.isGraphQLInterface
-import com.expedia.graphql.generator.extensions.isGraphQLUnion
+import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.isList
+import com.expedia.graphql.generator.extensions.isUnion
 import com.expedia.graphql.generator.extensions.wrapInNonNull
 import com.expedia.graphql.generator.state.KGraphQLType
 import com.expedia.graphql.generator.state.TypesCacheKey
@@ -48,8 +48,8 @@ internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generator.enumType(kClass as KClass<Enum<*>>))
         kClass.isArray() -> generator.arrayType(type, inputType)
         kClass.isList() -> generator.listType(type, inputType)
-        kClass.isGraphQLUnion() -> generator.unionType(kClass)
-        kClass.isGraphQLInterface() -> generator.interfaceType(kClass)
+        kClass.isUnion() -> generator.unionType(kClass)
+        kClass.isInterface() -> generator.interfaceType(kClass)
         inputType -> generator.inputObjectType(kClass)
         else -> generator.objectType(kClass)
     }
