@@ -42,3 +42,5 @@ internal fun KClass<*>.isArray(): Boolean = this.java.isArray
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(): String =
     this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
+
+internal fun KClass<*>.getInputClassName(): String = "${this.getSimpleName()}Input"
