@@ -1,7 +1,6 @@
 package com.expedia.graphql
 
 import com.expedia.graphql.exceptions.InvalidSchemaException
-import com.expedia.graphql.schema.testSchemaConfig
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

@@ -1,9 +1,9 @@
 package com.expedia.graphql.sample.extension
 
+import com.expedia.graphql.DirectiveWiringHelper
+import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
+import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.validation.DataFetcherExecutionValidator
-import com.expedia.graphql.schema.generator.directive.DirectiveWiringHelper
-import com.expedia.graphql.schema.hooks.DataFetcherExecutionPredicate
-import com.expedia.graphql.schema.hooks.SchemaGeneratorHooks
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
