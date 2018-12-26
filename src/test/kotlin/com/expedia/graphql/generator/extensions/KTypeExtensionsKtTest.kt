@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.extensions
 
 import com.expedia.graphql.exceptions.CouldNotCastToKClassException
+import com.expedia.graphql.exceptions.CouldNotGetNameOfKTypeException
 import com.expedia.graphql.exceptions.InvalidListTypeException
 import io.mockk.every
 import io.mockk.mockk
@@ -59,7 +60,14 @@ internal class KTypeExtensionsKtTest {
     }
 
     @Test
-    fun getJvmErasureName() {
-        assertEquals("MyClass", MyClass::class.starProjectedType.getJvmErasureName())
+    fun getSimpleName() {
+        assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
+    }
+
+    @Test
+    fun getSimpleNameException() {
+        assertFailsWith(CouldNotGetNameOfKTypeException::class) {
+            object { }::class.starProjectedType.getSimpleName()
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.expedia.graphql.generator.extensions
 
 import com.expedia.graphql.exceptions.CouldNotCastToKClassException
-import com.expedia.graphql.exceptions.CouldNotGetJvmNameOfKTypeException
+import com.expedia.graphql.exceptions.CouldNotGetNameOfKTypeException
 import com.expedia.graphql.exceptions.InvalidListTypeException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -30,6 +30,9 @@ internal fun KType.getArrayType(): KType {
     }
 }
 
-@Throws(CouldNotGetJvmNameOfKTypeException::class)
-internal fun KType.getJvmErasureName(): String =
-    this.jvmErasure.simpleName ?: throw CouldNotGetJvmNameOfKTypeException(this)
+@Throws(CouldNotGetNameOfKTypeException::class)
+internal fun KType.getSimpleName(): String =
+    this.jvmErasure.simpleName ?: throw CouldNotGetNameOfKTypeException(this)
+
+internal val KType.qualifiedName: String
+    get() = this.jvmErasure.qualifiedName ?: ""

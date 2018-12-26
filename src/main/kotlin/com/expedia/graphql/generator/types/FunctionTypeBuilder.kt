@@ -2,14 +2,14 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.KotlinDataFetcher
 import com.expedia.graphql.Parameter
-import com.expedia.graphql.exceptions.CouldNotGetNameOfArgumentException
+import com.expedia.graphql.generator.SchemaGenerator
+import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.directives
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
+import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.throwIfUnathorizedInterface
-import com.expedia.graphql.generator.SchemaGenerator
-import com.expedia.graphql.generator.TypeBuilder
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
@@ -23,7 +23,6 @@ import kotlin.reflect.jvm.javaType
 @Suppress("Detekt.UnsafeCast")
 internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
-    @Throws(CouldNotGetNameOfArgumentException::class)
     internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
@@ -45,14 +44,9 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
                 builder.argument(argument(it))
             }
 
-            val name = it.name
-            if (name.isNullOrBlank()) {
-                throw CouldNotGetNameOfArgumentException(it)
-            } else {
-                // Kotlin 1.3 will support contracts, until then we need to force non-null
-                @Suppress("Detekt.UnsafeCallOnNullableType")
-                args[name] = Parameter(it.type.javaType as Class<*>, it.annotations)
-            }
+            val name = it.getName()
+
+            args[name] = Parameter(it.type.javaType as Class<*>, it.annotations)
         }
 
         if (!abstract) {

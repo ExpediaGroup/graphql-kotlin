@@ -1,13 +1,14 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.generator.extensions.directives
-import com.expedia.graphql.generator.extensions.getGraphQLDescription
-import com.expedia.graphql.generator.extensions.getValidFunctions
-import com.expedia.graphql.generator.extensions.getValidProperties
-import com.expedia.graphql.generator.extensions.isGraphQLInterface
-import com.expedia.graphql.generator.extensions.isGraphQLUnion
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
+import com.expedia.graphql.generator.extensions.directives
+import com.expedia.graphql.generator.extensions.getGraphQLDescription
+import com.expedia.graphql.generator.extensions.getSimpleName
+import com.expedia.graphql.generator.extensions.getValidFunctions
+import com.expedia.graphql.generator.extensions.getValidProperties
+import com.expedia.graphql.generator.extensions.isInterface
+import com.expedia.graphql.generator.extensions.isUnion
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
@@ -21,7 +22,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
         return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
             val builder = GraphQLObjectType.newObject()
 
-            builder.name(kClass.simpleName)
+            builder.name(kClass.getSimpleName())
             builder.description(kClass.getGraphQLDescription())
 
             kClass.directives(generator).forEach {
@@ -34,7 +35,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
             } else {
                 kClass.superclasses
                     .asSequence()
-                    .filter { it.isGraphQLInterface() && !it.isGraphQLUnion() }
+                    .filter { it.isInterface() && !it.isUnion() }
                     .map { objectFromReflection(it.createType(), false) as? GraphQLInterfaceType }
                     .forEach { builder.withInterface(it) }
             }

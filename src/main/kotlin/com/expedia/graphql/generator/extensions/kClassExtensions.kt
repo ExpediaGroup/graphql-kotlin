@@ -1,8 +1,9 @@
 package com.expedia.graphql.generator.extensions
 
-import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expedia.graphql.generator.functionFilters
 import com.expedia.graphql.generator.propertyFilters
+import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -27,13 +28,19 @@ internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
         ?.parameters
         ?.find { it.name == name }
 
-internal fun KClass<*>.isGraphQLInterface(): Boolean = this.java.isInterface
+internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface
 
-internal fun KClass<*>.isGraphQLUnion(): Boolean =
-    this.isGraphQLInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+internal fun KClass<*>.isUnion(): Boolean =
+    this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
 internal fun KClass<*>.isList(): Boolean = this.isSubclassOf(List::class)
 
 internal fun KClass<*>.isArray(): Boolean = this.java.isArray
+
+@Throws(CouldNotGetNameOfKClassException::class)
+internal fun KClass<*>.getSimpleName(): String =
+    this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
+
+internal fun KClass<*>.getInputClassName(): String = "${this.getSimpleName()}Input"

@@ -1,7 +1,6 @@
 package com.expedia.graphql.generator.extensions
 
 import com.expedia.graphql.annotations.GraphQLDirective
-import com.expedia.graphql.exceptions.CouldNotGetNameOfAnnotationException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
@@ -21,14 +20,12 @@ private fun Annotation.getDirectiveInfo(): DirectiveInfo? {
         .firstOrNull()
 }
 
-@Throws(CouldNotGetNameOfAnnotationException::class)
 private fun DirectiveInfo.getGraphQLDirective(generator: SchemaGenerator): graphql.schema.GraphQLDirective {
     val directiveClass = this.directive.annotationClass
-    val name: String = this.effectiveName ?: throw CouldNotGetNameOfAnnotationException(directiveClass)
 
     @Suppress("Detekt.SpreadOperator")
     val builder = graphql.schema.GraphQLDirective.newDirective()
-        .name(name)
+        .name(this.effectiveName)
         .validLocations(*this.directiveAnnotation.locations)
         .description(this.directiveAnnotation.description)
 
@@ -52,8 +49,8 @@ private fun DirectiveInfo.getGraphQLDirective(generator: SchemaGenerator): graph
 private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
 
 private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: GraphQLDirective) {
-    val effectiveName: String? = when {
+    val effectiveName: String = when {
         directiveAnnotation.name.isNotEmpty() -> directiveAnnotation.name
-        else -> directive.annotationClass.simpleName?.normalizeDirectiveName()
+        else -> directive.annotationClass.getSimpleName().normalizeDirectiveName()
     }
 }

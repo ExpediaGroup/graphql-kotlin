@@ -1,21 +1,18 @@
 package com.expedia.graphql.generator.state
 
 import com.expedia.graphql.exceptions.ConflictingTypesException
-import com.expedia.graphql.exceptions.CouldNotGetNameOfEnumException
 import com.expedia.graphql.exceptions.TypeNotSupportedException
-import com.expedia.graphql.generator.extensions.getJvmErasureName
 import com.expedia.graphql.generator.extensions.getKClass
+import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.generator.extensions.isArray
 import com.expedia.graphql.generator.extensions.isList
+import com.expedia.graphql.generator.extensions.qualifiedName
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.jvm.jvmErasure
-
-internal data class TypesCacheKey(val type: KType, val inputType: Boolean)
 
 internal class TypesCache(private val supportedPackages: List<String>) {
 
@@ -49,16 +46,15 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     fun doesNotContain(kClass: KClass<*>): Boolean = cache.none { (_, ktype) -> ktype.kClass == kClass }
 
-    @Throws(CouldNotGetNameOfEnumException::class)
     private fun getCacheKeyString(cacheKey: TypesCacheKey): String {
         val kClass = cacheKey.type.getKClass()
 
         if (kClass.isSubclassOf(Enum::class)) {
-            return kClass.simpleName ?: throw CouldNotGetNameOfEnumException(kClass)
+            return kClass.getSimpleName()
         }
 
         val cacheKeyFromTypeName = when {
-            kClass.isList() -> "List<${getJvmErasureNameFromList(cacheKey.type)}>"
+            kClass.isList() -> "List<${getNameOfFirstArgument(cacheKey.type)}>"
             kClass.isArray() -> getArrayTypeName(kClass, cacheKey.type)
             else -> getCacheTypeName(cacheKey.type)
         }
@@ -71,7 +67,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
         return when {
             kClassName != null -> kClassName
-            else -> "Array<${getJvmErasureNameFromList(kType)}>"
+            else -> "Array<${getNameOfFirstArgument(kType)}>"
         }
     }
 
@@ -88,15 +84,15 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     private fun getCacheTypeName(kType: KType): String {
         throwIfTypeIsNotSupported(kType)
-        return kType.getJvmErasureName()
+        return kType.getSimpleName()
     }
 
-    private fun getJvmErasureNameFromList(type: KType): String =
-        type.getTypeOfFirstArgument().getJvmErasureName()
+    private fun getNameOfFirstArgument(type: KType): String =
+        type.getTypeOfFirstArgument().getSimpleName()
 
     @Throws(TypeNotSupportedException::class)
     private fun throwIfTypeIsNotSupported(type: KType) {
-        val qualifiedName = type.jvmErasure.qualifiedName ?: ""
+        val qualifiedName = type.qualifiedName
 
         val comesFromSupportedPackageName = supportedPackages.any {
             qualifiedName.startsWith(it)
@@ -113,7 +109,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     fun buildIfNotUnderConstruction(kClass: KClass<*>, build: (KClass<*>) -> GraphQLType): GraphQLType {
         return if (typeUnderConstruction.contains(kClass)) {
-            GraphQLTypeReference.typeRef(kClass.simpleName)
+            GraphQLTypeReference.typeRef(kClass.getSimpleName())
         } else {
             putTypeUnderConstruction(kClass)
             build(kClass)

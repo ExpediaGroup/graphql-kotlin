@@ -1,11 +1,13 @@
 package com.expedia.graphql.generator.extensions
 
+import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -114,14 +116,27 @@ internal class KClassExtensionsTest {
 
     @Test
     fun `test graphql interface extension`() {
-        assertTrue(TestInterface::class.isGraphQLInterface())
-        assertFalse(MyTestClass::class.isGraphQLInterface())
+        assertTrue(TestInterface::class.isInterface())
+        assertFalse(MyTestClass::class.isInterface())
     }
 
     @Test
     fun `test graphql union extension`() {
-        assertTrue(TestInterface::class.isGraphQLUnion())
-        assertFalse(InvalidPropertyUnionInterface::class.isGraphQLUnion())
-        assertFalse(InvalidFunctionUnionInterface::class.isGraphQLUnion())
+        assertTrue(TestInterface::class.isUnion())
+        assertFalse(InvalidPropertyUnionInterface::class.isUnion())
+        assertFalse(InvalidFunctionUnionInterface::class.isUnion())
+    }
+
+    @Test
+    fun `test class simple name`() {
+        assertEquals("MyTestClass", MyTestClass::class.getSimpleName())
+        assertFailsWith(CouldNotGetNameOfKClassException::class) {
+            object { }::class.getSimpleName()
+        }
+    }
+
+    @Test
+    fun `test input class name`() {
+        assertEquals("MyTestClassInput", MyTestClass::class.getInputClassName())
     }
 }

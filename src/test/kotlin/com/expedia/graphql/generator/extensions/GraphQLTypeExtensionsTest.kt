@@ -1,8 +1,6 @@
 package com.expedia.graphql.generator.extensions
 
 import com.expedia.graphql.exceptions.NestingNonNullTypeException
-import com.expedia.graphql.extensions.deepName
-import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeVisitor
@@ -26,29 +24,6 @@ internal class GraphQLTypeExtensionsTest {
     }
 
     private val basicType = BasicType()
-
-    @Test
-    fun `deepname of basic type`() {
-        assertEquals(expected = "BasicType", actual = basicType.deepName)
-    }
-
-    @Test
-    fun `deepname of list`() {
-        val list = GraphQLList(basicType)
-        assertEquals(expected = "[BasicType]", actual = list.deepName)
-    }
-
-    @Test
-    fun `deepname of non null`() {
-        val nonNull = GraphQLNonNull(basicType)
-        assertEquals(expected = "BasicType!", actual = nonNull.deepName)
-    }
-
-    @Test
-    fun `deepname of non null list of non nulls`() {
-        val complicated = GraphQLNonNull(GraphQLList(GraphQLNonNull(basicType)))
-        assertEquals(expected = "[BasicType!]!", actual = complicated.deepName)
-    }
 
     @Test
     fun `wrapInNonNull twice throws exception`() {
