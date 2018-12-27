@@ -1,7 +1,7 @@
 package com.expedia.graphql.sample
 
 import com.expedia.graphql.SchemaGeneratorConfig
-import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.DirectiveWiringHelper
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
 import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
@@ -55,7 +55,7 @@ class Application {
             schemaConfig: SchemaGeneratorConfig
     ): GraphQLSchema {
         fun List<Any>.toTopLevelObjectDefs() = this.map {
-            TopLevelObjectDef(it)
+            TopLevelObject(it)
         }
 
         val schema = toSchema(
