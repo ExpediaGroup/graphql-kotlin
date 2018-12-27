@@ -18,12 +18,20 @@ internal class KTypeExtensionsKtTest {
     internal class MyClass {
         fun listFun(list: List<String>) = list.joinToString(separator = ",") { it }
 
+        fun arrayFun(array: Array<String>) = array.joinToString(separator = ",") { it }
+
+        fun primitiveArrayFun(intArray: IntArray) = intArray.joinToString(separator = ",") { it.toString() }
+
         fun stringFun(string: String) = "hello $string"
     }
 
     @Test
     fun getTypeOfFirstArgument() {
         assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getTypeOfFirstArgument())
+
+        assertEquals(String::class.starProjectedType, MyClass::arrayFun.findParameterByName("array")?.type?.getTypeOfFirstArgument())
+
+        assertEquals(Int::class.starProjectedType, MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getArrayType())
 
         assertFailsWith(InvalidListTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getTypeOfFirstArgument()

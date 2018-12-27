@@ -26,7 +26,6 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
 
             generator.directives(kClass).forEach {
                 builder.withDirective(it)
-                state.directives.add(it)
             }
 
             if (interfaceType != null) {
