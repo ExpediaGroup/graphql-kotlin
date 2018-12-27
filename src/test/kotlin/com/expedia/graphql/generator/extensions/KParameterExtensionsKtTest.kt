@@ -9,6 +9,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.findParameterByName
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 internal class KParameterExtensionsKtTest {
 
@@ -16,14 +17,14 @@ internal class KParameterExtensionsKtTest {
     internal data class MyClass(val foo: String)
 
     internal class Container {
-        internal fun classDescription(myClass: MyClass) = myClass
+        internal fun noDescription(myClass: MyClass) = myClass
 
         internal fun paramDescription(@GraphQLDescription("param description") myClass: MyClass) = myClass
     }
 
     @Test
     fun getName() {
-        val param = Container::classDescription.findParameterByName("myClass")
+        val param = Container::noDescription.findParameterByName("myClass")
         assertEquals(expected = "myClass", actual = param?.getName())
     }
 
@@ -37,14 +38,14 @@ internal class KParameterExtensionsKtTest {
     }
 
     @Test
-    fun `class description`() {
-        val param = Container::classDescription.findParameterByName("myClass")
-        assertEquals(expected = "class description", actual = param?.getParamterGraphQLDescription())
+    fun `parameter description`() {
+        val param = Container::paramDescription.findParameterByName("myClass")
+        assertEquals(expected = "param description", actual = param?.getGraphQLDescription())
     }
 
     @Test
-    fun `parameter description`() {
-        val param = Container::paramDescription.findParameterByName("myClass")
-        assertEquals(expected = "param description", actual = param?.getParamterGraphQLDescription())
+    fun `no description`() {
+        val param = Container::noDescription.findParameterByName("myClass")
+        assertNull(param?.getGraphQLDescription())
     }
 }

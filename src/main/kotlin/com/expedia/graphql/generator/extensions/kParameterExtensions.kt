@@ -10,8 +10,6 @@ internal fun KParameter.isInterface() = this.type.jvmErasure.isInterface()
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
 
-internal fun KParameter.getParamterGraphQLDescription() = this.getGraphQLDescription() ?: this.type.getKClass().getGraphQLDescription()
-
 @Throws(CouldNotGetNameOfKParameterException::class)
 internal fun KParameter.getName(): String =
     this.name ?: throw CouldNotGetNameOfKParameterException(this)

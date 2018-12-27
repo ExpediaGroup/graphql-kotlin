@@ -8,7 +8,6 @@ import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getName
-import com.expedia.graphql.generator.extensions.getParamterGraphQLDescription
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isInterface
 import graphql.schema.DataFetcher
@@ -70,7 +69,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
         val builder = GraphQLArgument.newArgument()
             .name(parameter.getName())
-            .description(parameter.getParamterGraphQLDescription())
+            .description(parameter.getGraphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
 
         generator.directives(parameter).forEach {
