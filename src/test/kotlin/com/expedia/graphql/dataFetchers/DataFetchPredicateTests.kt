@@ -1,6 +1,6 @@
 package com.expedia.graphql.dataFetchers
 
-import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.Parameter
 import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.getTestSchemaConfigWithHooks
@@ -20,7 +20,7 @@ class DataFetchPredicateTests {
     fun `A datafetcher execution is stopped if the predicate test is false`() {
         val config = getTestSchemaConfigWithHooks(PredicateHooks())
         val schema = toSchema(
-                listOf(TopLevelObjectDef(QueryWithValidations())),
+                listOf(TopLevelObject(QueryWithValidations())),
                 config = config
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
@@ -37,7 +37,7 @@ class DataFetchPredicateTests {
     fun `A datafetcher execution is stopped if the predicate test is false with complex argument under test`() {
         val config = getTestSchemaConfigWithHooks(PredicateHooks())
         val schema = toSchema(
-                listOf(TopLevelObjectDef(QueryWithValidations())),
+                listOf(TopLevelObject(QueryWithValidations())),
                 config = config
         )
         val graphQL = GraphQL.newGraphQL(schema).build()

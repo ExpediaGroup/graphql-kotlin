@@ -1,6 +1,6 @@
 package com.expedia.graphql.generator
 
-import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.getTestSchemaConfigWithHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.testSchemaConfig
@@ -27,7 +27,7 @@ class SchemaGeneratorAsyncTests {
 
     @Test
     fun `SchemaGenerator strips type argument from CompletableFuture to support async servlet`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(AsyncQuery())), config = testSchemaConfig)
+        val schema = toSchema(listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig)
         val returnTypeName =
             (schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
@@ -35,7 +35,7 @@ class SchemaGeneratorAsyncTests {
 
     @Test
     fun `SchemaGenerator strips type argument from RxJava2 Observable`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(RxJava2Query())), config = configWithRxJavaMonads)
+        val schema = toSchema(listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
         val returnTypeName =
             (schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
@@ -43,7 +43,7 @@ class SchemaGeneratorAsyncTests {
 
     @Test
     fun `SchemaGenerator strips type argument from RxJava2 Single`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(RxJava2Query())), config = configWithRxJavaMonads)
+        val schema = toSchema(listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
         val returnTypeName =
             (schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDoSingle").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
@@ -51,7 +51,7 @@ class SchemaGeneratorAsyncTests {
 
     @Test
     fun `SchemaGenerator strips type argument from RxJava2 Maybe`() {
-        val schema = toSchema(listOf(TopLevelObjectDef(RxJava2Query())), config = configWithRxJavaMonads)
+        val schema = toSchema(listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
         val returnTypeName =
             (schema.getObjectType("TopLevelQuery").getFieldDefinition("maybe").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)

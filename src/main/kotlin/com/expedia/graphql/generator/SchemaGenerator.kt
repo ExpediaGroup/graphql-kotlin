@@ -1,7 +1,7 @@
 package com.expedia.graphql.generator
 
 import com.expedia.graphql.SchemaGeneratorConfig
-import com.expedia.graphql.TopLevelObjectDef
+import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.types.DirectiveTypeBuilder
@@ -25,8 +25,8 @@ import kotlin.reflect.KType
 
 @Suppress("Detekt.TooManyFunctions")
 internal class SchemaGenerator(
-    private val queries: List<TopLevelObjectDef>,
-    private val mutations: List<TopLevelObjectDef>,
+    private val queries: List<TopLevelObject>,
+    private val mutations: List<TopLevelObject>,
     internal val config: SchemaGeneratorConfig
 ) {
 
@@ -66,7 +66,7 @@ internal class SchemaGenerator(
         queryBuilder.name(config.topLevelQueryName)
 
         for (query in queries) {
-            query.klazz.getValidFunctions(config.hooks)
+            query.kClass.getValidFunctions(config.hooks)
                 .forEach {
                     val function = function(it, query.obj)
                     val functionFromHook = config.hooks.didGenerateQueryType(it, function)
@@ -83,7 +83,7 @@ internal class SchemaGenerator(
             mutationBuilder.name(config.topLevelMutationName)
 
             for (mutation in mutations) {
-                mutation.klazz.getValidFunctions(config.hooks)
+                mutation.kClass.getValidFunctions(config.hooks)
                     .forEach {
                         val function = function(it, mutation.obj)
                         val functionFromHook = config.hooks.didGenerateMutationType(it, function)

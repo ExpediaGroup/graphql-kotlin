@@ -8,14 +8,14 @@ import graphql.schema.GraphQLSchema
 /**
  * Entry point to generate a graphql schema using reflection on the passed objects.
  *
- * @param queries List of [TopLevelObjectDef] objects to use for GraphQL queries
- * @param mutations List of [TopLevelObjectDef] objects to use for GraphQL mutations
+ * @param queries List of [TopLevelObject] objects to use for GraphQL queries
+ * @param mutations List of [TopLevelObject] objects to use for GraphQL mutations
  * @param config Schema generation configuration
  */
 @Throws(GraphQLException::class)
 fun toSchema(
-    queries: List<TopLevelObjectDef>,
-    mutations: List<TopLevelObjectDef> = emptyList(),
+    queries: List<TopLevelObject>,
+    mutations: List<TopLevelObject> = emptyList(),
     config: SchemaGeneratorConfig
 ): GraphQLSchema {
     if (queries.isEmpty()) {

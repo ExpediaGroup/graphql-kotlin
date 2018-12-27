@@ -10,13 +10,13 @@ internal class ToSchemaKtTest {
 
     @Test
     fun `valid schema`() {
-        val queries = listOf(TopLevelObjectDef(TestClass()))
+        val queries = listOf(TopLevelObject(TestClass()))
         toSchema(queries = queries, config = testSchemaConfig)
     }
 
     @Test
     fun `empty queries and mutations`() {
-        val mutations = listOf(TopLevelObjectDef(TestClass()))
+        val mutations = listOf(TopLevelObject(TestClass()))
         assertFailsWith(InvalidSchemaException::class) {
             toSchema(queries = emptyList(), mutations = mutations, config = testSchemaConfig)
         }
