@@ -2,13 +2,14 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.KotlinDataFetcher
 import com.expedia.graphql.Parameter
+import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.isGraphQLContext
-import com.expedia.graphql.generator.extensions.throwIfUnathorizedInterface
+import com.expedia.graphql.generator.extensions.isInterface
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
@@ -33,7 +34,6 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
         generator.directives(fn).forEach {
             builder.withDirective(it)
-            state.directives.add(it)
         }
 
         val args = mutableMapOf<String, Parameter>()
@@ -60,16 +60,20 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         return config.hooks.onRewireGraphQLType(monadType, graphQLType) as GraphQLFieldDefinition
     }
 
+    @Throws(InvalidInputFieldTypeException::class)
     private fun argument(parameter: KParameter): GraphQLArgument {
-        parameter.throwIfUnathorizedInterface()
+
+        if (parameter.isInterface()) {
+            throw InvalidInputFieldTypeException()
+        }
+
         val builder = GraphQLArgument.newArgument()
-            .name(parameter.name)
-            .description(parameter.getGraphQLDescription() ?: parameter.type.getGraphQLDescription())
+            .name(parameter.getName())
+            .description(parameter.getGraphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
 
         generator.directives(parameter).forEach {
             builder.withDirective(it)
-            state.directives.add(it)
         }
 
         return config.hooks.onRewireGraphQLType(parameter.type, builder.build()) as GraphQLArgument

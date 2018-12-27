@@ -10,6 +10,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 
@@ -24,9 +25,7 @@ internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks): List<KFun
         .filter { func -> functionFilters.all { it.invoke(func) } }
 
 internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
-    this.primaryConstructor
-        ?.parameters
-        ?.find { it.name == name }
+    this.primaryConstructor?.findParameterByName(name)
 
 internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface
 

@@ -25,7 +25,6 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
         generator.directives(prop).forEach {
             fieldBuilder.withDirective(it)
-            state.directives.add(it)
         }
 
         val field = if (config.dataFetcherFactory != null && prop.isLateinit) {

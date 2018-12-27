@@ -51,7 +51,9 @@ internal open class TypeTestHelper {
 
         directiveTypeBuilder = spyk(DirectiveTypeBuilder(generator))
         every { generator.directives(any()) } answers {
-            directiveTypeBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
+            val directives = directiveTypeBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
+            state.directives.addAll(directives)
+            directives
         }
 
         beforeTest()

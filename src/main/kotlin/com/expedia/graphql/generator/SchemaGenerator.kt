@@ -14,6 +14,7 @@ import com.expedia.graphql.generator.types.ObjectTypeBuilder
 import com.expedia.graphql.generator.types.PropertyTypeBuilder
 import com.expedia.graphql.generator.types.ScalarTypeBuilder
 import com.expedia.graphql.generator.types.UnionTypeBuilder
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
@@ -105,7 +106,7 @@ internal class SchemaGenerator(
         listTypeBuilder.listType(type, inputType)
 
     internal fun arrayType(type: KType, inputType: Boolean) =
-            listTypeBuilder.arrayType(type, inputType)
+        listTypeBuilder.arrayType(type, inputType)
 
     internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null) =
         objectTypeBuilder.objectType(kClass, interfaceType)
@@ -125,6 +126,9 @@ internal class SchemaGenerator(
     internal fun scalarType(type: KType, annotatedAsID: Boolean = false) =
         scalarTypeBuilder.scalarType(type, annotatedAsID)
 
-    internal fun directives(element: KAnnotatedElement) =
-        directiveTypeBuilder.directives(element)
+    internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> {
+        val directives = directiveTypeBuilder.directives(element)
+        state.directives.addAll(directives)
+        return directives
+    }
 }
