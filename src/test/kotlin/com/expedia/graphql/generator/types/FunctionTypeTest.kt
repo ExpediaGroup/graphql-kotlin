@@ -5,6 +5,7 @@ import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import graphql.Scalars
 import graphql.introspection.Introspection
+import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -78,7 +79,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
         assertEquals("functionDirective", directive.name)
         assertEquals("happy", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
+        assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
         assertEquals(
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.QUERY)
@@ -95,6 +96,6 @@ internal class FunctionTypeTest : TypeTestHelper() {
         assertEquals("argumentDirective", directive.name)
         assertEquals("red", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
+        assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
     }
 }

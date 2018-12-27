@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
@@ -26,6 +27,20 @@ internal class KTypeExtensionsKtTest {
 
         assertFailsWith(InvalidListTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getTypeOfFirstArgument()
+        }
+
+        assertFailsWith(InvalidListTypeException::class) {
+            val mockType: KType = mockk()
+            every { mockType.arguments } returns emptyList()
+            mockType.getTypeOfFirstArgument()
+        }
+
+        assertFailsWith(InvalidListTypeException::class) {
+            val mockArgument: KTypeProjection = mockk()
+            every { mockArgument.type } returns null
+            val mockType: KType = mockk()
+            every { mockType.arguments } returns listOf(mockArgument)
+            mockType.getTypeOfFirstArgument()
         }
     }
 
@@ -69,5 +84,11 @@ internal class KTypeExtensionsKtTest {
         assertFailsWith(CouldNotGetNameOfKTypeException::class) {
             object { }::class.starProjectedType.getSimpleName()
         }
+    }
+
+    @Test
+    fun qualifiedName() {
+        assertEquals("com.expedia.graphql.generator.extensions.KTypeExtensionsKtTest.MyClass", MyClass::class.starProjectedType.qualifiedName)
+        assertEquals("", object { }::class.starProjectedType.qualifiedName)
     }
 }

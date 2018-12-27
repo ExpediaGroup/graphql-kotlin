@@ -2,7 +2,6 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
-import com.expedia.graphql.generator.extensions.directives
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidFunctions
@@ -25,7 +24,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
             builder.name(kClass.getSimpleName())
             builder.description(kClass.getGraphQLDescription())
 
-            kClass.directives(generator).forEach {
+            generator.directives(kClass).forEach {
                 builder.withDirective(it)
                 state.directives.add(it)
             }

@@ -1,11 +1,10 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.generator.extensions.directives
+import com.expedia.graphql.generator.SchemaGenerator
+import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getPropertyDeprecationReason
 import com.expedia.graphql.generator.extensions.getPropertyDescription
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
-import com.expedia.graphql.generator.SchemaGenerator
-import com.expedia.graphql.generator.TypeBuilder
 import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNonNull
@@ -24,7 +23,7 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             .type(propertyType)
             .deprecate(prop.getPropertyDeprecationReason(parentClass))
 
-        prop.directives(generator).forEach {
+        generator.directives(prop).forEach {
             fieldBuilder.withDirective(it)
             state.directives.add(it)
         }

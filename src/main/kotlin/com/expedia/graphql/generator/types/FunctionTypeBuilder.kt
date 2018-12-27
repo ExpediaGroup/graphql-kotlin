@@ -4,7 +4,6 @@ import com.expedia.graphql.KotlinDataFetcher
 import com.expedia.graphql.Parameter
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
-import com.expedia.graphql.generator.extensions.directives
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getName
@@ -32,7 +31,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             builder.deprecate(it)
         }
 
-        fn.directives(generator).forEach {
+        generator.directives(fn).forEach {
             builder.withDirective(it)
             state.directives.add(it)
         }
@@ -68,7 +67,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             .description(parameter.getGraphQLDescription() ?: parameter.type.getGraphQLDescription())
             .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
 
-        parameter.directives(generator).forEach {
+        generator.directives(parameter).forEach {
             builder.withDirective(it)
             state.directives.add(it)
         }
