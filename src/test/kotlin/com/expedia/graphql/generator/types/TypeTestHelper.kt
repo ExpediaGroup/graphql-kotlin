@@ -3,13 +3,14 @@ package com.expedia.graphql.generator.types
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.SubTypeMapper
-import com.expedia.graphql.generator.state.TypesCache
 import com.expedia.graphql.generator.state.SchemaGeneratorState
+import com.expedia.graphql.generator.state.TypesCache
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import graphql.schema.GraphQLInterfaceType
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.test.BeforeTest
@@ -27,6 +28,7 @@ internal open class TypeTestHelper {
     var hooks = NoopSchemaGeneratorHooks()
     var scalarTypeBuilder: ScalarTypeBuilder? = null
     var objectTypeBuilder: ObjectTypeBuilder? = null
+    var directiveTypeBuilder: DirectiveTypeBuilder? = null
 
     @BeforeTest
     fun setup() {
@@ -45,6 +47,11 @@ internal open class TypeTestHelper {
         objectTypeBuilder = spyk(ObjectTypeBuilder(generator))
         every { generator.objectType(any(), any()) } answers {
             objectTypeBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
+        }
+
+        directiveTypeBuilder = spyk(DirectiveTypeBuilder(generator))
+        every { generator.directives(any()) } answers {
+            directiveTypeBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
         }
 
         beforeTest()

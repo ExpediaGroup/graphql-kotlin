@@ -20,8 +20,9 @@ internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
 
     internal fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
-        val graphQLType = hookGraphQLType ?: generator.scalarType(type, annotatedAsID)
-        ?: objectFromReflection(type, inputType)
+        val graphQLType = hookGraphQLType
+            ?: generator.scalarType(type, annotatedAsID)
+            ?: objectFromReflection(type, inputType)
         val typeWithNullityTakenIntoAccount = graphQLType.wrapInNonNull(type)
         config.hooks.didGenerateGraphQLType(type, typeWithNullityTakenIntoAccount)
         return typeWithNullityTakenIntoAccount

@@ -26,6 +26,8 @@ internal class SchemaFiltersTest {
 
         internal val nonPublicProperty: Int = 0
 
+        val kClass: KClass<*> = MyDataClass::class
+
         @GraphQLIgnore
         internal val ignoredProperty: Int = 0
 
@@ -56,6 +58,7 @@ internal class SchemaFiltersTest {
         assertTrue(testProperty(MyClass::publicProperty, MyClass::class))
         assertFalse(testProperty(MyClass::nonPublicProperty, MyClass::class))
         assertFalse(testProperty(MyClass::ignoredProperty, MyClass::class))
+        assertFalse(testProperty(MyClass::kClass, MyDataClass::class))
         assertTrue(testProperty(MyDataClass::id, MyDataClass::class))
         assertFalse(testProperty(MyDataClass::ignoredProperty, MyDataClass::class))
     }

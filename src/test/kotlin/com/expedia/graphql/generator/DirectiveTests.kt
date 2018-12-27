@@ -64,7 +64,7 @@ class DirectiveTests {
 
         assertEquals("arenaming", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
-        assertEquals(Scalars.GraphQLString, directive.arguments[0].type)
+        assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
     }
 }
 

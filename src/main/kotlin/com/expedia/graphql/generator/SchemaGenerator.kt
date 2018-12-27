@@ -4,6 +4,7 @@ import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObjectDef
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.state.SchemaGeneratorState
+import com.expedia.graphql.generator.types.DirectiveTypeBuilder
 import com.expedia.graphql.generator.types.EnumTypeBuilder
 import com.expedia.graphql.generator.types.FunctionTypeBuilder
 import com.expedia.graphql.generator.types.InputObjectTypeBuilder
@@ -16,6 +17,7 @@ import com.expedia.graphql.generator.types.UnionTypeBuilder
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -40,6 +42,7 @@ internal class SchemaGenerator(
     private val functionTypeBuilder = FunctionTypeBuilder(this)
     private val enumTypeBuilder = EnumTypeBuilder(this)
     private val scalarTypeBuilder = ScalarTypeBuilder(this)
+    private val directiveTypeBuilder = DirectiveTypeBuilder(this)
 
     internal fun generate(): GraphQLSchema {
         val builder = GraphQLSchema.newSchema()
@@ -121,4 +124,7 @@ internal class SchemaGenerator(
 
     internal fun scalarType(type: KType, annotatedAsID: Boolean = false) =
         scalarTypeBuilder.scalarType(type, annotatedAsID)
+
+    internal fun directives(element: KAnnotatedElement) =
+        directiveTypeBuilder.directives(element)
 }
