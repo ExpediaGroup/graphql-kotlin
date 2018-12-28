@@ -34,7 +34,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         }
 
         fn.valueParameters
-            .filter { it.isGraphQLContext().not() }
+            .filterNot { it.isGraphQLContext() }
             .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
                 builder.argument(argument(it))

@@ -1,8 +1,8 @@
 package com.expedia.graphql.generator.types
 
+import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
-import com.expedia.graphql.generator.extensions.getValidFunctions
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class FunctionTypeTest : TypeTestHelper() {
+internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
     private lateinit var builder: FunctionTypeBuilder
 
@@ -37,25 +37,27 @@ internal class FunctionTypeTest : TypeTestHelper() {
 
         @Deprecated("No saw, just paint", replaceWith = ReplaceWith("littleTrees"))
         fun saw(tree: String) = tree
+
+        fun print(@GraphQLContext context: String, string: String) = string
     }
 
     @Test
     fun `Test description`() {
-        val kFunction = Happy::class.getValidFunctions(hooks)[0]
+        val kFunction = Happy::littleTrees
         val result = builder.function(kFunction)
         assertEquals("By bob", result.description)
     }
 
     @Test
     fun `Test description on argument`() {
-        val kFunction = Happy::class.getValidFunctions(hooks)[1]
+        val kFunction = Happy::paint
         val result = builder.function(kFunction).arguments[0]
         assertEquals("brush color", result.description)
     }
 
     @Test
     fun `Test deprecation`() {
-        val kFunction = Happy::class.getValidFunctions(hooks)[0]
+        val kFunction = Happy::littleTrees
         val result = builder.function(kFunction)
         assertTrue(result.isDeprecated)
         assertEquals("No more little trees >:|", result.deprecationReason)
@@ -63,7 +65,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation with replacement`() {
-        val kFunction = Happy::class.getValidFunctions(hooks)[2]
+        val kFunction = Happy::saw
         val result = builder.function(kFunction)
         assertTrue(result.isDeprecated)
         assertEquals("No saw, just paint, replace with littleTrees", result.deprecationReason)
@@ -71,7 +73,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test custom directive on function`() {
-        val kFunction = Happy::class.getValidFunctions(hooks)[0]
+        val kFunction = Happy::littleTrees
         val result = builder.function(kFunction)
 
         assertEquals(1, result.directives.size)
@@ -88,7 +90,7 @@ internal class FunctionTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test custom directive on function argument`() {
-        val kFunction = Happy::class.getValidFunctions(hooks)[1]
+        val kFunction = Happy::paint
         val result = builder.function(kFunction).arguments[0]
 
         assertEquals(1, result.directives.size)
@@ -97,5 +99,16 @@ internal class FunctionTypeTest : TypeTestHelper() {
         assertEquals("red", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
         assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
+    }
+
+    @Test
+    fun `Test context on argument`() {
+        val kFunction = Happy::print
+        val result = builder.function(kFunction)
+
+        assertTrue(result.directives.isEmpty())
+        assertEquals(expected = 1, actual = result.arguments.size)
+        val arg = result.arguments.firstOrNull()
+        assertEquals(expected = "string", actual = arg?.name)
     }
 }
