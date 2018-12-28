@@ -1,14 +1,20 @@
 package com.expedia.graphql.generator.types
 
+import com.expedia.graphql.KotlinDataFetcher
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
+import com.expedia.graphql.generator.extensions.isTrue
+import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.Scalars
 import graphql.introspection.Introspection
+import graphql.schema.DataFetcher
 import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
@@ -18,6 +24,26 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
     override fun beforeTest() {
         builder = FunctionTypeBuilder(generator)
+    }
+
+    override fun beforeSetup() {
+        hooks = DataFetcherHooks()
+    }
+
+    internal class DataFetcherHooks : SchemaGeneratorHooks {
+        var calledHook = false
+        override fun didGenerateDataFetcher(function: KFunction<*>, dataFetcher: DataFetcher<*>): DataFetcher<*> {
+            calledHook = true
+            return dataFetcher
+        }
+    }
+
+    internal interface MyInterface {
+        fun printMessage(message: String): String
+    }
+
+    internal class MyImplementation : MyInterface {
+        override fun printMessage(message: String): String = "message=$message"
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.QUERY])
@@ -35,10 +61,10 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
         fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = color.reversed()
 
-        @Deprecated("No saw, just paint", replaceWith = ReplaceWith("littleTrees"))
+        @Deprecated("No saw, just paint", replaceWith = ReplaceWith("paint"))
         fun saw(tree: String) = tree
 
-        fun print(@GraphQLContext context: String, string: String) = string
+        fun context(@GraphQLContext context: String, string: String) = "$context and $string"
     }
 
     @Test
@@ -68,7 +94,7 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
         val kFunction = Happy::saw
         val result = builder.function(kFunction)
         assertTrue(result.isDeprecated)
-        assertEquals("No saw, just paint, replace with littleTrees", result.deprecationReason)
+        assertEquals("No saw, just paint, replace with paint", result.deprecationReason)
     }
 
     @Test
@@ -103,12 +129,49 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test context on argument`() {
-        val kFunction = Happy::print
+        val kFunction = Happy::context
         val result = builder.function(kFunction)
 
         assertTrue(result.directives.isEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
         val arg = result.arguments.firstOrNull()
         assertEquals(expected = "string", actual = arg?.name)
+    }
+
+    @Test
+    fun `function with hooks`() {
+        val newBuilder = FunctionTypeBuilder(generator)
+        val kFunction = Happy::paint
+
+        assertFalse((hooks as? DataFetcherHooks)?.calledHook.isTrue())
+        newBuilder.function(kFunction)
+        assertTrue((hooks as? DataFetcherHooks)?.calledHook.isTrue())
+    }
+
+    @Test
+    fun `Non-abstract function with no hooks`() {
+        val kFunction = MyInterface::printMessage
+        val result = builder.function(fn = kFunction, target = null, abstract = false)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertTrue(result.dataFetcher is KotlinDataFetcher)
+    }
+
+    @Test
+    fun `Abstract function with no hooks`() {
+        val kFunction = MyInterface::printMessage
+        val result = builder.function(fn = kFunction, target = null, abstract = true)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertFalse(result.dataFetcher is KotlinDataFetcher)
+    }
+
+    @Test
+    fun `Abstract function with target and no hooks`() {
+        val kFunction = MyInterface::printMessage
+        val result = builder.function(fn = kFunction, target = MyImplementation(), abstract = true)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertFalse(result.dataFetcher is KotlinDataFetcher)
     }
 }
