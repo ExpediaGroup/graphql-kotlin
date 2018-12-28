@@ -35,12 +35,13 @@ class KotlinDataFetcher(
         }
     }
 
+    @Suppress("Detekt.UnsafeCast")
     private fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
         if (param.isGraphQLContext()) {
             environment.getContext()
         } else {
             val name = param.getName()
-            val klazz = param.type.javaType as? Class<*>
+            val klazz = param.type.javaType as Class<*>
             val value = mapper.convertValue(environment.arguments[name], klazz)
             val predicateResult = executionPredicate?.execute(value = value, parameter = param, environment = environment)
 
