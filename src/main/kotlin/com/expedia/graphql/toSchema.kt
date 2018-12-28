@@ -1,7 +1,6 @@
 package com.expedia.graphql
 
 import com.expedia.graphql.exceptions.GraphQLKotlinException
-import com.expedia.graphql.exceptions.InvalidSchemaException
 import com.expedia.graphql.generator.SchemaGenerator
 import graphql.schema.GraphQLSchema
 
@@ -20,10 +19,6 @@ fun toSchema(
     mutations: List<TopLevelObject> = emptyList(),
     config: SchemaGeneratorConfig
 ): GraphQLSchema {
-
-    if (queries.isEmpty()) {
-        throw InvalidSchemaException()
-    }
-
-    return SchemaGenerator(queries, mutations, config).generate()
+    val generator = SchemaGenerator(config)
+    return generator.generate(queries, mutations)
 }

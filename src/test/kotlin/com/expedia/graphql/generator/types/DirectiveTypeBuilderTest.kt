@@ -48,7 +48,7 @@ internal class DirectiveTypeBuilderTest {
         fun directiveWithClass(string: String) = string
     }
 
-    private val basicGenerator = SchemaGenerator(emptyList(), emptyList(), testSchemaConfig)
+    private val basicGenerator = SchemaGenerator(testSchemaConfig)
 
     @Test
     fun `no annotation`() {

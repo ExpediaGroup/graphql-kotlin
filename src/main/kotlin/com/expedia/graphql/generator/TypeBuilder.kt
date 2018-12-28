@@ -13,7 +13,7 @@ import graphql.schema.GraphQLType
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-internal open class TypeBuilder constructor(val generator: SchemaGenerator) {
+internal open class TypeBuilder constructor(protected val generator: SchemaGenerator) {
     protected val state = generator.state
     protected val config = generator.config
     protected val subTypeMapper = generator.subTypeMapper

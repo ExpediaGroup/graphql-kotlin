@@ -2,7 +2,6 @@ package com.expedia.graphql.generator
 
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
-import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.types.DirectiveTypeBuilder
 import com.expedia.graphql.generator.types.EnumTypeBuilder
@@ -10,13 +9,14 @@ import com.expedia.graphql.generator.types.FunctionTypeBuilder
 import com.expedia.graphql.generator.types.InputObjectTypeBuilder
 import com.expedia.graphql.generator.types.InterfaceTypeBuilder
 import com.expedia.graphql.generator.types.ListTypeBuilder
+import com.expedia.graphql.generator.types.MutationTypeBuilder
 import com.expedia.graphql.generator.types.ObjectTypeBuilder
 import com.expedia.graphql.generator.types.PropertyTypeBuilder
+import com.expedia.graphql.generator.types.QueryTypeBuilder
 import com.expedia.graphql.generator.types.ScalarTypeBuilder
 import com.expedia.graphql.generator.types.UnionTypeBuilder
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInterfaceType
-import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
@@ -24,16 +24,13 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
-@Suppress("Detekt.TooManyFunctions")
-internal class SchemaGenerator(
-    private val queries: List<TopLevelObject>,
-    private val mutations: List<TopLevelObject>,
-    internal val config: SchemaGeneratorConfig
-) {
+internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
 
+    private val queryBuilder = QueryTypeBuilder(this)
+    private val mutationBuilder = MutationTypeBuilder(this)
     private val objectTypeBuilder = ObjectTypeBuilder(this)
     private val unionTypeBuilder = UnionTypeBuilder(this)
     private val interfaceTypeBuilder = InterfaceTypeBuilder(this)
@@ -45,55 +42,18 @@ internal class SchemaGenerator(
     private val scalarTypeBuilder = ScalarTypeBuilder(this)
     private val directiveTypeBuilder = DirectiveTypeBuilder(this)
 
-    internal fun generate(): GraphQLSchema {
+    internal fun generate(queries: List<TopLevelObject>, mutations: List<TopLevelObject>): GraphQLSchema {
         val builder = GraphQLSchema.newSchema()
 
-        addQueries(builder)
-        addMutations(builder)
-        addAdditionalTypes(builder)
-        addDirectives(builder)
+        builder.query(queryBuilder.getQueryObject(queries))
 
-        return config.hooks.willBuildSchema(builder).build()
-    }
+        builder.mutation(mutationBuilder.getMutationObject(mutations))
 
-    private fun addAdditionalTypes(builder: GraphQLSchema.Builder) =
         state.getValidAdditionalTypes().forEach { builder.additionalType(it) }
 
-    private fun addDirectives(builder: GraphQLSchema.Builder) =
         builder.additionalDirectives(state.directives)
 
-    private fun addQueries(builder: GraphQLSchema.Builder) {
-        val queryBuilder = GraphQLObjectType.Builder()
-        queryBuilder.name(config.topLevelQueryName)
-
-        for (query in queries) {
-            query.kClass.getValidFunctions(config.hooks)
-                .forEach {
-                    val function = function(it, query.obj)
-                    val functionFromHook = config.hooks.didGenerateQueryType(it, function)
-                    queryBuilder.field(functionFromHook)
-                }
-        }
-
-        builder.query(queryBuilder.build())
-    }
-
-    private fun addMutations(builder: GraphQLSchema.Builder) {
-        if (mutations.isNotEmpty()) {
-            val mutationBuilder = GraphQLObjectType.Builder()
-            mutationBuilder.name(config.topLevelMutationName)
-
-            for (mutation in mutations) {
-                mutation.kClass.getValidFunctions(config.hooks)
-                    .forEach {
-                        val function = function(it, mutation.obj)
-                        val functionFromHook = config.hooks.didGenerateMutationType(it, function)
-                        mutationBuilder.field(functionFromHook)
-                    }
-            }
-
-            builder.mutation(mutationBuilder.build())
-        }
+        return config.hooks.willBuildSchema(builder).build()
     }
 
     internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false) =
