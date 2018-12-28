@@ -1,7 +1,7 @@
 package com.expedia.graphql.hooks
 
-import com.expedia.graphql.Parameter
 import graphql.schema.DataFetchingEnvironment
+import kotlin.reflect.KParameter
 
 /**
  * Perform runtime evaluations of each parameter passed to any KotlinDataFetcher.
@@ -23,32 +23,30 @@ abstract class DataFetcherExecutionPredicate {
      * Then depending on the result either returning the value itself to continue the datafetcher invocation
      * or break the data fetching execution.
      *
+     * @param value the value to execute the predicate against
      * @param parameter the function argument reference containing the KClass and the argument annotations
-     * @param argumentName the name of the argument as declared in the query / kotlin function
      * @param environment the DataFetchingEnvironment in which the data fetcher is executed (gives access to field info, execution context etc)
-     * @param value the value to execute the predicate against.
      */
-    fun <T> execute(value: T, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): T {
-        val evaluationResult = evaluate(value, parameter, argumentName, environment)
+    fun <T> execute(value: T, parameter: KParameter, environment: DataFetchingEnvironment): T {
+        val evaluationResult = evaluate(value, parameter, environment)
 
         return if (test(evaluationResult)) {
             value
         } else {
-            onFailure(evaluationResult, parameter, argumentName, environment)
+            onFailure(evaluationResult, parameter, environment)
         }
     }
 
     /**
      * Evaluate if the value passed respects some constraints.
      *
-     * @param parameter the function argument reference containing the KClass and the argument annotations
-     * @param argumentName the name of the argument as declared in the query / kotlin function
+     * @param value the value to execute the predicate against
+     * @param parameter the function argument reference
      * @param environment the DataFetchingEnvironment in which the data fetcher is executed (gives access to field info, execution context etc)
-     * @param value the value to execute the predicate against.
      *
      * @return the result of the evaluation eg: List of errors
      */
-    abstract fun <T> evaluate(value: T, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Any
+    abstract fun <T> evaluate(value: T, parameter: KParameter, environment: DataFetchingEnvironment): Any
 
     /**
      * Assert that the result of the {@link #evaluate(T, Parameter, String, DataFetchingEnvironment)} method is as expected eg: the list of errors is empty
@@ -65,9 +63,8 @@ abstract class DataFetcherExecutionPredicate {
      * An exception can then be thrown to block the data fetcher execution
      *
      * @param evaluationResult the object return by the `evaluate` function
-     * @param parameter the function argument reference containing the KClass and the argument annotations
-     * @param argumentName the name of the argument as declared in the query / kotlin function
+     * @param parameter the function argument reference
      * @param environment the DataFetchingEnvironment in which the data fetcher is executed (gives access to field info, execution context etc)
      */
-    abstract fun onFailure(evaluationResult: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing
+    abstract fun onFailure(evaluationResult: Any, parameter: KParameter, environment: DataFetchingEnvironment): Nothing
 }

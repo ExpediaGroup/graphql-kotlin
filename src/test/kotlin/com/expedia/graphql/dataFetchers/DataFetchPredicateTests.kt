@@ -1,7 +1,6 @@
 package com.expedia.graphql.dataFetchers
 
 import com.expedia.graphql.TopLevelObject
-import com.expedia.graphql.Parameter
 import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.getTestSchemaConfigWithHooks
 import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
@@ -12,6 +11,7 @@ import graphql.GraphQL
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KParameter
 import kotlin.test.assertEquals
 
 class DataFetchPredicateTests {
@@ -64,8 +64,8 @@ class PredicateHooks : SchemaGeneratorHooks {
 
 class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
 
-    override fun <T> evaluate(value: T, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Any = when {
-        argumentName == "greaterThan2" && value is Int && value <= 2 -> listOf(Error("greaterThan2 is actually $value"))
+    override fun <T> evaluate(value: T, parameter: KParameter, environment: DataFetchingEnvironment): Any = when {
+        parameter.name == "greaterThan2" && value is Int && value <= 2 -> listOf(Error("greaterThan2 is actually $value"))
         value is Person -> {
             val errors = mutableListOf<Error>()
             if (value.age < 42) errors.add(Error("Not the right age"))
@@ -78,7 +78,7 @@ class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
     override fun test(evaluationResult: Any): Boolean = (evaluationResult as? List<*>)?.isEmpty() ?: true
 
     @Throws(GraphQLKotlinException::class)
-    override fun onFailure(evaluationResult: Any, parameter: Parameter, argumentName: String, environment: DataFetchingEnvironment): Nothing {
+    override fun onFailure(evaluationResult: Any, parameter: KParameter, environment: DataFetchingEnvironment): Nothing {
         throw GraphQLKotlinException("The datafetcher cannot be executed due to: $evaluationResult")
     }
 
