@@ -99,4 +99,9 @@ internal class KTypeExtensionsKtTest {
         assertEquals("com.expedia.graphql.generator.extensions.KTypeExtensionsKtTest.MyClass", MyClass::class.starProjectedType.qualifiedName)
         assertEquals("", object { }::class.starProjectedType.qualifiedName)
     }
+
+    @Test
+    fun javaTypeClass() {
+        assertEquals(expected = String::class.java, actual = MyClass::stringFun.returnType.javaTypeClass)
+    }
 }

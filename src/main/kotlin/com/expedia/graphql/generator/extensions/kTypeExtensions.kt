@@ -7,6 +7,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
 @Throws(InvalidListTypeException::class)
@@ -36,3 +37,6 @@ internal fun KType.getSimpleName(): String =
 
 internal val KType.qualifiedName: String
     get() = this.jvmErasure.getQualifiedName()
+
+internal val KType.javaTypeClass: Class<*>?
+    get() = this.javaType as? Class<*>

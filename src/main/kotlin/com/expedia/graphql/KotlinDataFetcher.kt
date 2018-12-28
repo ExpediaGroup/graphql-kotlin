@@ -2,6 +2,7 @@ package com.expedia.graphql
 
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.isGraphQLContext
+import com.expedia.graphql.generator.extensions.javaTypeClass
 import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
@@ -9,7 +10,6 @@ import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.valueParameters
-import kotlin.reflect.jvm.javaType
 
 /**
  * Simple DataFetcher that invokes function on the target object.
@@ -35,13 +35,12 @@ class KotlinDataFetcher(
         }
     }
 
-    @Suppress("Detekt.UnsafeCast")
     private fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
         if (param.isGraphQLContext()) {
             environment.getContext()
         } else {
             val name = param.getName()
-            val klazz = param.type.javaType as Class<*>
+            val klazz = param.type.javaTypeClass
             val value = mapper.convertValue(environment.arguments[name], klazz)
             val predicateResult = executionPredicate?.execute(value = value, parameter = param, environment = environment)
 
