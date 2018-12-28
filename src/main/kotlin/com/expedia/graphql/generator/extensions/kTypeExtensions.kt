@@ -37,6 +37,3 @@ internal fun KType.getSimpleName(): String =
 
 internal val KType.qualifiedName: String
     get() = this.jvmErasure.getQualifiedName()
-
-internal val KType.javaTypeClass: Class<*>?
-    get() = this.javaType as? Class<*>
