@@ -35,4 +35,4 @@ internal fun KType.getSimpleName(): String =
     this.jvmErasure.simpleName ?: throw CouldNotGetNameOfKTypeException(this)
 
 internal val KType.qualifiedName: String
-    get() = this.jvmErasure.qualifiedName ?: ""
+    get() = this.jvmErasure.getQualifiedName()

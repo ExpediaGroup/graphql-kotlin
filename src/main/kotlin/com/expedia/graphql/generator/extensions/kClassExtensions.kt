@@ -43,3 +43,5 @@ internal fun KClass<*>.getSimpleName(): String =
     this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
 
 internal fun KClass<*>.getInputClassName(): String = "${this.getSimpleName()}Input"
+
+internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName ?: ""
