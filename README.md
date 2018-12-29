@@ -60,8 +60,8 @@ class WidgetMutation {
 // Generate the schema
 
 val config = SchemaGeneratorConfig(listOf("org.example"))
-val queries = listOf(TopLevelObjectDef(WidgetQuery()))
-val mutations = listOf(TopLevelObjectDef(WidgetMutation()))
+val queries = listOf(TopLevelObject(WidgetQuery()))
+val mutations = listOf(TopLevelObject(WidgetMutation()))
 
 toSchema(queries, mutations, config)
 ```
@@ -92,4 +92,4 @@ type Widget {
 
 ## Documentation
 
-There are more examples and documention in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki).
+There are more examples and documention in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions
