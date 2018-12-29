@@ -6,7 +6,6 @@ import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.UUID
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.test.Test
@@ -31,17 +30,17 @@ internal class ScalarTypeBuilderTest : TypeTestHelper() {
 
     @Test
     fun `test all types`() {
-        verifyKClass(Int::class, Scalars.GraphQLInt)
-        verifyKClass(Long::class, Scalars.GraphQLLong)
-        verifyKClass(Short::class, Scalars.GraphQLShort)
-        verifyKClass(Float::class, Scalars.GraphQLFloat)
-        verifyKClass(Double::class, Scalars.GraphQLFloat)
-        verifyKClass(BigDecimal::class, Scalars.GraphQLBigDecimal)
-        verifyKClass(BigInteger::class, Scalars.GraphQLBigInteger)
-        verifyKClass(Char::class, Scalars.GraphQLChar)
-        verifyKClass(String::class, Scalars.GraphQLString)
-        verifyKClass(Boolean::class, Scalars.GraphQLBoolean)
-        verifyKClass(IntArray::class, null)
+        verify(Int::class.createType(), Scalars.GraphQLInt)
+        verify(Long::class.createType(), Scalars.GraphQLLong)
+        verify(Short::class.createType(), Scalars.GraphQLShort)
+        verify(Float::class.createType(), Scalars.GraphQLFloat)
+        verify(Double::class.createType(), Scalars.GraphQLFloat)
+        verify(BigDecimal::class.createType(), Scalars.GraphQLBigDecimal)
+        verify(BigInteger::class.createType(), Scalars.GraphQLBigInteger)
+        verify(Char::class.createType(), Scalars.GraphQLChar)
+        verify(String::class.createType(), Scalars.GraphQLString)
+        verify(Boolean::class.createType(), Scalars.GraphQLBoolean)
+        verify(IntArray::class.createType(), null)
     }
 
     @Test
@@ -55,8 +54,6 @@ internal class ScalarTypeBuilderTest : TypeTestHelper() {
             verify(Ids::invalidID.returnType, Scalars.GraphQLID, true)
         }
     }
-
-    private fun verifyKClass(kClass: KClass<*>, expected: GraphQLScalarType?) = verify(kClass.createType(), expected)
 
     private fun verify(kType: KType, expected: GraphQLScalarType?, annotatedAsID: Boolean = false) {
         val actual = builder.scalarType(kType, annotatedAsID)
