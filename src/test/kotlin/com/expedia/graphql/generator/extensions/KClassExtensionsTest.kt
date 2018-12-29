@@ -139,4 +139,10 @@ internal class KClassExtensionsTest {
     fun `test input class name`() {
         assertEquals("MyTestClassInput", MyTestClass::class.getInputClassName())
     }
+
+    @Test
+    fun getQualifiedName() {
+        assertEquals("com.expedia.graphql.generator.extensions.KClassExtensionsTest.MyTestClass", MyTestClass::class.getQualifiedName())
+        assertEquals("", object { }::class.getQualifiedName())
+    }
 }
