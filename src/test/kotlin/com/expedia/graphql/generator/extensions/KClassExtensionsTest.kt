@@ -115,6 +115,14 @@ internal class KClassExtensionsTest {
     }
 
     @Test
+    fun `test listType extension`() {
+        assertTrue(arrayOf(1)::class.isListType())
+        assertTrue(intArrayOf(1)::class.isListType())
+        assertTrue(listOf(1)::class.isListType())
+        assertFalse(MyTestClass::class.isListType())
+    }
+
+    @Test
     fun `test graphql interface extension`() {
         assertTrue(TestInterface::class.isInterface())
         assertFalse(MyTestClass::class.isInterface())

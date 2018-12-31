@@ -5,6 +5,7 @@ import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.exceptions.ConflictingTypesException
+import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.exceptions.InvalidIdTypeException
 import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.testSchemaConfig
@@ -197,8 +198,15 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator throws when encountering java stdlib`() {
-        assertFailsWith(RuntimeException::class) {
+        assertFailsWith(GraphQLKotlinException::class) {
             toSchema(listOf(TopLevelObject(QueryWithJavaClass())), config = testSchemaConfig)
+        }
+    }
+
+    @Test
+    fun `SchemaGenerator throws when encountering list of java stdlib`() {
+        assertFailsWith(GraphQLKotlinException::class) {
+            toSchema(listOf(TopLevelObject(QueryWithListOfJavaClass())), config = testSchemaConfig)
         }
     }
 
@@ -367,6 +375,10 @@ class SchemaGeneratorTest {
 
     class QueryWithJavaClass {
         fun query(): java.net.CookieManager? = CookieManager()
+    }
+
+    class QueryWithListOfJavaClass {
+        fun listQuery(): List<java.net.CookieManager> = listOf(CookieManager())
     }
 
     class QueryWithConflictingTypes {

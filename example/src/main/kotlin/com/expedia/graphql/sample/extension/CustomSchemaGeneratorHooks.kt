@@ -10,7 +10,6 @@ import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import java.util.UUID
 import javax.validation.Validator
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 /**
@@ -21,7 +20,7 @@ class CustomSchemaGeneratorHooks(validator: Validator, private val directiveWiri
     /**
      * Register additional GraphQL scalar types.
      */
-    override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
+    override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
         else -> null
     }

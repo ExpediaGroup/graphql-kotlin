@@ -4,9 +4,8 @@ import com.expedia.graphql.exceptions.ConflictingTypesException
 import com.expedia.graphql.exceptions.TypeNotSupportedException
 import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.getSimpleName
-import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
-import com.expedia.graphql.generator.extensions.isArray
-import com.expedia.graphql.generator.extensions.isList
+import com.expedia.graphql.generator.extensions.getWrappedName
+import com.expedia.graphql.generator.extensions.isListType
 import com.expedia.graphql.generator.extensions.qualifiedName
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
@@ -53,53 +52,23 @@ internal class TypesCache(private val supportedPackages: List<String>) {
             return kClass.getSimpleName()
         }
 
-        val cacheKeyFromTypeName = when {
-            kClass.isList() -> "List<${getNameOfFirstArgument(cacheKey.type)}>"
-            kClass.isArray() -> getArrayTypeName(kClass, cacheKey.type)
-            else -> getCacheTypeName(cacheKey.type)
+        if (isTypeNotSupported(cacheKey.type)) {
+            throw TypeNotSupportedException(cacheKey.type, supportedPackages)
         }
+
+        val cacheKeyFromTypeName = cacheKey.type.getWrappedName()
 
         return "$cacheKeyFromTypeName:${cacheKey.inputType}"
     }
 
-    private fun getArrayTypeName(kClass: KClass<*>, kType: KType): String {
-        val kClassName = getArrayTypeNameFromKClass(kClass)
+    private fun isTypeNotSupported(type: KType): Boolean {
 
-        return when {
-            kClassName != null -> kClassName
-            else -> "Array<${getNameOfFirstArgument(kType)}>"
-        }
-    }
-
-    private fun getArrayTypeNameFromKClass(kClass: KClass<*>): String? = when {
-        kClass.isSubclassOf(IntArray::class) -> IntArray::class.simpleName
-        kClass.isSubclassOf(LongArray::class) -> LongArray::class.simpleName
-        kClass.isSubclassOf(ShortArray::class) -> ShortArray::class.simpleName
-        kClass.isSubclassOf(FloatArray::class) -> FloatArray::class.simpleName
-        kClass.isSubclassOf(DoubleArray::class) -> DoubleArray::class.simpleName
-        kClass.isSubclassOf(CharArray::class) -> CharArray::class.simpleName
-        kClass.isSubclassOf(BooleanArray::class) -> BooleanArray::class.simpleName
-        else -> null
-    }
-
-    private fun getCacheTypeName(kType: KType): String {
-        throwIfTypeIsNotSupported(kType)
-        return kType.getSimpleName()
-    }
-
-    private fun getNameOfFirstArgument(type: KType): String =
-        type.getTypeOfFirstArgument().getSimpleName()
-
-    @Throws(TypeNotSupportedException::class)
-    private fun throwIfTypeIsNotSupported(type: KType) {
-        val qualifiedName = type.qualifiedName
-
-        val comesFromSupportedPackageName = supportedPackages.any {
-            qualifiedName.startsWith(it)
+        if (type.getKClass().isListType()) {
+            return false
         }
 
-        if (!comesFromSupportedPackageName) {
-            throw TypeNotSupportedException(qualifiedName, supportedPackages)
+        return supportedPackages.none {
+            type.qualifiedName.startsWith(it)
         }
     }
 
