@@ -1,7 +1,6 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.KotlinDataFetcher
-import com.expedia.graphql.Parameter
 import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
@@ -10,7 +9,6 @@ import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isInterface
-import graphql.schema.DataFetcher
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputType
@@ -18,7 +16,6 @@ import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.valueParameters
-import kotlin.reflect.jvm.javaType
 
 @Suppress("Detekt.UnsafeCast")
 internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -36,20 +33,15 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             builder.withDirective(it)
         }
 
-        val args = mutableMapOf<String, Parameter>()
-        fn.valueParameters.forEach {
-            if (!it.isGraphQLContext()) {
+        fn.valueParameters
+            .filterNot { it.isGraphQLContext() }
+            .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
                 builder.argument(argument(it))
             }
 
-            val name = it.getName()
-
-            args[name] = Parameter(it.type.javaType as Class<*>, it.annotations)
-        }
-
         if (!abstract) {
-            val dataFetcher: DataFetcher<*> = KotlinDataFetcher(target, fn, args, config.hooks.dataFetcherExecutionPredicate)
+            val dataFetcher = KotlinDataFetcher(target, fn, config.hooks.dataFetcherExecutionPredicate)
             val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
             builder.dataFetcher(hookDataFetcher)
         }
