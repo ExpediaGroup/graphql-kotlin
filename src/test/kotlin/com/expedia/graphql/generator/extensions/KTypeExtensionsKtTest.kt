@@ -1,7 +1,6 @@
 package com.expedia.graphql.generator.extensions
 
-import com.expedia.graphql.exceptions.CouldNotCastToKClassException
-import com.expedia.graphql.exceptions.CouldNotGetNameOfKTypeException
+import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expedia.graphql.exceptions.InvalidListTypeException
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +30,7 @@ internal class KTypeExtensionsKtTest {
 
         assertEquals(String::class.starProjectedType, MyClass::arrayFun.findParameterByName("array")?.type?.getTypeOfFirstArgument())
 
-        assertEquals(Int::class.starProjectedType, MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getArrayType())
+        assertEquals(Int::class.starProjectedType, MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedType())
 
         assertFailsWith(InvalidListTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getTypeOfFirstArgument()
@@ -58,39 +57,26 @@ internal class KTypeExtensionsKtTest {
     }
 
     @Test
-    fun `getKClass exception`() {
-        assertFailsWith(CouldNotCastToKClassException::class) {
-            val mockType: KType = mockk()
-            every { mockType.classifier } returns null
-            mockType.getKClass()
-        }
-    }
-
-    @Test
     fun getArrayType() {
-        assertEquals(Int::class.starProjectedType, IntArray::class.starProjectedType.getArrayType())
-        assertEquals(Long::class.starProjectedType, LongArray::class.starProjectedType.getArrayType())
-        assertEquals(Short::class.starProjectedType, ShortArray::class.starProjectedType.getArrayType())
-        assertEquals(Float::class.starProjectedType, FloatArray::class.starProjectedType.getArrayType())
-        assertEquals(Double::class.starProjectedType, DoubleArray::class.starProjectedType.getArrayType())
-        assertEquals(Char::class.starProjectedType, CharArray::class.starProjectedType.getArrayType())
-        assertEquals(Boolean::class.starProjectedType, BooleanArray::class.starProjectedType.getArrayType())
-        assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getArrayType())
+        assertEquals(Int::class.starProjectedType, IntArray::class.starProjectedType.getWrappedType())
+        assertEquals(Long::class.starProjectedType, LongArray::class.starProjectedType.getWrappedType())
+        assertEquals(Short::class.starProjectedType, ShortArray::class.starProjectedType.getWrappedType())
+        assertEquals(Float::class.starProjectedType, FloatArray::class.starProjectedType.getWrappedType())
+        assertEquals(Double::class.starProjectedType, DoubleArray::class.starProjectedType.getWrappedType())
+        assertEquals(Char::class.starProjectedType, CharArray::class.starProjectedType.getWrappedType())
+        assertEquals(Boolean::class.starProjectedType, BooleanArray::class.starProjectedType.getWrappedType())
+        assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getWrappedType())
 
         assertFailsWith(InvalidListTypeException::class) {
-            MyClass::stringFun.findParameterByName("string")?.type?.getArrayType()
+            MyClass::stringFun.findParameterByName("string")?.type?.getWrappedType()
         }
     }
 
     @Test
     fun getSimpleName() {
         assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
-    }
-
-    @Test
-    fun getSimpleNameException() {
-        assertFailsWith(CouldNotGetNameOfKTypeException::class) {
-            object { }::class.starProjectedType.getSimpleName()
+        assertFailsWith(CouldNotGetNameOfKClassException::class) {
+            object {}::class.starProjectedType.getSimpleName()
         }
     }
 
@@ -98,5 +84,20 @@ internal class KTypeExtensionsKtTest {
     fun qualifiedName() {
         assertEquals("com.expedia.graphql.generator.extensions.KTypeExtensionsKtTest.MyClass", MyClass::class.starProjectedType.qualifiedName)
         assertEquals("", object { }::class.starProjectedType.qualifiedName)
+    }
+
+    @Test
+    fun getName() {
+        assertEquals("MyClass", MyClass::class.starProjectedType.getWrappedName())
+
+        assertEquals("List<String>", MyClass::listFun.findParameterByName("list")?.type?.getWrappedName())
+
+        assertEquals("Array<String>", MyClass::arrayFun.findParameterByName("array")?.type?.getWrappedName())
+
+        assertEquals("IntArray", MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedName())
+
+        assertFailsWith(CouldNotGetNameOfKClassException::class) {
+            object {}::class.starProjectedType.getWrappedName()
+        }
     }
 }

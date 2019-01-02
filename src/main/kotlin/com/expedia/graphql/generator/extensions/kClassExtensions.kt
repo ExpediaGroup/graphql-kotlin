@@ -38,6 +38,8 @@ internal fun KClass<*>.isList(): Boolean = this.isSubclassOf(List::class)
 
 internal fun KClass<*>.isArray(): Boolean = this.java.isArray
 
+internal fun KClass<*>.isListType(): Boolean = this.isList() || this.isArray()
+
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(): String =
     this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
