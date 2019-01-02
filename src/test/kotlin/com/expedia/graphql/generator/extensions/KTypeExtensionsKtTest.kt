@@ -75,6 +75,7 @@ internal class KTypeExtensionsKtTest {
     @Test
     fun getSimpleName() {
         assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
+        assertEquals("MyClassInput", MyClass::class.starProjectedType.getSimpleName(isInputType = true))
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
             object {}::class.starProjectedType.getSimpleName()
         }
@@ -90,11 +91,17 @@ internal class KTypeExtensionsKtTest {
     fun getName() {
         assertEquals("MyClass", MyClass::class.starProjectedType.getWrappedName())
 
+        assertEquals("MyClassInput", MyClass::class.starProjectedType.getWrappedName(isInputType = true))
+
         assertEquals("List<String>", MyClass::listFun.findParameterByName("list")?.type?.getWrappedName())
+
+        assertEquals("List<StringInput>", MyClass::listFun.findParameterByName("list")?.type?.getWrappedName(isInputType = true))
 
         assertEquals("Array<String>", MyClass::arrayFun.findParameterByName("array")?.type?.getWrappedName())
 
         assertEquals("IntArray", MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedName())
+
+        assertEquals("IntArray", MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedName(isInputType = true))
 
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
             object {}::class.starProjectedType.getWrappedName()

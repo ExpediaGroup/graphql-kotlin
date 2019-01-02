@@ -65,9 +65,6 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     internal fun listType(type: KType, inputType: Boolean) =
         listTypeBuilder.listType(type, inputType)
 
-    internal fun arrayType(type: KType, inputType: Boolean) =
-        listTypeBuilder.arrayType(type, inputType)
-
     internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null) =
         objectTypeBuilder.objectType(kClass, interfaceType)
 

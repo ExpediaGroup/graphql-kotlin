@@ -3,8 +3,8 @@ package com.expedia.graphql.generator.types
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
-import com.expedia.graphql.generator.extensions.getInputClassName
 import com.expedia.graphql.generator.extensions.getPropertyDescription
+import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidProperties
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
 import graphql.schema.GraphQLInputObjectField
@@ -17,7 +17,7 @@ internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(
     internal fun inputObjectType(kClass: KClass<*>): GraphQLInputObjectType {
         val builder = GraphQLInputObjectType.newInputObject()
 
-        builder.name(kClass.getInputClassName())
+        builder.name(kClass.getSimpleName(isInputClass = true))
         builder.description(kClass.getGraphQLDescription())
 
         // It does not make sense to run functions against the input types so we only process the properties
