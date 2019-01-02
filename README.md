@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ExpediaDotCom/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/graphql-kotlin)
 [![codecov](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin)
-[![Maven Central](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.expedia%22%20AND%20a:%22graphql-kotlin%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin.svg?label=maven%20central)](https://search.maven.org/artifact/com.expedia/graphql-kotlin)
 [![Javadocs](https://www.javadoc.io/badge/com.expedia/graphql-kotlin.svg)](https://www.javadoc.io/doc/com.expedia/graphql-kotlin)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
