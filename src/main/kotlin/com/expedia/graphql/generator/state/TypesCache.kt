@@ -56,9 +56,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
             throw TypeNotSupportedException(cacheKey.type, supportedPackages)
         }
 
-        val cacheKeyFromTypeName = cacheKey.type.getWrappedName()
-
-        return "$cacheKeyFromTypeName:${cacheKey.inputType}"
+        return cacheKey.type.getWrappedName(cacheKey.inputType)
     }
 
     private fun isTypeNotSupported(type: KType): Boolean {

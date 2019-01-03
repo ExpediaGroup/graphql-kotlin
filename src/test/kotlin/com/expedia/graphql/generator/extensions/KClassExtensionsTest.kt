@@ -145,7 +145,7 @@ internal class KClassExtensionsTest {
 
     @Test
     fun `test input class name`() {
-        assertEquals("MyTestClassInput", MyTestClass::class.getInputClassName())
+        assertEquals("MyTestClassInput", MyTestClass::class.getSimpleName(true))
     }
 
     @Test

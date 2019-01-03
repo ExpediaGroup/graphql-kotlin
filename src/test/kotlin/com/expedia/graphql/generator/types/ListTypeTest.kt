@@ -1,15 +1,17 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.generator.extensions.getValidProperties
 import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+@Suppress("Detekt.UnusedPrivateClass")
 internal class ListTypeTest : TypeTestHelper() {
 
-    @Suppress("Detekt.UnusedPrivateClass")
+    private data class MyDataClass(val id: String)
+
     private class ClassWithListAndArray {
         val testList = listOf<Int>()
+        val testListOfClass = listOf<MyDataClass>()
         val testArray = arrayOf<String>()
         val primitiveArray = booleanArrayOf(true)
     }
@@ -21,26 +23,34 @@ internal class ListTypeTest : TypeTestHelper() {
     }
 
     @Test
-    fun `test list`() {
-        val listProp = ClassWithListAndArray::class.getValidProperties(hooks).first { it.name == "testList" }
+    fun `test list of primitive`() {
+        val listProp = ClassWithListAndArray::testList
 
         val result = builder.listType(listProp.returnType, false)
         assertEquals(Int::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
     @Test
-    fun `test array`() {
-        val arrayProp = ClassWithListAndArray::class.getValidProperties(hooks).first { it.name == "testArray" }
+    fun `test list of class`() {
+        val listProp = ClassWithListAndArray::testListOfClass
 
-        val result = builder.arrayType(arrayProp.returnType, false)
+        val result = builder.listType(listProp.returnType, false)
+        assertEquals(MyDataClass::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+    }
+
+    @Test
+    fun `test array`() {
+        val arrayProp = ClassWithListAndArray::testArray
+
+        val result = builder.listType(arrayProp.returnType, false)
         assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
     @Test
     fun `test array of primitives`() {
-        val primitiveArray = ClassWithListAndArray::class.getValidProperties(hooks).first { it.name == "primitiveArray" }
+        val primitiveArray = ClassWithListAndArray::primitiveArray
 
-        val result = builder.arrayType(primitiveArray.returnType, false)
+        val result = builder.listType(primitiveArray.returnType, false)
         assertEquals(Boolean::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 }

@@ -29,17 +29,17 @@ internal fun KType.getWrappedType(): KType {
     }
 }
 
-internal fun KType.getWrappedName(): String {
+internal fun KType.getWrappedName(isInputType: Boolean = false): String {
     val isPrimitiveArray = primitiveArrayTypes.containsKey(this.getKClass())
     return when {
         isPrimitiveArray -> this.getSimpleName()
-        this.getKClass().isList() -> "List<${this.getWrappedType().getSimpleName()}>"
-        this.getKClass().isArray() -> "Array<${this.getWrappedType().getSimpleName()}>"
-        else -> this.getSimpleName()
+        this.getKClass().isList() -> "List<${this.getWrappedType().getSimpleName(isInputType)}>"
+        this.getKClass().isArray() -> "Array<${this.getWrappedType().getSimpleName(isInputType)}>"
+        else -> this.getSimpleName(isInputType)
     }
 }
 
-internal fun KType.getSimpleName(): String = this.getKClass().getSimpleName()
+internal fun KType.getSimpleName(isInputType: Boolean = false): String = this.getKClass().getSimpleName(isInputType)
 
 internal val KType.qualifiedName: String
     get() = this.getKClass().getQualifiedName()

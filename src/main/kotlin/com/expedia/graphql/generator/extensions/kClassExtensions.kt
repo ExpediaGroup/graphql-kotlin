@@ -41,9 +41,13 @@ internal fun KClass<*>.isArray(): Boolean = this.java.isArray
 internal fun KClass<*>.isListType(): Boolean = this.isList() || this.isArray()
 
 @Throws(CouldNotGetNameOfKClassException::class)
-internal fun KClass<*>.getSimpleName(): String =
-    this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
+internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
+    val name = this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
 
-internal fun KClass<*>.getInputClassName(): String = "${this.getSimpleName()}Input"
+    return when {
+        isInputClass -> "${name}Input"
+        else -> name
+    }
+}
 
 internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName ?: ""
