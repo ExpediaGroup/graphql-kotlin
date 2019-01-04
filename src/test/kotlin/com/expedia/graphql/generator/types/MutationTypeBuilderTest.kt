@@ -3,16 +3,19 @@ package com.expedia.graphql.generator.types
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.exceptions.InvalidMutationTypeException
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLFieldDefinition
 import kotlin.reflect.KFunction
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@Suppress("Detekt.NestedClassesVisibility")
 internal class MutationTypeBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
@@ -23,14 +26,18 @@ internal class MutationTypeBuilderTest : TypeTestHelper() {
         }
     }
 
-    internal class MutationObject {
+    class MutationObject {
         @GraphQLDescription("A GraphQL mutation method")
         fun mutation(value: Int) = value
     }
 
-    internal class NoFunctions {
+    class NoFunctions {
         @GraphQLIgnore
         fun hidden(value: Int) = value
+    }
+
+    private class PrivateMutation {
+        fun echo(msg: String) = msg
     }
 
     private lateinit var builder: MutationTypeBuilder
@@ -46,6 +53,13 @@ internal class MutationTypeBuilderTest : TypeTestHelper() {
     @Test
     fun `empty list`() {
         assertNull(builder.getMutationObject(emptyList()))
+    }
+
+    @Test
+    fun `verify builder fails if non public mutation is specified`() {
+        assertFailsWith(exceptionClass = InvalidMutationTypeException::class) {
+            builder.getMutationObject(listOf(TopLevelObject(PrivateMutation())))
+        }
     }
 
     @Test

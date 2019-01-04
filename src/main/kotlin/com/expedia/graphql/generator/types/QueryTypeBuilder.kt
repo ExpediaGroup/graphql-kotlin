@@ -1,10 +1,12 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.TopLevelObject
+import com.expedia.graphql.exceptions.InvalidQueryTypeException
 import com.expedia.graphql.exceptions.InvalidSchemaException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getValidFunctions
+import com.expedia.graphql.generator.extensions.isPublic
 import graphql.schema.GraphQLObjectType
 
 internal class QueryTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -20,6 +22,10 @@ internal class QueryTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
         queryBuilder.name(config.topLevelQueryName)
 
         for (query in queries) {
+            if (!query.kClass.isPublic()) {
+                throw InvalidQueryTypeException(query.kClass)
+            }
+
             query.kClass.getValidFunctions(config.hooks)
                 .forEach {
                     val function = generator.function(it, query.obj)
