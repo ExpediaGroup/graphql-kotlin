@@ -1,5 +1,6 @@
 package com.expedia.graphql
 
+import com.expedia.graphql.exceptions.InvalidSchemaDirectiveWiringException
 import graphql.Scalars
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -7,6 +8,7 @@ import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeVisitor
 import graphql.schema.idl.SchemaDirectiveWiring
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment
@@ -15,6 +17,7 @@ import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
 internal class DirectiveWiringHelperTest {
@@ -48,6 +51,10 @@ internal class DirectiveWiringHelperTest {
         }
     }
 
+    private class InvalidWiring : SchemaDirectiveWiring {
+        override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>) = null
+    }
+
     private val graphQLOverrideDescriptionDirective = GraphQLDirective.newDirective().name("overrideDescription").build()
     private val graphQLLowercaseDirective = GraphQLDirective.newDirective().name("lowercase").build()
 
@@ -62,6 +69,14 @@ internal class DirectiveWiringHelperTest {
             }
 
         override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = environment.directive.name == "lowercase"
+    }
+
+    @Test
+    fun `verify no action is taken if GraphQL object is not GraphQLDirectiveContainer`() {
+        val original = GraphQLTypeReference("MyTypeReference")
+        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+
+        assertEquals(original, actual)
     }
 
     @Test
@@ -204,5 +219,25 @@ internal class DirectiveWiringHelperTest {
 
         val updatedField = actual as? GraphQLFieldDefinition
         assertEquals(overwrittenDescription.toLowerCase(), updatedField?.description)
+    }
+
+    @Test
+    fun `verify null wirings throws exception`() {
+        val original = GraphQLFieldDefinition.newFieldDefinition()
+            .name("MyField")
+            .type(
+                object : GraphQLOutputType {
+                    override fun getName(): String = "MyOutputType"
+
+                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+                }
+            )
+            .description("My Field Description")
+            .withDirective(graphQLLowercaseDirective)
+            .build()
+
+        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
+            DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("lowercase" to InvalidWiring())).onWire(original)
+        }
     }
 }
