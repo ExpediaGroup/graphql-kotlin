@@ -53,7 +53,7 @@ internal class KotlinDataFetcherTest {
     @Test
     fun `valid target and value from predicate`() {
         val mockPredicate: DataFetcherExecutionPredicate = mockk()
-        every { mockPredicate.execute<String>(any(), any(), any()) } returns "baz"
+        every { mockPredicate.evaluate<String>(any(), any(), any()) } returns "baz"
         val dataFetcher = KotlinDataFetcher(MyClass(), MyClass::print, mockPredicate)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
@@ -63,7 +63,7 @@ internal class KotlinDataFetcherTest {
     @Test
     fun `valid target and null from predicate`() {
         val mockPredicate: DataFetcherExecutionPredicate = mockk()
-        every { mockPredicate.execute<String?>(any(), any(), any()) } returns null
+        every { mockPredicate.evaluate<String?>(any(), any(), any()) } returns null
         val dataFetcher = KotlinDataFetcher(MyClass(), MyClass::print, mockPredicate)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
