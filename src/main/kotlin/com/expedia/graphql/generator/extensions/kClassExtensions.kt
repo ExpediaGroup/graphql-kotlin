@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
+import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findParameterByName
@@ -51,3 +52,5 @@ internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
 }
 
 internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName ?: ""
+
+internal fun KClass<*>.isPublic(): Boolean = this.visibility == KVisibility.PUBLIC

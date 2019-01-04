@@ -2,9 +2,9 @@ package com.expedia.graphql
 
 import org.junit.jupiter.api.Test
 
-internal class ToSchemaKtTest {
+class ToSchemaKtTest {
 
-    internal class TestClass
+    class TestClass
 
     @Test
     fun `valid schema`() {

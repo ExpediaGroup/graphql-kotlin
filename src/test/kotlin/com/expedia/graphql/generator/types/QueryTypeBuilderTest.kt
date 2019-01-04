@@ -3,6 +3,7 @@ package com.expedia.graphql.generator.types
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.exceptions.InvalidQueryTypeException
 import com.expedia.graphql.exceptions.InvalidSchemaException
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
@@ -14,6 +15,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@Suppress("Detekt.NestedClassesVisibility")
 internal class QueryTypeBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
@@ -24,12 +26,16 @@ internal class QueryTypeBuilderTest : TypeTestHelper() {
         }
     }
 
-    internal class QueryObject {
+    private class PrivateQuery {
+        fun echo(msg: String) = msg
+    }
+
+    class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(value: Int) = value
     }
 
-    internal class NoFunctions {
+    class NoFunctions {
         @GraphQLIgnore
         fun hidden(value: Int) = value
     }
@@ -45,9 +51,16 @@ internal class QueryTypeBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `empty list`() {
+    fun `verify builder fails if no queries are specified`() {
         assertFailsWith(InvalidSchemaException::class) {
             builder.getQueryObject(emptyList())
+        }
+    }
+
+    @Test
+    fun `verify builder fails if non public query is specified`() {
+        assertFailsWith(exceptionClass = InvalidQueryTypeException::class) {
+            builder.getQueryObject(listOf(TopLevelObject(PrivateQuery())))
         }
     }
 
