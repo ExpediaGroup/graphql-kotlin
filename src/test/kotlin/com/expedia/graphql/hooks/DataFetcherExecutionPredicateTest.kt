@@ -1,7 +1,6 @@
 package com.expedia.graphql.hooks
 
 import com.expedia.graphql.exceptions.GraphQLKotlinException
-import com.expedia.graphql.generator.types.TypeTestHelper
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
@@ -12,7 +11,7 @@ import kotlin.reflect.KParameter
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-internal class DataFetcherExecutionPredicateTest : TypeTestHelper() {
+internal class DataFetcherExecutionPredicateTest {
 
     @Test
     fun `when test() returns true, it returns the value passed in`() {
