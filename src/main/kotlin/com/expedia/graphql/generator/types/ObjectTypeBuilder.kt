@@ -6,15 +6,12 @@ import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.extensions.getValidProperties
-import com.expedia.graphql.generator.extensions.isInterface
-import com.expedia.graphql.generator.extensions.isPublic
-import com.expedia.graphql.generator.extensions.isUnion
+import com.expedia.graphql.generator.extensions.getValidSuperclasses
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.superclasses
 
 internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
@@ -32,9 +29,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
             if (interfaceType != null) {
                 builder.withInterface(interfaceType)
             } else {
-                kClass.superclasses
-                    .asSequence()
-                    .filter { it.isPublic() && it.isInterface() && !it.isUnion() }
+                kClass.getValidSuperclasses(config.hooks)
                     .map { objectFromReflection(it.createType(), false) as? GraphQLInterfaceType }
                     .forEach { builder.withInterface(it) }
             }

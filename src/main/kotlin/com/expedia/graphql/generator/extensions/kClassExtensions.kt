@@ -1,8 +1,9 @@
 package com.expedia.graphql.generator.extensions
 
 import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
-import com.expedia.graphql.generator.functionFilters
-import com.expedia.graphql.generator.propertyFilters
+import com.expedia.graphql.generator.filters.functionFilters
+import com.expedia.graphql.generator.filters.propertyFilters
+import com.expedia.graphql.generator.filters.superclassFilters
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -14,6 +15,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.superclasses
 
 internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks): List<KProperty<*>> =
     this.declaredMemberProperties
@@ -24,6 +26,11 @@ internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks): List<KFun
     this.declaredMemberFunctions
         .filter { hooks.isValidFunction(it) }
         .filter { func -> functionFilters.all { it.invoke(func) } }
+
+internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<KClass<*>> =
+    this.superclasses
+        .filter { hooks.isValidSuperclass(it) }
+        .filter { kClass -> superclassFilters.all { it.invoke(kClass) } }
 
 internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
     this.primaryConstructor?.findParameterByName(name)
