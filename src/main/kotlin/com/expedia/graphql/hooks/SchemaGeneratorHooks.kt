@@ -5,6 +5,7 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -38,6 +39,13 @@ interface SchemaGeneratorHooks {
         } else {
             type
         }
+
+    /**
+     * Called when looking at the KClass superclasses to determine if it valid for adding to the generated schema.
+     * If any filter returns false, it is rejected.
+     */
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
+    fun isValidSuperclass(kClass: KClass<*>): Boolean = true
 
     /**
      * Called when looking at the KClass properties to determine if it valid for adding to the generated schema.

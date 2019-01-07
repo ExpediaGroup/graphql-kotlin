@@ -3,6 +3,7 @@ package com.expedia.graphql.generator.extensions
 import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.test.Test
@@ -14,7 +15,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class KClassExtensionsTest {
+open class KClassExtensionsTest {
 
     @Suppress("Detekt.FunctionOnlyReturningConstant", "Detekt.UnusedPrivateMember")
     private class MyTestClass(
@@ -29,6 +30,18 @@ internal class KClassExtensionsTest {
         private fun privateTestFunction() = "private function"
     }
 
+    internal class MyInternalClass
+
+    protected class MyProtectedClass
+
+    class MyPublicClass
+
+    internal class UnionSuperclass : TestInterface
+
+    internal class InterfaceSuperclass : InvalidFunctionUnionInterface {
+        override fun getTest() = 2
+    }
+
     private enum class MyTestEnum {
         ONE,
         TWO
@@ -38,7 +51,7 @@ internal class KClassExtensionsTest {
         val id = 1
     }
 
-    private interface TestInterface
+    interface TestInterface
 
     private interface InvalidPropertyUnionInterface {
         val test: Int
@@ -46,7 +59,7 @@ internal class KClassExtensionsTest {
     }
 
     @Suppress("Detekt.FunctionOnlyReturningConstant")
-    private interface InvalidFunctionUnionInterface {
+    interface InvalidFunctionUnionInterface {
         fun getTest() = 1
     }
 
@@ -56,6 +69,9 @@ internal class KClassExtensionsTest {
 
         override fun isValidFunction(function: KFunction<*>) =
             function.name.contains("filteredFunction").not()
+
+        override fun isValidSuperclass(kClass: KClass<*>) =
+            kClass.simpleName?.contains("InvalidFunctionUnionInterface")?.not().isTrue()
     }
 
     private val noopHooks = NoopSchemaGeneratorHooks()
@@ -82,6 +98,24 @@ internal class KClassExtensionsTest {
     fun `test getting valid functions with filter hooks`() {
         val properties = MyTestClass::class.getValidFunctions(FilterHooks())
         assertEquals(listOf("publicFunction"), properties.map { it.name })
+    }
+
+    @Test
+    fun `test getting valid superclass with no hooks`() {
+        val superclasses = InterfaceSuperclass::class.getValidSuperclasses(noopHooks)
+        assertEquals(listOf("InvalidFunctionUnionInterface"), superclasses.map { it.simpleName })
+    }
+
+    @Test
+    fun `test getting valid superclass with filter hooks`() {
+        val superclasses = InterfaceSuperclass::class.getValidSuperclasses(FilterHooks())
+        assertTrue(superclasses.isEmpty())
+    }
+
+    @Test
+    fun `test getting invalid superclass with no hooks`() {
+        val superclasses = UnionSuperclass::class.getValidSuperclasses(noopHooks)
+        assertTrue(superclasses.isEmpty())
     }
 
     @Test
@@ -152,5 +186,13 @@ internal class KClassExtensionsTest {
     fun getQualifiedName() {
         assertEquals("com.expedia.graphql.generator.extensions.KClassExtensionsTest.MyTestClass", MyTestClass::class.getQualifiedName())
         assertEquals("", object { }::class.getQualifiedName())
+    }
+
+    @Test
+    fun isPublic() {
+        assertTrue(MyPublicClass::class.isPublic())
+        assertFalse(MyInternalClass::class.isPublic())
+        assertFalse(MyProtectedClass::class.isPublic())
+        assertFalse(MyTestClass::class.isPublic())
     }
 }
