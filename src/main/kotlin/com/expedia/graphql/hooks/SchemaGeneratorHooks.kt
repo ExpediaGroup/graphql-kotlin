@@ -1,5 +1,6 @@
 package com.expedia.graphql.hooks
 
+import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
@@ -35,7 +36,7 @@ interface SchemaGeneratorHooks {
      */
     fun willResolveMonad(type: KType): KType =
         if (type.classifier == CompletableFuture::class) {
-            type.arguments.firstOrNull()?.type ?: type
+            type.getTypeOfFirstArgument()
         } else {
             type
         }
