@@ -1,11 +1,11 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.generator.extensions.getValidFunctions
-import com.expedia.graphql.generator.extensions.getValidProperties
-import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
+import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
+import com.expedia.graphql.generator.extensions.getValidFunctions
+import com.expedia.graphql.generator.extensions.getValidProperties
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLType
@@ -33,10 +33,11 @@ internal class InterfaceTypeBuilder(generator: SchemaGenerator) : TypeBuilder(ge
             implementations.forEach {
                 val objectType = generator.objectType(it.kotlin, interfaceType)
 
+                // Only update the state if the object is fully constructed and not a reference
                 if (objectType !is GraphQLTypeReference) {
                     state.additionalTypes.add(objectType)
+                    state.cache.removeTypeUnderConstruction(it.kotlin)
                 }
-                state.cache.removeTypeUnderConstruction(it.kotlin)
             }
 
             interfaceType
