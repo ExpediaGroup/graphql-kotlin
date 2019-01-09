@@ -62,25 +62,27 @@ class PredicateHooks : SchemaGeneratorHooks {
     override val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate? = TestDataFetcherPredicate()
 }
 
-class TestDataFetcherPredicate : DataFetcherExecutionPredicate() {
-
-    override fun <T> evaluate(value: T, parameter: KParameter, environment: DataFetchingEnvironment): Any = when {
-        parameter.name == "greaterThan2" && value is Int && value <= 2 -> listOf(Error("greaterThan2 is actually $value"))
-        value is Person -> {
-            val errors = mutableListOf<Error>()
-            if (value.age < 42) errors.add(Error("Not the right age"))
-            if (value.name != "Bob") errors.add(Error("Not the right name"))
-            errors
-        }
-        else -> emptyList()
-    }
-
-    override fun test(evaluationResult: Any): Boolean = (evaluationResult as? List<*>)?.isEmpty() ?: true
-
-    @Throws(GraphQLKotlinException::class)
-    override fun onFailure(evaluationResult: Any, parameter: KParameter, environment: DataFetchingEnvironment): Nothing {
-        throw GraphQLKotlinException("The datafetcher cannot be executed due to: $evaluationResult")
-    }
+class TestDataFetcherPredicate : DataFetcherExecutionPredicate {
 
     data class Error(val message: String)
+
+    override fun <T> evaluate(value: T, parameter: KParameter, environment: DataFetchingEnvironment): T {
+        val errors: List<Error> = when {
+            parameter.name == "greaterThan2" && value is Int && value <= 2 -> listOf(Error("greaterThan2 is actually $value"))
+            value is Person -> {
+                val errors = mutableListOf<Error>()
+                if (value.age < 42) errors.add(Error("Not the right age"))
+                if (value.name != "Bob") errors.add(Error("Not the right name"))
+                errors
+            }
+            else -> emptyList()
+        }
+
+        if (errors.isNotEmpty()) {
+            val message = errors.joinToString(separator = ", ", prefix = "[", postfix = "]")
+            throw GraphQLKotlinException("The datafetcher cannot be executed due to: $message")
+        }
+
+        return value
+    }
 }

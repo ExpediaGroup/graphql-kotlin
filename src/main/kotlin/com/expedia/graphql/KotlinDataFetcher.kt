@@ -42,7 +42,7 @@ class KotlinDataFetcher(
             val name = param.getName()
             val klazz = param.type.javaTypeClass
             val value = mapper.convertValue(environment.arguments[name], klazz)
-            val predicateResult = executionPredicate?.execute(value = value, parameter = param, environment = environment)
+            val predicateResult = executionPredicate?.evaluate(value = value, parameter = param, environment = environment)
 
             predicateResult ?: value
         }
