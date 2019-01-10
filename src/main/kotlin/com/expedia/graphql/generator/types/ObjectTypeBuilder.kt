@@ -30,7 +30,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
                 builder.withInterface(interfaceType)
             } else {
                 kClass.getValidSuperclasses(config.hooks)
-                    .map { objectFromReflection(it.createType(), false) as? GraphQLInterfaceType }
+                    .mapNotNull { objectFromReflection(it.createType(), false) as? GraphQLInterfaceType }
                     .forEach { builder.withInterface(it) }
             }
 
