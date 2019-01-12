@@ -27,7 +27,8 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             fieldBuilder.withDirective(it)
         }
 
-        val field = if (config.dataFetcherFactory != null && prop.isLateinit) {
+        // Kotlin does not support nullable lateinit properties
+        val field = if (config.dataFetcherFactory != null && prop.isLateinit && propertyType is GraphQLNonNull) {
             updatePropertyFieldBuilder(propertyType, fieldBuilder, config.dataFetcherFactory)
         } else {
             fieldBuilder
@@ -36,13 +37,9 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         return config.hooks.onRewireGraphQLType(prop.returnType, field) as GraphQLFieldDefinition
     }
 
-    private fun updatePropertyFieldBuilder(propertyType: GraphQLOutputType, fieldBuilder: GraphQLFieldDefinition.Builder, dataFetcherFactory: DataFetcherFactory<*>?): GraphQLFieldDefinition.Builder {
-        val updatedFieldBuilder = if (propertyType is GraphQLNonNull) {
-            val graphQLOutputType = propertyType.wrappedType as? GraphQLOutputType
-            if (graphQLOutputType != null) fieldBuilder.type(graphQLOutputType) else fieldBuilder
-        } else {
-            fieldBuilder
-        }
+    private fun updatePropertyFieldBuilder(propertyType: GraphQLNonNull, fieldBuilder: GraphQLFieldDefinition.Builder, dataFetcherFactory: DataFetcherFactory<*>?): GraphQLFieldDefinition.Builder {
+        val graphQLOutputType = propertyType.wrappedType as? GraphQLOutputType
+        val updatedFieldBuilder = if (graphQLOutputType != null) fieldBuilder.type(graphQLOutputType) else fieldBuilder
 
         return updatedFieldBuilder.dataFetcherFactory(dataFetcherFactory)
     }
