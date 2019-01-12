@@ -28,8 +28,8 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         }
 
         // Kotlin does not support nullable lateinit properties
-        val field = if (config.dataFetcherFactory != null && prop.isLateinit && propertyType is GraphQLNonNull) {
-            updatePropertyFieldBuilder(propertyType, fieldBuilder, config.dataFetcherFactory)
+        val field = if (config.dataFetcherFactory != null && prop.isLateinit) {
+            updatePropertyFieldBuilder(propertyType as GraphQLNonNull, fieldBuilder, config.dataFetcherFactory)
         } else {
             fieldBuilder
         }.build()
