@@ -35,7 +35,7 @@ internal open class TypeTestHelper {
     private var objectTypeBuilder: ObjectTypeBuilder? = null
     private var directiveTypeBuilder: DirectiveTypeBuilder? = null
     private var functionTypeBuilder: FunctionTypeBuilder? = null
-    protected var propertyTypeBuilder: PropertyTypeBuilder? = null
+    private var propertyTypeBuilder: PropertyTypeBuilder? = null
 
     @BeforeTest
     fun setup() {
