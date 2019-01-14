@@ -1,18 +1,27 @@
 package com.expedia.graphql.generator.types
 
+import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLID
-import com.expedia.graphql.generator.extensions.getValidProperties
+import com.expedia.graphql.generator.SchemaGenerator
+import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import graphql.Scalars
 import graphql.introspection.Introspection
+import graphql.schema.DataFetcher
+import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLNonNull
+import graphql.schema.PropertyDataFetcher
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class PropertyTypeTest : TypeTestHelper() {
+internal class PropertyTypeBuilderTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD])
     internal annotation class PropertyDirective(val arg: String)
@@ -25,6 +34,8 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
         @Deprecated("Healthy food is deprecated", replaceWith = ReplaceWith("cake"))
         lateinit var healthyFood: String
+
+        var nullableCake: String? = null
     }
 
     private data class DataClassWithProperties(
@@ -43,7 +54,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test naming`() {
-        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::cake
         val result = builder.property(prop, ClassWithProperties::class)
 
         assertEquals("cake", result.name)
@@ -51,7 +62,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation`() {
-        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::cake
         val result = builder.property(prop, ClassWithProperties::class)
 
         assertTrue(result.isDeprecated)
@@ -60,7 +71,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation with replacement`() {
-        val prop = ClassWithProperties::class.getValidProperties(hooks)[1]
+        val prop = ClassWithProperties::healthyFood
         val result = builder.property(prop, ClassWithProperties::class)
 
         assertTrue(result.isDeprecated)
@@ -69,7 +80,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test description`() {
-        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::cake
         val result = builder.property(prop, ClassWithProperties::class)
 
         assertEquals("The truth", result.description)
@@ -77,7 +88,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test description on data class`() {
-        val prop = DataClassWithProperties::class.getValidProperties(hooks)[0]
+        val prop = DataClassWithProperties::fooBar
         val result = builder.property(prop, DataClassWithProperties::class)
 
         assertEquals("A great description", result.description)
@@ -85,7 +96,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test graphql id on data class`() {
-        val prop = DataClassWithProperties::class.getValidProperties(hooks)[1]
+        val prop = DataClassWithProperties::myId
         val result = builder.property(prop, DataClassWithProperties::class)
 
         assertEquals("ID", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -93,7 +104,7 @@ internal class PropertyTypeTest : TypeTestHelper() {
 
     @Test
     fun `Test custom directive`() {
-        val prop = ClassWithProperties::class.getValidProperties(hooks)[0]
+        val prop = ClassWithProperties::cake
         val result = builder.property(prop, ClassWithProperties::class)
 
         assertEquals(1, result.directives.size)
@@ -106,5 +117,34 @@ internal class PropertyTypeTest : TypeTestHelper() {
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD)
         )
+    }
+
+    @Test
+    fun `Test nullable property`() {
+        val prop = ClassWithProperties::nullableCake
+        val result = builder.property(prop, ClassWithProperties::class)
+
+        assertNull(result.description)
+        assertTrue(result.type !is GraphQLNonNull)
+        assertTrue(result.dataFetcher is PropertyDataFetcher)
+    }
+
+    @Test
+    fun `Test lateinit, non-null property with datafetcher factory`() {
+        val localConfig: SchemaGeneratorConfig = mockk()
+        every { localConfig.hooks } returns NoopSchemaGeneratorHooks()
+        every { localConfig.supportedPackages } returns emptyList()
+        val mockDataDatafetcher: DataFetcher<*> = mockk()
+        val dataFetcherFactory: DataFetcherFactory<*> = mockk()
+        every { dataFetcherFactory.get(any()) } returns mockDataDatafetcher
+        every { localConfig.dataFetcherFactory } returns dataFetcherFactory
+        val localGenerator = SchemaGenerator(localConfig)
+        val localBuilder = PropertyTypeBuilder(localGenerator)
+
+        val prop = ClassWithProperties::cake
+        val result = localBuilder.property(prop, ClassWithProperties::class)
+
+        assertFalse(result.dataFetcher is PropertyDataFetcher)
+        assertEquals(expected = mockDataDatafetcher, actual = result.dataFetcher)
     }
 }
