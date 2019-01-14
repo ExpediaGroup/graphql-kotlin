@@ -7,7 +7,9 @@ import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.asCompletableFuture
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspend
@@ -34,7 +36,9 @@ class KotlinDataFetcher(
             val parameterValues = fn.valueParameters.map { param -> mapParameterToValue(param, environment) }.toTypedArray()
 
             if (fn.isSuspend) {
-                runBlocking { fn.callSuspend(it, *parameterValues) }
+                GlobalScope.async {
+                    fn.callSuspend(it, *parameterValues)
+                }.asCompletableFuture()
             } else {
                 fn.call(it, *parameterValues)
             }
