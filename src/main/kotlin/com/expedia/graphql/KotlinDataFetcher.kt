@@ -23,9 +23,9 @@ import kotlin.reflect.full.valueParameters
  * @param executionPredicate Predicate to run to map the value to a new result
  */
 class KotlinDataFetcher(
-    private val target: Any?,
-    private val fn: KFunction<*>,
-    private val executionPredicate: DataFetcherExecutionPredicate?
+        private val target: Any?,
+        private val fn: KFunction<*>,
+        private val executionPredicate: DataFetcherExecutionPredicate?
 ) : DataFetcher<Any> {
 
     @Suppress("Detekt.SpreadOperator")
