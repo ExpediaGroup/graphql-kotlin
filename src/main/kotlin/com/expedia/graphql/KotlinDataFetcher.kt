@@ -7,8 +7,10 @@ import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.valueParameters
 
 /**
@@ -24,14 +26,18 @@ class KotlinDataFetcher(
     private val executionPredicate: DataFetcherExecutionPredicate?
 ) : DataFetcher<Any> {
 
+    @Suppress("Detekt.SpreadOperator")
     override fun get(environment: DataFetchingEnvironment): Any? {
         val instance = target ?: environment.getSource<Any>()
 
         return instance?.let {
             val parameterValues = fn.valueParameters.map { param -> mapParameterToValue(param, environment) }.toTypedArray()
 
-            @Suppress("Detekt.SpreadOperator")
-            fn.call(it, *parameterValues)
+            if (fn.isSuspend) {
+                runBlocking { fn.callSuspend(it, *parameterValues) }
+            } else {
+                fn.call(it, *parameterValues)
+            }
         }
     }
 
