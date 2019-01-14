@@ -1,5 +1,5 @@
 #!/bin/bash -x
-cd `dirname $0`/.. 
+cd `dirname $0`/..
 
 if [[ -z "$SONATYPE_USERNAME" ]]
 then
@@ -17,7 +17,7 @@ if [[ ! -z "$TRAVIS_TAG" ]]
 then
     SKIP_GPG_SIGN=false
     echo "travis tag is set -> updating pom.xml <version> attribute to $TRAVIS_TAG"
-    mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.1:set -DnewVersion=$TRAVIS_TAG 1>/dev/null 2>/dev/null
+    mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnewVersion=$TRAVIS_TAG 1>/dev/null 2>/dev/null
 else
     SKIP_GPG_SIGN=true
     echo "no travis tag is set, hence keeping the snapshot version in pom.xml"
