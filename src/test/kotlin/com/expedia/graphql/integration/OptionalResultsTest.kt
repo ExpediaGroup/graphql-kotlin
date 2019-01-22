@@ -1,4 +1,4 @@
-package com.expedia
+package com.expedia.graphql.integration
 
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.testSchemaConfig
@@ -13,7 +13,7 @@ import kotlin.test.assertNull
     "Detekt.FunctionOnlyReturningConstant",
     "Detekt.LargeClass",
     "Detekt.MethodOverloading")
-class IntegrationTests {
+class OptionalResultsTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
         val schema = toSchema(
@@ -32,13 +32,13 @@ class IntegrationTests {
         assertEquals("req", optionalResults["required"])
         assertNull(optionalResults["optional"])
     }
+}
 
-    data class HasOptionalData(
-        val required: String,
-        val optional: String?
-    )
+data class HasOptionalData(
+    val required: String,
+    val optional: String?
+)
 
-    class QueryObject {
-        fun optionalResults() = HasOptionalData("req", null)
-    }
+class QueryObject {
+    fun optionalResults() = HasOptionalData("req", null)
 }
