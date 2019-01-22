@@ -9,10 +9,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@Suppress("Detekt.UnusedPrivateMember",
-    "Detekt.FunctionOnlyReturningConstant",
-    "Detekt.LargeClass",
-    "Detekt.MethodOverloading")
 class OptionalResultsTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
