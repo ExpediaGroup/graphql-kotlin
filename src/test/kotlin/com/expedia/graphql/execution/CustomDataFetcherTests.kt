@@ -1,8 +1,7 @@
-package com.expedia.graphql.dataFetchers
+package com.expedia.graphql.execution
 
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
-import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.toSchema
