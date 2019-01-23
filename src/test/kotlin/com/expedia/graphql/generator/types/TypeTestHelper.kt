@@ -1,13 +1,13 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.SchemaGeneratorConfig
+import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.SubTypeMapper
 import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.state.TypesCache
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
-import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLInterfaceType
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +31,7 @@ internal open class TypeTestHelper {
     var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql.generator.types")))
     var cache = spyk(TypesCache(listOf("com.expedia.graphql.generator.types")))
     var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks()
-    var dataFetcherFactory: DataFetcherFactory<Any> = mockk()
+    var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 
     private var scalarTypeBuilder: ScalarTypeBuilder? = null
     private var objectTypeBuilder: ObjectTypeBuilder? = null

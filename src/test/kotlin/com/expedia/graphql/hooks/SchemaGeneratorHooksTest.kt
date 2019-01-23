@@ -5,8 +5,6 @@ import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.getTestSchemaConfigWithHooks
 import com.expedia.graphql.toSchema
-import graphql.schema.DataFetcher
-import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
@@ -204,12 +202,4 @@ class SchemaGeneratorHooksTest {
     }
 
     data class SomeData(val someNumber: Int)
-
-    private class WrappingDataFetcher(private val dataFetcher: DataFetcher<*>) : DataFetcher<Any> {
-        var getCalled = false
-        override fun get(environment: DataFetchingEnvironment?): Any {
-            getCalled = true
-            return dataFetcher.get(environment)
-        }
-    }
 }

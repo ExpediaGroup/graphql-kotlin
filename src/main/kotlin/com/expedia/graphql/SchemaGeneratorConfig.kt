@@ -12,5 +12,5 @@ data class SchemaGeneratorConfig(
     val topLevelQueryName: String = "TopLevelQuery",
     val topLevelMutationName: String = "TopLevelMutation",
     val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks(),
-    val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider()
+    val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 )

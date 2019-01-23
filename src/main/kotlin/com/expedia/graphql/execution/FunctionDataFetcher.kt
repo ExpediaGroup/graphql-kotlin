@@ -23,10 +23,10 @@ import kotlin.reflect.full.valueParameters
  * @param executionPredicate Predicate to run to map the value to a new result
  */
 class FunctionDataFetcher(
-        private val target: Any?,
-        private val fn: KFunction<*>,
-        private val objectMapper: ObjectMapper = jacksonObjectMapper(),
-        private val executionPredicate: DataFetcherExecutionPredicate? = null
+    private val target: Any?,
+    private val fn: KFunction<*>,
+    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
+    private val executionPredicate: DataFetcherExecutionPredicate? = null
 ) : DataFetcher<Any> {
 
     @Suppress("Detekt.SpreadOperator")
