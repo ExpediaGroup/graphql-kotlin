@@ -45,7 +45,7 @@ class Application {
     fun schemaConfig(dataFetcherFactory: SpringDataFetcherFactory, validator: Validator, wiringFactory: DirectiveWiringFactory): SchemaGeneratorConfig = SchemaGeneratorConfig(
         supportedPackages = listOf("com.expedia"),
         hooks = CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring()))),
-        dataFetcherFactory = dataFetcherFactory
+        dataFetcherFactoryProvider = dataFetcherFactory
     )
 
     @Bean

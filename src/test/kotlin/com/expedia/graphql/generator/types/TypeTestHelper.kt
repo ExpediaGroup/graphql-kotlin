@@ -7,6 +7,7 @@ import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.state.TypesCache
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLInterfaceType
 import io.mockk.every
 import io.mockk.mockk
@@ -30,6 +31,7 @@ internal open class TypeTestHelper {
     var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql.generator.types")))
     var cache = spyk(TypesCache(listOf("com.expedia.graphql.generator.types")))
     var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks()
+    var dataFetcherFactory: DataFetcherFactory<Any> = mockk()
 
     private var scalarTypeBuilder: ScalarTypeBuilder? = null
     private var objectTypeBuilder: ObjectTypeBuilder? = null
@@ -46,7 +48,7 @@ internal open class TypeTestHelper {
         every { generator.config } returns config
         every { generator.subTypeMapper } returns subTypeMapper
         every { config.hooks } returns hooks
-        every { config.dataFetcherFactory } returns null
+        every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
         every { config.topLevelQueryName } returns "TestTopLevelQuery"
         every { config.topLevelMutationName } returns "TestTopLevelMutation"
 

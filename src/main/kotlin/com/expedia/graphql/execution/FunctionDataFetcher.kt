@@ -1,9 +1,9 @@
-package com.expedia.graphql
+package com.expedia.graphql.execution
 
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.javaTypeClass
-import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -22,10 +22,11 @@ import kotlin.reflect.full.valueParameters
  * @param fn The Kotlin function being invoked
  * @param executionPredicate Predicate to run to map the value to a new result
  */
-class KotlinDataFetcher(
+class FunctionDataFetcher(
         private val target: Any?,
         private val fn: KFunction<*>,
-        private val executionPredicate: DataFetcherExecutionPredicate?
+        private val objectMapper: ObjectMapper = jacksonObjectMapper(),
+        private val executionPredicate: DataFetcherExecutionPredicate? = null
 ) : DataFetcher<Any> {
 
     @Suppress("Detekt.SpreadOperator")
@@ -51,13 +52,9 @@ class KotlinDataFetcher(
         } else {
             val name = param.getName()
             val klazz = param.type.javaTypeClass
-            val value = mapper.convertValue(environment.arguments[name], klazz)
+            val value = objectMapper.convertValue(environment.arguments[name], klazz)
             val predicateResult = executionPredicate?.evaluate(value = value, parameter = param, environment = environment)
 
             predicateResult ?: value
         }
-
-    private companion object {
-        private val mapper = jacksonObjectMapper()
-    }
 }

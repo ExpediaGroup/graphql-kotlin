@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator.types
 
+import com.expedia.graphql.execution.DataFetcherPropertyConfig
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getPropertyDeprecationReason
@@ -21,18 +22,18 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             .description(prop.getPropertyDescription(parentClass))
             .name(prop.name)
             .type(propertyType)
+            .dataFetcherFactory(config.dataFetcherFactoryProvider.getDataFetcherFactory(DataFetcherPropertyConfig(kProperty = prop, kClazz = parentClass)))
             .deprecate(prop.getPropertyDeprecationReason(parentClass))
 
         generator.directives(prop).forEach {
             fieldBuilder.withDirective(it)
         }
 
-        val field = if (config.dataFetcherFactory != null && prop.isLateinit) {
-            updatePropertyFieldBuilder(propertyType, fieldBuilder, config.dataFetcherFactory)
-        } else {
-            fieldBuilder
-        }.build()
+        if (prop.isLateinit) {
+            // allow overriding data fetcher
+        }
 
+        val field = fieldBuilder.build()
         return config.hooks.onRewireGraphQLType(prop.returnType, field) as GraphQLFieldDefinition
     }
 

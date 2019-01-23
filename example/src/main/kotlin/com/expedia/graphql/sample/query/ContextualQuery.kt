@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
  * schema and will be automatically autowired at runtime using value from the environment.
  *
  * @see com.expedia.graphql.sample.context.MyGraphQLContextBuilder
- * @see com.expedia.graphql.KotlinDataFetcher
+ * @see com.expedia.graphql.FunctionDataFetcher
  */
 @Component
 class ContextualQuery: Query {

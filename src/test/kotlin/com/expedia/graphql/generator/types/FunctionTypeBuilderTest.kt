@@ -1,18 +1,14 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.KotlinDataFetcher
+import com.expedia.graphql.execution.FunctionDataFetcher
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
-import com.expedia.graphql.generator.extensions.isTrue
-import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.Scalars
 import graphql.introspection.Introspection
-import graphql.schema.DataFetcher
 import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -24,18 +20,6 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
     override fun beforeTest() {
         builder = FunctionTypeBuilder(generator)
-    }
-
-    override fun beforeSetup() {
-        hooks = DataFetcherHooks()
-    }
-
-    internal class DataFetcherHooks : SchemaGeneratorHooks {
-        var calledHook = false
-        override fun didGenerateDataFetcher(function: KFunction<*>, dataFetcher: DataFetcher<*>): DataFetcher<*> {
-            calledHook = true
-            return dataFetcher
-        }
     }
 
     internal interface MyInterface {
@@ -139,39 +123,29 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `function with hooks`() {
-        val newBuilder = FunctionTypeBuilder(generator)
-        val kFunction = Happy::paint
-
-        assertFalse((hooks as? DataFetcherHooks)?.calledHook.isTrue())
-        newBuilder.function(kFunction)
-        assertTrue((hooks as? DataFetcherHooks)?.calledHook.isTrue())
-    }
-
-    @Test
-    fun `Non-abstract function with no hooks`() {
+    fun `Non-abstract function`() {
         val kFunction = MyInterface::printMessage
         val result = builder.function(fn = kFunction, target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertTrue(result.dataFetcher is KotlinDataFetcher)
+        assertTrue(result.dataFetcher is FunctionDataFetcher)
     }
 
     @Test
-    fun `Abstract function with no hooks`() {
+    fun `Abstract function`() {
         val kFunction = MyInterface::printMessage
         val result = builder.function(fn = kFunction, target = null, abstract = true)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertFalse(result.dataFetcher is KotlinDataFetcher)
+        assertFalse(result.dataFetcher is FunctionDataFetcher)
     }
 
     @Test
-    fun `Abstract function with target and no hooks`() {
+    fun `Abstract function with target`() {
         val kFunction = MyInterface::printMessage
         val result = builder.function(fn = kFunction, target = MyImplementation(), abstract = true)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertFalse(result.dataFetcher is KotlinDataFetcher)
+        assertFalse(result.dataFetcher is FunctionDataFetcher)
     }
 }

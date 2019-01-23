@@ -1,10 +1,10 @@
-package com.expedia.graphql.hooks
+package com.expedia.graphql.execution
 
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KParameter
 
 /**
- * Perform runtime evaluations of each parameter passed to any KotlinDataFetcher.
+ * Perform runtime evaluations of each parameter passed to any FunctionDataFetcher.
  *
  * The DataFetcherExecutionPredicate is declared globally for all the datafetchers instances and all the parameters.
  * However a more precise logic (at the field level) is possible depending on the implement of `evaluate`

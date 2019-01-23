@@ -5,7 +5,6 @@ import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.getTestSchemaConfigWithHooks
 import com.expedia.graphql.toSchema
-import graphql.GraphQL
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
@@ -17,7 +16,6 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.functions
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -126,34 +124,6 @@ class SchemaGeneratorHooksTest {
         )
         assertEquals(SomeData::class.createType(), hooks.lastSeenType)
         assertEquals("SomeData!", hooks.lastSeenGeneratedType?.deepName)
-    }
-
-    @Test
-    fun `calls hook before adding data fetcher`() {
-        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            var didGenerateDataFetcherCalled = false
-            var lastSeenFunction: KFunction<*>? = null
-            var lastReturnedDataFetcher: WrappingDataFetcher? = null
-            override fun didGenerateDataFetcher(function: KFunction<*>, dataFetcher: DataFetcher<*>): DataFetcher<*> {
-                lastSeenFunction = function
-                didGenerateDataFetcherCalled = true
-                val wrappingDataFetcher = WrappingDataFetcher(dataFetcher)
-                lastReturnedDataFetcher = wrappingDataFetcher
-                return wrappingDataFetcher
-            }
-        }
-
-        val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
-        )
-        val graphQL = GraphQL.newGraphQL(schema).build()
-        val result = graphQL.execute("{ query { someNumber } }")
-        assertEquals(0, result.errors.count(), result.errors.toString())
-        assertTrue(hooks.didGenerateDataFetcherCalled)
-        assertEquals(TestQuery::class.functions.find { it.name == "query" }, hooks.lastSeenFunction)
-        assertEquals(true, hooks.lastReturnedDataFetcher?.getCalled)
     }
 
     @Test

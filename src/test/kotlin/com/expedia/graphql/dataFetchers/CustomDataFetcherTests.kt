@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 class CustomDataFetcherTests {
     @Test
     fun `Custom DataFetcher can be used on functions`() {
-        val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expedia"), dataFetcherFactory = PetDataFetcherFactory())
+        val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expedia"), dataFetcherFactoryProvider = PetDataFetcherFactory())
         val schema = toSchema(listOf(TopLevelObject(AnimalQuery())), config = config)
 
         val animalType = schema.getObjectType("Animal")

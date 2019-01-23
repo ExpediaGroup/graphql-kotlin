@@ -3,7 +3,7 @@ package com.expedia.graphql.dataFetchers
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.getTestSchemaConfigWithHooks
-import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
+import com.expedia.graphql.execution.DataFetcherExecutionPredicate
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.toSchema
 import graphql.ExceptionWhileDataFetching
