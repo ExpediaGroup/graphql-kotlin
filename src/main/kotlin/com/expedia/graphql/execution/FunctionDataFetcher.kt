@@ -16,10 +16,12 @@ import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.valueParameters
 
 /**
- * Simple DataFetcher that invokes function on the target object.
+ * Simple DataFetcher that invokes target function on the given object.
  *
- * @param target The target object that performs the data fetching
+ * @param target The target object that performs the data fetching, if not specified then this data fetcher will attempt
+ *   to use source object from the environment
  * @param fn The Kotlin function being invoked
+ * @param objectMapper Jackson ObjectMapper that will be used to deserialize environment arguments to the expected function arguments
  * @param executionPredicate Predicate to run to map the value to a new result
  */
 class FunctionDataFetcher(

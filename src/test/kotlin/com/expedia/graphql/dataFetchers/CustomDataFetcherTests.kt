@@ -2,8 +2,6 @@ package com.expedia.graphql.dataFetchers
 
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
-import com.expedia.graphql.execution.DataFetcherFactoryConfig
-import com.expedia.graphql.execution.DataFetcherPropertyConfig
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
@@ -14,6 +12,8 @@ import graphql.schema.DataFetcherFactories
 import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 
 class CustomDataFetcherTests {
@@ -52,11 +52,11 @@ data class AnimalDetails(val specialId: Int)
 
 class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider(NoopSchemaGeneratorHooks()) {
 
-    override fun getDataFetcherFactory(config: DataFetcherFactoryConfig): DataFetcherFactory<Any> =
-        if (config is DataFetcherPropertyConfig && config.kProperty.isLateinit) {
+    override fun propertyDataFetcherFactory(kClazz: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
+        if (kProperty.isLateinit) {
             DataFetcherFactories.useDataFetcher(AnimalDetailsDataFetcher())
         } else {
-            super.getDataFetcherFactory(config)
+            super.propertyDataFetcherFactory(kClazz, kProperty)
         }
 }
 

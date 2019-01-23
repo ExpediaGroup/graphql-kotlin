@@ -1,6 +1,5 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.execution.DataFetcherPropertyConfig
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getPropertyDeprecationReason
@@ -20,7 +19,7 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             .description(prop.getPropertyDescription(parentClass))
             .name(prop.name)
             .type(propertyType)
-            .dataFetcherFactory(config.dataFetcherFactoryProvider.getDataFetcherFactory(DataFetcherPropertyConfig(kProperty = prop, kClazz = parentClass)))
+            .dataFetcherFactory(config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClazz = parentClass, kProperty = prop))
             .deprecate(prop.getPropertyDeprecationReason(parentClass))
 
         generator.directives(prop).forEach {

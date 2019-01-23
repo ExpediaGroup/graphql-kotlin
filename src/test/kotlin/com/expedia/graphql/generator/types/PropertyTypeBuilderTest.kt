@@ -138,7 +138,7 @@ internal class PropertyTypeBuilderTest : TypeTestHelper() {
         val mockDataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = mockk()
         val mockFactory: DataFetcherFactory<Any> = mockk()
         val mockDataFetcher: DataFetcher<Any> = mockk()
-        every { mockDataFetcherFactoryProvider.getDataFetcherFactory(any()) } returns mockFactory
+        every { mockDataFetcherFactoryProvider.propertyDataFetcherFactory(any(), any()) } returns mockFactory
         every { mockFactory.get(any()) } returns mockDataFetcher
         every { localConfig.dataFetcherFactoryProvider } returns mockDataFetcherFactoryProvider
         val localGenerator = SchemaGenerator(localConfig)
