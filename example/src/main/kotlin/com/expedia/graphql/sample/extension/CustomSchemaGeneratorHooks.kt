@@ -1,7 +1,7 @@
 package com.expedia.graphql.sample.extension
 
 import com.expedia.graphql.DirectiveWiringHelper
-import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
+import com.expedia.graphql.execution.DataFetcherExecutionPredicate
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.validation.DataFetcherExecutionValidator
 import graphql.language.StringValue

@@ -1,7 +1,7 @@
 package com.expedia.graphql.hooks
 
+import com.expedia.graphql.execution.DataFetcherExecutionPredicate
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
-import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
@@ -72,12 +72,6 @@ interface SchemaGeneratorHooks {
      * Called after wrapping the type based on nullity but before adding the generated type to the schema
      */
     fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) = Unit
-
-    /**
-     * Called after converting the function to a data fetcher allowing wrapping the fetcher to modify data or instrument it.
-     * This is more useful than the graphql.execution.instrumentation.Instrumentation as you have the function type here
-     */
-    fun didGenerateDataFetcher(function: KFunction<*>, dataFetcher: DataFetcher<*>): DataFetcher<*> = dataFetcher
 
     /**
      * Called after converting the function to a field definition but before adding to the schema to allow customization

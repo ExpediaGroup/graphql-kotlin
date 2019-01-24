@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.SchemaGeneratorConfig
+import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.SubTypeMapper
 import com.expedia.graphql.generator.state.SchemaGeneratorState
@@ -30,6 +31,7 @@ internal open class TypeTestHelper {
     var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql.generator.types")))
     var cache = spyk(TypesCache(listOf("com.expedia.graphql.generator.types")))
     var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks()
+    var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 
     private var scalarTypeBuilder: ScalarTypeBuilder? = null
     private var objectTypeBuilder: ObjectTypeBuilder? = null
@@ -46,7 +48,7 @@ internal open class TypeTestHelper {
         every { generator.config } returns config
         every { generator.subTypeMapper } returns subTypeMapper
         every { config.hooks } returns hooks
-        every { config.dataFetcherFactory } returns null
+        every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
         every { config.topLevelQueryName } returns "TestTopLevelQuery"
         every { config.topLevelMutationName } returns "TestTopLevelMutation"
 

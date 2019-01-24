@@ -1,25 +1,28 @@
-package com.expedia.graphql.dataFetchers
+package com.expedia.graphql.execution
 
-import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.SchemaGeneratorConfig
+import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.extensions.deepName
+import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.schema.DataFetcher
+import graphql.schema.DataFetcherFactories
 import graphql.schema.DataFetcherFactory
-import graphql.schema.DataFetcherFactoryEnvironment
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 
 class CustomDataFetcherTests {
     @Test
     fun `Custom DataFetcher can be used on functions`() {
-        val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expedia"), dataFetcherFactory = PetDataFetcherFactory())
+        val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expedia"), dataFetcherFactoryProvider = CustomDataFetcherFactoryProvider())
         val schema = toSchema(listOf(TopLevelObject(AnimalQuery())), config = config)
 
         val animalType = schema.getObjectType("Animal")
-        assertEquals("AnimalDetails", animalType.getFieldDefinition("details").type.deepName)
+        assertEquals("AnimalDetails!", animalType.getFieldDefinition("details").type.deepName)
 
         val graphQL = GraphQL.newGraphQL(schema).build()
         val execute = graphQL.execute("{ findAnimal { id type details { specialId } } }")
@@ -46,8 +49,14 @@ data class Animal(
 
 data class AnimalDetails(val specialId: Int)
 
-class PetDataFetcherFactory : DataFetcherFactory<Any> {
-    override fun get(environment: DataFetcherFactoryEnvironment?): DataFetcher<Any> = AnimalDetailsDataFetcher()
+class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider(NoopSchemaGeneratorHooks()) {
+
+    override fun propertyDataFetcherFactory(kClazz: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
+        if (kProperty.isLateinit) {
+            DataFetcherFactories.useDataFetcher(AnimalDetailsDataFetcher())
+        } else {
+            super.propertyDataFetcherFactory(kClazz, kProperty)
+        }
 }
 
 class AnimalDetailsDataFetcher : DataFetcher<Any> {

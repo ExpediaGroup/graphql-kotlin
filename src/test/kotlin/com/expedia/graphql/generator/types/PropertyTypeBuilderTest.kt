@@ -4,6 +4,7 @@ import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLID
+import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import graphql.Scalars
@@ -134,10 +135,12 @@ internal class PropertyTypeBuilderTest : TypeTestHelper() {
         val localConfig: SchemaGeneratorConfig = mockk()
         every { localConfig.hooks } returns NoopSchemaGeneratorHooks()
         every { localConfig.supportedPackages } returns emptyList()
-        val mockDataDatafetcher: DataFetcher<*> = mockk()
-        val dataFetcherFactory: DataFetcherFactory<*> = mockk()
-        every { dataFetcherFactory.get(any()) } returns mockDataDatafetcher
-        every { localConfig.dataFetcherFactory } returns dataFetcherFactory
+        val mockDataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = mockk()
+        val mockFactory: DataFetcherFactory<Any> = mockk()
+        val mockDataFetcher: DataFetcher<Any> = mockk()
+        every { mockDataFetcherFactoryProvider.propertyDataFetcherFactory(any(), any()) } returns mockFactory
+        every { mockFactory.get(any()) } returns mockDataFetcher
+        every { localConfig.dataFetcherFactoryProvider } returns mockDataFetcherFactoryProvider
         val localGenerator = SchemaGenerator(localConfig)
         val localBuilder = PropertyTypeBuilder(localGenerator)
 
@@ -145,6 +148,6 @@ internal class PropertyTypeBuilderTest : TypeTestHelper() {
         val result = localBuilder.property(prop, ClassWithProperties::class)
 
         assertFalse(result.dataFetcher is PropertyDataFetcher)
-        assertEquals(expected = mockDataDatafetcher, actual = result.dataFetcher)
+        assertEquals(expected = mockDataFetcher, actual = result.dataFetcher)
     }
 }

@@ -1,6 +1,5 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.KotlinDataFetcher
 import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
@@ -41,9 +40,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             }
 
         if (!abstract) {
-            val dataFetcher = KotlinDataFetcher(target, fn, config.hooks.dataFetcherExecutionPredicate)
-            val hookDataFetcher = config.hooks.didGenerateDataFetcher(fn, dataFetcher)
-            builder.dataFetcher(hookDataFetcher)
+            builder.dataFetcherFactory(config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn))
         }
 
         val monadType = config.hooks.willResolveMonad(fn.returnType)

@@ -1,6 +1,6 @@
 package com.expedia.graphql.sample.validation
 
-import com.expedia.graphql.hooks.DataFetcherExecutionPredicate
+import com.expedia.graphql.execution.DataFetcherExecutionPredicate
 import com.expedia.graphql.sample.exceptions.ValidationException
 import com.expedia.graphql.sample.exceptions.asConstraintError
 import graphql.schema.DataFetchingEnvironment
