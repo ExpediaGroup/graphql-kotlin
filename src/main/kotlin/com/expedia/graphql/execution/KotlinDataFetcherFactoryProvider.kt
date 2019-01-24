@@ -35,9 +35,9 @@ open class KotlinDataFetcherFactoryProvider(private val hooks: SchemaGeneratorHo
     /**
      * Retrieve instance of [DataFetcherFactory] that will be used to resolve target property.
      *
-     * @param kClazz parent class that contains this property
+     * @param kClass parent class that contains this property
      * @param kProperty Kotlin property that should be resolved
      */
-    open fun propertyDataFetcherFactory(kClazz: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
+    open fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
             DataFetcherFactories.useDataFetcher(PropertyDataFetcher(kProperty.name))
 }

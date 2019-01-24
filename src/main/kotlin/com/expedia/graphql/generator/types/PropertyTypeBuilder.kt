@@ -19,7 +19,7 @@ internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             .description(prop.getPropertyDescription(parentClass))
             .name(prop.name)
             .type(propertyType)
-            .dataFetcherFactory(config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClazz = parentClass, kProperty = prop))
+            .dataFetcherFactory(config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop))
             .deprecate(prop.getPropertyDeprecationReason(parentClass))
 
         generator.directives(prop).forEach {
