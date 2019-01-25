@@ -35,7 +35,7 @@ commit_files() {
   git add pom.xml example/pom.xml
 
   # Create a new commit with a custom build message and Travis build number for reference
-  git commit -m "travis: Upgrade to next snapshot (Build $TRAVIS_BUILD_NUMBER)"
+  git commit -m "build: $NEW_VERSION (Travis Build $TRAVIS_BUILD_NUMBER)"
 }
 
 upload_files() {
