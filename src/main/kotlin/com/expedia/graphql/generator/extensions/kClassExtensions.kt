@@ -17,6 +17,8 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.superclasses
 
+private const val INPUT_SUFFIX = "Input"
+
 internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks): List<KProperty<*>> =
     this.declaredMemberProperties
         .filter { hooks.isValidProperty(it) }
@@ -53,7 +55,7 @@ internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
     val name = this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
 
     return when {
-        isInputClass -> "${name}Input"
+        isInputClass -> if (name.endsWith(INPUT_SUFFIX)) name else "$name$INPUT_SUFFIX"
         else -> name
     }
 }
