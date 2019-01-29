@@ -70,17 +70,17 @@ will generate
 
 ```graphql
 schema {
-  query: TopLevelQuery
-  mutation: TopLevelMutation
+  query: Query
+  mutation: Mutation
 }
 
-type TopLevelQuery {
+type Query {
   widgetById(id: Int!): Widget
   
   widgetByValue(vale: String!): Widget @deprecated(reason: "Use widgetById")
 }
 
-type TopLevelMutation {
+type Mutation {
   saveWidget(value: String!): Widget!
 }
 

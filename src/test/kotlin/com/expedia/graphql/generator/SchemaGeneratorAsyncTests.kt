@@ -29,7 +29,7 @@ class SchemaGeneratorAsyncTests {
     fun `SchemaGenerator strips type argument from CompletableFuture to support async servlet`() {
         val schema = toSchema(listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig)
         val returnTypeName =
-            (schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
+            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
     }
 
@@ -37,7 +37,7 @@ class SchemaGeneratorAsyncTests {
     fun `SchemaGenerator strips type argument from RxJava2 Observable`() {
         val schema = toSchema(listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
         val returnTypeName =
-            (schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
+            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
     }
 
@@ -45,7 +45,7 @@ class SchemaGeneratorAsyncTests {
     fun `SchemaGenerator strips type argument from RxJava2 Single`() {
         val schema = toSchema(listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
         val returnTypeName =
-            (schema.getObjectType("TopLevelQuery").getFieldDefinition("asynchronouslyDoSingle").type as? GraphQLNonNull)?.wrappedType?.name
+            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDoSingle").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
     }
 
@@ -53,7 +53,7 @@ class SchemaGeneratorAsyncTests {
     fun `SchemaGenerator strips type argument from RxJava2 Maybe`() {
         val schema = toSchema(listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
         val returnTypeName =
-            (schema.getObjectType("TopLevelQuery").getFieldDefinition("maybe").type as? GraphQLNonNull)?.wrappedType?.name
+            (schema.getObjectType("Query").getFieldDefinition("maybe").type as? GraphQLNonNull)?.wrappedType?.name
         assertEquals("Int", returnTypeName)
     }
 
