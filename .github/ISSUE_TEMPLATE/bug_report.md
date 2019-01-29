@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-** Library Version **
+**Library Version**
 What version are you using?
 
 **Describe the bug**
