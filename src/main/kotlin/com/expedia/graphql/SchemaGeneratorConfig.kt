@@ -9,8 +9,8 @@ import com.expedia.graphql.hooks.SchemaGeneratorHooks
  */
 data class SchemaGeneratorConfig(
     val supportedPackages: List<String>,
-    val topLevelQueryName: String = "TopLevelQuery",
-    val topLevelMutationName: String = "TopLevelMutation",
+    val topLevelQueryName: String = "Query",
+    val topLevelMutationName: String = "Mutation",
     val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks(),
     val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 )
