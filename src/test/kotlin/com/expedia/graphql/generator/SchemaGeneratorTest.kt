@@ -91,7 +91,7 @@ class SchemaGeneratorTest {
     fun `SchemaGenerator generates a GraphQL schema with repeated types to test conflicts`() {
         val schema = toSchema(listOf(TopLevelObject(QueryWithRepeatedTypes())), config = testSchemaConfig)
         val resultType = schema.getObjectType("Result")
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         assertEquals("Result!", topLevelQuery.getFieldDefinition("query").type.deepName)
         assertEquals("SomeObject", resultType.getFieldDefinition("someObject").type.deepName)
         assertEquals("[Int!]!", resultType.getFieldDefinition("someIntValues").type.deepName)
@@ -104,7 +104,7 @@ class SchemaGeneratorTest {
     fun `SchemaGenerator generates a GraphQL schema with mixed nullity`() {
         val schema = toSchema(listOf(TopLevelObject(QueryWithNullableAndNonNullTypes())), config = testSchemaConfig)
         val resultType = schema.getObjectType("MixedNullityResult")
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         assertEquals("MixedNullityResult!", topLevelQuery.getFieldDefinition("query").type.deepName)
         assertEquals("String", resultType.getFieldDefinition("oneThing").type.deepName)
         assertEquals("String!", resultType.getFieldDefinition("theNextThing").type.deepName)
@@ -113,7 +113,7 @@ class SchemaGeneratorTest {
     @Test
     fun `SchemaGenerator generates a GraphQL schema where the input types differ from the output types`() {
         val schema = toSchema(listOf(TopLevelObject(QueryWithInputObject())), config = testSchemaConfig)
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         assertEquals(
             "SomeObjectInput!",
             topLevelQuery.getFieldDefinition("query").getArgument("someObject").type.deepName
@@ -124,7 +124,7 @@ class SchemaGeneratorTest {
     @Test
     fun `SchemaGenerator generates a GraphQL schema where the input and output enum is the same`() {
         val schema = toSchema(listOf(TopLevelObject(QueryWithInputEnum())), config = testSchemaConfig)
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").getArgument("someEnum").type.deepName)
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").type.deepName)
     }
@@ -187,7 +187,7 @@ class SchemaGeneratorTest {
     fun `SchemaGenerator ignores private fields`() {
         val schema =
             toSchema(listOf(TopLevelObject(QueryWithPrivateParts())), config = testSchemaConfig)
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("query")
         val resultWithPrivateParts = query.type as? GraphQLObjectType
         assertNotNull(resultWithPrivateParts)

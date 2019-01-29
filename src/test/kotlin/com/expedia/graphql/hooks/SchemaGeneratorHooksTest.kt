@@ -57,7 +57,7 @@ class SchemaGeneratorHooksTest {
             listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("query")
         assertTrue(hooks.willGenerateGraphQLTypeCalled)
         assertEquals("InterceptedFromHook!", query.type.deepName)
@@ -145,7 +145,7 @@ class SchemaGeneratorHooksTest {
             listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
-        val topLevelQuery = schema.getObjectType("TopLevelQuery")
+        val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("query")
         assertEquals("Hijacked Description", query.description)
     }
@@ -172,7 +172,7 @@ class SchemaGeneratorHooksTest {
             mutations = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
-        val topLevelQuery = schema.getObjectType("TopLevelMutation")
+        val topLevelQuery = schema.getObjectType("Mutation")
         val query = topLevelQuery.getFieldDefinition("query")
         assertEquals("Hijacked Description", query.description)
     }
