@@ -32,6 +32,8 @@ open class KClassExtensionsTest {
 
     internal class MyInternalClass
 
+    class MyClassInput
+
     protected class MyProtectedClass
 
     class MyPublicClass
@@ -172,6 +174,7 @@ open class KClassExtensionsTest {
     @Test
     fun `test class simple name`() {
         assertEquals("MyTestClass", MyTestClass::class.getSimpleName())
+        assertEquals("MyClassInput", MyClassInput::class.getSimpleName())
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
             object { }::class.getSimpleName()
         }
