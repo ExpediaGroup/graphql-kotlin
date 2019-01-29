@@ -174,7 +174,6 @@ open class KClassExtensionsTest {
     @Test
     fun `test class simple name`() {
         assertEquals("MyTestClass", MyTestClass::class.getSimpleName())
-        assertEquals("MyClassInput", MyClassInput::class.getSimpleName())
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
             object { }::class.getSimpleName()
         }
@@ -183,6 +182,7 @@ open class KClassExtensionsTest {
     @Test
     fun `test input class name`() {
         assertEquals("MyTestClassInput", MyTestClass::class.getSimpleName(true))
+        assertEquals("MyClassInput", MyClassInput::class.getSimpleName(true))
     }
 
     @Test
