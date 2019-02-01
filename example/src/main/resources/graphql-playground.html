@@ -522,7 +522,7 @@
 
 <div id="root" />
 <script type="text/javascript">
-    window.addEventListener('load', function (event) {
+    window.addEventListener('load', function () {
 
         const loadingWrapper = document.getElementById('loading-wrapper');
         loadingWrapper.classList.add('fadeOut');
@@ -532,7 +532,8 @@
         root.classList.add('playgroundIn');
 
         GraphQLPlayground.init(root, {
-            endpoint: '/graphql'
+            endpoint: '/graphql',
+            subscriptionEndpoint: '/subscriptions'
         })
     })
 </script>
