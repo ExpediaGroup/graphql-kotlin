@@ -19,8 +19,8 @@ class DataFetchPredicateTests {
     fun `A datafetcher execution is stopped if the predicate test is false`() {
         val config = getTestSchemaConfigWithHooks(PredicateHooks())
         val schema = toSchema(
-                listOf(TopLevelObject(QueryWithValidations())),
-                config = config
+            queries = listOf(TopLevelObject(QueryWithValidations())),
+            config = config
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ greaterThan2Times10(greaterThan2: 1) }")
@@ -36,8 +36,8 @@ class DataFetchPredicateTests {
     fun `A datafetcher execution is stopped if the predicate test is false with complex argument under test`() {
         val config = getTestSchemaConfigWithHooks(PredicateHooks())
         val schema = toSchema(
-                listOf(TopLevelObject(QueryWithValidations())),
-                config = config
+            queries = listOf(TopLevelObject(QueryWithValidations())),
+            config = config
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ complexPredicate(person: { age: 33, name: \"Alice\"}) }")

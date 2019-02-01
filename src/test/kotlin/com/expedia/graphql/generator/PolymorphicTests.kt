@@ -16,7 +16,7 @@ internal class PolymorphicTests {
 
     @Test
     fun `Schema generator creates union types from marked up interface`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithUnion())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithUnion())), config = testSchemaConfig)
 
         val graphqlType = schema.getType("BodyPart") as? GraphQLUnionType
         assertNotNull(graphqlType)
@@ -33,7 +33,7 @@ internal class PolymorphicTests {
 
     @Test
     fun `SchemaGenerator can expose an interface and its implementations`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithInterface())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInterface())), config = testSchemaConfig)
 
         val interfaceType = schema.getType("AnInterface")
         assertNotNull(interfaceType)
@@ -47,20 +47,20 @@ internal class PolymorphicTests {
     @Test
     fun `Interfaces cannot be used as input field types`() {
         assertThrows(InvalidInputFieldTypeException::class.java) {
-            toSchema(listOf(TopLevelObject(QueryWithUnAuthorizedInterfaceArgument())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithUnAuthorizedInterfaceArgument())), config = testSchemaConfig)
         }
     }
 
     @Test
     fun `Union cannot be used as input field types`() {
         assertThrows(InvalidInputFieldTypeException::class.java) {
-            toSchema(listOf(TopLevelObject(QueryWithUnAuthorizedUnionArgument())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithUnAuthorizedUnionArgument())), config = testSchemaConfig)
         }
     }
 
     @Test
     fun `Object types implementing union and interfaces are only created once`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithInterfaceAnUnion())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInterfaceAnUnion())), config = testSchemaConfig)
 
         val carType = schema.getType("Car") as? GraphQLObjectType
         assertNotNull(carType)
@@ -74,7 +74,7 @@ internal class PolymorphicTests {
 
     @Test
     fun `Interfaces can declare properties of their own type`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithRecursiveType())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithRecursiveType())), config = testSchemaConfig)
 
         val personType = schema.getType("Person")
         assertNotNull(personType)
