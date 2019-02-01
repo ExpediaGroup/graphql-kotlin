@@ -19,5 +19,6 @@ data class SchemaGeneratorConfig(
  */
 data class TopLevelNames(
     val query: String = "Query",
-    val mutation: String = "Mutation"
+    val mutation: String = "Mutation",
+    val subscription: String = "Subscription"
 )

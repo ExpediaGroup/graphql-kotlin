@@ -5,6 +5,7 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
+import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.generator.extensions.isDataFetchingEnvironment
@@ -14,10 +15,12 @@ import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
+import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.valueParameters
 
 internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -56,8 +59,9 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
     }
 
     private fun getWrappedReturnType(returnType: KType): KType =
-        when (returnType.classifier) {
-            CompletableFuture::class -> returnType.getTypeOfFirstArgument()
+        when {
+            returnType.getKClass().isSubclassOf(Publisher::class) -> returnType.getTypeOfFirstArgument()
+            returnType.classifier == CompletableFuture::class -> returnType.getTypeOfFirstArgument()
             else -> returnType
         }
 

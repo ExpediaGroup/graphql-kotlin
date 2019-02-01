@@ -8,7 +8,9 @@ import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLNonNull
+import io.reactivex.Flowable
 import org.junit.jupiter.api.Test
+import org.reactivestreams.Publisher
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
@@ -51,6 +53,10 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         fun saw(tree: String) = tree
 
         fun context(@GraphQLContext context: String, string: String) = "$context and $string"
+
+        fun publisher(num: Int): Publisher<Int> = Flowable.just(num)
+
+        fun flowable(num: Int): Flowable<Int> = Flowable.just(num)
 
         fun completableFuture(num: Int): CompletableFuture<Int> = CompletableFuture.completedFuture(num)
 
@@ -153,6 +159,24 @@ internal class FunctionBuilderTest : TypeTestHelper() {
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertFalse(result.dataFetcher is FunctionDataFetcher)
+    }
+
+    @Test
+    fun `publisher return type is valid`() {
+        val kFunction = Happy::publisher
+        val result = builder.function(fn = kFunction)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+    }
+
+    @Test
+    fun `a return type that implements Publisher is valid`() {
+        val kFunction = Happy::flowable
+        val result = builder.function(fn = kFunction)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
     }
 
     @Test
