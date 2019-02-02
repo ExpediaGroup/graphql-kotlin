@@ -53,7 +53,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
     private fun argument(parameter: KParameter): GraphQLArgument {
 
         if (parameter.isInterface()) {
-            throw InvalidInputFieldTypeException()
+            throw InvalidInputFieldTypeException(parameter)
         }
 
         val builder = GraphQLArgument.newArgument()

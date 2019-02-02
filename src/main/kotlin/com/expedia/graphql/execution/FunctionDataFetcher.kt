@@ -36,7 +36,9 @@ class FunctionDataFetcher(
         val instance = target ?: environment.getSource<Any>()
 
         return instance?.let {
-            val parameterValues = fn.valueParameters.map { param -> mapParameterToValue(param, environment) }.toTypedArray()
+            val parameterValues = fn.valueParameters
+                .map { param -> mapParameterToValue(param, environment) }
+                .toTypedArray()
 
             if (fn.isSuspend) {
                 GlobalScope.async {
@@ -53,7 +55,7 @@ class FunctionDataFetcher(
             environment.getContext()
         } else {
             val name = param.getName()
-            val klazz = param.type.javaTypeClass
+            val klazz = param.javaTypeClass()
             val value = objectMapper.convertValue(environment.arguments[name], klazz)
             val predicateResult = executionPredicate?.evaluate(value = value, parameter = param, environment = environment)
 

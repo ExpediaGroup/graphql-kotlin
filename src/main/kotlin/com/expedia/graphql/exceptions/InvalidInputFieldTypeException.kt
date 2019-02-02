@@ -1,5 +1,7 @@
 package com.expedia.graphql.exceptions
 
+import kotlin.reflect.KParameter
+
 /**
  * GraphQL Interfaces and Unions cannot be used as arguments.
  * Specification reference: https://facebook.github.io/graphql/draft/#sec-Field-Arguments
@@ -28,4 +30,5 @@ package com.expedia.graphql.exceptions
  *
  * data class PartOfUnion( val property: Int) : UnionMarkup
  */
-class InvalidInputFieldTypeException : GraphQLKotlinException("Object field argument cannot be an interface or a union")
+class InvalidInputFieldTypeException(kParameter: KParameter)
+    : GraphQLKotlinException("Argument cannot be an interface or a union, $kParameter")
