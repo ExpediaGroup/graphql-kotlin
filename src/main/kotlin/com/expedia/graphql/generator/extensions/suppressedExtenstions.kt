@@ -1,8 +1,8 @@
 package com.expedia.graphql.generator.extensions
 
-import kotlin.reflect.KType
+import com.expedia.graphql.exceptions.CouldNotCastArgumentException
+import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.javaType
 
-@Suppress("Detekt.UnsafeCast")
-internal val KType.javaTypeClass: Class<*>
-    get() = this.javaType as Class<*>
+@Throws(CouldNotCastArgumentException::class)
+internal fun KParameter.javaTypeClass(): Class<*> = this.type.javaType as? Class<*> ?: throw CouldNotCastArgumentException(this)
