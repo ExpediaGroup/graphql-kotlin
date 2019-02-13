@@ -19,7 +19,7 @@ internal class QueryTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
         }
 
         val queryBuilder = GraphQLObjectType.Builder()
-        queryBuilder.name(config.topLevelQueryName)
+        queryBuilder.name(config.topLevelNames.query)
 
         for (query in queries) {
             if (!query.kClass.isPublic()) {

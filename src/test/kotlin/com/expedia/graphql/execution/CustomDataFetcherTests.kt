@@ -19,7 +19,7 @@ class CustomDataFetcherTests {
     @Test
     fun `Custom DataFetcher can be used on functions`() {
         val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expedia"), dataFetcherFactoryProvider = CustomDataFetcherFactoryProvider())
-        val schema = toSchema(listOf(TopLevelObject(AnimalQuery())), config = config)
+        val schema = toSchema(queries = listOf(TopLevelObject(AnimalQuery())), config = config)
 
         val animalType = schema.getObjectType("Animal")
         assertEquals("AnimalDetails!", animalType.getFieldDefinition("details").type.deepName)

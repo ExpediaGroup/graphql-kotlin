@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 class DirectiveTests {
     @Test
     fun `SchemaGenerator marks deprecated fields in the return objects`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedFieldQuery")
         val result = (query.type as? GraphQLNonNull)?.wrappedType as? GraphQLObjectType
@@ -27,7 +27,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated queries and documents replacement`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedQueryWithReplacement")
 
@@ -37,7 +37,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated queries`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedQuery")
         assertTrue(query.isDeprecated)
@@ -46,7 +46,7 @@ class DirectiveTests {
 
     @Test
     fun `Default directive names are normalized`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryObject())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = testSchemaConfig)
 
         val query = schema.queryType.getFieldDefinition("query")
         assertNotNull(query)
@@ -55,7 +55,7 @@ class DirectiveTests {
 
     @Test
     fun `Custom directive names are not modified`() {
-        val schema = toSchema(listOf(TopLevelObject(QueryObject())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = testSchemaConfig)
 
         val directive = assertNotNull(
                 (schema.getType("Location") as? GraphQLObjectType)

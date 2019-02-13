@@ -70,9 +70,9 @@ class Application {
         }
 
         val schema = toSchema(
-                queries = queries.toTopLevelObjectDefs(),
-                mutations = mutations.toTopLevelObjectDefs(),
-                config = schemaConfig
+            queries = queries.toTopLevelObjectDefs(),
+            mutations = mutations.toTopLevelObjectDefs(),
+            config = schemaConfig
         )
         logger.info(SchemaPrinter(
                 SchemaPrinter.Options.defaultOptions()

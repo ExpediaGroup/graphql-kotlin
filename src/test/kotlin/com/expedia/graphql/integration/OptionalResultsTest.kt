@@ -13,8 +13,8 @@ class OptionalResultsTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
         val schema = toSchema(
-            listOf(TopLevelObject(QueryObject())),
-            listOf(),
+            queries = listOf(TopLevelObject(QueryObject())),
+            mutations = listOf(),
             config = testSchemaConfig
         )
         val graphQL = GraphQL.newGraphQL(schema).build()

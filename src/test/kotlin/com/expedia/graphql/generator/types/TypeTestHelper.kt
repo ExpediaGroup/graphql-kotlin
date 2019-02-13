@@ -49,8 +49,8 @@ internal open class TypeTestHelper {
         every { generator.subTypeMapper } returns subTypeMapper
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
-        every { config.topLevelQueryName } returns "TestTopLevelQuery"
-        every { config.topLevelMutationName } returns "TestTopLevelMutation"
+
+        every { config.topLevelNames } returns com.expedia.graphql.TopLevelNames(query = "TestTopLevelQuery", mutation = "TestTopLevelMutation")
 
         functionTypeBuilder = spyk(FunctionTypeBuilder(generator))
         every { generator.function(any(), any(), any()) } answers {

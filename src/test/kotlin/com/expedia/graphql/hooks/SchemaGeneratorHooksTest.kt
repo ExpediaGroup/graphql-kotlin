@@ -35,7 +35,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
-            listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.willBuildSchemaCalled)
@@ -54,7 +54,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
-            listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         val topLevelQuery = schema.getObjectType("Query")
@@ -76,7 +76,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
-            listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.calledFilterFunction)
@@ -97,7 +97,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
-            listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.calledFilterFunction)
@@ -117,7 +117,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         toSchema(
-            listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         assertEquals(SomeData::class.createType(), hooks.lastSeenType)
@@ -142,7 +142,7 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         val schema = toSchema(
-            listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         val topLevelQuery = schema.getObjectType("Query")

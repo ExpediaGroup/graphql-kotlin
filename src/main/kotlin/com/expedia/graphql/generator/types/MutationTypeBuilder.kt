@@ -17,7 +17,7 @@ internal class MutationTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         }
 
         val mutationBuilder = GraphQLObjectType.Builder()
-        mutationBuilder.name(config.topLevelMutationName)
+        mutationBuilder.name(config.topLevelNames.mutation)
 
         for (mutation in mutations) {
             if (!mutation.kClass.isPublic()) {
