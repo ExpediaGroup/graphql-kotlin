@@ -10,14 +10,13 @@ import com.expedia.graphql.generator.extensions.getValidSuperclasses
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
-        return state.cache.buildIfNotUnderConstruction(kClass) { _ ->
+        return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLObjectType.newObject()
 
             builder.name(kClass.getSimpleName())
@@ -35,7 +34,6 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
                     .forEach {
                         when (it) {
                             is GraphQLInterfaceType -> builder.withInterface(it)
-                            is GraphQLTypeReference -> builder.withInterface(it)
                         }
                     }
             }

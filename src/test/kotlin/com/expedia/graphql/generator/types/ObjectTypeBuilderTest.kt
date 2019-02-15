@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class ObjectTypeTest : TypeTestHelper() {
+internal class ObjectTypeBuilderTest : TypeTestHelper() {
 
     private lateinit var builder: ObjectTypeBuilder
 
