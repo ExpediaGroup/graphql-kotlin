@@ -22,7 +22,7 @@ internal class QueryTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
         queryBuilder.name(config.topLevelNames.query)
 
         for (query in queries) {
-            if (!query.kClass.isPublic()) {
+            if (query.kClass.isPublic().not()) {
                 throw InvalidQueryTypeException(query.kClass)
             }
 

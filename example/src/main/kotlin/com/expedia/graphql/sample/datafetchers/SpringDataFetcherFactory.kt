@@ -1,4 +1,4 @@
-package com.expedia.graphql.sample.dataFetchers
+package com.expedia.graphql.sample.datafetchers
 
 import com.expedia.graphql.extensions.deepName
 import graphql.schema.DataFetcher

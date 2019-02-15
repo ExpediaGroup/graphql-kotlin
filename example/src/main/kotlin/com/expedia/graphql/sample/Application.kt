@@ -6,8 +6,8 @@ import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.context.MyGraphQLContextBuilder
-import com.expedia.graphql.sample.dataFetchers.CustomDataFetcherFactoryProvider
-import com.expedia.graphql.sample.dataFetchers.SpringDataFetcherFactory
+import com.expedia.graphql.sample.datafetchers.CustomDataFetcherFactoryProvider
+import com.expedia.graphql.sample.datafetchers.SpringDataFetcherFactory
 import com.expedia.graphql.sample.directives.DirectiveWiringFactory
 import com.expedia.graphql.sample.directives.LowercaseDirectiveWiring
 import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
@@ -60,10 +60,19 @@ class Application {
     )
 
     @Bean
+    fun schemaPrinter() = SchemaPrinter(
+        SchemaPrinter.Options.defaultOptions()
+            .includeScalarTypes(true)
+            .includeExtendedScalarTypes(true)
+            .includeSchemaDefintion(true)
+    )
+
+    @Bean
     fun schema(
             queries: List<Query>,
             mutations: List<Mutation>,
-            schemaConfig: SchemaGeneratorConfig
+            schemaConfig: SchemaGeneratorConfig,
+            schemaPrinter: SchemaPrinter
     ): GraphQLSchema {
         fun List<Any>.toTopLevelObjectDefs() = this.map {
             TopLevelObject(it)
@@ -74,13 +83,9 @@ class Application {
             mutations = mutations.toTopLevelObjectDefs(),
             config = schemaConfig
         )
-        logger.info(SchemaPrinter(
-                SchemaPrinter.Options.defaultOptions()
-                        .includeScalarTypes(true)
-                        .includeExtendedScalarTypes(true)
-                        .includeSchemaDefintion(true)
-            ).print(schema)
-        )
+
+        logger.info(schemaPrinter().print(schema))
+
         return schema
     }
 

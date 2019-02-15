@@ -15,7 +15,7 @@ data class SchemaGeneratorConfig(
 )
 
 /**
- *
+ * The names of the top level objects in the schema.
  */
 data class TopLevelNames(
     val query: String = "Query",

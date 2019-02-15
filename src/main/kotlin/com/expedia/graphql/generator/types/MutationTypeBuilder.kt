@@ -20,7 +20,7 @@ internal class MutationTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         mutationBuilder.name(config.topLevelNames.mutation)
 
         for (mutation in mutations) {
-            if (!mutation.kClass.isPublic()) {
+            if (mutation.kClass.isPublic().not()) {
                 throw InvalidMutationTypeException(mutation.kClass)
             }
 
