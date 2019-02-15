@@ -24,8 +24,7 @@ internal class GraphQLExtensionsKtTest {
         val type: GraphQLType = GraphQLObjectType("name", "description", emptyList(), mockk())
 
         assertFailsWith(CouldNotCastGraphQLType::class) {
-            val result = type.safeCast<GraphQLInterfaceType>()
-            result.description
+            type.safeCast<GraphQLInterfaceType>()
         }
     }
 }
