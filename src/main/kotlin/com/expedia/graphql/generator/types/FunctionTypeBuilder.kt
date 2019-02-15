@@ -9,9 +9,9 @@ import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isInterface
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLInputType
 import graphql.schema.GraphQLOutputType
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
@@ -48,10 +48,10 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
         val returnType = getWrappedReturnType(typeFromHooks)
-        builder.type(graphQLTypeOf(returnType) as GraphQLOutputType)
+        builder.type(graphQLTypeOf(returnType).safeCast<GraphQLOutputType>())
         val graphQLType = builder.build()
 
-        return config.hooks.onRewireGraphQLType(returnType, graphQLType) as GraphQLFieldDefinition
+        return config.hooks.onRewireGraphQLType(returnType, graphQLType).safeCast()
     }
 
     private fun getWrappedReturnType(returnType: KType): KType =
@@ -70,12 +70,12 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         val builder = GraphQLArgument.newArgument()
             .name(parameter.getName())
             .description(parameter.getGraphQLDescription())
-            .type(graphQLTypeOf(parameter.type, true) as GraphQLInputType)
+            .type(graphQLTypeOf(parameter.type, true).safeCast())
 
         generator.directives(parameter).forEach {
             builder.withDirective(it)
         }
 
-        return config.hooks.onRewireGraphQLType(parameter.type, builder.build()) as GraphQLArgument
+        return config.hooks.onRewireGraphQLType(parameter.type, builder.build()).safeCast()
     }
 }

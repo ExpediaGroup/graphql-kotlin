@@ -7,6 +7,7 @@ import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.extensions.getValidProperties
 import com.expedia.graphql.generator.extensions.getValidSuperclasses
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
@@ -30,7 +31,7 @@ internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gener
                 builder.withInterface(interfaceType)
             } else {
                 kClass.getValidSuperclasses(config.hooks)
-                    .mapNotNull { objectFromReflection(it.createType(), false) as? GraphQLInterfaceType }
+                    .map { objectFromReflection(it.createType(), false).safeCast<GraphQLInterfaceType>() }
                     .forEach { builder.withInterface(it) }
             }
 

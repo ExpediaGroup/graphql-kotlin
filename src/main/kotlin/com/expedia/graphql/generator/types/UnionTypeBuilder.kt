@@ -4,6 +4,7 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
+import com.expedia.graphql.generator.extensions.safeCast
 import com.expedia.graphql.generator.state.KGraphQLType
 import com.expedia.graphql.generator.state.TypesCacheKey
 import graphql.TypeResolutionEnvironment
@@ -33,7 +34,7 @@ internal class UnionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 if (objectType is GraphQLTypeReference) {
                     builder.possibleType(objectType)
                 } else {
-                    builder.possibleType(objectType as? GraphQLObjectType)
+                    builder.possibleType(objectType.safeCast<GraphQLObjectType>())
                 }
 
                 if (state.cache.doesNotContain(it.kotlin)) {

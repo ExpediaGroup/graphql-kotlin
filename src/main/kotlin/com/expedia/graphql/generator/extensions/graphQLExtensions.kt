@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator.extensions
 
+import com.expedia.graphql.exceptions.CouldNotCastGraphQLType
 import com.expedia.graphql.exceptions.NestingNonNullTypeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -29,6 +30,10 @@ internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
     type.isMarkedNullable -> this
     else -> GraphQLNonNull.nonNull(this)
 }
+
+@Suppress("UNCHECKED_CAST")
+@Throws(CouldNotCastGraphQLType::class)
+internal fun <T : GraphQLType> GraphQLType.safeCast(): T = this as? T ?: throw CouldNotCastGraphQLType(this)
 
 internal fun GraphQLDirectiveContainer.getAllDirectives(): List<GraphQLDirective> {
     // A function without directives may still be rewired if the arguments have directives

@@ -7,6 +7,7 @@ import com.expedia.graphql.generator.extensions.getPropertyDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidProperties
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInputType
@@ -32,7 +33,7 @@ internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(
 
         builder.description(prop.getPropertyDescription(parentClass))
         builder.name(prop.name)
-        builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)) as? GraphQLInputType)
+        builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>())
 
         return builder.build()
     }
