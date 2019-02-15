@@ -3,10 +3,10 @@ package com.expedia.graphql.generator.extensions
 import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse

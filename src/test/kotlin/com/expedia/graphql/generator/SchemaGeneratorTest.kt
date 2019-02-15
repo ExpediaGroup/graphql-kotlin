@@ -14,9 +14,9 @@ import graphql.GraphQL
 import graphql.Scalars
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
+import org.junit.jupiter.api.Test
 import java.net.CookieManager
 import java.util.UUID
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull

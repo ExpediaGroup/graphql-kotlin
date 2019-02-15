@@ -1,7 +1,7 @@
 package com.expedia.graphql.generator.filters
 
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
-import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 

@@ -3,7 +3,7 @@ package com.expedia.graphql.integration
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.testSchemaConfig
 import com.expedia.graphql.toSchema
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class NodeGraphTest {

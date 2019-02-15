@@ -31,9 +31,11 @@ internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
     else -> GraphQLNonNull.nonNull(this)
 }
 
-@Suppress("UNCHECKED_CAST")
 @Throws(CouldNotCastGraphQLType::class)
-internal fun <T : GraphQLType> GraphQLType.safeCast(): T = this as? T ?: throw CouldNotCastGraphQLType(this)
+internal inline fun <reified T : GraphQLType> GraphQLType.safeCast(): T {
+    if (this !is T) throw CouldNotCastGraphQLType(this)
+    return this
+}
 
 internal fun GraphQLDirectiveContainer.getAllDirectives(): List<GraphQLDirective> {
     // A function without directives may still be rewired if the arguments have directives

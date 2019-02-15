@@ -9,9 +9,9 @@ import graphql.schema.GraphQLNonNull
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KType
-import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SchemaGeneratorAsyncTests {
