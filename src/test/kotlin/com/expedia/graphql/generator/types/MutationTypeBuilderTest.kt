@@ -7,8 +7,8 @@ import com.expedia.graphql.exceptions.InvalidMutationTypeException
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLFieldDefinition
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse

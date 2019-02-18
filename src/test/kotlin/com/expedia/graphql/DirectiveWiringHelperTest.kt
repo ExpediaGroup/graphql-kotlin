@@ -15,7 +15,7 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 import graphql.schema.idl.WiringFactory
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals

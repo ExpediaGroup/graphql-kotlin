@@ -3,8 +3,8 @@ package com.expedia.graphql.generator.extensions
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
+import org.junit.jupiter.api.Test
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull

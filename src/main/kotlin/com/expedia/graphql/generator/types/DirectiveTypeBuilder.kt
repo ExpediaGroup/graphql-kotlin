@@ -4,10 +4,10 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidProperties
+import com.expedia.graphql.generator.extensions.safeCast
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
-import graphql.schema.GraphQLInputType
 import kotlin.reflect.KAnnotatedElement
 import com.expedia.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
@@ -39,7 +39,7 @@ internal class DirectiveTypeBuilder(generator: SchemaGenerator) : TypeBuilder(ge
             val argument = GraphQLArgument.newArgument()
                 .name(propertyName)
                 .value(value)
-                .type(type as? GraphQLInputType)
+                .type(type.safeCast())
                 .build()
 
             builder.argument(argument)

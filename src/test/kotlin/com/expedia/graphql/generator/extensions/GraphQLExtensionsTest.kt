@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator.extensions
 
+import com.expedia.graphql.exceptions.CouldNotCastGraphQLType
 import com.expedia.graphql.exceptions.NestingNonNullTypeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
@@ -24,8 +25,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KType
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -249,5 +250,22 @@ internal class GraphQLExtensionsTest {
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLUnionType)
         verify(exactly = 1) { mockWiring.onUnion(mockEnvironment) }
+    }
+
+    @Test
+    fun `safeCast valid type passes`() {
+        val type: GraphQLType = GraphQLInterfaceType("name", "description", emptyList(), mockk())
+
+        val castedType = type.safeCast<GraphQLInterfaceType>()
+        assertEquals("name", castedType.name)
+    }
+
+    @Test
+    fun `safeCast valid type to the wrong type fails`() {
+        val type: GraphQLType = GraphQLObjectType("name", "description", emptyList(), mockk())
+
+        assertFailsWith(CouldNotCastGraphQLType::class) {
+            type.safeCast<GraphQLInterfaceType>()
+        }
     }
 }

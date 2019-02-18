@@ -9,11 +9,11 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

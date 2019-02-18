@@ -3,12 +3,12 @@ package com.expedia.graphql.generator.types
 import com.expedia.graphql.exceptions.InvalidIdTypeException
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
+import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.UUID
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 

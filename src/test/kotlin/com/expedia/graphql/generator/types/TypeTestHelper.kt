@@ -35,6 +35,7 @@ internal open class TypeTestHelper {
 
     private var scalarTypeBuilder: ScalarTypeBuilder? = null
     private var objectTypeBuilder: ObjectTypeBuilder? = null
+    private var interfaceTypeBuilder: InterfaceTypeBuilder? = null
     private var directiveTypeBuilder: DirectiveTypeBuilder? = null
     private var functionTypeBuilder: FunctionTypeBuilder? = null
     private var propertyTypeBuilder: PropertyTypeBuilder? = null
@@ -70,6 +71,11 @@ internal open class TypeTestHelper {
         objectTypeBuilder = spyk(ObjectTypeBuilder(generator))
         every { generator.objectType(any(), any()) } answers {
             objectTypeBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
+        }
+
+        interfaceTypeBuilder = spyk(InterfaceTypeBuilder(generator))
+        every { generator.interfaceType(any()) } answers {
+            interfaceTypeBuilder!!.interfaceType(it.invocation.args[0] as KClass<*>)
         }
 
         directiveTypeBuilder = spyk(DirectiveTypeBuilder(generator))

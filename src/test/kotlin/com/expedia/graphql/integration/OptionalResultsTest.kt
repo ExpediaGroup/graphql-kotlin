@@ -4,7 +4,7 @@ import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
