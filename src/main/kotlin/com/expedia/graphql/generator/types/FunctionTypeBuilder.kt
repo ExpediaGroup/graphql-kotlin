@@ -6,14 +6,17 @@ import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getName
+import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isInterface
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputType
 import graphql.schema.GraphQLOutputType
+import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KType
 import kotlin.reflect.full.valueParameters
 
 @Suppress("Detekt.UnsafeCast")
@@ -43,11 +46,19 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
             builder.dataFetcherFactory(config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn))
         }
 
-        val monadType = config.hooks.willResolveMonad(fn.returnType)
-        builder.type(graphQLTypeOf(monadType) as GraphQLOutputType)
+        val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
+        val returnType = getWrappedReturnType(typeFromHooks)
+        builder.type(graphQLTypeOf(returnType) as GraphQLOutputType)
         val graphQLType = builder.build()
-        return config.hooks.onRewireGraphQLType(monadType, graphQLType) as GraphQLFieldDefinition
+
+        return config.hooks.onRewireGraphQLType(returnType, graphQLType) as GraphQLFieldDefinition
     }
+
+    private fun getWrappedReturnType(returnType: KType): KType =
+        when (returnType.classifier) {
+            CompletableFuture::class -> returnType.getTypeOfFirstArgument()
+            else -> returnType
+        }
 
     @Throws(InvalidInputFieldTypeException::class)
     private fun argument(parameter: KParameter): GraphQLArgument {

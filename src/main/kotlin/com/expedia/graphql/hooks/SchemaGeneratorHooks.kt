@@ -1,11 +1,9 @@
 package com.expedia.graphql.hooks
 
 import com.expedia.graphql.execution.DataFetcherExecutionPredicate
-import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
-import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -31,15 +29,10 @@ interface SchemaGeneratorHooks {
     fun willGenerateGraphQLType(type: KType): GraphQLType? = null
 
     /**
-     * Called before resolving a Monad or Future type to its wrapped KType.
-     * This allows for a custom resolver on how to extract the wrapped value.
+     * Called before resolving a KType to the GraphQL type.
+     * This allows for a custom resolver on how to extract wrapped values, like in a CompletableFuture.
      */
-    fun willResolveMonad(type: KType): KType =
-        if (type.classifier == CompletableFuture::class) {
-            type.getTypeOfFirstArgument()
-        } else {
-            type
-        }
+    fun willResolveMonad(type: KType): KType = type
 
     /**
      * Called when looking at the KClass superclasses to determine if it valid for adding to the generated schema.

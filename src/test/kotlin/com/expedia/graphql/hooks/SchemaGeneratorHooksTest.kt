@@ -9,7 +9,6 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
-import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -178,14 +177,6 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
-    fun `willResolveMonad returns CompletableFuture wrapped type`() {
-        val hooks = NoopSchemaGeneratorHooks()
-        val type = TestQueryFuture::comepletableFutre.returnType
-
-        assertEquals(expected = "SomeData", actual = hooks.willResolveMonad(type).getSimpleName())
-    }
-
-    @Test
     fun `willResolveMonad returns basic type`() {
         val hooks = NoopSchemaGeneratorHooks()
         val type = TestQuery::query.returnType
@@ -195,10 +186,6 @@ class SchemaGeneratorHooksTest {
 
     class TestQuery {
         fun query(): SomeData = SomeData(0)
-    }
-
-    class TestQueryFuture {
-        fun comepletableFutre(): CompletableFuture<SomeData> = CompletableFuture.completedFuture(SomeData(1))
     }
 
     data class SomeData(val someNumber: Int)

@@ -1,14 +1,15 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.execution.FunctionDataFetcher
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
+import com.expedia.graphql.execution.FunctionDataFetcher
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -49,6 +50,8 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
         fun saw(tree: String) = tree
 
         fun context(@GraphQLContext context: String, string: String) = "$context and $string"
+
+        fun completableFuture(num: Int): CompletableFuture<Int> = CompletableFuture.completedFuture(num)
     }
 
     @Test
@@ -147,5 +150,14 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertFalse(result.dataFetcher is FunctionDataFetcher)
+    }
+
+    @Test
+    fun `completable future return type is valid`() {
+        val kFunction = Happy::completableFuture
+        val result = builder.function(fn = kFunction)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
     }
 }
