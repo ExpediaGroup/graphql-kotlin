@@ -33,7 +33,7 @@ internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
 
 @Throws(CouldNotCastGraphQLType::class)
 internal inline fun <reified T : GraphQLType> GraphQLType.safeCast(): T {
-    if (this !is T) throw CouldNotCastGraphQLType(this)
+    if (this !is T) throw CouldNotCastGraphQLType(this, T::class)
     return this
 }
 
