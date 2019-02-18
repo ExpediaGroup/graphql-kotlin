@@ -24,7 +24,7 @@ deploy:
       repo: ExpediaDotCom/graphql-kotlin
       branch: master
       jdk:
-        - oraclejdk8
+        - openjdk8
         - openjdk11
   -
     provider: script
@@ -34,7 +34,7 @@ deploy:
       repo: ExpediaDotCom/graphql-kotlin
       tags: true
       jdk:
-        - oraclejdk8
+        - openjdk8
         - openjdk11
 
 after_deploy:
