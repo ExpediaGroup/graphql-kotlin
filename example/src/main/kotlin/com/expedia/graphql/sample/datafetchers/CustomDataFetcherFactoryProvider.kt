@@ -1,4 +1,4 @@
-package com.expedia.graphql.sample.dataFetchers
+package com.expedia.graphql.sample.datafetchers
 
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
@@ -14,10 +14,10 @@ class CustomDataFetcherFactoryProvider(
         hooks: SchemaGeneratorHooks
 ) : KotlinDataFetcherFactoryProvider(hooks) {
 
-    override fun propertyDataFetcherFactory(kClazz: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
         if (kProperty.isLateinit) {
             springDataFetcherFactory
         } else {
-            super.propertyDataFetcherFactory(kClazz, kProperty)
+            super.propertyDataFetcherFactory(kClass, kProperty)
         }
 }
