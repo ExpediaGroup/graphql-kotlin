@@ -106,19 +106,6 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>dokka-maven-plugin</artifactId>
-                <version>${dokka-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>javadocJar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
@@ -409,6 +396,29 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+          <id>jdk8</id>
+          <activation>
+            <jdk>1.8</jdk>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>${dokka-maven-plugin.version}</version>
+                <executions>
+                  <execution>
+                    <phase>prepare-package</phase>
+                    <goals>
+                      <goal>javadocJar</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
         </profile>
     </profiles>
 </project>
