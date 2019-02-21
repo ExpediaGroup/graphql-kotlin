@@ -6,6 +6,7 @@ import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.execution.FunctionDataFetcher
 import graphql.Scalars
 import graphql.introspection.Introspection
+import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -52,6 +53,8 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
         fun context(@GraphQLContext context: String, string: String) = "$context and $string"
 
         fun completableFuture(num: Int): CompletableFuture<Int> = CompletableFuture.completedFuture(num)
+
+        fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
     }
 
     @Test
@@ -159,5 +162,14 @@ internal class FunctionTypeBuilderTest : TypeTestHelper() {
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+    }
+
+    @Test
+    fun `DataFetchingEnvironment argument type is ignored`() {
+        val kFunction = Happy::dataFetchingEnvironment
+        val result = builder.function(fn = kFunction)
+
+        assertEquals(expected = 0, actual = result.arguments.size)
+        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
     }
 }

@@ -1,6 +1,7 @@
 package com.expedia.graphql.execution
 
 import com.expedia.graphql.generator.extensions.getName
+import com.expedia.graphql.generator.extensions.isDataFetchingEnvironment
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.javaTypeClass
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -51,14 +52,18 @@ class FunctionDataFetcher(
     }
 
     private fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
-        if (param.isGraphQLContext()) {
-            environment.getContext()
-        } else {
-            val name = param.getName()
-            val klazz = param.javaTypeClass()
-            val value = objectMapper.convertValue(environment.arguments[name], klazz)
-            val predicateResult = executionPredicate?.evaluate(value = value, parameter = param, environment = environment)
-
-            predicateResult ?: value
+        when {
+            param.isGraphQLContext() -> environment.getContext()
+            param.isDataFetchingEnvironment() -> environment
+            else -> convertParameterValue(param, environment)
         }
+
+    private fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
+        val name = param.getName()
+        val klazz = param.javaTypeClass()
+        val value = objectMapper.convertValue(environment.arguments[name], klazz)
+        val predicateResult = executionPredicate?.evaluate(value = value, parameter = param, environment = environment)
+
+        return predicateResult ?: value
+    }
 }

@@ -2,6 +2,7 @@ package com.expedia.graphql.generator.extensions
 
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.exceptions.CouldNotGetNameOfKParameterException
+import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -29,6 +30,8 @@ internal class KParameterExtensionsKtTest {
         internal fun noDescription(myClass: MyClass) = myClass
 
         internal fun paramDescription(@GraphQLDescription("param description") myClass: MyClass) = myClass
+
+        internal fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
     }
 
     @Test
@@ -68,5 +71,17 @@ internal class KParameterExtensionsKtTest {
     fun `interface input is invalid`() {
         val param = Container::interfaceInput.findParameterByName("myInterface")
         assertTrue(param?.isInterface().isTrue())
+    }
+
+    @Test
+    fun `valid DataFetchingEnvironment passes`() {
+        val param = Container::dataFetchingEnvironment.findParameterByName("environment")
+        assertTrue(param?.isDataFetchingEnvironment().isTrue())
+    }
+
+    @Test
+    fun `invalid DataFetchingEnvironment fails`() {
+        val param = Container::interfaceInput.findParameterByName("myInterface")
+        assertFalse(param?.isDataFetchingEnvironment().isTrue())
     }
 }
