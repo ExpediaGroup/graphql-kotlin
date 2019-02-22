@@ -7,6 +7,7 @@ import com.expedia.graphql.exceptions.InvalidQueryTypeException
 import com.expedia.graphql.exceptions.InvalidSchemaException
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import com.expedia.graphql.utils.SimpleDirective
 import graphql.schema.GraphQLFieldDefinition
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction
@@ -30,6 +31,7 @@ internal class QueryTypeBuilderTest : TypeTestHelper() {
         fun echo(msg: String) = msg
     }
 
+    @SimpleDirective
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(value: Int) = value
@@ -86,5 +88,13 @@ internal class QueryTypeBuilderTest : TypeTestHelper() {
         assertFalse((hooks as? SimpleHooks)?.calledHook.isTrue())
         builder.getQueryObject(listOf(TopLevelObject(QueryObject())))
         assertTrue((hooks as? SimpleHooks)?.calledHook.isTrue())
+    }
+
+    @Test
+    fun `query objects can have directives`() {
+        val queries = listOf(TopLevelObject(QueryObject()))
+        val result = builder.getQueryObject(queries)
+        assertEquals(expected = 1, actual = result.directives.size)
+        assertEquals(expected = "simpleDirective", actual = result.directives.first().name)
     }
 }

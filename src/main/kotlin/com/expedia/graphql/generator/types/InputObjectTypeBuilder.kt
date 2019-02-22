@@ -21,6 +21,10 @@ internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(
         builder.name(kClass.getSimpleName(isInputClass = true))
         builder.description(kClass.getGraphQLDescription())
 
+        generator.directives(kClass).forEach {
+            builder.withDirective(it)
+        }
+
         // It does not make sense to run functions against the input types so we only process the properties
         kClass.getValidProperties(config.hooks)
             .forEach { builder.field(inputProperty(it, kClass)) }
@@ -34,6 +38,10 @@ internal class InputObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(
         builder.description(prop.getPropertyDescription(parentClass))
         builder.name(prop.name)
         builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>())
+
+        generator.directives(prop).forEach {
+            builder.withDirective(it)
+        }
 
         return builder.build()
     }

@@ -20,6 +20,10 @@ internal class InterfaceTypeBuilder(generator: SchemaGenerator) : TypeBuilder(ge
             builder.name(kClass.getSimpleName())
             builder.description(kClass.getGraphQLDescription())
 
+            generator.directives(kClass).forEach {
+                builder.withDirective(it)
+            }
+
             kClass.getValidProperties(config.hooks)
                 .forEach { builder.field(generator.property(it, kClass)) }
 

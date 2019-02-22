@@ -16,18 +16,27 @@ internal class EnumTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         enumBuilder.name(kClass.getSimpleName())
         enumBuilder.description(kClass.getGraphQLDescription())
 
-        kClass.java.enumConstants.forEach {
-            val valueBuilder = GraphQLEnumValueDefinition.newEnumValueDefinition()
-
-            valueBuilder.name(it.name)
-            valueBuilder.value(it.name)
-
-            val valueField = kClass.java.getField(it.name)
-            valueBuilder.description(valueField.getGraphQLDescription())
-            valueBuilder.deprecationReason(valueField.getDeprecationReason())
-
-            enumBuilder.value(valueBuilder.build())
+        generator.directives(kClass).forEach {
+            enumBuilder.withDirective(it)
         }
+
+        kClass.java.enumConstants.forEach {
+            enumBuilder.value(getEnumValueDefinition(it, kClass))
+        }
+
         return enumBuilder.build()
+    }
+
+    private fun getEnumValueDefinition(enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
+        val valueBuilder = GraphQLEnumValueDefinition.newEnumValueDefinition()
+
+        valueBuilder.name(enum.name)
+        valueBuilder.value(enum.name)
+
+        val valueField = kClass.java.getField(enum.name)
+        valueBuilder.description(valueField.getGraphQLDescription())
+        valueBuilder.deprecationReason(valueField.getDeprecationReason())
+
+        return valueBuilder.build()
     }
 }

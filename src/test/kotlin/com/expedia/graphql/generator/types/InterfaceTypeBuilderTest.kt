@@ -1,11 +1,12 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.utils.SimpleDirective
 import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class InterfaceTypeTest : TypeTestHelper() {
+internal class InterfaceTypeBuilderTest : TypeTestHelper() {
 
     private lateinit var builder: InterfaceTypeBuilder
 
@@ -15,6 +16,7 @@ internal class InterfaceTypeTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
+    @SimpleDirective
     private interface HappyInterface
 
     @Test
@@ -27,5 +29,12 @@ internal class InterfaceTypeTest : TypeTestHelper() {
     fun `Test description`() {
         val result = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
         assertEquals("The truth", result?.description)
+    }
+
+    @Test
+    fun `Interfaces can have directives`() {
+        val result = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
+        assertEquals(1, result?.directives?.size)
+        assertEquals("simpleDirective", result?.directives?.first()?.name)
     }
 }
