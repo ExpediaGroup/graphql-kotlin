@@ -24,6 +24,10 @@ internal class MutationTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
                 throw InvalidMutationTypeException(mutation.kClass)
             }
 
+            generator.directives(mutation.kClass).forEach {
+                mutationBuilder.withDirective(it)
+            }
+
             mutation.kClass.getValidFunctions(config.hooks)
                 .forEach {
                     val function = generator.function(it, mutation.obj)

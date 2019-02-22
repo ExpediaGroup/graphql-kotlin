@@ -14,10 +14,9 @@ import com.expedia.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnot
 internal class DirectiveTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
-        element.annotations.asSequence()
+        element.annotations
             .mapNotNull { it.getDirectiveInfo() }
             .map(this::getDirective)
-            .toList()
 
     private fun getDirective(directiveInfo: DirectiveInfo): GraphQLDirective {
 

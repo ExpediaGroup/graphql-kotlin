@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -8,12 +9,14 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-internal class EnumTypeTest : TypeTestHelper() {
+internal class EnumTypeBuilderTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("MyTestEnum description")
+    @SimpleDirective
     private enum class MyTestEnum {
         @GraphQLDescription("enum 'ONE' description")
+        @SimpleDirective
         ONE,
 
         @GraphQLDescription("enum 'TWO' description")
@@ -66,5 +69,12 @@ internal class EnumTypeTest : TypeTestHelper() {
         val three = assertNotNull(gqlEnum.getValue("THREE"))
         assertTrue(three.isDeprecated)
         assertEquals("THREE is out, replace with TWO", three.deprecationReason)
+    }
+
+    @Test
+    fun `Enum classes can have directives`() {
+        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        assertEquals(1, gqlEnum.directives.size)
+        assertEquals("simpleDirective", gqlEnum.directives.first().name)
     }
 }

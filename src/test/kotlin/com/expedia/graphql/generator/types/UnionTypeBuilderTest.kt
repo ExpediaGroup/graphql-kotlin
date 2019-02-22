@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
@@ -8,7 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class UnionTypeTest : TypeTestHelper() {
+internal class UnionTypeBuilderTest : TypeTestHelper() {
 
     private lateinit var builder: UnionTypeBuilder
 
@@ -17,6 +18,7 @@ internal class UnionTypeTest : TypeTestHelper() {
     }
 
     @GraphQLDescription("The truth")
+    @SimpleDirective
     private interface Cake
 
     @GraphQLDescription("so red")
@@ -40,5 +42,14 @@ internal class UnionTypeTest : TypeTestHelper() {
         assertEquals("The truth", result.description)
         assertEquals(1, result.types.size)
         assertEquals("so red", (result.types[0] as? GraphQLObjectType)?.description)
+    }
+
+    @Test
+    fun `Unions can have directives`() {
+        val result = builder.unionType(Cake::class) as? GraphQLUnionType
+
+        assertNotNull(result)
+        assertEquals(1, result.directives.size)
+        assertEquals("simpleDirective", result.directives.first().name)
     }
 }

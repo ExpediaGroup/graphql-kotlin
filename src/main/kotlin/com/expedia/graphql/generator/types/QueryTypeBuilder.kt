@@ -26,6 +26,10 @@ internal class QueryTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 throw InvalidQueryTypeException(query.kClass)
             }
 
+            generator.directives(query.kClass).forEach {
+                queryBuilder.withDirective(it)
+            }
+
             query.kClass.getValidFunctions(config.hooks)
                 .forEach {
                     val function = generator.function(it, query.obj)

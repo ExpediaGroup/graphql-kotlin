@@ -23,6 +23,10 @@ internal class UnionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             builder.description(kClass.getGraphQLDescription())
             builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
 
+            generator.directives(kClass).forEach {
+                builder.withDirective(it)
+            }
+
             val implementations = subTypeMapper.getSubTypesOf(kClass)
             implementations.forEach {
                 val objectType = state.cache.get(TypesCacheKey(it.kotlin.createType(), false))
