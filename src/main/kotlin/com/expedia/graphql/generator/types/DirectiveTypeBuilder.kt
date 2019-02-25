@@ -20,6 +20,12 @@ internal class DirectiveTypeBuilder(generator: SchemaGenerator) : TypeBuilder(ge
 
     private fun getDirective(directiveInfo: DirectiveInfo): GraphQLDirective {
 
+        val existingDirective = state.directives.find { it.name == directiveInfo.effectiveName }
+
+        if (existingDirective != null) {
+            return existingDirective
+        }
+
         val directiveClass = directiveInfo.directive.annotationClass
 
         val builder = GraphQLDirective.newDirective()
