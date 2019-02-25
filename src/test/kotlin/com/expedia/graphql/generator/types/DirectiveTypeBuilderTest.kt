@@ -79,4 +79,11 @@ internal class DirectiveTypeBuilderTest {
     fun `has directive with class`() {
         assertEquals(expected = 1, actual = basicGenerator.directives(MyClass::directiveWithClass).size)
     }
+
+    @Test
+    fun `directives are not duplicated in the schema`() {
+        basicGenerator.directives(MyClass::simpleDirective)
+        basicGenerator.directives(MyClass::simpleDirective)
+        assertEquals(1, basicGenerator.state.directives.size)
+    }
 }
