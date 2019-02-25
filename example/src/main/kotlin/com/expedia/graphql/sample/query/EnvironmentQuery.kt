@@ -13,7 +13,11 @@ data class NestedNode(
     val parentValue: Int? = null
 ) {
     fun nested(environment: DataFetchingEnvironment, value: Int): NestedNode {
-        val parentValue: Int? = if (environment.executionStepInfo.hasParent()) environment.executionStepInfo.parent.getArgument("value") else null
+        val parentValue: Int? = if (environment.executionStepInfo.hasParent()) {
+            environment.executionStepInfo.parent.getArgument("value")
+        } else {
+            null
+        }
 
         return NestedNode(value, parentValue)
     }
