@@ -5,6 +5,7 @@ import com.expedia.graphql.exceptions.CouldNotCastArgumentException
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
@@ -26,7 +27,7 @@ internal class FunctionDataFetcherTest {
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
 
-        suspend fun suspendPrint(string: String): String = kotlinx.coroutines.coroutineScope {
+        suspend fun suspendPrint(string: String): String = coroutineScope {
             delay(10)
             string
         }
