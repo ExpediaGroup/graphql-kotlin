@@ -5,10 +5,14 @@ import com.expedia.graphql.exceptions.CouldNotCastArgumentException
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 internal class FunctionDataFetcherTest {
 
@@ -22,6 +26,11 @@ internal class FunctionDataFetcherTest {
         fun context(@GraphQLContext string: String) = string
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
+
+        suspend fun suspendPrint(string: String): String = coroutineScope {
+            delay(10)
+            string
+        }
     }
 
     @Test
@@ -104,5 +113,17 @@ internal class FunctionDataFetcherTest {
             every { name } returns "fooBarBaz"
         }
         assertEquals(expected = "fooBarBaz", actual = dataFetcher.get(mockEnvironmet))
+    }
+
+    @Test
+    fun `suspend functions return value wrapped in CompletableFuture`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendPrint)
+        val mockEnvironmet: DataFetchingEnvironment = mockk()
+        every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
+
+        val result = dataFetcher.get(mockEnvironmet)
+
+        assertTrue(result is CompletableFuture<*>)
+        assertEquals(expected = "hello", actual = result.get())
     }
 }
