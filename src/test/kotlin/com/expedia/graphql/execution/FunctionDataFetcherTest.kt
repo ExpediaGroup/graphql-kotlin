@@ -20,6 +20,8 @@ internal class FunctionDataFetcherTest {
         fun printList(items: List<String>) = items.joinToString(separator = ":")
 
         fun context(@GraphQLContext string: String) = string
+
+        fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
     }
 
     @Test
@@ -92,5 +94,15 @@ internal class FunctionDataFetcherTest {
         assertFailsWith(CouldNotCastArgumentException::class) {
             dataFetcher.get(mockEnvironmet)
         }
+    }
+
+    @Test
+    fun `dataFetchingEnvironement is passed as an argument`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::dataFetchingEnvironment)
+        val mockEnvironmet: DataFetchingEnvironment = mockk()
+        every { mockEnvironmet.field } returns mockk {
+            every { name } returns "fooBarBaz"
+        }
+        assertEquals(expected = "fooBarBaz", actual = dataFetcher.get(mockEnvironmet))
     }
 }

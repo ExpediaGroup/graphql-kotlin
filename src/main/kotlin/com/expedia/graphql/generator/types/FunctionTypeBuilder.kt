@@ -7,6 +7,7 @@ import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
+import com.expedia.graphql.generator.extensions.isDataFetchingEnvironment
 import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.safeCast
@@ -37,6 +38,7 @@ internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
         fn.valueParameters
             .filterNot { it.isGraphQLContext() }
+            .filterNot { it.isDataFetchingEnvironment() }
             .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
                 builder.argument(argument(it))
