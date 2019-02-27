@@ -18,22 +18,13 @@ script:
   - ./mvnw -f example/pom.xml verify
 
 deploy:
-  -
-    provider: script
-    script: .travis/deploy.sh
-    skip_cleanup: true
-    on:
-      repo: ExpediaDotCom/graphql-kotlin
-      branch: master
-      jdk: openjdk8
-  -
-    provider: script
-    script: .travis/deploy.sh
-    skip_cleanup: true
-    on:
-      repo: ExpediaDotCom/graphql-kotlin
-      tags: true
-      jdk: openjdk8
+  provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    repo: ExpediaDotCom/graphql-kotlin
+    tags: true
+    jdk: openjdk8
 
 after_deploy:
   - .travis/update-version.sh
