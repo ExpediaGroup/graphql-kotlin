@@ -8,6 +8,7 @@ import com.expedia.graphql.generator.extensions.safeCast
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
+import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import com.expedia.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
@@ -15,6 +16,11 @@ internal class DirectiveTypeBuilder(generator: SchemaGenerator) : TypeBuilder(ge
 
     internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
         element.annotations
+            .mapNotNull { it.getDirectiveInfo() }
+            .map(this::getDirective)
+
+    internal fun fieldDirectives(field: Field): List<GraphQLDirective> =
+        field.annotations
             .mapNotNull { it.getDirectiveInfo() }
             .map(this::getDirective)
 
