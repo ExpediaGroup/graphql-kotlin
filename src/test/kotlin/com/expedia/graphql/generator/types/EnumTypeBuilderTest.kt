@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.utils.CustomDirective
 import com.expedia.graphql.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -23,6 +24,8 @@ internal class EnumTypeBuilderTest : TypeTestHelper() {
         @Deprecated("Deprecated enum value")
         TWO,
 
+        @SimpleDirective
+        @CustomDirective("foo bar")
         @Deprecated("THREE is out", replaceWith = ReplaceWith("TWO"))
         THREE
     }
@@ -76,5 +79,22 @@ internal class EnumTypeBuilderTest : TypeTestHelper() {
         val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
         assertEquals(1, gqlEnum.directives.size)
         assertEquals("simpleDirective", gqlEnum.directives.first().name)
+    }
+
+    @Test
+    fun `Enum values can have a single directive`() {
+        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+
+        val directives = gqlEnum.values.last().directives
+        assertEquals(2, directives.size)
+        assertEquals("simpleDirective", directives.first().name)
+        assertEquals("customName", directives.last().name)
+    }
+
+    @Test
+    fun `Enum values can have a multiple directives`() {
+        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        assertEquals(1, gqlEnum.values.first().directives.size)
+        assertEquals("simpleDirective", gqlEnum.values.first().directives.first().name)
     }
 }

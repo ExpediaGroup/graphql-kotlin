@@ -18,6 +18,7 @@ import com.expedia.graphql.generator.types.UnionTypeBuilder
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLSchema
+import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -85,6 +86,12 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
     internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> {
         val directives = directiveTypeBuilder.directives(element)
+        state.directives.addAll(directives)
+        return directives
+    }
+
+    internal fun fieldDirectives(field: Field): List<GraphQLDirective> {
+        val directives = directiveTypeBuilder.fieldDirectives(field)
         state.directives.addAll(directives)
         return directives
     }

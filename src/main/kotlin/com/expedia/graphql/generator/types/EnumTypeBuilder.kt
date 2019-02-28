@@ -34,6 +34,11 @@ internal class EnumTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         valueBuilder.value(enum.name)
 
         val valueField = kClass.java.getField(enum.name)
+
+        generator.fieldDirectives(valueField).forEach {
+            valueBuilder.withDirective(it)
+        }
+
         valueBuilder.description(valueField.getGraphQLDescription())
         valueBuilder.deprecationReason(valueField.getDeprecationReason())
 

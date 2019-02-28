@@ -19,7 +19,12 @@ internal class DirectiveTypeBuilderTest {
     internal annotation class DirectiveWithString(val string: String)
 
     internal enum class Type {
-        ONE, TWO
+        @DirectiveWithString("my string")
+        @DirectiveWithClass(SimpleDirective::class)
+        ONE,
+
+        @GraphQLDescription("my description")
+        TWO
     }
 
     @GraphQLDirective
@@ -85,5 +90,25 @@ internal class DirectiveTypeBuilderTest {
         basicGenerator.directives(MyClass::simpleDirective)
         basicGenerator.directives(MyClass::simpleDirective)
         assertEquals(1, basicGenerator.state.directives.size)
+    }
+
+    @Test
+    fun `directives are valid on fields (enum values)`() {
+        val field = Type::class.java.getField("ONE")
+
+        val directives = basicGenerator.fieldDirectives(field)
+
+        assertEquals(2, directives.size)
+        assertEquals("directiveWithString", directives.first().name)
+        assertEquals("directiveWithClass", directives.last().name)
+    }
+
+    @Test
+    fun `directives are empty on an enum with no valid annotations`() {
+        val field = Type::class.java.getField("TWO")
+
+        val directives = basicGenerator.fieldDirectives(field)
+
+        assertEquals(0, directives.size)
     }
 }

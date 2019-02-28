@@ -12,6 +12,7 @@ import graphql.schema.GraphQLInterfaceType
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -81,6 +82,11 @@ internal open class TypeTestHelper {
         directiveTypeBuilder = spyk(DirectiveTypeBuilder(generator))
         every { generator.directives(any()) } answers {
             val directives = directiveTypeBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
+            state.directives.addAll(directives)
+            directives
+        }
+        every { generator.fieldDirectives(any()) } answers {
+            val directives = directiveTypeBuilder!!.fieldDirectives(it.invocation.args[0] as Field)
             state.directives.addAll(directives)
             directives
         }
