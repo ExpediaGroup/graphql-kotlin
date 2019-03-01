@@ -34,6 +34,10 @@ internal class KParameterExtensionsKtTest {
         internal fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
     }
 
+    internal class MyKotlinClass {
+        fun stringFun(string: String) = "hello $string"
+    }
+
     @Test
     fun getName() {
         val param = Container::noDescription.findParameterByName("myClass")
@@ -83,5 +87,10 @@ internal class KParameterExtensionsKtTest {
     fun `invalid DataFetchingEnvironment fails`() {
         val param = Container::interfaceInput.findParameterByName("myInterface")
         assertFalse(param?.isDataFetchingEnvironment().isTrue())
+    }
+
+    @Test
+    fun javaTypeClass() {
+        assertEquals(expected = String::class.java, actual = MyKotlinClass::stringFun.findParameterByName("string")?.javaTypeClass())
     }
 }

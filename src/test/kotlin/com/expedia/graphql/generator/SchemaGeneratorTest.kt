@@ -386,7 +386,7 @@ class SchemaGeneratorTest {
         fun type1() = GeoType.CITY
 
         @GraphQLDescription("A second conflicting GraphQL query method")
-        fun type2() = com.expedia.graphql.conflicts.GeoType.CITY
+        fun type2() = com.expedia.graphql.test.conflicts.GeoType.CITY
     }
 
     class QueryWithParentChildRelationship {

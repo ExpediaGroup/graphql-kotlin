@@ -1,4 +1,4 @@
-package com.expedia.graphql.integration
+package com.expedia.graphql.test.integration
 
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.testSchemaConfig

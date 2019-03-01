@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class ListTypeTest : TypeTestHelper() {
+internal class ListTypeBuilderTest : TypeTestHelper() {
 
     private data class MyDataClass(val id: String)
 

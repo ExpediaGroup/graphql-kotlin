@@ -80,12 +80,12 @@ class Application {
         }
 
         val schema = toSchema(
+            config = schemaConfig,
             queries = queries.toTopLevelObjectDefs(),
-            mutations = mutations.toTopLevelObjectDefs(),
-            config = schemaConfig
+            mutations = mutations.toTopLevelObjectDefs()
         )
 
-        logger.info(schemaPrinter().print(schema))
+        logger.info(schemaPrinter.print(schema))
 
         return schema
     }

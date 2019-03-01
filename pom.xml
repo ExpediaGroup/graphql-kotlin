@@ -83,11 +83,11 @@
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.4.0</junit-jupiter.version>
         <mockk.version>1.9.1</mockk.version>
-        <rxjava2.version>2.2.6</rxjava2.version>
+        <rxjava2.version>2.2.7</rxjava2.version>
 
         <!-- Build Plugin Versions -->
         <dokka-maven-plugin.version>0.9.17</dokka-maven-plugin.version>
-        <detekt-cli.version>1.0.0-RC13</detekt-cli.version>
+        <detekt-cli.version>1.0.0-RC14</detekt-cli.version>
         <ktlint.version>0.30.0</ktlint.version>
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>

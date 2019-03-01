@@ -1,7 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.utils.SimpleDirective
+import com.expedia.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test

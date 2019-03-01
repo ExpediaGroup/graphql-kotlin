@@ -1,4 +1,4 @@
-package com.expedia.graphql.utils
+package com.expedia.graphql.test.utils
 
 import com.expedia.graphql.annotations.GraphQLDirective
 
