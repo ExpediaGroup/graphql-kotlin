@@ -3,18 +3,18 @@ package com.expedia.graphql.generator
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.generator.state.SchemaGeneratorState
-import com.expedia.graphql.generator.types.DirectiveTypeBuilder
-import com.expedia.graphql.generator.types.EnumTypeBuilder
-import com.expedia.graphql.generator.types.FunctionTypeBuilder
-import com.expedia.graphql.generator.types.InputObjectTypeBuilder
-import com.expedia.graphql.generator.types.InterfaceTypeBuilder
-import com.expedia.graphql.generator.types.ListTypeBuilder
-import com.expedia.graphql.generator.types.MutationTypeBuilder
-import com.expedia.graphql.generator.types.ObjectTypeBuilder
-import com.expedia.graphql.generator.types.PropertyTypeBuilder
-import com.expedia.graphql.generator.types.QueryTypeBuilder
-import com.expedia.graphql.generator.types.ScalarTypeBuilder
-import com.expedia.graphql.generator.types.UnionTypeBuilder
+import com.expedia.graphql.generator.types.DirectiveBuilder
+import com.expedia.graphql.generator.types.EnumBuilder
+import com.expedia.graphql.generator.types.FunctionBuilder
+import com.expedia.graphql.generator.types.InputObjectBuilder
+import com.expedia.graphql.generator.types.InterfaceBuilder
+import com.expedia.graphql.generator.types.ListBuilder
+import com.expedia.graphql.generator.types.MutationBuilder
+import com.expedia.graphql.generator.types.ObjectBuilder
+import com.expedia.graphql.generator.types.PropertyBuilder
+import com.expedia.graphql.generator.types.QueryBuilder
+import com.expedia.graphql.generator.types.ScalarBuilder
+import com.expedia.graphql.generator.types.UnionBuilder
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLSchema
@@ -30,18 +30,18 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
 
-    private val queryBuilder = QueryTypeBuilder(this)
-    private val mutationBuilder = MutationTypeBuilder(this)
-    private val objectTypeBuilder = ObjectTypeBuilder(this)
-    private val unionTypeBuilder = UnionTypeBuilder(this)
-    private val interfaceTypeBuilder = InterfaceTypeBuilder(this)
-    private val propertyTypeBuilder = PropertyTypeBuilder(this)
-    private val inputObjectTypeBuilder = InputObjectTypeBuilder(this)
-    private val listTypeBuilder = ListTypeBuilder(this)
-    private val functionTypeBuilder = FunctionTypeBuilder(this)
-    private val enumTypeBuilder = EnumTypeBuilder(this)
-    private val scalarTypeBuilder = ScalarTypeBuilder(this)
-    private val directiveTypeBuilder = DirectiveTypeBuilder(this)
+    private val queryBuilder = QueryBuilder(this)
+    private val mutationBuilder = MutationBuilder(this)
+    private val objectTypeBuilder = ObjectBuilder(this)
+    private val unionTypeBuilder = UnionBuilder(this)
+    private val interfaceTypeBuilder = InterfaceBuilder(this)
+    private val propertyTypeBuilder = PropertyBuilder(this)
+    private val inputObjectTypeBuilder = InputObjectBuilder(this)
+    private val listTypeBuilder = ListBuilder(this)
+    private val functionTypeBuilder = FunctionBuilder(this)
+    private val enumTypeBuilder = EnumBuilder(this)
+    private val scalarTypeBuilder = ScalarBuilder(this)
+    private val directiveTypeBuilder = DirectiveBuilder(this)
 
     internal fun generate(queries: List<TopLevelObject>, mutations: List<TopLevelObject>): GraphQLSchema {
         val builder = GraphQLSchema.newSchema()

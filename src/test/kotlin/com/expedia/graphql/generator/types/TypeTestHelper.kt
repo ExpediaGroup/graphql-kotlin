@@ -34,12 +34,12 @@ internal open class TypeTestHelper {
     var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks()
     var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 
-    private var scalarTypeBuilder: ScalarTypeBuilder? = null
-    private var objectTypeBuilder: ObjectTypeBuilder? = null
-    private var interfaceTypeBuilder: InterfaceTypeBuilder? = null
-    private var directiveTypeBuilder: DirectiveTypeBuilder? = null
-    private var functionTypeBuilder: FunctionTypeBuilder? = null
-    private var propertyTypeBuilder: PropertyTypeBuilder? = null
+    private var scalarBuilder: ScalarBuilder? = null
+    private var objectBuilder: ObjectBuilder? = null
+    private var interfaceBuilder: InterfaceBuilder? = null
+    private var directiveBuilder: DirectiveBuilder? = null
+    private var functionBuilder: FunctionBuilder? = null
+    private var propertyBuilder: PropertyBuilder? = null
 
     @BeforeTest
     fun setup() {
@@ -54,39 +54,39 @@ internal open class TypeTestHelper {
 
         every { config.topLevelNames } returns com.expedia.graphql.TopLevelNames(query = "TestTopLevelQuery", mutation = "TestTopLevelMutation")
 
-        functionTypeBuilder = spyk(FunctionTypeBuilder(generator))
+        functionBuilder = spyk(FunctionBuilder(generator))
         every { generator.function(any(), any(), any()) } answers {
-            functionTypeBuilder!!.function(it.invocation.args[0] as KFunction<*>, it.invocation.args[1], it.invocation.args[2] as Boolean)
+            functionBuilder!!.function(it.invocation.args[0] as KFunction<*>, it.invocation.args[1], it.invocation.args[2] as Boolean)
         }
 
-        propertyTypeBuilder = spyk(PropertyTypeBuilder(generator))
+        propertyBuilder = spyk(PropertyBuilder(generator))
         every { generator.property(any(), any()) } answers {
-            propertyTypeBuilder!!.property(it.invocation.args[0] as KProperty<*>, it.invocation.args[1] as KClass<*>)
+            propertyBuilder!!.property(it.invocation.args[0] as KProperty<*>, it.invocation.args[1] as KClass<*>)
         }
 
-        scalarTypeBuilder = spyk(ScalarTypeBuilder(generator))
+        scalarBuilder = spyk(ScalarBuilder(generator))
         every { generator.scalarType(any(), any()) } answers {
-            scalarTypeBuilder!!.scalarType(it.invocation.args[0] as KType, it.invocation.args[1] as Boolean)
+            scalarBuilder!!.scalarType(it.invocation.args[0] as KType, it.invocation.args[1] as Boolean)
         }
 
-        objectTypeBuilder = spyk(ObjectTypeBuilder(generator))
+        objectBuilder = spyk(ObjectBuilder(generator))
         every { generator.objectType(any(), any()) } answers {
-            objectTypeBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
+            objectBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
         }
 
-        interfaceTypeBuilder = spyk(InterfaceTypeBuilder(generator))
+        interfaceBuilder = spyk(InterfaceBuilder(generator))
         every { generator.interfaceType(any()) } answers {
-            interfaceTypeBuilder!!.interfaceType(it.invocation.args[0] as KClass<*>)
+            interfaceBuilder!!.interfaceType(it.invocation.args[0] as KClass<*>)
         }
 
-        directiveTypeBuilder = spyk(DirectiveTypeBuilder(generator))
+        directiveBuilder = spyk(DirectiveBuilder(generator))
         every { generator.directives(any()) } answers {
-            val directives = directiveTypeBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
+            val directives = directiveBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
             state.directives.addAll(directives)
             directives
         }
         every { generator.fieldDirectives(any()) } answers {
-            val directives = directiveTypeBuilder!!.fieldDirectives(it.invocation.args[0] as Field)
+            val directives = directiveBuilder!!.fieldDirectives(it.invocation.args[0] as Field)
             state.directives.addAll(directives)
             directives
         }
