@@ -6,12 +6,12 @@ import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class InterfaceTypeBuilderTest : TypeTestHelper() {
+internal class InterfaceBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: InterfaceTypeBuilder
+    private lateinit var builder: InterfaceBuilder
 
     override fun beforeTest() {
-        builder = InterfaceTypeBuilder(generator)
+        builder = InterfaceBuilder(generator)
     }
 
     @Suppress("Detekt.UnusedPrivateClass")

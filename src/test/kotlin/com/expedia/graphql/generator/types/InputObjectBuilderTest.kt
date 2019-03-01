@@ -5,12 +5,12 @@ import com.expedia.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class InputObjectTypeBuilderTest : TypeTestHelper() {
+internal class InputObjectBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: InputObjectTypeBuilder
+    private lateinit var builder: InputObjectBuilder
 
     override fun beforeTest() {
-        builder = InputObjectTypeBuilder(generator)
+        builder = InputObjectBuilder(generator)
     }
 
     @Suppress("Detekt.UnusedPrivateClass")

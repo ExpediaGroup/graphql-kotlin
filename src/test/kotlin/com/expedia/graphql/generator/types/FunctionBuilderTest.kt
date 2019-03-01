@@ -16,12 +16,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class FunctionTypeBuilderTest : TypeTestHelper() {
+internal class FunctionBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: FunctionTypeBuilder
+    private lateinit var builder: FunctionBuilder
 
     override fun beforeTest() {
-        builder = FunctionTypeBuilder(generator)
+        builder = FunctionBuilder(generator)
     }
 
     internal interface MyInterface {

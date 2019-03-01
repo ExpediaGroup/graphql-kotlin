@@ -20,8 +20,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.valueParameters
 
-@Suppress("Detekt.UnsafeCast")
-internal class FunctionTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()

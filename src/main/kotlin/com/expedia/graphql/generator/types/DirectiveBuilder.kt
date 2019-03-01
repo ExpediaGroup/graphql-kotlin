@@ -12,7 +12,7 @@ import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import com.expedia.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
-internal class DirectiveTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
         element.annotations

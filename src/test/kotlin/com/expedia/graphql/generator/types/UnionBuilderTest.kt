@@ -9,12 +9,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class UnionTypeBuilderTest : TypeTestHelper() {
+internal class UnionBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: UnionTypeBuilder
+    private lateinit var builder: UnionBuilder
 
     override fun beforeTest() {
-        builder = UnionTypeBuilder(generator)
+        builder = UnionBuilder(generator)
     }
 
     @GraphQLDescription("The truth")

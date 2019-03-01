@@ -9,7 +9,7 @@ import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
 import kotlin.reflect.KClass
 
-internal class EnumTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     internal fun enumType(kClass: KClass<out Enum<*>>): GraphQLEnumType {
         val enumBuilder = GraphQLEnumType.newEnum()
 

@@ -13,7 +13,7 @@ import graphql.schema.GraphQLType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal class ObjectTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) {

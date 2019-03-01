@@ -17,7 +17,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.NestedClassesVisibility")
-internal class MutationTypeBuilderTest : TypeTestHelper() {
+internal class MutationBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
@@ -42,14 +42,14 @@ internal class MutationTypeBuilderTest : TypeTestHelper() {
         fun echo(msg: String) = msg
     }
 
-    private lateinit var builder: MutationTypeBuilder
+    private lateinit var builder: MutationBuilder
 
     override fun beforeSetup() {
         hooks = SimpleHooks()
     }
 
     override fun beforeTest() {
-        builder = MutationTypeBuilder(generator)
+        builder = MutationBuilder(generator)
     }
 
     @Test

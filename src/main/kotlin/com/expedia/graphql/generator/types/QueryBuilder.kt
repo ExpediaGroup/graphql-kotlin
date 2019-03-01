@@ -9,7 +9,7 @@ import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.extensions.isPublic
 import graphql.schema.GraphQLObjectType
 
-internal class QueryTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     @Throws(InvalidSchemaException::class)
     fun getQueryObject(queries: List<TopLevelObject>): GraphQLObjectType {

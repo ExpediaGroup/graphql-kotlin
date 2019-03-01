@@ -22,7 +22,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class PropertyTypeBuilderTest : TypeTestHelper() {
+internal class PropertyBuilderTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD])
     internal annotation class PropertyDirective(val arg: String)
@@ -47,10 +47,10 @@ internal class PropertyTypeBuilderTest : TypeTestHelper() {
         val myId: String
     )
 
-    private lateinit var builder: PropertyTypeBuilder
+    private lateinit var builder: PropertyBuilder
 
     override fun beforeTest() {
-        builder = PropertyTypeBuilder(generator)
+        builder = PropertyBuilder(generator)
     }
 
     @Test
@@ -142,7 +142,7 @@ internal class PropertyTypeBuilderTest : TypeTestHelper() {
         every { mockFactory.get(any()) } returns mockDataFetcher
         every { localConfig.dataFetcherFactoryProvider } returns mockDataFetcherFactoryProvider
         val localGenerator = SchemaGenerator(localConfig)
-        val localBuilder = PropertyTypeBuilder(localGenerator)
+        val localBuilder = PropertyBuilder(localGenerator)
 
         val prop = ClassWithProperties::cake
         val result = localBuilder.property(prop, ClassWithProperties::class)

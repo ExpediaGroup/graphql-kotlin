@@ -12,7 +12,7 @@ import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 
-internal class InterfaceTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     internal fun interfaceType(kClass: KClass<*>): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLInterfaceType.newInterface()

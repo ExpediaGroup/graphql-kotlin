@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class ListTypeBuilderTest : TypeTestHelper() {
+internal class ListBuilderTest : TypeTestHelper() {
 
     private data class MyDataClass(val id: String)
 
@@ -16,10 +16,10 @@ internal class ListTypeBuilderTest : TypeTestHelper() {
         val primitiveArray = booleanArrayOf(true)
     }
 
-    private lateinit var builder: ListTypeBuilder
+    private lateinit var builder: ListBuilder
 
     override fun beforeTest() {
-        builder = ListTypeBuilder(generator)
+        builder = ListBuilder(generator)
     }
 
     @Test

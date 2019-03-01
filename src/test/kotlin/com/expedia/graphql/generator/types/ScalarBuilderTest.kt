@@ -12,12 +12,12 @@ import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-internal class ScalarTypeBuilderTest : TypeTestHelper() {
+internal class ScalarBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: ScalarTypeBuilder
+    private lateinit var builder: ScalarBuilder
 
     override fun beforeTest() {
-        builder = ScalarTypeBuilder(generator)
+        builder = ScalarBuilder(generator)
     }
 
     internal class Ids {

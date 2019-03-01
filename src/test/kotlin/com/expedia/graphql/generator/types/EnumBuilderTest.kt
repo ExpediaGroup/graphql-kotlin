@@ -10,7 +10,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-internal class EnumTypeBuilderTest : TypeTestHelper() {
+internal class EnumBuilderTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("MyTestEnum description")
@@ -30,11 +30,11 @@ internal class EnumTypeBuilderTest : TypeTestHelper() {
         THREE
     }
 
-    lateinit var builder: EnumTypeBuilder
+    lateinit var builder: EnumBuilder
 
     override fun beforeTest() {
         super.beforeTest()
-        builder = EnumTypeBuilder(generator)
+        builder = EnumBuilder(generator)
     }
 
     @Test

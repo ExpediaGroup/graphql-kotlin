@@ -11,8 +11,7 @@ import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-@Suppress("Detekt.UnsafeCast")
-internal class PropertyTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     internal fun property(prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
         val propertyType = graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
             .safeCast<GraphQLOutputType>()

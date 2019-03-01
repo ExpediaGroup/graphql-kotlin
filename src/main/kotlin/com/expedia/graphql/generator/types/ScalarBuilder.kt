@@ -13,7 +13,7 @@ import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-internal class ScalarTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class ScalarBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     internal fun scalarType(type: KType, annotatedAsID: Boolean = false): GraphQLScalarType? {
         val kClass = type.getKClass()

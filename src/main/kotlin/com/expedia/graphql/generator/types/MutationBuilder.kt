@@ -8,7 +8,7 @@ import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.extensions.isPublic
 import graphql.schema.GraphQLObjectType
 
-internal class MutationTypeBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
     fun getMutationObject(mutations: List<TopLevelObject>): GraphQLObjectType? {
 

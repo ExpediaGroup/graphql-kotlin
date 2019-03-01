@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class DirectiveTypeBuilderTest {
+internal class DirectiveBuilderTest {
 
     @GraphQLDirective
     internal annotation class SimpleDirective
