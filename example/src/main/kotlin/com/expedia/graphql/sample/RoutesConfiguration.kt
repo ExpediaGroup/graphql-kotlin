@@ -18,11 +18,11 @@ import reactor.core.publisher.Mono
 
 @Configuration
 class RoutesConfiguration(
-        val schema: GraphQLSchema,
-        val schemaPrinter: SchemaPrinter,
-        private val queryHandler: QueryHandler,
-        private val objectMapper: ObjectMapper,
-        @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
+    val schema: GraphQLSchema,
+    val schemaPrinter: SchemaPrinter,
+    private val queryHandler: QueryHandler,
+    private val objectMapper: ObjectMapper,
+    @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
 ) {
 
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
@@ -31,9 +31,9 @@ class RoutesConfiguration(
     fun graphQLRoutes() = router {
         (POST("/graphql") or GET("/graphql")).invoke { serverRequest ->
             createGraphQLRequest(serverRequest)
-                    .flatMap { graphQLRequest -> queryHandler.executeQuery(graphQLRequest) }
-                    .flatMap { result -> ok().contentType(MediaType.APPLICATION_JSON).syncBody(result) }
-                    .switchIfEmpty(badRequest().build())
+                .flatMap { graphQLRequest -> queryHandler.executeQuery(graphQLRequest) }
+                .flatMap { result -> ok().contentType(MediaType.APPLICATION_JSON).syncBody(result) }
+                .switchIfEmpty(badRequest().build())
         }
         GET("/sdl") {
             ok().contentType(MediaType.TEXT_PLAIN).syncBody(schemaPrinter.print(schema))

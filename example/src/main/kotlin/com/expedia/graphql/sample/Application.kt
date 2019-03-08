@@ -36,43 +36,43 @@ class Application {
 
     @Bean
     fun hooks(validator: Validator, wiringFactory: DirectiveWiringFactory) =
-            CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring())))
+        CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring())))
 
     @Bean
     fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: SchemaGeneratorHooks) =
-            CustomDataFetcherFactoryProvider(springDataFetcherFactory, hooks)
+        CustomDataFetcherFactoryProvider(springDataFetcherFactory, hooks)
 
     @Bean
     fun schemaConfig(hooks: SchemaGeneratorHooks, dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider): SchemaGeneratorConfig = SchemaGeneratorConfig(
-            supportedPackages = listOf("com.expedia"),
-            hooks = hooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider
+        supportedPackages = listOf("com.expedia"),
+        hooks = hooks,
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider
     )
 
     @Bean
     fun schemaPrinter() = SchemaPrinter(
-            SchemaPrinter.Options.defaultOptions()
-                    .includeScalarTypes(true)
-                    .includeExtendedScalarTypes(true)
-                    .includeIntrospectionTypes(true)
-                    .includeSchemaDefintion(true)
+        SchemaPrinter.Options.defaultOptions()
+            .includeScalarTypes(true)
+            .includeExtendedScalarTypes(true)
+            .includeIntrospectionTypes(true)
+            .includeSchemaDefintion(true)
     )
 
     @Bean
     fun schema(
-            queries: List<Query>,
-            mutations: List<Mutation>,
-            schemaConfig: SchemaGeneratorConfig,
-            schemaPrinter: SchemaPrinter
+        queries: List<Query>,
+        mutations: List<Mutation>,
+        schemaConfig: SchemaGeneratorConfig,
+        schemaPrinter: SchemaPrinter
     ): GraphQLSchema {
         fun List<Any>.toTopLevelObjectDefs() = this.map {
             TopLevelObject(it)
         }
 
         val schema = toSchema(
-                config = schemaConfig,
-                queries = queries.toTopLevelObjectDefs(),
-                mutations = mutations.toTopLevelObjectDefs()
+            config = schemaConfig,
+            queries = queries.toTopLevelObjectDefs(),
+            mutations = mutations.toTopLevelObjectDefs()
         )
 
         logger.info(schemaPrinter.print(schema))
@@ -84,12 +84,12 @@ class Application {
 
     @Bean
     fun graphQL(
-            schema: GraphQLSchema,
-            dataFetcherExceptionHandler: DataFetcherExceptionHandler
+        schema: GraphQLSchema,
+        dataFetcherExceptionHandler: DataFetcherExceptionHandler
     ): GraphQL = GraphQL.newGraphQL(schema)
-            .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
-            .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
-            .build()
+        .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
+        .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
+        .build()
 }
 
 fun main(args: Array<String>) {
