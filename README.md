@@ -6,7 +6,7 @@
 [![Javadocs](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expedia/graphql-kotlin)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
-Most GraphQL libraries for the JVM require developers to maintain two sources of truth for their GraphQL API, the schema and the corresponding code (data fetchers and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema should be able to be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only GraphQL services to be built.
+Most GraphQL libraries require developers to maintain two sources of truth for their GraphQL API: the schema and the corresponding code (data fetchers or resolvers, and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema can be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only, or resolver-first, GraphQL services to be built.
 
 For information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
 
@@ -40,7 +40,7 @@ compile(group: 'com.expedia', name: 'graphql-kotlin', version: "$latestVersion")
 
 data class Widget(val id: Int, val value: String)
 
-class WidgetQuery {
+class WidgetService {
   fun widgetById(id: Int): Widget? {
     // grabs widget from a data source, might return null
   }
@@ -51,19 +51,19 @@ class WidgetQuery {
   }
 }
 
-class WidgetMutation {
+class WidgetUpdater {
   fun saveWidget(value: String): Widget {
-    // Create and save new widget, returns non-null
+    // Create and save a new widget, returns non-null
   }
 }
 
 // Generate the schema
 
-val config = SchemaGeneratorConfig(listOf("org.example"))
-val queries = listOf(TopLevelObject(WidgetQuery()))
-val mutations = listOf(TopLevelObject(WidgetMutation()))
+val config = SchemaGeneratorConfig(supportedPackages = listOf("org.example"))
+val queries = listOf(TopLevelObject(WidgetService()))
+val mutations = listOf(TopLevelObject(WidgetUpdater()))
 
-toSchema(queries, mutations, config)
+toSchema(config, queries, mutations)
 ```
 
 will generate
@@ -92,7 +92,7 @@ type Widget {
 
 ## Documentation
 
-There are more examples and documention in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions
+There are more examples and documention in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions.
 
 If you have a question about something you can not find in our wiki or javadocs, feel free to [create an issue](https://github.com/ExpediaDotCom/graphql-kotlin/issues) and tag it with the question label.
 
