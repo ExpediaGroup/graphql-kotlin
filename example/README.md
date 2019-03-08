@@ -1,6 +1,6 @@
 # graphql-kotlin example
 
-One way to run a GraphQL server is with spring boot. This example app uses `graphql-kotlin`, `graphql-java-servlet` and `graphiql`.
+One way to run a GraphQL server is with [Spring Boot](https://github.com/spring-projects/spring-boot). This example app uses [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) together with `graphql-kotlin` and [graphql-playground](https://github.com/prisma/graphql-playground).
 
 
 ### Running locally
@@ -16,4 +16,4 @@ Start the server:
 * Alternatively you can also use the spring boot maven plugin by running `mvn spring-boot:run` from the command line.
 
 
-Once the app has started you can explore the example schema by opening GraphiQL endpoint at http://localhost:8080/graphiql.
+Once the app has started you can explore the example schema by opening Playground endpoint at http://localhost:8080/playground.
