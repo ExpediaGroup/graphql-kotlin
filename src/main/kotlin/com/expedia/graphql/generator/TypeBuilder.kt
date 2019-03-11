@@ -9,6 +9,7 @@ import com.expedia.graphql.generator.extensions.wrapInNonNull
 import com.expedia.graphql.generator.state.KGraphQLType
 import com.expedia.graphql.generator.state.TypesCacheKey
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -37,9 +38,11 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
 
         val kClass = type.getKClass()
         val graphQLType = getGraphQLType(kClass, inputType, type)
-        val kGraphQLType = KGraphQLType(kClass, graphQLType)
 
-        state.cache.put(cacheKey, kGraphQLType)
+        if (graphQLType !is GraphQLTypeReference) {
+            val kGraphQLType = KGraphQLType(kClass, graphQLType)
+            state.cache.put(cacheKey, kGraphQLType)
+        }
 
         return graphQLType
     }

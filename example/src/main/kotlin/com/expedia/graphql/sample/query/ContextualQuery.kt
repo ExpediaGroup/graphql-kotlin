@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
  * Example usage of [GraphQLContext] annotation. By using this annotation context parameter won't be exposed as in the
  * schema and will be automatically autowired at runtime using value from the environment.
  *
- * @see com.expedia.graphql.sample.context.MyGraphQLContextBuilder
+ * @see com.expedia.graphql.sample.context.MyGraphQLContextWebFilter
  * @see com.expedia.graphql.execution.FunctionDataFetcher
  */
 @Component
