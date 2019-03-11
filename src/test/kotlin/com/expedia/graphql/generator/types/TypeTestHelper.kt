@@ -28,14 +28,15 @@ import kotlin.test.BeforeTest
 internal open class TypeTestHelper {
     var generator = mockk<SchemaGenerator>()
     var config = mockk<SchemaGeneratorConfig>()
-    var state = spyk(SchemaGeneratorState(listOf("com.expedia.graphql.generator.types")))
-    var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql.generator.types")))
-    var cache = spyk(TypesCache(listOf("com.expedia.graphql.generator.types")))
+    var state = spyk(SchemaGeneratorState(listOf("com.expedia.graphql")))
+    var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql")))
+    var cache = spyk(TypesCache(listOf("com.expedia.graphql")))
     var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks()
     var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 
     private var scalarBuilder: ScalarBuilder? = null
     private var objectBuilder: ObjectBuilder? = null
+    private var listBuilder: ListBuilder? = null
     private var interfaceBuilder: InterfaceBuilder? = null
     private var directiveBuilder: DirectiveBuilder? = null
     private var functionBuilder: FunctionBuilder? = null
@@ -72,6 +73,11 @@ internal open class TypeTestHelper {
         objectBuilder = spyk(ObjectBuilder(generator))
         every { generator.objectType(any(), any()) } answers {
             objectBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
+        }
+
+        listBuilder = spyk(ListBuilder(generator))
+        every { generator.listType(any(), any()) } answers {
+            listBuilder!!.listType(it.invocation.args[0] as KType, it.invocation.args[1] as Boolean)
         }
 
         interfaceBuilder = spyk(InterfaceBuilder(generator))
