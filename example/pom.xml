@@ -64,7 +64,7 @@
         <kotlin.version>1.3.21</kotlin.version>
 
         <!-- Dependency Versions -->
-        <graphql-kotlin.version>0.2.8-SNAPSHOT</graphql-kotlin.version>
+        <graphql-kotlin.version>0.2.9-SNAPSHOT</graphql-kotlin.version>
     </properties>
 
     <build>
