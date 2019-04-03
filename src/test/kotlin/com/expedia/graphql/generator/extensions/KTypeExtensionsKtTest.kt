@@ -86,25 +86,4 @@ internal class KTypeExtensionsKtTest {
         assertEquals("com.expedia.graphql.generator.extensions.KTypeExtensionsKtTest.MyClass", MyClass::class.starProjectedType.qualifiedName)
         assertEquals("", object { }::class.starProjectedType.qualifiedName)
     }
-
-    @Test
-    fun getName() {
-        assertEquals("MyClass", MyClass::class.starProjectedType.getWrappedName())
-
-        assertEquals("MyClassInput", MyClass::class.starProjectedType.getWrappedName(isInputType = true))
-
-        assertEquals("List<String>", MyClass::listFun.findParameterByName("list")?.type?.getWrappedName())
-
-        assertEquals("List<StringInput>", MyClass::listFun.findParameterByName("list")?.type?.getWrappedName(isInputType = true))
-
-        assertEquals("Array<String>", MyClass::arrayFun.findParameterByName("array")?.type?.getWrappedName())
-
-        assertEquals("IntArray", MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedName())
-
-        assertEquals("IntArray", MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedName(isInputType = true))
-
-        assertFailsWith(CouldNotGetNameOfKClassException::class) {
-            object {}::class.starProjectedType.getWrappedName()
-        }
-    }
 }

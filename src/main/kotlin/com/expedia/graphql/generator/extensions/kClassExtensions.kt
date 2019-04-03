@@ -60,6 +60,6 @@ internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
     }
 }
 
-internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName ?: ""
+internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName.orEmpty()
 
 internal fun KClass<*>.isPublic(): Boolean = this.visibility == KVisibility.PUBLIC
