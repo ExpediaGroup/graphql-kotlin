@@ -29,8 +29,6 @@ internal fun KType.getWrappedType(): KType {
     }
 }
 
-internal fun KType.isPrimitiveArray() = primitiveArrayTypes.containsKey(this.getKClass())
-
 internal fun KType.getSimpleName(isInputType: Boolean = false): String = this.getKClass().getSimpleName(isInputType)
 
 internal val KType.qualifiedName: String
