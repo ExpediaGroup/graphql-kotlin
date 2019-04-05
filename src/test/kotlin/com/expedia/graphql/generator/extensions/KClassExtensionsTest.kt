@@ -17,6 +17,24 @@ import kotlin.test.assertTrue
 @Suppress("Detekt.UnusedPrivateClass")
 open class KClassExtensionsTest {
 
+    interface SomeInterface {
+        val someField: String?
+
+        fun someFunction(): String?
+    }
+
+    abstract class SomeAbstractClass : SomeInterface {
+        override val someField: String = "Hello"
+
+        override fun someFunction(): String? = "Goodbye"
+
+        abstract val justAnotherField: String?
+    }
+
+    class SomeConcreteClass : SomeAbstractClass() {
+        override val justAnotherField: String? = "Default value"
+    }
+
     @Suppress("Detekt.FunctionOnlyReturningConstant", "Detekt.UnusedPrivateMember")
     private class MyTestClass(
         val publicProperty: String = "public",
@@ -91,6 +109,12 @@ open class KClassExtensionsTest {
     }
 
     @Test
+    fun `test getting valid properties from abstract classes`() {
+        val concreteProperties = SomeConcreteClass::class.getValidProperties(noopHooks)
+        assertEquals(listOf("justAnotherField", "someField"), concreteProperties.map { it.name })
+    }
+
+    @Test
     fun `test getting valid functions with no hooks`() {
         val properties = MyTestClass::class.getValidFunctions(noopHooks)
         assertEquals(listOf("filteredFunction", "publicFunction"), properties.map { it.name })
@@ -100,6 +124,12 @@ open class KClassExtensionsTest {
     fun `test getting valid functions with filter hooks`() {
         val properties = MyTestClass::class.getValidFunctions(FilterHooks())
         assertEquals(listOf("publicFunction"), properties.map { it.name })
+    }
+
+    @Test
+    fun `test getting functions from absctract classes`() {
+        val properties = SomeConcreteClass::class.getValidFunctions(noopHooks)
+        assertEquals(listOf("someFunction"), properties.map { it.name })
     }
 
     @Test
