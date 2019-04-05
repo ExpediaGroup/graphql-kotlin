@@ -127,7 +127,7 @@ open class KClassExtensionsTest {
     }
 
     @Test
-    fun `test getting functions from absctract classes`() {
+    fun `test getting functions from abstract classes`() {
         val properties = SomeConcreteClass::class.getValidFunctions(noopHooks)
         assertEquals(listOf("someFunction"), properties.map { it.name })
     }
