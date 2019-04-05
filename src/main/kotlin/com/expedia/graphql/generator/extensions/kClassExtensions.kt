@@ -14,18 +14,20 @@ import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.superclasses
 
 private const val INPUT_SUFFIX = "Input"
 
 internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks): List<KProperty<*>> =
-    this.declaredMemberProperties
+    this.memberProperties
         .filter { hooks.isValidProperty(it) }
         .filter { prop -> propertyFilters.all { it.invoke(prop, this) } }
 
 internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks): List<KFunction<*>> =
-    this.declaredMemberFunctions
+    this.memberFunctions
         .filter { hooks.isValidFunction(it) }
         .filter { func -> functionFilters.all { it.invoke(func) } }
 
