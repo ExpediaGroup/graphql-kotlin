@@ -72,6 +72,8 @@
     <properties>
         <!-- Project Versions -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
+        <kotlin-compiler.jvmTarget>1.8</kotlin-compiler.jvmTarget>
 
         <!-- Dependency Versions -->
         <graphql-java.version>11.0</graphql-java.version>
@@ -109,6 +111,9 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>${kotlin-compiler.jvmTarget}</jvmTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>

@@ -1,9 +1,7 @@
 dist: trusty
 
 language: java
-jdk:
-  - openjdk8
-  - openjdk11
+jdk: openjdk11
 
 cache:
   directories:
@@ -24,7 +22,6 @@ deploy:
   on:
     repo: ExpediaDotCom/graphql-kotlin
     tags: true
-    jdk: openjdk8
 
 after_deploy:
   - .travis/update-version.sh
