@@ -3,6 +3,7 @@ package com.expedia.graphql.generator.types
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
+import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.execution.FunctionDataFetcher
 import graphql.Scalars
 import graphql.introspection.Introspection
@@ -51,6 +52,8 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         fun saw(tree: String) = tree
 
         fun context(@GraphQLContext context: String, string: String) = "$context and $string"
+
+        fun ignoredParameter(color: String, @GraphQLIgnore ignoreMe: String) = "$color and $ignoreMe"
 
         fun completableFuture(num: Int): CompletableFuture<Int> = CompletableFuture.completedFuture(num)
 
@@ -126,6 +129,17 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         assertEquals(expected = 1, actual = result.arguments.size)
         val arg = result.arguments.firstOrNull()
         assertEquals(expected = "string", actual = arg?.name)
+    }
+
+    @Test
+    fun `Test ignored parameter`() {
+        val kFunction = Happy::ignoredParameter
+        val result = builder.function(kFunction)
+
+        assertTrue(result.directives.isEmpty())
+        assertEquals(expected = 1, actual = result.arguments.size)
+        val arg = result.arguments.firstOrNull()
+        assertEquals(expected = "color", actual = arg?.name)
     }
 
     @Test

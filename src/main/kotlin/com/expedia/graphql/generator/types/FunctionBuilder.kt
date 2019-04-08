@@ -9,6 +9,7 @@ import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.generator.extensions.isDataFetchingEnvironment
 import com.expedia.graphql.generator.extensions.isGraphQLContext
+import com.expedia.graphql.generator.extensions.isGraphQLIgnored
 import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLArgument
@@ -37,6 +38,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         fn.valueParameters
             .filterNot { it.isGraphQLContext() }
+            .filterNot { it.isGraphQLIgnored() }
             .filterNot { it.isDataFetchingEnvironment() }
             .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
