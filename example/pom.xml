@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -24,39 +25,6 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-
-    <developers>
-        <developer>
-            <name>Rick Fast</name>
-            <email>rfast@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Brennan Taylor</name>
-            <email>brentaylor@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Dariusz Kuc</name>
-            <email>dkuc@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Shane Myrick</name>
-            <email>smyrick@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Amanda Ducrou</name>
-            <email>aducrou@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-    </developers>
 
     <properties>
         <!-- Project versions -->
