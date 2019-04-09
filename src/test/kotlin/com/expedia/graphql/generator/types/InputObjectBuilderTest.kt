@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -17,8 +18,13 @@ internal class InputObjectBuilderTest : TypeTestHelper() {
     @GraphQLDescription("The truth")
     @SimpleDirective
     private class InputClass {
-
         @SimpleDirective
+        val myField: String = "car"
+    }
+
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLName("InputClassRenamed")
+    private class InputClassCustomName {
         val myField: String = "car"
     }
 
@@ -26,6 +32,12 @@ internal class InputObjectBuilderTest : TypeTestHelper() {
     fun `Test naming`() {
         val result = builder.inputObjectType(InputClass::class)
         assertEquals("InputClassInput", result.name)
+    }
+
+    @Test
+    fun `Test custom naming`() {
+        val result = builder.inputObjectType(InputClassCustomName::class)
+        assertEquals("InputClassRenamedInput", result.name)
     }
 
     @Test

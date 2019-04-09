@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator.extensions
 
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
@@ -48,9 +49,15 @@ open class KClassExtensionsTest {
         private fun privateTestFunction() = "private function"
     }
 
+    @GraphQLName("MyTestClassRenamed")
+    private class MyTestClassCustomName
+
     internal class MyInternalClass
 
     class MyClassInput
+
+    @GraphQLName("MyClassRenamedInput")
+    class MyClassCustomNameInput
 
     protected class MyProtectedClass
 
@@ -210,9 +217,20 @@ open class KClassExtensionsTest {
     }
 
     @Test
+    fun `test class simple name with GraphQLName`() {
+        assertEquals("MyTestClassRenamed", MyTestClassCustomName::class.getSimpleName())
+    }
+
+    @Test
     fun `test input class name`() {
         assertEquals("MyTestClassInput", MyTestClass::class.getSimpleName(true))
         assertEquals("MyClassInput", MyClassInput::class.getSimpleName(true))
+    }
+
+    @Test
+    fun `test input class name with GraphQLName`() {
+        assertEquals("MyTestClassRenamedInput", MyTestClassCustomName::class.getSimpleName(true))
+        assertEquals("MyClassRenamedInput", MyClassCustomNameInput::class.getSimpleName(true))
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.expedia.graphql.generator.extensions
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.annotations.GraphQLName
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.test.assertEquals
@@ -13,6 +14,7 @@ import kotlin.test.assertTrue
 @Suppress("Detekt.UnusedPrivateClass")
 internal class AnnotationExtensionsTest {
 
+    @GraphQLName("WithAnnotationsCustomName")
     @GraphQLDescription("class description")
     @Deprecated("class deprecated")
     @GraphQLIgnore
@@ -24,6 +26,12 @@ internal class AnnotationExtensionsTest {
     )
 
     private data class NoAnnotations(val id: String)
+
+    @Test
+    fun `verify @GraphQLName on classes`() {
+        assertEquals(expected = "WithAnnotationsCustomName", actual = WithAnnotations::class.getGraphQLName())
+        assertNull(NoAnnotations::class.getGraphQLName())
+    }
 
     @Test
     fun `verify @GraphQLDescrption on classes`() {

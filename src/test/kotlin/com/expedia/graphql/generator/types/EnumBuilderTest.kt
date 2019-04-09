@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.test.utils.CustomDirective
 import com.expedia.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
@@ -30,6 +31,10 @@ internal class EnumBuilderTest : TypeTestHelper() {
         THREE
     }
 
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLName("MyTestEnumRenamed")
+    private enum class MyTestEnumCustomName
+
     lateinit var builder: EnumBuilder
 
     override fun beforeTest() {
@@ -45,6 +50,12 @@ internal class EnumBuilderTest : TypeTestHelper() {
         assertEquals(expected = "ONE", actual = actual.values[0].value)
         assertEquals(expected = "TWO", actual = actual.values[1].value)
         assertEquals(expected = "THREE", actual = actual.values[2].value)
+    }
+
+    @Test
+    fun `Custom name on enum class`() {
+        val gqlEnum = assertNotNull(builder.enumType(MyTestEnumCustomName::class))
+        assertEquals("MyTestEnumRenamed", gqlEnum.name)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
@@ -24,6 +25,12 @@ internal class UnionBuilderTest : TypeTestHelper() {
     @GraphQLDescription("so red")
     private class StrawBerryCake : Cake
 
+    @GraphQLName("CakeRenamed")
+    private interface CakeCustomName
+
+    @GraphQLName("StrawBerryCakeRenamed")
+    private class StrawBerryCakeCustomName : CakeCustomName
+
     @Test
     fun `Test naming`() {
         val result = builder.unionType(Cake::class) as? GraphQLUnionType
@@ -32,6 +39,16 @@ internal class UnionBuilderTest : TypeTestHelper() {
         assertEquals(Cake::class.java.simpleName, result.name)
         assertEquals(1, result.types.size)
         assertEquals(StrawBerryCake::class.java.simpleName, result.types[0].name)
+    }
+
+    @Test
+    fun `Test custom naming`() {
+        val result = builder.unionType(CakeCustomName::class) as? GraphQLUnionType
+        assertNotNull(result)
+
+        assertEquals("CakeRenamed", result.name)
+        assertEquals(1, result.types.size)
+        assertEquals("StrawBerryCakeRenamed", result.types[0].name)
     }
 
     @Test

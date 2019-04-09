@@ -4,6 +4,7 @@ import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.exceptions.ConflictingTypesException
 import com.expedia.graphql.exceptions.GraphQLKotlinException
 import com.expedia.graphql.exceptions.InvalidIdTypeException
@@ -127,6 +128,27 @@ class SchemaGeneratorTest {
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").getArgument("someEnum").type.deepName)
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").type.deepName)
+    }
+
+    @Test
+    fun `SchemaGenerator names types according to custom name in @GraphQLName`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithCustomName())), config = testSchemaConfig)
+        val topLevelQuery = schema.getObjectType("Query")
+
+        assertEquals("SomeInputObjectRenamedInput!", topLevelQuery.getFieldDefinition("query").getArgument("someInputObjectWithCustomName").type.deepName)
+        assertEquals("SomeEnumRenamed!", topLevelQuery.getFieldDefinition("query").getArgument("someEnumWithCustomName").type.deepName)
+        assertEquals("SomeObjectWithDefaultNameInput!", topLevelQuery.getFieldDefinition("query").getArgument("someObjectWithDefaultName").type.deepName)
+        assertEquals("SomeOtherObjectRenamed!", topLevelQuery.getFieldDefinition("query").type.deepName)
+    }
+
+    @Test
+    fun `SchemaGenerator names self-referencing types according to custom name in @GraphQLName`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QuerySelfReferencingWithCustomName())), config = testSchemaConfig)
+        val topLevelQuery = schema.getObjectType("Query")
+        val resultType = schema.getObjectType("ObjectSelfReferencingRenamed")
+
+        assertEquals("ObjectSelfReferencingRenamed!", topLevelQuery.getFieldDefinition("query").type.deepName)
+        assertEquals("ObjectSelfReferencingRenamed", resultType.getFieldDefinition("self").type.deepName)
     }
 
     @Test
@@ -413,6 +435,46 @@ class SchemaGeneratorTest {
 
     class QueryWithInvalidId {
         fun query(): InvalidIds = InvalidIds(Person("person id not a valid type id"))
+    }
+
+    data class SomeObjectWithDefaultName(val title: String)
+
+    @GraphQLName("SomeObjectRenamed")
+    data class SomeObjectWithCustomName(val title: String)
+
+    @GraphQLName("SomeOtherObjectRenamed")
+    data class SomeOtherObjectWithCustomName(
+        val title: String,
+        val someObject: SomeObjectWithCustomName,
+        val someEnum: SomeEnumWithCustomName
+    )
+
+    @GraphQLName("SomeInputObjectRenamed")
+    data class SomeInputObjectWithCustomName(val title: String)
+
+    @GraphQLName("SomeEnumRenamed")
+    enum class SomeEnumWithCustomName { ONE, TWO }
+
+    class QueryWithCustomName {
+        fun query(
+            someInputObjectWithCustomName: SomeInputObjectWithCustomName,
+            someEnumWithCustomName: SomeEnumWithCustomName,
+            someObjectWithDefaultName: SomeObjectWithDefaultName
+        ): SomeOtherObjectWithCustomName =
+            SomeOtherObjectWithCustomName(
+                title = someObjectWithDefaultName.title,
+                someObject = SomeObjectWithCustomName("something"),
+                someEnum = someEnumWithCustomName
+            )
+    }
+
+    @GraphQLName("ObjectSelfReferencingRenamed")
+    data class ObjectSelfReferencingWithCustomName(
+        val self: ObjectSelfReferencingWithCustomName? = null
+    )
+
+    class QuerySelfReferencingWithCustomName {
+        fun query(): ObjectSelfReferencingWithCustomName = ObjectSelfReferencingWithCustomName()
     }
 
     class MutationWithId {
