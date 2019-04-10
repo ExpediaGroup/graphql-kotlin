@@ -54,7 +54,9 @@ internal fun KClass<*>.isListType(): Boolean = this.isList() || this.isArray()
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
-    val name = this.simpleName ?: throw CouldNotGetNameOfKClassException(this)
+    val name = this.getGraphQLName()
+        ?: this.simpleName
+        ?: throw CouldNotGetNameOfKClassException(this)
 
     return when {
         isInputClass -> if (name.endsWith(INPUT_SUFFIX)) name else "$name$INPUT_SUFFIX"

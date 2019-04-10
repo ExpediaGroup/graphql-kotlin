@@ -2,6 +2,7 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
+import com.expedia.graphql.annotations.GraphQLName
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
@@ -26,11 +27,21 @@ internal class ObjectBuilderTest : TypeTestHelper() {
     @ObjectDirective("Don't worry")
     private class BeHappy
 
+    @GraphQLName("BeHappyRenamed")
+    private class BeHappyCustomName
+
     @Test
     fun `Test naming`() {
         val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
         assertEquals("BeHappy", result.name)
+    }
+
+    @Test
+    fun `Test custom naming`() {
+        val result = builder.objectType(BeHappyCustomName::class) as? GraphQLObjectType
+        assertNotNull(result)
+        assertEquals("BeHappyRenamed", result.name)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
@@ -19,10 +20,20 @@ internal class InterfaceBuilderTest : TypeTestHelper() {
     @SimpleDirective
     private interface HappyInterface
 
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLName("HappyInterfaceRenamed")
+    private interface HappyInterfaceCustomName
+
     @Test
     fun `Test naming`() {
         val result = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
         assertEquals("HappyInterface", result?.name)
+    }
+
+    @Test
+    fun `Test custom naming`() {
+        val result = builder.interfaceType(HappyInterfaceCustomName::class) as? GraphQLInterfaceType
+        assertEquals("HappyInterfaceRenamed", result?.name)
     }
 
     @Test
