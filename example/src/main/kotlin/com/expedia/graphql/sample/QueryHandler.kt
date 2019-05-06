@@ -11,7 +11,7 @@ class QueryHandler(private val graphql: GraphQL) {
     fun executeQuery(request: GraphQLRequest): Mono<GraphQLResponse> = Mono.subscriberContext()
         .flatMap { ctx ->
             val graphQLContext: MyGraphQLContext = ctx.get("graphQLContext")
-            val input = request.getExecutionInput(graphQLContext)
+            val input = request.toExecutionInput(graphQLContext)
 
             Mono.fromFuture(graphql.executeAsync(input))
                 .map { executionResult -> executionResult.toGraphQLResponse() }

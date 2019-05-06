@@ -9,7 +9,7 @@ data class GraphQLRequest(
     val variables: Map<String, Any>? = null
 )
 
-fun GraphQLRequest.getExecutionInput(graphQLContext: MyGraphQLContext? = null): ExecutionInput =
+fun GraphQLRequest.toExecutionInput(graphQLContext: MyGraphQLContext? = null): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)

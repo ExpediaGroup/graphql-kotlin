@@ -31,7 +31,7 @@ class SubscriptionHandler(private val graphQL: GraphQL) : WebSocketHandler {
             }
             .concatMap {
                 val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
-                val executionInput = graphQLRequest.getExecutionInput()
+                val executionInput = graphQLRequest.toExecutionInput()
                 val executionResult = graphQL.execute(executionInput)
                 executionResult.getData<Publisher<ExecutionResult>>()
             }
