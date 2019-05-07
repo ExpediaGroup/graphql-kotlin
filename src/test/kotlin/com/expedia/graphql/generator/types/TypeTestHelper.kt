@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.SchemaGeneratorConfig
+import com.expedia.graphql.TopLevelNames
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.SubTypeMapper
@@ -53,7 +54,11 @@ internal open class TypeTestHelper {
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
 
-        every { config.topLevelNames } returns com.expedia.graphql.TopLevelNames(query = "TestTopLevelQuery", mutation = "TestTopLevelMutation")
+        every { config.topLevelNames } returns TopLevelNames(
+            query = "TestTopLevelQuery",
+            mutation = "TestTopLevelMutation",
+            subscription = "TestTopLevelSubscription"
+        )
 
         functionBuilder = spyk(FunctionBuilder(generator))
         every { generator.function(any(), any(), any()) } answers {

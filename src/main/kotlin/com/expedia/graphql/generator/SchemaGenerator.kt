@@ -14,6 +14,7 @@ import com.expedia.graphql.generator.types.ObjectBuilder
 import com.expedia.graphql.generator.types.PropertyBuilder
 import com.expedia.graphql.generator.types.QueryBuilder
 import com.expedia.graphql.generator.types.ScalarBuilder
+import com.expedia.graphql.generator.types.SubscriptionBuilder
 import com.expedia.graphql.generator.types.UnionBuilder
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInterfaceType
@@ -32,6 +33,7 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
     private val queryBuilder = QueryBuilder(this)
     private val mutationBuilder = MutationBuilder(this)
+    private val subscriptionBuilder = SubscriptionBuilder(this)
     private val objectTypeBuilder = ObjectBuilder(this)
     private val unionTypeBuilder = UnionBuilder(this)
     private val interfaceTypeBuilder = InterfaceBuilder(this)
@@ -43,12 +45,18 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     private val scalarTypeBuilder = ScalarBuilder(this)
     private val directiveTypeBuilder = DirectiveBuilder(this)
 
-    internal fun generate(queries: List<TopLevelObject>, mutations: List<TopLevelObject>): GraphQLSchema {
+    internal fun generate(
+        queries: List<TopLevelObject>,
+        mutations: List<TopLevelObject>,
+        subscriptions: List<TopLevelObject>
+    ): GraphQLSchema {
         val builder = GraphQLSchema.newSchema()
 
         builder.query(queryBuilder.getQueryObject(queries))
 
         builder.mutation(mutationBuilder.getMutationObject(mutations))
+
+        builder.subscription(subscriptionBuilder.getSubscriptionObject(subscriptions))
 
         state.getValidAdditionalTypes().forEach { builder.additionalType(it) }
 

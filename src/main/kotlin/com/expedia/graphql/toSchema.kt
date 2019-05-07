@@ -17,8 +17,9 @@ import graphql.schema.GraphQLSchema
 fun toSchema(
     config: SchemaGeneratorConfig,
     queries: List<TopLevelObject>,
-    mutations: List<TopLevelObject> = emptyList()
+    mutations: List<TopLevelObject> = emptyList(),
+    subsciptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
     val generator = SchemaGenerator(config)
-    return generator.generate(queries, mutations)
+    return generator.generate(queries, mutations, subsciptions)
 }

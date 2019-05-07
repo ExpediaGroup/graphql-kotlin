@@ -13,17 +13,20 @@ import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
 import com.expedia.graphql.sample.query.Query
+import com.expedia.graphql.sample.subscribtions.Subscription
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.DataFetcherExceptionHandler
+import graphql.execution.SubscriptionExecutionStrategy
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import javax.validation.Validator
 
 @SpringBootApplication
@@ -62,25 +65,34 @@ class Application {
     fun schema(
         queries: List<Query>,
         mutations: List<Mutation>,
+        subscriptions: List<Subscription>,
         schemaConfig: SchemaGeneratorConfig,
         schemaPrinter: SchemaPrinter
     ): GraphQLSchema {
-        fun List<Any>.toTopLevelObjectDefs() = this.map {
+        fun List<Any>.toTopLevelObjects() = this.map {
             TopLevelObject(it)
         }
 
         val schema = toSchema(
             config = schemaConfig,
-            queries = queries.toTopLevelObjectDefs(),
-            mutations = mutations.toTopLevelObjectDefs()
+            queries = queries.toTopLevelObjects(),
+            mutations = mutations.toTopLevelObjects(),
+            subsciptions = subscriptions.toTopLevelObjects()
         )
 
         logger.info(schemaPrinter.print(schema))
+
         return schema
     }
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()
+
+    @Bean
+    fun subscriptionHandler(graphQL: GraphQL) = SubscriptionHandler(graphQL)
+
+    @Bean
+    fun websocketHandlerAdapter() = WebSocketHandlerAdapter()
 
     @Bean
     fun graphQL(
@@ -89,6 +101,7 @@ class Application {
     ): GraphQL = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
         .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
+        .subscriptionExecutionStrategy(SubscriptionExecutionStrategy(dataFetcherExceptionHandler))
         .build()
 }
 
