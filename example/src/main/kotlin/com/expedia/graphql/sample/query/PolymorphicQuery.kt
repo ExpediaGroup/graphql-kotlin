@@ -1,9 +1,9 @@
 package com.expedia.graphql.sample.query
 
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.sample.model.BodyPart
 import com.expedia.graphql.sample.model.Animal
 import com.expedia.graphql.sample.model.AnimalType
+import com.expedia.graphql.sample.model.BodyPart
 import com.expedia.graphql.sample.model.Cat
 import com.expedia.graphql.sample.model.Dog
 import com.expedia.graphql.sample.model.LeftHand
