@@ -51,7 +51,7 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generator.enumType(kClass as KClass<Enum<*>>))
         kClass.isListType() -> generator.listType(type, inputType)
         kClass.isUnion() -> generator.unionType(kClass)
-        kClass.isInterface() -> generator.interfaceType(kClass)
+        kClass.isInterface() || kClass.isAbstract -> generator.interfaceType(kClass)
         inputType -> generator.inputObjectType(kClass)
         else -> generator.objectType(kClass)
     }

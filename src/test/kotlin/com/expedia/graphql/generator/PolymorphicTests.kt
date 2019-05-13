@@ -4,6 +4,7 @@ import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.testSchemaConfig
 import com.expedia.graphql.toSchema
+import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -35,7 +36,7 @@ internal class PolymorphicTests {
     fun `SchemaGenerator can expose an interface and its implementations`() {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInterface())), config = testSchemaConfig)
 
-        val interfaceType = schema.getType("AnInterface")
+        val interfaceType = schema.getType("AnInterface") as? GraphQLInterfaceType
         assertNotNull(interfaceType)
 
         val implementationType = schema.getObjectType("AnImplementation")
@@ -60,7 +61,7 @@ internal class PolymorphicTests {
 
     @Test
     fun `Object types implementing union and interfaces are only created once`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInterfaceAnUnion())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInterfaceAndUnion())), config = testSchemaConfig)
 
         val carType = schema.getType("Car") as? GraphQLObjectType
         assertNotNull(carType)
@@ -78,6 +79,19 @@ internal class PolymorphicTests {
 
         val personType = schema.getType("Person")
         assertNotNull(personType)
+    }
+
+    @Test
+    fun `Abstract classes should be converted to interfaces`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithAbstract())), config = testSchemaConfig)
+
+        val abstractInterface = schema.getType("MyAbstract") as? GraphQLInterfaceType
+        assertNotNull(abstractInterface)
+
+        val classWithBaseAbstractType = schema.getObjectType("MyClass")
+        assertNotNull(classWithBaseAbstractType)
+        assertEquals(1, classWithBaseAbstractType.interfaces.size)
+        assertEquals(classWithBaseAbstractType.interfaces.first(), abstractInterface)
     }
 }
 
@@ -128,7 +142,7 @@ data class Arm(
     val value: Boolean
 ) : BodyPart
 
-class QueryWithInterfaceAnUnion {
+class QueryWithInterfaceAndUnion {
     fun product(): Product = Car("DB9", "black")
 }
 
@@ -156,3 +170,16 @@ data class Father(
     val dadJoke: String,
     override val child: Person?
 ) : Person
+
+class QueryWithAbstract {
+    fun query(): MyAbstract = MyClass(id = 1, name = "JUnit")
+
+    fun queryImplementation(): MyClass = MyClass(id = 1, name = "JUnit_2")
+}
+
+@Suppress("UnnecessaryAbstractClass")
+abstract class MyAbstract {
+    abstract val id: Int
+}
+
+data class MyClass(override val id: Int, val name: String) : MyAbstract()
