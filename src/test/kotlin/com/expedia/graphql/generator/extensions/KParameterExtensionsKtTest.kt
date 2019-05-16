@@ -24,6 +24,9 @@ internal class KParameterExtensionsKtTest {
     }
 
     internal abstract class MyAbstractClass {
+
+        abstract val implementMe: String
+
         val value: String = "test"
     }
 
