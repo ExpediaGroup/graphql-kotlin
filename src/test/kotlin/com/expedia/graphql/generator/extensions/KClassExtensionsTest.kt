@@ -198,6 +198,7 @@ open class KClassExtensionsTest {
     @Test
     fun `test graphql interface extension`() {
         assertTrue(TestInterface::class.isInterface())
+        assertTrue(SomeAbstractClass::class.isInterface())
         assertFalse(MyTestClass::class.isInterface())
     }
 
@@ -245,5 +246,13 @@ open class KClassExtensionsTest {
         assertFalse(MyInternalClass::class.isPublic())
         assertFalse(MyProtectedClass::class.isPublic())
         assertFalse(MyTestClass::class.isPublic())
+    }
+
+    @Test
+    fun isNotPublic() {
+        assertFalse(MyPublicClass::class.isNotPublic())
+        assertTrue(MyInternalClass::class.isNotPublic())
+        assertTrue(MyProtectedClass::class.isNotPublic())
+        assertTrue(MyTestClass::class.isNotPublic())
     }
 }

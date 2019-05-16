@@ -6,7 +6,7 @@ import com.expedia.graphql.exceptions.InvalidSchemaException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getValidFunctions
-import com.expedia.graphql.generator.extensions.isPublic
+import com.expedia.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
 internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -22,7 +22,7 @@ internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
         queryBuilder.name(config.topLevelNames.query)
 
         for (query in queries) {
-            if (query.kClass.isPublic().not()) {
+            if (query.kClass.isNotPublic()) {
                 throw InvalidQueryTypeException(query.kClass)
             }
 

@@ -5,7 +5,7 @@ import com.expedia.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getValidFunctions
-import com.expedia.graphql.generator.extensions.isPublic
+import com.expedia.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
 internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -20,7 +20,7 @@ internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         subscriptionBuilder.name(config.topLevelNames.subscription)
 
         for (subscription in subscriptions) {
-            if (subscription.kClass.isPublic().not()) {
+            if (subscription.kClass.isNotPublic()) {
                 throw InvalidSubscriptionTypeException(subscription.kClass)
             }
 

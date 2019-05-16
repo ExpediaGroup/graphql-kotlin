@@ -23,9 +23,18 @@ internal class KParameterExtensionsKtTest {
         val value: String
     }
 
+    internal abstract class MyAbstractClass {
+
+        abstract val implementMe: String
+
+        val value: String = "test"
+    }
+
     internal class Container {
 
         internal fun interfaceInput(myInterface: MyInterface) = myInterface
+
+        internal fun absctractInput(myAbstractClass: MyAbstractClass) = myAbstractClass
 
         internal fun noDescription(myClass: MyClass) = myClass
 
@@ -74,6 +83,12 @@ internal class KParameterExtensionsKtTest {
     @Test
     fun `interface input is invalid`() {
         val param = Container::interfaceInput.findParameterByName("myInterface")
+        assertTrue(param?.isInterface().isTrue())
+    }
+
+    @Test
+    fun `abstract class input is invalid`() {
+        val param = Container::absctractInput.findParameterByName("myAbstractClass")
         assertTrue(param?.isInterface().isTrue())
     }
 

@@ -5,22 +5,20 @@ import kotlin.reflect.KProperty
 
 internal fun KProperty<*>.isPropertyGraphQLID(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLID() -> true
-    parentClass.findConstructorParamter(this.name)
-        ?.isGraphQLID()
-        .isTrue() -> true
+    getConstructorParameter(parentClass)?.isGraphQLID().isTrue() -> true
     else -> false
 }
 
 internal fun KProperty<*>.isPropertyGraphQLIgnored(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLIgnored() -> true
-    parentClass.findConstructorParamter(this.name)
-        ?.isGraphQLIgnored()
-        .isTrue() -> true
+    getConstructorParameter(parentClass)?.isGraphQLIgnored().isTrue() -> true
     else -> false
 }
 
 internal fun KProperty<*>.getPropertyDeprecationReason(parentClass: KClass<*>): String? =
-    this.getDeprecationReason() ?: parentClass.findConstructorParamter(this.name)?.getDeprecationReason()
+    this.getDeprecationReason() ?: getConstructorParameter(parentClass)?.getDeprecationReason()
 
 internal fun KProperty<*>.getPropertyDescription(parentClass: KClass<*>): String? =
-    this.getGraphQLDescription() ?: parentClass.findConstructorParamter(this.name)?.getGraphQLDescription()
+    this.getGraphQLDescription() ?: getConstructorParameter(parentClass)?.getGraphQLDescription()
+
+private fun KProperty<*>.getConstructorParameter(parentClass: KClass<*>) = parentClass.findConstructorParamter(this.name)

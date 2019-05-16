@@ -39,7 +39,7 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
 internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
     this.primaryConstructor?.findParameterByName(name)
 
-internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface
+internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface || this.isAbstract
 
 internal fun KClass<*>.isUnion(): Boolean =
     this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
@@ -67,3 +67,5 @@ internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
 internal fun KClass<*>.getQualifiedName(): String = this.qualifiedName.orEmpty()
 
 internal fun KClass<*>.isPublic(): Boolean = this.visibility == KVisibility.PUBLIC
+
+internal fun KClass<*>.isNotPublic(): Boolean = this.isPublic().not()

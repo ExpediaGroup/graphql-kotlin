@@ -5,7 +5,7 @@ import com.expedia.graphql.exceptions.InvalidMutationTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getValidFunctions
-import com.expedia.graphql.generator.extensions.isPublic
+import com.expedia.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
 internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
@@ -20,7 +20,7 @@ internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         mutationBuilder.name(config.topLevelNames.mutation)
 
         for (mutation in mutations) {
-            if (mutation.kClass.isPublic().not()) {
+            if (mutation.kClass.isNotPublic()) {
                 throw InvalidMutationTypeException(mutation.kClass)
             }
 
