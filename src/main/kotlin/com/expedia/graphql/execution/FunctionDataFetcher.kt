@@ -11,10 +11,12 @@ import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.valueParameters
+import java.util.concurrent.ExecutionException as ExecutionException1
 
 /**
  * Simple DataFetcher that invokes target function on the given object.
@@ -46,7 +48,11 @@ class FunctionDataFetcher(
                     fn.callSuspend(it, *parameterValues)
                 }.asCompletableFuture()
             } else {
-                fn.call(it, *parameterValues)
+                try {
+                    return fn.call(it, *parameterValues)
+                } catch (exception: InvocationTargetException) {
+                    throw exception.cause ?: exception
+                }
             }
         }
     }
