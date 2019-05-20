@@ -16,7 +16,6 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.valueParameters
-import java.util.concurrent.ExecutionException as ExecutionException1
 
 /**
  * Simple DataFetcher that invokes target function on the given object.
