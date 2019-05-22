@@ -37,7 +37,7 @@ internal class FunctionDataFetcherTest {
 
         fun throwException() { throw GraphQLException("Test Exception") }
 
-        suspend fun suspendThrow(): CompletableFuture<*> = coroutineScope {
+        suspend fun suspendThrow(): String = coroutineScope {
             delay(10)
             throw GraphQLException("Suspended Exception")
         }
