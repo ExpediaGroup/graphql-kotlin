@@ -11,6 +11,7 @@ import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspend
@@ -46,7 +47,11 @@ class FunctionDataFetcher(
                     fn.callSuspend(it, *parameterValues)
                 }.asCompletableFuture()
             } else {
-                fn.call(it, *parameterValues)
+                try {
+                    return fn.call(it, *parameterValues)
+                } catch (exception: InvocationTargetException) {
+                    throw exception.cause ?: exception
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package com.expedia.graphql.execution
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.exceptions.CouldNotCastArgumentException
+import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
@@ -12,7 +13,9 @@ import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 internal class FunctionDataFetcherTest {
 
@@ -30,6 +33,13 @@ internal class FunctionDataFetcherTest {
         suspend fun suspendPrint(string: String): String = coroutineScope {
             delay(10)
             string
+        }
+
+        fun throwException() { throw GraphQLException("Test Exception") }
+
+        suspend fun suspendThrow(): String = coroutineScope {
+            delay(10)
+            throw GraphQLException("Suspended Exception")
         }
     }
 
@@ -125,5 +135,35 @@ internal class FunctionDataFetcherTest {
 
         assertTrue(result is CompletableFuture<*>)
         assertEquals(expected = "hello", actual = result.get())
+    }
+
+    @Test
+    fun `throwException function propagates the original exception`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::throwException)
+        val mockEnvironmet: DataFetchingEnvironment = mockk()
+
+        try {
+            dataFetcher.get(mockEnvironmet)
+            assertFalse(true, "Should not be here")
+        } catch (e: Exception) {
+            assertEquals(e.message, "Test Exception")
+        }
+    }
+
+    @Test
+    fun `suspendThrow throws exception when resolved`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendThrow)
+        val mockEnvironmet: DataFetchingEnvironment = mockk()
+
+        try {
+            val result = dataFetcher.get(mockEnvironmet)
+            assertTrue(result is CompletableFuture<*>)
+            result.get()
+            assertFalse(true, "Should not be here")
+        } catch (e: Exception) {
+            val message = e.message
+            assertNotNull(message)
+            assertTrue(message.endsWith("Suspended Exception"))
+        }
     }
 }
