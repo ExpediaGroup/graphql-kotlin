@@ -77,7 +77,7 @@ class Application {
             config = schemaConfig,
             queries = queries.toTopLevelObjects(),
             mutations = mutations.toTopLevelObjects(),
-            subsciptions = subscriptions.toTopLevelObjects()
+            subscriptions = subscriptions.toTopLevelObjects()
         )
 
         logger.info(schemaPrinter.print(schema))
