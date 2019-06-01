@@ -30,6 +30,7 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
+    internal val codeRegistry = config.hooks.codeRegistry
 
     private val queryBuilder = QueryBuilder(this)
     private val mutationBuilder = MutationBuilder(this)
@@ -53,20 +54,21 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         val builder = GraphQLSchema.newSchema()
 
         builder.query(queryBuilder.getQueryObject(queries))
-
         builder.mutation(mutationBuilder.getMutationObject(mutations))
-
         builder.subscription(subscriptionBuilder.getSubscriptionObject(subscriptions))
 
-        state.getValidAdditionalTypes().forEach { builder.additionalType(it) }
+        // add interface/union implementations
+        state.getValidAdditionalTypes().forEach {
+            builder.additionalType(it)
+        }
 
         builder.additionalDirectives(state.directives)
-
+        builder.codeRegistry(codeRegistry.build())
         return config.hooks.willBuildSchema(builder).build()
     }
 
-    internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false) =
-        functionTypeBuilder.function(fn, target, abstract)
+    internal fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false) =
+        functionTypeBuilder.function(fn, parentName, target, abstract)
 
     internal fun property(prop: KProperty<*>, parentClass: KClass<*>) =
         propertyTypeBuilder.property(prop, parentClass)

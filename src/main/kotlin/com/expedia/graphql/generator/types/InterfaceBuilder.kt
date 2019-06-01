@@ -28,7 +28,7 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 .forEach { builder.field(generator.property(it, kClass)) }
 
             kClass.getValidFunctions(config.hooks)
-                .forEach { builder.field(generator.function(it, abstract = true)) }
+                .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
 
             builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
             val interfaceType = builder.build()

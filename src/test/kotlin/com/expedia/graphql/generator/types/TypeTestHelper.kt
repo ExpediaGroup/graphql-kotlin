@@ -9,6 +9,7 @@ import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.state.TypesCache
 import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLInterfaceType
 import io.mockk.every
 import io.mockk.mockk
@@ -51,6 +52,8 @@ internal open class TypeTestHelper {
         every { state.cache } returns cache
         every { generator.config } returns config
         every { generator.subTypeMapper } returns subTypeMapper
+        val codeRegistryBuilder = GraphQLCodeRegistry.newCodeRegistry()
+        every { generator.codeRegistry } returns codeRegistryBuilder
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
 
@@ -61,8 +64,8 @@ internal open class TypeTestHelper {
         )
 
         functionBuilder = spyk(FunctionBuilder(generator))
-        every { generator.function(any(), any(), any()) } answers {
-            functionBuilder!!.function(it.invocation.args[0] as KFunction<*>, it.invocation.args[1], it.invocation.args[2] as Boolean)
+        every { generator.function(any(), any(), any(), any()) } answers {
+            functionBuilder!!.function(it.invocation.args[0] as KFunction<*>, it.invocation.args[1] as String, it.invocation.args[2], it.invocation.args[3] as Boolean)
         }
 
         propertyBuilder = spyk(PropertyBuilder(generator))

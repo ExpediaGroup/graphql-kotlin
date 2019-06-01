@@ -20,7 +20,7 @@ import graphql.introspection.Introspection.DirectiveLocation.SCHEMA
 import graphql.introspection.Introspection.DirectiveLocation.UNION
 
 /**
- * Valid on all locations
+ * Valid on all locations but doesn't do anything as there is no corresponding runtime wiring configuration.
  */
 @GraphQLDirective(locations = [
     QUERY,

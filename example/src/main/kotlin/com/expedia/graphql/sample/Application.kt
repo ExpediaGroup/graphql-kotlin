@@ -1,14 +1,13 @@
 package com.expedia.graphql.sample
 
-import com.expedia.graphql.DirectiveWiringHelper
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
+import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.datafetchers.CustomDataFetcherFactoryProvider
 import com.expedia.graphql.sample.datafetchers.SpringDataFetcherFactory
-import com.expedia.graphql.sample.directives.DirectiveWiringFactory
-import com.expedia.graphql.sample.directives.LowercaseDirectiveWiring
+import com.expedia.graphql.sample.directives.CustomDirectiveWiringFactory
 import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
@@ -35,11 +34,11 @@ class Application {
     private val logger = LoggerFactory.getLogger(Application::class.java)
 
     @Bean
-    fun wiringFactory() = DirectiveWiringFactory()
+    fun wiringFactory() = CustomDirectiveWiringFactory()
 
     @Bean
-    fun hooks(validator: Validator, wiringFactory: DirectiveWiringFactory) =
-        CustomSchemaGeneratorHooks(validator, DirectiveWiringHelper(wiringFactory, mapOf("lowercase" to LowercaseDirectiveWiring())))
+    fun hooks(validator: Validator, wiringFactory: KotlinDirectiveWiringFactory) =
+        CustomSchemaGeneratorHooks(validator, wiringFactory)
 
     @Bean
     fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: SchemaGeneratorHooks) =

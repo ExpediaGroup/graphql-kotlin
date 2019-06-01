@@ -13,6 +13,7 @@ import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isGraphQLIgnored
 import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.safeCast
+import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -26,7 +27,7 @@ import kotlin.reflect.full.valueParameters
 
 internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
-    internal fun function(fn: KFunction<*>, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
+    internal fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         builder.name(fn.name)
         builder.description(fn.getGraphQLDescription())
@@ -45,19 +46,21 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             .filterNot { it.isDataFetchingEnvironment() }
             .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
-                builder.argument(argument(it))
+                builder.argument(argument(fn.name, it))
             }
-
-        if (!abstract) {
-            builder.dataFetcherFactory(config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn))
-        }
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
         val returnType = getWrappedReturnType(typeFromHooks)
         builder.type(graphQLTypeOf(returnType).safeCast<GraphQLOutputType>())
         val graphQLType = builder.build()
 
-        return config.hooks.onRewireGraphQLType(returnType, graphQLType).safeCast()
+        if (!abstract) {
+            val coordinates = FieldCoordinates.coordinates(parentName, fn.name)
+            val dataFetcherFactory = config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
+            generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
+        }
+
+        return config.hooks.onRewireGraphQLType(returnType, graphQLType, parentName).safeCast()
     }
 
     private fun getWrappedReturnType(returnType: KType): KType =
@@ -68,7 +71,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         }
 
     @Throws(InvalidInputFieldTypeException::class)
-    private fun argument(parameter: KParameter): GraphQLArgument {
+    private fun argument(functionName: String, parameter: KParameter): GraphQLArgument {
 
         if (parameter.isInterface()) {
             throw InvalidInputFieldTypeException(parameter)
@@ -83,6 +86,6 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             builder.withDirective(it)
         }
 
-        return config.hooks.onRewireGraphQLType(parameter.type, builder.build()).safeCast()
+        return config.hooks.onRewireGraphQLType(parameter.type, builder.build(), functionName).safeCast()
     }
 }

@@ -1,6 +1,8 @@
 package com.expedia.graphql.hooks
 
+import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.execution.DataFetcherExecutionPredicate
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
@@ -65,7 +67,8 @@ interface SchemaGeneratorHooks {
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
      * Enables you to change the wiring, e.g. directives to alter data fetchers.
      */
-    fun onRewireGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
+    fun onRewireGraphQLType(type: KType, generatedType: GraphQLType, parentType: String): GraphQLType =
+        wiringFactory.onWire(generatedType, parentType)
 
     /**
      * Called after wrapping the type based on nullity but before adding the generated type to the schema
@@ -93,4 +96,8 @@ interface SchemaGeneratorHooks {
      */
     val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate?
         get() = null
+
+    val codeRegistry: GraphQLCodeRegistry.Builder
+
+    val wiringFactory: KotlinDirectiveWiringFactory
 }

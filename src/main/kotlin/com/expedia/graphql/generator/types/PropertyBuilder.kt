@@ -4,8 +4,10 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getPropertyDeprecationReason
 import com.expedia.graphql.generator.extensions.getPropertyDescription
+import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
 import com.expedia.graphql.generator.extensions.safeCast
+import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KClass
@@ -20,7 +22,6 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             .description(prop.getPropertyDescription(parentClass))
             .name(prop.name)
             .type(propertyType)
-            .dataFetcherFactory(config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop))
             .deprecate(prop.getPropertyDeprecationReason(parentClass))
 
         generator.directives(prop).forEach {
@@ -29,6 +30,11 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         val field = fieldBuilder.build()
 
-        return config.hooks.onRewireGraphQLType(prop.returnType, field).safeCast()
+        val parentType = parentClass.getSimpleName()
+        val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
+        val dataFetcherFactory = config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
+        generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
+
+        return config.hooks.onRewireGraphQLType(prop.returnType, field, parentType).safeCast()
     }
 }

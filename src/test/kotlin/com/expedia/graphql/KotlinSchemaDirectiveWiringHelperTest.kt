@@ -1,9 +1,12 @@
 package com.expedia.graphql
 
 import com.expedia.graphql.exceptions.InvalidSchemaDirectiveWiringException
+import com.expedia.graphql.directives.KotlinSchemaDirectiveEnvironment
+import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import graphql.Scalars
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -12,17 +15,17 @@ import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeVisitor
 import graphql.schema.idl.SchemaDirectiveWiring
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment
-import graphql.schema.idl.WiringFactory
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
-internal class DirectiveWiringHelperTest {
+internal class KotlinSchemaDirectiveWiringHelperTest {
 
-    private class UpdateDescriptionWiring(
+    private class UpdateDescriptionWiringKotlinSchema(
         private val newDescription: String? = null,
         private val lowerCase: Boolean = false
     ) : SchemaDirectiveWiring {
@@ -51,30 +54,30 @@ internal class DirectiveWiringHelperTest {
         }
     }
 
-    private class InvalidWiring : SchemaDirectiveWiring {
-        override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>) = null
+    private class InvalidWiringKotlinSchema : SchemaDirectiveWiring {
+        override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>) = throw InvalidSchemaDirectiveWiringException(environment.element.name)
     }
 
     private val graphQLOverrideDescriptionDirective = GraphQLDirective.newDirective().name("overrideDescription").build()
     private val graphQLLowercaseDirective = GraphQLDirective.newDirective().name("lowercase").build()
 
-    private class SimpleWiringFactory : WiringFactory {
-        val lowercaseWiring = UpdateDescriptionWiring(lowerCase = true)
+    private class SimpleWiringFactory(overrides: Map<String, SchemaDirectiveWiring> = emptyMap()) : KotlinDirectiveWiringFactory(mockk(), overrides) {
+        val lowercaseWiring = UpdateDescriptionWiringKotlinSchema(lowerCase = true)
 
-        override fun getSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): SchemaDirectiveWiring? =
-            if (environment.element is GraphQLFieldDefinition && environment.element.directives.any { it.name == "lowercase" }) {
+        override fun providesSchemaDirectiveWiring(env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): Boolean = env.directive.name == "lowercase"
+
+        override fun getSchemaDirectiveWiring(env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): SchemaDirectiveWiring? =
+            if (env.element is GraphQLFieldDefinition && env.element.directives.any { it.name == "lowercase" }) {
                 lowercaseWiring
             } else {
                 null
             }
-
-        override fun providesSchemaDirectiveWiring(environment: SchemaDirectiveWiringEnvironment<*>): Boolean = environment.directive.name == "lowercase"
     }
 
     @Test
     fun `verify no action is taken if GraphQL object is not GraphQLDirectiveContainer`() {
         val original = GraphQLTypeReference("MyTypeReference")
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+        val actual = SimpleWiringFactory().onWire(original)
 
         assertEquals(original, actual)
     }
@@ -82,7 +85,7 @@ internal class DirectiveWiringHelperTest {
     @Test
     fun `verify no action is taken if GraphQL object does not have directive`() {
         val original = GraphQLEnumType.newEnum().name("MyEnum").build()
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+        val actual = SimpleWiringFactory().onWire(original)
 
         assertEquals(original, actual)
     }
@@ -90,7 +93,7 @@ internal class DirectiveWiringHelperTest {
     @Test
     fun `verify directive is not executed if no wirings are specified`() {
         val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
-        val actual = DirectiveWiringHelper().onWire(original)
+        val actual = SimpleWiringFactory().onWire(original)
 
         assertEquals(original, actual)
     }
@@ -98,7 +101,7 @@ internal class DirectiveWiringHelperTest {
     @Test
     fun `verify directive is not executed if no corresponding wirings are specified`() {
         val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+        val actual = SimpleWiringFactory().onWire(original)
 
         assertEquals(original, actual)
     }
@@ -118,7 +121,7 @@ internal class DirectiveWiringHelperTest {
                 .withDirective(graphQLLowercaseDirective)
                 .build()
 
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory()).onWire(original)
+        val actual = SimpleWiringFactory().onWire(original)
         assertNotEquals(original, actual)
         val updatedField = actual as? GraphQLFieldDefinition
         assertEquals("my field description", updatedField?.description)
@@ -136,7 +139,7 @@ internal class DirectiveWiringHelperTest {
         val newDescription = "overwritten description"
         assertNotEquals(argument.description, newDescription)
 
-        val actual = DirectiveWiringHelper(manualWiring = mapOf("overrideDescription" to UpdateDescriptionWiring(newDescription))).onWire(argument)
+        val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(newDescription))).onWire(argument)
         assertNotEquals(argument, actual)
         val updatedArgument = actual as? GraphQLArgument
         assertEquals(newDescription, updatedArgument?.description)
@@ -165,7 +168,7 @@ internal class DirectiveWiringHelperTest {
                 .build()
 
         val newDescription = "overwritten"
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("overrideDescription" to UpdateDescriptionWiring(newDescription))).onWire(original)
+        val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(newDescription))).onWire(original)
         assertNotEquals(original, actual)
         val actualField = actual as? GraphQLFieldDefinition
         assertEquals(newDescription, actualField?.description)
@@ -190,7 +193,7 @@ internal class DirectiveWiringHelperTest {
 
         val overwrittenDescription = "overwritten"
         // reusing lower case directive that just overwrites the description
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("lowercase" to UpdateDescriptionWiring(overwrittenDescription))).onWire(original)
+        val actual = SimpleWiringFactory(overrides = mapOf("lowercase" to UpdateDescriptionWiringKotlinSchema(overwrittenDescription))).onWire(original)
         assertNotEquals(original, actual)
 
         val updatedField = actual as? GraphQLFieldDefinition
@@ -214,7 +217,7 @@ internal class DirectiveWiringHelperTest {
                 .build()
 
         val overwrittenDescription = "OverWriTTen"
-        val actual = DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("overrideDescription" to UpdateDescriptionWiring(overwrittenDescription))).onWire(original)
+        val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(overwrittenDescription))).onWire(original)
         assertNotEquals(original, actual)
 
         val updatedField = actual as? GraphQLFieldDefinition
@@ -237,7 +240,7 @@ internal class DirectiveWiringHelperTest {
             .build()
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            DirectiveWiringHelper(wiringFactory = SimpleWiringFactory(), manualWiring = mapOf("lowercase" to InvalidWiring())).onWire(original)
+            SimpleWiringFactory(overrides = mapOf("lowercase" to InvalidWiringKotlinSchema())).onWire(original)
         }
     }
 }

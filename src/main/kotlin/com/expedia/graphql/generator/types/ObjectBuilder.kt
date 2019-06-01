@@ -19,7 +19,8 @@ internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator
         return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLObjectType.newObject()
 
-            builder.name(kClass.getSimpleName())
+            val name = kClass.getSimpleName()
+            builder.name(name)
             builder.description(kClass.getGraphQLDescription())
 
             generator.directives(kClass).forEach {
@@ -42,7 +43,7 @@ internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator
                 .forEach { builder.field(generator.property(it, kClass)) }
 
             kClass.getValidFunctions(config.hooks)
-                .forEach { builder.field(generator.function(it)) }
+                .forEach { builder.field(generator.function(it, name)) }
 
             builder.build()
         }

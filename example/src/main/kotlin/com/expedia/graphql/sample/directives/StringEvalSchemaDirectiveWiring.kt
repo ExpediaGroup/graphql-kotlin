@@ -1,30 +1,24 @@
 package com.expedia.graphql.sample.directives
 
+import com.expedia.graphql.directives.KotlinSchemaDirectiveEnvironment
 import graphql.schema.DataFetcher
-import graphql.schema.DataFetchingEnvironmentBuilder
+import graphql.schema.DataFetchingEnvironmentImpl.newDataFetchingEnvironment
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
+import graphql.schema.idl.SchemaDirectiveWiring
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 
-class StringEvalDirectiveWiring : DirectiveWiring {
+class StringEvalSchemaDirectiveWiring : SchemaDirectiveWiring {
     private val directiveName = getDirectiveName(StringEval::class)
 
-    override fun isApplicable(environment: SchemaDirectiveWiringEnvironment<*>): Boolean {
-        val element = environment.element
-        return when (element) {
-            is GraphQLFieldDefinition -> element.getDirective(directiveName) != null || element.arguments.any { it.getDirective(directiveName) != null }
-            is GraphQLArgument -> element.getDirective(directiveName) != null
-            else -> false
-        }
-    }
-
-    override fun onField(wiringEnv: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
-        val field = wiringEnv.element
-        val originalDataFetcher: DataFetcher<Any> = field.dataFetcher
+    override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
+        val field = environment.element
+        val coordinates = (environment as KotlinSchemaDirectiveEnvironment).coordinates
+        val originalDataFetcher: DataFetcher<Any> = environment.codeRegistry.getDataFetcher(coordinates, field)
 
         val defaultValueFetcher = DataFetcher<Any> { dataEnv ->
             val newArguments = HashMap(dataEnv.arguments)
-            wiringEnv.element.arguments.associate {
+            environment.element.arguments.associate {
                 Pair(it, dataEnv.getArgument(it.name) as String?)
             }.forEach { (graphQLArgumentType, value) ->
                 if (graphQLArgumentType.getDirective(directiveName).getArgument(StringEval::lowerCase.name).value as Boolean) {
@@ -34,17 +28,19 @@ class StringEvalDirectiveWiring : DirectiveWiring {
                     newArguments[graphQLArgumentType.name] = graphQLArgumentType.defaultValue
                 }
             }
-            val newEnv = DataFetchingEnvironmentBuilder.newDataFetchingEnvironment(dataEnv)
+            // NOTE: this relies on internal graphql-java API and may break in the future
+            val newEnv = newDataFetchingEnvironment(dataEnv)
                     .arguments(newArguments)
                     .build()
             originalDataFetcher.get(newEnv)
         }
-        return field.transform { it.dataFetcher(defaultValueFetcher) }
+        environment.codeRegistry.dataFetcher(coordinates, defaultValueFetcher)
+        return field
     }
 
-    override fun onArgument(wiringEnv: SchemaDirectiveWiringEnvironment<GraphQLArgument>): GraphQLArgument {
-        val argument = wiringEnv.element
-        val directive = wiringEnv.directive
+    override fun onArgument(environment: SchemaDirectiveWiringEnvironment<GraphQLArgument>): GraphQLArgument {
+        val argument = environment.element
+        val directive = environment.directive
 
         val default = directive.getArgument(StringEval::default.name).value as String
         return if (default.isNotEmpty()) {
