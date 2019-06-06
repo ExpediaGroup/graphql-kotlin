@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,7 +27,6 @@ class RoutesConfiguration(
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
 ) {
 
-    private val logger = LoggerFactory.getLogger(RoutesConfiguration::class.java)
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean

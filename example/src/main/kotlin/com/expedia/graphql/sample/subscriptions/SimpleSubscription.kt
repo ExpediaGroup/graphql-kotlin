@@ -1,4 +1,4 @@
-package com.expedia.graphql.sample.subscribtions
+package com.expedia.graphql.sample.subscriptions
 
 import com.expedia.graphql.annotations.GraphQLDescription
 import org.springframework.stereotype.Component

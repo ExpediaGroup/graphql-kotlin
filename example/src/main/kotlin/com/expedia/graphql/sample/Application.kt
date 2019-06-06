@@ -13,7 +13,7 @@ import com.expedia.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expedia.graphql.sample.extension.CustomSchemaGeneratorHooks
 import com.expedia.graphql.sample.mutation.Mutation
 import com.expedia.graphql.sample.query.Query
-import com.expedia.graphql.sample.subscribtions.Subscription
+import com.expedia.graphql.sample.subscriptions.Subscription
 import com.expedia.graphql.toSchema
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
