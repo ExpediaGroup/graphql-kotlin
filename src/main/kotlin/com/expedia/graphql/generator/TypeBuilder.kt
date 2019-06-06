@@ -23,9 +23,12 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
         val graphQLType = hookGraphQLType
             ?: generator.scalarType(type, annotatedAsID)
             ?: objectFromReflection(type, inputType)
-        val typeWithNullityTakenIntoAccount = graphQLType.wrapInNonNull(type)
-        config.hooks.didGenerateGraphQLType(type, typeWithNullityTakenIntoAccount)
-        return typeWithNullityTakenIntoAccount
+
+        val typeWithNullability = graphQLType.wrapInNonNull(type)
+
+        config.hooks.didGenerateGraphQLType(type, typeWithNullability)
+
+        return typeWithNullability
     }
 
     internal fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
@@ -39,12 +42,14 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
         val kClass = type.getKClass()
         val graphQLType = getGraphQLType(kClass, inputType, type)
 
-        if (graphQLType !is GraphQLTypeReference) {
-            val kGraphQLType = KGraphQLType(kClass, graphQLType)
+        val modifiedGraphQLType = config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
+
+        if (modifiedGraphQLType !is GraphQLTypeReference) {
+            val kGraphQLType = KGraphQLType(kClass, modifiedGraphQLType)
             state.cache.put(cacheKey, kGraphQLType)
         }
 
-        return graphQLType
+        return modifiedGraphQLType
     }
 
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {

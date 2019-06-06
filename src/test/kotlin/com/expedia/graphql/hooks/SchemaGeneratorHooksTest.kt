@@ -124,6 +124,32 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
+    fun `calls hook before adding type to schema`() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
+            var hookCalled = false
+
+            override fun willAddGraphQLTypeToSchema(type: KType, generatedType: GraphQLType): GraphQLType {
+                hookCalled = true
+                return when {
+                    generatedType is GraphQLObjectType && generatedType.name == "SomeData" -> GraphQLObjectType.Builder(generatedType).description("My custom description").build()
+                    else -> generatedType
+                }
+            }
+        }
+
+        val hooks = MockSchemaGeneratorHooks()
+        val schema = toSchema(
+            queries = listOf(TopLevelObject(TestQuery())),
+            config = getTestSchemaConfigWithHooks(hooks)
+        )
+        assertTrue(hooks.hookCalled)
+
+        val type = schema.getObjectType("SomeData")
+        assertNotNull(type)
+        assertEquals(expected = "My custom description", actual = type.description)
+    }
+
+    @Test
     fun `calls hook before adding query to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             override fun didGenerateQueryType(
