@@ -1,5 +1,6 @@
 package com.expedia.graphql.sample.query
 
+import com.expedia.graphql.annotations.GraphQLDescription
 import com.fasterxml.jackson.annotation.JsonIgnore
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -11,8 +12,11 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
 @Component
-class NestedQueries : Query {
+class NestedQueries(private val coffeeBean: CoffeeBean) : Query {
     fun findAnimal(): NestedAnimal = NestedAnimal(1, "cat")
+
+    @GraphQLDescription("An exmaple of using data fetcher with out a bean factory")
+    fun getCoffeeBean(beanName: String) = coffeeBean
 }
 
 data class NestedAnimal(
@@ -47,5 +51,19 @@ class AnimalDetailsDataFetcher : DataFetcher<NestedAnimalDetails>, BeanFactoryAw
         } else {
             return beanFactory.getBean(id)
         }
+    }
+}
+
+@Component
+class CoffeeBean {
+
+    fun icedCofee(environment: DataFetchingEnvironment, size: String): String {
+        val beanChoice = environment.executionStepInfo.parent.arguments["beanName"]
+        return "Iced Coffee, Bean choice: $beanChoice, size: $size"
+    }
+
+    fun hotCofee(environment: DataFetchingEnvironment, size: String): String {
+        val beanChoice = environment.executionStepInfo.parent.arguments["beanName"]
+        return "Hot Coffee, Bean choice: $beanChoice, size: $size"
     }
 }
