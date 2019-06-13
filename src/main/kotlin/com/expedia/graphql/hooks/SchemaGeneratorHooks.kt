@@ -29,6 +29,12 @@ interface SchemaGeneratorHooks {
     fun willGenerateGraphQLType(type: KType): GraphQLType? = null
 
     /**
+     * Called after using reflection to generate the graphql object type but before returning it to the schema builder.
+     * This allows for modifying the type info, like description or directives
+     */
+    fun willAddGraphQLTypeToSchema(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
+
+    /**
      * Called before resolving a KType to the GraphQL type.
      * This allows for a custom resolver on how to extract wrapped values, like in a CompletableFuture.
      */
