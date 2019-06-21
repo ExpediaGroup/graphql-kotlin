@@ -16,6 +16,7 @@ import com.expedia.graphql.generator.types.QueryBuilder
 import com.expedia.graphql.generator.types.ScalarBuilder
 import com.expedia.graphql.generator.types.SubscriptionBuilder
 import com.expedia.graphql.generator.types.UnionBuilder
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLSchema
@@ -30,7 +31,7 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
-    internal val codeRegistry = config.hooks.codeRegistry
+    internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
 
     private val queryBuilder = QueryBuilder(this)
     private val mutationBuilder = MutationBuilder(this)

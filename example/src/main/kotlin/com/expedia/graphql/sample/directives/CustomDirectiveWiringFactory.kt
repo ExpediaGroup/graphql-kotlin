@@ -3,12 +3,11 @@ package com.expedia.graphql.sample.directives
 import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.directives.KotlinSchemaDirectiveEnvironment
 import com.google.common.base.CaseFormat
-import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.idl.SchemaDirectiveWiring
 import kotlin.reflect.KClass
 
-class CustomDirectiveWiringFactory(codeRegistry: GraphQLCodeRegistry.Builder) : KotlinDirectiveWiringFactory(codeRegistry = codeRegistry, manualWiring = mapOf<String, SchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring())) {
+class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring = mapOf<String, SchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring())) {
 
     private val stringEvalDirectiveWiring = StringEvalSchemaDirectiveWiring()
     private val caleOnlyDirectiveWiring = CakeOnlySchemaDirectiveWiring()

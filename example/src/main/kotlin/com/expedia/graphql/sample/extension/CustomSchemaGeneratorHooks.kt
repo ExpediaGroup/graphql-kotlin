@@ -6,7 +6,6 @@ import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.validation.DataFetcherExecutionValidator
 import graphql.language.StringValue
 import graphql.schema.Coercing
-import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import java.util.UUID
@@ -16,7 +15,7 @@ import kotlin.reflect.KType
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomSchemaGeneratorHooks(validator: Validator, override val codeRegistry: GraphQLCodeRegistry.Builder, override val wiringFactory: KotlinDirectiveWiringFactory) : SchemaGeneratorHooks {
+class CustomSchemaGeneratorHooks(validator: Validator, override val wiringFactory: KotlinDirectiveWiringFactory) : SchemaGeneratorHooks {
 
     /**
      * Register additional GraphQL scalar types.

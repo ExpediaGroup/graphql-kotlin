@@ -262,7 +262,7 @@ internal class GraphQLExtensionsTest {
 
     @Test
     fun `safeCast valid type to the wrong type fails`() {
-        val type: GraphQLType = GraphQLObjectType("name", "description", emptyList(), mockk())
+        val type: GraphQLType = GraphQLObjectType("name", "description", emptyList(), emptyList())
 
         assertFailsWith(CouldNotCastGraphQLType::class) {
             type.safeCast<GraphQLInterfaceType>()
