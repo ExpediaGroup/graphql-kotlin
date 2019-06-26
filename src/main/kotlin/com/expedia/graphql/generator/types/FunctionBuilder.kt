@@ -60,7 +60,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
         }
 
-        return config.hooks.onRewireGraphQLField(graphQLType, coordinates, codeRegistry)
+        return config.hooks.onRewireGraphQLType(graphQLType, coordinates, codeRegistry).safeCast()
     }
 
     private fun getWrappedReturnType(returnType: KType): KType =

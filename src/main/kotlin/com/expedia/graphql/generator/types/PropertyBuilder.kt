@@ -35,6 +35,6 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         val dataFetcherFactory = config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
         generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
 
-        return config.hooks.onRewireGraphQLField(field, coordinates, codeRegistry)
+        return config.hooks.onRewireGraphQLType(field, coordinates, codeRegistry).safeCast()
     }
 }
