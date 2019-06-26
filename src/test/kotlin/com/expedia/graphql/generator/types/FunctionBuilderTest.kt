@@ -4,9 +4,11 @@ import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.execution.FunctionDataFetcher
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.DataFetchingEnvironment
+import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLNonNull
 import io.reactivex.Flowable
 import org.junit.jupiter.api.Test
@@ -33,7 +35,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         override fun printMessage(message: String): String = "message=$message"
     }
 
-    @GraphQLDirective(locations = [Introspection.DirectiveLocation.QUERY])
+    @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class FunctionDirective(val arg: String)
 
     @GraphQLDirective
@@ -65,21 +67,21 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test description`() {
+    fun `test description`() {
         val kFunction = Happy::littleTrees
         val result = builder.function(kFunction, "Query")
         assertEquals("By bob", result.description)
     }
 
     @Test
-    fun `Test description on argument`() {
+    fun `test description on argument`() {
         val kFunction = Happy::paint
         val result = builder.function(kFunction, "Query").arguments[0]
         assertEquals("brush color", result.description)
     }
 
     @Test
-    fun `Test deprecation`() {
+    fun `test deprecation`() {
         val kFunction = Happy::littleTrees
         val result = builder.function(kFunction, "Query")
         assertTrue(result.isDeprecated)
@@ -87,7 +89,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test deprecation with replacement`() {
+    fun `test deprecation with replacement`() {
         val kFunction = Happy::saw
         val result = builder.function(kFunction, "Query")
         assertTrue(result.isDeprecated)
@@ -95,7 +97,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test custom directive on function`() {
+    fun `test custom directive on function`() {
         val kFunction = Happy::littleTrees
         val result = builder.function(kFunction, "Query")
 
@@ -107,12 +109,12 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
         assertEquals(
             directive.validLocations()?.toSet(),
-            setOf(Introspection.DirectiveLocation.QUERY)
+            setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
     }
 
     @Test
-    fun `Test custom directive on function argument`() {
+    fun `test custom directive on function argument`() {
         val kFunction = Happy::paint
         val result = builder.function(kFunction, "Query").arguments[0]
 
@@ -125,7 +127,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test context on argument`() {
+    fun `test context on argument`() {
         val kFunction = Happy::context
         val result = builder.function(kFunction, "Query")
 
@@ -136,7 +138,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test ignored parameter`() {
+    fun `test ignored parameter`() {
         val kFunction = Happy::ignoredParameter
         val result = builder.function(kFunction, "Query")
 
@@ -146,32 +148,30 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         assertEquals(expected = "color", actual = arg?.name)
     }
 
-//    @Test
-//    fun `Non-abstract function`() {
-//        val kFunction = MyInterface::printMessage
-//        val result = builder.function(fn = kFunction, target = null, abstract = false)
-//
-//        assertEquals(expected = 1, actual = result.arguments.size)
-//        assertTrue(result.dataFetcher is FunctionDataFetcher)
-//    }
-//
-//    @Test
-//    fun `Abstract function`() {
-//        val kFunction = MyInterface::printMessage
-//        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = true)
-//
-//        assertEquals(expected = 1, actual = result.arguments.size)
-//        assertFalse(result.dataFetcher is FunctionDataFetcher)
-//    }
-//
-//    @Test
-//    fun `Abstract function with target`() {
-//        val kFunction = MyInterface::printMessage
-//        val result = builder.function(fn = kFunction, parentName = "Query", target = MyImplementation(), abstract = true)
-//
-//        assertEquals(expected = 1, actual = result.arguments.size)
-//        assertFalse(result.dataFetcher is FunctionDataFetcher)
-//    }
+    @Test
+    fun `non-abstract function`() {
+        val kFunction = MyInterface::printMessage
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+        assertTrue(generator.codeRegistry.getDataFetcher(FieldCoordinates.coordinates("Query", kFunction.name), result) is FunctionDataFetcher)
+    }
+
+    @Test
+    fun `abstract function`() {
+        val kFunction = MyInterface::printMessage
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = true)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+    }
+
+    @Test
+    fun `abstract function with target`() {
+        val kFunction = MyInterface::printMessage
+        val result = builder.function(fn = kFunction, parentName = "Query", target = MyImplementation(), abstract = true)
+
+        assertEquals(expected = 1, actual = result.arguments.size)
+    }
 
     @Test
     fun `publisher return type is valid`() {

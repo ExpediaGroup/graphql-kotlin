@@ -1,7 +1,6 @@
 package com.expedia.graphql.sample.model
 
 import com.expedia.graphql.annotations.GraphQLDescription
-import com.expedia.graphql.sample.directives.SimpleDirective
 
 @GraphQLDescription("animal interface type")
 interface Animal {
@@ -13,10 +12,8 @@ interface Animal {
 }
 
 @GraphQLDescription("enum holding all supported animal types")
-@SimpleDirective
 enum class AnimalType {
     CAT,
-    @SimpleDirective
     DOG
 }
 

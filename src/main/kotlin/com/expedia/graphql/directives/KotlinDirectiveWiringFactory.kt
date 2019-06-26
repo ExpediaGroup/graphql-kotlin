@@ -30,6 +30,7 @@ open class KotlinDirectiveWiringFactory(
      */
     open fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? = null
 
+    @Suppress("Detekt.ThrowsCount")
     private fun wireDirectives(
         element: GraphQLDirectiveContainer,
         coordinates: FieldCoordinates?,
@@ -38,8 +39,6 @@ open class KotlinDirectiveWiringFactory(
     ): GraphQLDirectiveContainer {
         var modifiedObject = element
         for (directive in directives) {
-            // TODO only apply directive if it has valid location?
-
             val env = if (modifiedObject is GraphQLFieldDefinition) {
                 KotlinFieldDirectiveEnvironment(
                     field = modifiedObject,
@@ -52,11 +51,17 @@ open class KotlinDirectiveWiringFactory(
                     directive = directive)
             }
 
+            if (!env.isValid()) {
+                throw InvalidSchemaDirectiveWiringException(
+                    "Directive ${directive.name} not applicable on specified ${element.name} GraphQLType, valid directive locations ${directive.validLocations()}")
+            }
+
             val directiveWiring = discoverWiringProvider(directive.name, env)
             if (directiveWiring != null) {
                 modifiedObject = directiveWiring.wireOnEnvironment(env)
+            } else {
+                throw InvalidSchemaDirectiveWiringException("No directive wiring provided for ${directive.name}")
             }
-            // TODO throw exception if we don't have any wiring?
         }
         return modifiedObject
     }

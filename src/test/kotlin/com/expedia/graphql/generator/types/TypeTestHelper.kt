@@ -2,12 +2,13 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelNames
+import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
+import com.expedia.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.SubTypeMapper
 import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.state.TypesCache
-import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLInterfaceType
@@ -33,7 +34,11 @@ internal open class TypeTestHelper {
     var state = spyk(SchemaGeneratorState(listOf("com.expedia.graphql")))
     var subTypeMapper = spyk(SubTypeMapper(listOf("com.expedia.graphql")))
     var cache = spyk(TypesCache(listOf("com.expedia.graphql")))
-    var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks()
+    val spyWiringFactory = spyk(KotlinDirectiveWiringFactory())
+    var hooks: SchemaGeneratorHooks = object : SchemaGeneratorHooks {
+        override val wiringFactory: KotlinDirectiveWiringFactory
+            get() = spyWiringFactory
+    }
     var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 
     private var scalarBuilder: ScalarBuilder? = null
@@ -52,10 +57,10 @@ internal open class TypeTestHelper {
         every { state.cache } returns cache
         every { generator.config } returns config
         every { generator.subTypeMapper } returns subTypeMapper
-        val codeRegistryBuilder = GraphQLCodeRegistry.newCodeRegistry()
-        every { generator.codeRegistry } returns codeRegistryBuilder
+        every { generator.codeRegistry } returns GraphQLCodeRegistry.newCodeRegistry()
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
+        every { spyWiringFactory.getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
 
         every { config.topLevelNames } returns TopLevelNames(
             query = "TestTopLevelQuery",

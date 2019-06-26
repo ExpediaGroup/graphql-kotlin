@@ -4,25 +4,32 @@ import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLID
+import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
+import com.expedia.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
-import com.expedia.graphql.hooks.NoopSchemaGeneratorHooks
+import com.expedia.graphql.generator.extensions.getSimpleName
+import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactory
+import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLNonNull
+import graphql.schema.PropertyDataFetcher
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
 internal class PropertyBuilderTest : TypeTestHelper() {
 
-    @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD])
+    @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class PropertyDirective(val arg: String)
 
     private class ClassWithProperties {
@@ -114,7 +121,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
         assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
         assertEquals(
             directive.validLocations()?.toSet(),
-            setOf(Introspection.DirectiveLocation.FIELD)
+            setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
     }
 
@@ -125,27 +132,43 @@ internal class PropertyBuilderTest : TypeTestHelper() {
 
         assertNull(result.description)
         assertTrue(result.type !is GraphQLNonNull)
-//        assertTrue(result.dataFetcher is PropertyDataFetcher)
+
+        val parentType = ClassWithProperties::class.getSimpleName()
+        val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
+        val targetDataFetcher = generator.codeRegistry.getDataFetcher(coordinates, result)
+        assertTrue(targetDataFetcher is PropertyDataFetcher)
     }
 
     @Test
     fun `Test lateinit, non-null property with datafetcher factory`() {
-        val localConfig: SchemaGeneratorConfig = mockk()
-        every { localConfig.hooks } returns NoopSchemaGeneratorHooks()
-        every { localConfig.supportedPackages } returns emptyList()
-        val mockDataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = mockk()
-        val mockFactory: DataFetcherFactory<Any> = mockk()
+        val hooks: SchemaGeneratorHooks = object : SchemaGeneratorHooks {
+            override val wiringFactory: KotlinDirectiveWiringFactory
+                get() = spyk(KotlinDirectiveWiringFactory()) {
+                    every { getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
+                }
+        }
         val mockDataFetcher: DataFetcher<Any> = mockk()
+        val mockFactory: DataFetcherFactory<Any> = mockk()
+        val mockDataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = mockk()
+
         every { mockDataFetcherFactoryProvider.propertyDataFetcherFactory(any(), any()) } returns mockFactory
         every { mockFactory.get(any()) } returns mockDataFetcher
-        every { localConfig.dataFetcherFactoryProvider } returns mockDataFetcherFactoryProvider
+
+        val localConfig = SchemaGeneratorConfig(
+            supportedPackages = emptyList(),
+            hooks = hooks,
+            dataFetcherFactoryProvider = mockDataFetcherFactoryProvider
+        )
         val localGenerator = SchemaGenerator(localConfig)
         val localBuilder = PropertyBuilder(localGenerator)
 
         val prop = ClassWithProperties::cake
         val result = localBuilder.property(prop, ClassWithProperties::class)
 
-//        assertFalse(result.dataFetcher is PropertyDataFetcher)
-//        assertEquals(expected = mockDataFetcher, actual = result.dataFetcher)
+        val parentType = ClassWithProperties::class.getSimpleName()
+        val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
+        val targetDataFetcher = localGenerator.codeRegistry.getDataFetcher(coordinates, result)
+        assertFalse(targetDataFetcher is PropertyDataFetcher)
+        assertEquals(expected = mockDataFetcher, actual = targetDataFetcher)
     }
 }
