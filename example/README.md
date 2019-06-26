@@ -16,4 +16,4 @@ Start the server:
 * Alternatively you can also use the spring boot maven plugin by running `mvn spring-boot:run` from the command line.
 
 
-Once the app has started you can explore the example schema by opening Playground endpoint at http://localhost:8080/playground.
+Once the app has started you can explore the example schema by opening the Playground endpoint at http://localhost:8080/playground.

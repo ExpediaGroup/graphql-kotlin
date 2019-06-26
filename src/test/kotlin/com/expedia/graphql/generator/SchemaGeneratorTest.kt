@@ -11,8 +11,12 @@ import com.expedia.graphql.exceptions.InvalidIdTypeException
 import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.testSchemaConfig
 import com.expedia.graphql.toSchema
+import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
 import graphql.Scalars
+import graphql.execution.DataFetcherResult
+import graphql.execution.ExecutionPath
+import graphql.language.SourceLocation
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
@@ -288,6 +292,23 @@ class SchemaGeneratorTest {
         assertEquals(Scalars.GraphQLID, serialField?.wrappedType)
     }
 
+    @Test
+    fun `SchemaGenerator supports DataFetcherResult as a return type`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataFetcherResult())), config = testSchemaConfig)
+
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.execute("{ dataAndErrors }")
+        val data = result.getData<Map<String, String>>()
+        val errors = result.errors
+
+        assertNotNull(data)
+        val res: String? = data["dataAndErrors"]
+        assertEquals(actual = res, expected = "Hello")
+
+        assertNotNull(errors)
+        assertEquals(expected = 1, actual = errors.size)
+    }
+
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
@@ -485,4 +506,11 @@ class SchemaGeneratorTest {
         @GraphQLID val serial: UUID,
         val type: String
     )
+
+    class QueryWithDataFetcherResult {
+        fun dataAndErrors(): DataFetcherResult<String> {
+            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+            return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
+        }
+    }
 }

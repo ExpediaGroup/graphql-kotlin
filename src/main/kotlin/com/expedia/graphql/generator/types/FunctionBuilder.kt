@@ -13,6 +13,7 @@ import com.expedia.graphql.generator.extensions.isGraphQLContext
 import com.expedia.graphql.generator.extensions.isGraphQLIgnored
 import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.safeCast
+import graphql.execution.DataFetcherResult
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
@@ -51,7 +52,8 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
         val returnType = getWrappedReturnType(typeFromHooks)
-        builder.type(graphQLTypeOf(returnType).safeCast<GraphQLOutputType>())
+        val graphQLOutputType = graphQLTypeOf(returnType).safeCast<GraphQLOutputType>()
+        builder.type(graphQLOutputType)
         val graphQLType = builder.build()
 
         val coordinates = FieldCoordinates.coordinates(parentName, fn.name)
@@ -63,10 +65,19 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         return config.hooks.onRewireGraphQLType(graphQLType, coordinates, codeRegistry).safeCast()
     }
 
+    /**
+     * These are the classes that can be returned from data fetchers (ie functions)
+     * but we only want to expose the wrapped type in the schema.
+     *
+     * [Publisher] is used for subscriptions
+     * [CompletableFuture] is used for asynchronous results
+     * [DataFetcherResult] is used for returning data and errors in the same response
+     */
     private fun getWrappedReturnType(returnType: KType): KType =
         when {
             returnType.getKClass().isSubclassOf(Publisher::class) -> returnType.getTypeOfFirstArgument()
             returnType.classifier == CompletableFuture::class -> returnType.getTypeOfFirstArgument()
+            returnType.classifier == DataFetcherResult::class -> returnType.getTypeOfFirstArgument()
             else -> returnType
         }
 
