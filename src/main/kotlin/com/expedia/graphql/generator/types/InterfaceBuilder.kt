@@ -31,9 +31,7 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             kClass.getValidFunctions(config.hooks)
                 .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
 
-            builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
             val interfaceType = builder.build()
-
             val implementations = subTypeMapper.getSubTypesOf(kClass)
             implementations.forEach {
                 val objectType = generator.objectType(it.kotlin, interfaceType)
@@ -45,6 +43,7 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 }
             }
 
+            codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
             config.hooks.onRewireGraphQLType(interfaceType).safeCast()
         }
     }
