@@ -2,22 +2,19 @@ package com.expedia.graphql.sample.directives
 
 import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.directives.KotlinSchemaDirectiveEnvironment
+import com.expedia.graphql.directives.KotlinSchemaDirectiveWiring
 import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLDirectiveContainer
-import graphql.schema.idl.SchemaDirectiveWiring
 import kotlin.reflect.KClass
 
-class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring = mapOf<String, SchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring())) {
+class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring = mapOf<String, KotlinSchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring())) {
 
     private val stringEvalDirectiveWiring = StringEvalSchemaDirectiveWiring()
     private val caleOnlyDirectiveWiring = CakeOnlySchemaDirectiveWiring()
 
-    override fun providesSchemaDirectiveWiring(env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): Boolean =
-        env.directive.name == getDirectiveName(StringEval::class) ||  env.directive.name == getDirectiveName(CakeOnly::class)
-
-    override fun getSchemaDirectiveWiring(env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): SchemaDirectiveWiring? = when {
-        env.directive.name == getDirectiveName(StringEval::class) -> stringEvalDirectiveWiring
-        env.directive.name == getDirectiveName(CakeOnly::class) -> caleOnlyDirectiveWiring
+    override fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? = when {
+        environment.directive.name == getDirectiveName(StringEval::class) -> stringEvalDirectiveWiring
+        environment.directive.name == getDirectiveName(CakeOnly::class) -> caleOnlyDirectiveWiring
         else -> null
     }
 }

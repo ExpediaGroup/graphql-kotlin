@@ -2,6 +2,8 @@ package com.expedia.graphql.hooks
 
 import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.execution.DataFetcherExecutionPredicate
+import com.expedia.graphql.generator.extensions.safeCast
+import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchema
@@ -13,6 +15,7 @@ import kotlin.reflect.KType
 
 /**
  * Collection of all the hooks when generating a schema.
+ *
  * Hooks are lifecycle events that are called and triggered while the schema is building
  * that allow users to customize the schema.
  */
@@ -65,10 +68,16 @@ interface SchemaGeneratorHooks {
 
     /**
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
-     * Enables you to change the wiring, e.g. directives to alter data fetchers.
+     * Enables you to change the wiring, e.g. apply directives to alter the target type.
      */
-    fun onRewireGraphQLType(type: KType, generatedType: GraphQLType, parentType: String, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLType =
-        wiringFactory.onWire(generatedType, parentType, codeRegistry)
+    fun onRewireGraphQLType(generatedType: GraphQLType): GraphQLType = wiringFactory.onWire(generatedType)
+
+    /**
+     * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
+     * Enables you to change the wiring, e.g. apply directives to alter the data fetchers.
+     */
+    fun onRewireGraphQLField(generatedType: GraphQLFieldDefinition, coordinates: FieldCoordinates, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLFieldDefinition =
+        wiringFactory.onWire(generatedType, coordinates, codeRegistry).safeCast()
 
     /**
      * Called after wrapping the type based on nullity but before adding the generated type to the schema

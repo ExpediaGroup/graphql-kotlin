@@ -46,7 +46,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             .filterNot { it.isDataFetchingEnvironment() }
             .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
-                builder.argument(argument(fn.name, it))
+                builder.argument(argument(it))
             }
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
@@ -54,13 +54,13 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         builder.type(graphQLTypeOf(returnType).safeCast<GraphQLOutputType>())
         val graphQLType = builder.build()
 
+        val coordinates = FieldCoordinates.coordinates(parentName, fn.name)
         if (!abstract) {
-            val coordinates = FieldCoordinates.coordinates(parentName, fn.name)
             val dataFetcherFactory = config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
             generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
         }
 
-        return config.hooks.onRewireGraphQLType(returnType, graphQLType, parentName, codeRegistry).safeCast()
+        return config.hooks.onRewireGraphQLField(graphQLType, coordinates, codeRegistry)
     }
 
     private fun getWrappedReturnType(returnType: KType): KType =
@@ -71,7 +71,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         }
 
     @Throws(InvalidInputFieldTypeException::class)
-    private fun argument(functionName: String, parameter: KParameter): GraphQLArgument {
+    private fun argument(parameter: KParameter): GraphQLArgument {
 
         if (parameter.isInterface()) {
             throw InvalidInputFieldTypeException(parameter)
@@ -86,6 +86,6 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             builder.withDirective(it)
         }
 
-        return config.hooks.onRewireGraphQLType(parameter.type, builder.build(), functionName, codeRegistry).safeCast()
+        return config.hooks.onRewireGraphQLType(builder.build()).safeCast()
     }
 }

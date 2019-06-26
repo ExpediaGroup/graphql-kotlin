@@ -5,6 +5,7 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.getQualifiedName
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
@@ -18,9 +19,12 @@ internal class ScalarBuilder(generator: SchemaGenerator) : TypeBuilder(generator
     internal fun scalarType(type: KType, annotatedAsID: Boolean = false): GraphQLScalarType? {
         val kClass = type.getKClass()
 
-        return when {
+        val scalar = when {
             annotatedAsID -> getId(kClass)
             else -> defaultScalarsMap[kClass]
+        }
+        return scalar?.let {
+            config.hooks.onRewireGraphQLType(it).safeCast()
         }
     }
 

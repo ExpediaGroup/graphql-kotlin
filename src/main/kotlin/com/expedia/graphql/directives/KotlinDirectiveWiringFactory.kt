@@ -1,53 +1,70 @@
 package com.expedia.graphql.directives
 
+import com.expedia.graphql.exceptions.InvalidSchemaDirectiveWiringException
 import com.expedia.graphql.generator.extensions.getAllDirectives
-import com.expedia.graphql.generator.extensions.wireOnEnvironment
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
+import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLType
-import graphql.schema.idl.SchemaDirectiveWiring
 
+/**
+ * Wiring factory that is used to provide the directives.
+ */
 open class KotlinDirectiveWiringFactory(
-    private val manualWiring: Map<String, SchemaDirectiveWiring> = emptyMap()
+    private val manualWiring: Map<String, KotlinSchemaDirectiveWiring> = emptyMap()
 ) {
 
     /**
-     * Wire up the directive based on the GraphQL type
+     * Wire up the directive based on the GraphQL type.
      */
-    fun onWire(graphQLType: GraphQLType, parentType: String, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLType {
+    fun onWire(graphQLType: GraphQLType, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder? = null): GraphQLType {
         if (graphQLType !is GraphQLDirectiveContainer) return graphQLType
 
-        return wireDirectives(graphQLType, parentType, graphQLType.getAllDirectives(), codeRegistry)
+        return wireDirectives(graphQLType, coordinates, graphQLType.getAllDirectives(), codeRegistry)
     }
 
-    open fun providesSchemaDirectiveWiring(env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): Boolean = false
+    /**
+     * Retrieve schema directive wiring for the specified environment or NULL if wiring is not supported by this factory.
+     */
+    open fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? = null
 
-    open fun getSchemaDirectiveWiring(env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): SchemaDirectiveWiring? = null
-
-    private fun wireDirectives(element: GraphQLDirectiveContainer, parentType: String, directives: List<GraphQLDirective>, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLDirectiveContainer {
+    private fun wireDirectives(
+        element: GraphQLDirectiveContainer,
+        coordinates: FieldCoordinates?,
+        directives: List<GraphQLDirective>,
+        codeRegistry: GraphQLCodeRegistry.Builder?
+    ): GraphQLDirectiveContainer {
         var modifiedObject = element
-        val fieldCoordinates = FieldCoordinates.coordinates(parentType, element.name)
-
         for (directive in directives) {
-            val env = KotlinSchemaDirectiveEnvironment(
-                element = modifiedObject,
-                coordinates = fieldCoordinates,
-                directive = directive,
-                codeRegistry = codeRegistry)
+            // TODO only apply directive if it has valid location?
+
+            val env = if (modifiedObject is GraphQLFieldDefinition) {
+                KotlinFieldDirectiveEnvironment(
+                    field = modifiedObject,
+                    fieldDirective = directive,
+                    coordinates = coordinates ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to missing field coordinates"),
+                    codeRegistry = codeRegistry ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to a missing code registry"))
+            } else {
+                KotlinSchemaDirectiveEnvironment(
+                    element = modifiedObject,
+                    directive = directive)
+            }
+
             val directiveWiring = discoverWiringProvider(directive.name, env)
             if (directiveWiring != null) {
                 modifiedObject = directiveWiring.wireOnEnvironment(env)
             }
+            // TODO throw exception if we don't have any wiring?
         }
         return modifiedObject
     }
 
-    private fun discoverWiringProvider(directiveName: String, env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): SchemaDirectiveWiring? =
-        when {
-            directiveName in manualWiring -> manualWiring[directiveName]
-            providesSchemaDirectiveWiring(env) -> getSchemaDirectiveWiring(env)
-            else -> null
+    private fun discoverWiringProvider(directiveName: String, env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? =
+        if (directiveName in manualWiring) {
+            manualWiring[directiveName]
+        } else {
+            getSchemaDirectiveWiring(env)
         }
 }

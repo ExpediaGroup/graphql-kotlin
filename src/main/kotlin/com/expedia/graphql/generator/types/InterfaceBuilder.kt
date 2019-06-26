@@ -6,6 +6,7 @@ import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.extensions.getValidProperties
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLType
@@ -44,7 +45,7 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 }
             }
 
-            interfaceType
+            config.hooks.onRewireGraphQLType(interfaceType).safeCast()
         }
     }
 }

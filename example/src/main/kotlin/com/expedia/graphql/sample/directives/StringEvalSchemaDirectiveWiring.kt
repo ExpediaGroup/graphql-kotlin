@@ -1,20 +1,19 @@
 package com.expedia.graphql.sample.directives
 
+import com.expedia.graphql.directives.KotlinFieldDirectiveEnvironment
 import com.expedia.graphql.directives.KotlinSchemaDirectiveEnvironment
+import com.expedia.graphql.directives.KotlinSchemaDirectiveWiring
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironmentImpl.newDataFetchingEnvironment
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.idl.SchemaDirectiveWiring
-import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 
-class StringEvalSchemaDirectiveWiring : SchemaDirectiveWiring {
+class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
     private val directiveName = getDirectiveName(StringEval::class)
 
-    override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
+    override fun onField(environment: KotlinFieldDirectiveEnvironment): GraphQLFieldDefinition {
         val field = environment.element
-        val coordinates = (environment as KotlinSchemaDirectiveEnvironment).coordinates
-        val originalDataFetcher: DataFetcher<Any> = environment.codeRegistry.getDataFetcher(coordinates, field)
+        val originalDataFetcher: DataFetcher<Any> = environment.getDataFetcher()
 
         val defaultValueFetcher = DataFetcher<Any> { dataEnv ->
             val newArguments = HashMap(dataEnv.arguments)
@@ -34,11 +33,11 @@ class StringEvalSchemaDirectiveWiring : SchemaDirectiveWiring {
                     .build()
             originalDataFetcher.get(newEnv)
         }
-        environment.codeRegistry.dataFetcher(coordinates, defaultValueFetcher)
+        environment.setDataFetcher(defaultValueFetcher)
         return field
     }
 
-    override fun onArgument(environment: SchemaDirectiveWiringEnvironment<GraphQLArgument>): GraphQLArgument {
+    override fun onArgument(environment: KotlinSchemaDirectiveEnvironment<GraphQLArgument>): GraphQLArgument {
         val argument = environment.element
         val directive = environment.directive
 

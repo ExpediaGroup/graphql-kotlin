@@ -1,18 +1,16 @@
 package com.expedia.graphql.sample.directives
 
-import com.expedia.graphql.directives.KotlinSchemaDirectiveEnvironment
+import com.expedia.graphql.directives.KotlinFieldDirectiveEnvironment
+import com.expedia.graphql.directives.KotlinSchemaDirectiveWiring
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.idl.SchemaDirectiveWiring
-import graphql.schema.idl.SchemaDirectiveWiringEnvironment
 
-class CakeOnlySchemaDirectiveWiring : SchemaDirectiveWiring {
+class CakeOnlySchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
     @Throws(RuntimeException::class)
-    override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
+    override fun onField(environment: KotlinFieldDirectiveEnvironment): GraphQLFieldDefinition {
         val field = environment.element
-        val coordinates = (environment as KotlinSchemaDirectiveEnvironment).coordinates
-        val originalDataFetcher: DataFetcher<Any> = environment.codeRegistry.getDataFetcher(coordinates, field)
+        val originalDataFetcher: DataFetcher<Any> = environment.getDataFetcher()
 
         val cakeOnlyFetcher = DataFetcher<Any> { dataEnv ->
             val strArg: String? = dataEnv.getArgument(environment.element.arguments[0].name) as String?
@@ -21,7 +19,7 @@ class CakeOnlySchemaDirectiveWiring : SchemaDirectiveWiring {
             }
             originalDataFetcher.get(dataEnv)
         }
-        environment.codeRegistry.dataFetcher(coordinates, cakeOnlyFetcher)
+        environment.setDataFetcher(cakeOnlyFetcher)
         return field
     }
 }

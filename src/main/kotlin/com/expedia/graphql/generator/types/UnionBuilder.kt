@@ -44,7 +44,7 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
                 }
             }
 
-            builder.build()
+            config.hooks.onRewireGraphQLType(builder.build())
         }
     }
 }
