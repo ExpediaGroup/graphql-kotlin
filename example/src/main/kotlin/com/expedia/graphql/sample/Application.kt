@@ -58,6 +58,7 @@ class Application {
             .includeExtendedScalarTypes(true)
             .includeIntrospectionTypes(true)
             .includeSchemaDefintion(true)
+            .includeDirectives(true)
     )
 
     @Bean
