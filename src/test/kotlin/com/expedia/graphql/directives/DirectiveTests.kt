@@ -1,7 +1,9 @@
-package com.expedia.graphql.generator
+package com.expedia.graphql.directives
 
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.annotations.GraphQLDirective
+import com.expedia.graphql.getTestSchemaConfigWithHooks
+import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.testSchemaConfig
 import com.expedia.graphql.toSchema
 import graphql.Scalars
@@ -13,6 +15,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DirectiveTests {
+
     @Test
     fun `SchemaGenerator marks deprecated fields in the return objects`() {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
@@ -46,7 +49,12 @@ class DirectiveTests {
 
     @Test
     fun `Default directive names are normalized`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = testSchemaConfig)
+        val wiring = object : KotlinSchemaDirectiveWiring {}
+        val config = getTestSchemaConfigWithHooks(hooks = object : SchemaGeneratorHooks {
+            override val wiringFactory: KotlinDirectiveWiringFactory
+                get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
+        })
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
 
         val query = schema.queryType.getFieldDefinition("query")
         assertNotNull(query)
@@ -55,7 +63,12 @@ class DirectiveTests {
 
     @Test
     fun `Custom directive names are not modified`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = testSchemaConfig)
+        val wiring = object : KotlinSchemaDirectiveWiring {}
+        val config = getTestSchemaConfigWithHooks(hooks = object : SchemaGeneratorHooks {
+            override val wiringFactory: KotlinDirectiveWiringFactory
+                get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
+        })
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
 
         val directive = assertNotNull(
                 (schema.getType("Location") as? GraphQLObjectType)

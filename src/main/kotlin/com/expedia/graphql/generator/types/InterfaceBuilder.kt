@@ -6,6 +6,7 @@ import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidFunctions
 import com.expedia.graphql.generator.extensions.getValidProperties
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLType
@@ -28,11 +29,9 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 .forEach { builder.field(generator.property(it, kClass)) }
 
             kClass.getValidFunctions(config.hooks)
-                .forEach { builder.field(generator.function(it, abstract = true)) }
+                .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
 
-            builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
             val interfaceType = builder.build()
-
             val implementations = subTypeMapper.getSubTypesOf(kClass)
             implementations.forEach {
                 val objectType = generator.objectType(it.kotlin, interfaceType)
@@ -44,7 +43,8 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 }
             }
 
-            interfaceType
+            codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+            config.hooks.onRewireGraphQLType(interfaceType).safeCast()
         }
     }
 }

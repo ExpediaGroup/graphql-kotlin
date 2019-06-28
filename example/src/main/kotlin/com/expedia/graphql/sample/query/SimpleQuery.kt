@@ -2,7 +2,6 @@ package com.expedia.graphql.sample.query
 
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.sample.directives.CustomDirective
 import org.springframework.stereotype.Component
 import java.util.Random
 
@@ -25,7 +24,6 @@ class SimpleQuery: Query {
     private fun privateFunctionsAreNotVisible() = "ignored private function"
 
     @GraphQLDescription("performs some operation")
-    @CustomDirective
     fun doSomething(@GraphQLDescription("super important value")
                     value: Int): Boolean = true
 

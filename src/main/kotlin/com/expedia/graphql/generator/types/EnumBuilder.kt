@@ -5,6 +5,7 @@ import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
+import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
 import kotlin.reflect.KClass
@@ -23,8 +24,7 @@ internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) 
         kClass.java.enumConstants.forEach {
             enumBuilder.value(getEnumValueDefinition(it, kClass))
         }
-
-        return enumBuilder.build()
+        return config.hooks.onRewireGraphQLType(enumBuilder.build()).safeCast()
     }
 
     private fun getEnumValueDefinition(enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
@@ -42,6 +42,6 @@ internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) 
         valueBuilder.description(valueField.getGraphQLDescription())
         valueBuilder.deprecationReason(valueField.getDeprecationReason())
 
-        return valueBuilder.build()
+        return config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
     }
 }

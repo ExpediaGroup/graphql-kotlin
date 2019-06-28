@@ -32,7 +32,8 @@ internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
 
             query.kClass.getValidFunctions(config.hooks)
                 .forEach {
-                    val function = generator.function(it, query.obj)
+                    // NEED BUILT QUERY
+                    val function = generator.function(it, config.topLevelNames.query, query.obj)
                     val functionFromHook = config.hooks.didGenerateQueryType(it, function)
                     queryBuilder.field(functionFromHook)
                 }

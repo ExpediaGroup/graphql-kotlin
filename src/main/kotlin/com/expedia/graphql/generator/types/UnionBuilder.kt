@@ -18,10 +18,8 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
     internal fun unionType(kClass: KClass<*>): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLUnionType.newUnionType()
-
             builder.name(kClass.getSimpleName())
             builder.description(kClass.getGraphQLDescription())
-            builder.typeResolver { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
 
             generator.directives(kClass).forEach {
                 builder.withDirective(it)
@@ -43,8 +41,9 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
                     state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                 }
             }
-
-            builder.build()
+            val unionType = builder.build()
+            codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+            config.hooks.onRewireGraphQLType(unionType)
         }
     }
 }

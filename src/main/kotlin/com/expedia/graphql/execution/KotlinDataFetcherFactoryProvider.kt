@@ -38,6 +38,7 @@ open class KotlinDataFetcherFactoryProvider(private val hooks: SchemaGeneratorHo
      * @param kClass parent class that contains this property
      * @param kProperty Kotlin property that should be resolved
      */
-    open fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
-            DataFetcherFactories.useDataFetcher(PropertyDataFetcher(kProperty.name))
+    open fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
+        PropertyDataFetcher(kProperty.name)
+    }
 }

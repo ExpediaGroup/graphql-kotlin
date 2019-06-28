@@ -1,6 +1,6 @@
 package com.expedia.graphql.sample.extension
 
-import com.expedia.graphql.DirectiveWiringHelper
+import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.execution.DataFetcherExecutionPredicate
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.validation.DataFetcherExecutionValidator
@@ -15,7 +15,7 @@ import kotlin.reflect.KType
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomSchemaGeneratorHooks(validator: Validator, private val directiveWiringHelper: DirectiveWiringHelper) : SchemaGeneratorHooks {
+class CustomSchemaGeneratorHooks(validator: Validator, override val wiringFactory: KotlinDirectiveWiringFactory) : SchemaGeneratorHooks {
 
     /**
      * Register additional GraphQL scalar types.
@@ -23,10 +23,6 @@ class CustomSchemaGeneratorHooks(validator: Validator, private val directiveWiri
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
         else -> null
-    }
-
-    override fun onRewireGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
-        return directiveWiringHelper.onWire(generatedType)
     }
 
     override val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate? = DataFetcherExecutionValidator(validator)

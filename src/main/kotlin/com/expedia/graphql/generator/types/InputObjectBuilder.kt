@@ -29,7 +29,7 @@ internal class InputObjectBuilder(generator: SchemaGenerator) : TypeBuilder(gene
         kClass.getValidProperties(config.hooks)
             .forEach { builder.field(inputProperty(it, kClass)) }
 
-        return builder.build()
+        return config.hooks.onRewireGraphQLType(builder.build()).safeCast()
     }
 
     private fun inputProperty(prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
@@ -43,6 +43,6 @@ internal class InputObjectBuilder(generator: SchemaGenerator) : TypeBuilder(gene
             builder.withDirective(it)
         }
 
-        return builder.build()
+        return config.hooks.onRewireGraphQLType(builder.build()).safeCast()
     }
 }

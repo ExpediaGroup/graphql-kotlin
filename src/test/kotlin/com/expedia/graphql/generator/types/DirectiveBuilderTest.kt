@@ -4,7 +4,7 @@ import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.extensions.isTrue
-import com.expedia.graphql.testSchemaConfig
+import com.expedia.graphql.getTestSchemaConfigWithMockedDirectives
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -53,7 +53,7 @@ internal class DirectiveBuilderTest {
         fun directiveWithClass(string: String) = string
     }
 
-    private val basicGenerator = SchemaGenerator(testSchemaConfig)
+    private val basicGenerator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
 
     @Test
     fun `no annotation`() {

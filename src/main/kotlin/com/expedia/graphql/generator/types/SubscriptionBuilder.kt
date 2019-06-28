@@ -26,7 +26,7 @@ internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
             subscription.kClass.getValidFunctions(config.hooks)
                 .forEach {
-                    val function = generator.function(it, subscription.obj)
+                    val function = generator.function(it, config.topLevelNames.subscription, subscription.obj)
                     val functionFromHook = config.hooks.didGenerateSubscriptionType(it, function)
                     subscriptionBuilder.field(functionFromHook)
                 }
