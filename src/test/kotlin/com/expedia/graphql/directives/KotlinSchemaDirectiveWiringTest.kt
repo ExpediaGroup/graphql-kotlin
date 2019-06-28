@@ -26,7 +26,7 @@ class KotlinSchemaDirectiveWiringTest {
 
     @BeforeEach
     fun setUp() {
-        mockWiring = spyk(object: KotlinSchemaDirectiveWiring {})
+        mockWiring = spyk(object : KotlinSchemaDirectiveWiring {})
     }
 
     @Test
