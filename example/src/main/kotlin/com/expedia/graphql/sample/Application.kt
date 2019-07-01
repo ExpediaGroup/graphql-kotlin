@@ -4,6 +4,7 @@ import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.directives.KotlinDirectiveWiringFactory
 import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
+import com.expedia.graphql.extensions.print
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.sample.datafetchers.CustomDataFetcherFactoryProvider
 import com.expedia.graphql.sample.datafetchers.SpringDataFetcherFactory
@@ -20,7 +21,6 @@ import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
 import graphql.schema.GraphQLSchema
-import graphql.schema.idl.SchemaPrinter
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -52,22 +52,11 @@ class Application {
     )
 
     @Bean
-    fun schemaPrinter() = SchemaPrinter(
-        SchemaPrinter.Options.defaultOptions()
-            .includeScalarTypes(true)
-            .includeExtendedScalarTypes(true)
-            .includeIntrospectionTypes(true)
-            .includeSchemaDefintion(true)
-            .includeDirectives(true)
-    )
-
-    @Bean
     fun schema(
         queries: List<Query>,
         mutations: List<Mutation>,
         subscriptions: List<Subscription>,
-        schemaConfig: SchemaGeneratorConfig,
-        schemaPrinter: SchemaPrinter
+        schemaConfig: SchemaGeneratorConfig
     ): GraphQLSchema {
         fun List<Any>.toTopLevelObjects() = this.map {
             TopLevelObject(it)
@@ -80,7 +69,7 @@ class Application {
             subscriptions = subscriptions.toTopLevelObjects()
         )
 
-        logger.info(schemaPrinter.print(schema))
+        logger.info(schema.print())
 
         return schema
     }

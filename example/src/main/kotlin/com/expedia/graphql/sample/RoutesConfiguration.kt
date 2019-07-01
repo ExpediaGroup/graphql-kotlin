@@ -1,10 +1,10 @@
 package com.expedia.graphql.sample
 
+import com.expedia.graphql.extensions.print
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import graphql.schema.GraphQLSchema
-import graphql.schema.idl.SchemaPrinter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,7 +21,6 @@ import reactor.core.publisher.Mono
 @Configuration
 class RoutesConfiguration(
     val schema: GraphQLSchema,
-    val schemaPrinter: SchemaPrinter,
     private val queryHandler: QueryHandler,
     private val objectMapper: ObjectMapper,
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
@@ -42,7 +41,7 @@ class RoutesConfiguration(
     @Bean
     fun sdlRoute() = router {
         GET("/sdl") {
-            ok().contentType(MediaType.TEXT_PLAIN).syncBody(schemaPrinter.print(schema))
+            ok().contentType(MediaType.TEXT_PLAIN).syncBody(schema.print())
         }
     }
 
