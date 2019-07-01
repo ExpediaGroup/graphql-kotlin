@@ -9,6 +9,8 @@ import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLType
 
+private val DEFAULT_DEPRECATED_WIRING = object : KotlinSchemaDirectiveWiring {}
+
 /**
  * Wiring factory that is used to provide the directives.
  */
@@ -66,10 +68,16 @@ open class KotlinDirectiveWiringFactory(
         return modifiedObject
     }
 
-    private fun discoverWiringProvider(directiveName: String, env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? =
-        if (directiveName in manualWiring) {
+    private fun discoverWiringProvider(directiveName: String, env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? {
+        var wiring = if (directiveName in manualWiring) {
             manualWiring[directiveName]
         } else {
             getSchemaDirectiveWiring(env)
         }
+
+        if (null == wiring && DEPRECATED_DIRECTIVE_NAME == directiveName) {
+            wiring = DEFAULT_DEPRECATED_WIRING
+        }
+        return wiring
+    }
 }
