@@ -33,10 +33,12 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     internal annotation class PropertyDirective(val arg: String)
 
     private class ClassWithProperties {
-        @GraphQLDescription("The truth")
-        @Deprecated("It's not a lie")
+        @GraphQLDescription("It's not a lie")
         @PropertyDirective("trust me")
         lateinit var cake: String
+
+        @Deprecated("Only cake")
+        lateinit var dessert: String
 
         @Deprecated("Healthy food is deprecated", replaceWith = ReplaceWith("cake"))
         lateinit var healthyFood: String
@@ -68,11 +70,11 @@ internal class PropertyBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation`() {
-        val prop = ClassWithProperties::cake
+        val prop = ClassWithProperties::dessert
         val result = builder.property(prop, ClassWithProperties::class)
 
         assertTrue(result.isDeprecated)
-        assertEquals("It's not a lie", result.deprecationReason)
+        assertEquals("Only cake", result.deprecationReason)
     }
 
     @Test
@@ -89,7 +91,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
         val prop = ClassWithProperties::cake
         val result = builder.property(prop, ClassWithProperties::class)
 
-        assertEquals("The truth", result.description)
+        assertEquals("It's not a lie", result.description)
     }
 
     @Test

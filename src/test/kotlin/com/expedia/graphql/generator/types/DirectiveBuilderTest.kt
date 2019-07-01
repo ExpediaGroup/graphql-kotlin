@@ -87,9 +87,10 @@ internal class DirectiveBuilderTest {
 
     @Test
     fun `directives are not duplicated in the schema`() {
+        val initialCount = basicGenerator.state.directives.size
         basicGenerator.directives(MyClass::simpleDirective)
         basicGenerator.directives(MyClass::simpleDirective)
-        assertEquals(1, basicGenerator.state.directives.size)
+        assertEquals(initialCount + 1, basicGenerator.state.directives.size)
     }
 
     @Test
