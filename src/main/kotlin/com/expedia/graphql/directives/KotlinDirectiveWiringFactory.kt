@@ -9,6 +9,9 @@ import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLType
 
+/**
+ * Default no-op wiring for deprecated directive.
+ */
 private val defaultDeprecatedWiring = object : KotlinSchemaDirectiveWiring {}
 
 /**

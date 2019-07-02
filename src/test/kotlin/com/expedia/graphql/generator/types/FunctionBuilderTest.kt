@@ -88,6 +88,10 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         val result = builder.function(kFunction, "Query")
         assertTrue(result.isDeprecated)
         assertEquals("Should paint instead", result.deprecationReason)
+
+        val fieldDirectives = result.directives
+        assertEquals(1, fieldDirectives.size)
+        assertEquals("deprecated", fieldDirectives.first().name)
     }
 
     @Test

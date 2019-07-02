@@ -1,6 +1,6 @@
 package com.expedia.graphql.generator.types
 
-import com.expedia.graphql.directives.deprecatedDirectiveWithValue
+import com.expedia.graphql.directives.deprecatedDirectiveWithReason
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getPropertyDeprecationReason
@@ -26,7 +26,7 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         prop.getPropertyDeprecationReason(parentClass)?.let {
             fieldBuilder.deprecate(it)
-            fieldBuilder.withDirective(deprecatedDirectiveWithValue(it))
+            fieldBuilder.withDirective(deprecatedDirectiveWithReason(it))
         }
 
         generator.directives(prop).forEach {

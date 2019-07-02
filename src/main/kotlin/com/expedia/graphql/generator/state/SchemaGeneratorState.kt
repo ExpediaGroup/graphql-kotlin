@@ -13,10 +13,12 @@ internal class SchemaGeneratorState(supportedPackages: List<String>) {
     fun getValidAdditionalTypes(): List<GraphQLType> = additionalTypes.filter { cache.doesNotContainGraphQLType(it) }
 
     init {
-        // NOTE: GraphQLDirective does not implement hashCode/equals and graphql-java adds @include and @defer
+        // NOTE: @include and @defer query directives are added by graphql-java by default
+        // adding them explicitly here to keep it consistent with missing deprecated directive
         directives.add(Directives.IncludeDirective)
         directives.add(Directives.SkipDirective)
-        // graphql-kotlin default
+
+        // graphql-kotlin default directives
         directives.add(DeprecatedDirective)
     }
 }

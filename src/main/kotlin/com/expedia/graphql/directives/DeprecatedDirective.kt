@@ -21,8 +21,8 @@ internal val DeprecatedDirective: GraphQLDirective = GraphQLDirective.newDirecti
     .validLocations(Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.ENUM_VALUE)
     .build()
 
-internal fun deprecatedDirectiveWithValue(value: String): GraphQLDirective = DeprecatedDirective.transform { directive ->
+internal fun deprecatedDirectiveWithReason(reason: String): GraphQLDirective = DeprecatedDirective.transform { directive ->
     directive.argument(DefaultDeprecatedArgument.transform { arg ->
-        arg.value(value)
+        arg.value(reason)
     })
 }
