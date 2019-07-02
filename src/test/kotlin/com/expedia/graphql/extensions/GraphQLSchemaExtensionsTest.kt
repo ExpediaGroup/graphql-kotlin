@@ -43,13 +43,11 @@ class GraphQLSchemaExtensionsTest {
     }
 
     class RenamedQuery {
-        @GraphQLName("renamed")
         fun original(id: Int) = OriginalType(id)
     }
 
     @GraphQLName("RenamedType")
     class OriginalType(
-        @GraphQLName("renamedProperty")
         val originalProperty: Int
     )
 
@@ -58,7 +56,6 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(RenamedQuery())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
-        // TODO support renaming GraphQL fields (i.e. Kotlin fields and functions)
         val expected = """
             type Query {
               original(id: Int!): RenamedType!
@@ -86,7 +83,6 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
-        // TODO fix GraphQLID on input parameters
         val expected = """
             type Query {
               queryById(id: String!): TypeWithId!
