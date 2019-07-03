@@ -93,13 +93,14 @@ internal class EnumBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Enum values can have a single directive`() {
+    fun `Enum values can have directives`() {
         val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
 
-        val directives = gqlEnum.values.last().directives
-        assertEquals(2, directives.size)
-        assertEquals("simpleDirective", directives.first().name)
-        assertEquals("customName", directives.last().name)
+        val enumValuesDirectives = gqlEnum.values.last().directives
+        assertEquals(3, enumValuesDirectives.size)
+        assertEquals("simpleDirective", enumValuesDirectives[0].name)
+        assertEquals("customName", enumValuesDirectives[1].name)
+        assertEquals("deprecated", enumValuesDirectives[2].name)
     }
 
     @Test

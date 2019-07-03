@@ -10,6 +10,11 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLType
 
 /**
+ * Default no-op wiring for deprecated directive.
+ */
+private val defaultDeprecatedWiring = object : KotlinSchemaDirectiveWiring {}
+
+/**
  * Wiring factory that is used to provide the directives.
  */
 open class KotlinDirectiveWiringFactory(
@@ -66,10 +71,16 @@ open class KotlinDirectiveWiringFactory(
         return modifiedObject
     }
 
-    private fun discoverWiringProvider(directiveName: String, env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? =
-        if (directiveName in manualWiring) {
+    private fun discoverWiringProvider(directiveName: String, env: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? {
+        var wiring = if (directiveName in manualWiring) {
             manualWiring[directiveName]
         } else {
             getSchemaDirectiveWiring(env)
         }
+
+        if (null == wiring && DEPRECATED_DIRECTIVE_NAME == directiveName) {
+            wiring = defaultDeprecatedWiring
+        }
+        return wiring
+    }
 }

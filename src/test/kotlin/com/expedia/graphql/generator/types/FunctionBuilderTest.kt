@@ -48,11 +48,13 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     private class Happy {
 
         @GraphQLDescription("By bob")
-        @Deprecated("No more little trees >:|")
         @FunctionDirective("happy")
         fun littleTrees() = UUID.randomUUID().toString()
 
         fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = color.reversed()
+
+        @Deprecated("Should paint instead")
+        fun sketch(tree: String) = tree
 
         @Deprecated("No saw, just paint", replaceWith = ReplaceWith("paint"))
         fun saw(tree: String) = tree
@@ -91,10 +93,14 @@ internal class FunctionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `test deprecation`() {
-        val kFunction = Happy::littleTrees
+        val kFunction = Happy::sketch
         val result = builder.function(kFunction, "Query")
         assertTrue(result.isDeprecated)
-        assertEquals("No more little trees >:|", result.deprecationReason)
+        assertEquals("Should paint instead", result.deprecationReason)
+
+        val fieldDirectives = result.directives
+        assertEquals(1, fieldDirectives.size)
+        assertEquals("deprecated", fieldDirectives.first().name)
     }
 
     @Test
