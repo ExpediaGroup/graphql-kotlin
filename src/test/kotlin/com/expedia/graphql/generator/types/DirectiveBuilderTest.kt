@@ -2,9 +2,11 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
+import com.expedia.graphql.directives.DeprecatedDirective
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.getTestSchemaConfigWithMockedDirectives
+import graphql.Directives
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -87,9 +89,14 @@ internal class DirectiveBuilderTest {
 
     @Test
     fun `directives are not duplicated in the schema`() {
+        val initialCount = basicGenerator.state.directives.size
+        assertTrue(basicGenerator.state.directives.contains(Directives.IncludeDirective))
+        assertTrue(basicGenerator.state.directives.contains(Directives.SkipDirective))
+        assertTrue(basicGenerator.state.directives.contains(DeprecatedDirective))
+
         basicGenerator.directives(MyClass::simpleDirective)
         basicGenerator.directives(MyClass::simpleDirective)
-        assertEquals(1, basicGenerator.state.directives.size)
+        assertEquals(initialCount + 1, basicGenerator.state.directives.size)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator.types
 
+import com.expedia.graphql.directives.deprecatedDirectiveWithReason
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
@@ -40,8 +41,11 @@ internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) 
         }
 
         valueBuilder.description(valueField.getGraphQLDescription())
-        valueBuilder.deprecationReason(valueField.getDeprecationReason())
 
+        valueField.getDeprecationReason()?.let {
+            valueBuilder.deprecationReason(it)
+            valueBuilder.withDirective(deprecatedDirectiveWithReason(it))
+        }
         return config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
     }
 }

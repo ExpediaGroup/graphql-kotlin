@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator.types
 
+import com.expedia.graphql.directives.deprecatedDirectiveWithReason
 import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
@@ -34,6 +35,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         fn.getDeprecationReason()?.let {
             builder.deprecate(it)
+            builder.withDirective(deprecatedDirectiveWithReason(it))
         }
 
         generator.directives(fn).forEach {
