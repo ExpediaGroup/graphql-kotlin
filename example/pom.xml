@@ -65,7 +65,7 @@
         <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
 
         <!-- Dependency Versions -->
-        <graphql-kotlin.version>0.5.1-SNAPSHOT</graphql-kotlin.version>
+        <graphql-kotlin.version>0.6.1-SNAPSHOT</graphql-kotlin.version>
     </properties>
 
     <dependencies>
