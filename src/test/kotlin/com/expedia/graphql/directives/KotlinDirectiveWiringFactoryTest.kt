@@ -92,12 +92,11 @@ class KotlinDirectiveWiringFactoryTest {
     }
 
     @Test
-    fun `verify exception is thrown if no wirings are specified`() {
+    fun `verify no action is taken if no wirings are specified`() {
         val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
 
-        assertThrows<InvalidSchemaDirectiveWiringException> {
-            SimpleWiringFactory().onWire(original)
-        }
+        val modified = SimpleWiringFactory().onWire(original)
+        assertEquals(original, modified)
     }
 
     @Test
