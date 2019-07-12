@@ -8,9 +8,6 @@ setup_git() {
 }
 
 update_version() {
-
-    exampleProperty="graphql-kotlin.version"
-
     # Push the new tag with `-SNAPSHOT` as the current version
     mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnewVersion="${TRAVIS_TAG}-SNAPSHOT"
 
