@@ -76,9 +76,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
                 <configuration>
-                    <!-- DON'T publish this artifact -->
+                    <!-- don't publish this artifact -->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <configuration>
+                    <!-- don't generate javadocs as there is no artifact-->
                     <skip>true</skip>
                 </configuration>
             </plugin>

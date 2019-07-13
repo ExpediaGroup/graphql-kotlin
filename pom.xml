@@ -138,16 +138,18 @@
                             <phase>validate</phase>
                             <configuration>
                                 <target name="detekt">
-                                    <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true" classname="io.gitlab.arturbosch.detekt.cli.Main" classpathref="maven.plugin.classpath">
-                                        <arg value="--fail-fast" />
-                                        <arg value="--input" />
-                                        <arg value="${project.basedir}${file.separator}src" />
-                                        <arg value="--config" />
-                                        <arg value="${project.parent.relativePath}${file.separator}detekt.yml" />
-                                        <arg value="--report" />
-                                        <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html" />
-                                        <arg value="--report" />
-                                        <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml" />
+                                    <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true"
+                                          classname="io.gitlab.arturbosch.detekt.cli.Main"
+                                          classpathref="maven.plugin.classpath">
+                                        <arg value="--fail-fast"/>
+                                        <arg value="--input"/>
+                                        <arg value="${project.basedir}${file.separator}src"/>
+                                        <arg value="--config"/>
+                                        <arg value="${project.parent.relativePath}${file.separator}detekt.yml"/>
+                                        <arg value="--report"/>
+                                        <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html"/>
+                                        <arg value="--report"/>
+                                        <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml"/>
                                     </java>
                                 </target>
                             </configuration>
@@ -160,14 +162,18 @@
                             <phase>validate</phase>
                             <configuration>
                                 <target name="ktlint">
-                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true" classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
-                                        <arg value="src/**/*.kt" />
-                                        <arg value="--reporter=plain" />
-                                        <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml" />
+                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true"
+                                          classname="com.github.shyiko.ktlint.Main"
+                                          classpathref="maven.plugin.classpath">
+                                        <arg value="src/**/*.kt"/>
+                                        <arg value="--reporter=plain"/>
+                                        <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
                                     </java>
                                 </target>
                             </configuration>
-                            <goals><goal>run</goal></goals>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
                         </execution>
                     </executions>
                     <dependencies>
@@ -188,9 +194,9 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
                     <!-- TODO enable below once we add unit tests to spring example app -->
-<!--                    <configuration>-->
-<!--                        <failIfNoTests>true</failIfNoTests>-->
-<!--                    </configuration>-->
+                    <!--                    <configuration>-->
+                    <!--                        <failIfNoTests>true</failIfNoTests>-->
+                    <!--                    </configuration>-->
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -340,12 +346,12 @@
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <executions>
-                           <execution>
-                               <id>default-deploy</id>
-                               <phase>deploy</phase>
-                               <goals>
-                                  <goal>deploy</goal>
-                               </goals>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
                             </execution>
                         </executions>
                         <configuration>
@@ -401,27 +407,27 @@
             </build>
         </profile>
         <profile>
-          <id>jdk8</id>
-          <activation>
-            <jdk>1.8</jdk>
-          </activation>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>dokka-maven-plugin</artifactId>
-                <version>${dokka-maven-plugin.version}</version>
-                <executions>
-                  <execution>
-                    <phase>prepare-package</phase>
-                    <goals>
-                      <goal>javadocJar</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-            </plugins>
-          </build>
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>${dokka-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
