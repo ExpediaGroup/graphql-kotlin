@@ -7,11 +7,11 @@ import com.expedia.graphql.hooks.SchemaGeneratorHooks
 /**
  * Settings for generating the schema.
  */
-data class SchemaGeneratorConfig(
-    val supportedPackages: List<String>,
-    val topLevelNames: TopLevelNames = TopLevelNames(),
-    val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks(),
-    val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
+open class SchemaGeneratorConfig(
+    open val supportedPackages: List<String>,
+    open val topLevelNames: TopLevelNames = TopLevelNames(),
+    open val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks(),
+    open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
 )
 
 /**

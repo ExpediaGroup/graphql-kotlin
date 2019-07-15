@@ -185,7 +185,11 @@ class GraphQLSchemaExtensionsTest {
         fun deprecatedEchoWithReplacement(msg: String): String = msg
 
         fun simpleEnum(): SimpleEnum = SimpleEnum.ONE
+
+        fun classWithDirective(msg: String): ClassWithDirective = ClassWithDirective(msg)
     }
+
+    class ClassWithDirective(@property:CustomDirective val msg: String)
 
     enum class SimpleEnum {
         ONE,
@@ -203,7 +207,12 @@ class GraphQLSchemaExtensionsTest {
         val expected = """
             directive @customDirective on FIELD_DEFINITION
 
+            type ClassWithDirective {
+              msg: String! @customDirective
+            }
+
             type Query {
+              classWithDirective(msg: String!): ClassWithDirective!
               deprecatedEcho(msg: String!): String! @deprecated(reason : "unsupported message")
               deprecatedEchoWithReplacement(msg: String!): String! @deprecated(reason : "unsupported message, replace with echo()")
               deprecatedWithDirective: String! @customDirective @deprecated(reason : "deprecated with directive")

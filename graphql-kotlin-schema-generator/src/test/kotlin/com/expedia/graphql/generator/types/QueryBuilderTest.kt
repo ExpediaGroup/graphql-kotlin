@@ -4,7 +4,6 @@ import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.exceptions.InvalidQueryTypeException
-import com.expedia.graphql.exceptions.InvalidSchemaException
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import com.expedia.graphql.test.utils.SimpleDirective
@@ -50,13 +49,6 @@ internal class QueryBuilderTest : TypeTestHelper() {
 
     override fun beforeTest() {
         builder = QueryBuilder(generator)
-    }
-
-    @Test
-    fun `verify builder fails if no queries are specified`() {
-        assertFailsWith(InvalidSchemaException::class) {
-            builder.getQueryObject(emptyList())
-        }
     }
 
     @Test
