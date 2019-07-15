@@ -5,12 +5,12 @@
 
     <groupId>com.expedia</groupId>
     <artifactId>graphql-kotlin</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>1.0.0-RC1-SNAPSHOT</version>
     <name>graphql-kotlin</name>
     <description>Code-only GraphQL schema generation for Kotlin</description>
     <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
 
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <distributionManagement>
         <snapshotRepository>
@@ -84,14 +84,12 @@
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.4.2</junit-jupiter.version>
         <mockk.version>1.9.3</mockk.version>
-        <rxjava2.version>2.2.8</rxjava2.version>
 
         <!-- Build Plugin Versions -->
         <dokka-maven-plugin.version>0.9.17</dokka-maven-plugin.version>
         <detekt-cli.version>1.0.0-RC14</detekt-cli.version>
         <ktlint.version>0.30.0</ktlint.version>
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
-        <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     </properties>
 
     <pluginRepositories>
@@ -103,183 +101,216 @@
     </pluginRepositories>
 
     <build>
-        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-maven-plugin</artifactId>
+                    <version>${kotlin.version}</version>
+                    <configuration>
+                        <jvmTarget>${java.version}</jvmTarget>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>test-compile</id>
+                            <phase>test-compile</phase>
+                            <goals>
+                                <goal>test-compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                    <executions>
+                        <!-- those can be run separately with mvn clean antrun:run@<target_id> -->
+                        <execution>
+                            <id>detekt</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <target name="detekt">
+                                    <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true"
+                                          classname="io.gitlab.arturbosch.detekt.cli.Main"
+                                          classpathref="maven.plugin.classpath">
+                                        <arg value="--fail-fast"/>
+                                        <arg value="--input"/>
+                                        <arg value="${project.basedir}${file.separator}src"/>
+                                        <arg value="--config"/>
+                                        <arg value="${project.parent.relativePath}${file.separator}detekt.yml"/>
+                                        <arg value="--report"/>
+                                        <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html"/>
+                                        <arg value="--report"/>
+                                        <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml"/>
+                                    </java>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>ktlint</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <target name="ktlint">
+                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true"
+                                          classname="com.github.shyiko.ktlint.Main"
+                                          classpathref="maven.plugin.classpath">
+                                        <arg value="src/**/*.kt"/>
+                                        <arg value="--reporter=plain"/>
+                                        <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
+                                    </java>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.gitlab.arturbosch.detekt</groupId>
+                            <artifactId>detekt-cli</artifactId>
+                            <version>${detekt-cli.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.github.shyiko</groupId>
+                            <artifactId>ktlint</artifactId>
+                            <version>${ktlint.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.22.1</version>
+                    <!-- TODO enable below once we add unit tests to spring example app -->
+                    <!--                    <configuration>-->
+                    <!--                        <failIfNoTests>true</failIfNoTests>-->
+                    <!--                    </configuration>-->
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.22.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <configuration>
-                    <jvmTarget>${java.version}</jvmTarget>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
-            <configuration>
-              <failIfNoTests>true</failIfNoTests>
-              <includes>
-                <include>**/*Test.java</include>
-                <include>**/*Test.kt</include>
-                <include>**/*Tests.java</include>
-                <include>**/*Tests.kt</include>
-              </includes>
-              <properties>
-                <excludeTags>integration-test</excludeTags>
-              </properties>
-            </configuration>
-            <dependencies>
-              <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>runtime</scope>
-              </dependency>
-              <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>runtime</scope>
-              </dependency>
-            </dependencies>
-          </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <!-- those can be run separately with mvn clean antrun:run@<target_id> -->
-                    <execution>
-                        <id>detekt</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <target name="detekt">
-                                <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true" classname="io.gitlab.arturbosch.detekt.cli.Main" classpathref="maven.plugin.classpath">
-                                    <arg value="--fail-fast" />
-                                    <arg value="--input" />
-                                    <arg value="${project.basedir}${file.separator}src" />
-                                    <arg value="--config" />
-                                    <arg value="${project.basedir}${file.separator}detekt.yml" />
-                                    <arg value="--report" />
-                                    <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html" />
-                                    <arg value="--report" />
-                                    <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml" />
-                                </java>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>ktlint</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <target name="ktlint">
-                                <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true" classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
-                                    <arg value="src/**/*.kt" />
-                                    <arg value="--reporter=plain" />
-                                    <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml" />
-                                </java>
-                            </target>
-                        </configuration>
-                        <goals><goal>run</goal></goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>io.gitlab.arturbosch.detekt</groupId>
-                        <artifactId>detekt-cli</artifactId>
-                        <version>${detekt-cli.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.github.shyiko</groupId>
-                        <artifactId>ktlint</artifactId>
-                        <version>${ktlint.version}</version>
-                    </dependency>
-                </dependencies>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.graphql-java</groupId>
+                <artifactId>graphql-java</artifactId>
+                <version>${graphql-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-jdk8</artifactId>
+                <version>${kotlin-coroutines.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-kotlin</artifactId>
+                <version>${jackson-module-kotlin.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-reflect</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <dependency>
-            <groupId>com.graphql-java</groupId>
-            <artifactId>graphql-java</artifactId>
-            <version>${graphql-java.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-jdk8</artifactId>
-            <version>${kotlin-coroutines.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-            <version>${jackson-module-kotlin.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-reflect</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!-- testing -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit5</artifactId>
             <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -294,24 +325,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>io.reactivex.rxjava2</groupId>
-            <artifactId>rxjava</artifactId>
-            <version>${rxjava2.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter-api</artifactId>
-          <version>${junit-jupiter.version}</version>
-          <scope>test</scope>
-        </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit-jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
     </dependencies>
 
     <profiles>
@@ -333,12 +346,12 @@
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <executions>
-                           <execution>
-                               <id>default-deploy</id>
-                               <phase>deploy</phase>
-                               <goals>
-                                  <goal>deploy</goal>
-                               </goals>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
                             </execution>
                         </executions>
                         <configuration>
@@ -347,8 +360,7 @@
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
-
-                    <!-- Generate javadoc -->
+                    <!-- Attach sources -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -362,7 +374,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Attach javadocs to jar -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -377,7 +388,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <!-- Sign the artifacts -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -397,27 +407,32 @@
             </build>
         </profile>
         <profile>
-          <id>jdk8</id>
-          <activation>
-            <jdk>1.8</jdk>
-          </activation>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>dokka-maven-plugin</artifactId>
-                <version>${dokka-maven-plugin.version}</version>
-                <executions>
-                  <execution>
-                    <phase>prepare-package</phase>
-                    <goals>
-                      <goal>javadocJar</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-            </plugins>
-          </build>
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>${dokka-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
+
+    <modules>
+        <module>graphql-kotlin-schema-generator</module>
+        <module>graphql-kotlin-spring-example</module>
+    </modules>
 </project>
