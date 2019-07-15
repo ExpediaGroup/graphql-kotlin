@@ -1,0 +1,1 @@
+{"version":3,"file":"processFileUploads.js","sourceRoot":"","sources":["../src/processFileUploads.ts"],"names":[],"mappings":";;;;;AAAA,4FAAoE;AAKpE,MAAM,kBAAkB,GAER,CAAC,GAAG,EAAE;IACpB,IAAI,gCAAsB,EAAE;QAC1B,OAAO,OAAO,CAAC,gBAAgB,CAAC;aAC7B,cAAgE,CAAC;KACrE;IACD,OAAO,SAAS,CAAC;AACnB,CAAC,CAAC,EAAE,CAAC;AAEL,kBAAe,kBAAkB,CAAC"}

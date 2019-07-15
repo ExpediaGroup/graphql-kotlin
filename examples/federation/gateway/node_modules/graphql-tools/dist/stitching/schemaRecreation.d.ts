@@ -1,0 +1,11 @@
+import { GraphQLArgument, GraphQLArgumentConfig, GraphQLField, GraphQLFieldConfig, GraphQLFieldConfigArgumentMap, GraphQLFieldConfigMap, GraphQLFieldMap, GraphQLInputField, GraphQLInputFieldConfig, GraphQLInputFieldConfigMap, GraphQLInputFieldMap, GraphQLNamedType, GraphQLType, GraphQLDirective } from 'graphql';
+import { ResolveType } from '../Interfaces';
+export declare function recreateType(type: GraphQLNamedType, resolveType: ResolveType<any>, keepResolvers: boolean): GraphQLNamedType;
+export declare function recreateDirective(directive: GraphQLDirective, resolveType: ResolveType<any>): GraphQLDirective;
+export declare function fieldMapToFieldConfigMap(fields: GraphQLFieldMap<any, any>, resolveType: ResolveType<any>, keepResolvers: boolean): GraphQLFieldConfigMap<any, any>;
+export declare function createResolveType(getType: (name: string, type: GraphQLType) => GraphQLType | null): ResolveType<any>;
+export declare function fieldToFieldConfig(field: GraphQLField<any, any>, resolveType: ResolveType<any>, keepResolvers: boolean): GraphQLFieldConfig<any, any>;
+export declare function argsToFieldConfigArgumentMap(args: Array<GraphQLArgument>, resolveType: ResolveType<any>): GraphQLFieldConfigArgumentMap;
+export declare function argumentToArgumentConfig(argument: GraphQLArgument, resolveType: ResolveType<any>): [string, GraphQLArgumentConfig] | null;
+export declare function inputFieldMapToFieldConfigMap(fields: GraphQLInputFieldMap, resolveType: ResolveType<any>): GraphQLInputFieldConfigMap;
+export declare function inputFieldToFieldConfig(field: GraphQLInputField, resolveType: ResolveType<any>): GraphQLInputFieldConfig;

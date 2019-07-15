@@ -8,22 +8,11 @@ setup_git() {
 }
 
 update_version() {
-
-    exampleProperty="graphql-kotlin.version"
-
     # Push the new tag with `-SNAPSHOT` as the current version
     mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnewVersion="${TRAVIS_TAG}-SNAPSHOT"
 
     # Increment the patch version
     mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnextSnapshot=true
-
-    # Pull the value from the pom
-    NEW_VERSION=$(mvn --settings .travis/settings.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
-
-    # Update the example version
-    cd example/
-    mvn --settings ../.travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set-property -Dproperty=${exampleProperty} -DnewVersion=${NEW_VERSION}
-    cd ../
 }
 
 commit_files() {
@@ -32,7 +21,7 @@ commit_files() {
   git checkout -b ${NEW_VERSION}
 
   # Stage the modified files
-  git add pom.xml example/pom.xml
+  git add pom.xml */pom.xml
 
   # Create a new commit with a custom build message and Travis build number for reference
   git commit -m "build: $NEW_VERSION (Travis Build $TRAVIS_BUILD_NUMBER)"

@@ -1,0 +1,23 @@
+{
+  "name": "loglevel-debug",
+  "main": "dist/loglevel-debug.js",
+  "version": "0.0.1",
+  "homepage": "https://github.com/vectrlabs/loglevel-debug",
+  "authors": [
+    "Chen Hsin-Yi <hychen@vectr.com>"
+  ],
+  "description": "Plugin for JS logger loglevel which allows enable/disable debug output dynamically",
+  "keywords": [
+    "loglevel",
+    "loglevel-plugin",
+    "loglevel-debug"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

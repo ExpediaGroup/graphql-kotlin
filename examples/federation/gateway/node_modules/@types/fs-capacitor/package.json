@@ -1,0 +1,26 @@
+{
+    "name": "@types/fs-capacitor",
+    "version": "2.0.0",
+    "description": "TypeScript definitions for fs-capacitor",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Mike Marcacci",
+            "url": "https://github.com/mike-marcacci",
+            "githubUsername": "mike-marcacci"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/fs-capacitor"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "3e4d6805865fc141224964e6de2778191082475da98fdef3f81e0a9d2d6b12bf",
+    "typeScriptVersion": "3.3"
+}
