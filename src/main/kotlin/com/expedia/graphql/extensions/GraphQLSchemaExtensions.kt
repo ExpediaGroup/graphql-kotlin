@@ -2,7 +2,10 @@ package com.expedia.graphql.extensions
 
 import com.expedia.graphql.directives.DeprecatedDirective
 import graphql.Directives
+import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
+import graphql.schema.GraphQLTypeUtil
 import graphql.schema.idl.SchemaPrinter
 
 /**
@@ -38,10 +41,23 @@ fun GraphQLSchema.print(
         val defaultDirectives = arrayOf(Directives.IncludeDirective, Directives.SkipDirective, DeprecatedDirective)
         val directivesToString = defaultDirectives.joinToString("\n\n") { directive -> """
                 #${directive.description}
-                directive @${directive.name} on ${directive.validLocations().joinToString(" | ") { loc -> loc.name }}
+                directive @${directive.name}${parseDirectiveArguments(directive)} on ${directive.validLocations().joinToString(" | ") { loc -> loc.name }}
             """.trimIndent()
         }
         schemaString += "\n" + directivesToString
     }
     return schemaString
+}
+
+private fun parseDirectiveArguments(directive: GraphQLDirective) = if (directive.arguments.isNotEmpty()) {
+    """(${directive.arguments.joinToString(", ") { argument ->
+        "${argument.name}: ${GraphQLTypeUtil.simplePrint(argument.type)}${parseDirectiveArgumentValue(argument)}" }})"""
+} else {
+    ""
+}
+
+private fun parseDirectiveArgumentValue(argument: GraphQLArgument) = if (null != argument.defaultValue) {
+    " = \"${argument.defaultValue}\""
+} else {
+    ""
 }
