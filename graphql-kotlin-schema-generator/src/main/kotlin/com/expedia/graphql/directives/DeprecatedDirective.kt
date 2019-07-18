@@ -4,13 +4,12 @@ import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
-import graphql.schema.GraphQLNonNull
 
 const val DEPRECATED_DIRECTIVE_NAME = "deprecated"
 
 private val DefaultDeprecatedArgument: GraphQLArgument = GraphQLArgument.newArgument()
     .name("reason")
-    .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
+    .type(Scalars.GraphQLString)
     .defaultValue("No longer supported")
     .build()
 
