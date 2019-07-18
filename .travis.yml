@@ -24,6 +24,7 @@ deploy:
     repo: ExpediaDotCom/graphql-kotlin
     tags: true
     jdk: openjdk8
+    all_branches: true
 
 after_deploy:
   - .travis/update-version.sh
