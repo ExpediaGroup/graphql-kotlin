@@ -20,6 +20,7 @@ before_install:
 
 script:
   - ./mvnw install
+  - ./mvnw -f example/pom.xml verify
 
 deploy:
   provider: script
