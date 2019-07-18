@@ -217,14 +217,14 @@ class GraphQLSchemaExtensionsTest {
             }
 
             #Directs the executor to include this field or fragment only when the `if` argument is true
-            directive @include on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             #Directs the executor to skip this field or fragment when the `if`'argument is true.
-            directive @skip on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             #Marks the target field/enum value as deprecated
-            directive @deprecated on FIELD_DEFINITION | ENUM_VALUE
-        """.trimIndent()
+            directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
+""".trimIndent()
         assertEquals(expected, sdl)
     }
 }
