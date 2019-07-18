@@ -8,7 +8,7 @@ jdk:
 branches:
   only:
     - master
-    - /v\d+\.\d+\.x/
+    - /\d+\.\d+\.x/
 
 cache:
   directories:
