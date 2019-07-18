@@ -69,6 +69,11 @@
         <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
     </scm>
 
+    <modules>
+        <module>graphql-kotlin-schema-generator</module>
+        <module>graphql-kotlin-spring-example</module>
+    </modules>
+
     <properties>
         <!-- Project Versions -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -337,6 +342,11 @@
                 </property>
             </activation>
 
+            <!-- Exclude the example app from releases -->
+            <modules>
+                <module>graphql-kotlin-schema-generator</module>
+            </modules>
+
             <build>
                 <plugins>
                     <!-- Release to Maven central -->
@@ -411,6 +421,12 @@
             <activation>
                 <jdk>1.8</jdk>
             </activation>
+
+            <!-- Exclude the example app from javadoc packages -->
+            <modules>
+                <module>graphql-kotlin-schema-generator</module>
+            </modules>
+
             <build>
                 <plugins>
                     <plugin>
@@ -430,9 +446,4 @@
             </build>
         </profile>
     </profiles>
-
-    <modules>
-        <module>graphql-kotlin-schema-generator</module>
-        <module>graphql-kotlin-spring-example</module>
-    </modules>
 </project>
