@@ -5,6 +5,11 @@ jdk:
   - openjdk8
   - openjdk11
 
+branches:
+  only:
+    - master
+    - /v\d+\.\d+\.x/
+
 cache:
   directories:
     - $HOME/.m2
@@ -15,7 +20,6 @@ before_install:
 
 script:
   - ./mvnw install
-  - ./mvnw -f example/pom.xml verify
 
 deploy:
   provider: script
@@ -25,6 +29,7 @@ deploy:
     repo: ExpediaDotCom/graphql-kotlin
     tags: true
     jdk: openjdk8
+    all_branches: true
 
 after_deploy:
   - .travis/update-version.sh
