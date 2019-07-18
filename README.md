@@ -8,9 +8,9 @@
 
 Most GraphQL libraries require developers to maintain two sources of truth for their GraphQL API: the schema and the corresponding code (data fetchers or resolvers, and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema can be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only, or resolver-first, GraphQL services to be built.
 
-For information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
+For more information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
 
-For information on `graphql-java`, please visit [GraphQL Java](https://www.graphql-java.com/documentation/latest/).
+For more information on `graphql-java`, please visit [GraphQL Java](https://www.graphql-java.com/documentation/latest/).
 
 ## Installation
 
