@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.expedia</groupId>
     <artifactId>graphql-kotlin</artifactId>
-    <version>1.0.0-RC1-SNAPSHOT</version>
+    <version>1.0.0-RC2-SNAPSHOT</version>
     <name>graphql-kotlin</name>
     <description>Code-only GraphQL schema generation for Kotlin</description>
     <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
@@ -146,18 +145,16 @@
                             <phase>validate</phase>
                             <configuration>
                                 <target name="detekt">
-                                    <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true"
-                                          classname="io.gitlab.arturbosch.detekt.cli.Main"
-                                          classpathref="maven.plugin.classpath">
-                                        <arg value="--fail-fast"/>
-                                        <arg value="--input"/>
-                                        <arg value="${project.basedir}${file.separator}src"/>
-                                        <arg value="--config"/>
-                                        <arg value="${project.parent.relativePath}${file.separator}detekt.yml"/>
-                                        <arg value="--report"/>
-                                        <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html"/>
-                                        <arg value="--report"/>
-                                        <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml"/>
+                                    <java taskname="detekt" dir="${project.basedir}" fork="true" failonerror="true" classname="io.gitlab.arturbosch.detekt.cli.Main" classpathref="maven.plugin.classpath">
+                                        <arg value="--fail-fast" />
+                                        <arg value="--input" />
+                                        <arg value="${project.basedir}${file.separator}src" />
+                                        <arg value="--config" />
+                                        <arg value="${project.parent.relativePath}${file.separator}detekt.yml" />
+                                        <arg value="--report" />
+                                        <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html" />
+                                        <arg value="--report" />
+                                        <arg value="xml:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.xml" />
                                     </java>
                                 </target>
                             </configuration>
@@ -170,12 +167,10 @@
                             <phase>validate</phase>
                             <configuration>
                                 <target name="ktlint">
-                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true"
-                                          classname="com.github.shyiko.ktlint.Main"
-                                          classpathref="maven.plugin.classpath">
-                                        <arg value="src/**/*.kt"/>
-                                        <arg value="--reporter=plain"/>
-                                        <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml"/>
+                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true" classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
+                                        <arg value="src/**/*.kt" />
+                                        <arg value="--reporter=plain" />
+                                        <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml" />
                                     </java>
                                 </target>
                             </configuration>
