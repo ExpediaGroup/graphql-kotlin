@@ -12,7 +12,7 @@ update_version() {
     mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnewVersion="${TRAVIS_TAG}-SNAPSHOT"
 
     # Increment the patch version
-    mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnextSnapshot=true
+    mvn --settings .travis/settings.xml release:update-versions -B
 
     # Pull the value from the pom
     NEW_VERSION=$(mvn --settings .travis/settings.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
