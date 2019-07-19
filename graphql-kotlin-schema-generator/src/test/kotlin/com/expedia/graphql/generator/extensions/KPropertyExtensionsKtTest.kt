@@ -3,6 +3,7 @@ package com.expedia.graphql.generator.extensions
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.annotations.GraphQLName
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -18,12 +19,14 @@ internal class KPropertyExtensionsKtTest {
         @property:GraphQLDescription("property description")
         @property:GraphQLID
         @property:GraphQLIgnore
+        @property:GraphQLName("nameOnProperty")
         val propertyAnnotation: String,
 
         @Deprecated("constructor deprecated")
         @GraphQLDescription("constructor description")
         @GraphQLID
         @GraphQLIgnore
+        @GraphQLName("nameOnConstructor")
         val constructorAnnotation: String,
 
         val noAnnotations: String
@@ -55,5 +58,12 @@ internal class KPropertyExtensionsKtTest {
         assertEquals("property description", MyDataClass::propertyAnnotation.getPropertyDescription(MyDataClass::class))
         assertEquals("constructor description", MyDataClass::constructorAnnotation.getPropertyDescription(MyDataClass::class))
         assertEquals(null, MyDataClass::noAnnotations.getPropertyDescription(MyDataClass::class))
+    }
+
+    @Test
+    fun getPropertyName() {
+        assertEquals("nameOnProperty", MyDataClass::propertyAnnotation.getPropertyName(MyDataClass::class))
+        assertEquals("nameOnConstructor", MyDataClass::constructorAnnotation.getPropertyName(MyDataClass::class))
+        assertEquals("noAnnotations", MyDataClass::noAnnotations.getPropertyName(MyDataClass::class))
     }
 }
