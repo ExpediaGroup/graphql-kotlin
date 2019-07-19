@@ -16,6 +16,9 @@
 
     <properties>
         <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
+
+        <!-- skip release plugins -->
+        <maven.source.skip>true</maven.source.skip>
     </properties>
 
     <dependencies>
@@ -74,20 +77,25 @@
 <!--                <artifactId>maven-antrun-plugin</artifactId>-->
 <!--            </plugin>-->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <!-- don't publish this artifact -->
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>dokka-maven-plugin</artifactId>
+                <version>${dokka-maven-plugin.version}</version>
                 <configuration>
                     <!-- don't generate javadocs as there is no artifact-->
                     <skip>true</skip>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
