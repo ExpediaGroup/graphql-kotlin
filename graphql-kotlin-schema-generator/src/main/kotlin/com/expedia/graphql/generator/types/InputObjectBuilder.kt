@@ -4,6 +4,7 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getPropertyDescription
+import com.expedia.graphql.generator.extensions.getPropertyName
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidProperties
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
@@ -36,7 +37,7 @@ internal class InputObjectBuilder(generator: SchemaGenerator) : TypeBuilder(gene
         val builder = GraphQLInputObjectField.newInputObjectField()
 
         builder.description(prop.getPropertyDescription(parentClass))
-        builder.name(prop.name)
+        builder.name(prop.getPropertyName(parentClass))
         builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>())
 
         generator.directives(prop).forEach {

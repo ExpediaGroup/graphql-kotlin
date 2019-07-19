@@ -4,6 +4,7 @@ import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLDirective
 import com.expedia.graphql.annotations.GraphQLIgnore
+import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.execution.FunctionDataFetcher
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
@@ -56,6 +57,9 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         @Deprecated("Should paint instead")
         fun sketch(tree: String) = tree
 
+        @GraphQLName("renamedFunction")
+        fun originalName(input: String) = input
+
         @Deprecated("No saw, just paint", replaceWith = ReplaceWith("paint"))
         fun saw(tree: String) = tree
 
@@ -101,6 +105,13 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         val fieldDirectives = result.directives
         assertEquals(1, fieldDirectives.size)
         assertEquals("deprecated", fieldDirectives.first().name)
+    }
+
+    @Test
+    fun `test changing the name of a function`() {
+        val kFunction = Happy::originalName
+        val result = builder.function(kFunction, "Query")
+        assertEquals("renamedFunction", result.name)
     }
 
     @Test

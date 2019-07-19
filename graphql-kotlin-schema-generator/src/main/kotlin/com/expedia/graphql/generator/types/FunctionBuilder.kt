@@ -5,6 +5,7 @@ import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
+import com.expedia.graphql.generator.extensions.getFunctionName
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.getName
@@ -31,7 +32,8 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
     internal fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
-        builder.name(fn.name)
+        val functionName = fn.getFunctionName()
+        builder.name(functionName)
         builder.description(fn.getGraphQLDescription())
 
         fn.getDeprecationReason()?.let {
@@ -58,7 +60,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         builder.type(graphQLOutputType)
         val graphQLType = builder.build()
 
-        val coordinates = FieldCoordinates.coordinates(parentName, fn.name)
+        val coordinates = FieldCoordinates.coordinates(parentName, functionName)
         if (!abstract) {
             val dataFetcherFactory = config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
             generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
