@@ -21,4 +21,7 @@ internal fun KProperty<*>.getPropertyDeprecationReason(parentClass: KClass<*>): 
 internal fun KProperty<*>.getPropertyDescription(parentClass: KClass<*>): String? =
     this.getGraphQLDescription() ?: getConstructorParameter(parentClass)?.getGraphQLDescription()
 
+internal fun KProperty<*>.getPropertyName(parentClass: KClass<*>): String? =
+    this.getGraphQLName() ?: getConstructorParameter(parentClass)?.getGraphQLName() ?: this.name
+
 private fun KProperty<*>.getConstructorParameter(parentClass: KClass<*>) = parentClass.findConstructorParamter(this.name)

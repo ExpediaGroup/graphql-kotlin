@@ -5,6 +5,7 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getPropertyDeprecationReason
 import com.expedia.graphql.generator.extensions.getPropertyDescription
+import com.expedia.graphql.generator.extensions.getPropertyName
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.isPropertyGraphQLID
 import com.expedia.graphql.generator.extensions.safeCast
@@ -21,7 +22,7 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
             .description(prop.getPropertyDescription(parentClass))
-            .name(prop.name)
+            .name(prop.getPropertyName(parentClass))
             .type(propertyType)
 
         prop.getPropertyDeprecationReason(parentClass)?.let {

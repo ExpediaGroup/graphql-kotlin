@@ -43,11 +43,13 @@ class GraphQLSchemaExtensionsTest {
     }
 
     class RenamedQuery {
+        @GraphQLName("renamedFunction")
         fun original(id: Int) = OriginalType(id)
     }
 
     @GraphQLName("RenamedType")
     class OriginalType(
+        @GraphQLName("renamedProperty")
         val originalProperty: Int
     )
 
@@ -58,11 +60,11 @@ class GraphQLSchemaExtensionsTest {
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
             type Query {
-              original(id: Int!): RenamedType!
+              renamedFunction(id: Int!): RenamedType!
             }
 
             type RenamedType {
-              originalProperty: Int!
+              renamedProperty: Int!
             }
         """.trimIndent()
         assertEquals(expected, sdl)

@@ -5,6 +5,7 @@ import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.annotations.GraphQLName
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,6 +23,7 @@ internal class AnnotationExtensionsTest {
         @property:Deprecated("property deprecated")
         @property:GraphQLDescription("property description")
         @property:GraphQLID
+        @property:GraphQLName("newName")
         val id: String
     )
 
@@ -34,6 +36,13 @@ internal class AnnotationExtensionsTest {
     }
 
     @Test
+    fun `verify @GraphQLName on fields`() {
+        val fieldName = WithAnnotations::class.findMemberProperty("id")?.getGraphQLName()
+        assertEquals(expected = "newName", actual = fieldName)
+        assertNull(NoAnnotations::class.findMemberProperty("id")?.getGraphQLName())
+    }
+
+    @Test
     fun `verify @GraphQLDescrption on classes`() {
         assertEquals(expected = "class description", actual = WithAnnotations::class.getGraphQLDescription())
         assertNull(NoAnnotations::class.getGraphQLDescription())
@@ -42,11 +51,12 @@ internal class AnnotationExtensionsTest {
     @Test
     fun `verify @Deprecated`() {
         val classDeprecation = WithAnnotations::class.getDeprecationReason()
-        val classPropertyDeprecation = WithAnnotations::class.declaredMemberProperties.find { it.name == "id" }?.getDeprecationReason()
+        val classPropertyDeprecation = WithAnnotations::class.findMemberProperty("id")?.getDeprecationReason()
 
         assertEquals(expected = "class deprecated", actual = classDeprecation)
         assertEquals(expected = "property deprecated", actual = classPropertyDeprecation)
         assertNull(NoAnnotations::class.getDeprecationReason())
+        assertNull(NoAnnotations::class.findMemberProperty("id")?.getDeprecationReason())
     }
 
     @Test
@@ -57,9 +67,11 @@ internal class AnnotationExtensionsTest {
 
     @Test
     fun `verify @GraphQLID`() {
-        val id = WithAnnotations::class.declaredMemberProperties.find { it.name == "id" }
-        val notId = NoAnnotations::class.declaredMemberProperties.find { it.name == "id" }
+        val id = WithAnnotations::class.findMemberProperty("id")
+        val notId = NoAnnotations::class.findMemberProperty("id")
         assertTrue { id?.isGraphQLID().isTrue() }
         assertFalse { notId?.isGraphQLID().isTrue() }
     }
+
+    private fun KClass<*>.findMemberProperty(name: String) = this.declaredMemberProperties.find { it.name == name }
 }
