@@ -95,6 +95,9 @@
         <detekt-cli.version>1.0.0-RC14</detekt-cli.version>
         <ktlint.version>0.30.0</ktlint.version>
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+
+        <!-- disable default maven-deploy-plugin in favor of nexus-staging-maven-plugin -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <pluginRepositories>
@@ -342,11 +345,6 @@
                 </property>
             </activation>
 
-            <!-- Exclude the example app from releases -->
-            <modules>
-                <module>graphql-kotlin-schema-generator</module>
-            </modules>
-
             <build>
                 <plugins>
                     <!-- Release to Maven central -->
@@ -384,20 +382,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Attach javadocs to jar -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <!-- Sign the artifacts -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -421,11 +405,6 @@
             <activation>
                 <jdk>1.8</jdk>
             </activation>
-
-            <!-- Exclude the example app from javadoc packages -->
-            <modules>
-                <module>graphql-kotlin-schema-generator</module>
-            </modules>
 
             <build>
                 <plugins>
