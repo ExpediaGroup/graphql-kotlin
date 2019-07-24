@@ -28,6 +28,9 @@ commit_files() {
     # Stage the modified files
     git add ./pom.xml ./*/pom.xml
 
+    # Print the current files we are going to commit
+    git status
+
     # Create a new commit with a custom build message and Travis build number for reference
     git commit -m "build: $NEW_VERSION (Travis Build $TRAVIS_BUILD_NUMBER)"
 }
