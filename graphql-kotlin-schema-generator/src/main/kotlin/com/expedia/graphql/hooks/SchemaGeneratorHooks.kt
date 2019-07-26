@@ -75,7 +75,7 @@ interface SchemaGeneratorHooks {
     /**
      * Called after wrapping the type based on nullity but before adding the generated type to the schema
      */
-    fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) = Unit
+    fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) = generatedType
 
     /**
      * Called after converting the function to a field definition but before adding to the schema to allow customization

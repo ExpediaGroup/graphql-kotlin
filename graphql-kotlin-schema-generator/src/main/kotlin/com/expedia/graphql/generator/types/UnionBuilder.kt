@@ -42,7 +42,7 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
                 }
             }
             val unionType = builder.build()
-            codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+            codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
             config.hooks.onRewireGraphQLType(unionType)
         }
     }

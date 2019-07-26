@@ -43,7 +43,7 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 }
             }
 
-            codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.simpleName) }
+            codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
             config.hooks.onRewireGraphQLType(interfaceType).safeCast()
         }
     }
