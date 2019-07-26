@@ -1,5 +1,6 @@
 package com.expedia.graphql.generator
 
+import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.isEnum
 import com.expedia.graphql.generator.extensions.isInterface
@@ -7,17 +8,19 @@ import com.expedia.graphql.generator.extensions.isListType
 import com.expedia.graphql.generator.extensions.isUnion
 import com.expedia.graphql.generator.extensions.wrapInNonNull
 import com.expedia.graphql.generator.state.KGraphQLType
+import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.state.TypesCacheKey
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 internal open class TypeBuilder constructor(protected val generator: SchemaGenerator) {
-    protected val state = generator.state
-    protected val config = generator.config
-    protected val subTypeMapper = generator.subTypeMapper
-    protected val codeRegistry = generator.codeRegistry
+    protected val state: SchemaGeneratorState = generator.state
+    protected val config: SchemaGeneratorConfig = generator.config
+    protected val subTypeMapper: SubTypeMapper = generator.subTypeMapper
+    protected val codeRegistry: GraphQLCodeRegistry.Builder = generator.codeRegistry
 
     internal fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
@@ -26,10 +29,7 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
             ?: objectFromReflection(type, inputType)
 
         val typeWithNullability = graphQLType.wrapInNonNull(type)
-
-        config.hooks.didGenerateGraphQLType(type, typeWithNullability)
-
-        return typeWithNullability
+        return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
     }
 
     internal fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {

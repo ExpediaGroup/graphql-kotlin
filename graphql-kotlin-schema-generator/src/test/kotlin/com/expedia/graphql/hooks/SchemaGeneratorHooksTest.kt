@@ -108,9 +108,10 @@ class SchemaGeneratorHooksTest {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var lastSeenType: KType? = null
             var lastSeenGeneratedType: GraphQLType? = null
-            override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) {
+            override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
                 lastSeenType = type
                 lastSeenGeneratedType = generatedType
+                return generatedType
             }
         }
 
