@@ -28,10 +28,11 @@ class CustomSchemaGeneratorHooks(validator: Validator, override val wiringFactor
     override val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate? = DataFetcherExecutionValidator(validator)
 }
 
-internal val graphqlUUIDType = GraphQLScalarType("UUID",
-        "A type representing a formatted java.util.UUID",
-        UUIDCoercing
-)
+internal val graphqlUUIDType = GraphQLScalarType.newScalar()
+    .name("UUID")
+    .description("A type representing a formatted java.util.UUID")
+    .coercing(UUIDCoercing)
+    .build()
 
 private object UUIDCoercing : Coercing<UUID, String> {
     override fun parseValue(input: Any?): UUID = UUID.fromString(
