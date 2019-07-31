@@ -25,38 +25,48 @@ internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             .map(this::getDirective)
 
     private fun getDirective(directiveInfo: DirectiveInfo): GraphQLDirective {
+        val directiveName = directiveInfo.effectiveName
+        val directive = state.directives.computeIfAbsent(directiveName) {
+            val builder = GraphQLDirective.newDirective()
+                .name(directiveInfo.effectiveName)
+                .description(directiveInfo.directiveAnnotation.description)
 
-        val existingDirective = state.directives.find { it.name == directiveInfo.effectiveName }
+            directiveInfo.directiveAnnotation.locations.forEach {
+                builder.validLocation(it)
+            }
 
-        if (existingDirective != null) {
-            return existingDirective
+            val directiveClass = directiveInfo.directive.annotationClass
+            directiveClass.getValidProperties(config.hooks).forEach { prop ->
+                val propertyName = prop.name
+                val value = prop.call(directiveInfo.directive)
+                val type = graphQLTypeOf(prop.returnType)
+
+                val argument = GraphQLArgument.newArgument()
+                    .name(propertyName)
+                    .value(value)
+                    .type(type.safeCast())
+                    .build()
+
+                builder.argument(argument)
+            }
+            builder.build()
         }
 
-        val directiveClass = directiveInfo.directive.annotationClass
-
-        val builder = GraphQLDirective.newDirective()
-            .name(directiveInfo.effectiveName)
-            .description(directiveInfo.directiveAnnotation.description)
-
-        directiveInfo.directiveAnnotation.locations.forEach {
-            builder.validLocation(it)
+        return if (directive.arguments.isNotEmpty()) {
+            // update args for this instance
+            val builder = GraphQLDirective.newDirective(directive)
+            directiveInfo.directive.annotationClass.getValidProperties(config.hooks).forEach { prop ->
+                val defaultArgument = directive.getArgument(prop.name)
+                val value = prop.call(directiveInfo.directive)
+                val argument = GraphQLArgument.newArgument(defaultArgument)
+                    .value(value)
+                    .build()
+                builder.argument(argument)
+            }
+            builder.build()
+        } else {
+            directive
         }
-
-        directiveClass.getValidProperties(config.hooks).forEach { prop ->
-            val propertyName = prop.name
-            val value = prop.call(directiveInfo.directive)
-            val type = graphQLTypeOf(prop.returnType)
-
-            val argument = GraphQLArgument.newArgument()
-                .name(propertyName)
-                .value(value)
-                .type(type.safeCast())
-                .build()
-
-            builder.argument(argument)
-        }
-
-        return builder.build()
     }
 }
 

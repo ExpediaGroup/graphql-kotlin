@@ -4,21 +4,24 @@ import com.expedia.graphql.directives.DeprecatedDirective
 import graphql.Directives
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLType
+import java.util.concurrent.ConcurrentHashMap
 
 internal class SchemaGeneratorState(supportedPackages: List<String>) {
     val cache = TypesCache(supportedPackages)
     val additionalTypes = mutableSetOf<GraphQLType>()
-    val directives = mutableSetOf<GraphQLDirective>()
+    val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     fun getValidAdditionalTypes(): List<GraphQLType> = additionalTypes.filter { cache.doesNotContainGraphQLType(it) }
 
     init {
         // NOTE: @include and @defer query directives are added by graphql-java by default
         // adding them explicitly here to keep it consistent with missing deprecated directive
-        directives.add(Directives.IncludeDirective)
-        directives.add(Directives.SkipDirective)
+        directives[Directives.IncludeDirective.name] = Directives.IncludeDirective
+        directives[Directives.SkipDirective.name] = Directives.SkipDirective
 
         // graphql-kotlin default directives
-        directives.add(DeprecatedDirective)
+        // @deprecated directive is a built-in directive that each GraphQL server should provide bu currently it is not added by graphql-java
+        //   see https://github.com/graphql-java/graphql-java/issues/1598
+        directives[DeprecatedDirective.name] = DeprecatedDirective
     }
 }

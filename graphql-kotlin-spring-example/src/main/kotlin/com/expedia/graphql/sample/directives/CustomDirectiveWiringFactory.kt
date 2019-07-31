@@ -10,11 +10,11 @@ import kotlin.reflect.KClass
 class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring = mapOf<String, KotlinSchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring())) {
 
     private val stringEvalDirectiveWiring = StringEvalSchemaDirectiveWiring()
-    private val caleOnlyDirectiveWiring = CakeOnlySchemaDirectiveWiring()
+    private val caleOnlyDirectiveWiring = SpecificValueOnlySchemaDirectiveWiring()
 
     override fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? = when {
         environment.directive.name == getDirectiveName(StringEval::class) -> stringEvalDirectiveWiring
-        environment.directive.name == getDirectiveName(CakeOnly::class) -> caleOnlyDirectiveWiring
+        environment.directive.name == getDirectiveName(SpecificValueOnly::class) -> caleOnlyDirectiveWiring
         else -> null
     }
 }
