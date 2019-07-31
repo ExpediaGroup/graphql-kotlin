@@ -20,7 +20,6 @@ class PolymorphicQuery: Query {
     fun animal(type: AnimalType): Animal? = when (type) {
         AnimalType.CAT -> Cat()
         AnimalType.DOG -> Dog()
-        else -> null
     }
 
     fun dog(): Dog = Dog()
