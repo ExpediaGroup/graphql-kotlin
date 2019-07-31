@@ -63,7 +63,7 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
             builder.additionalType(it)
         }
 
-        builder.additionalDirectives(state.directives)
+        builder.additionalDirectives(state.directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
         return config.hooks.willBuildSchema(builder).build()
     }
@@ -95,15 +95,9 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     internal fun scalarType(type: KType, annotatedAsID: Boolean = false) =
         scalarTypeBuilder.scalarType(type, annotatedAsID)
 
-    internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> {
-        val directives = directiveTypeBuilder.directives(element)
-        state.directives.addAll(directives)
-        return directives
-    }
+    internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
+        directiveTypeBuilder.directives(element)
 
-    internal fun fieldDirectives(field: Field): List<GraphQLDirective> {
-        val directives = directiveTypeBuilder.fieldDirectives(field)
-        state.directives.addAll(directives)
-        return directives
-    }
+    internal fun fieldDirectives(field: Field): List<GraphQLDirective> =
+        directiveTypeBuilder.fieldDirectives(field)
 }
