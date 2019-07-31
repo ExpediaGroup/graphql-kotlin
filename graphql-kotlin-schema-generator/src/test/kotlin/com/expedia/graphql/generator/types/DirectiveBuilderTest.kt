@@ -7,6 +7,7 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.getTestSchemaConfigWithMockedDirectives
 import graphql.Directives
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -48,6 +49,9 @@ internal class DirectiveBuilderTest {
         @DirectiveWithString(string = "foo")
         fun directiveWithString(string: String) = string
 
+        @DirectiveWithString(string = "bar")
+        fun directiveWithAnotherString(string: String) = string
+
         @DirectiveWithEnum(type = Type.TWO)
         fun directiveWithEnum(string: String) = string
 
@@ -55,7 +59,12 @@ internal class DirectiveBuilderTest {
         fun directiveWithClass(string: String) = string
     }
 
-    private val basicGenerator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
+    private lateinit var basicGenerator: SchemaGenerator
+
+    @BeforeEach
+    fun setUp() {
+        basicGenerator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
+    }
 
     @Test
     fun `no annotation`() {
@@ -88,14 +97,17 @@ internal class DirectiveBuilderTest {
     }
 
     @Test
-    fun `directives are not duplicated in the schema`() {
+    fun `directives are only added to the schema once`() {
         val initialCount = basicGenerator.state.directives.size
-        assertTrue(basicGenerator.state.directives.contains(Directives.IncludeDirective))
-        assertTrue(basicGenerator.state.directives.contains(Directives.SkipDirective))
-        assertTrue(basicGenerator.state.directives.contains(DeprecatedDirective))
+        assertTrue(basicGenerator.state.directives.containsKey(Directives.IncludeDirective.name))
+        assertTrue(basicGenerator.state.directives.containsKey(Directives.SkipDirective.name))
+        assertTrue(basicGenerator.state.directives.containsKey(DeprecatedDirective.name))
 
-        basicGenerator.directives(MyClass::simpleDirective)
-        basicGenerator.directives(MyClass::simpleDirective)
+        val firstInvocation = basicGenerator.directives(MyClass::simpleDirective)
+        assertEquals(1, firstInvocation.size)
+        val secondInvocation = basicGenerator.directives(MyClass::simpleDirective)
+        assertEquals(1, secondInvocation.size)
+        assertEquals(firstInvocation.first(), secondInvocation.first())
         assertEquals(initialCount + 1, basicGenerator.state.directives.size)
     }
 
@@ -117,5 +129,23 @@ internal class DirectiveBuilderTest {
         val directives = basicGenerator.fieldDirectives(field)
 
         assertEquals(0, directives.size)
+    }
+
+    @Test
+    fun `directives are created per each declaration`() {
+        val initialCount = basicGenerator.state.directives.size
+        val directivesOnFirstField = basicGenerator.directives(MyClass::directiveWithString)
+        val directivesOnSecondField = basicGenerator.directives(MyClass::directiveWithAnotherString)
+        assertEquals(expected = 1, actual = directivesOnFirstField.size)
+        assertEquals(expected = 1, actual = directivesOnSecondField.size)
+
+        val firstDirective = directivesOnFirstField.first()
+        val seconDirective = directivesOnSecondField.first()
+        assertEquals("directiveWithString", firstDirective.name)
+        assertEquals("directiveWithString", seconDirective.name)
+        assertEquals("foo", firstDirective.getArgument("string")?.value)
+        assertEquals("bar", seconDirective.getArgument("string")?.value)
+
+        assertEquals(initialCount + 1, basicGenerator.state.directives.size)
     }
 }

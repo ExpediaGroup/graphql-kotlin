@@ -101,12 +101,16 @@ internal open class TypeTestHelper {
         directiveBuilder = spyk(DirectiveBuilder(generator))
         every { generator.directives(any()) } answers {
             val directives = directiveBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
-            state.directives.addAll(directives)
+            for (directive in directives) {
+                state.directives[directive.name] = directive
+            }
             directives
         }
         every { generator.fieldDirectives(any()) } answers {
             val directives = directiveBuilder!!.fieldDirectives(it.invocation.args[0] as Field)
-            state.directives.addAll(directives)
+            for (directive in directives) {
+                state.directives[directive.name] = directive
+            }
             directives
         }
 
