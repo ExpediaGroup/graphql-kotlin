@@ -1,6 +1,7 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.TopLevelObject
+import com.expedia.graphql.annotations.GraphQLDataFetcherPrefix
 import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.exceptions.InvalidQueryTypeException
@@ -36,6 +37,12 @@ internal class QueryBuilderTest : TypeTestHelper() {
         @GraphQLDescription("A GraphQL query method")
         fun query(value: Int) = value
     }
+
+    @GraphQLDataFetcherPrefix("example_prefix_")
+    class QueryObjectWithPrefix {
+        fun query(value: Int) = value
+    }
+
 
     class NoFunctions {
         @GraphQLIgnore
@@ -81,6 +88,15 @@ internal class QueryBuilderTest : TypeTestHelper() {
         assertEquals(expected = "TestTopLevelQuery", actual = result.name)
         assertEquals(expected = 1, actual = result.fieldDefinitions.size)
         assertEquals(expected = "query", actual = result.fieldDefinitions.first().name)
+    }
+
+    @Test
+    fun `query with valid functions with prefix`() {
+        val queries = listOf(TopLevelObject(QueryObjectWithPrefix()))
+        val result = builder.getQueryObject(queries)
+        assertEquals(expected = "TestTopLevelQuery", actual = result.name)
+        assertEquals(expected = 1, actual = result.fieldDefinitions.size)
+        assertEquals(expected = "example_prefix_query", actual = result.fieldDefinitions.first().name)
     }
 
     @Test

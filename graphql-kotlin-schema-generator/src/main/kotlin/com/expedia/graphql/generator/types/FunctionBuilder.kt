@@ -4,6 +4,7 @@ import com.expedia.graphql.directives.deprecatedDirectiveWithReason
 import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
+import com.expedia.graphql.generator.extensions.*
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getFunctionName
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
@@ -32,7 +33,16 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
     internal fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         val functionName = fn.getFunctionName()
-        builder.name(functionName)
+        // builder.name(functionName)
+
+        if(target!=null){
+            val prefix = target::class.getGraphQLDataFetcherPrefix()?:""
+            builder.name(prefix+functionName)
+        }else{
+            builder.name(functionName)
+        }
+
+
         builder.description(fn.getGraphQLDescription())
 
         fn.getDeprecationReason()?.let {

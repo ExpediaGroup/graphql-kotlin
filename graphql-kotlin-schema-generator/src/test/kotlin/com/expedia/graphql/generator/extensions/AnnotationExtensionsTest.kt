@@ -4,6 +4,7 @@ import com.expedia.graphql.annotations.GraphQLDescription
 import com.expedia.graphql.annotations.GraphQLID
 import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.annotations.GraphQLName
+import com.expedia.graphql.annotations.GraphQLDataFetcherPrefix
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
@@ -24,6 +25,11 @@ internal class AnnotationExtensionsTest {
         @property:GraphQLDescription("property description")
         @property:GraphQLID
         @property:GraphQLName("newName")
+        val id: String
+    )
+
+    @GraphQLDataFetcherPrefix("example_prefix")
+    private data class WithPrefix(
         val id: String
     )
 
@@ -74,4 +80,10 @@ internal class AnnotationExtensionsTest {
     }
 
     private fun KClass<*>.findMemberProperty(name: String) = this.declaredMemberProperties.find { it.name == name }
+
+    @Test
+    fun `verify @GraphQLDataFetcherPrefix on classes`() {
+        assertEquals(expected = "example_prefix", actual = WithPrefix::class.getGraphQLDataFetcherPrefix())
+        assertNull(NoAnnotations::class.getGraphQLDataFetcherPrefix())
+    }
 }
