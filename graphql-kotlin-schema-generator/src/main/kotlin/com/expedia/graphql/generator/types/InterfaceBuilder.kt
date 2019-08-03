@@ -33,13 +33,12 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
 
             val interfaceType = builder.build()
             val implementations = subTypeMapper.getSubTypesOf(kClass)
-            implementations.forEach {
-                val objectType = generator.objectType(it.kotlin, interfaceType)
+            implementations.forEach { implementation ->
+                val objectType = generator.objectType(implementation.kotlin, interfaceType)
 
                 // Only update the state if the object is fully constructed and not a reference
                 if (objectType !is GraphQLTypeReference) {
                     state.additionalTypes.add(objectType)
-                    state.cache.removeTypeUnderConstruction(it.kotlin)
                 }
             }
 

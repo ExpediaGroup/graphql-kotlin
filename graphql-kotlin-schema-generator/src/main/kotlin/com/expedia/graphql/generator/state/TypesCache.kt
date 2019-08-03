@@ -10,6 +10,7 @@ import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
 
 internal class TypesCache(private val supportedPackages: List<String>) {
@@ -68,16 +69,19 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     private fun isTypeNotSupported(type: KType): Boolean = supportedPackages.none { type.qualifiedName.startsWith(it) }
 
-    private fun putTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.add(kClass)
-
-    fun removeTypeUnderConstruction(kClass: KClass<*>) = typeUnderConstruction.remove(kClass)
-
     fun buildIfNotUnderConstruction(kClass: KClass<*>, build: (KClass<*>) -> GraphQLType): GraphQLType {
-        return if (typeUnderConstruction.contains(kClass)) {
-            GraphQLTypeReference.typeRef(kClass.getSimpleName())
-        } else {
-            putTypeUnderConstruction(kClass)
-            build(kClass)
+        val cachedType = cache[kClass.getSimpleName()]
+        return when {
+            cachedType != null -> cachedType.graphQLType
+            typeUnderConstruction.contains(kClass) -> GraphQLTypeReference.typeRef(kClass.getSimpleName())
+            else -> {
+                typeUnderConstruction.add(kClass)
+                val newType = build(kClass)
+                val key = TypesCacheKey(kClass.createType(), false)
+                put(key, KGraphQLType(kClass, newType))
+                typeUnderConstruction.remove(kClass)
+                newType
+            }
         }
     }
 }
