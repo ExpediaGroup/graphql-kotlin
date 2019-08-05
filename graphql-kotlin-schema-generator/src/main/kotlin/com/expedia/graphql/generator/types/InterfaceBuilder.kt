@@ -35,13 +35,11 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             val implementations = subTypeMapper.getSubTypesOf(kClass)
             implementations.forEach { implementation ->
                 val objectType = generator.objectType(implementation.kotlin, interfaceType)
-
-                // Only update the state if the object is fully constructed and not a reference
+                // skip under construction objects
                 if (objectType !is GraphQLTypeReference) {
                     state.additionalTypes.add(objectType)
                 }
             }
-
             codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
             config.hooks.onRewireGraphQLType(interfaceType).safeCast()
         }
