@@ -1,15 +1,16 @@
 package com.expedia.graphql.hooks
 
 import com.expedia.graphql.TopLevelObject
-import com.expedia.graphql.extensions.deepName
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.getTestSchemaConfigWithHooks
 import com.expedia.graphql.toSchema
 import graphql.schema.GraphQLFieldDefinition
+import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -39,27 +40,6 @@ class SchemaGeneratorHooksTest {
         )
         assertTrue(hooks.willBuildSchemaCalled)
         assertNotNull(schema.getType("InjectedFromHook"))
-    }
-
-    @Test
-    fun `calls hook before generating object type`() {
-        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            var willGenerateGraphQLTypeCalled = false
-            override fun willGenerateGraphQLType(type: KType): GraphQLType? {
-                willGenerateGraphQLTypeCalled = true
-                return GraphQLObjectType.newObject().name("InterceptedFromHook").build()
-            }
-        }
-
-        val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
-        )
-        val topLevelQuery = schema.getObjectType("Query")
-        val query = topLevelQuery.getFieldDefinition("query")
-        assertTrue(hooks.willGenerateGraphQLTypeCalled)
-        assertEquals("InterceptedFromHook!", query.type.deepName)
     }
 
     @Test
@@ -106,11 +86,9 @@ class SchemaGeneratorHooksTest {
     @Test
     fun `calls hook after generating object type`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            var lastSeenType: KType? = null
-            var lastSeenGeneratedType: GraphQLType? = null
+            val seenTypes = mutableSetOf<KType>()
             override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
-                lastSeenType = type
-                lastSeenGeneratedType = generatedType
+                seenTypes.add(type)
                 return generatedType
             }
         }
@@ -120,8 +98,10 @@ class SchemaGeneratorHooksTest {
             queries = listOf(TopLevelObject(TestQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
-        assertEquals(SomeData::class.createType(), hooks.lastSeenType)
-        assertEquals("SomeData!", hooks.lastSeenGeneratedType?.deepName)
+        assertTrue(hooks.seenTypes.contains(RandomData::class.createType()))
+        assertTrue(hooks.seenTypes.contains(SomeData::class.createType()))
+        // TODO bug: didGenerateGraphQLType hook is not applied on the object types build from the interface
+//        assertTrue(hooks.seenTypes.contains(OtherData::class.createType()))
     }
 
     @Test
@@ -132,7 +112,8 @@ class SchemaGeneratorHooksTest {
             override fun willAddGraphQLTypeToSchema(type: KType, generatedType: GraphQLType): GraphQLType {
                 hookCalled = true
                 return when {
-                    generatedType is GraphQLObjectType && generatedType.name == "SomeData" -> GraphQLObjectType.Builder(generatedType).description("My custom description").build()
+                    generatedType is GraphQLObjectType && generatedType.name == "SomeData" -> GraphQLObjectType.newObject(generatedType).description("My custom description").build()
+                    generatedType is GraphQLInterfaceType -> GraphQLInterfaceType.newInterface(generatedType).description("My custom interface description").build()
                     else -> generatedType
                 }
             }
@@ -161,7 +142,7 @@ class SchemaGeneratorHooksTest {
                 newField.description("Hijacked Description")
                 newField.name(fieldDefinition.name)
                 newField.type(fieldDefinition.type)
-                newField.argument(fieldDefinition.arguments)
+                newField.arguments(fieldDefinition.arguments)
                 return newField.build()
             }
         }
@@ -187,7 +168,7 @@ class SchemaGeneratorHooksTest {
                 newField.description("Hijacked Description")
                 newField.name(fieldDefinition.name)
                 newField.type(fieldDefinition.type)
-                newField.argument(fieldDefinition.arguments)
+                newField.arguments(fieldDefinition.arguments)
                 return newField.build()
             }
         }
@@ -212,8 +193,19 @@ class SchemaGeneratorHooksTest {
     }
 
     class TestQuery {
-        fun query(): SomeData = SomeData(0)
+        fun query(): SomeData = SomeData("someData", 0)
+        fun randomQuery(): RandomData = if (Random.nextBoolean()) {
+            SomeData("random", 1)
+        } else {
+            OtherData("random", 1)
+        }
     }
 
-    data class SomeData(val someNumber: Int)
+    interface RandomData {
+        val id: String
+    }
+
+    data class SomeData(override val id: String, val someNumber: Int) : RandomData
+
+    data class OtherData(override val id: String, val otherNumber: Int) : RandomData
 }

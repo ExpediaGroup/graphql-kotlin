@@ -4,7 +4,6 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
-import com.expedia.graphql.generator.state.KGraphQLType
 import com.expedia.graphql.generator.state.TypesCacheKey
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLObjectType
@@ -30,15 +29,9 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
                 val objectType = state.cache.get(TypesCacheKey(it.kotlin.createType(), false))
                     ?: generator.objectType(it.kotlin)
 
-                val key = TypesCacheKey(it.kotlin.createType(), false)
-
                 when (objectType) {
                     is GraphQLTypeReference -> builder.possibleType(objectType)
                     is GraphQLObjectType -> builder.possibleType(objectType)
-                }
-
-                if (state.cache.doesNotContain(it.kotlin)) {
-                    state.cache.put(key, KGraphQLType(it.kotlin, objectType))
                 }
             }
             val unionType = builder.build()
