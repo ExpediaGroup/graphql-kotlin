@@ -13,7 +13,6 @@ internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
 
     @Throws(InvalidSchemaException::class)
     fun getQueryObject(queries: List<TopLevelObject>): GraphQLObjectType {
-
         if (queries.isEmpty()) {
             throw InvalidSchemaException()
         }
@@ -32,7 +31,6 @@ internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
 
             query.kClass.getValidFunctions(config.hooks)
                 .forEach {
-                    // NEED BUILT QUERY
                     val function = generator.function(it, config.topLevelNames.query, query.obj)
                     val functionFromHook = config.hooks.didGenerateQueryType(it, function)
                     queryBuilder.field(functionFromHook)
