@@ -7,7 +7,9 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
 internal class UnionBuilderTest : TypeTestHelper() {
@@ -68,5 +70,18 @@ internal class UnionBuilderTest : TypeTestHelper() {
         assertNotNull(result)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.first().name)
+    }
+
+    @Test
+    fun `verify union is build only once`() {
+        val cache = generator.state.cache
+        assertTrue(cache.doesNotContain(Cake::class))
+
+        val first = builder.unionType(Cake::class) as? GraphQLUnionType
+        assertNotNull(first)
+        assertFalse(cache.doesNotContain(Cake::class))
+        val second = builder.unionType(Cake::class) as? GraphQLUnionType
+        assertNotNull(second)
+        assertEquals(first.hashCode(), second.hashCode())
     }
 }

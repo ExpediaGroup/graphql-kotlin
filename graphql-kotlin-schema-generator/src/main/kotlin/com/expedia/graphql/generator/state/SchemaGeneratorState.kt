@@ -6,12 +6,11 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLType
 import java.util.concurrent.ConcurrentHashMap
 
+@Suppress("UseDataClass")
 internal class SchemaGeneratorState(supportedPackages: List<String>) {
     val cache = TypesCache(supportedPackages)
     val additionalTypes = mutableSetOf<GraphQLType>()
     val directives = ConcurrentHashMap<String, GraphQLDirective>()
-
-    fun getValidAdditionalTypes(): List<GraphQLType> = additionalTypes.filter { cache.doesNotContainGraphQLType(it) }
 
     init {
         // NOTE: @include and @defer query directives are added by graphql-java by default

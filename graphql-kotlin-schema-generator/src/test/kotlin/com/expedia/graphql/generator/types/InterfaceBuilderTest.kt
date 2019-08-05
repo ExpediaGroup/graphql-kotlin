@@ -6,6 +6,9 @@ import com.expedia.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 internal class InterfaceBuilderTest : TypeTestHelper() {
 
@@ -47,5 +50,18 @@ internal class InterfaceBuilderTest : TypeTestHelper() {
         val result = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
         assertEquals(1, result?.directives?.size)
         assertEquals("simpleDirective", result?.directives?.first()?.name)
+    }
+
+    @Test
+    fun `verify interface is build only once`() {
+        val cache = generator.state.cache
+        assertTrue(cache.doesNotContain(HappyInterface::class))
+
+        val first = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
+        assertNotNull(first)
+        assertFalse(cache.doesNotContain(HappyInterface::class))
+        val second = builder.interfaceType(HappyInterface::class) as? GraphQLInterfaceType
+        assertNotNull(second)
+        assertEquals(first.hashCode(), second.hashCode())
     }
 }

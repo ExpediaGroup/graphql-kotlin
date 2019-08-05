@@ -58,8 +58,8 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         builder.mutation(mutationBuilder.getMutationObject(mutations))
         builder.subscription(subscriptionBuilder.getSubscriptionObject(subscriptions))
 
-        // add interface/union implementations
-        state.getValidAdditionalTypes().forEach {
+        // add interface implementations
+        state.additionalTypes.forEach {
             builder.additionalType(it)
         }
 
