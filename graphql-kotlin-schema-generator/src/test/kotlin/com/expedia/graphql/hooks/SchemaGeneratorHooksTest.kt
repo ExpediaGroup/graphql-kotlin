@@ -113,7 +113,8 @@ class SchemaGeneratorHooksTest {
                 hookCalled = true
                 return when {
                     generatedType is GraphQLObjectType && generatedType.name == "SomeData" -> GraphQLObjectType.newObject(generatedType).description("My custom description").build()
-                    generatedType is GraphQLInterfaceType -> GraphQLInterfaceType.newInterface(generatedType).description("My custom interface description").build()
+                    generatedType is GraphQLInterfaceType && generatedType.name == "RandomData" ->
+                        GraphQLInterfaceType.newInterface(generatedType).description("My custom interface description").build()
                     else -> generatedType
                 }
             }
@@ -129,6 +130,10 @@ class SchemaGeneratorHooksTest {
         val type = schema.getObjectType("SomeData")
         assertNotNull(type)
         assertEquals(expected = "My custom description", actual = type.description)
+
+        val interfaceType = schema.getType("RandomData") as? GraphQLInterfaceType
+        assertNotNull(interfaceType)
+        assertEquals(expected = "My custom interface description", actual = interfaceType.description)
     }
 
     @Test
