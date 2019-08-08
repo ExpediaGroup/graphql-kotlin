@@ -1,7 +1,13 @@
-package com.expedia.graphql.federation
+package com.expedia.graphql.federation.execution
 
+import com.expedia.graphql.federation.FederatedSchemaGeneratorConfig
+import com.expedia.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expedia.graphql.federation.FederatedTypeRegistry
+import com.expedia.graphql.federation.FederatedTypeResolver
+import com.expedia.graphql.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
+import graphql.schema.GraphQLSchema
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import test.data.queries.federated.Book
@@ -10,7 +16,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class EntityResolverTest {
+private const val FEDERATED_QUERY = """
+query (${'$'}_representations: [_Any!]!) {
+  _entities(representations: ${'$'}_representations) {
+    ... on User {
+      name
+    }
+  }
+}"""
+
+class EntityQueryResolverTest {
 
     @Test
     fun `verify can resolve federated entities`() {
@@ -30,26 +45,11 @@ class EntityResolverTest {
                 return User(id, name)
             }
         }
-
-        val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(mapOf("Book" to bookResolver, "User" to userResolver)))
-        )
-
-        val schema = toFederatedSchema(config)
-        val query = """
-            query (${'$'}_representations: [_Any!]!) {
-              _entities(representations: ${'$'}_representations) {
-                ... on User {
-                  name
-                }
-              }
-            }
-        """.trimIndent()
+        val schema = federatedTestSchema(mapOf("Book" to bookResolver, "User" to userResolver))
         val representation = mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
         val variables = mapOf<String, Any>("_representations" to listOf(representation))
         val executionInput = ExecutionInput.newExecutionInput()
-            .query(query)
+            .query(FEDERATED_QUERY)
             .variables(variables)
             .build()
         val graphQL = GraphQL.newGraphQL(schema).build()
@@ -65,25 +65,11 @@ class EntityResolverTest {
 
     @Test
     fun `verify federated entity resolver throws exception if __typename is not specified`() {
-        val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(mapOf("Book" to mockk(), "User" to mockk())))
-        )
-
-        val schema = toFederatedSchema(config)
-        val query = """
-            query (${'$'}_representations: [_Any!]!) {
-              _entities(representations: ${'$'}_representations) {
-                ... on User {
-                  name
-                }
-              }
-            }
-        """.trimIndent()
+        val schema = federatedTestSchema(mapOf("Book" to mockk(), "User" to mockk()))
         val representation = emptyMap<String, Any>()
         val variables = mapOf<String, Any>("_representations" to listOf(representation))
         val executionInput = ExecutionInput.newExecutionInput()
-            .query(query)
+            .query(FEDERATED_QUERY)
             .variables(variables)
             .build()
         val graphQL = GraphQL.newGraphQL(schema).build()
@@ -94,6 +80,35 @@ class EntityResolverTest {
         assertNotNull(errors)
         val error = errors.firstOrNull() as? Map<*, *>
         assertNotNull(error)
-        assertEquals("Exception while fetching data (/_entities) : Federation exception - cannot resolve {}", error["message"])
+        assertEquals("Exception while fetching data (/_entities) : invalid _entity query - missing __typename in the representation, representation={}", error["message"])
+    }
+
+    @Test
+    fun `verify federated entity resolver throws exception if __typename cannot be resolved`() {
+        val schema = federatedTestSchema()
+        val representation = mapOf<String, Any>("__typename" to "User")
+        val variables = mapOf<String, Any>("_representations" to listOf(representation))
+        val executionInput = ExecutionInput.newExecutionInput()
+            .query(FEDERATED_QUERY)
+            .variables(variables)
+            .build()
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.executeAsync(executionInput).get().toSpecification()
+
+        assertNull(result["data"])
+        val errors = result["errors"] as? List<*>
+        assertNotNull(errors)
+        val error = errors.firstOrNull() as? Map<*, *>
+        assertNotNull(error)
+        assertEquals("Exception while fetching data (/_entities) : Federation exception - cannot find resolver for User", error["message"])
+    }
+
+    private fun federatedTestSchema(federatedTypeResolvers: Map<String, FederatedTypeResolver<*>> = emptyMap()): GraphQLSchema {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("test.data.queries.federated"),
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(federatedTypeResolvers))
+        )
+
+        return toFederatedSchema(config)
     }
 }

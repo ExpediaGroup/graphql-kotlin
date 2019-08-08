@@ -19,6 +19,9 @@ import graphql.schema.GraphQLType
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 
+/**
+ * Hooks for generating federated GraphQL schema.
+ */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
 
     private val validator = FederatedSchemaValidator()
@@ -34,9 +37,6 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
     }
 
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
-        if (validator.errors.isNotEmpty()) {
-            throw InvalidFederatedSchema(validator.errors)
-        }
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
 
@@ -62,8 +62,8 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), DataFetcher {
                 val representations: List<Map<String, Any>> = it.getArgument("representations")
                 representations.map { representation ->
-                    val type = representation["__typename"].toString()
-                    val resolver = federatedTypeRegistry.getFederatedResolver(type) ?: throw FederationException("Federation exception - cannot resolve $representation")
+                    val type = representation["__typename"]?.toString() ?: throw FederationException("invalid _entity query - missing __typename in the representation, representation=$representation")
+                    val resolver = federatedTypeRegistry.getFederatedResolver(type) ?: throw FederationException("Federation exception - cannot find resolver for $type")
                     resolver.resolve(representation)
                 }.toList()
             })

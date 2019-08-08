@@ -3,10 +3,7 @@ package com.expedia.graphql.federation
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.federation.directives.ExtendsDirective
 import com.expedia.graphql.generator.SchemaGenerator
-import graphql.schema.GraphQLInterfaceType
-import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
-import graphql.schema.GraphQLType
 import org.reflections.Reflections
 import kotlin.reflect.full.createType
 
@@ -46,12 +43,5 @@ class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) 
                 this.additionalType(it)
             }
         return this
-    }
-
-    private fun visitAllChildren(type: GraphQLType, visitedTypes: MutableSet<String>) {
-        if (type is GraphQLObjectType || type is GraphQLInterfaceType) {
-            visitedTypes.add(type.name)
-        }
-        type.children.forEach { visitAllChildren(it, visitedTypes) }
     }
 }
