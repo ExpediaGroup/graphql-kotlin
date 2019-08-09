@@ -1,6 +1,6 @@
 # GraphQL Kotlin Federated Schema Generator
 
-Extension to `graphql-kotlin-schema-generator` that can be used to generate federated GraphQL schemas.
+`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link]).
 
 See more
 * [Federation Spec](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/)
@@ -29,7 +29,7 @@ compile(group: 'com.expedia', name: 'graphql-kotlin-federation', version: "$late
 
 In order to generate valid federated schemas, you will need to annotate your both base service and the one extending it. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
 
-> Base Service
+#### Base Service
 
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
@@ -56,9 +56,6 @@ schema {
   query: Query
 }
 
-#Space separated list of primary keys needed to access federated object
-directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
-
 union _Entity = Product
 
 type Product @key(fields : "id") {
@@ -67,7 +64,6 @@ type Product @key(fields : "id") {
 }
 
 type Query {
-  #Union of all types that use the @key directive, including both types native to the schema and extended types
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
   product(id: String!): Product!
@@ -76,15 +72,9 @@ type Query {
 type _Service {
   sdl: String!
 }
-
-#Federation scalar type used to represent any external entities passed to _entities query.
-scalar _Any
-
-#Federation type representing set of fields
-scalar _FieldSet
 ```
 
-> Extended Service
+#### Extended Service
 
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
@@ -118,15 +108,6 @@ schema {
   query: Query
 }
 
-#Marks target field as external meaning it will be resolved by federated schema
-directive @external on FIELD_DEFINITION
-
-#Marks target object as part of the federated schema
-directive @extends on OBJECT | INTERFACE
-
-#Space separated list of primary keys needed to access federated object
-directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
-
 union _Entity = Product
 
 type Product @extends @key(fields : "id") {
@@ -135,7 +116,6 @@ type Product @extends @key(fields : "id") {
 }
 
 type Query {
-  #Union of all types that use the @key directive, including both types native to the schema and extended types
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
 }
@@ -148,15 +128,32 @@ type Review {
 type _Service {
   sdl: String!
 }
-
-#Federation scalar type used to represent any external entities passed to _entities query.
-scalar _Any
-
-#Federation type representing set of fields
-scalar _FieldSet
 ```
 
 Federated Gateway will then combine the schemas from the individual services to generate single schema.
+
+#### Federated GraphQL schema
+
+```graphql
+schema {
+  query: Query
+}
+
+type Product {
+  description: String!
+  id: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  reviewId: String!
+  text: String!
+}
+
+type Query {
+  product(id: String!): Product!
+}
+```
 
 ## Documentation
 
