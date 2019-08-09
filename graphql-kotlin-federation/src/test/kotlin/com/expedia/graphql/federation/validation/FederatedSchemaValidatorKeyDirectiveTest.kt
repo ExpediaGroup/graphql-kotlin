@@ -55,7 +55,10 @@ class FederatedSchemaValidatorKeyDirectiveTest {
         Arguments.of("[ERROR] @key references interface", KeyReferencingInterface::class, "Invalid federated schema:\n" +
             " - @key(fields = id) directive on KeyReferencingInterface specifies invalid field set - field set references GraphQLInterfaceType, field=id"),
         Arguments.of("[ERROR] @key references union", KeyReferencingUnion::class, "Invalid federated schema:\n" +
-            " - @key(fields = id) directive on KeyReferencingUnion specifies invalid field set - field set references GraphQLUnionType, field=id")
+            " - @key(fields = id) directive on KeyReferencingUnion specifies invalid field set - field set references GraphQLUnionType, field=id"),
+        Arguments.of("[ERROR] @key references nested value from scalar", NestedKeyReferencingScalar::class, "Invalid federated schema:\n" +
+            " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set defines nested selection set on unsupported type\n" +
+            " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set specifies fields that do not exist")
     )
 
     @BeforeEach
@@ -251,4 +254,13 @@ class FederatedSchemaValidatorKeyDirectiveTest {
 
     @Suppress("UnusedPrivateClass")
     private data class Key(val id: String) : KeyUnion
+
+    /*
+    type NestedKeyReferencingScalar @key(fields : "id { uuid }") {
+      description: String!
+      id: String!
+    }
+     */
+    @KeyDirective(fields = FieldSet("id { uuid }"))
+    private data class NestedKeyReferencingScalar(val id: String, val description: String)
 }

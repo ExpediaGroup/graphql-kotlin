@@ -144,7 +144,7 @@ class FederatedSchemaValidator {
         validatedDirective: String,
         iterator: Iterator<String>,
         fields: Map<String, GraphQLFieldDefinition>,
-        extendedType: Boolean = false,
+        extendedType: Boolean,
         errors: MutableList<String>
     ) {
         var previousField: String? = null
