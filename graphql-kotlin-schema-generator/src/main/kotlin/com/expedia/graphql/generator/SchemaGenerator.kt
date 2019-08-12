@@ -27,7 +27,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
-internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
+open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
@@ -47,18 +47,17 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     private val scalarTypeBuilder = ScalarBuilder(this)
     private val directiveTypeBuilder = DirectiveBuilder(this)
 
-    internal fun generate(
+    open fun generate(
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject>,
-        subscriptions: List<TopLevelObject>
+        subscriptions: List<TopLevelObject>,
+        builder: GraphQLSchema.Builder = GraphQLSchema.newSchema()
     ): GraphQLSchema {
-        val builder = GraphQLSchema.newSchema()
-
         builder.query(queryBuilder.getQueryObject(queries))
         builder.mutation(mutationBuilder.getMutationObject(mutations))
         builder.subscription(subscriptionBuilder.getSubscriptionObject(subscriptions))
 
-        // add interface implementations
+        // add unreferenced interface implementations
         state.additionalTypes.forEach {
             builder.additionalType(it)
         }
@@ -68,36 +67,36 @@ internal class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         return config.hooks.willBuildSchema(builder).build()
     }
 
-    internal fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false) =
+    open fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false) =
         functionTypeBuilder.function(fn, parentName, target, abstract)
 
-    internal fun property(prop: KProperty<*>, parentClass: KClass<*>) =
+    open fun property(prop: KProperty<*>, parentClass: KClass<*>) =
         propertyTypeBuilder.property(prop, parentClass)
 
-    internal fun listType(type: KType, inputType: Boolean) =
+    open fun listType(type: KType, inputType: Boolean) =
         listTypeBuilder.listType(type, inputType)
 
-    internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null) =
+    open fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null) =
         objectTypeBuilder.objectType(kClass, interfaceType)
 
-    internal fun inputObjectType(kClass: KClass<*>) =
+    open fun inputObjectType(kClass: KClass<*>) =
         inputObjectTypeBuilder.inputObjectType(kClass)
 
-    internal fun interfaceType(kClass: KClass<*>) =
+    open fun interfaceType(kClass: KClass<*>) =
         interfaceTypeBuilder.interfaceType(kClass)
 
-    internal fun unionType(kClass: KClass<*>) =
+    open fun unionType(kClass: KClass<*>) =
         unionTypeBuilder.unionType(kClass)
 
-    internal fun enumType(kClass: KClass<out Enum<*>>) =
+    open fun enumType(kClass: KClass<out Enum<*>>) =
         enumTypeBuilder.enumType(kClass)
 
-    internal fun scalarType(type: KType, annotatedAsID: Boolean = false) =
+    open fun scalarType(type: KType, annotatedAsID: Boolean = false) =
         scalarTypeBuilder.scalarType(type, annotatedAsID)
 
-    internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
+    open fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
         directiveTypeBuilder.directives(element)
 
-    internal fun fieldDirectives(field: Field): List<GraphQLDirective> =
+    open fun fieldDirectives(field: Field): List<GraphQLDirective> =
         directiveTypeBuilder.fieldDirectives(field)
 }
