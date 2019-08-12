@@ -1,6 +1,6 @@
 # GraphQL Kotlin Federated Schema Generator
 
-`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link]).
+`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link](https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expedia/graphql/federation/toFederatedSchema.kt#L18)).
 
 See more
 * [Federation Spec](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/)
@@ -27,7 +27,7 @@ compile(group: 'com.expedia', name: 'graphql-kotlin-federation', version: "$late
 
 ## Usage
 
-In order to generate valid federated schemas, you will need to annotate both your base schemas and the one extending them. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
+In order to generate valid federated schemas, you will need to annotate both your base schema and the one extending it. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
 
 #### Base Schema
 
