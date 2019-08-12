@@ -27,7 +27,7 @@ compile(group: 'com.expedia', name: 'graphql-kotlin-federation', version: "$late
 
 ## Usage
 
-In order to generate valid federated schemas, you will need to annotate both your base schemas and the one extending them. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
+In order to generate valid federated schemas, you will need to annotate both your base schema and the one extending it. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
 
 #### Base Schema
 
