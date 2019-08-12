@@ -27,9 +27,11 @@ compile(group: 'com.expedia', name: 'graphql-kotlin-federation', version: "$late
 
 ## Usage
 
-In order to generate valid federated schemas, you will need to annotate your both base service and the one extending it. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
+In order to generate valid federated schemas, you will need to annotate both your base schemas and the one extending them. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
 
-#### Base Service
+#### Base Schema
+
+Base schema defines GraphQL types that will be extended by schemas exposed by other GraphQL services. In the example below, we define base `Product` type with `id` and `description` fields. `id` is the primary key that uniquely identifies the `Product` type object and is specified in `@key` directive.
 
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
@@ -59,14 +61,14 @@ schema {
 union _Entity = Product
 
 type Product @key(fields : "id") {
-  description: String!
+  description: Int!
   id: String!
 }
 
 type Query {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
-  product(id: String!): Product!
+  product(id: Int!): Product!
 }
 
 type _Service {
@@ -74,7 +76,9 @@ type _Service {
 }
 ```
 
-#### Extended Service
+#### Extended Schema
+
+Extended federated GraphQL schemas provide additional functionality to the types already exposed by other GraphQL services. In the example below, `Product` type is extended to add new `reviews` field to it. Primary key needed to instantiate the `Product` type (i.e. `id`) has to match the `@key` definition on the base type. Since primary keys are defined on the base type and are only referenced from the extended type, all of the fields that are part of the field set specified in `@key` directive have to be marked as `@external`.
 
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
