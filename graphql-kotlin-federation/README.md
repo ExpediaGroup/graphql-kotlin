@@ -1,6 +1,6 @@
 # GraphQL Kotlin Federated Schema Generator
 
-`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link]).
+`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link](https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expedia/graphql/federation/toFederatedSchema.kt#L18)).
 
 See more
 * [Federation Spec](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/)
