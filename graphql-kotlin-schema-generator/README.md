@@ -1,4 +1,6 @@
 # GraphQL Kotlin Schema Generator
+[![Maven Central](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin-schema-generator.svg?label=maven%20central)](https://search.maven.org/artifact/com.expedia/graphql-kotlin-schema-generator)
+[![Javadocs](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin-schema-generator.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expedia/graphql-kotlin-schema-generator)
 
 Most GraphQL libraries require developers to maintain two sources of truth for their GraphQL API: the schema and the corresponding code (data fetchers or resolvers, and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema can be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only, or resolver-first, GraphQL services to be built.
 
@@ -86,6 +88,6 @@ type Widget {
 
 ## Documentation
 
-There are more examples and documentation in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions.
+There are more examples and documentation in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin-schema-generator) for all published versions.
 
 If you have a question about something you can not find in our wiki or javadocs, feel free to [create an issue](https://github.com/ExpediaDotCom/graphql-kotlin/issues) and tag it with the question label.
