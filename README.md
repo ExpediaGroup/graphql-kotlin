@@ -10,12 +10,12 @@ GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL inte
 
 ## Modules
 
-* [graphql-kotlin-federation](graphql-kotlin-federation/README.md) - schema generator extension to build federated GraphQL schemas
-* [graphql-kotlin-schema-generator](graphql-kotlin-schema-generator/README.md) - code only GraphQL schema generation for Kotlin
-* [graphql-kotlin-spring-example](graphql-kotlin-spring-example/README.md) - example SpringBoot app that uses GraphQL Kotlin schema generator
+* [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build federated GraphQL schemas
+* [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
+* [graphql-kotlin-spring-example](/graphql-kotlin-spring-example) - Example SpringBoot app that uses GraphQL Kotlin schema generator
 
 ## Documentation
 
-Examples and documentation is available on our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions.
+Examples and documentation are available on our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or in each module.
 
-If you have a question about something you can not find in our wiki or javadocs, feel free to [create an issue](https://github.com/ExpediaDotCom/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our wiki, the indivdual modules, or javadocs, feel free to [create an issue](https://github.com/ExpediaDotCom/graphql-kotlin/issues) and tag it with the question label.
