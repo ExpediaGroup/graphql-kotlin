@@ -95,13 +95,12 @@ class SchemaGeneratorHooksTest {
 
         val hooks = MockSchemaGeneratorHooks()
         toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
+            queries = listOf(TopLevelObject(TestInterfaceQuery())),
             config = getTestSchemaConfigWithHooks(hooks)
         )
         assertTrue(hooks.seenTypes.contains(RandomData::class.createType()))
         assertTrue(hooks.seenTypes.contains(SomeData::class.createType()))
-        // TODO bug: didGenerateGraphQLType hook is not applied on the object types build from the interface
-//        assertTrue(hooks.seenTypes.contains(OtherData::class.createType()))
+        assertTrue(hooks.seenTypes.contains(OtherData::class.createType()))
     }
 
     @Test
@@ -199,6 +198,9 @@ class SchemaGeneratorHooksTest {
 
     class TestQuery {
         fun query(): SomeData = SomeData("someData", 0)
+    }
+
+    class TestInterfaceQuery {
         fun randomQuery(): RandomData = if (Random.nextBoolean()) {
             SomeData("random", 1)
         } else {

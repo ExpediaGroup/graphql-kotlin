@@ -18,7 +18,6 @@ import com.expedia.graphql.generator.types.SubscriptionBuilder
 import com.expedia.graphql.generator.types.UnionBuilder
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
-import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLSchema
 import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
@@ -76,8 +75,8 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     open fun listType(type: KType, inputType: Boolean) =
         listTypeBuilder.listType(type, inputType)
 
-    open fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null) =
-        objectTypeBuilder.objectType(kClass, interfaceType)
+    open fun objectType(kClass: KClass<*>) =
+        objectTypeBuilder.objectType(kClass)
 
     open fun inputObjectType(kClass: KClass<*>) =
         inputObjectTypeBuilder.inputObjectType(kClass)

@@ -4,11 +4,11 @@ import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getSimpleName
-import com.expedia.graphql.generator.state.TypesCacheKey
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
+import graphql.schema.GraphQLTypeUtil
 import graphql.schema.GraphQLUnionType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
@@ -25,15 +25,17 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
             }
 
             val implementations = subTypeMapper.getSubTypesOf(kClass)
-            implementations.forEach {
-                val objectType = state.cache.get(TypesCacheKey(it.kotlin.createType(), false))
-                    ?: generator.objectType(it.kotlin)
-
-                when (objectType) {
-                    is GraphQLTypeReference -> builder.possibleType(objectType)
-                    is GraphQLObjectType -> builder.possibleType(objectType)
+            implementations.map {
+                val kType = it.kotlin.createType()
+                graphQLTypeOf(kType, inputType = false, annotatedAsID = false)
+            }
+            .forEach {
+                when (val unwrappedType = GraphQLTypeUtil.unwrapNonNull(it)) {
+                    is GraphQLTypeReference -> builder.possibleType(unwrappedType)
+                    is GraphQLObjectType -> builder.possibleType(unwrappedType)
                 }
             }
+
             val unionType = builder.build()
             codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
             config.hooks.onRewireGraphQLType(unionType)

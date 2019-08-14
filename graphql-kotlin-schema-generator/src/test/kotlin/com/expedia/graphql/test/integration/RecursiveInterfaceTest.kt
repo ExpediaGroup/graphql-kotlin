@@ -28,14 +28,14 @@ class RecursiveInterfaceTest {
 }
 
 class RecursiveInterfaceQuery {
-    fun getRoot() = RecursiveInterfaceA()
+    fun getRoot() = RecursiveClassA()
 }
 
 class InterfaceWithSelfFieldQuery {
     fun getInterface() = InterfaceWithSelfFieldB()
 }
 
-interface SomeInterface {
+interface SomeInterfaceWithId {
     val id: String
 }
 
@@ -43,14 +43,14 @@ interface InterfaceWithSelfField {
     val parent: InterfaceWithSelfField?
 }
 
-class RecursiveInterfaceA : SomeInterface {
+class RecursiveClassA : SomeInterfaceWithId {
     override val id = "A"
-    fun getB() = RecursiveInterfaceB()
+    fun getB() = RecursiveClassB()
 }
 
-class RecursiveInterfaceB : SomeInterface {
+class RecursiveClassB : SomeInterfaceWithId {
     override val id = "B"
-    fun getA() = RecursiveInterfaceA()
+    fun getA() = RecursiveClassA()
 }
 
 class InterfaceWithSelfFieldA : InterfaceWithSelfField {
