@@ -23,7 +23,8 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
-
+    private val directiveRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val scalarRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
@@ -57,7 +58,11 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
+            // SDL returned by _service query should not contain directives or new scalars
             val sdl = originalSchema.print()
+                .replace(directiveRegex, "")
+                .replace(scalarRegex, "")
+                .trim()
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), DataFetcher {
                 val representations: List<Map<String, Any>> = it.getArgument("representations")
