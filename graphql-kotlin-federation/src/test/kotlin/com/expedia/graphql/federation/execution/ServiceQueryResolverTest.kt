@@ -15,21 +15,6 @@ const val FEDERATED_SERVICE_SDL = """schema {
   query: Query
 }
 
-#Marks target field as external meaning it will be resolved by federated schema
-directive @external on FIELD_DEFINITION
-
-#Marks target object as part of the federated schema
-directive @extends on OBJECT | INTERFACE
-
-#Specifies the base type field set that will be selectable by the gateway
-directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
-
-#Space separated list of primary keys needed to access federated object
-directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
-
-#Specifies required input field set from the base type for a resolver
-directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
-
 interface Product @extends @key(fields : "id") {
   id: String! @external
   reviews: [Review!]!
@@ -54,19 +39,7 @@ type Review {
 type User @extends @key(fields : "userId") {
   name: String! @external
   userId: Int! @external
-}
-
-#Federation type representing set of fields
-scalar _FieldSet
-
-#Directs the executor to include this field or fragment only when the `if` argument is true
-directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-#Directs the executor to skip this field or fragment when the `if`'argument is true.
-directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-#Marks the target field/enum value as deprecated
-directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE"""
+}"""
 
 class ServiceQueryResolverTest {
 
