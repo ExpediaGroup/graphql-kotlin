@@ -31,7 +31,7 @@ internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator
             }
 
             kClass.getValidSuperclasses(config.hooks)
-                .map { graphQLTypeOf(type = it.createType(), inputType = false, annotatedAsID = false) }
+                .map { graphQLTypeOf(it.createType()) }
                 .forEach {
                     when (val unwrappedType = GraphQLTypeUtil.unwrapNonNull(it)) {
                         is GraphQLTypeReference -> builder.withInterface(unwrappedType)

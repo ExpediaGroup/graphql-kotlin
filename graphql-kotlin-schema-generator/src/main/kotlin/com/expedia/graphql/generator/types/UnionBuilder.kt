@@ -24,17 +24,14 @@ internal class UnionBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
                 builder.withDirective(it)
             }
 
-            val implementations = subTypeMapper.getSubTypesOf(kClass)
-            implementations.map {
-                val kType = it.kotlin.createType()
-                graphQLTypeOf(kType, inputType = false, annotatedAsID = false)
-            }
-            .forEach {
-                when (val unwrappedType = GraphQLTypeUtil.unwrapNonNull(it)) {
-                    is GraphQLTypeReference -> builder.possibleType(unwrappedType)
-                    is GraphQLObjectType -> builder.possibleType(unwrappedType)
+            subTypeMapper.getSubTypesOf(kClass)
+                .map { graphQLTypeOf(it.createType()) }
+                .forEach {
+                    when (val unwrappedType = GraphQLTypeUtil.unwrapNonNull(it)) {
+                        is GraphQLTypeReference -> builder.possibleType(unwrappedType)
+                        is GraphQLObjectType -> builder.possibleType(unwrappedType)
+                    }
                 }
-            }
 
             val unionType = builder.build()
             codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }

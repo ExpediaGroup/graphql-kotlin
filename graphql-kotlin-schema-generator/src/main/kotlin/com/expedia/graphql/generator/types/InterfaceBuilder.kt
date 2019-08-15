@@ -11,6 +11,7 @@ import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
+import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -32,15 +33,15 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             kClass.getValidFunctions(config.hooks)
                 .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
 
-            val implementations = subTypeMapper.getSubTypesOf(kClass)
-            implementations.forEach { implementation ->
-                val kType = implementation.kotlin.createType()
-                val objectType = graphQLTypeOf(kType)
-                // skip objects currently under construction
-                if (objectType !is GraphQLTypeReference) {
-                    state.additionalTypes.add(objectType)
+            subTypeMapper.getSubTypesOf(kClass)
+                .map { graphQLTypeOf(it.createType()) }
+                .forEach {
+                    // Do not add objects currently under construction to the additional types
+                    val unwrappedType = GraphQLTypeUtil.unwrapNonNull(it)
+                    if (unwrappedType !is GraphQLTypeReference) {
+                        state.additionalTypes.add(it)
+                    }
                 }
-            }
 
             val interfaceType = builder.build()
             codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
