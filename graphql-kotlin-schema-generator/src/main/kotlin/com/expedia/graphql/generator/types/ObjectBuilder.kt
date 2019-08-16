@@ -12,12 +12,13 @@ import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
+import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
-    internal fun objectType(kClass: KClass<*>, interfaceType: GraphQLInterfaceType? = null): GraphQLType {
+    internal fun objectType(kClass: KClass<*>): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) {
             val builder = GraphQLObjectType.newObject()
 
@@ -29,18 +30,14 @@ internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator
                 builder.withDirective(it)
             }
 
-            if (interfaceType != null) {
-                // invoked from the interface builder which can still be modified by the hooks
-                builder.withInterface(GraphQLTypeReference(interfaceType.name))
-            } else {
-                kClass.getValidSuperclasses(config.hooks)
-                    .map { objectFromReflection(it.createType(), false) }
-                    .forEach {
-                        when (it) {
-                            is GraphQLInterfaceType -> builder.withInterface(it)
-                        }
+            kClass.getValidSuperclasses(config.hooks)
+                .map { graphQLTypeOf(it.createType()) }
+                .forEach {
+                    when (val unwrappedType = GraphQLTypeUtil.unwrapNonNull(it)) {
+                        is GraphQLTypeReference -> builder.withInterface(unwrappedType)
+                        is GraphQLInterfaceType -> builder.withInterface(unwrappedType)
                     }
-            }
+                }
 
             kClass.getValidProperties(config.hooks)
                 .forEach { builder.field(generator.property(it, kClass)) }

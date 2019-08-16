@@ -13,6 +13,7 @@ import com.expedia.graphql.generator.state.TypesCacheKey
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
+import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -28,11 +29,17 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
             ?: generator.scalarType(type, annotatedAsID)
             ?: objectFromReflection(type, inputType)
 
-        val typeWithNullability = graphQLType.wrapInNonNull(type)
-        return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
+        // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
+        val unwrappedType = GraphQLTypeUtil.unwrapNonNull(graphQLType)
+        if (unwrappedType !is GraphQLTypeReference) {
+            val typeWithNullability = graphQLType.wrapInNonNull(type)
+            return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
+        }
+
+        return graphQLType
     }
 
-    internal fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
+    private fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
         val cacheKey = TypesCacheKey(type, inputType)
         val cachedType = state.cache.get(cacheKey)
 

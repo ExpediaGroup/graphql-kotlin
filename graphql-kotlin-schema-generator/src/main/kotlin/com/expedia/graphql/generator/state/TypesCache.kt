@@ -39,8 +39,8 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         val cacheKey = getCacheKeyString(key)
 
         if (cacheKey != null) {
-            typeUnderConstruction.remove(kGraphQLType.kClass)
-            return cache.put(cacheKey, kGraphQLType)
+            cache[cacheKey] = kGraphQLType
+            return kGraphQLType
         }
 
         return null

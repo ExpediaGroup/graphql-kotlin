@@ -33,6 +33,15 @@ internal class UnionBuilderTest : TypeTestHelper() {
     @GraphQLName("StrawBerryCakeRenamed")
     private class StrawBerryCakeCustomName : CakeCustomName
 
+    private interface NestedUnionA
+
+    private interface NestedUnionB
+
+    private class NestedClass : NestedUnionA, NestedUnionB {
+        fun getUnionA(): NestedUnionA = NestedClass()
+        fun getUnionB(): NestedUnionB = NestedClass()
+    }
+
     @Test
     fun `Test naming`() {
         val result = builder.unionType(Cake::class) as? GraphQLUnionType
@@ -83,5 +92,15 @@ internal class UnionBuilderTest : TypeTestHelper() {
         val second = builder.unionType(Cake::class) as? GraphQLUnionType
         assertNotNull(second)
         assertEquals(first.hashCode(), second.hashCode())
+    }
+
+    @Test
+    fun `verify nested classes resovle the type reference in the gererator`() {
+        val cache = generator.state.cache
+        assertTrue(cache.doesNotContain(NestedUnionA::class))
+
+        val unionType = builder.unionType(NestedUnionA::class) as? GraphQLUnionType
+        assertNotNull(unionType)
+        assertFalse(cache.doesNotContain(NestedUnionA::class))
     }
 }
