@@ -10,9 +10,7 @@ import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getKClass
 import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
-import com.expedia.graphql.generator.extensions.isDataFetchingEnvironment
-import com.expedia.graphql.generator.extensions.isGraphQLContext
-import com.expedia.graphql.generator.extensions.isGraphQLIgnored
+import com.expedia.graphql.generator.extensions.getValidArguments
 import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.safeCast
 import graphql.execution.DataFetcherResult
@@ -26,7 +24,6 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.valueParameters
 
 internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
@@ -45,10 +42,7 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             builder.withDirective(it)
         }
 
-        fn.valueParameters
-            .filterNot { it.isGraphQLContext() }
-            .filterNot { it.isGraphQLIgnored() }
-            .filterNot { it.isDataFetchingEnvironment() }
+        fn.getValidArguments()
             .forEach {
                 // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
                 builder.argument(argument(it))

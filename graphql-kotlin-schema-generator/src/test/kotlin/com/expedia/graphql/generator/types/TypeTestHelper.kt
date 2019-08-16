@@ -11,7 +11,6 @@ import com.expedia.graphql.generator.state.SchemaGeneratorState
 import com.expedia.graphql.generator.state.TypesCache
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLCodeRegistry
-import graphql.schema.GraphQLInterfaceType
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -48,6 +47,7 @@ internal open class TypeTestHelper {
     private var directiveBuilder: DirectiveBuilder? = null
     private var functionBuilder: FunctionBuilder? = null
     private var propertyBuilder: PropertyBuilder? = null
+    private var unionBuilder: UnionBuilder? = null
 
     @BeforeTest
     fun setup() {
@@ -84,8 +84,8 @@ internal open class TypeTestHelper {
         }
 
         objectBuilder = spyk(ObjectBuilder(generator))
-        every { generator.objectType(any(), any()) } answers {
-            objectBuilder!!.objectType(it.invocation.args[0] as KClass<*>, it.invocation.args[1] as GraphQLInterfaceType?)
+        every { generator.objectType(any()) } answers {
+            objectBuilder!!.objectType(it.invocation.args[0] as KClass<*>)
         }
 
         listBuilder = spyk(ListBuilder(generator))
@@ -96,6 +96,11 @@ internal open class TypeTestHelper {
         interfaceBuilder = spyk(InterfaceBuilder(generator))
         every { generator.interfaceType(any()) } answers {
             interfaceBuilder!!.interfaceType(it.invocation.args[0] as KClass<*>)
+        }
+
+        unionBuilder = spyk(UnionBuilder(generator))
+        every { generator.unionType(any()) } answers {
+            unionBuilder!!.unionType(it.invocation.args[0] as KClass<*>)
         }
 
         directiveBuilder = spyk(DirectiveBuilder(generator))
