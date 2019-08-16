@@ -59,9 +59,11 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             federatedQuery.field(entityField)
 
             // SDL returned by _service query should not contain directives or new scalars
-            val sdl = originalSchema.print()
+            val sdl = originalSchema
+                .print(includeDefaultSchemaDefinition = false)
                 .replace(directiveRegex, "")
                 .replace(scalarRegex, "")
+                .replace("type Query", "type Query @extends")
                 .trim()
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), DataFetcher {
