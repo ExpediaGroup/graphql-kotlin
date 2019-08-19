@@ -25,6 +25,7 @@ import kotlin.reflect.full.findAnnotation
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
     private val directiveRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val scalarRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val emptyQuery = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
@@ -58,10 +59,16 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
-            // SDL returned by _service query should not contain directives or new scalars
-            val sdl = originalSchema.print()
+            // SDL returned by _service query should NOT contain
+            // - default schema definition
+            // - empty Query type
+            // - directives
+            // - new scalars
+            val sdl = originalSchema.print(includeDefaultSchemaDefinition = false)
                 .replace(directiveRegex, "")
                 .replace(scalarRegex, "")
+                .replace(emptyQuery, "")
+                .replace("type ${originalQuery.name}", "type ${originalQuery.name} @extends")
                 .trim()
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), DataFetcher {

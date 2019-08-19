@@ -11,10 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 // SDL is returned without _entity and _service queries
-const val FEDERATED_SERVICE_SDL = """schema {
-  query: Query
-}
-
+const val FEDERATED_SERVICE_SDL = """
 interface Product @extends @key(fields : "id") {
   id: String! @external
   reviews: [Review!]!
@@ -26,9 +23,6 @@ type Book implements Product @extends @key(fields : "id") {
   reviews: [Review!]!
   shippingCost: String! @requires(fields : "weight")
   weight: Float! @external
-}
-
-type Query {
 }
 
 type Review {
@@ -69,6 +63,6 @@ class ServiceQueryResolverTest {
         val queryResult = data["_service"] as? Map<*, *>
         assertNotNull(queryResult)
         val sdl = queryResult["sdl"] as? String
-        assertEquals(FEDERATED_SERVICE_SDL, sdl)
+        assertEquals(FEDERATED_SERVICE_SDL.trim(), sdl)
     }
 }
