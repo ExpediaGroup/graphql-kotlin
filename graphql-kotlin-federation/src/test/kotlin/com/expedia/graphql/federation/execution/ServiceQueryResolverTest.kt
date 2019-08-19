@@ -25,9 +25,6 @@ type Book implements Product @extends @key(fields : "id") {
   weight: Float! @external
 }
 
-type Query @extends {
-}
-
 type Review {
   body: String!
   id: String!
