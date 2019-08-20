@@ -1,4 +1,4 @@
-package com.expedia.graphql.federation
+package com.expedia.graphql.federation.exception
 
 import com.expedia.graphql.exceptions.GraphQLKotlinException
 

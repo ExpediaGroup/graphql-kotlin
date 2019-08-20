@@ -1,5 +1,6 @@
 package test.data.queries.federated
 
+import com.expedia.graphql.annotations.GraphQLIgnore
 import com.expedia.graphql.federation.directives.ExtendsDirective
 import com.expedia.graphql.federation.directives.ExternalDirective
 import com.expedia.graphql.federation.directives.FieldSet
@@ -41,13 +42,34 @@ class Book(
     @ExternalDirective
     var weight: Double by Delegates.notNull()
 
-    override fun reviews(): List<Review> = listOf(Review("parent-$id", "Dummy Review"))
+    override fun reviews(): List<Review> = listOf(Review("parent-$id", "Dummy Review $id"))
 
     @RequiresDirective(FieldSet("weight"))
     fun shippingCost(): String = "$${weight * 9.99}"
 
     @ProvidesDirective(FieldSet("name"))
     fun author(): User = User(1, "John Doe")
+
+    @Suppress("UnsafeCast")
+    @GraphQLIgnore
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Book
+
+        if (id != other.id) return false
+        if (weight != other.weight) return false
+
+        return true
+    }
+
+    @GraphQLIgnore
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + weight.hashCode()
+        return result
+    }
 }
 
 /*

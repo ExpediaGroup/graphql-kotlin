@@ -2,11 +2,10 @@ package com.expedia.graphql.federation
 
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.extensions.print
+import com.expedia.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import test.data.queries.federated.Book
-import test.data.queries.federated.User
 import test.data.queries.simple.SimpleQuery
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -84,26 +83,9 @@ class FederatedSchemaGeneratorTest {
 
     @Test
     fun `verify can generate federated schema`() {
-        val bookResolver = object : FederatedTypeResolver<Book> {
-            override fun resolve(keys: Map<String, Any>): Book {
-                val book = Book(keys["id"].toString())
-                keys["weight"]?.toString()?.toDoubleOrNull()?.let {
-                    book.weight = it
-                }
-                return book
-            }
-        }
-        val userResolver = object : FederatedTypeResolver<User> {
-            override fun resolve(keys: Map<String, Any>): User {
-                val id = keys["userId"].toString().toInt()
-                val name = keys["name"].toString()
-                return User(id, name)
-            }
-        }
-
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("test.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(mapOf("Book" to bookResolver, "User" to userResolver)))
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
         )
 
         val schema = toFederatedSchema(config)
