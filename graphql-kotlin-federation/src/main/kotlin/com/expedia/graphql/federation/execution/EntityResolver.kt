@@ -1,7 +1,6 @@
 package com.expedia.graphql.federation.execution
 
 import com.expedia.graphql.federation.exception.FederatedRequestFailure
-import com.expedia.graphql.federation.exception.FederationException
 import com.expedia.graphql.federation.exception.InvalidFederatedRequest
 import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
@@ -13,6 +12,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.asCompletableFuture
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Federated _entities query resolver.
+ */
 open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegistry) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
 
     /**
@@ -34,13 +36,7 @@ open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegist
             val errors = mutableListOf<GraphQLError>()
             indexedBatchRequestsByType.map { (typeName, indexedRequests) ->
                 async {
-                    val indices = indexedRequests.map { it.index }
-                    val batch = indexedRequests.map { it.value }
-                    val results = resolveBatch(typeName, batch)
-                    if (results.size != indices.size) {
-                        throw FederationException("Federation request generated results with different size than requested")
-                    }
-                    indices.zip(results)
+                    resolveType(typeName, indexedRequests)
                 }
             }.awaitAll()
                 .flatten()
@@ -59,6 +55,19 @@ open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegist
                 .errors(errors)
                 .build()
         }.asCompletableFuture()
+    }
+
+    private suspend fun resolveType(typeName: String, indexedRequests: List<IndexedValue<Map<String, Any>>>): List<Pair<Int, Any?>> {
+        val indices = indexedRequests.map { it.index }
+        val batch = indexedRequests.map { it.value }
+        val results = resolveBatch(typeName, batch)
+        return if (results.size != indices.size) {
+            indices.map {
+                it to FederatedRequestFailure("Federation batch request for $typeName generated different number of results than requested, representations=${indices.size}, results=${results.size}")
+            }
+        } else {
+            indices.zip(results)
+        }
     }
 
     @Suppress("TooGenericExceptionCaught")

@@ -123,6 +123,30 @@ class EntityQueryResolverTest {
         }
     }
 
+    @Test
+    fun `verify federated entity resolver returns error when different number of entities is returned than requested`() {
+        val user = User(123, "testName1")
+        val representations = listOf(user.toRepresentation(), user.toRepresentation())
+        val env = mockk<DataFetchingEnvironment> {
+            every { getArgument<Any>(any()) } returns representations
+        }
+
+        val mockUserResolver: UserResolver = mockk {
+            coEvery { resolve(any()) } returns listOf(user)
+        }
+        val resolver = EntityResolver(FederatedTypeRegistry(mapOf("User" to mockUserResolver)))
+        val result = resolver.get(env).get()
+
+        verifyData(result.data, null, null)
+        verifyErrors(result.errors,
+            "Federation batch request for User generated different number of results than requested, representations=2, results=1",
+            "Federation batch request for User generated different number of results than requested, representations=2, results=1")
+
+        coVerify {
+            mockUserResolver.resolve(listOf(user.toRepresentation(), user.toRepresentation()))
+        }
+    }
+
     private fun verifyData(data: List<Any?>, vararg expected: Any?) {
         assertEquals(expected.size, data.size)
         for ((index, entity) in data.withIndex()) {
