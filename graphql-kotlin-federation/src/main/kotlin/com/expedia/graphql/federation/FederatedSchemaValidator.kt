@@ -1,6 +1,7 @@
 package com.expedia.graphql.federation
 
 import com.expedia.graphql.federation.directives.FieldSet
+import com.expedia.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition

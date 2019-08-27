@@ -1,4 +1,4 @@
-package com.expedia.graphql.federation
+package com.expedia.graphql.federation.execution
 
 /**
  * Simple registry that holds mapping of all registered federated GraphQL types and their corresponding resolvers.
