@@ -2,7 +2,6 @@ package com.expedia.graphql.federation.execution
 
 import com.expedia.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expedia.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expedia.graphql.federation.FederatedTypeRegistry
 import com.expedia.graphql.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
@@ -56,13 +55,13 @@ class ServiceQueryResolverTest {
             .query(query)
             .build()
         val graphQL = GraphQL.newGraphQL(schema).build()
-        val result = graphQL.executeAsync(executionInput).get()
+        val result = graphQL.executeAsync(executionInput).get().toSpecification()
 
-        val data = result.toSpecification()["data"] as? Map<*, *>
-        assertNotNull(data)
-        val queryResult = data["_service"] as? Map<*, *>
-        assertNotNull(queryResult)
-        val sdl = queryResult["sdl"] as? String
-        assertEquals(FEDERATED_SERVICE_SDL.trim(), sdl)
+        assertNotNull(result["data"] as? Map<*, *>) { data ->
+            assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
+                val sdl = queryResult["sdl"] as? String
+                assertEquals(FEDERATED_SERVICE_SDL.trim(), sdl)
+            }
+        }
     }
 }

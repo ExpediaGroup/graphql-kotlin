@@ -4,7 +4,7 @@ import com.expedia.graphql.federation.FederatedSchemaGenerator
 import com.expedia.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expedia.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expedia.graphql.federation.FederatedSchemaValidator
-import com.expedia.graphql.federation.InvalidFederatedSchema
+import com.expedia.graphql.federation.exception.InvalidFederatedSchema
 import com.expedia.graphql.federation.directives.ExtendsDirective
 import com.expedia.graphql.federation.directives.ExternalDirective
 import com.expedia.graphql.federation.directives.FieldSet
