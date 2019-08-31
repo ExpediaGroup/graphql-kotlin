@@ -67,3 +67,13 @@ class CoffeeBean {
         return "Hot Coffee, Bean choice: $beanChoice, size: $size"
     }
 }
+
+@Component
+class SimpleNestedObjectQuery : Query {
+    fun getSimpleNestedObject() = SelfReferenceObject()
+}
+
+class SelfReferenceObject {
+    val description = "SelfReferenceObject"
+    fun nextObject() =SelfReferenceObject()
+}
