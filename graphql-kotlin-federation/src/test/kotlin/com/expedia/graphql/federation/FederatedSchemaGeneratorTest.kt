@@ -85,7 +85,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("test.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
         val schema = toFederatedSchema(config)
@@ -118,7 +118,7 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("test.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(SimpleQuery())))
