@@ -5,4 +5,4 @@
 
 # Ingore the example app from coverage reports
 ignore:
-  - "graphql-kotlin-spring-example/**/*"
+  - "spring-example/**/*"

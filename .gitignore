@@ -3,3 +3,4 @@
 .DS_Store
 target
 pom.xml.versionsBackup
+/federation-example/gateway/node_modules/
