@@ -5,5 +5,4 @@
 
 # Ingore the example app from coverage reports
 ignore:
-  - "spring-example/**/*"
-  - "federation-example/**/*"
+  - "examples/**/*"

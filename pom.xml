@@ -419,8 +419,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>spring-example</module>
-                <module>federation-example</module>
+                <module>examples</module>
             </modules>
         </profile>
     </profiles>
