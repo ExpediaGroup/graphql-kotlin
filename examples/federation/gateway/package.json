@@ -1,0 +1,18 @@
+{
+  "name": "federation-gateway",
+  "description": "A sample gateway from apollo-federation",
+  "dependencies": {
+    "@apollo/gateway": "latest",
+    "apollo-server": "latest",
+    "graphql": "latest"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js localhost 4000"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "nodemon": "1.19.2"
+  }
+}

@@ -8,7 +8,7 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>graphql-kotlin-spring-example</artifactId>
+    <artifactId>base-app</artifactId>
     <description>Example SpringBoot app using graphql-kotlin</description>
     <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
     <packaging>jar</packaging>
@@ -24,6 +24,11 @@
         <dependency>
             <groupId>com.expedia</groupId>
             <artifactId>graphql-kotlin-schema-generator</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.expedia</groupId>
+            <artifactId>graphql-kotlin-federation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

@@ -3,6 +3,7 @@ package com.expedia.graphql.federation
 import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.extensions.print
 import com.expedia.graphql.federation.directives.FieldSet
+import com.expedia.graphql.federation.directives.extendsDirectiveType
 import com.expedia.graphql.federation.execution.EntityResolver
 import com.expedia.graphql.federation.execution.FederatedTypeRegistry
 import com.expedia.graphql.federation.types.ANY_SCALAR_TYPE
@@ -44,10 +45,11 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
 
+        val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
         val federatedSchema = GraphQLSchema.newSchema(originalSchema)
         val federatedQuery = GraphQLObjectType.newObject(originalQuery)
             .field(SERVICE_FIELD_DEFINITION)
-        val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
+            .withDirective(extendsDirectiveType)
 
         val entityTypeNames = originalSchema.allTypesAsList
             .asSequence()
@@ -70,8 +72,8 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
                 .replace(directiveRegex, "")
                 .replace(scalarRegex, "")
                 .replace(emptyQuery, "")
-                .replace("type ${originalQuery.name}", "type ${originalQuery.name} @extends")
                 .trim()
+
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(federatedTypeRegistry))
             federatedCodeRegistry.typeResolver("_Entity") { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }

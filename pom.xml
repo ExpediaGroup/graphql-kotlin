@@ -419,7 +419,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>graphql-kotlin-spring-example</module>
+                <module>examples</module>
             </modules>
         </profile>
     </profiles>
