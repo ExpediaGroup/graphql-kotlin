@@ -1,2 +1,5 @@
+spring:
+  application:
+    name: extend-app
 server:
   port: 8081

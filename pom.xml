@@ -71,7 +71,6 @@
     <modules>
         <module>graphql-kotlin-schema-generator</module>
         <module>graphql-kotlin-federation</module>
-        <module>federation-example</module>
     </modules>
 
     <properties>

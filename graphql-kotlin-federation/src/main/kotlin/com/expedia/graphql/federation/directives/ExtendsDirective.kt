@@ -3,6 +3,9 @@ package com.expedia.graphql.federation.directives
 import com.expedia.graphql.annotations.GraphQLDirective
 import graphql.introspection.Introspection
 
+private const val NAME = "extends"
+private const val DESCRIPTION = "Marks target object as extending part of the federated schema"
+
 /**
  * ```graphql
  * directive @extends on OBJECT | INTERFACE
@@ -34,8 +37,14 @@ import graphql.introspection.Introspection
  * @see KeyDirective
  */
 @GraphQLDirective(
-    name = "extends",
-    description = "Marks target object as part of the federated schema",
+    name = NAME,
+    description = DESCRIPTION,
     locations = [Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE]
 )
 annotation class ExtendsDirective
+
+val extendsDirectiveType: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(NAME)
+    .description(DESCRIPTION)
+    .validLocations(Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE)
+    .build()

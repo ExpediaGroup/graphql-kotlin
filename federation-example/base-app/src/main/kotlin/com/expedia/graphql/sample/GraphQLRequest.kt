@@ -13,6 +13,6 @@ fun GraphQLRequest.toExecutionInput(graphQLContext: MyGraphQLContext? = null): E
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
-        .variables(this.variables)
+        .variables(this.variables ?: emptyMap())
         .context(graphQLContext)
         .build()

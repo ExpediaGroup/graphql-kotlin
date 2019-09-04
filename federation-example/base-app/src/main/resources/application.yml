@@ -1,2 +1,5 @@
+spring:
+  application:
+    name: base-app
 server:
   port: 8080

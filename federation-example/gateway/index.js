@@ -1,8 +1,9 @@
 const { ApolloServer } = require("apollo-server");
-const { ApolloGateway } = require("@apollo/gateway");
+const { ApolloGateway, RemoteGraphQLDataSource } = require("@apollo/gateway");
 
 const server = new ApolloServer({
   gateway: new ApolloGateway({
+    debug: true,
     serviceList: [
       { name: "base-app", url: "http://localhost:8080/graphql" },
       { name: "extend-app", url: "http://localhost:8081/graphql" }
