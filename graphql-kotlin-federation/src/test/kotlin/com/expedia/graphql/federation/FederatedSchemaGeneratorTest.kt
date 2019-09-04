@@ -17,7 +17,7 @@ private const val FEDERATED_SDL = """schema {
 #Marks target field as external meaning it will be resolved by federated schema
 directive @external on FIELD_DEFINITION
 
-#Marks target object as part of the federated schema
+#Marks target object as extending part of the federated schema
 directive @extends on OBJECT | INTERFACE
 
 #Specifies the base type field set that will be selectable by the gateway
@@ -44,7 +44,7 @@ type Book implements Product @extends @key(fields : "id") {
   weight: Float! @external
 }
 
-type Query {
+type Query @extends {
   #Union of all types that use the @key directive, including both types native to the schema and extended types
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
