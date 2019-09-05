@@ -10,6 +10,7 @@ import com.expedia.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.hooks.SchemaGeneratorHooks
+import com.expedia.graphql.test.utils.SimpleDirective
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.DataFetcher
@@ -51,7 +52,13 @@ internal class PropertyBuilderTest : TypeTestHelper() {
         val fooBar: String,
 
         @GraphQLID
-        val myId: String
+        val myId: String,
+
+        @SimpleDirective
+        val directiveWithNoPrefix: String,
+
+        @property:SimpleDirective
+        val directiveWithPrefix: String
     )
 
     private lateinit var builder: PropertyBuilder
@@ -125,6 +132,23 @@ internal class PropertyBuilderTest : TypeTestHelper() {
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
+    }
+
+    @Test
+    fun `Properties with no directives are not set`() {
+        val resultWithPrefix = builder.property(DataClassWithProperties::myId, DataClassWithProperties::class)
+        assertEquals(0, resultWithPrefix.directives.size)
+    }
+
+    @Test
+    fun `Properties can have directives on the constructor args`() {
+        val resultWithPrefix = builder.property(DataClassWithProperties::directiveWithPrefix, DataClassWithProperties::class)
+        assertEquals(1, resultWithPrefix.directives.size)
+        assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
+
+        val resultWithNoPrefix = builder.property(DataClassWithProperties::directiveWithNoPrefix, DataClassWithProperties::class)
+        assertEquals(1, resultWithNoPrefix.directives.size)
+        assertEquals("simpleDirective", resultWithNoPrefix.directives.first().name)
     }
 
     @Test

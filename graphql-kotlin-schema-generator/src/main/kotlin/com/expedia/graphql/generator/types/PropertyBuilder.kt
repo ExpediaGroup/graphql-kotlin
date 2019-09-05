@@ -30,7 +30,7 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             fieldBuilder.withDirective(deprecatedDirectiveWithReason(it))
         }
 
-        generator.directives(prop).forEach {
+        generator.directives(prop, parentClass).forEach {
             fieldBuilder.withDirective(it)
         }
 
