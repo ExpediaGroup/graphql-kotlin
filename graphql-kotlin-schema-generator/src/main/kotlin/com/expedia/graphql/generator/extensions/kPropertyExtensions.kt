@@ -29,4 +29,7 @@ internal fun KProperty<*>.getPropertyDescription(parentClass: KClass<*>): String
 internal fun KProperty<*>.getPropertyName(parentClass: KClass<*>): String? =
     this.getGraphQLName() ?: getConstructorParameter(parentClass)?.getGraphQLName() ?: this.name
 
+internal fun KProperty<*>.getPropertyAnnotations(parentClass: KClass<*>): List<Annotation> =
+    this.annotations.union(getConstructorParameter(parentClass)?.annotations.orEmpty()).toList()
+
 private fun KProperty<*>.getConstructorParameter(parentClass: KClass<*>) = parentClass.findConstructorParamter(this.name)
