@@ -3,6 +3,7 @@ package com.expedia.graphql.generator
 import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.generator.state.SchemaGeneratorState
+import com.expedia.graphql.generator.types.ArgumentBuilder
 import com.expedia.graphql.generator.types.DirectiveBuilder
 import com.expedia.graphql.generator.types.EnumBuilder
 import com.expedia.graphql.generator.types.FunctionBuilder
@@ -16,6 +17,7 @@ import com.expedia.graphql.generator.types.QueryBuilder
 import com.expedia.graphql.generator.types.ScalarBuilder
 import com.expedia.graphql.generator.types.SubscriptionBuilder
 import com.expedia.graphql.generator.types.UnionBuilder
+import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
@@ -23,6 +25,7 @@ import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
@@ -45,6 +48,7 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     private val enumTypeBuilder = EnumBuilder(this)
     private val scalarTypeBuilder = ScalarBuilder(this)
     private val directiveTypeBuilder = DirectiveBuilder(this)
+    private val argumentBuilder = ArgumentBuilder(this)
 
     open fun generate(
         queries: List<TopLevelObject>,
@@ -98,4 +102,7 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
     open fun fieldDirectives(field: Field): List<GraphQLDirective> =
         directiveTypeBuilder.fieldDirectives(field)
+
+    open fun argument(parameter: KParameter): GraphQLArgument =
+        argumentBuilder.argument(parameter)
 }

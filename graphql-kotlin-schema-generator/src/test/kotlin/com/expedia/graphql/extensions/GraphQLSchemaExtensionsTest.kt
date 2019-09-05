@@ -87,7 +87,7 @@ class GraphQLSchemaExtensionsTest {
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
             type Query {
-              queryById(id: String!): TypeWithId!
+              queryById(id: ID!): TypeWithId!
             }
 
             type TypeWithId {
