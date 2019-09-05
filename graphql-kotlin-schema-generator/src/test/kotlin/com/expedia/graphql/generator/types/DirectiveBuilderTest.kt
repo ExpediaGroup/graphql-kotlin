@@ -6,6 +6,7 @@ import com.expedia.graphql.directives.DeprecatedDirective
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.extensions.isTrue
 import com.expedia.graphql.getTestSchemaConfigWithMockedDirectives
+import com.expedia.graphql.test.utils.SimpleDirective
 import graphql.Directives
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,9 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal class DirectiveBuilderTest {
-
-    @GraphQLDirective
-    internal annotation class SimpleDirective
 
     @GraphQLDirective
     internal annotation class DirectiveWithString(val string: String)
@@ -58,6 +56,12 @@ internal class DirectiveBuilderTest {
         @DirectiveWithClass(kclass = Type::class)
         fun directiveWithClass(string: String) = string
     }
+
+    internal data class MyClassWithConstructorArgs(
+        @SimpleDirective val noPrefix: String,
+        @property:SimpleDirective val propertyPrefix: String,
+        val noDirective: String
+    )
 
     private lateinit var basicGenerator: SchemaGenerator
 
@@ -147,5 +151,25 @@ internal class DirectiveBuilderTest {
         assertEquals("bar", seconDirective.getArgument("string")?.value)
 
         assertEquals(initialCount + 1, basicGenerator.state.directives.size)
+    }
+
+    @Test
+    fun `directives on constructor arguments can be used with or without annotation prefix`() {
+        val noDirectiveResult = basicGenerator.directives(MyClassWithConstructorArgs::noDirective)
+        assertEquals(expected = 0, actual = noDirectiveResult.size)
+
+        val propertyPrefixResult = basicGenerator.directives(MyClassWithConstructorArgs::propertyPrefix)
+        assertEquals(expected = 1, actual = propertyPrefixResult.size)
+        assertEquals(expected = "simpleDirective", actual = propertyPrefixResult.first().name)
+
+        val noPrefixResult = basicGenerator.directives(MyClassWithConstructorArgs::noPrefix, MyClassWithConstructorArgs::class)
+        assertEquals(expected = 1, actual = noPrefixResult.size)
+        assertEquals(expected = "simpleDirective", actual = noPrefixResult.first().name)
+    }
+
+    @Test
+    fun `directives on constructor arguments only works with parent class`() {
+        val noPrefixResult = basicGenerator.directives(MyClassWithConstructorArgs::noPrefix, null)
+        assertEquals(expected = 0, actual = noPrefixResult.size)
     }
 }

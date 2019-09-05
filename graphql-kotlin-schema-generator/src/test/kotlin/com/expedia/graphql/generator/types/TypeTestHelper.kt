@@ -47,6 +47,7 @@ internal open class TypeTestHelper {
     private var directiveBuilder: DirectiveBuilder? = null
     private var functionBuilder: FunctionBuilder? = null
     private var propertyBuilder: PropertyBuilder? = null
+    private var inputPropertyBuilder: InputPropertyBuilder? = null
     private var unionBuilder: UnionBuilder? = null
 
     @BeforeTest
@@ -78,6 +79,11 @@ internal open class TypeTestHelper {
             propertyBuilder!!.property(it.invocation.args[0] as KProperty<*>, it.invocation.args[1] as KClass<*>)
         }
 
+        inputPropertyBuilder = spyk(InputPropertyBuilder(generator))
+        every { generator.inputProperty(any(), any()) } answers {
+            inputPropertyBuilder!!.inputProperty(it.invocation.args[0] as KProperty<*>, it.invocation.args[1] as KClass<*>)
+        }
+
         scalarBuilder = spyk(ScalarBuilder(generator))
         every { generator.scalarType(any(), any()) } answers {
             scalarBuilder!!.scalarType(it.invocation.args[0] as KType, it.invocation.args[1] as Boolean)
@@ -104,8 +110,8 @@ internal open class TypeTestHelper {
         }
 
         directiveBuilder = spyk(DirectiveBuilder(generator))
-        every { generator.directives(any()) } answers {
-            val directives = directiveBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement)
+        every { generator.directives(any(), any()) } answers {
+            val directives = directiveBuilder!!.directives(it.invocation.args[0] as KAnnotatedElement, it.invocation.args[1] as? KClass<*>)
             for (directive in directives) {
                 state.directives[directive.name] = directive
             }

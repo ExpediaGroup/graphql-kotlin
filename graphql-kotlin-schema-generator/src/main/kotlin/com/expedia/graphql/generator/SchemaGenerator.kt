@@ -7,6 +7,7 @@ import com.expedia.graphql.generator.types.DirectiveBuilder
 import com.expedia.graphql.generator.types.EnumBuilder
 import com.expedia.graphql.generator.types.FunctionBuilder
 import com.expedia.graphql.generator.types.InputObjectBuilder
+import com.expedia.graphql.generator.types.InputPropertyBuilder
 import com.expedia.graphql.generator.types.InterfaceBuilder
 import com.expedia.graphql.generator.types.ListBuilder
 import com.expedia.graphql.generator.types.MutationBuilder
@@ -40,6 +41,7 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     private val interfaceTypeBuilder = InterfaceBuilder(this)
     private val propertyTypeBuilder = PropertyBuilder(this)
     private val inputObjectTypeBuilder = InputObjectBuilder(this)
+    private val inputPropertyBuilder = InputPropertyBuilder(this)
     private val listTypeBuilder = ListBuilder(this)
     private val functionTypeBuilder = FunctionBuilder(this)
     private val enumTypeBuilder = EnumBuilder(this)
@@ -81,6 +83,9 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     open fun inputObjectType(kClass: KClass<*>) =
         inputObjectTypeBuilder.inputObjectType(kClass)
 
+    open fun inputProperty(prop: KProperty<*>, parentClass: KClass<*>) =
+        inputPropertyBuilder.inputProperty(prop, parentClass)
+
     open fun interfaceType(kClass: KClass<*>) =
         interfaceTypeBuilder.interfaceType(kClass)
 
@@ -93,8 +98,8 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     open fun scalarType(type: KType, annotatedAsID: Boolean = false) =
         scalarTypeBuilder.scalarType(type, annotatedAsID)
 
-    open fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
-        directiveTypeBuilder.directives(element)
+    open fun directives(element: KAnnotatedElement, parentClass: KClass<*>? = null): List<GraphQLDirective> =
+        directiveTypeBuilder.directives(element, parentClass)
 
     open fun fieldDirectives(field: Field): List<GraphQLDirective> =
         directiveTypeBuilder.fieldDirectives(field)

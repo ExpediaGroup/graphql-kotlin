@@ -2,6 +2,7 @@ package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
+import com.expedia.graphql.generator.extensions.getPropertyAnnotations
 import com.expedia.graphql.generator.extensions.getSimpleName
 import com.expedia.graphql.generator.extensions.getValidProperties
 import com.expedia.graphql.generator.extensions.safeCast
@@ -10,14 +11,22 @@ import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import com.expedia.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
 internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
-    internal fun directives(element: KAnnotatedElement): List<GraphQLDirective> =
-        element.annotations
+    internal fun directives(element: KAnnotatedElement, parentClass: KClass<*>?): List<GraphQLDirective> {
+        val annotations = when {
+            element is KProperty<*> && parentClass != null -> element.getPropertyAnnotations(parentClass)
+            else -> element.annotations
+        }
+
+        return annotations
             .mapNotNull { it.getDirectiveInfo() }
             .map(this::getDirective)
+    }
 
     internal fun fieldDirectives(field: Field): List<GraphQLDirective> =
         field.annotations
