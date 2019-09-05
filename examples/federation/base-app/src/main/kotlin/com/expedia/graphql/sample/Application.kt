@@ -29,7 +29,7 @@ class Application {
     private val logger = LoggerFactory.getLogger(Application::class.java)
 
     @Bean
-    fun hooks() = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
+    fun hooks() = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
 
     @Bean
     fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: SchemaGeneratorHooks) =

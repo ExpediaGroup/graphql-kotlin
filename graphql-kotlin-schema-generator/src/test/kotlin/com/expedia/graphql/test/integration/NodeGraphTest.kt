@@ -36,7 +36,7 @@ data class Node(
     val id: Int,
     val value: String,
     val parent: Node? = null,
-    var children: List<Node> = emptyList()
+    var children: List<Node?> = emptyList()
 )
 
 class NodeQuery {
