@@ -18,6 +18,7 @@ import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.test.BeforeTest
@@ -48,6 +49,8 @@ internal open class TypeTestHelper {
     private var functionBuilder: FunctionBuilder? = null
     private var propertyBuilder: PropertyBuilder? = null
     private var unionBuilder: UnionBuilder? = null
+    private var argumentBuilder: ArgumentBuilder? = null
+    private var inputObjectBuilder: InputObjectBuilder? = null
 
     @BeforeTest
     fun setup() {
@@ -88,6 +91,11 @@ internal open class TypeTestHelper {
             objectBuilder!!.objectType(it.invocation.args[0] as KClass<*>)
         }
 
+        inputObjectBuilder = spyk(InputObjectBuilder(generator))
+        every { generator.inputObjectType(any()) } answers {
+            inputObjectBuilder!!.inputObjectType(it.invocation.args[0] as KClass<*>)
+        }
+
         listBuilder = spyk(ListBuilder(generator))
         every { generator.listType(any(), any()) } answers {
             listBuilder!!.listType(it.invocation.args[0] as KType, it.invocation.args[1] as Boolean)
@@ -101,6 +109,11 @@ internal open class TypeTestHelper {
         unionBuilder = spyk(UnionBuilder(generator))
         every { generator.unionType(any()) } answers {
             unionBuilder!!.unionType(it.invocation.args[0] as KClass<*>)
+        }
+
+        argumentBuilder = spyk(ArgumentBuilder(generator))
+        every { generator.argument(any()) } answers {
+            argumentBuilder!!.argument(it.invocation.args[0] as KParameter)
         }
 
         directiveBuilder = spyk(DirectiveBuilder(generator))

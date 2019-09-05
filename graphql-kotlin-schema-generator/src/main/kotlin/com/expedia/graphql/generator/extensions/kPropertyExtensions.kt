@@ -3,6 +3,11 @@ package com.expedia.graphql.generator.extensions
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
+/**
+ * KProperty Extensions:
+ * For properties we need to check both the property for annotations and the constructor argument
+ */
+
 internal fun KProperty<*>.isPropertyGraphQLID(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLID() -> true
     getConstructorParameter(parentClass)?.isGraphQLID().isTrue() -> true

@@ -39,25 +39,17 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class FunctionDirective(val arg: String)
 
-    @GraphQLDirective
-    internal annotation class ArgumentDirective(val arg: String)
-
     private class Happy {
 
         @GraphQLDescription("By bob")
         @FunctionDirective("happy")
         fun littleTrees() = UUID.randomUUID().toString()
 
-        fun paint(@GraphQLDescription("brush color") @ArgumentDirective("red") color: String) = color.reversed()
-
-        @Deprecated("Should paint instead")
+        @Deprecated("Should paint instead", ReplaceWith("paint"))
         fun sketch(tree: String) = tree
 
         @GraphQLName("renamedFunction")
         fun originalName(input: String) = input
-
-        @Deprecated("No saw, just paint", replaceWith = ReplaceWith("paint"))
-        fun saw(tree: String) = tree
 
         fun context(@GraphQLContext context: String, string: String) = "$context and $string"
 
@@ -73,44 +65,29 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `test description`() {
+    fun `Function description can be set`() {
         val kFunction = Happy::littleTrees
         val result = builder.function(kFunction, "Query")
         assertEquals("By bob", result.description)
     }
 
     @Test
-    fun `test description on argument`() {
-        val kFunction = Happy::paint
-        val result = builder.function(kFunction, "Query").arguments[0]
-        assertEquals("brush color", result.description)
-    }
-
-    @Test
-    fun `test deprecation`() {
-        val kFunction = Happy::sketch
-        val result = builder.function(kFunction, "Query")
-        assertTrue(result.isDeprecated)
-        assertEquals("Should paint instead", result.deprecationReason)
-
-        val fieldDirectives = result.directives
-        assertEquals(1, fieldDirectives.size)
-        assertEquals("deprecated", fieldDirectives.first().name)
-    }
-
-    @Test
-    fun `test changing the name of a function`() {
+    fun `Function names can be changed`() {
         val kFunction = Happy::originalName
         val result = builder.function(kFunction, "Query")
         assertEquals("renamedFunction", result.name)
     }
 
     @Test
-    fun `test deprecation with replacement`() {
-        val kFunction = Happy::saw
+    fun `Functions can be deprecated`() {
+        val kFunction = Happy::sketch
         val result = builder.function(kFunction, "Query")
         assertTrue(result.isDeprecated)
-        assertEquals("No saw, just paint, replace with paint", result.deprecationReason)
+        assertEquals("Should paint instead, replace with paint", result.deprecationReason)
+
+        val fieldDirectives = result.directives
+        assertEquals(1, fieldDirectives.size)
+        assertEquals("deprecated", fieldDirectives.first().name)
     }
 
     @Test
@@ -128,19 +105,6 @@ internal class FunctionBuilderTest : TypeTestHelper() {
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
-    }
-
-    @Test
-    fun `test custom directive on function argument`() {
-        val kFunction = Happy::paint
-        val result = builder.function(kFunction, "Query").arguments[0]
-
-        assertEquals(1, result.directives.size)
-        val directive = result.directives[0]
-        assertEquals("argumentDirective", directive.name)
-        assertEquals("red", directive.arguments[0].value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
     }
 
     @Test
