@@ -16,7 +16,7 @@ internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == Da
 
 @Throws(CouldNotGetNameOfKParameterException::class)
 internal fun KParameter.getName(): String =
-    this.name ?: throw CouldNotGetNameOfKParameterException(this)
+    this.getGraphQLName() ?: this.name ?: throw CouldNotGetNameOfKParameterException(this)
 
 @Throws(CouldNotCastArgumentException::class)
 internal fun KParameter.javaTypeClass(): Class<*> =

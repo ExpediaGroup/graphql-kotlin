@@ -56,6 +56,7 @@ internal class KParameterExtensionsKtTest {
     @Test
     fun getNameException() {
         val mockParam: KParameter = mockk()
+        every { mockParam.annotations } returns emptyList()
         every { mockParam.name } returns null
         assertFailsWith(CouldNotGetNameOfKParameterException::class) {
             mockParam.getName()

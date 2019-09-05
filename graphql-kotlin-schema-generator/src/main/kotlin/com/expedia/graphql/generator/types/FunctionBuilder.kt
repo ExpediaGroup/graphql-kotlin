@@ -1,26 +1,21 @@
 package com.expedia.graphql.generator.types
 
 import com.expedia.graphql.directives.deprecatedDirectiveWithReason
-import com.expedia.graphql.exceptions.InvalidInputFieldTypeException
 import com.expedia.graphql.generator.SchemaGenerator
 import com.expedia.graphql.generator.TypeBuilder
 import com.expedia.graphql.generator.extensions.getDeprecationReason
 import com.expedia.graphql.generator.extensions.getFunctionName
 import com.expedia.graphql.generator.extensions.getGraphQLDescription
 import com.expedia.graphql.generator.extensions.getKClass
-import com.expedia.graphql.generator.extensions.getName
 import com.expedia.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expedia.graphql.generator.extensions.getValidArguments
-import com.expedia.graphql.generator.extensions.isInterface
 import com.expedia.graphql.generator.extensions.safeCast
 import graphql.schema.FieldCoordinates
-import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
 import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 
@@ -41,11 +36,9 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             builder.withDirective(it)
         }
 
-        fn.getValidArguments()
-            .forEach {
-                // deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
-                builder.argument(argument(it))
-            }
+        fn.getValidArguments().forEach {
+            builder.argument(generator.argument(it))
+        }
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
         val returnType = getWrappedReturnType(typeFromHooks)
@@ -67,23 +60,4 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             returnType.classifier == CompletableFuture::class -> returnType.getTypeOfFirstArgument()
             else -> returnType
         }
-
-    @Throws(InvalidInputFieldTypeException::class)
-    private fun argument(parameter: KParameter): GraphQLArgument {
-
-        if (parameter.isInterface()) {
-            throw InvalidInputFieldTypeException(parameter)
-        }
-
-        val builder = GraphQLArgument.newArgument()
-            .name(parameter.getName())
-            .description(parameter.getGraphQLDescription())
-            .type(graphQLTypeOf(parameter.type, true).safeCast())
-
-        generator.directives(parameter).forEach {
-            builder.withDirective(it)
-        }
-
-        return config.hooks.onRewireGraphQLType(builder.build()).safeCast()
-    }
 }
