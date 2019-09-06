@@ -21,7 +21,7 @@ class SubscriptionHandler(private val graphQL: GraphQL) : WebSocketHandler {
         // This will not work with Apollo Client. There needs to be special logic to handle the "graphql-ws"
         // sub-protocol. That will be up to the server implementation to handle though.
         //
-        // See: https://github.com/ExpediaDotCom/graphql-kotlin/issues/155
+        // See: https://github.com/ExpediaGroup/graphql-kotlin/issues/155
         return session.send(session.receive()
             .doOnSubscribe {
                 logger.info("Session starting. ID ${session.id}")
