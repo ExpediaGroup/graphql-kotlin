@@ -11,7 +11,7 @@
 
     <artifactId>examples</artifactId>
     <description>Example apps for using graphql-kotlin libraries</description>
-    <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+    <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
     <packaging>pom</packaging>
 
     <modules>

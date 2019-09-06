@@ -10,7 +10,7 @@
 
     <artifactId>spring-example</artifactId>
     <description>Example SpringBoot app using graphql-kotlin</description>
-    <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+    <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
     <packaging>jar</packaging>
 
     <properties>
