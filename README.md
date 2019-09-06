@@ -1,7 +1,7 @@
 # GraphQL Kotlin
 
-[![Build Status](https://travis-ci.org/ExpediaDotCom/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/graphql-kotlin)
-[![codecov](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaDotCom/graphql-kotlin)
+[![Build Status](https://travis-ci.org/ExpediaGroup/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaGroup/graphql-kotlin)
+[![codecov](https://codecov.io/gh/ExpediaGroup/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaGroup/graphql-kotlin)
 [![Maven Central](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin.svg?label=maven%20central)](https://search.maven.org/artifact/com.expedia/graphql-kotlin)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
@@ -16,6 +16,6 @@ GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL inte
 
 ## Documentation
 
-Examples and documentation are available on our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or in each module.
+Examples and documentation are available on our [Wiki](https://github.com/ExpediaGroup/graphql-kotlin/wiki) or in each module.
 
-If you have a question about something you can not find in our wiki, the indivdual modules, or javadocs, feel free to [create an issue](https://github.com/ExpediaDotCom/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our wiki, the indivdual modules, or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
