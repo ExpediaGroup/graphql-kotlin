@@ -38,7 +38,7 @@ commit_files() {
 upload_files() {
     echo "Pushing the changes to git remote"
 
-    tokenLink="https://${GITHUB_TOKEN}@github.com/ExpediaDotCom/graphql-kotlin.git"
+    tokenLink="https://${GITHUB_TOKEN}@github.com/ExpediaGroup/graphql-kotlin.git"
 
     # Add new "origin" with access token in the git URL for authentication
     git remote add token-origin ${tokenLink} > /dev/null 2>&1
