@@ -7,7 +7,7 @@
     <version>1.0.0-RC6-SNAPSHOT</version>
     <name>graphql-kotlin</name>
     <description>Code-only GraphQL schema generation for Kotlin</description>
-    <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+    <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
 
     <packaging>pom</packaging>
 
@@ -37,12 +37,6 @@
             <organizationUrl>https://www.expediagroup.com</organizationUrl>
         </developer>
         <developer>
-            <name>Brennan Taylor</name>
-            <email>brentaylor@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
             <name>Dariusz Kuc</name>
             <email>dkuc@expedia.com</email>
             <organization>Expedia Group</organization>
@@ -55,17 +49,17 @@
             <organizationUrl>https://www.expediagroup.com</organizationUrl>
         </developer>
         <developer>
-            <name>Amanda Ducrou</name>
-            <email>aducrou@expedia.com</email>
+            <name>Guillaume Scheibel</name>
+            <email>gscheibel@expedia.com</email>
             <organization>Expedia Group</organization>
             <organizationUrl>https://www.expediagroup.com</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/ExpediaDotCom/graphql-kotlin.git</connection>
-        <developerConnection>scm:git:git://github.com/ExpediaDotCom/graphql-kotlin.git</developerConnection>
-        <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+        <connection>scm:git:git://github.com/ExpediaGroup/graphql-kotlin.git</connection>
+        <developerConnection>scm:git:git://github.com/ExpediaGroup/graphql-kotlin.git</developerConnection>
+        <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
     </scm>
 
     <modules>
