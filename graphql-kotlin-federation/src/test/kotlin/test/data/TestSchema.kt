@@ -1,10 +1,10 @@
 package test.data
 
-import com.expedia.graphql.federation.FederatedSchemaGeneratorConfig
-import com.expedia.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expedia.graphql.federation.execution.FederatedTypeRegistry
-import com.expedia.graphql.federation.execution.FederatedTypeResolver
-import com.expedia.graphql.federation.toFederatedSchema
+import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
 
 internal fun federatedTestSchema(federatedTypeResolvers: Map<String, FederatedTypeResolver<*>> = emptyMap()): GraphQLSchema {

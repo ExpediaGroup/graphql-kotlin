@@ -1,12 +1,12 @@
 package test.data.queries.federated
 
-import com.expedia.graphql.annotations.GraphQLIgnore
-import com.expedia.graphql.federation.directives.ExtendsDirective
-import com.expedia.graphql.federation.directives.ExternalDirective
-import com.expedia.graphql.federation.directives.FieldSet
-import com.expedia.graphql.federation.directives.KeyDirective
-import com.expedia.graphql.federation.directives.ProvidesDirective
-import com.expedia.graphql.federation.directives.RequiresDirective
+import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.federation.directives.ExtendsDirective
+import com.expediagroup.graphql.federation.directives.ExternalDirective
+import com.expediagroup.graphql.federation.directives.FieldSet
+import com.expediagroup.graphql.federation.directives.KeyDirective
+import com.expediagroup.graphql.federation.directives.ProvidesDirective
+import com.expediagroup.graphql.federation.directives.RequiresDirective
 import kotlin.properties.Delegates
 
 /*
