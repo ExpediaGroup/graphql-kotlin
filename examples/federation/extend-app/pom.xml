@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.expedia</groupId>
+        <groupId>com.expediagroup</groupId>
         <artifactId>graphql-kotlin</artifactId>
         <version>1.0.0-RC6-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+        <relativePath>../../..</relativePath>
     </parent>
 
     <artifactId>extend-app</artifactId>
     <description>Example SpringBoot app using graphql-kotlin</description>
-    <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+    <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
     <packaging>jar</packaging>
 
     <properties>
@@ -22,12 +22,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.expedia</groupId>
+            <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-schema-generator</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.expedia</groupId>
+            <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-federation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

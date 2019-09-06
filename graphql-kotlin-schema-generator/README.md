@@ -16,7 +16,7 @@ With Maven:
 
 ```xml
 <dependency>
-  <groupId>com.expedia</groupId>
+  <groupId>com.expediagroup</groupId>
   <artifactId>graphql-kotlin-schema-generator</artifactId>
   <version>${latestVersion}</version>
 </dependency>

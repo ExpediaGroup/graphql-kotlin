@@ -1,6 +1,6 @@
 package test.data
 
-import com.expedia.graphql.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import test.data.queries.federated.Book
 import test.data.queries.federated.User
 
