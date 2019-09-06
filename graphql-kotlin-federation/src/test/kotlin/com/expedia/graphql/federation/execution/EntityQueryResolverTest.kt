@@ -43,7 +43,7 @@ class EntityQueryResolverTest {
 
     @Test
     fun `verify federated entity resolver returns GraphQLError if __typename cannot be resolved`() {
-        val resolver = EntityResolver(FederatedTypeRegistry(emptyMap()))
+        val resolver = EntityResolver(FederatedTypeRegistry())
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
