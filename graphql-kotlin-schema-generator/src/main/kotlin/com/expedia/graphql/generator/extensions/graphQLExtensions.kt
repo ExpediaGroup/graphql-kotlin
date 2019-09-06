@@ -28,7 +28,7 @@ internal inline fun <reified T : GraphQLType> GraphQLType.safeCast(): T {
 
 internal fun GraphQLDirectiveContainer.getAllDirectives(): List<GraphQLDirective> {
     // A function without directives may still be rewired if the arguments have directives
-    // see https://github.com/ExpediaDotCom/graphql-kotlin/wiki/Schema-Directives for details
+    // see https://github.com/ExpediaGroup/graphql-kotlin/wiki/Schema-Directives for details
     val mutableList = mutableListOf<GraphQLDirective>()
 
     mutableList.addAll(this.directives)
