@@ -11,7 +11,7 @@
 
     <artifactId>federation</artifactId>
     <description>Example federations apps and gateway using graphql-kotlin-federation and @apollo/gateway</description>
-    <url>https://github.com/ExpediaDotCom/graphql-kotlin</url>
+    <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
     <packaging>pom</packaging>
 
     <modules>
