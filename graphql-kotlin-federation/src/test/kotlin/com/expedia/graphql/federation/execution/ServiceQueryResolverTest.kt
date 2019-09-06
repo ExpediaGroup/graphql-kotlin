@@ -40,7 +40,7 @@ class ServiceQueryResolverTest {
     fun `verify can retrieve SDL using _service query`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("test.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
         val schema = toFederatedSchema(config)

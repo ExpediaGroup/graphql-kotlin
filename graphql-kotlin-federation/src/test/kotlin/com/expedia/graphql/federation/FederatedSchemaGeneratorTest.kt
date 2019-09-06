@@ -6,6 +6,7 @@ import com.expedia.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import test.data.queries.simple.NestedQuery
 import test.data.queries.simple.SimpleQuery
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -85,7 +86,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("test.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
         val schema = toFederatedSchema(config)
@@ -118,10 +119,42 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("test.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(emptyMap()))
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(SimpleQuery())))
+        assertEquals(expectedSchema, schema.print(includeDirectives = false).trim())
+    }
+
+    @Test
+    fun `verify a nested federated schema still works`() {
+        val expectedSchema = """
+            schema {
+              query: Query
+            }
+
+            type Query {
+              _service: _Service
+              getSimpleNestedObject: [SelfReferenceObject]!
+            }
+
+            type SelfReferenceObject {
+              description: String
+              id: Int!
+              nextObject: [SelfReferenceObject]
+            }
+
+            type _Service {
+              sdl: String!
+            }
+        """.trimIndent()
+
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("test.data.queries.simple"),
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+        )
+
+        val schema = toFederatedSchema(config, listOf(TopLevelObject(NestedQuery())))
         assertEquals(expectedSchema, schema.print(includeDirectives = false).trim())
     }
 }
