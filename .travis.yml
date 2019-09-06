@@ -26,7 +26,7 @@ deploy:
   script: .travis/deploy.sh
   skip_cleanup: true
   on:
-    repo: ExpediaDotCom/graphql-kotlin
+    repo: ExpediaGroup/graphql-kotlin
     tags: true
     jdk: openjdk8
     all_branches: true
