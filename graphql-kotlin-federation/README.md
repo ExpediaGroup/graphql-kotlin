@@ -2,7 +2,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin-federation.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expedia%22%20AND%20a:%22graphql-kotlin-federation%22)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expedia/graphql-kotlin-federation.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expedia/graphql-kotlin-federation)
 
-`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link](https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expedia/graphql/federation/toFederatedSchema.kt#L18)).
+`graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to instrument the behavior of the underlying graph, see corresponding wiki pages to learn more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function ([link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expedia/graphql/federation/toFederatedSchema.kt#L18)).
 
 See more
 * [Federation Spec](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/)
@@ -163,6 +163,6 @@ type Query {
 
 ## Documentation
 
-There are more examples and documentation in our [Wiki](https://github.com/ExpediaDotCom/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions.
+There are more examples and documentation in our [Wiki](https://github.com/ExpediaGroup/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expedia/graphql-kotlin) for all published versions.
 
-If you have a question about something you can not find in our wiki or javadocs, feel free to [create an issue](https://github.com/ExpediaDotCom/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our wiki or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
