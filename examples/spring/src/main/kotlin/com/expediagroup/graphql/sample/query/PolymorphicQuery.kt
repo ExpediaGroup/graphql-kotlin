@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.boot.server.annotation.Query
 import com.expediagroup.graphql.sample.model.Animal
 import com.expediagroup.graphql.sample.model.AnimalType
 import com.expediagroup.graphql.sample.model.BodyPart

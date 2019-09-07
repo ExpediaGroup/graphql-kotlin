@@ -1,5 +1,10 @@
+graphql:
+  federation:
+    enabled: true
+
+server:
+  port: 8080
+
 spring:
   application:
     name: base-app
-server:
-  port: 8080

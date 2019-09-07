@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.sample.query
 
+import com.expediagroup.graphql.boot.server.annotation.Query
 import org.springframework.stereotype.Component
 
+@Suppress("FunctionOnlyReturningConstant")
 @Component
 class SimpleQuery : Query {
     fun dataFromBaseApp() = "hello from base app"

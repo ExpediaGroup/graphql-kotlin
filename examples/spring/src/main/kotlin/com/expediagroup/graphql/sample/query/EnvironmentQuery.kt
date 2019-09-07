@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.sample.query
 
+import com.expediagroup.graphql.boot.server.annotation.Query
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
 

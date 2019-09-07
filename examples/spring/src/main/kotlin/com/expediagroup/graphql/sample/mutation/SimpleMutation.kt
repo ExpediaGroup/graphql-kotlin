@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.sample.mutation
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.boot.server.annotation.Mutation
 import org.springframework.stereotype.Component
 
 /**

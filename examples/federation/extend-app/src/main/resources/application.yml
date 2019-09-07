@@ -1,5 +1,10 @@
+graphql:
+  federation:
+    enabled: true
+
+server:
+  port: 8081
+
 spring:
   application:
     name: extend-app
-server:
-  port: 8081
