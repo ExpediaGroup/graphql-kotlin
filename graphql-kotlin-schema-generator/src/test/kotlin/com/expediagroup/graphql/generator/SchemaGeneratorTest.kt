@@ -13,8 +13,10 @@ import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
 import graphql.GraphQL
 import graphql.Scalars
+import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLSchema
 import org.junit.jupiter.api.Test
 import java.net.CookieManager
 import java.util.UUID
@@ -42,6 +44,53 @@ class SchemaGeneratorTest {
         val geo: Map<String, Map<String, Any>>? = result.getData()
 
         assertEquals(1, geo?.get("query")?.get("id"))
+    }
+
+    @Test
+    fun `SchemaGenerator generates a simple GraphQL schema with default builder`() {
+        val schemaGenerator = SchemaGenerator(testSchemaConfig)
+        val schema = schemaGenerator.generate(
+            queries = listOf(TopLevelObject(QueryObject())),
+            mutations = listOf(TopLevelObject(MutationObject())),
+            subscriptions = emptyList()
+        )
+
+        val graphQL = GraphQL.newGraphQL(schema).build()
+
+        val result = graphQL.execute(" { query(value: 1) { id } }")
+        val geo: Map<String, Map<String, Any>>? = result.getData()
+
+        assertEquals(1, geo?.get("query")?.get("id"))
+    }
+
+    @Test
+    fun `SchemaGenerator generates a simple GraphQL schema with predefined builder`() {
+        val schemaGenerator = SchemaGenerator(testSchemaConfig)
+        val field = GraphQLFieldDefinition.newFieldDefinition()
+            .name("foo")
+            .type(Scalars.GraphQLInt)
+            .build()
+        val customObject = GraphQLObjectType.Builder()
+            .field(field)
+            .name("MyObject")
+            .build()
+        val builder = GraphQLSchema.newSchema()
+            .additionalType(customObject)
+
+        val schema = schemaGenerator.generate(
+            queries = listOf(TopLevelObject(QueryObject())),
+            mutations = listOf(TopLevelObject(MutationObject())),
+            subscriptions = emptyList(),
+            builder = builder
+        )
+
+        val graphQL = GraphQL.newGraphQL(schema).build()
+
+        val result = graphQL.execute(" { query(value: 1) { id } }")
+        val geo: Map<String, Map<String, Any>>? = result.getData()
+
+        assertEquals(1, geo?.get("query")?.get("id"))
+        assertNotNull(schema.getType("MyObject"))
     }
 
     @Test

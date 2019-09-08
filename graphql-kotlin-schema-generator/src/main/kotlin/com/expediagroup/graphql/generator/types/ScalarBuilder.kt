@@ -16,7 +16,7 @@ import kotlin.reflect.KType
 
 internal class ScalarBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
-    internal fun scalarType(type: KType, annotatedAsID: Boolean = false): GraphQLScalarType? {
+    internal fun scalarType(type: KType, annotatedAsID: Boolean): GraphQLScalarType? {
         val kClass = type.getKClass()
 
         val scalar = when {
