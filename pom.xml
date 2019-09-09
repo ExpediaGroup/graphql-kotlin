@@ -11,6 +11,27 @@
 
     <packaging>pom</packaging>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Expedia Group</name>
+        <url>http://expediagroup.com</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Expedia Group Committers</name>
+            <email>oss@expediagroup.com</email>
+            <organization>Expedia Group</organization>
+            <organizationUrl>https://expediagroup.com</organizationUrl>
+        </developer>
+    </developers>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -21,40 +42,6 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Rick Fast</name>
-            <email>rfast@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Dariusz Kuc</name>
-            <email>dkuc@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Shane Myrick</name>
-            <email>smyrick@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Guillaume Scheibel</name>
-            <email>gscheibel@expedia.com</email>
-            <organization>Expedia Group</organization>
-            <organizationUrl>https://www.expediagroup.com</organizationUrl>
-        </developer>
-    </developers>
 
     <scm>
         <connection>scm:git:git://github.com/ExpediaGroup/graphql-kotlin.git</connection>
