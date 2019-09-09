@@ -76,21 +76,21 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `Function description can be set`() {
         val kFunction = Happy::littleTrees
-        val result = builder.function(kFunction, "Query")
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
         assertEquals("By bob", result.description)
     }
 
     @Test
     fun `Function names can be changed`() {
         val kFunction = Happy::originalName
-        val result = builder.function(kFunction, "Query")
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
         assertEquals("renamedFunction", result.name)
     }
 
     @Test
     fun `Functions can be deprecated`() {
         val kFunction = Happy::sketch
-        val result = builder.function(kFunction, "Query")
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
         assertTrue(result.isDeprecated)
         assertEquals("Should paint instead, replace with paint", result.deprecationReason)
 
@@ -102,7 +102,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `test custom directive on function`() {
         val kFunction = Happy::littleTrees
-        val result = builder.function(kFunction, "Query")
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
 
         assertEquals(1, result.directives.size)
         val directive = result.directives[0]
@@ -119,7 +119,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `test context on argument`() {
         val kFunction = Happy::context
-        val result = builder.function(kFunction, "Query")
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
 
         assertTrue(result.directives.isEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
@@ -130,7 +130,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `test ignored parameter`() {
         val kFunction = Happy::ignoredParameter
-        val result = builder.function(kFunction, "Query")
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
 
         assertTrue(result.directives.isEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
@@ -166,7 +166,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `publisher return type is valid`() {
         val kFunction = Happy::publisher
-        val result = builder.function(fn = kFunction, parentName = "Query")
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -175,7 +175,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `a return type that implements Publisher is valid`() {
         val kFunction = Happy::flowable
-        val result = builder.function(fn = kFunction, parentName = "Query")
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -184,7 +184,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `completable future return type is valid`() {
         val kFunction = Happy::completableFuture
-        val result = builder.function(fn = kFunction, parentName = "Query")
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -193,7 +193,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `DataFetchingEnvironment argument type is ignored`() {
         val kFunction = Happy::dataFetchingEnvironment
-        val result = builder.function(fn = kFunction, parentName = "Query")
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 0, actual = result.arguments.size)
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)

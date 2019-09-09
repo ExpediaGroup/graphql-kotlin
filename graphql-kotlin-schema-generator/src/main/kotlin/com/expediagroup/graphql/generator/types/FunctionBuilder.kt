@@ -22,7 +22,7 @@ import kotlin.reflect.full.isSubclassOf
 
 internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
-    internal fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
+    internal fun function(fn: KFunction<*>, parentName: String, target: Any?, abstract: Boolean): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
         val functionName = fn.getFunctionName()
         builder.name(functionName)

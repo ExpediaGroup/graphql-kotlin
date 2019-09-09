@@ -99,7 +99,7 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     open fun enumType(kClass: KClass<out Enum<*>>) =
         enumTypeBuilder.enumType(kClass)
 
-    open fun scalarType(type: KType, annotatedAsID: Boolean = false) =
+    open fun scalarType(type: KType, annotatedAsID: Boolean) =
         scalarTypeBuilder.scalarType(type, annotatedAsID)
 
     open fun directives(element: KAnnotatedElement, parentClass: KClass<*>? = null): List<GraphQLDirective> =
