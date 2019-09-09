@@ -1,10 +1,7 @@
 package com.expediagroup.graphql.directives
 
 import graphql.introspection.Introspection
-import graphql.schema.DataFetcher
-import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
@@ -42,27 +39,4 @@ open class KotlinSchemaDirectiveEnvironment<out T : GraphQLDirectiveContainer>(
             is GraphQLUnionType -> directive.validLocations().contains(Introspection.DirectiveLocation.UNION)
             else -> false
         }
-}
-
-/**
- * KotlinFieldDirectiveEnvironment holds wiring information for applying directives on GraphQL fields.
- */
-class KotlinFieldDirectiveEnvironment(
-    field: GraphQLFieldDefinition,
-    fieldDirective: GraphQLDirective,
-    private val coordinates: FieldCoordinates,
-    private val codeRegistry: GraphQLCodeRegistry.Builder
-) : KotlinSchemaDirectiveEnvironment<GraphQLFieldDefinition>(element = field, directive = fieldDirective) {
-
-    /**
-     * Retrieve current data fetcher associated with the target element.
-     */
-    fun getDataFetcher(): DataFetcher<Any> = codeRegistry.getDataFetcher(coordinates, element)
-
-    /**
-     * Update target element data fetcher.
-     */
-    fun setDataFetcher(newDataFetcher: DataFetcher<Any>) {
-        codeRegistry.dataFetcher(coordinates, newDataFetcher)
-    }
 }

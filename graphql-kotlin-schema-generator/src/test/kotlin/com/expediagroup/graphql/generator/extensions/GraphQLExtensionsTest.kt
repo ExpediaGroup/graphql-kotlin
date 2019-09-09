@@ -112,6 +112,15 @@ internal class GraphQLExtensionsTest {
     }
 
     @Test
+    fun `safeCast with GraphQLType passes`() {
+        val type: GraphQLType = mockk()
+        every { type.name } returns "foo"
+
+        val castedType = type.safeCast<GraphQLType>()
+        assertEquals("foo", castedType.name)
+    }
+
+    @Test
     fun `safeCast valid type passes`() {
         val type: GraphQLType = GraphQLInterfaceType.newInterface().name("name").description("description").build()
 
