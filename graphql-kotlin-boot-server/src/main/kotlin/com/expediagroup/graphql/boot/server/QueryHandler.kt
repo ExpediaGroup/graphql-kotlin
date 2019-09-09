@@ -36,6 +36,7 @@ interface QueryHandler {
 
 open class SimpleQueryHandler(private val graphql: GraphQL) : QueryHandler {
 
+    @Suppress("TooGenericExceptionCaught")
     @ExperimentalCoroutinesApi
     override suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse {
         val reactorContext = coroutineContext[ReactorContext]
