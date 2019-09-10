@@ -2,17 +2,15 @@
 
 [![Build Status](https://travis-ci.org/ExpediaGroup/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaGroup/graphql-kotlin)
 [![codecov](https://codecov.io/gh/ExpediaGroup/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaGroup/graphql-kotlin)
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin%22)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
 GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL integration for Kotlin applications.
 
 ## 📦 Modules
 
-* [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build federated GraphQL schemas
 * [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
-* [examples/spring](/examples/spring) - Example SpringBoot app that uses GraphQL Kotlin schema generator
-* [examples/federation](/examples/federation) - Example Federation module with multiple SpringBoot apps that use GraphQL Kotlin federation generator
+* [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build federated GraphQL schemas
+* [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
 
 ## 📋 Documentation
 
