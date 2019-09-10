@@ -1,0 +1,32 @@
+name: Build master branch
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '1.8', '11.x.x' ]
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v1
+        
+      - name: Set up Java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          
+      - name: Print active Maven profiles
+        run: mvn help:active-profiles
+          
+      - name: Build with Maven
+        run: mvn clean install
+        
+      - name: Publish coverage report
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
