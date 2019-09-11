@@ -6,7 +6,7 @@
     <parent>
         <artifactId>graphql-kotlin</artifactId>
         <groupId>com.expediagroup</groupId>
-        <version>1.0.0-RC6-SNAPSHOT</version>
+        <version>1.0.0-RC7-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
