@@ -22,8 +22,12 @@ import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.execution.FunctionDataFetcher
+import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
+import graphql.execution.DataFetcherResult
+import graphql.execution.ExecutionPath
 import graphql.introspection.Introspection
+import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLNonNull
@@ -78,6 +82,11 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         fun completableFuture(num: Int): CompletableFuture<Int> = CompletableFuture.completedFuture(num)
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
+
+        fun dataFetcherResult(): DataFetcherResult<String> {
+            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+            return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
+        }
     }
 
     @Test
@@ -203,6 +212,14 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 0, actual = result.arguments.size)
+        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+    }
+
+    @Test
+    fun `DataFetcherResult return type is valid and unwrapped in the schema`() {
+        val kFunction = Happy::dataFetcherResult
+        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
     }
 }

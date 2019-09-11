@@ -26,6 +26,7 @@ import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.extensions.getValidArguments
 import com.expediagroup.graphql.generator.extensions.safeCast
+import graphql.execution.DataFetcherResult
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -70,10 +71,19 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         return config.hooks.onRewireGraphQLType(graphQLType, coordinates, codeRegistry).safeCast()
     }
 
+    /**
+     * These are the classes that can be returned from data fetchers (ie functions)
+     * but we only want to expose the wrapped type in the schema.
+     *
+     * [Publisher] is used for subscriptions
+     * [CompletableFuture] is used for asynchronous results
+     * [DataFetcherResult] is used for returning data and errors in the same response
+     */
     private fun getWrappedReturnType(returnType: KType): KType =
         when {
             returnType.getKClass().isSubclassOf(Publisher::class) -> returnType.getTypeOfFirstArgument()
             returnType.classifier == CompletableFuture::class -> returnType.getTypeOfFirstArgument()
+            returnType.classifier == DataFetcherResult::class -> returnType.getTypeOfFirstArgument()
             else -> returnType
         }
 }
