@@ -21,6 +21,8 @@ import com.expediagroup.graphql.exceptions.InvalidListTypeException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.findParameterByName
@@ -102,13 +104,23 @@ internal class KTypeExtensionsKtTest {
         }
     }
 
+    // with Kotlin 1.3.40+ there is bug on JRE 1.8 that results in incorrect simple name of the anonymous classes
+    // https://youtrack.jetbrains.com/issue/KT-23072
     @Test
+    @EnabledOnJre(JRE.JAVA_11)
     fun getSimpleName() {
         assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
         assertEquals("MyClassInput", MyClass::class.starProjectedType.getSimpleName(isInputType = true))
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
             object {}::class.starProjectedType.getSimpleName()
         }
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_8)
+    fun getSimpleNameJava8() {
+        assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
+        assertEquals("MyClassInput", MyClass::class.starProjectedType.getSimpleName(isInputType = true))
     }
 
     @Test
