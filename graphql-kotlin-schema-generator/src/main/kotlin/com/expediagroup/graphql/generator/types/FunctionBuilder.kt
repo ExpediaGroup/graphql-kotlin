@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.extensions.getFunctionName
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getValidArguments
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.types.utils.getWrappedReturnType
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -51,11 +52,11 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         }
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
-        val graphQLOutputType = graphQLTypeOf(typeFromHooks).safeCast<GraphQLOutputType>()
-        builder.type(graphQLOutputType)
-        val graphQLType = builder.build()
-
+        val returnType = getWrappedReturnType(typeFromHooks)
+        val graphQLOutputType = graphQLTypeOf(returnType).safeCast<GraphQLOutputType>()
+        val graphQLType = builder.type(graphQLOutputType).build()
         val coordinates = FieldCoordinates.coordinates(parentName, functionName)
+
         if (!abstract) {
             val dataFetcherFactory = config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
             generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)

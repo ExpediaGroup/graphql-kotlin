@@ -18,13 +18,10 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.extensions.getKClass
-import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.extensions.isEnum
-import com.expediagroup.graphql.generator.extensions.isGraphQLID
 import com.expediagroup.graphql.generator.extensions.isInterface
 import com.expediagroup.graphql.generator.extensions.isListType
 import com.expediagroup.graphql.generator.extensions.isUnion
-import com.expediagroup.graphql.generator.extensions.isValidMonad
 import com.expediagroup.graphql.generator.extensions.wrapInNonNull
 import com.expediagroup.graphql.generator.state.KGraphQLType
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
@@ -50,12 +47,12 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
 
         // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
         val unwrappedType = GraphQLTypeUtil.unwrapType(graphQLType).lastElement()
-        if (unwrappedType is GraphQLTypeReference) {
-            return graphQLType
+        if (unwrappedType !is GraphQLTypeReference) {
+            val typeWithNullability = graphQLType.wrapInNonNull(type)
+            return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
         }
 
-        val typeWithNullability = if (type.getKClass().isValidMonad()) graphQLType else graphQLType.wrapInNonNull(type)
-        return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
+        return graphQLType
     }
 
     private fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
@@ -80,7 +77,6 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
     }
 
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
-        kClass.isValidMonad() -> graphQLTypeOf(type.getTypeOfFirstArgument(), inputType, type.getTypeOfFirstArgument().isGraphQLID())
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generator.enumType(kClass as KClass<Enum<*>>))
         kClass.isListType() -> generator.listType(type, inputType)
         kClass.isUnion() -> generator.unionType(kClass)

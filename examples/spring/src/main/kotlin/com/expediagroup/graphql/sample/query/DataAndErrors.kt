@@ -21,12 +21,26 @@ import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionPath
 import graphql.language.SourceLocation
 import org.springframework.stereotype.Component
+import java.util.concurrent.CompletableFuture
 
 @Component
 class DataAndErrors : Query {
 
     fun returnDataAndErrors(): DataFetcherResult<String> {
         val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
-        return DataFetcherResult("Hello from data fetcher", listOf(error))
+        return DataFetcherResult.newResult<String>()
+            .data("Hello from data fetcher")
+            .error(error)
+            .build()
+    }
+
+    fun completableFutureDataAndErrors(): CompletableFuture<DataFetcherResult<String>> {
+        val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+        val dataFetcherResult = DataFetcherResult.newResult<String>()
+            .data("Hello from data fetcher")
+            .error(error)
+            .build()
+
+        return CompletableFuture.completedFuture(dataFetcherResult)
     }
 }

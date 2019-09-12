@@ -21,6 +21,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.execution.FunctionDataFetcher
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
@@ -39,6 +40,7 @@ import org.reactivestreams.Publisher
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
@@ -90,25 +92,17 @@ internal class FunctionBuilderTest : TypeTestHelper() {
             return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
         }
 
-        fun listDataFetcherResult(): DataFetcherResult<List<String>> {
-            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
-            return DataFetcherResult.newResult<List<String>>().data(listOf("Hello")).error(error).build()
-        }
+        fun listDataFetcherResult(): DataFetcherResult<List<String>> = DataFetcherResult.newResult<List<String>>().data(listOf("Hello")).build()
 
-        fun nullalbeListDataFetcherResult(): DataFetcherResult<List<String?>?> {
-            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
-            return DataFetcherResult.newResult<List<String?>?>().data(listOf("Hello")).error(error).build()
-        }
+        fun nullalbeListDataFetcherResult(): DataFetcherResult<List<String?>?> = DataFetcherResult.newResult<List<String?>?>().data(listOf("Hello")).build()
 
         fun dataFetcherCompletableFutureResult(): DataFetcherResult<CompletableFuture<String>> {
-            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
             val completedFuture = CompletableFuture.completedFuture("Hello")
-            return DataFetcherResult.newResult<CompletableFuture<String>>().data(completedFuture).error(error).build()
+            return DataFetcherResult.newResult<CompletableFuture<String>>().data(completedFuture).build()
         }
 
         fun completableFutureDataFetcherResult(): CompletableFuture<DataFetcherResult<String>> {
-            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
-            val dataFetcherResult = DataFetcherResult.newResult<String>().data("Hello").error(error).build()
+            val dataFetcherResult = DataFetcherResult.newResult<String>().data("Hello").build()
             return CompletableFuture.completedFuture(dataFetcherResult)
         }
     }
@@ -271,13 +265,12 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `DataFetcherResult of a CompletableFuture is valid and unwrapped in the schema`() {
+    fun `DataFetcherResult of a CompletableFuture is invalid`() {
         val kFunction = Happy::dataFetcherCompletableFutureResult
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
 
-        assertTrue(result.type is GraphQLNonNull)
-        val stringType = GraphQLTypeUtil.unwrapNonNull(result.type)
-        assertEquals("String", stringType.name)
+        assertFailsWith(TypeNotSupportedException::class) {
+            builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        }
     }
 
     @Test

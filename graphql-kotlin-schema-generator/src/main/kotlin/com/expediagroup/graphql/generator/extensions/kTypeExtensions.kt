@@ -17,8 +17,10 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.exceptions.InvalidListTypeException
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.jvmErasure
 
 private val primitiveArrayTypes = mapOf(
@@ -32,6 +34,8 @@ private val primitiveArrayTypes = mapOf(
 )
 
 internal fun KType.getKClass() = this.jvmErasure
+
+internal fun KType.isSubclassOf(kClass: KClass<*>) = this.getKClass().isSubclassOf(kClass)
 
 @Throws(InvalidListTypeException::class)
 internal fun KType.getTypeOfFirstArgument(): KType =

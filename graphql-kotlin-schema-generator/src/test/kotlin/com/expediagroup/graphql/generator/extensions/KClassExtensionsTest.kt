@@ -20,10 +20,7 @@ import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import graphql.execution.DataFetcherResult
 import org.junit.jupiter.api.Test
-import org.reactivestreams.Publisher
-import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -257,13 +254,5 @@ open class KClassExtensionsTest {
         assertTrue(MyInternalClass::class.isNotPublic())
         assertTrue(MyProtectedClass::class.isNotPublic())
         assertTrue(MyTestClass::class.isNotPublic())
-    }
-
-    @Test
-    fun isValidMonad() {
-        assertFalse(MyPublicClass::class.isValidMonad())
-        assertTrue(Publisher::class.isValidMonad())
-        assertTrue(CompletableFuture::class.isValidMonad())
-        assertTrue(DataFetcherResult::class.isValidMonad())
     }
 }
