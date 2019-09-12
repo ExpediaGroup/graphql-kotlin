@@ -21,6 +21,7 @@ import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.isListType
+import com.expediagroup.graphql.generator.extensions.isValidMonad
 import com.expediagroup.graphql.generator.extensions.qualifiedName
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
@@ -77,6 +78,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
         return when {
             kClass.isListType() -> null
+            kClass.isValidMonad() -> null
             kClass.isSubclassOf(Enum::class) -> kClass.getSimpleName()
             isTypeNotSupported(type) -> throw TypeNotSupportedException(type, supportedPackages)
             else -> type.getSimpleName(cacheKey.inputType)

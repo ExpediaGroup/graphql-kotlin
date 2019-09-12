@@ -21,6 +21,9 @@ import com.expediagroup.graphql.generator.filters.functionFilters
 import com.expediagroup.graphql.generator.filters.propertyFilters
 import com.expediagroup.graphql.generator.filters.superclassFilters
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import graphql.execution.DataFetcherResult
+import org.reactivestreams.Publisher
+import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -62,11 +65,19 @@ internal fun KClass<*>.isUnion(): Boolean =
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
-internal fun KClass<*>.isList(): Boolean = this.isSubclassOf(List::class)
+internal fun KClass<*>.isListType(): Boolean = this.isSubclassOf(List::class) || this.java.isArray
 
-internal fun KClass<*>.isArray(): Boolean = this.java.isArray
-
-internal fun KClass<*>.isListType(): Boolean = this.isList() || this.isArray()
+/**
+ * These are the classes that can be returned from data fetchers (ie functions)
+ * but we only want to expose the wrapped type in the schema.
+ *
+ * [Publisher] is used for subscriptions
+ * [CompletableFuture] is used for asynchronous results
+ * [DataFetcherResult] is used for returning data and errors in the same response
+ */
+internal fun KClass<*>.isValidMonad(): Boolean = this.isSubclassOf(Publisher::class) ||
+    this.isSubclassOf(CompletableFuture::class) ||
+    this.isSubclassOf(DataFetcherResult::class)
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {

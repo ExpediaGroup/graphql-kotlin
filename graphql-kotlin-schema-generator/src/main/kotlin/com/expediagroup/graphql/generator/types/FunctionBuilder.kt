@@ -22,19 +22,12 @@ import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getFunctionName
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
-import com.expediagroup.graphql.generator.extensions.getKClass
-import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.extensions.getValidArguments
 import com.expediagroup.graphql.generator.extensions.safeCast
-import graphql.execution.DataFetcherResult
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
-import org.reactivestreams.Publisher
-import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
-import kotlin.reflect.KType
-import kotlin.reflect.full.isSubclassOf
 
 internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
@@ -58,8 +51,8 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         }
 
         val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
-        val returnType = getWrappedReturnType(typeFromHooks)
-        builder.type(graphQLTypeOf(returnType).safeCast<GraphQLOutputType>())
+        val graphQLOutputType = graphQLTypeOf(typeFromHooks).safeCast<GraphQLOutputType>()
+        builder.type(graphQLOutputType)
         val graphQLType = builder.build()
 
         val coordinates = FieldCoordinates.coordinates(parentName, functionName)
@@ -70,20 +63,4 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         return config.hooks.onRewireGraphQLType(graphQLType, coordinates, codeRegistry).safeCast()
     }
-
-    /**
-     * These are the classes that can be returned from data fetchers (ie functions)
-     * but we only want to expose the wrapped type in the schema.
-     *
-     * [Publisher] is used for subscriptions
-     * [CompletableFuture] is used for asynchronous results
-     * [DataFetcherResult] is used for returning data and errors in the same response
-     */
-    private fun getWrappedReturnType(returnType: KType): KType =
-        when {
-            returnType.getKClass().isSubclassOf(Publisher::class) -> returnType.getTypeOfFirstArgument()
-            returnType.classifier == CompletableFuture::class -> returnType.getTypeOfFirstArgument()
-            returnType.classifier == DataFetcherResult::class -> returnType.getTypeOfFirstArgument()
-            else -> returnType
-        }
 }
