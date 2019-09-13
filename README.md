@@ -14,7 +14,7 @@ GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL inte
 
 ## ⌨️ Usage
 
-The basic usage of `graphql-kotlin-schema-generator` converts your Kotlin code into a GraphQL schema. For more details see our documentation below or in the modules
+Below is a basic example of how `graphql-kotlin-schema-generator` converts your Kotlin code into a GraphQL schema. For more details, see our documentation below or in the individual module READMEs
 
 ```kotlin
 // Your existing Kotlin code
