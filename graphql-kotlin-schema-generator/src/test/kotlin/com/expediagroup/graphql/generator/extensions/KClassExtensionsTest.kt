@@ -211,8 +211,9 @@ open class KClassExtensionsTest {
         assertFalse(InvalidFunctionUnionInterface::class.isUnion())
     }
 
-    // with Kotlin 1.3.40+ there is bug on JRE 1.8 that results in incorrect simple name of the anonymous classes
-    // https://youtrack.jetbrains.com/issue/KT-23072
+    // TODO remove JUnit condition once we only build artifacts using Java 11
+    //  BLOCKED: in order to publish to Maven Central we need to generate javadoc jar, blocked until Dokka https://github.com/Kotlin/dokka/issues/294 is resolved
+    //  ISSUE: with Kotlin 1.3.40+ there is bug on JRE 1.8 that results in incorrect simple name of the anonymous classes, see https://youtrack.jetbrains.com/issue/KT-23072
     @Test
     @EnabledOnJre(JRE.JAVA_11)
     fun `test class simple name`() {
@@ -222,6 +223,9 @@ open class KClassExtensionsTest {
         }
     }
 
+    // TODO remove this JUnit once we only build artifacts using Java 11
+    //  BLOCKED: in order to publish to Maven Central we need to generate javadoc jar, blocked until Dokka https://github.com/Kotlin/dokka/issues/294 is resolved
+    //  ISSUE: with Kotlin 1.3.40+ there is bug on JRE 1.8 that results in incorrect simple name of the anonymous classes, see https://youtrack.jetbrains.com/issue/KT-23072
     @Test
     @EnabledOnJre(JRE.JAVA_8)
     fun `test class simple name on JRE 8`() {

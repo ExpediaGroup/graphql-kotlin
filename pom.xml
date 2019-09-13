@@ -52,7 +52,7 @@
     <modules>
         <module>graphql-kotlin-schema-generator</module>
         <module>graphql-kotlin-federation</module>
-        <module>graphql-kotlin-boot-server</module>
+        <module>graphql-kotlin-spring-server</module>
     </modules>
 
     <properties>
