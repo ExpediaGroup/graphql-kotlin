@@ -10,6 +10,7 @@ GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL inte
 
 * [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
 * [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build federated GraphQL schemas
+* [graphql-kotlin-spring-server](/graphql-kotlin-spring-server) - Spring Boot autoconfiguration library to create GraphQL web app
 * [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
 
 ## ⌨️ Usage

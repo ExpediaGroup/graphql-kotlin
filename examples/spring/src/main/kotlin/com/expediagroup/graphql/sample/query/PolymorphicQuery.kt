@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.boot.server.annotation.Query
 import com.expediagroup.graphql.sample.model.Animal
 import com.expediagroup.graphql.sample.model.AnimalType
 import com.expediagroup.graphql.sample.model.BodyPart
@@ -25,6 +24,7 @@ import com.expediagroup.graphql.sample.model.Cat
 import com.expediagroup.graphql.sample.model.Dog
 import com.expediagroup.graphql.sample.model.LeftHand
 import com.expediagroup.graphql.sample.model.RightHand
+import com.expediagroup.graphql.spring.server.annotation.Query
 import org.springframework.stereotype.Component
 
 /**

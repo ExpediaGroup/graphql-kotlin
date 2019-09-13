@@ -18,7 +18,7 @@ package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
-import com.expediagroup.graphql.boot.server.annotation.Query
+import com.expediagroup.graphql.spring.server.annotation.Query
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.BeanFactoryAware
 import org.springframework.beans.factory.getBean

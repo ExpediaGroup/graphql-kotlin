@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-boot-server</artifactId>
+            <artifactId>graphql-kotlin-spring-server</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

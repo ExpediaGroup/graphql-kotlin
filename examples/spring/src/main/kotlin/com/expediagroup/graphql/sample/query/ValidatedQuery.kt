@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.sample.query
 
-import com.expediagroup.graphql.boot.server.annotation.Query
+import com.expediagroup.graphql.spring.server.annotation.Query
 import org.springframework.stereotype.Component
 import javax.validation.Valid
 import javax.validation.constraints.Pattern

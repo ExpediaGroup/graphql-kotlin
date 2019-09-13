@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.sample.subscriptions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.boot.server.annotation.Subscription
+import com.expediagroup.graphql.spring.server.annotation.Subscription
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono

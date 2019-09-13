@@ -17,10 +17,10 @@
 package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.boot.server.annotation.Query
 import com.expediagroup.graphql.sample.directives.LowercaseDirective
 import com.expediagroup.graphql.sample.directives.SpecificValueOnly
 import com.expediagroup.graphql.sample.directives.StringEval
+import com.expediagroup.graphql.spring.server.annotation.Query
 import org.springframework.stereotype.Component
 
 @Component
