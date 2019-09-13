@@ -4,12 +4,12 @@
       "name": "graphql.endpoint",
       "type": "java.lang.String",
       "defaultValue": "graphql",
-      "sourceType": "com.expediagroup.graphql.spring.FederationConfigurationProperties"
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties"
     },
     {
       "name": "graphql.packages",
       "type": "java.util.List<java.lang.String>",
-      "sourceType": "com.expediagroup.graphql.spring.FederationConfigurationProperties"
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties"
     },
     {
       "name": "graphql.federation.enabled",
@@ -20,7 +20,7 @@
       "name": "graphql.subscriptions.endpoint",
       "type": "java.lang.String",
       "defaultValue": "subscriptions",
-      "sourceType": "com.expediagroup.graphql.spring.FederationConfigurationProperties"
+      "sourceType": "com.expediagroup.graphql.spring.SubscriptionConfigurationProperties"
     }
   ]
 }

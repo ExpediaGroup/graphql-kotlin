@@ -33,6 +33,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import java.util.Optional
 
+/**
+ * SpringBoot autoconfiguration that creates all beans required to start up reactive GraphQL web app.
+ */
 @Configuration
 @Import(
     RoutesConfiguration::class,

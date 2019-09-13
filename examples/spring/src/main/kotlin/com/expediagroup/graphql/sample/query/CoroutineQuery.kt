@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.spring.annotation.Query
+import com.expediagroup.graphql.spring.operations.Query
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay

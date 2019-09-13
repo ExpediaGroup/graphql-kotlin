@@ -21,15 +21,16 @@ import graphql.ErrorType
 import graphql.GraphQLError
 import graphql.language.SourceLocation
 
+/**
+ * Generic implementation of [GraphQLError].
+ */
 open class SimpleKotlinGraphQLError(
     private val exception: Throwable,
-    private val errorType: ErrorType
+    private val locations: List<SourceLocation> = emptyList(),
+    private val path: List<Any>? = null,
+    private val errorType: ErrorClassification = ErrorType.DataFetchingException
 ) : GraphQLError {
     override fun getErrorType(): ErrorClassification = errorType
-
-    override fun getLocations(): List<SourceLocation> = emptyList()
-
-    override fun getMessage(): String = "Exception while running code outside of data handler: ${exception.message}"
 
     override fun getExtensions(): Map<String, Any> {
         val newExtensions = mutableMapOf<String, Any>()
@@ -38,4 +39,10 @@ open class SimpleKotlinGraphQLError(
         }
         return newExtensions
     }
+
+    override fun getLocations(): List<SourceLocation> = locations
+
+    override fun getMessage(): String = exception.message ?: "Exception was thrown while executing a GraphQL query"
+
+    override fun getPath(): List<Any>? = path
 }

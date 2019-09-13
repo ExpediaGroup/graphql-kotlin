@@ -21,9 +21,9 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.spring.annotation.Mutation
-import com.expediagroup.graphql.spring.annotation.Query
-import com.expediagroup.graphql.spring.annotation.Subscription
+import com.expediagroup.graphql.spring.operations.Mutation
+import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.spring.operations.Subscription
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -32,6 +32,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.Optional
 
+/**
+ * SpringBoot autoconfiguration for generating Federated GraphQL schema.
+ */
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
 class FederationAutoConfiguration {

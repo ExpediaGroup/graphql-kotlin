@@ -21,19 +21,31 @@ import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.GraphQLResponse
 import com.expediagroup.graphql.spring.model.toExecutionInput
 import com.expediagroup.graphql.spring.model.toGraphQLResponse
-import graphql.ErrorType
 import graphql.GraphQL
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactor.ReactorContext
 import kotlin.coroutines.coroutineContext
 
+/**
+ * Reactor SubscriberContext key for storing GraphQL context.
+ */
 const val GRAPHQL_CONTEXT_KEY = "graphQLContext"
 
+/**
+ * GraphQL query handler.
+ */
 interface QueryHandler {
+
+    /**
+     * Execute GraphQL query in a non-blocking fashion.
+     */
     suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse
 }
 
+/**
+ * Default GraphQL query handler.
+ */
 open class SimpleQueryHandler(private val graphql: GraphQL) : QueryHandler {
 
     @Suppress("TooGenericExceptionCaught")
@@ -48,7 +60,7 @@ open class SimpleQueryHandler(private val graphql: GraphQL) : QueryHandler {
                 .await()
                 .toGraphQLResponse()
         } catch (e: Exception) {
-            val graphQLError = SimpleKotlinGraphQLError(e, ErrorType.DataFetchingException)
+            val graphQLError = SimpleKotlinGraphQLError(e)
             GraphQLResponse(errors = listOf(graphQLError))
         }
     }

@@ -16,25 +16,11 @@
 
 package com.expediagroup.graphql.sample
 
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
-class Application {
-
-    @Bean
-    fun hooks() = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
-
-    @Bean
-    fun schemaConfig(hooks: FederatedSchemaGeneratorHooks) = FederatedSchemaGeneratorConfig(
-        supportedPackages = listOf("com.expediagroup"),
-        hooks = hooks
-    )
-}
+class Application
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {

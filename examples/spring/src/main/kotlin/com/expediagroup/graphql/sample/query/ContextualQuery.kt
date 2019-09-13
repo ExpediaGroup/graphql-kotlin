@@ -20,7 +20,7 @@ import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.sample.context.MyGraphQLContext
 import com.expediagroup.graphql.sample.model.ContextualResponse
-import com.expediagroup.graphql.spring.annotation.Query
+import com.expediagroup.graphql.spring.operations.Query
 import org.springframework.stereotype.Component
 
 /**

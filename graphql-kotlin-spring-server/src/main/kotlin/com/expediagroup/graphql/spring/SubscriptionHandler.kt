@@ -29,6 +29,9 @@ import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 
+/**
+ * WebSocket handler for handling GraphQL subscriptions.
+ */
 class SubscriptionHandler(
     private val graphQL: GraphQL,
     private val objectMapper: ObjectMapper
@@ -39,10 +42,10 @@ class SubscriptionHandler(
     @Suppress("ForbiddenVoid")
     override fun handle(session: WebSocketSession): Mono<Void> = session.send(session.receive()
             .doOnSubscribe {
-                logger.debug("session starting, ID=${session.id}")
+                logger.trace("session starting, ID=${session.id}")
             }
             .doOnCancel {
-                logger.debug("closing session, ID=${session.id}")
+                logger.trace("closing session, ID=${session.id}")
             }
             .concatMap {
                 val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)

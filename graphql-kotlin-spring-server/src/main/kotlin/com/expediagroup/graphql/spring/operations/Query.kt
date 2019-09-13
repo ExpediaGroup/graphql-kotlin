@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.annotation
+package com.expediagroup.graphql.spring.operations
 
 /**
  * Marker interface to easily autowire all GraphQL queries.

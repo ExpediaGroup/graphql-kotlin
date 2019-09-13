@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.spring.annotation.Subscription
+import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -28,6 +28,9 @@ import org.springframework.web.reactive.HandlerMapping
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 
+/**
+ * SpringBoot autoconfiguration that creates default WebSocket handler for GraphQL subscriptions.
+ */
 @Configuration
 @ConditionalOnBean(Subscription::class)
 class SubscriptionAutoConfiguration {

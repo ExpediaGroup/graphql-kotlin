@@ -23,7 +23,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties("graphql")
 class GraphQLConfigurationProperties {
+    /** GraphQL server endpoint, defaults to 'graphql' */
     var endpoint: String = "graphql"
+    /** List of supported packages that can contain GraphQL schema type definitions */
     var packages: List<String> = emptyList()
     var federation: FederationConfigurationProperties = FederationConfigurationProperties()
     var subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties()
@@ -33,6 +35,7 @@ class GraphQLConfigurationProperties {
  * Apollo Federation configuration properties.
  */
 class FederationConfigurationProperties {
+    /** Boolean flag indicating whether to generate federated GraphQL model */
     var enabled: Boolean = false
 }
 
@@ -40,5 +43,6 @@ class FederationConfigurationProperties {
  * GraphQL subscription configuration properties.
  */
 class SubscriptionConfigurationProperties {
+    /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
     var endpoint: String = "subscriptions"
 }

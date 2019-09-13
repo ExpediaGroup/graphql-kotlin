@@ -24,7 +24,7 @@ import com.expediagroup.graphql.sample.model.Cat
 import com.expediagroup.graphql.sample.model.Dog
 import com.expediagroup.graphql.sample.model.LeftHand
 import com.expediagroup.graphql.sample.model.RightHand
-import com.expediagroup.graphql.spring.annotation.Query
+import com.expediagroup.graphql.spring.operations.Query
 import org.springframework.stereotype.Component
 
 /**
