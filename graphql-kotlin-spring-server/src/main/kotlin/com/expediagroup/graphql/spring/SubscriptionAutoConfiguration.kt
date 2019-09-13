@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.spring.server.annotation.Subscription
+import com.expediagroup.graphql.spring.annotation.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

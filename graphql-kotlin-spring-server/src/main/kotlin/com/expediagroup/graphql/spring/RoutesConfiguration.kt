@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.spring.server.model.GraphQLRequest
+import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.spring.server.model.GraphQLRequest
-import com.expediagroup.graphql.spring.server.model.toExecutionInput
-import com.expediagroup.graphql.spring.server.model.toGraphQLResponse
+import com.expediagroup.graphql.spring.model.GraphQLRequest
+import com.expediagroup.graphql.spring.model.toExecutionInput
+import com.expediagroup.graphql.spring.model.toGraphQLResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExecutionResult

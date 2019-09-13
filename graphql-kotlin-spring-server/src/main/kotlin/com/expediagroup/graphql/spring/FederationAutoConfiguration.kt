@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.spring.server.annotation.Mutation
-import com.expediagroup.graphql.spring.server.annotation.Query
-import com.expediagroup.graphql.spring.server.annotation.Subscription
+import com.expediagroup.graphql.spring.annotation.Mutation
+import com.expediagroup.graphql.spring.annotation.Query
+import com.expediagroup.graphql.spring.annotation.Subscription
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

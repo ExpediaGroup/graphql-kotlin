@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.sample.context
 
-import com.expediagroup.graphql.spring.server.GRAPHQL_CONTEXT_KEY
+import com.expediagroup.graphql.spring.GRAPHQL_CONTEXT_KEY
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter

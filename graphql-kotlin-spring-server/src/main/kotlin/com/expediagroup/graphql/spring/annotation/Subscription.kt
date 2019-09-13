@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server.model
+package com.expediagroup.graphql.spring.annotation
 
-import graphql.ExecutionInput
-
-data class GraphQLRequest(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Map<String, Any>? = null
-)
-
-fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null): ExecutionInput =
-    ExecutionInput.newExecutionInput()
-        .query(this.query)
-        .operationName(this.operationName)
-        .variables(this.variables ?: emptyMap())
-        .context(graphQLContext)
-        .build()
+/**
+ * Marker interface to easily autowire all GraphQL subscriptions.
+ */
+interface Subscription

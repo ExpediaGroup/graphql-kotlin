@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.spring.server.exception.KotlinDataFetcherExceptionHandler
+import com.expediagroup.graphql.spring.exception.KotlinDataFetcherExceptionHandler
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy

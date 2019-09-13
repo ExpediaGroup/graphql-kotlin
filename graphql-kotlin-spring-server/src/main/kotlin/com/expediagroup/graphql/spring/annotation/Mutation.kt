@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server.annotation
+package com.expediagroup.graphql.spring.annotation
 
 /**
- * Marker interface to easily autowire all GraphQL subscriptions.
+ * Marker interface to easily autowire all GraphQL mutations.
  */
-interface Subscription
+interface Mutation

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.spring.server.annotation.Mutation
-import com.expediagroup.graphql.spring.server.annotation.Query
-import com.expediagroup.graphql.spring.server.annotation.Subscription
+import com.expediagroup.graphql.spring.annotation.Mutation
+import com.expediagroup.graphql.spring.annotation.Query
+import com.expediagroup.graphql.spring.annotation.Subscription
 import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory

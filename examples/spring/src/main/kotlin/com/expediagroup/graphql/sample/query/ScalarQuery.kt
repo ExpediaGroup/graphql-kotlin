@@ -18,8 +18,8 @@ package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLID
-import com.expediagroup.graphql.spring.server.annotation.Mutation
-import com.expediagroup.graphql.spring.server.annotation.Query
+import com.expediagroup.graphql.spring.annotation.Mutation
+import com.expediagroup.graphql.spring.annotation.Query
 import org.springframework.stereotype.Component
 import java.util.UUID
 

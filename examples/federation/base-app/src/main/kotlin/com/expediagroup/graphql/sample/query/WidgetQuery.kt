@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.sample.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.spring.server.annotation.Query
+import com.expediagroup.graphql.spring.annotation.Query
 import com.expediagroup.graphql.sample.model.Widget
 import org.springframework.stereotype.Component
 

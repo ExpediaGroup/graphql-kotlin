@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server
+package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.spring.server.exception.SimpleKotlinGraphQLError
-import com.expediagroup.graphql.spring.server.model.GraphQLRequest
-import com.expediagroup.graphql.spring.server.model.GraphQLResponse
-import com.expediagroup.graphql.spring.server.model.toExecutionInput
-import com.expediagroup.graphql.spring.server.model.toGraphQLResponse
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
+import com.expediagroup.graphql.spring.model.GraphQLRequest
+import com.expediagroup.graphql.spring.model.GraphQLResponse
+import com.expediagroup.graphql.spring.model.toExecutionInput
+import com.expediagroup.graphql.spring.model.toGraphQLResponse
 import graphql.ErrorType
 import graphql.GraphQL
 import kotlinx.coroutines.ExperimentalCoroutinesApi

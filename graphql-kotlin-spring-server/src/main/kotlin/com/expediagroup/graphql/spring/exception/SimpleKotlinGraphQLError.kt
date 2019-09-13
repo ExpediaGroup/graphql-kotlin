@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.server.exception
+package com.expediagroup.graphql.spring.exception
 
 import graphql.ErrorClassification
 import graphql.ErrorType

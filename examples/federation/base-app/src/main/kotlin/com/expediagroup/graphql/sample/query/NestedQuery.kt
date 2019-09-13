@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.sample.query
 
-import com.expediagroup.graphql.spring.server.annotation.Query
+import com.expediagroup.graphql.spring.annotation.Query
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 
