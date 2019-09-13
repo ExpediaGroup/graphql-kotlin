@@ -29,6 +29,7 @@ internal class FunctionReturnTypesKtTest {
         val string = "my string"
 
         val publisher: Publisher<String> = Flowable.just(string)
+        val flowable: Flowable<String> = Flowable.just(string)
         val dataFetcherResult: DataFetcherResult<String> = DataFetcherResult.newResult<String>().data(string).build()
         val completableFuture: CompletableFuture<String> = CompletableFuture.completedFuture(string)
 
@@ -60,5 +61,10 @@ internal class FunctionReturnTypesKtTest {
     @Test
     fun `getWrappedReturnType of String`() {
         assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::string.returnType))
+    }
+
+    @Test
+    fun `getWrappedReturnType of type that implements Publisher`() {
+        assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::flowable.returnType))
     }
 }
