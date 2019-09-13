@@ -27,6 +27,8 @@ import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 internal class KTypeExtensionsKtTest {
 
@@ -39,6 +41,10 @@ internal class KTypeExtensionsKtTest {
 
         fun stringFun(string: String) = "hello $string"
     }
+
+    internal interface SimpleInterface
+
+    internal class SimpleClass(val id: String) : SimpleInterface
 
     @Test
     fun getTypeOfFirstArgument() {
@@ -70,6 +76,14 @@ internal class KTypeExtensionsKtTest {
     @Test
     fun getKClass() {
         assertEquals(MyClass::class, MyClass::class.starProjectedType.getKClass())
+    }
+
+    @Test
+    fun isSubclassOf() {
+        assertTrue(MyClass::class.starProjectedType.isSubclassOf(MyClass::class))
+        assertTrue(SimpleClass::class.starProjectedType.isSubclassOf(SimpleInterface::class))
+        assertFalse(SimpleInterface::class.starProjectedType.isSubclassOf(SimpleClass::class))
+        assertFalse(MyClass::class.starProjectedType.isSubclassOf(SimpleInterface::class))
     }
 
     @Test

@@ -62,11 +62,7 @@ internal fun KClass<*>.isUnion(): Boolean =
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
-internal fun KClass<*>.isList(): Boolean = this.isSubclassOf(List::class)
-
-internal fun KClass<*>.isArray(): Boolean = this.java.isArray
-
-internal fun KClass<*>.isListType(): Boolean = this.isList() || this.isArray()
+internal fun KClass<*>.isListType(): Boolean = this.isSubclassOf(List::class) || this.java.isArray
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
