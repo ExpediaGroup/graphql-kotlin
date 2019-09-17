@@ -20,15 +20,14 @@ import com.expediagroup.graphql.exceptions.InvalidIdTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getKClass
-import com.expediagroup.graphql.generator.extensions.getQualifiedName
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 
 internal class ScalarBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
@@ -46,18 +45,14 @@ internal class ScalarBuilder(generator: SchemaGenerator) : TypeBuilder(generator
 
     @Throws(InvalidIdTypeException::class)
     private fun getId(kClass: KClass<*>): GraphQLScalarType? {
-        return if (validIdTypes.contains(kClass)) {
+        return if (kClass.isSubclassOf(String::class)) {
             Scalars.GraphQLID
         } else {
-            val types = validIdTypes.joinToString(prefix = "[", postfix = "]", separator = ", ") {
-                it.getQualifiedName()
-            }
-            throw InvalidIdTypeException(kClass, types)
+            throw InvalidIdTypeException(kClass)
         }
     }
 
     private companion object {
-        private val validIdTypes = listOf(Int::class, String::class, Long::class, UUID::class)
         private val defaultScalarsMap = mapOf(
             Int::class to Scalars.GraphQLInt,
             Long::class to Scalars.GraphQLLong,

@@ -341,11 +341,9 @@ class SchemaGeneratorTest {
 
     @Test
     fun `SchemaGenerator throws an exception for invalid GraphQLID`() {
-        val exception = assertFailsWith(InvalidIdTypeException::class) {
+        assertFailsWith(InvalidIdTypeException::class) {
             toSchema(queries = listOf(TopLevelObject(QueryWithInvalidId())), config = testSchemaConfig)
         }
-
-        assertEquals("Person is not a valid ID type, only [kotlin.Int, kotlin.String, kotlin.Long, java.util.UUID] are accepted", exception.message)
     }
 
     @Test
@@ -507,16 +505,16 @@ class SchemaGeneratorTest {
     data class Person(val name: String, val children: List<Person>? = null)
 
     data class PlaceOfIds(
-        @GraphQLID val intId: Int,
-        @GraphQLID val longId: Long,
+        @GraphQLID val intId: String,
+        @GraphQLID val longId: String,
         @GraphQLID val stringId: String,
-        @GraphQLID val uuid: UUID
+        @GraphQLID val uuid: String
     )
 
     data class InvalidIds(@GraphQLID val person: Person)
 
     class QueryWithId {
-        fun query(): PlaceOfIds = PlaceOfIds(42, 24, "42", UUID.randomUUID())
+        fun query(): PlaceOfIds = PlaceOfIds(42.toString(), 24L.toString(), "42", UUID.randomUUID().toString())
     }
 
     class QueryWithInvalidId {
@@ -568,7 +566,7 @@ class SchemaGeneratorTest {
     }
 
     data class Furniture(
-        @GraphQLID val serial: UUID,
+        @GraphQLID val serial: String,
         val type: String
     )
 

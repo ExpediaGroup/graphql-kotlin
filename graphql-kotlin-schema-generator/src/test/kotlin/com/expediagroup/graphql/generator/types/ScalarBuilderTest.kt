@@ -62,9 +62,22 @@ internal class ScalarBuilderTest : TypeTestHelper() {
     @Test
     fun id() {
         verify(Ids::stringID.returnType, Scalars.GraphQLID, true)
-        verify(Ids::intID.returnType, Scalars.GraphQLID, true)
-        verify(Ids::longID.returnType, Scalars.GraphQLID, true)
-        verify(Ids::uuid.returnType, Scalars.GraphQLID, true)
+
+        assertFailsWith(InvalidIdTypeException::class) {
+            verify(Ids::intID.returnType, Scalars.GraphQLID, true)
+        }
+
+        assertFailsWith(InvalidIdTypeException::class) {
+            verify(Ids::longID.returnType, Scalars.GraphQLID, true)
+        }
+
+        assertFailsWith(InvalidIdTypeException::class) {
+            verify(Ids::uuid.returnType, Scalars.GraphQLID, true)
+        }
+
+        assertFailsWith(InvalidIdTypeException::class) {
+            verify(Ids::invalidID.returnType, Scalars.GraphQLID, true)
+        }
 
         assertFailsWith(InvalidIdTypeException::class) {
             verify(Ids::invalidID.returnType, Scalars.GraphQLID, true)
