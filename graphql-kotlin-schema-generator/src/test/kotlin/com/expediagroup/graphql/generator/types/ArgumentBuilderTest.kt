@@ -21,6 +21,7 @@ import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
+import graphql.Scalars
 import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.findParameterByName
@@ -47,7 +48,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
 
         fun changeName(@GraphQLName("newName") input: String) = input
 
-        fun id(@GraphQLID idArg: Int) = "Your id is $idArg"
+        fun id(@GraphQLID idArg: String) = "Your id is $idArg"
 
         fun interfaceArg(input: MyInterface) = input.id
     }
@@ -90,7 +91,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
         val result = builder.argument(kParameter)
 
         assertEquals(expected = "idArg", actual = result.name)
-        assertEquals("ID", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(Scalars.GraphQLID, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test

@@ -31,7 +31,7 @@ class ScalarQuery: Query {
     @GraphQLDescription("generates random UUID")
     fun generateRandomUUID() = UUID.randomUUID()
 
-    fun findPersonById(id: Int) = Person(id, "Nelson")
+    fun findPersonById(@GraphQLID id: String) = Person(id, "Nelson")
 }
 
 @Component
@@ -41,7 +41,6 @@ class ScalarMutation : Mutation {
 
 data class Person(
     @GraphQLID
-    val id: Int,
-
+    val id: String,
     val name: String
 )
