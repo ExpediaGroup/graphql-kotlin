@@ -40,7 +40,8 @@ import java.util.Optional
 @Import(
     RoutesConfiguration::class,
     SchemaAutoConfiguration::class,
-    FederationAutoConfiguration::class
+    FederationAutoConfiguration::class,
+    SubscriptionAutoConfiguration::class
 )
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class GraphQLAutoConfiguration {

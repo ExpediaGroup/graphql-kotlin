@@ -20,7 +20,6 @@ import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
@@ -29,22 +28,19 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 
 /**
- * SpringBoot autoconfiguration that creates default WebSocket handler for GraphQL subscriptions.
+ * SpringBoot auto-configuration that creates default WebSocket handler for GraphQL subscriptions.
  */
 @Configuration
 @ConditionalOnBean(Subscription::class)
 class SubscriptionAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
     fun subscriptionHandler(graphQL: GraphQL, objectMapper: ObjectMapper): SubscriptionHandler = SubscriptionHandler(graphQL, objectMapper)
 
     @Bean
-    @ConditionalOnMissingBean
     fun websocketHandlerAdapter(): WebSocketHandlerAdapter = WebSocketHandlerAdapter()
 
     @Bean
-    @ConditionalOnMissingBean
     fun handlerMapping(config: GraphQLConfigurationProperties, subscriptionHandler: SubscriptionHandler): HandlerMapping =
         SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionHandler), Ordered.HIGHEST_PRECEDENCE)
 }

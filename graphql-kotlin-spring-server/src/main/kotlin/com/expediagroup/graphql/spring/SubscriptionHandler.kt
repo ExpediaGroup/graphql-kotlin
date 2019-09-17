@@ -41,21 +41,21 @@ class SubscriptionHandler(
 
     @Suppress("ForbiddenVoid")
     override fun handle(session: WebSocketSession): Mono<Void> = session.send(session.receive()
-            .doOnSubscribe {
-                logger.trace("session starting, ID=${session.id}")
-            }
-            .doOnCancel {
-                logger.trace("closing session, ID=${session.id}")
-            }
-            .concatMap {
-                val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
-                val executionInput = graphQLRequest.toExecutionInput()
-                val executionResult = graphQL.execute(executionInput)
-                executionResult.getData<Publisher<ExecutionResult>>()
-            }
-            .map { objectMapper.writeValueAsString(it.toGraphQLResponse()) }
-            .map { session.textMessage(it) }
-        )
+        .concatMap {
+            val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
+            val executionResult = graphQL.execute(graphQLRequest.toExecutionInput())
+            executionResult.getData<Publisher<ExecutionResult>>()
+        }
+        .map { objectMapper.writeValueAsString(it.toGraphQLResponse()) }
+        .map { session.textMessage(it) }
+        .doOnSubscribe { logger.info("session starting, ID=${session.id}") }
+        .doOnCancel { logger.info("cancelling session, ID=${session.id}") }
+        .doOnComplete {
+            logger.info("session complete, ID=${session.id}")
+            session.close()
+        }
+        .log()
+    )
 
     override fun getSubProtocols(): List<String> = listOf("graphql-ws")
 }
