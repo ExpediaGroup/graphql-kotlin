@@ -323,7 +323,7 @@ class SchemaGeneratorTest {
         val bobChildren = res?.get("children") as? List<Map<String, Any>>
         assertNotNull(bobChildren)
 
-        val firstChild = bobChildren.get(0)
+        val firstChild = bobChildren.first()
         assertEquals("Alice", firstChild["name"])
         assertNull(firstChild["children"])
     }
@@ -333,10 +333,7 @@ class SchemaGeneratorTest {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
 
         val placeType = schema.getObjectType("PlaceOfIds")
-        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("intId").type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("longId").type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("stringId").type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("uuid").type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("id").type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -504,7 +501,7 @@ class SchemaGeneratorTest {
 
     data class Person(val name: String, val children: List<Person>? = null)
 
-    data class PlaceOfIds(@GraphQLID val stringId: String)
+    data class PlaceOfIds(@GraphQLID val id: String)
 
     data class InvalidIds(@GraphQLID val person: Person)
 
