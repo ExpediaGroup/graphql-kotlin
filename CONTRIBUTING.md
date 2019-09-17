@@ -53,7 +53,7 @@ mvn antrun:run@detekt
 
 ## Add documentation for new or updated functionality
 
-Please add appropiate javadocs in the source code and ask the maintainers to update the wiki with any relevant information.
+Please add appropriate javadocs in the source code and ask the maintainers to update the wiki with any relevant information.
 
 
 ## Merging your contribution
