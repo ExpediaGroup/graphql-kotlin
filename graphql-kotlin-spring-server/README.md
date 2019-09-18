@@ -35,7 +35,7 @@ graphql:
     - "com.your.package"
 ```
 
-In order to expose your queries, mutations and subscriptions in the GraphQL schema you simply need to implement corresponding marker annotations and they will be automatically picked up by `graphql-kotlin-spring-server` autoconfiguration library.
+In order to expose your queries, mutations and subscriptions in the GraphQL schema you simply need to implement corresponding marker interfaces and they will be automatically picked up by `graphql-kotlin-spring-server` autoconfiguration library.
 
 ```kotlin
 class MyAwesomeQuery : Query { 
