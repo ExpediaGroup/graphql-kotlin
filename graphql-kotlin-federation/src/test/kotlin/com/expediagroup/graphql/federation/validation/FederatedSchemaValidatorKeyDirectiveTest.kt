@@ -20,11 +20,11 @@ import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.FederatedSchemaValidator
-import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
+import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLObjectType
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
@@ -123,7 +123,7 @@ class FederatedSchemaValidatorKeyDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
-    private data class FederatedSimpleKey(@property:ExternalDirective val id: String, val description: String)
+    private data class FederatedSimpleKey(@ExternalDirective val id: String, val description: String)
 
     /*
     type KeyWithMultipleFields @key(fields : "id type") {
@@ -144,7 +144,7 @@ class FederatedSchemaValidatorKeyDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id type"))
     @ExtendsDirective
-    private data class FederatedKeyWithMultipleFields(@property:ExternalDirective val id: String, @property:ExternalDirective val type: String, val description: String)
+    private data class FederatedKeyWithMultipleFields(@ExternalDirective val id: String, @ExternalDirective val type: String, val description: String)
 
     /*
     type KeyWithNestedFields @key(fields : "id { uuid }") {
@@ -173,11 +173,11 @@ class FederatedSchemaValidatorKeyDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id { uuid }"))
     @ExtendsDirective
-    private data class FederatedKeyWithNestedFields(@property:ExternalDirective val id: FederatedNestedId, val description: String)
+    private data class FederatedKeyWithNestedFields(@ExternalDirective val id: FederatedNestedId, val description: String)
 
     @KeyDirective(fields = FieldSet("uuid"))
     @ExtendsDirective
-    private data class FederatedNestedId(@property:ExternalDirective val uuid: String)
+    private data class FederatedNestedId(@ExternalDirective val uuid: String)
 
     /*
     type FederatedMissingKey @extends {
@@ -186,7 +186,7 @@ class FederatedSchemaValidatorKeyDirectiveTest {
     }
      */
     @ExtendsDirective
-    private data class FederatedMissingKey(@property:ExternalDirective val id: String, val description: String)
+    private data class FederatedMissingKey(@ExternalDirective val id: String, val description: String)
 
     /*
     type KeyMissingFieldSelection @key(fields : "") {
@@ -213,7 +213,7 @@ class FederatedSchemaValidatorKeyDirectiveTest {
     }
      */
     @KeyDirective(fields = FieldSet("id"))
-    data class BaseKeyReferencingExternalFields(@property:ExternalDirective val id: String, val description: String)
+    data class BaseKeyReferencingExternalFields(@ExternalDirective val id: String, val description: String)
 
     /*
     type ExternalKeyReferencingLocalField @extends @key(fields : "id") {

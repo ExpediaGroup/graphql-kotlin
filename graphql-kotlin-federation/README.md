@@ -85,7 +85,7 @@ Extended federated GraphQL schemas provide additional functionality to the types
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
 @ExtendsDirective
-data class Product(@property:ExternalDirective val id: Int) {
+data class Product(@ExternalDirective val id: Int) {
 
     fun reviews(): List<Review> {
         // returns list of product reviews

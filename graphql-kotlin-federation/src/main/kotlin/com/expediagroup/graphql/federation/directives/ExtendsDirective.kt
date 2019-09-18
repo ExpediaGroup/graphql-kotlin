@@ -36,7 +36,7 @@ private const val DESCRIPTION = "Marks target object as extending part of the fe
  * ```kotlin
  * @KeyDirective(FieldSet("id"))
  * @ExtendsDirective
- * class Product(@property:ExternalDirective val id: String) {
+ * class Product(@ExternalDirective val id: String) {
  *   fun newFunctionality(): String = "whatever"
  * }
  * ```

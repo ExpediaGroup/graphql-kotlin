@@ -41,7 +41,7 @@ import graphql.introspection.Introspection
  * ```kotlin
  * @KeyDirective(FieldSet("id"))
  * @ExtendsDirective
- * class Product(@property:ExternalDirective val id: String) {
+ * class Product(@ExternalDirective val id: String) {
  *
  *   @ExternalDirective
  *   var weight: Double by Delegates.notNull()
