@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.spring.model
 
 import graphql.ExecutionInput
+import graphql.GraphQLContext
 
 data class GraphQLRequest(
     val query: String,
@@ -29,5 +30,5 @@ fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null): ExecutionInput
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
-        .context(graphQLContext)
+        .context(graphQLContext ?: GraphQLContext.newContext().build())
         .build()

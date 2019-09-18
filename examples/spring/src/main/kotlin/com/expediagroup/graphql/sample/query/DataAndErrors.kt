@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.sample.query
 
+import com.expediagroup.graphql.spring.operations.Query
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionPath
