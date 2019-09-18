@@ -26,7 +26,7 @@ commit_files() {
     git checkout -b ${NEW_VERSION}
 
     # Stage the modified files
-    git add ./pom.xml ./**/*/pom.xml
+    git add ./**/pom.xml
 
     # Print the current files we are going to commit
     git status
