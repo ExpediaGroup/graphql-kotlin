@@ -1,9 +1,9 @@
-package com.expediagroup.graphql.spring.base
+package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.spring.GraphQLAutoConfiguration
-import com.expediagroup.graphql.spring.QueryHandler
+import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.toSchema
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -13,6 +13,7 @@ import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.tracing.TracingInstrumentation
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
+import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
@@ -31,11 +32,11 @@ class SchemaConfigurationTest {
     @Test
     fun `verify schema auto configuration`() {
         contextRunner.withUserConfiguration(BasicConfiguration::class.java)
-            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring.base")
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring")
             .run { ctx ->
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 val schemaGeneratorConfig = ctx.getBean(SchemaGeneratorConfig::class.java)
-                assertEquals(listOf("com.expediagroup.graphql.spring.base"), schemaGeneratorConfig.supportedPackages)
+                assertEquals(listOf("com.expediagroup.graphql.spring"), schemaGeneratorConfig.supportedPackages)
 
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 val schema = ctx.getBean(GraphQLSchema::class.java)
@@ -56,6 +57,7 @@ class SchemaConfigurationTest {
                 assertNotNull(result["extensions"])
 
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
+                assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
     }
 
@@ -78,12 +80,17 @@ class SchemaConfigurationTest {
                     .isSameAs(customConfiguration.myGraphQL())
 
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
+
+                assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
+                assertThat(ctx).getBean(GraphQLContextFactory::class.java)
+                    .isSameAs(customConfiguration.myCustomContextFactory())
             }
     }
 
     @Configuration
     class BasicConfiguration {
 
+        // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -97,6 +104,7 @@ class SchemaConfigurationTest {
     @Configuration
     class CustomConfiguration {
 
+        // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -115,6 +123,9 @@ class SchemaConfigurationTest {
         fun myGraphQL(): GraphQL = GraphQL.newGraphQL(mySchema())
             .instrumentation(TracingInstrumentation())
             .build()
+
+        @Bean
+        fun myCustomContextFactory(): GraphQLContextFactory<Map<String, Any>> = mockk()
     }
 
     class BasicQuery : Query {

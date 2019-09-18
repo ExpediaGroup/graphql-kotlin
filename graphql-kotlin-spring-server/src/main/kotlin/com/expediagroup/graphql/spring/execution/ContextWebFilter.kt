@@ -14,27 +14,31 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.sample.context
+package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.spring.GRAPHQL_CONTEXT_KEY
-import org.springframework.stereotype.Component
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
 /**
- * Simple WebFilter that creates custom [MyGraphQLContext] and adds its to the SubscriberContext.
+ * [org.springframework.core.Ordered] value used for the [ContextWebFilter] order in which it will be applied to the incoming requests.
  */
-@Component
-class MyGraphQLContextWebFilter : WebFilter {
+const val GRAPHQL_CONTEXT_FILTER_ODER = 0
 
+/**
+ * Default web filter that populates GraphQL context in the reactor subscriber context.
+ */
+@Order(GRAPHQL_CONTEXT_FILTER_ODER)
+class ContextWebFilter(private val contextFactory: GraphQLContextFactory<Any>) : WebFilter, Ordered {
+
+    @Suppress("ForbiddenVoid")
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val myValue = exchange.request.headers.getFirst("MyHeader") ?: "defaultContext"
-        val customContext = MyGraphQLContext(
-            myCustomValue = myValue,
-            request = exchange.request,
-            response = exchange.response)
-        return chain.filter(exchange).subscriberContext { it.put(GRAPHQL_CONTEXT_KEY, customContext) }
+        val context = contextFactory.generateContext(exchange.request, exchange.response)
+        return chain.filter(exchange).subscriberContext { it.put(GRAPHQL_CONTEXT_KEY, context) }
     }
+
+    override fun getOrder(): Int = GRAPHQL_CONTEXT_FILTER_ODER
 }

@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.spring
 
+import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHandler
+import com.expediagroup.graphql.spring.execution.SubscriptionHandler
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL

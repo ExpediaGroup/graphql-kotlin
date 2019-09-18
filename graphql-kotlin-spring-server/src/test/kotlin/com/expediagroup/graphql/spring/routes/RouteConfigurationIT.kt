@@ -1,5 +1,7 @@
 package com.expediagroup.graphql.spring.routes
 
+import com.expediagroup.graphql.annotations.GraphQLContext
+import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -10,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
@@ -21,7 +25,23 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
     class TestConfiguration {
         @Bean
         fun query(): Query = SimpleQuery()
+
+        @Bean
+        fun customContextFactory(): GraphQLContextFactory<CustomContext> = object : GraphQLContextFactory<CustomContext> {
+
+            override fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): CustomContext = CustomContext(
+                value = request.headers.getFirst("X-Custom-Header") ?: "default"
+            )
+        }
     }
+
+    class SimpleQuery : Query {
+        fun hello(name: String) = "Hello $name!"
+
+        fun context(@GraphQLContext ctx: CustomContext) = ctx.value
+    }
+
+    data class CustomContext(val value: String)
 
     @Test
     fun `verify SDL route`() {
@@ -30,6 +50,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 }
 
 type Query {
+  context: String!
   hello(name: String!): String!
 }
 
@@ -148,13 +169,40 @@ directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITIO
             .isBadRequest
     }
 
+    @Test
+    fun `verify POST graphQL request with contextual value specified`() {
+        testClient.post()
+            .uri("/graphql")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("X-Custom-Header", "customValue")
+            .bodyValue(GraphQLRequest(query = "query { context }"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.data.context").isEqualTo("customValue")
+            .jsonPath("$.errors").doesNotExist()
+            .jsonPath("$.extensions").doesNotExist()
+    }
+
+    @Test
+    fun `verify POST graphQL request with default contextual value`() {
+        testClient.post()
+            .uri("/graphql")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(GraphQLRequest(query = "query { context }"))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.data.context").isEqualTo("default")
+            .jsonPath("$.errors").doesNotExist()
+            .jsonPath("$.extensions").doesNotExist()
+    }
+
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk
         .expectBody()
         .jsonPath("$.data.hello").isEqualTo(expected)
         .jsonPath("$.errors").doesNotExist()
         .jsonPath("$.extensions").doesNotExist()
-
-    class SimpleQuery : Query {
-        fun hello(name: String) = "Hello $name!"
-    }
 }

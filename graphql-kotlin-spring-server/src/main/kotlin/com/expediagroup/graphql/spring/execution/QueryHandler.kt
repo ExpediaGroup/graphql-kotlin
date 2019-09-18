@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring
+package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.model.GraphQLRequest
@@ -26,11 +26,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactor.ReactorContext
 import kotlin.coroutines.coroutineContext
-
-/**
- * Reactor SubscriberContext key for storing GraphQL context.
- */
-const val GRAPHQL_CONTEXT_KEY = "graphQLContext"
 
 /**
  * GraphQL query handler.
