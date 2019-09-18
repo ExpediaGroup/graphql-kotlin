@@ -1,4 +1,4 @@
-package com.expediagroup.graphql.spring.federation
+package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
@@ -9,8 +9,8 @@ import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
-import com.expediagroup.graphql.spring.GraphQLAutoConfiguration
-import com.expediagroup.graphql.spring.QueryHandler
+import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.toSchema
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -35,11 +35,11 @@ class FederationConfigurationTest {
     @Test
     fun `verify federated schema auto configuration`() {
         contextRunner.withUserConfiguration(FederatedConfiguration::class.java)
-            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring.federation", "graphql.federation.enabled=true")
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring", "graphql.federation.enabled=true")
             .run { ctx ->
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 val schemaGeneratorConfig = ctx.getBean(SchemaGeneratorConfig::class.java)
-                assertEquals(listOf("com.expediagroup.graphql.spring.federation"), schemaGeneratorConfig.supportedPackages)
+                assertEquals(listOf("com.expediagroup.graphql.spring"), schemaGeneratorConfig.supportedPackages)
 
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 val schema = ctx.getBean(GraphQLSchema::class.java)
@@ -60,6 +60,7 @@ class FederationConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
+                assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
     }
 
@@ -79,12 +80,14 @@ class FederationConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
+                assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
     }
 
     @Configuration
     class FederatedConfiguration {
 
+        // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -95,6 +98,7 @@ class FederationConfigurationTest {
     @Configuration
     class CustomFederatedConfiguration {
 
+        // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 

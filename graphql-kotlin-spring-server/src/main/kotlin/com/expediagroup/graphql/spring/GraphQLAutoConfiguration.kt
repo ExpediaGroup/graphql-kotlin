@@ -17,6 +17,11 @@
 package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.spring.exception.KotlinDataFetcherExceptionHandler
+import com.expediagroup.graphql.spring.execution.ContextWebFilter
+import com.expediagroup.graphql.spring.execution.EmptyContextFactory
+import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.QueryHandler
+import com.expediagroup.graphql.spring.execution.SimpleQueryHandler
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -31,6 +36,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.web.server.WebFilter
 import java.util.Optional
 
 /**
@@ -79,4 +85,11 @@ class GraphQLAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun graphQLQueryHandler(graphql: GraphQL): QueryHandler = SimpleQueryHandler(graphql)
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun graphQLContextFactory(): GraphQLContextFactory<*> = EmptyContextFactory
+
+    @Bean
+    fun contextWebFilter(graphQLContextFactory: GraphQLContextFactory<*>): WebFilter = ContextWebFilter(graphQLContextFactory)
 }

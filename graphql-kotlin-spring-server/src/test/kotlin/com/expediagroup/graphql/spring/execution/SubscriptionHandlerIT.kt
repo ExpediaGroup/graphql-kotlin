@@ -1,4 +1,4 @@
-package com.expediagroup.graphql.spring.subscription
+package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.operations.Subscription
@@ -19,7 +19,7 @@ import java.net.URI
 import java.time.Duration
 import kotlin.random.Random
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.spring.subscription"])
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.spring.execution"])
 @EnableAutoConfiguration
 class SubscriptionHandlerIT(@LocalServerPort private var port: Int) {
 

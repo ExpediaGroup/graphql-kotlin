@@ -1,4 +1,4 @@
-package com.expediagroup.graphql.spring
+package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
@@ -27,7 +27,7 @@ import kotlin.test.assertTrue
 class QueryHandlerTest {
 
     private val testSchema: GraphQLSchema = toSchema(
-        config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.spring")),
+        config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.spring.execution")),
         queries = listOf(TopLevelObject(BasicQuery()))
     )
     private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()

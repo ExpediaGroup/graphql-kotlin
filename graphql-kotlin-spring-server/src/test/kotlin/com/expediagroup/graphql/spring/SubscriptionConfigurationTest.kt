@@ -1,13 +1,8 @@
-package com.expediagroup.graphql.spring.subscription
+package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.federation.directives.ExtendsDirective
-import com.expediagroup.graphql.federation.directives.ExternalDirective
-import com.expediagroup.graphql.federation.directives.FieldSet
-import com.expediagroup.graphql.federation.directives.KeyDirective
-import com.expediagroup.graphql.spring.GraphQLAutoConfiguration
-import com.expediagroup.graphql.spring.QueryHandler
-import com.expediagroup.graphql.spring.SubscriptionHandler
+import com.expediagroup.graphql.spring.execution.QueryHandler
+import com.expediagroup.graphql.spring.execution.SubscriptionHandler
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -36,11 +31,11 @@ class SubscriptionConfigurationTest {
     @Test
     fun `verify subscription auto configuration`() {
         contextRunner.withUserConfiguration(SubscriptionConfiguration::class.java)
-            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring.subscription")
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring")
             .run { ctx ->
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 val schemaGeneratorConfig = ctx.getBean(SchemaGeneratorConfig::class.java)
-                assertEquals(listOf("com.expediagroup.graphql.spring.subscription"), schemaGeneratorConfig.supportedPackages)
+                assertEquals(listOf("com.expediagroup.graphql.spring"), schemaGeneratorConfig.supportedPackages)
 
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 val schema = ctx.getBean(GraphQLSchema::class.java)
@@ -60,7 +55,7 @@ class SubscriptionConfigurationTest {
     }
 
     @Test
-    fun `verify subscriptionauto configuration backs off in beans are defined by user`() {
+    fun `verify subscription auto configuration backs off in beans are defined by user`() {
         contextRunner.withUserConfiguration(CustomSubscriptionConfiguration::class.java)
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomSubscriptionConfiguration::class.java)
@@ -85,6 +80,7 @@ class SubscriptionConfigurationTest {
     @Configuration
     class SubscriptionConfiguration {
 
+        // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -95,6 +91,7 @@ class SubscriptionConfigurationTest {
     @Configuration
     class CustomSubscriptionConfiguration {
 
+        // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
@@ -113,8 +110,4 @@ class SubscriptionConfigurationTest {
             .delayElements(Duration.ofMillis(100))
             .map { Random.nextInt() }
     }
-
-    @ExtendsDirective
-    @KeyDirective(fields = FieldSet("id"))
-    data class Widget(@ExternalDirective val id: Int, val name: String)
 }

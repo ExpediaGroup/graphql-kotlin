@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.extensions.print
+import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
