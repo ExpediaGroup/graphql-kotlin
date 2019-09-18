@@ -13,7 +13,7 @@ update_version() {
     mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnewVersion="${TRAVIS_TAG}-SNAPSHOT"
 
     # Increment the patch version
-    mvn --settings .travis/settings.xml release:update-versions -B
+    mvn --settings .travis/settings.xml release:update-versions -B -PdefaultBuild
 
     # Pull the new value from the pom
     NEW_VERSION=$(mvn --settings .travis/settings.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -26,7 +26,7 @@ commit_files() {
     git checkout -b ${NEW_VERSION}
 
     # Stage the modified files
-    git add ./pom.xml ./*/pom.xml
+    git add ./pom.xml ./**/*/pom.xml
 
     # Print the current files we are going to commit
     git status
