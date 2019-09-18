@@ -50,7 +50,7 @@ type Book implements Product @extends @key(fields : "id") {
 @ExtendsDirective
 @KeyDirective(FieldSet("id"))
 class Book(
-    @property:ExternalDirective override val id: String
+    @ExternalDirective override val id: String
 ) : Product {
 
     // optionally provided as it is not part of the @key field set
@@ -105,6 +105,6 @@ type User {
 @ExtendsDirective
 @KeyDirective(FieldSet("userId"))
 data class User(
-    @property:ExternalDirective val userId: Int,
-    @property:ExternalDirective val name: String
+    @ExternalDirective val userId: Int,
+    @ExternalDirective val name: String
 )

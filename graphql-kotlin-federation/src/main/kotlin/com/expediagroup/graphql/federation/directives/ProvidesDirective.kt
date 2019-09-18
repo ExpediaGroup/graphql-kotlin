@@ -41,8 +41,8 @@ import graphql.introspection.Introspection
  * @KeyDirective(FieldSet("userId"))
  * @ExtendsDirective
  * class User(
- *   @property:ExternalDirective val userId: String,
- *   @property:ExternalDirective val name: String
+ *   @ExternalDirective val userId: String,
+ *   @ExternalDirective val name: String
  * )
  * ```
  *

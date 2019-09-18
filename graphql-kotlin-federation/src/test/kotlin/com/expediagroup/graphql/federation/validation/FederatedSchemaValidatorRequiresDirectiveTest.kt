@@ -20,12 +20,12 @@ import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.FederatedSchemaValidator
-import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.directives.RequiresDirective
+import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLObjectType
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
@@ -105,7 +105,7 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
-    private class SimpleRequires(@property:ExternalDirective val id: String, val description: String) {
+    private class SimpleRequires(@ExternalDirective val id: String, val description: String) {
         @ExternalDirective
         var weight: Double by Delegates.notNull()
 
@@ -123,7 +123,7 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
-    private class RequiresLocalField(@property:ExternalDirective val id: String, val description: String) {
+    private class RequiresLocalField(@ExternalDirective val id: String, val description: String) {
 
         var weight: Double = 0.0
 
@@ -141,7 +141,7 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
-    class RequiresNonExistentField(@property:ExternalDirective val id: String, val description: String) {
+    class RequiresNonExistentField(@ExternalDirective val id: String, val description: String) {
 
         @ExternalDirective
         var weight: Double by Delegates.notNull()

@@ -33,7 +33,7 @@ import graphql.introspection.Introspection
  * ```kotlin
  * @KeyDirective(FieldSet("id"))
  * @ExtendsDirective
- * class Product(@property:ExternalDirective val id: String) {
+ * class Product(@ExternalDirective val id: String) {
  *   fun newFunctionality(): String = "whatever"
  * }
  * ```

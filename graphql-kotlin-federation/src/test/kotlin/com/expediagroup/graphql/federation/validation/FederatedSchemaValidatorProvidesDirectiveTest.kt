@@ -20,12 +20,12 @@ import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.FederatedSchemaValidator
-import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.directives.ProvidesDirective
+import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
@@ -122,8 +122,8 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
     private data class ProvidedType(
-        @property:ExternalDirective val id: String,
-        @property:ExternalDirective val text: String
+        @ExternalDirective val id: String,
+        @ExternalDirective val text: String
     )
 
     /*
@@ -169,7 +169,7 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
     private data class ProvidedWithLocalField(
-        @property:ExternalDirective val id: String,
+        @ExternalDirective val id: String,
         val text: String
     )
 
@@ -242,8 +242,8 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
     private data class ProvidedWithList(
-        @property:ExternalDirective val id: String,
-        @property:ExternalDirective val text: List<String>
+        @ExternalDirective val id: String,
+        @ExternalDirective val text: List<String>
     )
 
     /*
@@ -273,7 +273,7 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
     private data class ProvidedWithInterface(
-        @property:ExternalDirective val id: String,
-        @property:ExternalDirective val data: ProvidedInterface = throw UnsupportedOperationException("not implemented")
+        @ExternalDirective val id: String,
+        @ExternalDirective val data: ProvidedInterface = throw UnsupportedOperationException("not implemented")
     )
 }
