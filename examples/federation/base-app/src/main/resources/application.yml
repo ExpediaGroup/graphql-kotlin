@@ -1,5 +1,12 @@
+graphql:
+  federation:
+    enabled: true
+  packages:
+    - "com.expediagroup"
+
+server:
+  port: 8080
+
 spring:
   application:
     name: base-app
-server:
-  port: 8080

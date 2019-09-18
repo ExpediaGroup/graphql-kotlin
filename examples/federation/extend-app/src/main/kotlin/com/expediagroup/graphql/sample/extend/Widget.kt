@@ -25,10 +25,11 @@ import kotlin.random.Random
 
 @KeyDirective(fields = FieldSet("id"))
 @ExtendsDirective
-data class Widget(
+class Widget(
     @property:ExternalDirective val id: Int,
     val randomValueFromExtend: Int
 ) {
+    @Suppress("FunctionOnlyReturningConstant")
     fun extraStringFromExtend() = "This data is coming from extend-app!"
 }
 

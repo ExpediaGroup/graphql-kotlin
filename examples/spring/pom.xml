@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
+        <spring-boot.version>2.2.0.M5</spring-boot.version>
 
         <!-- skip release plugins -->
         <maven.source.skip>true</maven.source.skip>
@@ -23,13 +23,8 @@
     <dependencies>
         <dependency>
             <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-schema-generator</artifactId>
+            <artifactId>graphql-kotlin-spring-server</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>${spring-boot.version}</version>
         </dependency>
     </dependencies>
 

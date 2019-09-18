@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.sample.context
 
+import com.expediagroup.graphql.spring.GRAPHQL_CONTEXT_KEY
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
@@ -34,6 +35,6 @@ class MyGraphQLContextWebFilter : WebFilter {
             myCustomValue = myValue,
             request = exchange.request,
             response = exchange.response)
-        return chain.filter(exchange).subscriberContext { it.put("graphQLContext", customContext) }
+        return chain.filter(exchange).subscriberContext { it.put(GRAPHQL_CONTEXT_KEY, customContext) }
     }
 }
