@@ -21,7 +21,7 @@ import kotlin.random.Random
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.spring.subscription"])
 @EnableAutoConfiguration
-class SubscriptionHandlerTest(@LocalServerPort private var port: Int) {
+class SubscriptionHandlerIT(@LocalServerPort private var port: Int) {
 
     @Test
     fun `verify subscription`() {
