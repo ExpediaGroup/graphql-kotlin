@@ -10,7 +10,7 @@ update_version() {
     echo "Updating the version in the POMs"
 
     # Push the tag with `-SNAPSHOT` as the current version
-    mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -DnewVersion="${TRAVIS_TAG}-SNAPSHOT"
+    mvn --settings .travis/settings.xml org.codehaus.mojo:versions-maven-plugin:2.7:set -PdefaultBuild -DnewVersion="${TRAVIS_TAG}-SNAPSHOT"
 
     # Increment the patch version
     mvn --settings .travis/settings.xml release:update-versions -B -PdefaultBuild
