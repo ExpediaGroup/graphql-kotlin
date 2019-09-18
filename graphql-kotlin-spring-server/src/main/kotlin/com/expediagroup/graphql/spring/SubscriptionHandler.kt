@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toFlux
 
 /**
  * WebSocket handler for handling GraphQL subscriptions.
@@ -40,22 +41,23 @@ class SubscriptionHandler(
     private val logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
 
     @Suppress("ForbiddenVoid")
-    override fun handle(session: WebSocketSession): Mono<Void> = session.send(session.receive()
-        .concatMap {
-            val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
-            val executionResult = graphQL.execute(graphQLRequest.toExecutionInput())
-            executionResult.getData<Publisher<ExecutionResult>>()
-        }
-        .map { objectMapper.writeValueAsString(it.toGraphQLResponse()) }
-        .map { session.textMessage(it) }
-        .doOnSubscribe { logger.info("session starting, ID=${session.id}") }
-        .doOnCancel { logger.info("cancelling session, ID=${session.id}") }
-        .doOnComplete {
-            logger.info("session complete, ID=${session.id}")
-            session.close()
-        }
-        .log()
-    )
+    override fun handle(session: WebSocketSession): Mono<Void> {
+        val response = session.receive()
+            .concatMap {
+                val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
+                val executionResult = graphQL.execute(graphQLRequest.toExecutionInput())
+                executionResult.getData<Publisher<ExecutionResult>>()
+                    .toFlux()
+                    .doOnSubscribe { logger.debug("WebSocketSession subscribe, ID=${session.id}") }
+                    .doOnCancel { logger.debug("WebSocketSession cancel, ID=${session.id}") }
+                    .doOnComplete { logger.debug("WebSocketSession complete, ID=${session.id}") }
+                    .doFinally { session.close() }
+            }
+            .map { objectMapper.writeValueAsString(it.toGraphQLResponse()) }
+            .map { session.textMessage(it) }
+
+        return session.send(response)
+    }
 
     override fun getSubProtocols(): List<String> = listOf("graphql-ws")
 }

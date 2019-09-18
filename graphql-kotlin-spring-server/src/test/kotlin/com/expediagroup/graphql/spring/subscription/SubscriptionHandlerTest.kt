@@ -1,6 +1,5 @@
 package com.expediagroup.graphql.spring.subscription
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -26,24 +25,21 @@ class SubscriptionHandlerTest(@LocalServerPort private var port: Int) {
 
     @Test
     fun `verify subscription`() {
-        val request = jacksonObjectMapper().writeValueAsString(GraphQLRequest(query = "subscription { characters }"))
+        val request = getRequest("subscription { characters }")
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
-        val sessionMono = client.execute(URI.create("ws://localhost:$port/subscriptions")) { session ->
+        val uri = URI.create("ws://localhost:$port/subscriptions")
+
+        val sessionMono = client.execute(uri) { session ->
             session.send(Mono.just(session.textMessage(request)))
-                .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                ).doOnEach { println("\tRECEIVED: ${it.get()}") }
-                .doOnTerminate {
-                    println("\tTERMINATING")
-                    session.close()
-                }
+                .thenMany(session.receive().map(WebSocketMessage::getPayloadAsText))
                 .subscribeWith(output)
+                .take(5)
                 .then()
         }
 
-        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() }.timeout(Duration.ofSeconds(1)))
+        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
             .expectNext("{\"data\":{\"characters\":\"Alice\"}}")
             .expectNext("{\"data\":{\"characters\":\"Bob\"}}")
             .expectNext("{\"data\":{\"characters\":\"Chuck\"}}")
@@ -51,8 +47,32 @@ class SubscriptionHandlerTest(@LocalServerPort private var port: Int) {
             .expectNext("{\"data\":{\"characters\":\"Eve\"}}")
             .expectComplete()
             .verifyThenAssertThat()
-            .tookLessThan(Duration.ofSeconds(1))
+            .tookLessThan(Duration.ofSeconds(4))
     }
+
+    @Test
+    fun `verify subscription to counter`() {
+        val request = getRequest("subscription { counter }")
+        val output = ReplayProcessor.create<String>()
+
+        val client = ReactorNettyWebSocketClient()
+        val uri = URI.create("ws://localhost:$port/subscriptions")
+
+        val sessionMono = client.execute(uri) { session ->
+            session.send(Mono.just(session.textMessage(request)))
+                .thenMany(session.receive().map(WebSocketMessage::getPayloadAsText))
+                .subscribeWith(output)
+                .take(5)
+                .then()
+        }
+
+        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
+            .expectNextCount(5)
+            .expectComplete()
+            .verify()
+    }
+
+    private fun getRequest(query: String) = jacksonObjectMapper().writeValueAsString(GraphQLRequest(query))
 
     @Configuration
     class TestConfiguration {
@@ -67,7 +87,6 @@ class SubscriptionHandlerTest(@LocalServerPort private var port: Int) {
 
         private val characters = listOf("Alice", "Bob", "Chuck", "Dave", "Eve")
 
-        @GraphQLDescription("Returns a random number every second")
         fun characters(): Flux<String> = Flux.interval(Duration.ofMillis(100))
             .zipWithIterable(characters)
             .map { it.t2 }
