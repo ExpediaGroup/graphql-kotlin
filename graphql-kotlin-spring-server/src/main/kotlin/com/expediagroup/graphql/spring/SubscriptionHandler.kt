@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.spring.model.GraphQLRequest
+import com.expediagroup.graphql.spring.model.GraphQLResponse
 import com.expediagroup.graphql.spring.model.toExecutionInput
 import com.expediagroup.graphql.spring.model.toGraphQLResponse
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -27,16 +28,28 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
 /**
  * WebSocket handler for handling GraphQL subscriptions.
  */
-class SubscriptionHandler(
+interface SubscriptionHandler : WebSocketHandler {
+
+    /**
+     * Execute GraphQL subscription request and return a Publisher that emits 0 to N [GraphQLResponse]s.
+     */
+    fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse>
+}
+
+/**
+ * Default WebSocket handler for handling GraphQL subscriptions.
+ */
+open class SimpleSubscriptionHandler(
     private val graphQL: GraphQL,
     private val objectMapper: ObjectMapper
-) : WebSocketHandler {
+) : SubscriptionHandler {
 
     private val logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
 
@@ -45,19 +58,23 @@ class SubscriptionHandler(
         val response = session.receive()
             .concatMap {
                 val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
-                val executionResult = graphQL.execute(graphQLRequest.toExecutionInput())
-                executionResult.getData<Publisher<ExecutionResult>>()
-                    .toFlux()
-                    .doOnSubscribe { logger.debug("WebSocketSession subscribe, ID=${session.id}") }
-                    .doOnCancel { logger.debug("WebSocketSession cancel, ID=${session.id}") }
-                    .doOnComplete { logger.debug("WebSocketSession complete, ID=${session.id}") }
+                executeSubscription(graphQLRequest)
+                    .doOnSubscribe { logger.trace("WebSocket GraphQL subscription subscribe, ID=${session.id}") }
+                    .doOnCancel { logger.trace("WebSocket GraphQL subscription cancel, ID=${session.id}") }
+                    .doOnComplete { logger.trace("WebSocket GraphQL subscription complete, ID=${session.id}") }
                     .doFinally { session.close() }
             }
-            .map { objectMapper.writeValueAsString(it.toGraphQLResponse()) }
+            .map { objectMapper.writeValueAsString(it) }
             .map { session.textMessage(it) }
 
         return session.send(response)
     }
 
     override fun getSubProtocols(): List<String> = listOf("graphql-ws")
+
+    override fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse> =
+        graphQL.execute(graphQLRequest.toExecutionInput())
+            .getData<Publisher<ExecutionResult>>()
+            .toFlux()
+            .map { it.toGraphQLResponse() }
 }

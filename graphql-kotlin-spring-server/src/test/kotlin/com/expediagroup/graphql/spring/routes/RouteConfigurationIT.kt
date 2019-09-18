@@ -129,6 +129,25 @@ directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITIO
             .verifyGraphQLRoute("Hello POST application/graphql!")
     }
 
+    @Test
+    fun `verify POST request with XML content type will result in HTTP 400 bad request`() {
+        testClient.post()
+            .uri("/graphql")
+            .contentType(MediaType.APPLICATION_XML)
+            .exchange()
+            .expectStatus()
+            .isBadRequest
+    }
+
+    @Test
+    fun `verify GET request without query will result in HTTP 400 bad request`() {
+        testClient.get()
+            .uri("/graphql")
+            .exchange()
+            .expectStatus()
+            .isBadRequest
+    }
+
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk
         .expectBody()
         .jsonPath("$.data.hello").isEqualTo(expected)

@@ -4,11 +4,15 @@ import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.toSchema
 import graphql.ErrorType
+import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.test.runBlockingTest
@@ -18,6 +22,7 @@ import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class QueryHandlerTest {
 
@@ -103,6 +108,25 @@ class QueryHandlerTest {
             }
         }
         assertNull(response.errors)
+        assertNull(response.extensions)
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun `execute graphQL query throwing uncaught exception`() = runBlockingTest {
+        val mockGraphQL: GraphQL = mockk {
+            every { executeAsync(any<ExecutionInput>()) } throws RuntimeException("Uncaught JUNIT")
+        }
+        val mockQueryHandler = SimpleQueryHandler(mockGraphQL)
+        val response = mockQueryHandler.executeQuery(GraphQLRequest(query = "query { whatever }"))
+        assertNull(response.data)
+        assertNotNull(response.errors) { errors ->
+            assertEquals(1, errors.size)
+            val error = errors.first()
+            assertTrue(error is SimpleKotlinGraphQLError)
+            assertEquals(ErrorType.DataFetchingException, error.errorType)
+            assertEquals("Uncaught JUNIT", error.message)
+        }
         assertNull(response.extensions)
     }
 

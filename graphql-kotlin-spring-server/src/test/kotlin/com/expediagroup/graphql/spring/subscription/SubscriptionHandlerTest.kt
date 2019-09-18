@@ -46,8 +46,7 @@ class SubscriptionHandlerTest(@LocalServerPort private var port: Int) {
             .expectNext("{\"data\":{\"characters\":\"Dave\"}}")
             .expectNext("{\"data\":{\"characters\":\"Eve\"}}")
             .expectComplete()
-            .verifyThenAssertThat()
-            .tookLessThan(Duration.ofSeconds(4))
+            .verify()
     }
 
     @Test
@@ -77,10 +76,7 @@ class SubscriptionHandlerTest(@LocalServerPort private var port: Int) {
     @Configuration
     class TestConfiguration {
         @Bean
-        fun subscription(): Subscription {
-            println("creating sample subscription")
-            return SimpleSubscription()
-        }
+        fun subscription(): Subscription = SimpleSubscription()
     }
 
     class SimpleSubscription : Subscription {
