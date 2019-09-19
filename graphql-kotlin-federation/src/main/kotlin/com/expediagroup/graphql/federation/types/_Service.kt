@@ -21,11 +21,9 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 
-// TODO remove suppresion once we upgrade to latest Detekt version
 /**
  * _Service object is returned by _service query and is used to encapsulate SDL.
  */
-@Suppress("TopLevelPropertyNaming")
 private val SERVICE_OBJECT_TYPE = GraphQLObjectType.newObject()
     .name("_Service")
     .field(

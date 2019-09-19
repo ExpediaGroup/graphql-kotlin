@@ -56,6 +56,7 @@ class AnimalQuery {
     fun findAnimal(): Animal = Animal(1, "cat")
 }
 
+@Suppress("DataClassShouldBeImmutable")
 data class Animal(
     val id: Int,
     val type: String
