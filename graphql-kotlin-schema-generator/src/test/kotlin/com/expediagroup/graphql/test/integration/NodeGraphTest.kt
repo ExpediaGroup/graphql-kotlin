@@ -52,7 +52,7 @@ data class Node(
     val id: Int,
     val value: String,
     val parent: Node? = null,
-    var children: List<Node?> = emptyList()
+    val children: MutableList<Node> = mutableListOf()
 )
 
 class NodeQuery {
@@ -63,8 +63,9 @@ class NodeQuery {
     private val nodeC = Node(id = 3, value = "C", parent = nodeB)
 
     init {
-        root.children = listOf(nodeA, nodeB)
-        nodeB.children = listOf(nodeC)
+        root.children.add(nodeA)
+        root.children.add(nodeB)
+        nodeB.children.add(nodeC)
     }
 
     fun nodeGraph() = root

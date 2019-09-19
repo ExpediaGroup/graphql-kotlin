@@ -46,5 +46,5 @@ import kotlin.reflect.KParameter
  *
  * data class PartOfUnion( val property: Int) : UnionMarkup
  */
-class InvalidInputFieldTypeException(kParameter: KParameter)
-    : GraphQLKotlinException("Argument cannot be an interface or a union, $kParameter")
+class InvalidInputFieldTypeException(kParameter: KParameter) :
+    GraphQLKotlinException("Argument cannot be an interface or a union, $kParameter")
