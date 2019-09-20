@@ -18,6 +18,7 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHandler
 import com.expediagroup.graphql.spring.execution.SubscriptionHandler
+import com.expediagroup.graphql.spring.execution.SubscriptionWebSocketHandler
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
@@ -39,13 +40,16 @@ class SubscriptionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun subscriptionHandler(graphQL: GraphQL, objectMapper: ObjectMapper): SubscriptionHandler = SimpleSubscriptionHandler(graphQL, objectMapper)
+    fun subscriptionHandler(graphQL: GraphQL): SubscriptionHandler = SimpleSubscriptionHandler(graphQL)
 
     @Bean
     @ConditionalOnMissingBean
     fun websocketHandlerAdapter(): WebSocketHandlerAdapter = WebSocketHandlerAdapter()
 
     @Bean
-    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, subscriptionHandler: SubscriptionHandler): HandlerMapping =
-        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionHandler), Ordered.HIGHEST_PRECEDENCE)
+    fun subscriptionWebSocketHandler(handler: SubscriptionHandler, objectMapper: ObjectMapper) = SubscriptionWebSocketHandler(handler, objectMapper)
+
+    @Bean
+    fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, subscriptionWebSocketHandler: SubscriptionWebSocketHandler): HandlerMapping =
+        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionWebSocketHandler), Ordered.HIGHEST_PRECEDENCE)
 }
