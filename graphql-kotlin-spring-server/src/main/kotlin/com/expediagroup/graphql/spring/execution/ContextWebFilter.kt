@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.spring.execution
 
+import kotlinx.coroutines.reactor.mono
 import org.springframework.core.Ordered
-import org.springframework.core.annotation.Order
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
@@ -25,19 +25,20 @@ import reactor.core.publisher.Mono
 
 /**
  * [org.springframework.core.Ordered] value used for the [ContextWebFilter] order in which it will be applied to the incoming requests.
+ * Smaller value take higher precedence.
  */
 const val GRAPHQL_CONTEXT_FILTER_ODER = 0
 
 /**
  * Default web filter that populates GraphQL context in the reactor subscriber context.
  */
-@Order(GRAPHQL_CONTEXT_FILTER_ODER)
 class ContextWebFilter(private val contextFactory: GraphQLContextFactory<Any>) : WebFilter, Ordered {
 
     @Suppress("ForbiddenVoid")
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val context = contextFactory.generateContext(exchange.request, exchange.response)
-        return chain.filter(exchange).subscriberContext { it.put(GRAPHQL_CONTEXT_KEY, context) }
+    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> = mono {
+        contextFactory.generateContext(exchange.request, exchange.response)
+    }.flatMap { graphQLContext ->
+        chain.filter(exchange).subscriberContext { it.put(GRAPHQL_CONTEXT_KEY, graphQLContext) }
     }
 
     override fun getOrder(): Int = GRAPHQL_CONTEXT_FILTER_ODER

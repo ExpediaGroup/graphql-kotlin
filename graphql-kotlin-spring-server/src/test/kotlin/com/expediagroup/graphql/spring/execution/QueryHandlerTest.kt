@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
@@ -99,11 +115,11 @@ class QueryHandlerTest {
     @Test
     @ExperimentalCoroutinesApi
     fun `execute graphQL query with context`() = runBlockingTest(Context.of(GRAPHQL_CONTEXT_KEY, MyContext("JUNIT context value")).asCoroutineContext()) {
-        val request = GraphQLRequest(query = "query { context }")
+        val request = GraphQLRequest(query = "query { contextualValue }")
 
         val response = queryHandler.executeQuery(request)
         assertNotNull(response.data as? Map<*, *>) { data ->
-            assertNotNull(data["context"] as? String) { msg ->
+            assertNotNull(data["contextualValue"] as? String) { msg ->
                 assertEquals("JUNIT context value", msg)
             }
         }
@@ -137,7 +153,7 @@ class QueryHandlerTest {
 
         fun alwaysThrows(): String = throw GraphQLKotlinException("JUNIT Failure")
 
-        fun context(@GraphQLContext context: MyContext): String = context.value ?: "default"
+        fun contextualValue(@GraphQLContext context: MyContext): String = context.value ?: "default"
     }
 
     data class MyContext(val value: String? = null)

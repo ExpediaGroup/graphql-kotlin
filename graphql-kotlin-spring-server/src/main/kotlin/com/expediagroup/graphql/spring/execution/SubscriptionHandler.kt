@@ -16,65 +16,41 @@
 
 package com.expediagroup.graphql.spring.execution
 
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.GraphQLResponse
 import com.expediagroup.graphql.spring.model.toExecutionInput
 import com.expediagroup.graphql.spring.model.toGraphQLResponse
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExecutionResult
 import graphql.GraphQL
 import org.reactivestreams.Publisher
-import org.slf4j.LoggerFactory
-import org.springframework.web.reactive.socket.WebSocketHandler
-import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 
 /**
- * WebSocket handler for handling GraphQL subscriptions.
+ * GraphQL subscription handler.
  */
-interface SubscriptionHandler : WebSocketHandler {
+interface SubscriptionHandler {
 
     /**
-     * Execute GraphQL subscription request and return a Publisher that emits 0 to N [GraphQLResponse]s.
+     * Execute GraphQL subscription request and return a Reactor Flux Publisher that emits 0 to N [GraphQLResponse]s.
      */
     fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse>
 }
 
 /**
- * Default WebSocket handler for handling GraphQL subscriptions.
+ * Default implementation of GraphQL subscription handler.
  */
-open class SimpleSubscriptionHandler(
-    private val graphQL: GraphQL,
-    private val objectMapper: ObjectMapper
-) : SubscriptionHandler {
+open class SimpleSubscriptionHandler(private val graphQL: GraphQL) : SubscriptionHandler {
 
-    private val logger = LoggerFactory.getLogger(SubscriptionHandler::class.java)
-
-    @Suppress("ForbiddenVoid")
-    override fun handle(session: WebSocketSession): Mono<Void> {
-        val response = session.receive()
-            .concatMap {
-                val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
-                executeSubscription(graphQLRequest)
-                    .doOnSubscribe { logger.trace("WebSocket GraphQL subscription subscribe, ID=${session.id}") }
-                    .doOnCancel { logger.trace("WebSocket GraphQL subscription cancel, ID=${session.id}") }
-                    .doOnComplete { logger.trace("WebSocket GraphQL subscription complete, ID=${session.id}") }
-                    .doFinally { session.close() }
-            }
-            .map { objectMapper.writeValueAsString(it) }
-            .map { session.textMessage(it) }
-
-        return session.send(response)
-    }
-
-    override fun getSubProtocols(): List<String> = listOf("graphql-ws")
-
-    override fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse> =
-        graphQL.execute(graphQLRequest.toExecutionInput())
-            .getData<Publisher<ExecutionResult>>()
-            .toFlux()
-            .map { it.toGraphQLResponse() }
+    override fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse> = Mono.subscriberContext()
+        .flatMapMany { reactorContext ->
+            val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
+            graphQL.execute(graphQLRequest.toExecutionInput(graphQLContext))
+                .getData<Publisher<ExecutionResult>>()
+                .toFlux()
+                .map { result -> result.toGraphQLResponse() }
+                .onErrorResume { error -> Flux.just(GraphQLResponse(errors = listOf(SimpleKotlinGraphQLError(error)))) }
+        }
 }

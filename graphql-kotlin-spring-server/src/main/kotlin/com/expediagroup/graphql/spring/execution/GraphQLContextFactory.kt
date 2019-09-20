@@ -33,7 +33,7 @@ interface GraphQLContextFactory<out T : Any> {
     /**
      * Generate GraphQL context based on the incoming request and the corresponding response.
      */
-    fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): T
+    suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): T
 }
 
 /**
@@ -41,5 +41,5 @@ interface GraphQLContextFactory<out T : Any> {
  */
 internal object EmptyContextFactory : GraphQLContextFactory<GraphQLContext> {
 
-    override fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): GraphQLContext = GraphQLContext.newContext().build()
+    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): GraphQLContext = GraphQLContext.newContext().build()
 }
