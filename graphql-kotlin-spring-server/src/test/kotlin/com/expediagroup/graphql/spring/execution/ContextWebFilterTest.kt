@@ -24,30 +24,32 @@ import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import reactor.util.context.Context
 import kotlin.test.assertNotNull
 
 class ContextWebFilterTest {
 
     @Test
+    @Suppress("ForbiddenVoid")
     fun `verify web filter populates context in the subscriber context`() {
+        var generatedContext: Context? = null
         val exchange: ServerWebExchange = mockk {
             every { request } returns mockk()
             every { response } returns mockk()
         }
         val chain: WebFilterChain = mockk {
-            every { filter(any()) } returns Mono.empty()
+            every { filter(any()) } returns Mono.subscriberContext().flatMap {
+                generatedContext = it
+                Mono.empty<Void>()
+            }
         }
 
         val contextFilter = ContextWebFilter(EmptyContextFactory)
         StepVerifier.create(contextFilter.filter(exchange, chain))
-            .expectAccessibleContext()
-            .hasSize(1)
-            .hasKey(GRAPHQL_CONTEXT_KEY)
-            .assertThat {
-                val graphQLContext = it.getOrDefault<GraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
-                assertNotNull(graphQLContext)
-            }
-            .then()
             .verifyComplete()
+
+        assertNotNull(generatedContext)
+        val graphQLContext = generatedContext?.getOrDefault<GraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
+        assertNotNull(graphQLContext)
     }
 }
