@@ -19,7 +19,6 @@ package com.expediagroup.graphql.sample
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
-import com.expediagroup.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
 import com.expediagroup.graphql.sample.extension.CustomFederationSchemaGeneratorHooks
 import javax.validation.Validator
 import org.springframework.boot.autoconfigure.SpringBootApplication
