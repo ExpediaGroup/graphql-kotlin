@@ -24,7 +24,6 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaType
 
-
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
