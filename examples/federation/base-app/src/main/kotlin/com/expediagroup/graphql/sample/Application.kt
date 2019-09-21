@@ -16,12 +16,50 @@
 
 package com.expediagroup.graphql.sample
 
+import com.expediagroup.graphql.SchemaGeneratorConfig
+import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.sample.datafetchers.CustomDataFetcherFactoryProvider
+import com.expediagroup.graphql.sample.datafetchers.SpringDataFetcherFactory
+import com.expediagroup.graphql.sample.directives.CustomDirectiveWiringFactory
+import com.expediagroup.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
+import com.expediagroup.graphql.sample.extension.CustomSchemaGeneratorHooks
+import graphql.execution.DataFetcherExceptionHandler
+import javax.validation.Validator
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
-class Application
+class Application {
 
+    @Bean
+    fun wiringFactory() = CustomDirectiveWiringFactory()
+
+    @Bean
+    fun federatedTypeRegistry() = FederatedTypeRegistry()
+
+    @Bean
+    fun hooks(validator: Validator, wiringFactory: KotlinDirectiveWiringFactory, federatedTypeRegistry: FederatedTypeRegistry) =
+        CustomSchemaGeneratorHooks(validator, wiringFactory, federatedTypeRegistry)
+
+    @Bean
+    fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: FederatedSchemaGeneratorHooks) =
+        CustomDataFetcherFactoryProvider(springDataFetcherFactory, hooks)
+
+    @Bean
+    fun schemaConfig(hooks: FederatedSchemaGeneratorHooks, dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
+        supportedPackages = listOf("com.expediagroup"),
+        hooks = hooks,
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider
+    )
+
+    @Bean
+    fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()
+}
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
     runApplication<Application>(*args)

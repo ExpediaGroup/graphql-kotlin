@@ -59,6 +59,7 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
 
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
         val originalSchema = builder.build()
+        val x = originalSchema.print(includeScalarTypes = false)
         val originalQuery = originalSchema.queryType
 
         val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
