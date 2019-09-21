@@ -18,7 +18,11 @@ package com.expediagroup.graphql.generator.extensions
 
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.extensionReceiverParameter
 import kotlin.reflect.full.valueParameters
+
+internal fun KFunction<*>.isExtension(): Boolean = this.extensionReceiverParameter != null
 
 internal fun KFunction<*>.getValidArguments(): List<KParameter> =
     this.valueParameters
