@@ -16,15 +16,11 @@
 
 package com.expediagroup.graphql.sample
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.sample.exceptions.CustomDataFetcherExceptionHandler
-import com.expediagroup.graphql.sample.extension.CustomSchemaGeneratorHooks
-import graphql.execution.DataFetcherExceptionHandler
+import com.expediagroup.graphql.sample.extension.CustomFederationSchemaGeneratorHooks
 import javax.validation.Validator
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -37,7 +33,7 @@ class Application {
 
     @Bean
     fun hooks(validator: Validator,federatedTypeRegistry: FederatedTypeRegistry) =
-        CustomSchemaGeneratorHooks(validator, federatedTypeRegistry)
+        CustomFederationSchemaGeneratorHooks(validator, federatedTypeRegistry)
 
 
     @Bean

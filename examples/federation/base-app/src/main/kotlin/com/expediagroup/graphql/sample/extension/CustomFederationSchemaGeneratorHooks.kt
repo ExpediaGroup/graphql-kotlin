@@ -33,7 +33,7 @@ import kotlin.reflect.KType
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomSchemaGeneratorHooks(validator: Validator, federatedTypeRegistry: FederatedTypeRegistry) : FederatedSchemaGeneratorHooks(federatedTypeRegistry) {
+class CustomFederationSchemaGeneratorHooks(validator: Validator, federatedTypeRegistry: FederatedTypeRegistry) : FederatedSchemaGeneratorHooks(federatedTypeRegistry) {
 
     /**
      * Register additional GraphQL scalar types.
