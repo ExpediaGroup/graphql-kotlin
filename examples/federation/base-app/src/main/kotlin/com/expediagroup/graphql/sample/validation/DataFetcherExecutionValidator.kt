@@ -36,8 +36,7 @@ class DataFetcherExecutionValidator(private val validator: Validator) : DataFetc
 
         if (validations.isEmpty()) {
             return value
-        }
-        else {
+        } else {
             throw ValidationException(validations.map { it.asConstraintError() })
         }
     }

@@ -16,11 +16,9 @@
 
 package com.expediagroup.graphql.sample.extension
 
-import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.execution.DataFetcherExecutionPredicate
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.sample.validation.DataFetcherExecutionValidator
 import graphql.language.StringValue
 import graphql.schema.Coercing

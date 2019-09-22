@@ -31,9 +31,8 @@ class Application {
     fun federatedTypeRegistry() = FederatedTypeRegistry()
 
     @Bean
-    fun hooks(validator: Validator,federatedTypeRegistry: FederatedTypeRegistry) =
+    fun hooks(validator: Validator, federatedTypeRegistry: FederatedTypeRegistry) =
         CustomFederationSchemaGeneratorHooks(validator, federatedTypeRegistry)
-
 
     @Bean
     fun schemaConfig(hooks: FederatedSchemaGeneratorHooks): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
