@@ -54,10 +54,12 @@ internal class FunctionBuilderTest : TypeTestHelper() {
 
     internal interface MyInterface {
         fun printMessage(message: String): String
+        fun nestedReturnType(): MyImplementation
     }
 
     internal class MyImplementation : MyInterface {
         override fun printMessage(message: String): String = "message=$message"
+        override fun nestedReturnType(): MyImplementation = MyImplementation()
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
@@ -281,5 +283,18 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         assertTrue(result.type is GraphQLNonNull)
         val stringType = GraphQLTypeUtil.unwrapNonNull(result.type)
         assertEquals("String", stringType.name)
+    }
+
+    @Test
+    fun `Nested Self referencing object returns non null`() {
+        val kInterfaceFunction = MyInterface::nestedReturnType
+        val kInterfaceResult = builder.function(fn = kInterfaceFunction, parentName = "Query", target = null, abstract = false)
+
+
+        val kImplFunction = MyImplementation::nestedReturnType
+        val implResult = builder.function(fn = kImplFunction, parentName = "Query", target = null, abstract = false)
+
+        assertTrue(implResult.type is GraphQLNonNull)
+        assertEquals(kInterfaceResult.type, implResult.type)
     }
 }
