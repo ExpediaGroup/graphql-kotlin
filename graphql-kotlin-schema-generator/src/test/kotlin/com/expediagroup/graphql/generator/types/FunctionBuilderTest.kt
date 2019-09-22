@@ -289,8 +289,6 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     fun `Nested Self referencing object returns non null`() {
         val kInterfaceFunction = MyInterface::nestedReturnType
         val kInterfaceResult = builder.function(fn = kInterfaceFunction, parentName = "Query", target = null, abstract = false)
-
-
         val kImplFunction = MyImplementation::nestedReturnType
         val implResult = builder.function(fn = kImplFunction, parentName = "Query", target = null, abstract = false)
 

@@ -47,7 +47,6 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
 
         // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
         val unwrappedType = GraphQLTypeUtil.unwrapType(graphQLType).lastElement()
-
         val typeWithNullability = graphQLType.wrapInNonNull(type)
         if (unwrappedType !is GraphQLTypeReference) {
             return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
