@@ -18,8 +18,13 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.spring.model.GraphQLRequest
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -43,17 +48,24 @@ import kotlin.random.Random
 @EnableAutoConfiguration
 class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
 
+    val objectMapper = jacksonObjectMapper().registerKotlinModule()
+
     @Test
     fun `verify subscription`() {
-        val request = getRequest("subscription { characters }")
+        val request = GraphQLRequest("subscription { characters }")
+        val message = SubscriptionOperationMessage(GQL_START.type, payload = request)
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(request)))
-                .thenMany(session.receive().map(WebSocketMessage::getPayloadAsText))
+            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+                .thenMany(session.receive()
+                    .map(WebSocketMessage::getPayloadAsText)
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.writeValueAsString(it.payload) }
+                )
                 .subscribeWith(output)
                 .take(5)
                 .then()
@@ -70,16 +82,46 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     }
 
     @Test
-    fun `verify subscription to counter`() {
-        val request = getRequest("subscription { counter }")
+    fun `verify graphql-ws subscription init`() {
+        val request = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(request)))
-                .thenMany(session.receive().map(WebSocketMessage::getPayloadAsText))
+            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(request))))
+                .thenMany(session.receive()
+                    .map(WebSocketMessage::getPayloadAsText)
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.writeValueAsString(it.payload) }
+                )
+                .subscribeWith(output)
+                .take(0)
+                .then()
+        }
+
+        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun `verify subscription to counter`() {
+        val request = GraphQLRequest("subscription { counter }")
+        val message = SubscriptionOperationMessage(GQL_START.type, payload = request)
+        val output = ReplayProcessor.create<String>()
+
+        val client = ReactorNettyWebSocketClient()
+        val uri = URI.create("ws://localhost:$port/subscriptions")
+
+        val sessionMono = client.execute(uri) { session ->
+            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+                .thenMany(session.receive()
+                    .map(WebSocketMessage::getPayloadAsText)
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.writeValueAsString(it.payload) }
+                )
                 .subscribeWith(output)
                 .take(5)
                 .then()
@@ -93,7 +135,8 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
 
     @Test
     fun `verify subscription with context`() {
-        val request = getRequest("subscription { ticker }")
+        val request = GraphQLRequest("subscription { ticker }")
+        val message = SubscriptionOperationMessage(GQL_START.type, payload = request)
         val output = ReplayProcessor.create<String>()
 
         val httpClient = HttpClient.create().headers { it.set("X-Custom-Header", "junit") }
@@ -101,8 +144,12 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(request)))
-                .thenMany(session.receive().map(WebSocketMessage::getPayloadAsText))
+            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+                .thenMany(session.receive()
+                    .map(WebSocketMessage::getPayloadAsText)
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.writeValueAsString(it.payload) }
+                )
                 .subscribeWith(output)
                 .take(1)
                 .then()
@@ -113,8 +160,6 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
             .expectComplete()
             .verify()
     }
-
-    private fun getRequest(query: String) = jacksonObjectMapper().writeValueAsString(GraphQLRequest(query))
 
     @Configuration
     class TestConfiguration {
