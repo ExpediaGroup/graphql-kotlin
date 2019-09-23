@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.sample.query
 
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.operations.Query
-import graphql.ExceptionWhileDataFetching
 import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionPath
 import graphql.language.SourceLocation
@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture
 class DataAndErrors : Query {
 
     fun returnDataAndErrors(): DataFetcherResult<String> {
-        val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+        val error = SimpleKotlinGraphQLError(RuntimeException(), listOf(SourceLocation(1, 1)), ExecutionPath.rootPath().toList())
         return DataFetcherResult.newResult<String>()
             .data("Hello from data fetcher")
             .error(error)
@@ -36,7 +36,7 @@ class DataAndErrors : Query {
     }
 
     fun completableFutureDataAndErrors(): CompletableFuture<DataFetcherResult<String>> {
-        val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+        val error = SimpleKotlinGraphQLError(RuntimeException(), listOf(SourceLocation(1, 1)), ExecutionPath.rootPath().toList())
         val dataFetcherResult = DataFetcherResult.newResult<String>()
             .data("Hello from data fetcher")
             .error(error)
