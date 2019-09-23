@@ -35,7 +35,7 @@ class KotlinDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         val sourceLocation = handlerParameters.sourceLocation
         val path = handlerParameters.path
 
-        val error: GraphQLError = ExceptionWhileDataFetching(path, exception, sourceLocation)
+        val error: GraphQLError = SimpleKotlinGraphQLError(exception = exception, locations = listOf(sourceLocation), path = path.toList())
         logger.warn(error.message, exception)
         return DataFetcherExceptionHandlerResult.newResult(error).build()
     }
