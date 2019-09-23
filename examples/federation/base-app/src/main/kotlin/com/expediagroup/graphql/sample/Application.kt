@@ -20,7 +20,6 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.sample.extension.CustomFederationSchemaGeneratorHooks
-import javax.validation.Validator
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -28,11 +27,8 @@ import org.springframework.context.annotation.Bean
 @SpringBootApplication
 class Application {
     @Bean
-    fun federatedTypeRegistry() = FederatedTypeRegistry()
-
-    @Bean
-    fun hooks(validator: Validator, federatedTypeRegistry: FederatedTypeRegistry) =
-        CustomFederationSchemaGeneratorHooks(validator, federatedTypeRegistry)
+    fun hooks(federatedTypeRegistry: FederatedTypeRegistry) =
+        CustomFederationSchemaGeneratorHooks(federatedTypeRegistry)
 
     @Bean
     fun schemaConfig(hooks: FederatedSchemaGeneratorHooks): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
@@ -40,6 +36,7 @@ class Application {
         hooks = hooks
     )
 }
+
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
     runApplication<Application>(*args)
