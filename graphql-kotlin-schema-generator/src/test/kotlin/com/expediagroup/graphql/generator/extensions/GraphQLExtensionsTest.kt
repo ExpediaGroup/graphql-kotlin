@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLType
-import com.expediagroup.graphql.exceptions.NestingNonNullTypeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
@@ -52,13 +51,10 @@ internal class GraphQLExtensionsTest {
     private val mockDirective: GraphQLDirective = mockk()
 
     @Test
-    fun `wrapInNonNull twice throws exception`() {
+    fun `wrapInNonNull twice returns object`() {
         val nonNull = GraphQLNonNull(basicType)
         val mockKType: KType = mockk()
-
-        assertFailsWith(NestingNonNullTypeException::class) {
-            nonNull.wrapInNonNull(mockKType)
-        }
+        assertEquals(nonNull, nonNull.wrapInNonNull(mockKType))
     }
 
     @Test

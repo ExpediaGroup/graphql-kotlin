@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLType
-import com.expediagroup.graphql.exceptions.NestingNonNullTypeException
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
@@ -27,11 +26,10 @@ import kotlin.reflect.KType
 
 /**
  * Map null and non-null types.
- * Throws an exception on wrapping a non-null graphql type twice.
+ * Returns same type when wrapping a non-null graphql type twice.
  */
-@Throws(NestingNonNullTypeException::class)
 internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
-    this is GraphQLNonNull -> throw NestingNonNullTypeException(this, type)
+    this is GraphQLNonNull -> this
     type.isMarkedNullable -> this
     else -> GraphQLNonNull.nonNull(this)
 }

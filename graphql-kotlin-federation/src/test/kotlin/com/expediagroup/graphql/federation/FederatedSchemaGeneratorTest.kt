@@ -157,7 +157,7 @@ class FederatedSchemaGeneratorTest {
             type SelfReferenceObject {
               description: String
               id: Int!
-              nextObject: [SelfReferenceObject]
+              nextObject: [SelfReferenceObject]!
             }
 
             type _Service {
