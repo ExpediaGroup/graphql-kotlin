@@ -48,8 +48,8 @@ class SubscriptionAutoConfiguration {
     fun websocketHandlerAdapter(): WebSocketHandlerAdapter = WebSocketHandlerAdapter()
 
     @Bean
-    fun apolloSubscriptionProtocolHandler(handler: SubscriptionHandler, objectMapper: ObjectMapper) =
-        ApolloSubscriptionProtocolHandler(handler, objectMapper)
+    fun apolloSubscriptionProtocolHandler(config: GraphQLConfigurationProperties, handler: SubscriptionHandler, objectMapper: ObjectMapper) =
+        ApolloSubscriptionProtocolHandler(config, handler, objectMapper)
 
     @Bean
     fun subscriptionWebSocketHandler(handler: ApolloSubscriptionProtocolHandler, objectMapper: ObjectMapper) =

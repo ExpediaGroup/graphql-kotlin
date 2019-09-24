@@ -53,7 +53,7 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest("subscription { characters }")
-        val message = SubscriptionOperationMessage(GQL_START.type, payload = request)
+        val message = SubscriptionOperationMessage(GQL_START.type, id = "1", payload = request)
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
@@ -109,7 +109,7 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscription to counter`() {
         val request = GraphQLRequest("subscription { counter }")
-        val message = SubscriptionOperationMessage(GQL_START.type, payload = request)
+        val message = SubscriptionOperationMessage(GQL_START.type, id = "2", payload = request)
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
@@ -136,7 +136,7 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscription with context`() {
         val request = GraphQLRequest("subscription { ticker }")
-        val message = SubscriptionOperationMessage(GQL_START.type, payload = request)
+        val message = SubscriptionOperationMessage(GQL_START.type, id = "3", payload = request)
         val output = ReplayProcessor.create<String>()
 
         val httpClient = HttpClient.create().headers { it.set("X-Custom-Header", "junit") }
