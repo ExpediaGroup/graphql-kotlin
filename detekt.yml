@@ -29,6 +29,10 @@ complexity:
   ComplexInterface:
     threshold: 15
 
+naming:
+  FunctionMaxLength:
+    maximumFunctionNameLength: 35
+
 style:
   MagicNumber:
     ignoreEnums: true

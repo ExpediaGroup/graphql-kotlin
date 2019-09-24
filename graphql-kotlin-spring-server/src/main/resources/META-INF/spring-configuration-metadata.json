@@ -21,6 +21,12 @@
       "type": "java.lang.String",
       "defaultValue": "subscriptions",
       "sourceType": "com.expediagroup.graphql.spring.SubscriptionConfigurationProperties"
+    },
+    {
+      "name": "graphql.subscriptions.keepAliveInterval",
+      "type": "java.lang.Long",
+      "defaultValue": "null",
+      "sourceType": "com.expediagroup.graphql.spring.SubscriptionConfigurationProperties"
     }
   ]
 }

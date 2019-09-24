@@ -45,4 +45,6 @@ class FederationConfigurationProperties {
 class SubscriptionConfigurationProperties {
     /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
     var endpoint: String = "subscriptions"
+    /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
+    var keepAliveInterval: Long? = null
 }
