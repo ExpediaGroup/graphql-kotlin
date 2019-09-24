@@ -43,6 +43,7 @@ import kotlin.reflect.full.findAnnotation
  */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
     private val directiveRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val declaredDirectiveRegex = "@(?!extends)(?!external)(?!key)(?!provides)(?!requires)\\w+(?:\\(.*(?=\\))\\))?".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val scalarRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQuery = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
@@ -88,6 +89,7 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
                 .replace(directiveRegex, "")
                 .replace(scalarRegex, "")
                 .replace(emptyQuery, "")
+                .replace(declaredDirectiveRegex, "")
                 .trim()
 
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
