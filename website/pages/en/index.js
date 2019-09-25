@@ -92,7 +92,14 @@ class Index extends React.Component {
         className="productShowcaseSection paddingBottom"
         style={{textAlign: 'center'}}>
         <h2>This is the nifty landing page</h2>
-        <MarkdownBlock>Eventually it will be very much niftier than this. For now, just click on Docs in the upper right.
+        <MarkdownBlock>
+          We'll add more jump-page stuff later. For now, proceed to the docs:
+        </MarkdownBlock>
+        <MarkdownBlock>
+          [Documentation](docs/doc-main)
+          </MarkdownBlock>
+          <MarkdownBlock>          
+          [Getting Started](docs/getting-started)
         </MarkdownBlock>
       </div>
     );
