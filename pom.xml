@@ -202,7 +202,7 @@
                     <version>${jacoco-maven-plugin.version}</version>
                     <configuration>
                         <excludes>
-                            <exclude>**/*com/expediagroup/graphql/sample/**</exclude>
+                            <exclude>**/com/expediagroup/graphql/examples/**</exclude>
                         </excludes>
                     </configuration>
                     <executions>
