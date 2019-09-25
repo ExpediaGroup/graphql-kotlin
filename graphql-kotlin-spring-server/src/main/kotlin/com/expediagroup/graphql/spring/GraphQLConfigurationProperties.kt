@@ -50,12 +50,10 @@ class SubscriptionConfigurationProperties {
     var keepAliveInterval: Long? = null
 }
 
-
 /**
  * Play ground configuration properties.
  */
-class PlayGroundConfigurationProperties  {
-
+class PlayGroundConfigurationProperties {
     /** playground service endpoint, defaults to '/' */
     var enabled: Boolean = true
     var endpoint: String = "/"

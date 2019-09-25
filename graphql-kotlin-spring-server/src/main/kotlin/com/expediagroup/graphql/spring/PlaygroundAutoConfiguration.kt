@@ -29,7 +29,7 @@ import org.springframework.web.reactive.function.server.html
 /**
  * SpringBoot auto configuration for generating Playground Service.
  */
-@ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing =true)
+@ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing = true)
 @Configuration
 class PlaygroundAutoConfiguration(
     private val config: GraphQLConfigurationProperties,
