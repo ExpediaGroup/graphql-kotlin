@@ -45,8 +45,7 @@ class RoutesConfiguration(
     private val queryHandler: QueryHandler,
     private val objectMapper: ObjectMapper
 ) {
-    @Suppress("VariableNaming")
-    private val APPLICATION_GRAPHQL: MediaType = MediaType("application", "graphql")
+    private val graphQLMediaType: MediaType = MediaType("application", "graphql")
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean
@@ -80,7 +79,7 @@ class RoutesConfiguration(
         }
         serverRequest.method() == HttpMethod.POST -> when (serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)) {
             MediaType.APPLICATION_JSON -> serverRequest.awaitBody()
-            APPLICATION_GRAPHQL -> GraphQLRequest(query = serverRequest.awaitBody())
+            graphQLMediaType -> GraphQLRequest(query = serverRequest.awaitBody())
             else -> null
         }
         else -> null
