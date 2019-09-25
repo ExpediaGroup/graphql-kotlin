@@ -62,20 +62,20 @@
 
         <!-- Dependency Versions -->
         <graphql-java.version>13.0</graphql-java.version>
-        <jackson-module-kotlin.version>2.9.8</jackson-module-kotlin.version>
+        <jackson-module-kotlin.version>2.9.10</jackson-module-kotlin.version>
         <kotlin.version>1.3.50</kotlin.version>
-        <kotlin-coroutines.version>1.3.1</kotlin-coroutines.version>
+        <kotlin-coroutines.version>1.3.2</kotlin-coroutines.version>
         <reflections.version>0.9.11</reflections.version>
 
         <!-- Test Dependency Versions -->
-        <junit-jupiter.version>5.4.2</junit-jupiter.version>
+        <junit-jupiter.version>5.5.2</junit-jupiter.version>
         <mockk.version>1.9.3</mockk.version>
 
         <!-- Build Plugin Versions -->
-        <dokka-maven-plugin.version>0.9.17</dokka-maven-plugin.version>
+        <dokka-maven-plugin.version>0.9.18</dokka-maven-plugin.version>
         <detekt.version>1.0.1</detekt.version>
         <ktlint.version>0.34.2</ktlint.version>
-        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
 
         <!-- disable default maven-deploy-plugin in favor of nexus-staging-maven-plugin -->
         <maven.deploy.skip>true</maven.deploy.skip>
