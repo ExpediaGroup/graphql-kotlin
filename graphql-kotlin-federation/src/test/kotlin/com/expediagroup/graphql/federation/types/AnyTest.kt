@@ -56,26 +56,26 @@ internal class AnyTest {
     fun `_Any scalar should parse ListValues`() {
         val coercing = ANY_SCALAR_TYPE.coercing
         val one = IntValue(BigInteger.ONE)
-        val two = IntValue(BigInteger.TWO)
+        val two = IntValue(BigInteger.TEN)
 
         val singleItemList = listOf<Value<IntValue>>(one)
         assertEquals(expected = listOf(BigInteger.ONE), actual = coercing.parseLiteral(ArrayValue(singleItemList)))
 
         val multiItemList = listOf<Value<IntValue>>(one, two)
-        assertEquals(expected = listOf(BigInteger.ONE, BigInteger.TWO), actual = coercing.parseLiteral(ArrayValue(multiItemList)))
+        assertEquals(expected = listOf(BigInteger.ONE, BigInteger.TEN), actual = coercing.parseLiteral(ArrayValue(multiItemList)))
     }
 
     @Test
     fun `_Any scalar should parse ObjectValues`() {
         val coercing = ANY_SCALAR_TYPE.coercing
         val fieldOne = ObjectField("one", IntValue(BigInteger.ONE))
-        val fieldTwo = ObjectField("two", IntValue(BigInteger.TWO))
+        val fieldTwo = ObjectField("ten", IntValue(BigInteger.TEN))
 
         val singleField = ObjectValue(listOf(fieldOne))
         assertEquals(expected = mapOf("one" to BigInteger.ONE), actual = coercing.parseLiteral(singleField))
 
         val multipleFields = ObjectValue(listOf(fieldOne, fieldTwo))
-        assertEquals(expected = mapOf("one" to BigInteger.ONE, "two" to BigInteger.TWO), actual = coercing.parseLiteral(multipleFields))
+        assertEquals(expected = mapOf("one" to BigInteger.ONE, "ten" to BigInteger.TEN), actual = coercing.parseLiteral(multipleFields))
 
         assertFailsWith(AssertException::class) {
             val mockValue: Value<*> = mockk()
