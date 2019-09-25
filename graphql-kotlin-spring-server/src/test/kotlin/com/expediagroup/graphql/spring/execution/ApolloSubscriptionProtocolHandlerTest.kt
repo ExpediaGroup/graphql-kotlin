@@ -38,10 +38,10 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
+import reactor.test.StepVerifier
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ApolloSubscriptionProtocolHandlerTest {
@@ -151,7 +151,30 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
         val flux = handler.handle(objectMapper.writeValueAsString(operationMessage), session)
 
-        assertNull(flux.blockFirst(Duration.ofSeconds(2)))
+        StepVerifier.create(flux)
+            .verifyComplete()
+
+        verify(exactly = 1) { session.close() }
+    }
+
+    @Test
+    fun `Close session when sending GQL_CONNECTION_TERMINATE with id`() {
+        val config: GraphQLConfigurationProperties = mockk()
+        val operationMessage = SubscriptionOperationMessage(GQL_CONNECTION_TERMINATE.type, id = "123")
+        val session: WebSocketSession = mockk {
+            every { close() } returns mockk()
+            every { id } returns "abc"
+        }
+        val subscriptionHandler: SubscriptionHandler = mockk()
+
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
+        val flux = handler.handle(objectMapper.writeValueAsString(operationMessage), session)
+
+        StepVerifier.create(flux)
+            .expectNextCount(0)
+            .thenAwait()
+            .verifyComplete()
+
         verify(exactly = 1) { session.close() }
     }
 
@@ -167,7 +190,11 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
         val flux = handler.handle(objectMapper.writeValueAsString(operationMessage), session)
 
-        assertNull(flux.blockFirst(Duration.ofSeconds(2)))
+        StepVerifier.create(flux)
+            .expectNextCount(0)
+            .thenCancel()
+            .verify()
+
         verify(exactly = 0) { session.close() }
     }
 

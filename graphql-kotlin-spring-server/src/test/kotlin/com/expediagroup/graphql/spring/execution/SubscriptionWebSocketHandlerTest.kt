@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.exception
+package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
+import io.mockk.mockk
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
-class UknownSubscriptionOperationType(operationMessage: SubscriptionOperationMessage) :
-    IllegalArgumentException("Unknown subscription operation $operationMessage")
+internal class SubscriptionWebSocketHandlerTest {
+
+    @Test
+    fun getSubProtocols() {
+        val handler = SubscriptionWebSocketHandler(mockk(), mockk())
+        assertEquals(expected = listOf("graphql-ws"), actual = handler.subProtocols)
+    }
+}
