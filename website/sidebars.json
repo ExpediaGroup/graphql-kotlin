@@ -14,7 +14,8 @@
                 "type": "subcategory",
                 "label": "Writing federated schemas with Kotlin",
                 "ids": [
-                    "federated/federated-schemas"
+                    "federated/federated-schemas",
+                    "federated/directives"
                 ]
             },
             {
