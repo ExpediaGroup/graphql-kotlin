@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.sample
+package com.expediagroup.graphql.spring
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
@@ -24,12 +26,20 @@ import org.springframework.web.reactive.function.server.bodyAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
 
+/**
+ * SpringBoot auto configuration for generating Playground Service.
+ */
+@ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing =true)
 @Configuration
-class RoutesConfiguration(@Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource) {
+class PlaygroundAutoConfiguration(
+    private val config: GraphQLConfigurationProperties,
+    @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
+) {
 
     @Bean
-    fun playgroundRoute() = coRouter {
-        GET("/playground") {
+    @ExperimentalCoroutinesApi
+    fun playGroundRoute() = coRouter {
+        GET(config.playground.endpoint) {
             ok().html().bodyAndAwait(playgroundHtml)
         }
     }

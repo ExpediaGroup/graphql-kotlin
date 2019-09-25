@@ -29,6 +29,7 @@ class GraphQLConfigurationProperties {
     var packages: List<String> = emptyList()
     var federation: FederationConfigurationProperties = FederationConfigurationProperties()
     var subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties()
+    var playground: PlayGroundConfigurationProperties = PlayGroundConfigurationProperties()
 }
 
 /**
@@ -47,4 +48,15 @@ class SubscriptionConfigurationProperties {
     var endpoint: String = "subscriptions"
     /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
     var keepAliveInterval: Long? = null
+}
+
+
+/**
+ * Play ground configuration properties.
+ */
+class PlayGroundConfigurationProperties  {
+
+    /** playground service endpoint, defaults to '/' */
+    var enabled: Boolean = true
+    var endpoint: String = "/"
 }
