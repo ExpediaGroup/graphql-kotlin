@@ -44,7 +44,7 @@ import kotlin.reflect.full.findAnnotation
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
     private val directiveRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val scalarRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val emptyQuery = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val emptyQuery = "^type Query \\{$\\s+^}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
