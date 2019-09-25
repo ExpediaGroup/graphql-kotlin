@@ -16,15 +16,26 @@
 
 package com.expediagroup.graphql.spring.exception
 
+import graphql.ErrorType
 import graphql.execution.AbortExecutionException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class SimpleKotlinGraphQLErrorTest {
+
+    @Test
+    fun `Verify default values on contstructor`() {
+        val error = SimpleKotlinGraphQLError(Throwable())
+        assertNotNull(error.message)
+        assertTrue(error.locations.isEmpty())
+        assertNull(error.path)
+        assertEquals(expected = ErrorType.DataFetchingException, actual = error.errorType)
+    }
 
     @Test
     fun `Message defaults to value if it is not set in the exception`() {
