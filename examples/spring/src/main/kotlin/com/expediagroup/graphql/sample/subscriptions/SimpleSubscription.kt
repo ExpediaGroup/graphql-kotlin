@@ -18,6 +18,9 @@ package com.expediagroup.graphql.sample.subscriptions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Subscription
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.reactive.asPublisher
+import org.reactivestreams.Publisher
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -32,4 +35,17 @@ class SimpleSubscription : Subscription {
 
     @GraphQLDescription("Returns a random number every second")
     fun counter(): Flux<Int> = Flux.interval(Duration.ofSeconds(1)).map { Random.nextInt() }
+
+    @GraphQLDescription("Returns a random number every second, errors if even")
+    fun counterWithError(): Flux<Int> = Flux.interval(Duration.ofSeconds(1))
+        .map {
+            val value = Random.nextInt()
+            if (value % 2 == 0) {
+                throw Exception("Value is even $value")
+            }
+            else value
+        }
+
+    @GraphQLDescription("Returns list of values")
+    fun flow(): Publisher<Int> = flowOf(1, 2, 4).asPublisher()
 }

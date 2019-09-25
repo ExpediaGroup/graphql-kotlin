@@ -4,7 +4,7 @@
 
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin</artifactId>
-    <version>1.0.0-RC8-SNAPSHOT</version>
+    <version>1.0.0-RC11-SNAPSHOT</version>
     <name>graphql-kotlin</name>
     <description>Code-only GraphQL schema generation for Kotlin</description>
     <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
@@ -200,6 +200,11 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco-maven-plugin.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/*com/expediagroup/graphql/sample/**</exclude>
+                        </excludes>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
