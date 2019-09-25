@@ -86,7 +86,7 @@ class GraphQLResponseKtTest {
         assertNotNull(result.data)
         val errors = result.errors
         assertNotNull(errors)
-        assertEquals(expected = "hello" , actual = errors.firstOrNull()?.message)
+        assertEquals(expected = "hello", actual = errors.firstOrNull()?.message)
         val extensions = result.extensions
         assertNotNull(extensions)
         assertEquals(expected = "bar", actual = extensions["foo"])
