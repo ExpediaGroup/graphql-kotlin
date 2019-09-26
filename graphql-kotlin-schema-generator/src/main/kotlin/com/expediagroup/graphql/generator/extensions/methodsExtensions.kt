@@ -16,12 +16,20 @@
 
 package com.expediagroup.graphql.generator.extensions
 
+import com.expediagroup.graphql.exceptions.InvalidExtensionFunction
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.kotlinFunction
 
-internal fun KFunction<*>.getValidArguments(): List<KParameter> =
-    this.valueParameters
-        .filterNot { it.isGraphQLContext() }
-        .filterNot { it.isGraphQLIgnored() }
-        .filterNot { it.isDataFetchingEnvironment() }
+internal fun Method.isStatic() = Modifier.isStatic(this.modifiers)
+
+@Throws(InvalidExtensionFunction::class)
+internal fun Method.asExtensionFunction(): KFunction<*> {
+    // has an open setter so storing this in a variable
+    val function = this.kotlinFunction
+    if (function == null || this.isStatic().not() || this.parameterTypes.isEmpty()) {
+        throw InvalidExtensionFunction(this)
+    }
+    return function
+}

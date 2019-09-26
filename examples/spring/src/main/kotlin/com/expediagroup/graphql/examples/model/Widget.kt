@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.examples.model
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLExtensionFunction
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 
 @GraphQLDescription("A useful widget")
@@ -34,3 +35,9 @@ data class Widget(
     @GraphQLDescription("returns original value multiplied by target OR null if original value was null")
     fun multiplyValueBy(multiplier: Int) = value?.times(multiplier)
 }
+
+@GraphQLExtensionFunction
+fun Widget.extension() = "this is an extension function"
+
+@GraphQLExtensionFunction
+fun Widget.extensionWithParam(int: Int) = int

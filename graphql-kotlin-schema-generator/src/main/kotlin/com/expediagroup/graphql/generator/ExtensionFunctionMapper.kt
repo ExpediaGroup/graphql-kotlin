@@ -13,10 +13,11 @@ internal class ExtensionFunctionMapper(supportedPackages: List<String>) {
 
     private val reflections = Reflections(supportedPackages, MethodAnnotationsScanner())
 
-    //currently throwing an error when something is annotated incorrectly. Other option would be just to filter it out
+    // currently throwing an error when something is annotated incorrectly. Other option would be just to filter it out
     private val extensionFunctions: Map<String, List<KFunction<*>>> = reflections.getMethodsAnnotatedWith(GraphQLExtensionFunction::class.java)
-        .map { it.asExtensionFunction()}
-        .groupBy { it.parameters.first().type.getSimpleName()}
+        .map { it.asExtensionFunction() }
+        .groupBy { it.parameters.first().type.getSimpleName() }
 
-    fun getValidExtensionFunctions(kclass: KClass<*>): List<KFunction<*>> = (extensionFunctions[kclass.getSimpleName()] ?: listOf()).filter { func -> functionFilters.all { it.invoke(func) } }
+    fun getValidExtensionFunctions(kclass: KClass<*>): List<KFunction<*>> = (extensionFunctions[kclass.getSimpleName()]
+        ?: listOf()).filter { func -> functionFilters.all { it.invoke(func) } }
 }

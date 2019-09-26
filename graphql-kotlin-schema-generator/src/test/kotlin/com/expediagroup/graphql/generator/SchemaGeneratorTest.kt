@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLExtensionFunction
 import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
@@ -369,6 +370,14 @@ class SchemaGeneratorTest {
         assertEquals(expected = 1, actual = errors.size)
     }
 
+    @Test
+    fun `SchemaGenerator defines extension type on class`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithExtensionFunction())), config = testSchemaConfig)
+        val extensionType = schema.getObjectType("EmptyClass")
+        val extensionField = extensionType.getFieldDefinition("extension").type as? GraphQLNonNull
+        assertEquals(Scalars.GraphQLString, extensionField?.wrappedType)
+    }
+
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
@@ -568,4 +577,13 @@ class SchemaGeneratorTest {
             return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
         }
     }
+
+    class QueryWithExtensionFunction {
+        fun query(something: String): EmptyClass? = EmptyClass()
+    }
+
+    class EmptyClass
 }
+
+@GraphQLExtensionFunction
+fun SchemaGeneratorTest.EmptyClass.extension(message: String): String = message
