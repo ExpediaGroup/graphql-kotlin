@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.examples.model.IWidget
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.examples.model.Widget
 import org.springframework.stereotype.Component
@@ -29,4 +30,6 @@ class WidgetQuery: Query {
 
     @GraphQLDescription("creates new widget for given ID")
     fun widgetById(@GraphQLDescription("The special ingredient") id: Int): Widget? = Widget(id)
+
+    fun iWidgetById(@GraphQLDescription("The special ingredient") id: Int): IWidget? = Widget(id)
 }

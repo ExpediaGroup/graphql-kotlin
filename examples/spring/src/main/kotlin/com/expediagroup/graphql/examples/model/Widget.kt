@@ -23,21 +23,25 @@ import com.expediagroup.graphql.annotations.GraphQLIgnore
 @GraphQLDescription("A useful widget")
 data class Widget(
     @GraphQLDescription("The widget's value that can be null")
-    var value: Int? = null,
+    override var value: Int? = null,
     @Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
     @GraphQLDescription("The widget's deprecated value that shouldn't be used")
     val deprecatedValue: Int? = value,
     @GraphQLIgnore
     val ignoredField: String? = "ignored",
     private val hiddenField: String? = "hidden"
-) {
+): IWidget {
 
     @GraphQLDescription("returns original value multiplied by target OR null if original value was null")
     fun multiplyValueBy(multiplier: Int) = value?.times(multiplier)
 }
 
+
+interface IWidget{
+    var value: Int?
+}
 @GraphQLExtensionFunction
 fun Widget.extension() = "this is an extension function"
 
 @GraphQLExtensionFunction
-fun Widget.extensionWithParam(int: Int) = int
+fun IWidget.extensionWithParam(int: Int) = int
