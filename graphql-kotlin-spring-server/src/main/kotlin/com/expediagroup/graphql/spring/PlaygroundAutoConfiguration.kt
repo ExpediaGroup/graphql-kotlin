@@ -22,9 +22,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
-import org.springframework.web.reactive.function.server.bodyAndAwait
+import org.springframework.web.reactive.function.server.RouterFunction
+import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
+import org.springframework.web.reactive.function.server.bodyAndAwait
 
 /**
  * SpringBoot auto configuration for generating Playground Service.
@@ -36,15 +38,17 @@ class PlaygroundAutoConfiguration(
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
 ) {
 
-    private val body = playgroundHtml.file.readText()
-        .replace("\${graphQLEndpoint}", config.endpoint)
-        .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
-
     @Bean
     @ExperimentalCoroutinesApi
-    fun playGroundRoute() = coRouter {
-        GET(config.playground.endpoint) {
-            ok().html().bodyAndAwait(body)
+    fun playGroundRoute(): RouterFunction<ServerResponse> {
+        val body = playgroundHtml.file.readText()
+            .replace("\${graphQLEndpoint}", config.endpoint)
+            .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
+
+        return coRouter {
+            GET(config.playground.endpoint) {
+                ok().html().bodyAndAwait(body)
+            }
         }
     }
 }
