@@ -36,15 +36,15 @@ class PlaygroundAutoConfiguration(
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
 ) {
 
+    private val body = playgroundHtml.file.readText()
+        .replace("\${graphQLEndpoint}", config.endpoint)
+        .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
+
     @Bean
     @ExperimentalCoroutinesApi
     fun playGroundRoute() = coRouter {
         GET(config.playground.endpoint) {
-            ok().html().bodyAndAwait(
-                playgroundHtml.file.readText()
-                    .replace("\${graphQLEndpoint}", config.endpoint)
-                    .replace("\${webSocketEndpoint}", config.subscriptions.endpoint)
-            )
+            ok().html().bodyAndAwait(body)
         }
     }
 }
