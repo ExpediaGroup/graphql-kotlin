@@ -29,6 +29,7 @@ class GraphQLConfigurationProperties {
     var packages: List<String> = emptyList()
     var federation: FederationConfigurationProperties = FederationConfigurationProperties()
     var subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties()
+    var playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties()
 }
 
 /**
@@ -47,4 +48,14 @@ class SubscriptionConfigurationProperties {
     var endpoint: String = "subscriptions"
     /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
     var keepAliveInterval: Long? = null
+}
+
+/**
+ * Playground configuration properties.
+ */
+class PlaygroundConfigurationProperties {
+    /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
+    var enabled: Boolean = true
+    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to "/playground" */
+    var endpoint: String = "/playground"
 }
