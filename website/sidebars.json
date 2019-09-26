@@ -1,5 +1,54 @@
 {
     "docs": {
-        "GraphQL-Kotlin": ["doc-main", "getting-started"]
+        "GraphQL-Kotlin": [
+            "doc-main",
+            "getting-started",
+            {
+                "type": "subcategory",
+                "label": "Writing schemas with Kotlin",
+                "ids": [
+                    "writing-schemas/basics"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "Writing federated schemas with Kotlin",
+                "ids": [
+                    "federated/federated-schemas",
+                    "federated/directives"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "Execution",
+                "ids": [
+                    "execution/data-fetching-environment",
+                    "execution/async-models",
+                    "execution/subscriptions"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "Server",
+                "ids": [
+                    "server/spring",
+                    "server/spring-config"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "Examples",
+                "ids": [
+                    "examples/examples"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "Contributors",
+                "ids": [
+                    "contributors/release-proc"
+                ]
+            }
+        ]
     }
 }
