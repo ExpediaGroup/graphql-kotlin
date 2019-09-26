@@ -41,15 +41,14 @@ class PlaygroundAutoConfiguration(
     @Bean
     @ExperimentalCoroutinesApi
     fun playgroundRoute(): RouterFunction<ServerResponse> {
-        playgroundHtml.inputStream.bufferedReader().use { reader ->
-            val content = reader.readText()
+        val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
+            reader.readText()
                 .replace("\${graphQLEndpoint}", config.endpoint)
                 .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
-
-            return coRouter {
-                GET(config.playground.endpoint) {
-                    ok().html().bodyAndAwait(content)
-                }
+        }
+        return coRouter {
+            GET(config.playground.endpoint) {
+                ok().html().bodyAndAwait(body)
             }
         }
     }
