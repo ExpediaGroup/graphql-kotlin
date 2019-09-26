@@ -29,7 +29,7 @@ class GraphQLConfigurationProperties {
     var packages: List<String> = emptyList()
     var federation: FederationConfigurationProperties = FederationConfigurationProperties()
     var subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties()
-    var playground: PlayGroundConfigurationProperties = PlayGroundConfigurationProperties()
+    var playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties()
 }
 
 /**
@@ -51,10 +51,10 @@ class SubscriptionConfigurationProperties {
 }
 
 /**
- * Play ground configuration properties.
+ * Playground configuration properties.
  */
-class PlayGroundConfigurationProperties {
-    /** playground service endpoint, defaults to '/' */
+class PlaygroundConfigurationProperties {
+    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to "/" */
     var enabled: Boolean = true
     var endpoint: String = "/"
 }

@@ -40,7 +40,7 @@ class PlaygroundAutoConfiguration(
 
     @Bean
     @ExperimentalCoroutinesApi
-    fun playGroundRoute(): RouterFunction<ServerResponse> {
+    fun playgroundRoute(): RouterFunction<ServerResponse> {
         val body = playgroundHtml.file.readText()
             .replace("\${graphQLEndpoint}", config.endpoint)
             .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)

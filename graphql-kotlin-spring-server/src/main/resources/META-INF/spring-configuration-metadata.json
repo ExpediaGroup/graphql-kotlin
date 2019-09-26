@@ -31,13 +31,13 @@
     {
       "name": "graphql.playground.enabled",
       "type": "java.lang.Boolean",
-      "sourceType": "com.expediagroup.graphql.spring.PlayGroundConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.PlaygroundConfigurationProperties",
       "defaultValue": true
     },
     {
       "name": "graphql.playground.endpoint",
       "type": "java.lang.String",
-      "sourceType": "com.expediagroup.graphql.spring.PlayGroundConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.PlaygroundConfigurationProperties",
       "defaultValue": "/"
     }
   ]
