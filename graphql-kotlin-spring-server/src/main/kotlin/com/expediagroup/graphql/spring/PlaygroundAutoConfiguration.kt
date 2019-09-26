@@ -27,6 +27,7 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
 import org.springframework.web.reactive.function.server.bodyAndAwait
+import java.io.BufferedReader
 
 /**
  * SpringBoot auto configuration for generating Playground Service.
@@ -41,13 +42,17 @@ class PlaygroundAutoConfiguration(
     @Bean
     @ExperimentalCoroutinesApi
     fun playgroundRoute(): RouterFunction<ServerResponse> {
-        val body = playgroundHtml.file.readText()
-            .replace("\${graphQLEndpoint}", config.endpoint)
-            .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
+        val reader = BufferedReader(playgroundHtml.inputStream.reader())
+        var content = ""
+        reader.use { reader ->
+            content = reader.readText()
+                .replace("\${graphQLEndpoint}", config.endpoint)
+                .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
+        }
 
         return coRouter {
             GET(config.playground.endpoint) {
-                ok().html().bodyAndAwait(body)
+                ok().html().bodyAndAwait(content)
             }
         }
     }
