@@ -40,7 +40,11 @@ class PlaygroundAutoConfiguration(
     @ExperimentalCoroutinesApi
     fun playGroundRoute() = coRouter {
         GET(config.playground.endpoint) {
-            ok().html().bodyAndAwait(playgroundHtml)
+            ok().html().bodyAndAwait(
+                playgroundHtml.file.readText()
+                    .replace("\${graphQLEndpoint}", config.endpoint)
+                    .replace("\${webSocketEndpoint}", config.subscriptions.endpoint)
+            )
         }
     }
 }
