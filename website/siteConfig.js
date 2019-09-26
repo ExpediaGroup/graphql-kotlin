@@ -11,10 +11,14 @@
 const siteConfig = {
     title: 'graphql-kotlin User Documentation', // Title for your website.
     tagline: 'Simplifying GraphQL integration for Kotlin applications',
-    url: 'https://ExpediaGroup.github.io', // Your website URL
+
+    // temporarily publishing at EXPErdelfavero for development purposes. Will publish at ExpediaGroup when ready.
+    //     url: 'https://ExpediaGroup.github.io',
+    url: 'https://Experdelfavero.github.io', // Your website URL
     baseUrl: '/graphql-kotlin/', // Base URL for your project */
     projectName: 'graphql-kotlin',
-    organizationName: 'ExpediaGroup',
+    // organizationName: 'ExpediaGroup',
+    organizationName: 'Experdelfavero',
 
     // For no header links in the top nav bar -> headerLinks: [],
     headerLinks: [
