@@ -38,7 +38,7 @@
       "name": "graphql.playground.endpoint",
       "type": "java.lang.String",
       "sourceType": "com.expediagroup.graphql.spring.PlaygroundConfigurationProperties",
-      "defaultValue": "/"
+      "defaultValue": "/playground"
     }
   ]
 }

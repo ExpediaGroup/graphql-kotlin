@@ -54,7 +54,7 @@ class SubscriptionConfigurationProperties {
  * Playground configuration properties.
  */
 class PlaygroundConfigurationProperties {
-    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to "/" */
+    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to "/playground" */
     var enabled: Boolean = true
-    var endpoint: String = "/"
+    var endpoint: String = "/playground"
 }
