@@ -16,10 +16,7 @@
 
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
@@ -28,23 +25,14 @@ import reactor.core.publisher.Mono
  * Default WebSocket handler for handling GraphQL subscriptions.
  */
 class SubscriptionWebSocketHandler(
-    private val subscriptionHandler: SubscriptionHandler,
+    private val subscriptionHandler: ApolloSubscriptionProtocolHandler,
     private val objectMapper: ObjectMapper
 ) : WebSocketHandler {
-
-    private val logger = LoggerFactory.getLogger(SubscriptionWebSocketHandler::class.java)
 
     @Suppress("ForbiddenVoid")
     override fun handle(session: WebSocketSession): Mono<Void> {
         val response = session.receive()
-            .concatMap {
-                val graphQLRequest = objectMapper.readValue<GraphQLRequest>(it.payloadAsText)
-                subscriptionHandler.executeSubscription(graphQLRequest)
-                    .doOnSubscribe { logger.trace("WebSocket GraphQL subscription subscribe, ID=${session.id}") }
-                    .doOnCancel { logger.trace("WebSocket GraphQL subscription cancel, ID=${session.id}") }
-                    .doOnComplete { logger.trace("WebSocket GraphQL subscription complete, ID=${session.id}") }
-                    .doFinally { session.close() }
-            }
+            .flatMap { subscriptionHandler.handle(it.payloadAsText, session) }
             .map { objectMapper.writeValueAsString(it) }
             .map { session.textMessage(it) }
 

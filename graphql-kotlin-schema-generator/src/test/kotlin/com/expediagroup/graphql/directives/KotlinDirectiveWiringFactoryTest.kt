@@ -33,8 +33,8 @@ import graphql.util.TraversalControl
 import graphql.util.TraverserContext
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
 class KotlinDirectiveWiringFactoryTest {
@@ -253,8 +253,8 @@ class KotlinDirectiveWiringFactoryTest {
             .withDirective(graphQLLowercaseDirective)
             .build()
 
-        assertThrows<InvalidSchemaDirectiveWiringException> {
-            SimpleWiringFactory().onWire(graphQLType = myTestField)
+        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
+            SimpleWiringFactory().onWire(graphQLType = myTestField, coordinates = null, codeRegistry = null)
         }
     }
 
@@ -266,8 +266,22 @@ class KotlinDirectiveWiringFactoryTest {
             .withDirective(graphQLOverrideDescriptionDirective)
             .build()
 
-        assertThrows<InvalidSchemaDirectiveWiringException> {
+        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
             SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail"))).onWire(myTestObject)
+        }
+    }
+
+    @Test
+    fun `verify exception is thrown if invalid code registry`() {
+        val myTestObject = GraphQLObjectType.newObject()
+            .name("MyObject")
+            .description("My Object Description")
+            .withDirective(graphQLOverrideDescriptionDirective)
+            .build()
+
+        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
+            SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail")))
+                .onWire(graphQLType = myTestObject, coordinates = mockk())
         }
     }
 }

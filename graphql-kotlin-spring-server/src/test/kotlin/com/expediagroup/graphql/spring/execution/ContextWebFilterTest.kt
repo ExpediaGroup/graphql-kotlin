@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.spring.execution
 
 import graphql.GraphQLContext
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -25,6 +26,7 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import reactor.util.context.Context
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class ContextWebFilterTest {
@@ -44,12 +46,25 @@ class ContextWebFilterTest {
             }
         }
 
-        val contextFilter = ContextWebFilter(EmptyContextFactory)
+        val simpleFactory: GraphQLContextFactory<Any> = mockk {
+            coEvery { generateContext(any(), any()) } returns GraphQLContext.newContext().build()
+        }
+
+        val contextFilter = ContextWebFilter(simpleFactory)
         StepVerifier.create(contextFilter.filter(exchange, chain))
             .verifyComplete()
 
         assertNotNull(generatedContext)
         val graphQLContext = generatedContext?.getOrDefault<GraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
         assertNotNull(graphQLContext)
+    }
+
+    @Test
+    fun `verify web filter order`() {
+        val factory: GraphQLContextFactory<Any> = mockk {
+            coEvery { generateContext(any(), any()) } returns mockk()
+        }
+        val contextFilter = ContextWebFilter(factory)
+        assertEquals(expected = 0, actual = contextFilter.order)
     }
 }

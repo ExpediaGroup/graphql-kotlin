@@ -46,6 +46,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
+@Suppress("LeakingThis")
 open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)

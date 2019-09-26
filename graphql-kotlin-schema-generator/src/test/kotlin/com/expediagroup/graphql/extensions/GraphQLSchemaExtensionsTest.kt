@@ -58,6 +58,42 @@ class GraphQLSchemaExtensionsTest {
         assertEquals(expected, sdl)
     }
 
+    @Test
+    fun `verify print result of a simple schema with extended scalars`() {
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+
+        val sdl = schema.print(includeDirectives = false, includeScalarTypes = false, includeExtendedScalarTypes = true).trim()
+        val expected = """
+            schema {
+              query: Query
+            }
+
+            type Query {
+              basic(msg: String!): String!
+              nullable(msg: String): String
+            }
+        """.trimIndent()
+        assertEquals(expected, sdl)
+    }
+
+    @Test
+    fun `verify print result of a simple schema with no scalars`() {
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+
+        val sdl = schema.print(includeDirectives = false, includeScalarTypes = false, includeExtendedScalarTypes = false).trim()
+        val expected = """
+            schema {
+              query: Query
+            }
+
+            type Query {
+              basic(msg: String!): String!
+              nullable(msg: String): String
+            }
+        """.trimIndent()
+        assertEquals(expected, sdl)
+    }
+
     class RenamedQuery {
         @GraphQLName("renamedFunction")
         fun original(id: Int) = OriginalType(id)
