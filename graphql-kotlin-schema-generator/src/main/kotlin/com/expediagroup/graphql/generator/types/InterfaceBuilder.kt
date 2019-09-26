@@ -49,6 +49,9 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             kClass.getValidFunctions(config.hooks)
                 .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
 
+            extensionFunctionMapper.getValidExtensionFunctions(kClass)
+                .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
+
             subTypeMapper.getSubTypesOf(kClass)
                 .map { graphQLTypeOf(it.createType()) }
                 .forEach {

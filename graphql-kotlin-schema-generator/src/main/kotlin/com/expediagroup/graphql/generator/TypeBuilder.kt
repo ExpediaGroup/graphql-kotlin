@@ -37,6 +37,7 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
     protected val state: SchemaGeneratorState = generator.state
     protected val config: SchemaGeneratorConfig = generator.config
     protected val subTypeMapper: SubTypeMapper = generator.subTypeMapper
+    protected val extensionFunctionMapper: ExtensionFunctionMapper = generator.extensionFunctionMapper
     protected val codeRegistry: GraphQLCodeRegistry.Builder = generator.codeRegistry
 
     internal fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {

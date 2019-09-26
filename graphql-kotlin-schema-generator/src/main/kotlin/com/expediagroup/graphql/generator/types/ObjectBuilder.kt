@@ -61,6 +61,9 @@ internal class ObjectBuilder(generator: SchemaGenerator) : TypeBuilder(generator
             kClass.getValidFunctions(config.hooks)
                 .forEach { builder.field(generator.function(it, name)) }
 
+            extensionFunctionMapper.getValidExtensionFunctions(kClass)
+                .forEach { builder.field(generator.function(it, name)) }
+
             config.hooks.onRewireGraphQLType(builder.build()).safeCast()
         }
     }

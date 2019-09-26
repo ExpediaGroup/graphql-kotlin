@@ -51,6 +51,7 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
+    internal val extensionFunctionMapper = ExtensionFunctionMapper(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
 
     private val queryBuilder = QueryBuilder(this)
