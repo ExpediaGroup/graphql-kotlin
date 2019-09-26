@@ -47,7 +47,8 @@ import java.util.Optional
     RoutesConfiguration::class,
     SchemaAutoConfiguration::class,
     FederationAutoConfiguration::class,
-    SubscriptionAutoConfiguration::class
+    SubscriptionAutoConfiguration::class,
+    PlaygroundAutoConfiguration::class
 )
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class GraphQLAutoConfiguration {

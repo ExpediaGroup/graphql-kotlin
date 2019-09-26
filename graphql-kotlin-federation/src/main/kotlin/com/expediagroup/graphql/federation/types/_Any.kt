@@ -62,6 +62,6 @@ private object AnyCoercing : Coercing<Any, Any> {
             is ObjectValue -> input.objectFields
                 .stream()
                 .collect(Collectors.toMap(ObjectField::getName) { parseLiteral(it.value) })
-            else -> Assert.assertShouldNeverHappen<Any>()
+            else -> Assert.assertShouldNeverHappen()
         }
 }

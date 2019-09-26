@@ -13,7 +13,8 @@
 
     <properties>
         <spring-boot.version>2.2.0.M6</spring-boot.version>
-        <reactor.version>3.3.0.RC1</reactor.version>
+        <reactor.version>3.3.0.RELEASE</reactor.version>
+        <reactor-kotlin-extensions.version>1.0.0.RELEASE</reactor-kotlin-extensions.version>
     </properties>
 
     <dependencies>
@@ -30,20 +31,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <!-- TODO update to same version as spring-boot - not all milestone releases are available for config -->
-            <version>2.2.0.M3</version>
+            <version>${spring-boot.version}</version>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.kotlin</groupId>
+            <artifactId>reactor-kotlin-extensions</artifactId>
+            <version>${reactor-kotlin-extensions.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-reactor</artifactId>
-            <!-- TODO remove this once coroutines update their dependency -->
-            <exclusions>
-                <exclusion>
-                    <groupId>io.projectreactor</groupId>
-                    <artifactId>reactor-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${kotlin-coroutines.version}</version>
         </dependency>
         <!-- Test Dependencies -->
         <dependency>
