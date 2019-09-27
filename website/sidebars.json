@@ -27,7 +27,7 @@
                 "label": "Writing federated schemas with Kotlin",
                 "ids": [
                     "federated/federated-schemas",
-                    "federated/directives",
+                    "federated/federated-directives",
                     "federated/type-resolution"
                 ]
             },

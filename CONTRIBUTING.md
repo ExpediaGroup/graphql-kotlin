@@ -53,7 +53,9 @@ mvn antrun:run@detekt
 
 ## Add documentation for new or updated functionality
 
-Please add appropriate javadocs in the source code and ask the maintainers to update the wiki with any relevant information.
+Please add appropriate javadocs in the source code and ask the maintainers to update the documentation with any relevant
+information.
+Further instructions on how to add documentation content are in `webserver/README.md`.
 
 ## Add license information
 All source files must contain the following license header. If you are using an IDE please add this as a copyright template for this project so that it will be added automatically.

@@ -1,5 +1,5 @@
 ---
-id: directives
+id: federated-directives
 title: Directives
 ---
 `graphql-kotlin` supports a number of directives that can be used to annotate a schema and direct certain behaviors.

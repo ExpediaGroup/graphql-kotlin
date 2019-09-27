@@ -64,8 +64,8 @@ type Person {
 
 By default, `graphql-kotlin-schema-generator` uses Kotlin reflections to generate all schema objects. If you want to
 apply custom behavior to the objects, you can also define your own custom scalars. Custom scalars have to be explicitly
-added to the schema through `SchemaGeneratorHooks.willGenerateGraphQLType`. See more info in the [Generator
-Configuration Wiki](https://github.com/ExpediaGroup/graphql-kotlin/wiki/Schema-Generator-Configuration)
+added to the schema through `SchemaGeneratorHooks.willGenerateGraphQLType`.
+See the [Generator Configuration](generator-config) documentation for more information.
 
 Example usage
 
