@@ -26,7 +26,7 @@ import kotlin.reflect.full.createType
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
  */
-class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
+open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
 
     override fun generate(
         queries: List<TopLevelObject>,
