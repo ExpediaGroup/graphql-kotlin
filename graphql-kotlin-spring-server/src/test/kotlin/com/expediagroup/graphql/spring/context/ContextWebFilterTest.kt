@@ -106,10 +106,7 @@ class ContextWebFilterTest {
     fun `verify context web filter is applicable on default graphql routes`() {
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(), mockk())
         for (path in listOf("/graphql", "/subscriptions")) {
-            val exchange: ServerWebExchange = mockk {
-                every { request.uri.path } returns path
-            }
-            assertTrue(contextFilter.isApplicable(exchange))
+            assertTrue(contextFilter.isApplicable(path))
         }
     }
 
@@ -123,19 +120,13 @@ class ContextWebFilterTest {
 
         val contextFilter = ContextWebFilter(props, mockk())
         for (path in listOf("/${graphQLRoute.toLowerCase()}", "/${subscriptionRoute.toLowerCase()}")) {
-            val exchange: ServerWebExchange = mockk {
-                every { request.uri.path } returns path
-            }
-            assertTrue(contextFilter.isApplicable(exchange))
+            assertTrue(contextFilter.isApplicable(path))
         }
     }
 
     @Test
     fun `verify context web filter is not applicable on non graphql routes`() {
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(), mockk())
-        val exchange: ServerWebExchange = mockk {
-            every { request.uri.path } returns "/whatever"
-        }
-        assertFalse(contextFilter.isApplicable(exchange))
+        assertFalse(contextFilter.isApplicable("/whatever"))
     }
 }

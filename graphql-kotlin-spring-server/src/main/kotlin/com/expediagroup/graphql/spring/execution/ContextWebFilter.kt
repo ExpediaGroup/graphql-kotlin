@@ -34,11 +34,12 @@ const val GRAPHQL_CONTEXT_FILTER_ODER = 0
  * Default web filter that populates GraphQL context in the reactor subscriber context.
  */
 class ContextWebFilter(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<Any>) : WebFilter, Ordered {
-    private val contextualPathsRegex = "/${config.endpoint}|/${config.subscriptions.endpoint}".toRegex(RegexOption.IGNORE_CASE)
+    private val graphQLRoute = "/${config.endpoint}"
+    private val subscriptionsRoute = "/${config.subscriptions.endpoint}"
 
     @Suppress("ForbiddenVoid")
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
-        if (isApplicable(exchange)) {
+        if (isApplicable(exchange.request.uri.path)) {
             mono {
                 contextFactory.generateContext(exchange.request, exchange.response)
             }.flatMap { graphQLContext ->
@@ -50,6 +51,6 @@ class ContextWebFilter(config: GraphQLConfigurationProperties, private val conte
 
     override fun getOrder(): Int = GRAPHQL_CONTEXT_FILTER_ODER
 
-    internal fun isApplicable(exchange: ServerWebExchange): Boolean =
-        contextualPathsRegex.matches(exchange.request.uri.path)
+    internal fun isApplicable(path: String): Boolean =
+        graphQLRoute.equals(path, ignoreCase = true) || subscriptionsRoute.equals(path, ignoreCase = true)
 }
