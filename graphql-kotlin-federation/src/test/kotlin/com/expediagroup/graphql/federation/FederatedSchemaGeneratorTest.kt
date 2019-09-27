@@ -40,6 +40,8 @@ directive @extends on OBJECT | INTERFACE
 #Specifies the base type field set that will be selectable by the gateway
 directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 
+directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
 #Space separated list of primary keys needed to access federated object
 directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
 
@@ -68,7 +70,8 @@ type Query @extends {
 }
 
 type Review {
-  body: String!
+  body: String! @custom
+  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   id: String!
 }
 
