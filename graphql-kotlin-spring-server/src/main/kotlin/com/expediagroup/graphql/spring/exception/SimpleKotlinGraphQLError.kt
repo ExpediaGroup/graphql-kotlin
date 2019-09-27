@@ -42,7 +42,7 @@ open class SimpleKotlinGraphQLError(
 
     override fun getLocations(): List<SourceLocation> = locations
 
-    override fun getMessage(): String = exception.message ?: "Exception was thrown while executing a GraphQL query"
+    override fun getMessage(): String = "Exception while fetching data (${path?.joinToString("/").orEmpty()}) : ${exception.message}"
 
     override fun getPath(): List<Any>? = path
 }

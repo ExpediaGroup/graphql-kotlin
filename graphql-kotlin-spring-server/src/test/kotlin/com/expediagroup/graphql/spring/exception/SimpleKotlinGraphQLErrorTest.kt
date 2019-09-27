@@ -45,8 +45,8 @@ internal class SimpleKotlinGraphQLErrorTest {
 
     @Test
     fun `Message comes from the exception if set`() {
-        val error = SimpleKotlinGraphQLError(Throwable("foo"))
-        assertEquals(expected = "foo", actual = error.message)
+        val error = SimpleKotlinGraphQLError(exception = Throwable("foo"), path = listOf("/foo"))
+        assertEquals(expected = "Exception while fetching data (/foo) : foo", actual = error.message)
     }
 
     @Test
