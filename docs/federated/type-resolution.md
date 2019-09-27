@@ -7,7 +7,7 @@ In traditional (i.e. non-federated) GraphQL servers, each one of the output type
 the GraphQL schema from a corresponding query, mutation or subscription root type. Since federated GraphQL types might
 be accessed outside of the query path we need a mechanism to access them in a consistent manner.
 
-## _entities query
+## `_entities` query
 
 Federated GraphQL server provides custom `_entities` query that allow retrieving any of the federated extended types.
 `_entities` query accept list of "representation" objects that provide all required fields to resolve the type and
