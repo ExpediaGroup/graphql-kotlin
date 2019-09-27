@@ -80,13 +80,18 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
-            // SDL returned by _service query should NOT contain
-            // - default schema definition
-            // - empty Query type
-            // - any directive definitions
-            // - any custom directives
-            // - new federated scalars
+            /**
+             * SDL returned by _service query should NOT contain
+             * - default schema definition
+             * - empty Query type
+             * - any directive definitions
+             * - any custom directives
+             * - new federated scalars
+             */
             val sdl = originalSchema.print(includeDefaultSchemaDefinition = false)
+                /**
+                 * TODO: this can be simplified once this is solved: apollographql/apollo-server#3334
+                 */
                 .replace(directiveDefinitionRegex, "")
                 .replace(scalarDefinitionRegex, "")
                 .replace(emptyQueryRegex, "")
