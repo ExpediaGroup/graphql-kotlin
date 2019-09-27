@@ -42,6 +42,7 @@ type Book implements Product @extends @key(fields : "id") {
 
 type Review {
   body: String!
+  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   id: String!
 }
 

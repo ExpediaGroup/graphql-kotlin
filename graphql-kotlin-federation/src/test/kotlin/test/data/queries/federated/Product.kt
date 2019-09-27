@@ -16,6 +16,7 @@
 
 package test.data.queries.federated
 
+import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
@@ -94,7 +95,11 @@ type Review {
   id: String!
 }
  */
-data class Review(val id: String, val body: String)
+data class Review(
+    val id: String,
+    @CustomDirective val body: String,
+    @Deprecated(message = "no longer supported", replaceWith = ReplaceWith("use Review.body instead")) val content: String? = null
+)
 
 /*
 type User {
@@ -108,3 +113,6 @@ data class User(
     @ExternalDirective val userId: Int,
     @ExternalDirective val name: String
 )
+
+@GraphQLDirective(name = "custom")
+annotation class CustomDirective
