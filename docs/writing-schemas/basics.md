@@ -6,8 +6,8 @@ title: Basics
 function accepts four arguments: `config`, `queries`, `mutations` and `subscriptions`. The `queries`, `mutations` and
 `subscriptions` are a list of `TopLevelObject`s and will be used to generate corresponding GraphQL root types. See below
 on why we use this wrapper class. The `config` contains all the extra information you need to pass, including custom
-hooks, supported packages, and name overrides. See the full documentation [in the
-wiki](https://github.com/ExpediaGroup/graphql-kotlin/wiki/Schema-Generator-Configuration).
+hooks, supported packages, and name overrides.
+See the [Generator Configuration](generator-config) documentation for more information.
 
 A query/mutation/subscription type is simply a Kotlin class that specifies **fields**, which can be functions or
 properties:
