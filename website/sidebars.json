@@ -7,7 +7,18 @@
                 "type": "subcategory",
                 "label": "Writing schemas with Kotlin",
                 "ids": [
-                    "writing-schemas/basics"
+                    "writing-schemas/basics",
+                    "writing-schemas/scalars",
+                    "writing-schemas/nullability",
+                    "writing-schemas/lists",
+                    "writing-schemas/fields",
+                    "writing-schemas/arguments",
+                    "writing-schemas/enums",
+                    "writing-schemas/interfaces",
+                    "writing-schemas/unions",
+                    "writing-schemas/directives",
+                    "writing-schemas/nested-queries",
+                    "writing-schemas/generator-config"
                 ]
             },
             {
@@ -15,7 +26,8 @@
                 "label": "Writing federated schemas with Kotlin",
                 "ids": [
                     "federated/federated-schemas",
-                    "federated/directives"
+                    "federated/directives",
+                    "federated/type-resolution"
                 ]
             },
             {
