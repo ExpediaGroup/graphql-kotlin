@@ -22,9 +22,12 @@ schema.
 
 ## Schema generator hooks
 
-Hooks are lifecycle events that are called and triggered while the schema is building that allow users to customize the schema.
+Hooks are lifecycle events that are called and triggered while the schema is building that allow users to customize the
+schema.
 
-For exact names and details of every hook, see the comments and descriptions in our latest [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator) or directly in the source file: [SchemaGeneratorHooks.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/hooks/SchemaGeneratorHooks.kt)
+For exact names and details of every hook, see the comments and descriptions in our latest
+[javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator) or directly in the source file:
+[SchemaGeneratorHooks.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/hooks/SchemaGeneratorHooks.kt)
 
 As an example here is how you would write a custom hook and provide it through the configuration
 

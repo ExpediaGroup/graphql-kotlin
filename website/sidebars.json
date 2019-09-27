@@ -18,7 +18,8 @@
                     "writing-schemas/unions",
                     "writing-schemas/directives",
                     "writing-schemas/nested-queries",
-                    "writing-schemas/generator-config"
+                    "writing-schemas/generator-config",
+                    "writing-schemas/annotations"
                 ]
             },
             {
