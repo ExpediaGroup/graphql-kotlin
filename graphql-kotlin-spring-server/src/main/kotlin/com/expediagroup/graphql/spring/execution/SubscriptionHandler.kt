@@ -26,7 +26,7 @@ import graphql.GraphQL
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toFlux
 
 /**
  * GraphQL subscription handler.

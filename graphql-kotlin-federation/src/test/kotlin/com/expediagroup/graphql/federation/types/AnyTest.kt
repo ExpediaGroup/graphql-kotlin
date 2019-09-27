@@ -27,6 +27,7 @@ import graphql.language.ObjectField
 import graphql.language.ObjectValue
 import graphql.language.StringValue
 import graphql.language.Value
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -49,9 +50,38 @@ internal class AnyTest {
 
         val listValues = listOf<Value<IntValue>>(IntValue(BigInteger.TEN))
         assertEquals(expected = listOf(BigInteger.TEN), actual = coercing.parseLiteral(ArrayValue(listValues)))
+    }
 
-        val objectValue = ObjectValue(listOf(ObjectField("myName", IntValue(BigInteger.ONE))))
-        assertEquals(expected = mapOf("myName" to BigInteger.ONE), actual = coercing.parseLiteral(objectValue))
+    @Test
+    fun `_Any scalar should parse ListValues`() {
+        val coercing = ANY_SCALAR_TYPE.coercing
+        val one = IntValue(BigInteger.ONE)
+        val two = IntValue(BigInteger.TEN)
+
+        val singleItemList = listOf<Value<IntValue>>(one)
+        assertEquals(expected = listOf(BigInteger.ONE), actual = coercing.parseLiteral(ArrayValue(singleItemList)))
+
+        val multiItemList = listOf<Value<IntValue>>(one, two)
+        assertEquals(expected = listOf(BigInteger.ONE, BigInteger.TEN), actual = coercing.parseLiteral(ArrayValue(multiItemList)))
+    }
+
+    @Test
+    fun `_Any scalar should parse ObjectValues`() {
+        val coercing = ANY_SCALAR_TYPE.coercing
+        val fieldOne = ObjectField("one", IntValue(BigInteger.ONE))
+        val fieldTwo = ObjectField("ten", IntValue(BigInteger.TEN))
+
+        val singleField = ObjectValue(listOf(fieldOne))
+        assertEquals(expected = mapOf("one" to BigInteger.ONE), actual = coercing.parseLiteral(singleField))
+
+        val multipleFields = ObjectValue(listOf(fieldOne, fieldTwo))
+        assertEquals(expected = mapOf("one" to BigInteger.ONE, "ten" to BigInteger.TEN), actual = coercing.parseLiteral(multipleFields))
+
+        assertFailsWith(AssertException::class) {
+            val mockValue: Value<*> = mockk()
+            val objectValue = ObjectValue(listOf(ObjectField("name", mockValue)))
+            coercing.parseLiteral(objectValue)
+        }
     }
 
     @Test
