@@ -96,7 +96,7 @@ class SubscriptionHandlerTest {
                 assertNotNull(response.errors) { errors ->
                     assertEquals(1, errors.size)
                     val error = errors.first()
-                    assertEquals("JUNIT subscription failure", error.message)
+                    assertEquals("Exception while fetching data () : JUNIT subscription failure", error.message)
                     assertEquals(ErrorType.DataFetchingException, error.errorType)
                 }
                 assertNull(response.extensions)

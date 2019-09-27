@@ -141,7 +141,7 @@ class QueryHandlerTest {
             val error = errors.first()
             assertTrue(error is SimpleKotlinGraphQLError)
             assertEquals(ErrorType.DataFetchingException, error.errorType)
-            assertEquals("Uncaught JUNIT", error.message)
+            assertEquals("Exception while fetching data () : Uncaught JUNIT", error.message)
         }
         assertNull(response.extensions)
     }
