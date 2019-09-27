@@ -40,7 +40,7 @@ import org.springframework.web.server.WebFilter
 import java.util.Optional
 
 /**
- * SpringBoot autoconfiguration that creates all beans required to start up reactive GraphQL web app.
+ * SpringBoot auto-configuration that creates all beans required to start up reactive GraphQL web app.
  */
 @Configuration
 @Import(
@@ -92,5 +92,8 @@ class GraphQLAutoConfiguration {
     fun graphQLContextFactory(): GraphQLContextFactory<*> = EmptyContextFactory
 
     @Bean
-    fun contextWebFilter(graphQLContextFactory: GraphQLContextFactory<*>): WebFilter = ContextWebFilter(graphQLContextFactory)
+    fun contextWebFilter(
+        config: GraphQLConfigurationProperties,
+        graphQLContextFactory: GraphQLContextFactory<*>
+    ): WebFilter = ContextWebFilter(config, graphQLContextFactory)
 }
