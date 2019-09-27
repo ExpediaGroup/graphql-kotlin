@@ -42,9 +42,10 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
-    private val directiveRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val scalarRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val emptyQuery = "^type Query \\{$\\s+^}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val directiveDefinitionRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val customDirectivesRegex = "@(?!extends)(?!external)(?!key)(?!provides)(?!requires)(?!deprecated)\\w+(?:\\(.*(?=\\))\\))?".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val scalarDefinitionRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val emptyQueryRegex = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
@@ -79,15 +80,22 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
-            // SDL returned by _service query should NOT contain
-            // - default schema definition
-            // - empty Query type
-            // - directives
-            // - new scalars
+            /**
+             * SDL returned by _service query should NOT contain
+             * - default schema definition
+             * - empty Query type
+             * - any directive definitions
+             * - any custom directives
+             * - new federated scalars
+             */
             val sdl = originalSchema.print(includeDefaultSchemaDefinition = false)
-                .replace(directiveRegex, "")
-                .replace(scalarRegex, "")
-                .replace(emptyQuery, "")
+                /**
+                 * TODO: this can be simplified once this is solved: apollographql/apollo-server#3334
+                 */
+                .replace(directiveDefinitionRegex, "")
+                .replace(scalarDefinitionRegex, "")
+                .replace(emptyQueryRegex, "")
+                .replace(customDirectivesRegex, "")
                 .trim()
 
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
