@@ -78,7 +78,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         }
 
         @Bean
-        @Order(GRAPHQL_CONTEXT_FILTER_ODER - 10)
+        @Order(GRAPHQL_CONTEXT_FILTER_ODER - 1)
         fun customWebFilter(): WebFilter = WebFilter { exchange, chain ->
             val headerValue = exchange.request.headers.getFirst("X-First-Header") ?: "DEFAULT_FIRST"
             chain.filter(exchange).subscriberContext { it.put("firstFilterValue", headerValue) }
