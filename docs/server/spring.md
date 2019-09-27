@@ -61,7 +61,7 @@ the application context, auto-configuration will back off.
 Conditionally generated beans:
 
 * **SchemaGeneratorConfig** - schema generation configuration information, see
-  [wiki](https://github.com/ExpediaGroup/graphql-kotlin/wiki/Schema-Generator-Configuration) for details. _You should
+  [Spring Configuration](spring-config) for details. _You should
   register custom configuration bean if you want to specify custom schema generator hooks._
 * **FederatedTypeRegistry** - default type registry without any resolvers, created only if generating federated GraphQL
   schema. _You should register your custom type registry bean whenever implementing federated GraphQL schema with
