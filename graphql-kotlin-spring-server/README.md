@@ -38,10 +38,12 @@ graphql:
 In order to expose your queries, mutations and subscriptions in the GraphQL schema you simply need to implement corresponding marker interfaces and they will be automatically picked up by `graphql-kotlin-spring-server` autoconfiguration library.
 
 ```kotlin
+@Component
 class MyAwesomeQuery : Query { 
   fun myAwesomeQuery(): Widget { ... }
 }
 
+@Component
 class MyAwesomeMutation : Mutation {
   fun myAwesomeMutation(widget: Widget): Widget { ... }
 }
