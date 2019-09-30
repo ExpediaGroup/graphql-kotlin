@@ -16,17 +16,20 @@ doing in our docs, and with content removed when it's things we dont want people
 
 # Get Started in 5 Minutes
 
-1. Make sure all the dependencies for the website are installed:
+- Make sure all the dependencies for the website are installed:
 
 ```sh
+# Install the correct version of Node with NVM
+nvm install
+
 # Install dependencies
-$ yarn
+yarn
 ```
-2. Run your dev server:
+- Run your dev server:
 
 ```sh
 # Start the site
-$ yarn start
+yarn start
 ```
 
 ## Directory Structure

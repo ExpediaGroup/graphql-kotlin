@@ -1,4 +1,6 @@
 {
+  "name": "graphql-kotlin-docs",
+  "license": "Apache-2.0",
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "docusaurus-start",
@@ -9,6 +11,6 @@
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "^1.13.0"
+    "docusaurus": "1.13.0"
   }
 }

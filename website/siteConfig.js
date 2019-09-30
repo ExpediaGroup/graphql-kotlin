@@ -9,16 +9,13 @@
 // site configuration options.
 
 const siteConfig = {
-    title: 'graphql-kotlin User Documentation', // Title for your website.
-    tagline: 'Simplifying GraphQL integration for Kotlin applications',
+    title: 'GraphQL Kotlin', // Title for your website.
+    tagline: 'Libraries for running a GraphQL server in Kotlin',
 
-    // temporarily publishing at EXPErdelfavero for development purposes. Will publish at ExpediaGroup when ready.
-    //     url: 'https://ExpediaGroup.github.io',
-    url: 'https://Experdelfavero.github.io', // Your website URL
-    baseUrl: '/graphql-kotlin/', // Base URL for your project */
+    url: 'https://expediagroup.github.io', // Your website URL
+    baseUrl: '/graphql-kotlin/', // Base URL for your project
     projectName: 'graphql-kotlin',
-    // organizationName: 'ExpediaGroup',
-    organizationName: 'Experdelfavero',
+    organizationName: 'ExpediaGroup',
 
     // For no header links in the top nav bar -> headerLinks: [],
     headerLinks: [
@@ -40,7 +37,7 @@ const siteConfig = {
     },
 
     // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-    copyright: `Copyright © ${new Date().getFullYear()} Expedia Inc.`,
+    copyright: `Copyright © ${new Date().getFullYear()} Expedia, Inc.`,
 
     highlight: {
         // Highlight.js theme to use for syntax highlighting in code blocks.

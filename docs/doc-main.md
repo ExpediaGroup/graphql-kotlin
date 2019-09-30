@@ -1,6 +1,6 @@
 ---
 id: doc-main
-title: GraphQL-Kotlin User Guide
+title: GraphQL Kotlin User Guide
 ---
 
 GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL integration for Kotlin applications.
