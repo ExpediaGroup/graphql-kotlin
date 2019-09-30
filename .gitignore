@@ -1,11 +1,10 @@
 *.iml
-.idea
+.idea/
 .DS_Store
-target
+target/
 pom.xml.versionsBackup
 
 website/translated_docs
 website/build/
-website/yarn.lock
 website/node_modules
 website/i18n/*
