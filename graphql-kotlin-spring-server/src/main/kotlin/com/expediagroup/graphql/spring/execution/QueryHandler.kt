@@ -25,6 +25,7 @@ import graphql.GraphQL
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactor.ReactorContext
+import org.dataloader.DataLoaderRegistry
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -41,14 +42,14 @@ interface QueryHandler {
 /**
  * Default GraphQL query handler.
  */
-open class SimpleQueryHandler(private val graphql: GraphQL) : QueryHandler {
+open class SimpleQueryHandler(private val graphql: GraphQL, private val dataLoaderRegistry: DataLoaderRegistry? = null) : QueryHandler {
 
     @Suppress("TooGenericExceptionCaught")
     @ExperimentalCoroutinesApi
     override suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse {
         val reactorContext = coroutineContext[ReactorContext]
         val graphQLContext = reactorContext?.context?.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
-        val input = request.toExecutionInput(graphQLContext)
+        val input = request.toExecutionInput(graphQLContext, dataLoaderRegistry)
 
         return try {
             graphql.executeAsync(input)

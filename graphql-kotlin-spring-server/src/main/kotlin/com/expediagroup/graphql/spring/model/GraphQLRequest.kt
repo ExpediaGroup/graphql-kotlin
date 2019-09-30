@@ -18,6 +18,7 @@ package com.expediagroup.graphql.spring.model
 
 import graphql.ExecutionInput
 import graphql.GraphQLContext
+import org.dataloader.DataLoaderRegistry
 
 data class GraphQLRequest(
     val query: String,
@@ -25,10 +26,11 @@ data class GraphQLRequest(
     val variables: Map<String, Any>? = null
 )
 
-fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null): ExecutionInput =
+fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
         .context(graphQLContext ?: GraphQLContext.newContext().build())
+        .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()

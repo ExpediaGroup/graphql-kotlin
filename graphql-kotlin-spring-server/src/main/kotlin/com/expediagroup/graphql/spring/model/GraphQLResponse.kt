@@ -28,7 +28,7 @@ data class GraphQLResponse(
     val extensions: Map<Any, Any>? = null
 )
 
-internal fun ExecutionResult.toGraphQLResponse(): GraphQLResponse {
+fun ExecutionResult.toGraphQLResponse(): GraphQLResponse {
     val filteredErrors = if (errors?.isNotEmpty() == true) errors else null
     val filteredExtensions = if (extensions?.isNotEmpty() == true) extensions else null
     return GraphQLResponse(getData(), filteredErrors, filteredExtensions)
