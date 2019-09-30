@@ -75,6 +75,8 @@ type Widget {
 
 ## Documentation
 
-There are more examples and documentation in our [Wiki](https://github.com/ExpediaGroup/graphql-kotlin/wiki) or you can view the [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server) for all published versions.
+There are more examples and documentation in our
+[documentation](https://ExpediaGroup.github.io/graphql-kotlin/docs/doc-main),
+or you can view the [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server) for all published versions.
 
-If you have a question about something you can not find in our wiki or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our documentation or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
