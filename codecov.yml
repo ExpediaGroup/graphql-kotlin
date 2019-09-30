@@ -3,6 +3,8 @@
 # See the docs here: https://docs.codecov.io/docs/codecov-yaml
 #
 
-# Ingore the example app from coverage reports
+# Ingore the example apps and docs from coverage reports
 ignore:
-  - "examples/**/*"
+  - "examples/**"
+  - "website/**"
+  - "docs/**"
