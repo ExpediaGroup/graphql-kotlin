@@ -1,67 +1,50 @@
 {
-    "docs": {
-        "GraphQL Kotlin": [
-            "doc-main",
-            "getting-started",
-            {
-                "type": "subcategory",
-                "label": "Writing schemas with Kotlin",
-                "ids": [
-                    "writing-schemas/basics",
-                    "writing-schemas/scalars",
-                    "writing-schemas/nullability",
-                    "writing-schemas/lists",
-                    "writing-schemas/fields",
-                    "writing-schemas/arguments",
-                    "writing-schemas/enums",
-                    "writing-schemas/interfaces",
-                    "writing-schemas/unions",
-                    "writing-schemas/directives",
-                    "writing-schemas/nested-queries",
-                    "writing-schemas/generator-config",
-                    "writing-schemas/annotations"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "Writing federated schemas with Kotlin",
-                "ids": [
-                    "federated/federated-schemas",
-                    "federated/federated-directives",
-                    "federated/type-resolution"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "Execution",
-                "ids": [
-                    "execution/data-fetching-environment",
-                    "execution/async-models",
-                    "execution/subscriptions"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "Server",
-                "ids": [
-                    "server/spring",
-                    "server/spring-config"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "Examples",
-                "ids": [
-                    "examples/examples"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "Contributors",
-                "ids": [
-                    "contributors/release-proc"
-                ]
-            }
+  "docs": {
+    "Introduction": [
+      "getting-started",
+      "examples"
+    ],
+    "Schema Generator": [
+      {
+        "type": "subcategory",
+        "label": "Writing schemas with Kotlin",
+        "ids": [
+          "writing-schemas/basics",
+          "writing-schemas/scalars",
+          "writing-schemas/nullability",
+          "writing-schemas/lists",
+          "writing-schemas/fields",
+          "writing-schemas/arguments",
+          "writing-schemas/enums",
+          "writing-schemas/interfaces",
+          "writing-schemas/unions",
+          "writing-schemas/directives",
+          "writing-schemas/nested-queries",
+          "writing-schemas/generator-config",
+          "writing-schemas/annotations"
         ]
-    }
+      },
+      {
+        "type": "subcategory",
+        "label": "Execution",
+        "ids": [
+          "execution/data-fetching-environment",
+          "execution/async-models",
+          "execution/subscriptions"
+        ]
+      }
+    ],
+    "Federation": [
+      "federated/federated-schemas",
+      "federated/federated-directives",
+      "federated/type-resolution"
+    ],
+    "Spring Server": [
+      "server/spring",
+      "server/spring-config"
+    ],
+    "Contributors": [
+      "contributors/release-proc"
+    ]
+  }
 }
