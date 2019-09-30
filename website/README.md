@@ -19,17 +19,16 @@ doing in our docs, and with content removed when it's things we dont want people
 - Make sure all the dependencies for the website are installed:
 
 ```sh
-# Install the correct version of Node with NVM
+# Install the correct version of Node/NPM with NVM
 nvm install
 
 # Install dependencies
-yarn
+npm install
 ```
 - Run your dev server:
 
 ```sh
-# Start the site
-yarn start
+npm start
 ```
 
 ## Directory Structure

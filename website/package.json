@@ -1,6 +1,10 @@
 {
   "name": "graphql-kotlin-docs",
   "license": "Apache-2.0",
+  "engines": {
+    "node": "12",
+    "npm": "6"
+  },
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "docusaurus-start",
