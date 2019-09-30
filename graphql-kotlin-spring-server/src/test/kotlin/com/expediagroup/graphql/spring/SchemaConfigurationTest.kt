@@ -31,6 +31,7 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
+import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
@@ -72,6 +73,7 @@ class SchemaConfigurationTest {
                 assertNull(result["errors"])
                 assertNotNull(result["extensions"])
 
+                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
@@ -94,6 +96,10 @@ class SchemaConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).getBean(GraphQL::class.java)
                     .isSameAs(customConfiguration.myGraphQL())
+
+                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
+                assertThat(ctx).getBean(DataLoaderRegistry::class.java)
+                    .isSameAs(customConfiguration.myDataLoaderRegistry())
 
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
 
@@ -142,6 +148,9 @@ class SchemaConfigurationTest {
 
         @Bean
         fun myCustomContextFactory(): GraphQLContextFactory<Map<String, Any>> = mockk()
+
+        @Bean
+        fun myDataLoaderRegistry(): DataLoaderRegistry = mockk()
     }
 
     class BasicQuery : Query {

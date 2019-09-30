@@ -27,7 +27,7 @@ import kotlin.test.assertNull
 class GraphQLResponseKtTest {
 
     @Test
-    fun `null data, errors, and extenstions can still be mapped`() {
+    fun `null data, errors, and extensions can still be mapped`() {
         val executionResult: ExecutionResult = mockk {
             every { getData<Any>() } returns null
             every { errors } returns null

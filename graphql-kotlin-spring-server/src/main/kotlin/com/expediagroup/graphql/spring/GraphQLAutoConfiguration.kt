@@ -31,6 +31,7 @@ import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
+import org.dataloader.DataLoaderRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -85,7 +86,11 @@ class GraphQLAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLQueryHandler(graphql: GraphQL): QueryHandler = SimpleQueryHandler(graphql)
+    fun dataLoaderRegistry(): DataLoaderRegistry = DataLoaderRegistry()
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun graphQLQueryHandler(graphql: GraphQL, dataLoaderRegistry: DataLoaderRegistry): QueryHandler = SimpleQueryHandler(graphql, dataLoaderRegistry)
 
     @Bean
     @ConditionalOnMissingBean
