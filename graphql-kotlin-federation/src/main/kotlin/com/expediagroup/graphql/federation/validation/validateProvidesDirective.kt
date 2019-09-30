@@ -19,6 +19,7 @@ package com.expediagroup.graphql.federation.validation
 import com.expediagroup.graphql.federation.extensions.isExtendedType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil
 
 // [OK]    @provides on base type references valid @external fields on @extend object
@@ -28,25 +29,22 @@ import graphql.schema.GraphQLTypeUtil
 // [OK]    @provides references list of valid @extend objects
 // [ERROR] @provides references @external list field
 // [ERROR] @provides references @external interface field
-internal fun validateProvidesDirective(federatedType: String, field: GraphQLFieldDefinition): List<String> {
-    val errors = mutableListOf<String>()
-    val returnType = GraphQLTypeUtil.unwrapAll(field.type)
-    if (returnType is GraphQLObjectType) {
+internal fun validateProvidesDirective(federatedType: String, field: GraphQLFieldDefinition): List<String> = when (val returnType = GraphQLTypeUtil.unwrapType(field.type).last()) {
+    is GraphQLObjectType -> {
         if (!returnType.isExtendedType()) {
-            errors.add("@provides directive is specified on a $federatedType.${field.name} field references local object")
+            listOf("@provides directive is specified on a $federatedType.${field.name} field references local object")
         } else {
             val returnTypeFields = returnType.fieldDefinitions.associateBy { it.name }
             // @provides is applicable on both base and federated types and always references @external fields
-            errors.addAll(
-                validateDirective(
-                    "$federatedType.${field.name}",
-                    "provides",
-                    field.directivesByName,
-                    returnTypeFields,
-                    true))
+            validateDirective(
+                "$federatedType.${field.name}",
+                "provides",
+                field.directivesByName,
+                returnTypeFields,
+                true)
         }
-    } else {
-        errors.add("@provides directive is specified on a $federatedType.${field.name} field but it does not return an object type")
     }
-    return errors
+    // skip validation for nested object types as they are still under construction
+    is GraphQLTypeReference -> emptyList()
+    else -> listOf("@provides directive is specified on a $federatedType.${field.name} field but it does not return an object type")
 }
