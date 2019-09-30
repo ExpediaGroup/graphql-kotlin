@@ -28,6 +28,7 @@ import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.ExecutionIdProvider
 import graphql.execution.SubscriptionExecutionStrategy
+import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
@@ -36,8 +37,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.core.Ordered
 import org.springframework.web.server.WebFilter
 import java.util.Optional
+
+/**
+ * Default order applied to Instrumentation beans.
+ */
+const val DEFAULT_INSTRUMENTATION_ORDER = 0
 
 /**
  * SpringBoot auto-configuration that creates all beans required to start up reactive GraphQL web app.
@@ -62,7 +69,7 @@ class GraphQLAutoConfiguration {
     fun graphQL(
         schema: GraphQLSchema,
         dataFetcherExceptionHandler: DataFetcherExceptionHandler,
-        instrumentation: Optional<Instrumentation>,
+        instrumentations: Optional<List<Instrumentation>>,
         executionIdProvider: Optional<ExecutionIdProvider>,
         preparsedDocumentProvider: Optional<PreparsedDocumentProvider>
     ): GraphQL {
@@ -71,8 +78,19 @@ class GraphQLAutoConfiguration {
             .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
             .subscriptionExecutionStrategy(SubscriptionExecutionStrategy(dataFetcherExceptionHandler))
 
-        instrumentation.ifPresent {
-            graphQL.instrumentation(it)
+        instrumentations.ifPresent { unordered ->
+            if (unordered.size == 1) {
+                graphQL.instrumentation(unordered.first())
+            } else {
+                val sorted = unordered.sortedBy {
+                    if (it is Ordered) {
+                        it.order
+                    } else {
+                        DEFAULT_INSTRUMENTATION_ORDER
+                    }
+                }
+                graphQL.instrumentation(ChainedInstrumentation(sorted))
+            }
         }
         executionIdProvider.ifPresent {
             graphQL.executionIdProvider(it)
