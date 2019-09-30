@@ -1,3 +1,4 @@
+@file:Suppress("MethodOverloading")
 /*
  * Copyright 2019 Expedia, Inc
  *
@@ -27,9 +28,11 @@ import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.directives.ProvidesDirective
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -97,6 +100,27 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
             assertNotNull(providedType)
             assertNotNull(providedType.getDirective("extends"))
         }
+    }
+
+    @Test
+    fun `validated nested relationship with @provide directive`() {
+        // order of object instantiation matters
+        // - BUG #397 - typeA -> typeB with provides (apply validation) -> reference typeA
+        // - NO ISSUE - typeB with provides -> typeA (no validation) -> reference typeB
+        val validatedType = schemaGenerator.objectType(NestedProvidedType::class) as? GraphQLObjectType
+        assertNotNull(validatedType)
+        assertEquals(NestedProvidedType::class.simpleName, validatedType.name)
+        validator.validateGraphQLType(validatedType)
+        assertNotNull(validatedType.getDirective("key"))
+
+        val typeWithProvides = schemaGenerator.objectType(NestedProvides::class) as? GraphQLObjectType
+        assertNotNull(typeWithProvides)
+        validator.validateGraphQLType(typeWithProvides)
+        val providedField = typeWithProvides.getFieldDefinition("provided")
+        assertNotNull(providedField)
+        assertNotNull(providedField.getDirective("provides"))
+        val providedType = GraphQLTypeUtil.unwrapType(providedField.type).last() as? GraphQLTypeReference
+        assertNotNull(providedType)
     }
 
     // ======================= TEST DATA ===========
@@ -276,4 +300,33 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
         @ExternalDirective val id: String,
         @ExternalDirective val data: ProvidedInterface = throw UnsupportedOperationException("not implemented")
     )
+
+    /*
+    type NestedProvidedType @extends @key(fields : "id") {
+      id: String! @external
+      nested: NestedProvides!
+      text: String! @external
+    }
+
+    type NestedProvides @key(fields : "id") {
+      description: String!
+      id: String!
+      provided: NestedProvidedType! @provides(fields : "text")
+    }
+     */
+    @KeyDirective(fields = FieldSet("id"))
+    private class NestedProvides(val id: String, val description: String) {
+
+        @ProvidesDirective(fields = FieldSet("text"))
+        fun provided() = NestedProvidedType(id, "some text")
+    }
+
+    @KeyDirective(fields = FieldSet("id"))
+    @ExtendsDirective
+    private class NestedProvidedType(
+        @ExternalDirective val id: String,
+        @ExternalDirective val text: String
+    ) {
+        fun nested(): NestedProvides = NestedProvides("123", "some description")
+    }
 }
