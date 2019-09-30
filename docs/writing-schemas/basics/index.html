@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Basics · GraphQL Kotlin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="`graphql-kotlin-schema-generator` provides a single function, `toSchema`, to generate a schema from Kotlin objects. This"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Basics · GraphQL Kotlin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://expediagroup.github.io/graphql-kotlinindex"/><meta property="og:description" content="`graphql-kotlin-schema-generator` provides a single function, `toSchema`, to generate a schema from Kotlin objects. This"/><meta property="og:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/graphql-kotlinimg/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/graphql-kotlinjs/scrollSpy.js"></script><link rel="stylesheet" href="/graphql-kotlincss/main.css"/><script src="/graphql-kotlinjs/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/graphql-kotlin"><img class="logo" src="/graphql-kotlinimg/EG_Icon_White_on_Blue.png" alt="GraphQL Kotlin"/><h2 class="headerTitleWithLogo">GraphQL Kotlin</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/graphql-kotlindocs/doc-main" target="_self">Docs</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Writing schemas with Kotlin</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">GraphQL-Kotlin<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/doc-main">GraphQL-Kotlin User Guide</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/getting-started">Getting Started</a></li><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Writing schemas with Kotlin</h4><ul><li class="navListItem navListItemActive"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/basics">Basics</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/scalars">Scalars</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/nullability">Nullability</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/lists">Lists</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/fields">Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/arguments">Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/enums">Enums</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/interfaces">Interfaces</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/unions">Unions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/directives">Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/nested-queries">Nested Queries</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/generator-config">Schema Generator Configuration</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/writing-schemas/annotations">Annotations</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Writing federated schemas with Kotlin</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/federated/federated-schemas">Federated Schemas</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/federated/federated-directives">Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/federated/type-resolution">Federated Type Resolution</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Execution</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/execution/data-fetching-environment">Data Fetching Environment</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/execution/async-models">Async Models</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/execution/subscriptions">Subscriptions</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Server</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/server/spring">Spring</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/server/spring-config">Spring Configuration</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Examples</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/examples/examples">Examples of how to use the libraries</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Contributors</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlindocs/contributors/release-proc">Releasing a new version</a></li></ul></div></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Basics</h1></header><article><div><span><p><code>graphql-kotlin-schema-generator</code> provides a single function, <code>toSchema</code>, to generate a schema from Kotlin objects. This
+function accepts four arguments: <code>config</code>, <code>queries</code>, <code>mutations</code> and <code>subscriptions</code>. The <code>queries</code>, <code>mutations</code> and
+<code>subscriptions</code> are a list of <code>TopLevelObject</code>s and will be used to generate corresponding GraphQL root types. See below
+on why we use this wrapper class. The <code>config</code> contains all the extra information you need to pass, including custom
+hooks, supported packages, and name overrides.
+See the <a href="generator-config">Generator Configuration</a> documentation for more information.</p>
+<p>A query/mutation/subscription type is simply a Kotlin class that specifies <strong>fields</strong>, which can be functions or
+properties:</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">data</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Widget</span></span>(<span class="hljs-keyword">val</span> id: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">val</span> value: String)
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WidgetQuery</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">widgetById</span><span class="hljs-params">(id: <span class="hljs-type">Int</span>)</span></span>: Widget? {
+    <span class="hljs-comment">// grabs widget from a data source</span>
+  }
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WidgetMutation</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">saveWidget</span><span class="hljs-params">(value: <span class="hljs-type">String</span>)</span></span>: Widget {
+    <span class="hljs-comment">// some logic goes here</span>
+  }
+}
+
+<span class="hljs-keyword">val</span> widgetQuery = WidgetQuery()
+<span class="hljs-keyword">val</span> widgetMutation = WidgetMutation()
+<span class="hljs-keyword">val</span> schema = toSchema(
+  config = yourCustomConfig()
+  queries = listOf(TopLevelObject(widgetQuery)),
+  mutations = listOf(TopLevelObject(widgetMutation))
+)
+</code></pre>
+<p>will generate:</p>
+<pre><code class="hljs css language-graphql">schema {
+  query: Query
+  mutation: Mutation
+}
+<span class="hljs-built_in">
+type </span>Query {
+  widgetById(id: Int!): Widget
+}
+<span class="hljs-built_in">
+type </span>Mutation {
+  saveWidget(value: String!): Widget!
+}
+<span class="hljs-built_in">
+type </span>Widget {
+  id: Int!
+  value: String!
+}
+</code></pre>
+<p>Any <code>public</code> functions defined on a query or mutation Kotlin class will be translated into GraphQL fields on the object
+type. <code>toSchema</code> will then recursively apply Kotlin reflection on the specified queries and mutations to generate all
+remaining object types, their properties, functions, and function arguments.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlindocs/getting-started"><span class="arrow-prev">← </span><span>Getting Started</span></a><a class="docs-next button" href="/graphql-kotlindocs/writing-schemas/scalars"><span>Scalars</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin" class="nav-home"><img src="/graphql-kotlinimg/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlindocs/doc-main.html">Main Page</a><a href="/graphql-kotlindocs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2019 Expedia, Inc.</section></footer></div></body></html>
