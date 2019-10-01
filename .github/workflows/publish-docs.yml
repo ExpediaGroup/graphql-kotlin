@@ -26,7 +26,7 @@ jobs:
         cd website
         npm install
         git config --global user.name "${GH_USERNAME}"
-        echo "machine github.com login ${GH_USERNAME} password ${{ secrets.GH_TOKEN }}" > ~/.netrc
+        echo "machine github.com login ${GH_USERNAME} password ${{ secrets.GH_PERSONAL_TOKEN }}" > ~/.netrc
         GIT_USER="${GH_USERNAME}" npm run publish-gh-pages
       env:
         CI: true
