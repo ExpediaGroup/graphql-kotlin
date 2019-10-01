@@ -9,11 +9,14 @@ web server.
 At a minimum, in order for `graphql-kotlin-spring-server` to automatically configure your GraphQL web server you need to
 specify list of supported packages that can be scanned for exposing your schema objects through reflections.
 
+You can do this through the spring application config or by overriding the `SchemaGeneratorConfig` bean. See customization below.
+
 ```yaml
 graphql:
   packages:
     - "com.your.package"
 ```
+
 
 In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you simply need to implement
 corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
