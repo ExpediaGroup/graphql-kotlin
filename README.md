@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ExpediaGroup/graphql-kotlin.svg?branch=master)](https://travis-ci.org/ExpediaGroup/graphql-kotlin)
 [![codecov](https://codecov.io/gh/ExpediaGroup/graphql-kotlin/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpediaGroup/graphql-kotlin)
+[![Docs](https://github.com/ExpediaGroup/graphql-kotlin/workflows/Publish%20Docs/badge.svg)](https://expediagroup.github.io/graphql-kotlin)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
 GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL integration for Kotlin applications.
