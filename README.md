@@ -52,7 +52,7 @@ type Widget {
 ## 📋 Documentation
 
 Examples and documentation are available on our
-[documentation](https://ExpediaGroup.github.io/graphql-kotlin/docs/doc-main),
+[documentation](https://expediagroup.github.io/graphql-kotlin),
 or in each module README file.
 
 If you have a question about something you can not find in our documentation, the indivdual modules, or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
