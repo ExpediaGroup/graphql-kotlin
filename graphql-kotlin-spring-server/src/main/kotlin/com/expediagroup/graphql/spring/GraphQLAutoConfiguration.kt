@@ -18,7 +18,9 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.spring.exception.KotlinDataFetcherExceptionHandler
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
+import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.EmptyContextFactory
+import com.expediagroup.graphql.spring.execution.EmptyDataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.execution.SimpleQueryHandler
@@ -32,7 +34,6 @@ import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
-import org.dataloader.DataLoaderRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -104,11 +105,14 @@ class GraphQLAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataLoaderRegistry(): DataLoaderRegistry = DataLoaderRegistry()
+    fun dataLoaderRegistryFactory(): DataLoaderRegistryFactory = EmptyDataLoaderRegistryFactory()
 
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLQueryHandler(graphql: GraphQL, dataLoaderRegistry: DataLoaderRegistry): QueryHandler = SimpleQueryHandler(graphql, dataLoaderRegistry)
+    fun graphQLQueryHandler(
+        graphql: GraphQL,
+        dataLoaderRegistryFactory: DataLoaderRegistryFactory
+    ): QueryHandler = SimpleQueryHandler(graphql, dataLoaderRegistryFactory)
 
     @Bean
     @ConditionalOnMissingBean

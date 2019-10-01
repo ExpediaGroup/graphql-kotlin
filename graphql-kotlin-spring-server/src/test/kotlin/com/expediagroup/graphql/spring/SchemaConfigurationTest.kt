@@ -18,6 +18,7 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.operations.Query
@@ -31,7 +32,6 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
-import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
@@ -73,7 +73,7 @@ class SchemaConfigurationTest {
                 assertNull(result["errors"])
                 assertNotNull(result["extensions"])
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
+                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
@@ -97,9 +97,9 @@ class SchemaConfigurationTest {
                 assertThat(ctx).getBean(GraphQL::class.java)
                     .isSameAs(customConfiguration.myGraphQL())
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
-                assertThat(ctx).getBean(DataLoaderRegistry::class.java)
-                    .isSameAs(customConfiguration.myDataLoaderRegistry())
+                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
+                assertThat(ctx).getBean(DataLoaderRegistryFactory::class.java)
+                    .isSameAs(customConfiguration.myDataLoaderRegistryFactory())
 
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
 
@@ -150,7 +150,7 @@ class SchemaConfigurationTest {
         fun myCustomContextFactory(): GraphQLContextFactory<Map<String, Any>> = mockk()
 
         @Bean
-        fun myDataLoaderRegistry(): DataLoaderRegistry = mockk()
+        fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
     }
 
     class BasicQuery : Query {
