@@ -25,9 +25,9 @@ jobs:
       run: |
         cd website
         npm install
-        git config --global user.name "${{ GITHUB_ACTION }}"
-        echo "machine github.com login ${{ GITHUB_ACTION }} password ${{ GITHUB_TOKEN }}}" > ~/.netrc
-        GIT_USER="${{ GITHUB_ACTION }}" npm run publish-gh-pages
+        git config --global user.name "${GITHUB_ACTION}"
+        echo "machine github.com login ${GITHUB_ACTION} password ${GITHUB_TOKEN}" > ~/.netrc
+        GIT_USER="${GITHUB_ACTION}" npm run publish-gh-pages
       env:
         CI: true
         CURRENT_BRANCH: master
