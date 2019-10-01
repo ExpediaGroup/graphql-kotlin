@@ -169,7 +169,7 @@ type Query {
 
 ## Documentation
 
-There are more examples in our [documentation](https://ExpediaGroup.github.io/graphql-kotlin/docs/doc-main),
+There are more examples in our [documentation](https://expediagroup.github.io/graphql-kotlin),
 or you can view the [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-federation) for all published versions.
 
 If you have a question about something you can not find in our documentation or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
