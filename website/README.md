@@ -19,7 +19,7 @@ doing in our docs, and with content removed when it's things we dont want people
 - Make sure all the dependencies for the website are installed:
 
 ```sh
-# Install the correct version of Node/NPM with NVM
+# Install the correct version of Node/NPM specified in the .nvmrc file
 nvm install
 
 # Install dependencies
