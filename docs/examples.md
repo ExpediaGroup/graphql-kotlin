@@ -1,6 +1,6 @@
 ---
 id: examples
-title: Examples of how to use the libraries
+title: Examples
 ---
 
 ## Spring Example
