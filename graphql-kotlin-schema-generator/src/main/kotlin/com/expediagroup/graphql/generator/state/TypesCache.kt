@@ -29,7 +29,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
 
-internal class TypesCache(private val supportedPackages: List<String>) {
+class TypesCache(private val supportedPackages: List<String>) {
 
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
     private val typeUnderConstruction: MutableSet<KClass<*>> = mutableSetOf()

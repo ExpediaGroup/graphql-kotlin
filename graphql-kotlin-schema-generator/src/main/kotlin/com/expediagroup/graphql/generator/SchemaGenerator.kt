@@ -49,7 +49,7 @@ import kotlin.reflect.KType
 @Suppress("LeakingThis")
 open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
-    internal val state = SchemaGeneratorState(config.supportedPackages)
+    val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
 

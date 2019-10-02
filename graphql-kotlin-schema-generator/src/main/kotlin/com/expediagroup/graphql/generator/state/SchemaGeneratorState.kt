@@ -23,7 +23,7 @@ import graphql.schema.GraphQLType
 import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("UseDataClass")
-internal class SchemaGeneratorState(supportedPackages: List<String>) {
+class SchemaGeneratorState(supportedPackages: List<String>) {
     val cache = TypesCache(supportedPackages)
     val additionalTypes = mutableSetOf<GraphQLType>()
     val directives = ConcurrentHashMap<String, GraphQLDirective>()
