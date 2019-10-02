@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.filters
 
+import com.expediagroup.graphql.generator.extensions.isGraphQLIgnored
 import com.expediagroup.graphql.generator.extensions.isInterface
 import com.expediagroup.graphql.generator.extensions.isPublic
 import com.expediagroup.graphql.generator.extensions.isUnion
@@ -26,5 +27,6 @@ private typealias SuperclassFilter = (KClass<*>) -> Boolean
 private val isPublic: SuperclassFilter = { it.isPublic() }
 private val isInterface: SuperclassFilter = { it.isInterface() }
 private val isNotUnion: SuperclassFilter = { it.isUnion().not() }
+private val isNotIgnored: SuperclassFilter = { it.isGraphQLIgnored().not() }
 
-internal val superclassFilters: List<SuperclassFilter> = listOf(isPublic, isInterface, isNotUnion)
+internal val superclassFilters: List<SuperclassFilter> = listOf(isPublic, isInterface, isNotUnion, isNotIgnored)

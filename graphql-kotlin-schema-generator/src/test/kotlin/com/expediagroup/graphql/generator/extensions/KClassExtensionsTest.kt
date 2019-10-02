@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.extensions
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
@@ -82,6 +83,13 @@ open class KClassExtensionsTest {
     class MyPublicClass
 
     internal class UnionSuperclass : TestInterface
+
+    @GraphQLIgnore
+    internal interface IgnoredInterface {
+        val id: String
+    }
+
+    internal class ClassWithNoValidSuperclass(override val id: String) : IgnoredInterface
 
     internal class InterfaceSuperclass : InvalidFunctionUnionInterface {
         override fun getTest() = 2
@@ -172,6 +180,12 @@ open class KClassExtensionsTest {
     @Test
     fun `test getting invalid superclass with no hooks`() {
         val superclasses = UnionSuperclass::class.getValidSuperclasses(noopHooks)
+        assertTrue(superclasses.isEmpty())
+    }
+
+    @Test
+    fun `Superclasses are not included when marked as ignored`() {
+        val superclasses = ClassWithNoValidSuperclass::class.getValidSuperclasses(noopHooks)
         assertTrue(superclasses.isEmpty())
     }
 
