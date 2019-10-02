@@ -16,12 +16,15 @@
 
 package com.expediagroup.graphql.federation.execution
 
+import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
 import org.junit.jupiter.api.Test
+import test.data.queries.simple.NestedQuery
+import test.data.queries.simple.SimpleQuery
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -51,6 +54,19 @@ type User @extends @key(fields : "userId") {
   userId: Int! @external
 }"""
 
+const val BASE_SERVICE_SDL = """
+type Query {
+  getSimpleNestedObject: [SelfReferenceObject]!
+  hello(name: String!): String!
+}
+
+type SelfReferenceObject {
+  description: String
+  id: Int!
+  nextObject: [SelfReferenceObject]!
+}
+"""
+
 class ServiceQueryResolverTest {
 
     @Test
@@ -78,6 +94,35 @@ class ServiceQueryResolverTest {
             assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
                 val sdl = queryResult["sdl"] as? String
                 assertEquals(FEDERATED_SERVICE_SDL.trim(), sdl)
+            }
+        }
+    }
+
+    @Test
+    fun `verify can retrieve SDL using _service query for non-federated schemas`() {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("test.data.queries.simple"),
+            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+        )
+
+        val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery()), TopLevelObject(NestedQuery())))
+        val query = """
+            query sdlQuery {
+              _service {
+                sdl
+              }
+            }
+        """.trimIndent()
+        val executionInput = ExecutionInput.newExecutionInput()
+            .query(query)
+            .build()
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.executeAsync(executionInput).get().toSpecification()
+
+        assertNotNull(result["data"] as? Map<*, *>) { data ->
+            assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
+                val sdl = queryResult["sdl"] as? String
+                assertEquals(BASE_SERVICE_SDL.trim(), sdl)
             }
         }
     }

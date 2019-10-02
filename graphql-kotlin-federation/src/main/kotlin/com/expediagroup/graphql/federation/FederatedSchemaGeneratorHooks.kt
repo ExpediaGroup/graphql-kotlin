@@ -69,6 +69,25 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             .field(SERVICE_FIELD_DEFINITION)
             .withDirective(extendsDirectiveType)
 
+        /**
+         * SDL returned by _service query should NOT contain
+         * - default schema definition
+         * - empty Query type
+         * - any directive definitions
+         * - any custom directives
+         * - new federated scalars
+         */
+        val sdl = originalSchema.print(includeDefaultSchemaDefinition = false)
+            /**
+             * TODO: this can be simplified once this is solved: apollographql/apollo-server#3334
+             */
+            .replace(directiveDefinitionRegex, "")
+            .replace(scalarDefinitionRegex, "")
+            .replace(emptyQueryRegex, "")
+            .replace(customDirectivesRegex, "")
+            .trim()
+        federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
+
         val entityTypeNames = originalSchema.allTypesAsList
             .asSequence()
             .filterIsInstance<GraphQLObjectType>()
@@ -81,25 +100,6 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
-            /**
-             * SDL returned by _service query should NOT contain
-             * - default schema definition
-             * - empty Query type
-             * - any directive definitions
-             * - any custom directives
-             * - new federated scalars
-             */
-            val sdl = originalSchema.print(includeDefaultSchemaDefinition = false)
-                /**
-                 * TODO: this can be simplified once this is solved: apollographql/apollo-server#3334
-                 */
-                .replace(directiveDefinitionRegex, "")
-                .replace(scalarDefinitionRegex, "")
-                .replace(emptyQueryRegex, "")
-                .replace(customDirectivesRegex, "")
-                .trim()
-
-            federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(federatedTypeRegistry))
             federatedCodeRegistry.typeResolver("_Entity") { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
             federatedSchema.additionalType(ANY_SCALAR_TYPE)
