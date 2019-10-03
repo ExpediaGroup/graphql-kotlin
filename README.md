@@ -5,7 +5,7 @@
 [![Docs](https://github.com/ExpediaGroup/graphql-kotlin/workflows/Publish%20Docs/badge.svg)](https://expediagroup.github.io/graphql-kotlin)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
-GraphQL Kotlin consists of number of libraries that aim to simplify GraphQL integration for Kotlin applications.
+GraphQL Kotlin consists of number of libraries that aim to simplify running a GraphQL server in Kotlin.
 
 ## 📦 Modules
 
@@ -52,18 +52,16 @@ type Widget {
 
 ## 📋 Documentation
 
-Examples and documentation are available on our
-[documentation](https://expediagroup.github.io/graphql-kotlin),
-or in each module README file.
+Examples and documentation are available on our [documentation](https://expediagroup.github.io/graphql-kotlin), or in each module README file.
 
 If you have a question about something you can not find in our documentation, the indivdual modules, or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
 
 ## 👥 Contact
 
-This project is part of Expedia Group open source but also maintained by a dedicated team
+This project is part of Expedia Group Open Source but also maintained by a dedicated team
 
 * Expedia Group
-  * https://expediagroup.com/
+  * https://expediagroup.github.io
   * oss@expediagroup.com
   
 * `@ExpediaGroup/graphql-kotlin-committers`
