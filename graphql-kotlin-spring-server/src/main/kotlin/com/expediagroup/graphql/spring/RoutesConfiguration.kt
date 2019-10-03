@@ -30,7 +30,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.awaitBody
-import org.springframework.web.reactive.function.server.bodyAndAwait
+import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
@@ -55,13 +55,13 @@ class RoutesConfiguration(
             val graphQLRequest = createGraphQLRequest(serverRequest)
             if (graphQLRequest != null) {
                 val graphQLResult = queryHandler.executeQuery(graphQLRequest)
-                ok().json().bodyAndAwait(graphQLResult)
+                ok().json().bodyValueAndAwait(graphQLResult)
             } else {
                 badRequest().buildAndAwait()
             }
         }
         GET("/sdl") {
-            ok().contentType(MediaType.TEXT_PLAIN).bodyAndAwait(schema.print())
+            ok().contentType(MediaType.TEXT_PLAIN).bodyValueAndAwait(schema.print())
         }
     }
 

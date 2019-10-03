@@ -31,7 +31,6 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Server
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -46,7 +45,7 @@ import kotlin.test.assertTrue
 
 class ApolloSubscriptionProtocolHandlerTest {
 
-    private val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    private val objectMapper = jacksonObjectMapper()
 
     @Test
     fun `Return GQL_CONNECTION_ERROR when payload is not a SubscriptionOperationMessage`() {
@@ -296,10 +295,9 @@ class ApolloSubscriptionProtocolHandlerTest {
         assertNotNull(message)
         assertEquals(expected = GQL_ERROR.type, actual = message.type)
         assertEquals(expected = "abc", actual = message.id)
-        val payload = message.payload
-        assertNotNull(payload)
-        val graphQLResponse: GraphQLResponse = objectMapper.convertValue(payload)
-        assertTrue(graphQLResponse.errors?.isNotEmpty() == true)
+        val response = message.payload as? GraphQLResponse
+        assertNotNull(response)
+        assertTrue(response.errors?.isNotEmpty() == true)
 
         verify(exactly = 0) { session.close() }
     }

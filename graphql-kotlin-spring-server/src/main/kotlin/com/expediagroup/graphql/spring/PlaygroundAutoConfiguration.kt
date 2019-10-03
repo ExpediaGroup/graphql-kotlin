@@ -24,9 +24,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
-import org.springframework.web.reactive.function.server.bodyAndAwait
 
 /**
  * SpringBoot auto configuration for generating Playground Service.
@@ -48,7 +48,7 @@ class PlaygroundAutoConfiguration(
         }
         return coRouter {
             GET(config.playground.endpoint) {
-                ok().html().bodyAndAwait(body)
+                ok().html().bodyValueAndAwait(body)
             }
         }
     }
