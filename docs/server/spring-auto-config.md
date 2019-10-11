@@ -4,11 +4,11 @@ title: Spring Boot Auto Configuration
 ---
 
 [graphql-kotlin-spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-spring-server)
-is a Spring Boot auto-configuration library that automatically configures beans required to start up reactive GraphQL
+is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive GraphQL
 web server.
 
 At a minimum, in order for `graphql-kotlin-spring-server` to automatically configure your GraphQL web server you need to
-specify list of supported packages that can be scanned for exposing your schema objects through reflections.
+specify a list of supported packages that can be scanned for exposing your schema objects through reflections.
 
 You can do this through the spring application config or by overriding the `SchemaGeneratorConfig` bean. See customization below.
 
@@ -24,10 +24,12 @@ corresponding marker interface and they will be automatically picked up by `grap
 auto-configuration library.
 
 ```kotlin
+@Component
 class MyAwesomeQuery : Query {
   fun myAwesomeQuery(): Widget { ... }
 }
 
+@Component
 class MyAwesomeMutation : Mutation {
   fun myAwesomeMutation(widget: Widget): Widget { ... }
 }
