@@ -215,6 +215,23 @@ directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITIO
             .jsonPath("$.extensions").doesNotExist()
     }
 
+    @Test
+    fun `verify POST graphQL request with explicit charset`() {
+        val request = GraphQLRequest(
+            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+            variables = mapOf("name" to "JUNIT route with charset encoding"),
+            operationName = "helloWorldQuery"
+        )
+
+        testClient.post()
+            .uri("/graphql")
+            .accept(MediaType.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .bodyValue(request)
+            .exchange()
+            .verifyGraphQLRoute("Hello JUNIT route with charset encoding!")
+    }
+
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk
         .expectBody()
         .jsonPath("$.data.hello").isEqualTo(expected)
