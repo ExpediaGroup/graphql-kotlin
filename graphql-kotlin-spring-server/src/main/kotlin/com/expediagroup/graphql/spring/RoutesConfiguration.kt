@@ -77,10 +77,13 @@ class RoutesConfiguration(
             }
             GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
         }
-        serverRequest.method() == HttpMethod.POST -> when (serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)) {
-            MediaType.APPLICATION_JSON -> serverRequest.awaitBody()
-            graphQLMediaType -> GraphQLRequest(query = serverRequest.awaitBody())
-            else -> null
+        serverRequest.method() == HttpMethod.POST -> {
+            val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
+            when {
+                contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.awaitBody()
+                contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
+                else -> null
+            }
         }
         else -> null
     }
