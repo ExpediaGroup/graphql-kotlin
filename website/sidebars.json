@@ -39,9 +39,10 @@
       "federated/federated-directives",
       "federated/type-resolution"
     ],
-    "Spring Server": [
-      "server/spring",
-      "server/spring-config"
+    "Server": [
+      "server/spring-auto-config",
+      "server/spring-beans",
+      "server/spring-properties"
     ],
     "Contributors": [
       "contributors/release-proc"
