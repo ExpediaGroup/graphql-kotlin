@@ -28,4 +28,4 @@ Once the app has started you can explore the example schema by opening Playgroun
 
 ### Gateway
 
-See the instructions in the [README](/gateway/README.md) for this folder
+See the instructions in the [README](./gateway/README.md) for this folder
