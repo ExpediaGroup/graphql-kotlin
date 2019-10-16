@@ -16,12 +16,14 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.exceptions.InvalidInterfaceException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
+import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
@@ -34,6 +36,12 @@ import kotlin.reflect.full.createType
 internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
     internal fun interfaceType(kClass: KClass<*>): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) {
+
+            // Interfaces can not implement another interface in GraphQL
+            if (kClass.getValidSuperclasses(config.hooks).isNotEmpty()) {
+                throw InvalidInterfaceException()
+            }
+
             val builder = GraphQLInterfaceType.newInterface()
 
             builder.name(kClass.getSimpleName())

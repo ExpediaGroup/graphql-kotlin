@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.extensions
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
@@ -82,6 +83,38 @@ open class KClassExtensionsTest {
     class MyPublicClass
 
     internal class UnionSuperclass : TestInterface
+
+    @GraphQLIgnore
+    internal interface IgnoredInterface {
+        val id: String
+    }
+
+    @GraphQLIgnore
+    interface IgnoredSecondLevelInterface : SomeInterface
+
+    internal class ClassWithSecondLevelInterface : IgnoredSecondLevelInterface {
+        override val someField: String = "hello"
+
+        override fun someFunction(): String? = null
+    }
+
+    @GraphQLIgnore
+    abstract class IgnoredAbstractClass : SomeInterface
+
+    @GraphQLIgnore
+    abstract class IgnoredSecondAbstractClass : IgnoredAbstractClass()
+
+    internal class ClassWithNoValidSuperclass(override val id: String) : IgnoredInterface
+
+    internal class ClassWithSecondLevelAbstractClass : IgnoredAbstractClass() {
+        override val someField: String = "foo"
+        override fun someFunction(): String? = "bar"
+    }
+
+    internal class ClassWithThirdLevelAbstractClass : IgnoredSecondAbstractClass() {
+        override val someField: String = "foo"
+        override fun someFunction(): String? = "bar"
+    }
 
     internal class InterfaceSuperclass : InvalidFunctionUnionInterface {
         override fun getTest() = 2
@@ -173,6 +206,30 @@ open class KClassExtensionsTest {
     fun `test getting invalid superclass with no hooks`() {
         val superclasses = UnionSuperclass::class.getValidSuperclasses(noopHooks)
         assertTrue(superclasses.isEmpty())
+    }
+
+    @Test
+    fun `Superclasses are not included when marked as ignored`() {
+        val superclasses = ClassWithNoValidSuperclass::class.getValidSuperclasses(noopHooks)
+        assertTrue(superclasses.isEmpty())
+    }
+
+    @Test
+    fun `Return superclasses from abstract class two levels deep`() {
+        val superclasses = ClassWithSecondLevelAbstractClass::class.getValidSuperclasses(noopHooks)
+        assertEquals(expected = 1, actual = superclasses.size)
+    }
+
+    @Test
+    fun `Return superclasses from abstract class three levels deep`() {
+        val superclasses = ClassWithThirdLevelAbstractClass::class.getValidSuperclasses(noopHooks)
+        assertEquals(expected = 1, actual = superclasses.size)
+    }
+
+    @Test
+    fun `Return superclasses from interface two levels deep`() {
+        val superclasses = ClassWithSecondLevelInterface::class.getValidSuperclasses(noopHooks)
+        assertEquals(expected = 1, actual = superclasses.size)
     }
 
     @Test
