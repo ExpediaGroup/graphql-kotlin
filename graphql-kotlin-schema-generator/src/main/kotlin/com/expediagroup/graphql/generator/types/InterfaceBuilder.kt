@@ -37,7 +37,8 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
     internal fun interfaceType(kClass: KClass<*>): GraphQLType {
         return state.cache.buildIfNotUnderConstruction(kClass) {
 
-            if (kClass.getValidSuperclasses(generator.config.hooks).isNotEmpty()) {
+            // Interfaces can not implement another interface in GraphQL
+            if (kClass.getValidSuperclasses(config.hooks).isNotEmpty()) {
                 throw InvalidInterfaceException()
             }
 

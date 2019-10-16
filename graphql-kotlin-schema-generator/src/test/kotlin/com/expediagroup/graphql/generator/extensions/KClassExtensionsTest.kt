@@ -89,7 +89,32 @@ open class KClassExtensionsTest {
         val id: String
     }
 
+    @GraphQLIgnore
+    interface IgnoredSecondLevelInterface : SomeInterface
+
+    internal class ClassWithSecondLevelInterface : IgnoredSecondLevelInterface {
+        override val someField: String = "hello"
+
+        override fun someFunction(): String? = null
+    }
+
+    @GraphQLIgnore
+    abstract class IgnoredAbstractClass : SomeInterface
+
+    @GraphQLIgnore
+    abstract class IgnoredSecondAbstractClass : IgnoredAbstractClass()
+
     internal class ClassWithNoValidSuperclass(override val id: String) : IgnoredInterface
+
+    internal class ClassWithSecondLevelAbstractClass : IgnoredAbstractClass() {
+        override val someField: String = "foo"
+        override fun someFunction(): String? = "bar"
+    }
+
+    internal class ClassWithThirdLevelAbstractClass : IgnoredSecondAbstractClass() {
+        override val someField: String = "foo"
+        override fun someFunction(): String? = "bar"
+    }
 
     internal class InterfaceSuperclass : InvalidFunctionUnionInterface {
         override fun getTest() = 2
@@ -187,6 +212,24 @@ open class KClassExtensionsTest {
     fun `Superclasses are not included when marked as ignored`() {
         val superclasses = ClassWithNoValidSuperclass::class.getValidSuperclasses(noopHooks)
         assertTrue(superclasses.isEmpty())
+    }
+
+    @Test
+    fun `Return superclasses from abstract class two levels deep`() {
+        val superclasses = ClassWithSecondLevelAbstractClass::class.getValidSuperclasses(noopHooks)
+        assertEquals(expected = 1, actual = superclasses.size)
+    }
+
+    @Test
+    fun `Return superclasses from abstract class three levels deep`() {
+        val superclasses = ClassWithThirdLevelAbstractClass::class.getValidSuperclasses(noopHooks)
+        assertEquals(expected = 1, actual = superclasses.size)
+    }
+
+    @Test
+    fun `Return superclasses from interface two levels deep`() {
+        val superclasses = ClassWithSecondLevelInterface::class.getValidSuperclasses(noopHooks)
+        assertEquals(expected = 1, actual = superclasses.size)
     }
 
     @Test

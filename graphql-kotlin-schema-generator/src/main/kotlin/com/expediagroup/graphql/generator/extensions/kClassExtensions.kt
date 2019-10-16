@@ -51,6 +51,9 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
     this.superclasses
         .filter { hooks.isValidSuperclass(it) }
         .filter { kClass -> superclassFilters.all { it.invoke(kClass) } }
+        .ifEmpty {
+            this.superclasses.flatMap { it.getValidSuperclasses(hooks) }
+        }
 
 internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
     this.primaryConstructor?.findParameterByName(name)
