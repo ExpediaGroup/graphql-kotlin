@@ -12,7 +12,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <spring-boot.version>2.2.0.RC1</spring-boot.version>
         <reactor.version>3.3.0.RELEASE</reactor.version>
         <reactor-kotlin-extensions.version>1.0.0.RELEASE</reactor-kotlin-extensions.version>
     </properties>

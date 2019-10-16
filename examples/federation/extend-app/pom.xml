@@ -14,8 +14,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <spring-boot.version>2.2.0.M5</spring-boot.version>
-
         <!-- skip release plugins -->
         <maven.source.skip>true</maven.source.skip>
     </properties>
