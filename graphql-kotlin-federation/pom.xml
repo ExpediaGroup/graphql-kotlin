@@ -10,8 +10,11 @@
     </parent>
 
     <artifactId>graphql-kotlin-federation</artifactId>
-    <name>graphql-kotlin-federation</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <project.root>${project.basedir}/..</project.root>
+    </properties>
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>

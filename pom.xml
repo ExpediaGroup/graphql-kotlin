@@ -59,6 +59,7 @@
         <!-- Project Versions -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+        <project.root>${project.basedir}</project.root>
 
         <!-- Dependency Versions -->
         <graphql-java.version>13.0</graphql-java.version>
@@ -66,6 +67,7 @@
         <kotlin.version>1.3.50</kotlin.version>
         <kotlin-coroutines.version>1.3.2</kotlin-coroutines.version>
         <reflections.version>0.9.11</reflections.version>
+        <spring-boot.version>2.2.0.RC1</spring-boot.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.5.2</junit-jupiter.version>
@@ -132,7 +134,7 @@
                                         <arg value="--input" />
                                         <arg value="${project.basedir}${file.separator}src" />
                                         <arg value="--config" />
-                                        <arg value="${project.parent.relativePath}${file.separator}detekt.yml" />
+                                        <arg value="${project.root}${file.separator}detekt.yml" />
                                         <arg value="--report" />
                                         <arg value="html:${project.basedir}${file.separator}target${file.separator}site${file.separator}detekt.html" />
                                         <arg value="--report" />
