@@ -66,7 +66,7 @@ data class Animal(
 
 data class AnimalDetails(val specialId: Int)
 
-class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider(NoopSchemaGeneratorHooks()) {
+class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider(NoopSchemaGeneratorHooks) {
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
         if (kProperty.isLateinit) {

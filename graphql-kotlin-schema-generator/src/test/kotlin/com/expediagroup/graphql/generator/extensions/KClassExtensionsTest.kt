@@ -152,7 +152,7 @@ open class KClassExtensionsTest {
             kClass.simpleName?.contains("InvalidFunctionUnionInterface")?.not().isTrue()
     }
 
-    private val noopHooks = NoopSchemaGeneratorHooks()
+    private val noopHooks = NoopSchemaGeneratorHooks
 
     @Test
     fun `test getting valid properties with no hooks`() {
