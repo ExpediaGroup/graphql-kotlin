@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>graphql-kotlin</artifactId>
         <groupId>com.expediagroup</groupId>
+        <artifactId>examples</artifactId>
         <version>1.1.1-SNAPSHOT</version>
-        <relativePath>../..</relativePath>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>federation</artifactId>
@@ -78,7 +78,7 @@
                             <phase>validate</phase>
                             <configuration>
                                 <target name="ktlint">
-                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true" classname="com.github.shyiko.ktlint.Main" classpathref="maven.plugin.classpath">
+                                    <java taskname="ktlint" dir="${project.basedir}" fork="true" failonerror="true" classname="com.pinterest.ktlint.Main" classpathref="maven.plugin.classpath">
                                         <arg value="src/**/*.kt" />
                                         <arg value="--reporter=plain" />
                                         <arg value="--reporter=checkstyle,output=${project.build.directory}/ktlint.xml" />
@@ -94,10 +94,10 @@
                         <dependency>
                             <groupId>io.gitlab.arturbosch.detekt</groupId>
                             <artifactId>detekt-cli</artifactId>
-                            <version>${detekt-cli.version}</version>
+                            <version>${detekt.version}</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.github.shyiko</groupId>
+                            <groupId>com.pinterest</groupId>
                             <artifactId>ktlint</artifactId>
                             <version>${ktlint.version}</version>
                         </dependency>
