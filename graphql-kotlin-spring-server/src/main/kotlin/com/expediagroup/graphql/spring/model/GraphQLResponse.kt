@@ -16,10 +16,12 @@
 
 package com.expediagroup.graphql.spring.model
 
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import graphql.ExecutionResult
 import graphql.GraphQLError
+import java.lang.Exception
 
 @JsonInclude(Include.NON_NULL)
 data class GraphQLResponse(
@@ -29,7 +31,15 @@ data class GraphQLResponse(
 )
 
 fun ExecutionResult.toGraphQLResponse(): GraphQLResponse {
-    val filteredErrors = if (errors?.isNotEmpty() == true) errors else null
+    val filteredErrors = if (errors?.isNotEmpty() == true) {
+        errors.map {
+            when (it) {
+                is SimpleKotlinGraphQLError -> it
+                is Exception -> SimpleKotlinGraphQLError(exception = it, locations = it.locations, path = it.path, errorType = it.errorType)
+                else -> it
+            }
+        }
+    } else null
     val filteredExtensions = if (extensions?.isNotEmpty() == true) extensions else null
     return GraphQLResponse(getData(), filteredErrors, filteredExtensions)
 }

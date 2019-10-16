@@ -16,7 +16,13 @@
 
 package com.expediagroup.graphql.spring.model
 
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import graphql.ExecutionResult
+import graphql.execution.ExecutionPath
+import graphql.execution.NonNullableValueCoercedAsNullException
+import graphql.language.SourceLocation
+import graphql.language.VariableDefinition
+import graphql.schema.GraphQLTypeReference
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -87,6 +93,59 @@ class GraphQLResponseKtTest {
         val errors = result.errors
         assertNotNull(errors)
         assertEquals(expected = "hello", actual = errors.firstOrNull()?.message)
+        val extensions = result.extensions
+        assertNotNull(extensions)
+        assertEquals(expected = "bar", actual = extensions["foo"])
+    }
+
+    @Test
+    fun `SimpleKotlinGraphQLError is mapped as expected`() {
+        val executionResult: ExecutionResult = mockk {
+            every { getData<Any>() } returns mockk()
+            every { errors } returns listOf(SimpleKotlinGraphQLError(
+                Exception(),
+                listOf(SourceLocation(1, 1)),
+                ExecutionPath.rootPath().toList()
+            ))
+            every { extensions } returns mapOf("foo" to "bar")
+        }
+
+        val result = executionResult.toGraphQLResponse()
+
+        assertNotNull(result.data)
+        val errors = result.errors
+        assertNotNull(errors)
+        assertEquals(1, errors.size)
+        assert(errors.first() is SimpleKotlinGraphQLError)
+        val extensions = result.extensions
+        assertNotNull(extensions)
+        assertEquals(expected = "bar", actual = extensions["foo"])
+    }
+
+    @Test
+    fun `error due to an Exception is mapped as expected`() {
+        val executionResult: ExecutionResult = mockk {
+            every { getData<Any>() } returns mockk()
+            every { errors } returns listOf(NonNullableValueCoercedAsNullException(
+                VariableDefinition(
+                    "name",
+                    mockk()
+                ),
+                "name",
+                GraphQLTypeReference(
+                    "name"
+                )
+            ))
+            every { extensions } returns mapOf("foo" to "bar")
+        }
+
+        val result = executionResult.toGraphQLResponse()
+
+        assertNotNull(result.data)
+        val errors = result.errors
+        assertNotNull(errors)
+        assertEquals(1, errors.size)
+        assert(errors.first() is SimpleKotlinGraphQLError)
         val extensions = result.extensions
         assertNotNull(extensions)
         assertEquals(expected = "bar", actual = extensions["foo"])
