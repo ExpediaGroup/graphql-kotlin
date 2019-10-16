@@ -3,6 +3,13 @@
 One way to run a GraphQL server is with [Spring Boot](https://github.com/spring-projects/spring-boot). This example app uses [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) together with `graphql-kotlin` and [graphql-playground](https://github.com/prisma/graphql-playground).
 
 ### Running locally
+
+Install dependencies locally
+
+```bash
+mvn -f ../../ install
+```
+
 Build the application
 
 ```bash
