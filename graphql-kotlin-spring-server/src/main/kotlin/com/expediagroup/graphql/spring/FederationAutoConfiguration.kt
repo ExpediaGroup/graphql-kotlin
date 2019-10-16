@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.spring
 
+import com.expediagroup.graphql.TopLevelNames
+import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
@@ -47,9 +49,20 @@ class FederationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedSchemaConfig(config: GraphQLConfigurationProperties, registry: FederatedTypeRegistry): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
+    fun federatedSchemaGeneratorHooks(registry: FederatedTypeRegistry): FederatedSchemaGeneratorHooks = FederatedSchemaGeneratorHooks(registry)
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun federatedSchemaConfig(
+        config: GraphQLConfigurationProperties,
+        hooks: FederatedSchemaGeneratorHooks,
+        topLevelNames: Optional<TopLevelNames>,
+        dataFetcherFactoryProvider: Optional<KotlinDataFetcherFactoryProvider>
+    ): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
         supportedPackages = config.packages,
-        hooks = FederatedSchemaGeneratorHooks(registry)
+        topLevelNames = topLevelNames.orElse(TopLevelNames()),
+        hooks = hooks,
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider(hooks))
     )
 
     @Bean

@@ -17,8 +17,12 @@
 package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
+import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
+import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
@@ -44,9 +48,20 @@ class SchemaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun schemaConfig(config: GraphQLConfigurationProperties): SchemaGeneratorConfig = SchemaGeneratorConfig(
-            supportedPackages = config.packages
+    fun schemaConfig(
+        config: GraphQLConfigurationProperties,
+        topLevelNames: Optional<TopLevelNames>,
+        hooks: Optional<SchemaGeneratorHooks>,
+        dataFetcherFactoryProvider: Optional<KotlinDataFetcherFactoryProvider>
+    ): SchemaGeneratorConfig {
+        val generatorHooks = hooks.orElse(NoopSchemaGeneratorHooks)
+        return SchemaGeneratorConfig(
+            supportedPackages = config.packages,
+            topLevelNames = topLevelNames.orElse(TopLevelNames()),
+            hooks = generatorHooks,
+            dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider(generatorHooks))
         )
+    }
 
     @Bean
     @ConditionalOnMissingBean
