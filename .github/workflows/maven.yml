@@ -16,7 +16,5 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Maven version
-        run: mvn --version
       - name: Build with Maven
-        run: mvn clean verify -P defaultBuild
+        run: mvn clean verify -P defaultBuild, \!jdk8
