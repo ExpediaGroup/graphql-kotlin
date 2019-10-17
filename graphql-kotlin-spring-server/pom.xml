@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.expediagroup</groupId>
         <artifactId>graphql-kotlin</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -118,20 +118,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <!-- TODO remove after Spring Boot 2.2 is released -->
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
