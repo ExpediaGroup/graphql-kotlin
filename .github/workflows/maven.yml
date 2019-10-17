@@ -17,4 +17,4 @@ jobs:
         with:
           java-version: 1.8
       - name: Build with Maven
-        run: mvn clean verify --file pom.xml
+        run: mvn clean verify -PdefaultBuild -P!jdk8
