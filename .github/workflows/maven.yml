@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Active Maven profiles
-        run: mvn help:active-profiles -P defaultBuild
+      - name: Maven version
+        run: mvn --version
       - name: Build with Maven
         run: mvn clean verify -P defaultBuild
