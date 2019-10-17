@@ -67,7 +67,7 @@
         <kotlin.version>1.3.50</kotlin.version>
         <kotlin-coroutines.version>1.3.2</kotlin-coroutines.version>
         <reflections.version>0.9.11</reflections.version>
-        <spring-boot.version>2.2.0.RC1</spring-boot.version>
+        <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
 
         <!-- Test Dependency Versions -->
         <junit-jupiter.version>5.5.2</junit-jupiter.version>
