@@ -17,6 +17,6 @@ jobs:
         with:
           java-version: 1.8
       - name: Active Maven profiles
-        run: mvn help:active-profiles
+        run: mvn help:active-profiles -P defaultBuild
       - name: Build with Maven
-        run: mvn clean verify
+        run: mvn clean verify -P defaultBuild
