@@ -16,15 +16,13 @@
 
 package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.examples.datafetchers.CustomDataFetcherFactoryProvider
 import com.expediagroup.graphql.examples.datafetchers.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.directives.CustomDirectiveWiringFactory
 import com.expediagroup.graphql.examples.exceptions.CustomDataFetcherExceptionHandler
 import com.expediagroup.graphql.examples.extension.CustomSchemaGeneratorHooks
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -44,13 +42,6 @@ class Application {
     @Bean
     fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: SchemaGeneratorHooks) =
         CustomDataFetcherFactoryProvider(springDataFetcherFactory, hooks)
-
-    @Bean
-    fun schemaConfig(hooks: SchemaGeneratorHooks, dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider): SchemaGeneratorConfig = SchemaGeneratorConfig(
-        supportedPackages = listOf("com.expediagroup"),
-        hooks = hooks,
-        dataFetcherFactoryProvider = dataFetcherFactoryProvider
-    )
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()

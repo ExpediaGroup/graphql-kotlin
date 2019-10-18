@@ -74,6 +74,7 @@ class SubscriptionConfigurationTest {
     @Test
     fun `verify subscription auto configuration backs off in beans are defined by user`() {
         contextRunner.withUserConfiguration(CustomSubscriptionConfiguration::class.java)
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring")
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomSubscriptionConfiguration::class.java)
 
