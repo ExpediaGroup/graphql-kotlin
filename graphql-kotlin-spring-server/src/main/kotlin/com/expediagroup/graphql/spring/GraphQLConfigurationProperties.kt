@@ -17,45 +17,47 @@
 package com.expediagroup.graphql.spring
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 
 /**
  * [ConfigurationProperties] bean that defines supported GraphQL configuration options.
  */
+@ConstructorBinding
 @ConfigurationProperties("graphql")
-class GraphQLConfigurationProperties {
+data class GraphQLConfigurationProperties(
     /** GraphQL server endpoint, defaults to 'graphql' */
-    var endpoint: String = "graphql"
+    val endpoint: String = "graphql",
     /** List of supported packages that can contain GraphQL schema type definitions */
-    var packages: List<String> = emptyList()
-    var federation: FederationConfigurationProperties = FederationConfigurationProperties()
-    var subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties()
-    var playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties()
-}
+    val packages: List<String>,
+    val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
+    val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
+    val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties()
+)
 
 /**
  * Apollo Federation configuration properties.
  */
-class FederationConfigurationProperties {
+data class FederationConfigurationProperties(
     /** Boolean flag indicating whether to generate federated GraphQL model */
-    var enabled: Boolean = false
-}
+    val enabled: Boolean = false
+)
 
 /**
  * GraphQL subscription configuration properties.
  */
-class SubscriptionConfigurationProperties {
+data class SubscriptionConfigurationProperties(
     /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
-    var endpoint: String = "subscriptions"
+    val endpoint: String = "subscriptions",
     /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
-    var keepAliveInterval: Long? = null
-}
+    val keepAliveInterval: Long? = null
+)
 
 /**
  * Playground configuration properties.
  */
-class PlaygroundConfigurationProperties {
+data class PlaygroundConfigurationProperties(
     /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
-    var enabled: Boolean = true
-    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to "/playground" */
-    var endpoint: String = "/playground"
-}
+    val enabled: Boolean = true,
+    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
+    val endpoint: String = "playground"
+)

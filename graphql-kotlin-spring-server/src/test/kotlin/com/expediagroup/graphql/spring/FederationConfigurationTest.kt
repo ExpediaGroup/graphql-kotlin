@@ -83,6 +83,7 @@ class FederationConfigurationTest {
     @Test
     fun `verify federated schema auto configuration backs off in beans are defined by user`() {
         contextRunner.withUserConfiguration(CustomFederatedConfiguration::class.java)
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring", "graphql.federation.enabled=true")
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomFederatedConfiguration::class.java)
 
@@ -119,7 +120,7 @@ class FederationConfigurationTest {
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
         @Bean
-        fun customSchemaConfig(): SchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
+        fun customSchemaConfig(): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup"),
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )

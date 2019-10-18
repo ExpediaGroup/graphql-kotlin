@@ -82,6 +82,7 @@ class SchemaConfigurationTest {
     @Test
     fun `verify schema auto configuration backs off in beans are defined by user`() {
         contextRunner.withUserConfiguration(CustomConfiguration::class.java)
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring")
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomConfiguration::class.java)
 
