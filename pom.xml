@@ -74,10 +74,10 @@
         <mockk.version>1.9.3</mockk.version>
 
         <!-- Build Plugin Versions -->
-        <dokka-maven-plugin.version>0.9.18</dokka-maven-plugin.version>
-        <detekt.version>1.0.1</detekt.version>
-        <ktlint.version>0.34.2</ktlint.version>
-        <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
+        <dokka-maven-plugin.version>0.10.0</dokka-maven-plugin.version>
+        <detekt.version>1.1.1</detekt.version>
+        <ktlint.version>0.35.0</ktlint.version>
+        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 
         <!-- disable default maven-deploy-plugin in favor of nexus-staging-maven-plugin -->
         <maven.deploy.skip>true</maven.deploy.skip>

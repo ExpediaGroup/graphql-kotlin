@@ -40,3 +40,5 @@ style:
     maxLineLength: 200
   ReturnCount:
     active: false
+  UseIfInsteadOfWhen:
+    active: false
