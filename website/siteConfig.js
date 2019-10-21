@@ -69,6 +69,9 @@ const siteConfig = {
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
   repoUrl: 'https://github.com/ExpediaGroup/graphql-kotlin',
+  
+  // URL for editing docs, usage example: editUrl + 'en/doc1.md'
+  editUrl: 'https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs'
 };
 
 module.exports = siteConfig;
