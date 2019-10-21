@@ -71,7 +71,7 @@ const siteConfig = {
   repoUrl: 'https://github.com/ExpediaGroup/graphql-kotlin',
   
   // URL for editing docs, usage example: editUrl + 'en/doc1.md'
-  editUrl: 'https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs'
+  editUrl: 'https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/'
 };
 
 module.exports = siteConfig;
