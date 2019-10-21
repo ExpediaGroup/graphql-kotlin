@@ -15,12 +15,12 @@ composing multiple GraphQL services into a single graph. Each individual GraphQL
 and can be developed and run independently.
 
 `graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily
-generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to
-instrument the behavior of the underlying graph. See the [Directives](federated-directives) documentation here to learn
-more about new directives. Once all the federated objects are annotated, you will also have to configure corresponding
-[FederatedTypeResolver]s that are used to instantiate federated objects and finally generate the schema using
+generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of [new directives](federated-directives) to
+instrument the behavior of the underlying graph. Once all the federated objects are annotated, you will also have to configure corresponding
+FederatedTypeResolvers that are used to instantiate underlying federated objects and finally generate the schema using
 `toFederatedSchema` function
 ([link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/toFederatedSchema.kt#L34)).
+See [type resolution](type-resolution) for more details on how federated types are resolved.
 
 **In order to generate valid federated schemas, you will need to annotate both your base schema and the one extending
 it**. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
@@ -139,9 +139,9 @@ type _Service {
 }
 ```
 
-Federated Gateway will then combine the schemas from the individual services to generate single schema.
-
 #### Federated GraphQL schema
+
+Federated Gateway will then combine the schemas from the individual services to generate single schema.
 
 ```graphql
 schema {

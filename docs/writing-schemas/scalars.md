@@ -27,7 +27,7 @@ extended scalar types provided by `graphql-java`.
 GraphQL supports a the scalar type ID, a unique identifier that is not intended to be human readable. ID's are
 serialized as a String. To mark given field as an ID field you have to annotate it with `@GraphQLID` annotation.
 
-> NOTE: `graphql-java` supports other types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues (https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings. You can still use a type like UUID internally just as long as you convert or parse the value yourself and handle the errors.
+> NOTE: `graphql-java` supports other types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues](https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings. You can still use a type like UUID internally just as long as you convert or parse the value yourself and handle the errors.
 
 ```kotlin
 data class Person(

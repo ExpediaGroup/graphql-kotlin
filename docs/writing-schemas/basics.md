@@ -9,7 +9,7 @@ on why we use this wrapper class. The `config` contains all the extra informatio
 hooks, supported packages, and name overrides.
 See the [Generator Configuration](generator-config) documentation for more information.
 
-A query/mutation/subscription type is simply a Kotlin class that specifies **fields**, which can be functions or
+A query, mutation or a subscription type is simply a Kotlin class that specifies **fields**, which can be functions or
 properties:
 
 ```kotlin
@@ -23,14 +23,14 @@ class WidgetQuery {
 
 class WidgetMutation {
   fun saveWidget(value: String): Widget {
-    // some logic goes here
+    // some logic for saving widget
   }
 }
 
 val widgetQuery = WidgetQuery()
 val widgetMutation = WidgetMutation()
 val schema = toSchema(
-  config = yourCustomConfig()
+  config = yourCustomConfig(),
   queries = listOf(TopLevelObject(widgetQuery)),
   mutations = listOf(TopLevelObject(widgetMutation))
 )
