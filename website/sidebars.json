@@ -10,18 +10,27 @@
         "label": "Writing schemas with Kotlin",
         "ids": [
           "writing-schemas/basics",
-          "writing-schemas/scalars",
           "writing-schemas/nullability",
-          "writing-schemas/lists",
-          "writing-schemas/fields",
           "writing-schemas/arguments",
+          "writing-schemas/scalars",
           "writing-schemas/enums",
+          "writing-schemas/lists",
           "writing-schemas/interfaces",
           "writing-schemas/unions",
-          "writing-schemas/directives",
           "writing-schemas/nested-queries",
-          "writing-schemas/generator-config",
           "writing-schemas/annotations"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Customizing Schema",
+        "ids": [
+          "customizing-schemas/generator-config",
+          "customizing-schemas/documenting-fields",
+          "customizing-schemas/excluding-fields",
+          "customizing-schemas/renaming-fields",
+          "customizing-schemas/directives",
+          "customizing-schemas/evolving-schema"
         ]
       },
       {
@@ -29,6 +38,7 @@
         "label": "Execution",
         "ids": [
           "execution/data-fetching-environment",
+          "execution/contextual-data",
           "execution/async-models",
           "execution/subscriptions"
         ]
