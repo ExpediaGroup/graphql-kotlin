@@ -4,7 +4,7 @@
 
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.3-SNAPSHOT</version>
     <name>graphql-kotlin</name>
     <description>Code-only GraphQL schema generation for Kotlin</description>
     <url>https://github.com/ExpediaGroup/graphql-kotlin</url>
