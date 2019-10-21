@@ -20,6 +20,5 @@ from the command line. Once the app has started you can explore the example sche
 
 ## Federation Example
 
-Example Spring Boot apps generating Federated GraphQL schema and Apollo Gateway that exposes single federated schema are
-provided in [examples/federation](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/federation)
-project. Please refer to their README files for details on how to run the target applications.
+There is also an example of [Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/introduction/)  with two Spring Boot apps using `graphql-kotlin-federation` and an Apollo Gateway app in Nodejs that exposes a single federated schema in [examples/federation](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/federation)
+project. Please refer to the README files for details on how to run each application.
