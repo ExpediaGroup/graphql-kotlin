@@ -19,9 +19,9 @@ package com.expediagroup.graphql.federation.execution
 import graphql.ExecutionInput
 import graphql.GraphQL
 import org.junit.jupiter.api.Test
-import test.data.BookResolver
-import test.data.UserResolver
-import test.data.federatedTestSchema
+import com.expediagroup.graphql.federation.data.BookResolver
+import com.expediagroup.graphql.federation.data.UserResolver
+import com.expediagroup.graphql.federation.data.federatedTestSchema
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

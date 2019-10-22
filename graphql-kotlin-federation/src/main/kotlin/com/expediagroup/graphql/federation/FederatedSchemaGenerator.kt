@@ -20,8 +20,9 @@ import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
 import graphql.schema.GraphQLSchema
-import org.reflections.Reflections
+import io.github.classgraph.ClassGraph
 import kotlin.reflect.full.createType
+import kotlin.reflect.jvm.jvmName
 
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
@@ -41,10 +42,12 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
     /**
      * Scans specified packages for all the federated (extended) types and adds them to the target schema.
      */
+    @Suppress("Detekt.SpreadOperator")
     fun GraphQLSchema.Builder.federation(supportedPackages: List<String>): GraphQLSchema.Builder {
-        supportedPackages
-            .map { pkg -> Reflections(pkg).getTypesAnnotatedWith(ExtendsDirective::class.java).map { it.kotlin } }
-            .flatten()
+        val scanResult = ClassGraph().enableAllInfo().whitelistPackages(*supportedPackages.toTypedArray()).scan()
+
+        scanResult.getClassesWithAnnotation(ExtendsDirective::class.jvmName)
+            .map { it.loadClass().kotlin }
             .map {
                 val graphQLType = if (it.isAbstract) {
                     interfaceType(it)

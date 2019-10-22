@@ -18,12 +18,12 @@ package com.expediagroup.graphql.federation
 
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.extensions.print
+import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
+import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import test.data.queries.simple.NestedQuery
-import test.data.queries.simple.SimpleQuery
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -104,7 +104,7 @@ class FederatedSchemaGeneratorTest {
     @Test
     fun `verify can generate federated schema`() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.federated"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
@@ -137,7 +137,7 @@ class FederatedSchemaGeneratorTest {
         """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.simple"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.simple"),
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
@@ -169,7 +169,7 @@ class FederatedSchemaGeneratorTest {
         """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.simple"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.simple"),
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 

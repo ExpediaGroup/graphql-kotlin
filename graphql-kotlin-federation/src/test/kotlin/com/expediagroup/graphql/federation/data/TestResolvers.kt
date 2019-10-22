@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package test.data
+package com.expediagroup.graphql.federation.data
 
+import com.expediagroup.graphql.federation.data.queries.federated.Book
+import com.expediagroup.graphql.federation.data.queries.federated.User
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
-import test.data.queries.federated.Book
-import test.data.queries.federated.User
 
 internal class BookResolver : FederatedTypeResolver<Book> {
     override suspend fun resolve(representations: List<Map<String, Any>>): List<Book?> {

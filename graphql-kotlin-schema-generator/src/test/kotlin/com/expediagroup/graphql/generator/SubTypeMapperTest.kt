@@ -22,6 +22,10 @@ import kotlin.test.assertEquals
 @Suppress("Detekt.UnusedPrivateClass")
 internal class SubTypeMapperTest {
 
+    private interface NoSubTypesInterface
+
+    private abstract class NoSubTypesClass
+
     private interface MyInterface {
         fun getValue(): Int
     }
@@ -72,6 +76,22 @@ internal class SubTypeMapperTest {
 
         val mapper = SubTypeMapper(listOf("com.example"))
         val list = mapper.getSubTypesOf(MyInterface::class)
+
+        assertEquals(expected = 0, actual = list.size)
+    }
+
+    @Test
+    fun `interface with no subtypes`() {
+        val mapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
+        val list = mapper.getSubTypesOf(NoSubTypesInterface::class)
+
+        assertEquals(expected = 0, actual = list.size)
+    }
+
+    @Test
+    fun `abstract class with no subtypes`() {
+        val mapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
+        val list = mapper.getSubTypesOf(NoSubTypesClass::class)
 
         assertEquals(expected = 0, actual = list.size)
     }
