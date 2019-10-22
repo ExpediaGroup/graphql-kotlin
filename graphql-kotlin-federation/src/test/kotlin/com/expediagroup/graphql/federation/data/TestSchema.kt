@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package test.data
+package com.expediagroup.graphql.federation.data
 
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
@@ -25,7 +25,7 @@ import graphql.schema.GraphQLSchema
 
 internal fun federatedTestSchema(federatedTypeResolvers: Map<String, FederatedTypeResolver<*>> = emptyMap()): GraphQLSchema {
     val config = FederatedSchemaGeneratorConfig(
-        supportedPackages = listOf("test.data.queries.federated"),
+        supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),
         hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(federatedTypeResolvers))
     )
 

@@ -24,10 +24,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import org.junit.jupiter.api.Test
-import test.data.BookResolver
-import test.data.UserResolver
-import test.data.queries.federated.Book
-import test.data.queries.federated.User
+import com.expediagroup.graphql.federation.data.BookResolver
+import com.expediagroup.graphql.federation.data.UserResolver
+import com.expediagroup.graphql.federation.data.queries.federated.Book
+import com.expediagroup.graphql.federation.data.queries.federated.User
 import kotlin.test.assertEquals
 
 class EntityQueryResolverTest {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package test.data.queries.federated
+package com.expediagroup.graphql.federation.data.queries.federated
 
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore

@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package test.data.queries.simple
+package com.expediagroup.graphql.federation.data.queries.simple
 
-import kotlin.random.Random
-
-class NestedQuery {
-    fun getSimpleNestedObject(): List<SelfReferenceObject?> = listOf(SelfReferenceObject())
+/*
+type Query {
+  hello: String!
 }
-
-class SelfReferenceObject {
-    val description: String? = "SelfReferenceObject"
-    val id = Random.nextInt()
-    fun nextObject(): List<SelfReferenceObject?> = listOf(SelfReferenceObject())
+ */
+class SimpleQuery {
+    fun hello(name: String): String = "Hello $name"
 }

@@ -23,8 +23,8 @@ import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
 import org.junit.jupiter.api.Test
-import test.data.queries.simple.NestedQuery
-import test.data.queries.simple.SimpleQuery
+import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
+import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -72,7 +72,7 @@ class ServiceQueryResolverTest {
     @Test
     fun `verify can retrieve SDL using _service query`() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.federated"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
@@ -101,7 +101,7 @@ class ServiceQueryResolverTest {
     @Test
     fun `verify can retrieve SDL using _service query for non-federated schemas`() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("test.data.queries.simple"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.simple"),
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
