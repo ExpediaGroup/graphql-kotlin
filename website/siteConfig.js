@@ -69,9 +69,16 @@ const siteConfig = {
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
   repoUrl: 'https://github.com/ExpediaGroup/graphql-kotlin',
-  
+
   // URL for editing docs, usage example: editUrl + 'en/doc1.md'
-  editUrl: 'https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/'
+  editUrl: 'https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/',
+
+  // Docusaurus search config - https://docusaurus.io/docs/en/search
+  // Algolia search index - https://github.com/algolia/docsearch-configs/blob/master/configs/graphql-kotlin.json
+  algolia: {
+    apiKey: 'b23761059e66eefd46f5f665a2d4537a',
+    indexName: 'graphql-kotlin'
+  }
 };
 
 module.exports = siteConfig;
