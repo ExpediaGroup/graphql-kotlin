@@ -75,7 +75,7 @@ const siteConfig = {
 
   // Agolia DocSearch
   // Docusaurus config - https://docusaurus.io/docs/en/search
-  // Agolis Search Index Config - https://github.com/algolia/docsearch-configs/blob/master/configs/graphql-kotlin.json
+  // Algolia Search Index Config - https://github.com/algolia/docsearch-configs/blob/master/configs/graphql-kotlin.json
   algolia: {
     apiKey: 'b23761059e66eefd46f5f665a2d4537a',
     indexName: 'graphql-kotlin'
