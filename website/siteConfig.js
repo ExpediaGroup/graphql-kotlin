@@ -73,9 +73,8 @@ const siteConfig = {
   // URL for editing docs, usage example: editUrl + 'en/doc1.md'
   editUrl: 'https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/',
 
-  // Agolia DocSearch
-  // Docusaurus config - https://docusaurus.io/docs/en/search
-  // Algolia Search Index Config - https://github.com/algolia/docsearch-configs/blob/master/configs/graphql-kotlin.json
+  // Docusaurus search config - https://docusaurus.io/docs/en/search
+  // Algolia search index - https://github.com/algolia/docsearch-configs/blob/master/configs/graphql-kotlin.json
   algolia: {
     apiKey: 'b23761059e66eefd46f5f665a2d4537a',
     indexName: 'graphql-kotlin'
