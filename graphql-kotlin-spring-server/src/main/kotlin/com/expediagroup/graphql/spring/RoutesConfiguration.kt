@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import graphql.schema.GraphQLSchema
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -49,7 +49,6 @@ class RoutesConfiguration(
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean
-    @ExperimentalCoroutinesApi
     fun graphQLRoutes() = coRouter {
         (POST(config.endpoint) or GET(config.endpoint)).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
@@ -60,7 +59,12 @@ class RoutesConfiguration(
                 badRequest().buildAndAwait()
             }
         }
-        GET("/sdl") {
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = ["graphql.sdl.enabled"], havingValue = "true", matchIfMissing = true)
+    fun sdlRoute() = coRouter {
+        GET(config.sdl.endpoint) {
             ok().contentType(MediaType.TEXT_PLAIN).bodyValueAndAwait(schema.print())
         }
     }

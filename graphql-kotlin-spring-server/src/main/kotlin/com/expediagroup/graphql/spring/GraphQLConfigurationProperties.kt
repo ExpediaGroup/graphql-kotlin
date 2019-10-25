@@ -31,7 +31,8 @@ data class GraphQLConfigurationProperties(
     val packages: List<String>,
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
-    val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties()
+    val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
+    val sdl: SDLConfigurationProperties = SDLConfigurationProperties()
 )
 
 /**
@@ -60,4 +61,14 @@ data class PlaygroundConfigurationProperties(
     val enabled: Boolean = true,
     /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
     val endpoint: String = "playground"
+)
+
+/**
+ * SDL endpoint configuration properties.
+ */
+data class SDLConfigurationProperties(
+    /** Boolean flag indicating whether SDL endpoint is enabled */
+    val enabled: Boolean = true,
+    /** GraphQL SDL endpoint */
+    val endpoint: String = "sdl"
 )
