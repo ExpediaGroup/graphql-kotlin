@@ -58,3 +58,9 @@ type Widget {
   value: String!
 }
 ```
+
+Newly created GraphQL server starts up with following preconfigured default routes:
+
+* **/graphql** - GraphQL server endpoint used for processing queries and mutations
+* **/sdl** - convenience endpoint that returns current schema in Schema Definition Language format
+* **/playground** - Prisma Labs GraphQL Playground IDE endpoint
