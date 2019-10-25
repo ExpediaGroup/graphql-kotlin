@@ -53,7 +53,8 @@
     "Server": [
       "server/spring-auto-config",
       "server/spring-beans",
-      "server/spring-properties"
+      "server/spring-properties",
+      "server/spring-graphql-context"
     ],
     "Contributors": [
       "contributors/release-proc"

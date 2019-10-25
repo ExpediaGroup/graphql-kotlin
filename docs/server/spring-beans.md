@@ -3,7 +3,7 @@ id: spring-beans
 title: Automatically Created Beans
 ---
 
-`graphql-kotlin-spring-server` automatically creates all required beans to start GraphQL web server. Many of the beans are conditionally created and default behavior
+`graphql-kotlin-spring-server` automatically creates all the necessary beans to start GraphQL web server. Many of the beans are conditionally created and default behavior
 can be customized by providing custom beans in your application context. See sections below for the information about all automatically created beans.
 
 ## Schema Generation

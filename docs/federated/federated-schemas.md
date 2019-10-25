@@ -96,9 +96,10 @@ data class Review(val reviewId: String, val text: String)
 
 // Generate the schema
 val productResolver = object: FederatedTypeResolver<Product> {
-    override fun resolve(keys: Map<String, Any>): Product {
-        val id = keys["id"]?.toString()?.toIntOrNull()
-        // instantiate product using id
+    override suspend fun resolve(representations: List<Map<String, Any>>): List<Product?> = representations.map { keys ->
+        keys["id"]?.toString()?.toIntOrNull()?.let { id ->
+            Product(id)
+	}
     }
 }
 val federatedTypeRegistry = FederatedTypeRegistry(mapOf("Product" to productResolver))
