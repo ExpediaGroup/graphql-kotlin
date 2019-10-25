@@ -45,10 +45,10 @@ import kotlin.test.BeforeTest
     "Detekt.LongMethod"
 )
 internal open class TypeTestHelper {
+    private val subTypeMapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
     var generator = mockk<SchemaGenerator>()
     var config = mockk<SchemaGeneratorConfig>()
     var state = spyk(SchemaGeneratorState(listOf("com.expediagroup.graphql")))
-    var subTypeMapper = spyk(SubTypeMapper(listOf("com.expediagroup.graphql")))
     var cache = spyk(TypesCache(listOf("com.expediagroup.graphql")))
     val spyWiringFactory = spyk(KotlinDirectiveWiringFactory())
     var hooks: SchemaGeneratorHooks = object : SchemaGeneratorHooks {
