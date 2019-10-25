@@ -86,7 +86,13 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
         builder.additionalDirectives(state.directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
-        return config.hooks.willBuildSchema(builder).build()
+
+        val schema = config.hooks.willBuildSchema(builder).build()
+
+        // Clean up the classpath scanner
+        subTypeMapper.close()
+
+        return schema
     }
 
     open fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false) =
