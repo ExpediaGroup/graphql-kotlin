@@ -39,6 +39,8 @@ internal class SubTypeMapper(supportedPackages: List<String>) {
             .filterNot { it.isAbstract }
     }
 
+    fun close() = scanResult.close()
+
     @Suppress("Detekt.SwallowedException")
     private fun getImplementingClasses(classInfo: ClassInfo) =
         try {

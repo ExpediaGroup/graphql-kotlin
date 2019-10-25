@@ -30,6 +30,10 @@ import graphql.schema.GraphQLCodeRegistry
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
@@ -37,13 +41,13 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
-import kotlin.test.BeforeTest
 
 @Suppress(
     "Detekt.UnsafeCast",
     "Detekt.UnsafeCallOnNullableType",
     "Detekt.LongMethod"
 )
+@TestInstance(Lifecycle.PER_CLASS)
 internal open class TypeTestHelper {
     private val subTypeMapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
     var generator = mockk<SchemaGenerator>()
@@ -69,9 +73,11 @@ internal open class TypeTestHelper {
     private var argumentBuilder: ArgumentBuilder? = null
     private var inputObjectBuilder: InputObjectBuilder? = null
 
-    @BeforeTest
+    @BeforeEach
     fun setup() {
         beforeSetup()
+
+        cache.clear()
 
         every { generator.state } returns state
         every { state.cache } returns cache
@@ -155,6 +161,11 @@ internal open class TypeTestHelper {
         }
 
         beforeTest()
+    }
+
+    @AfterAll
+    fun cleanup() {
+        subTypeMapper.close()
     }
 
     open fun beforeTest() {}

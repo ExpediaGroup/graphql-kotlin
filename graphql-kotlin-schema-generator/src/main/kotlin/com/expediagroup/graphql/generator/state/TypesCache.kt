@@ -62,6 +62,11 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         return null
     }
 
+    /**
+     * Clear the map of all saved values
+     */
+    internal fun clear() = cache.clear()
+
     fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }
 
