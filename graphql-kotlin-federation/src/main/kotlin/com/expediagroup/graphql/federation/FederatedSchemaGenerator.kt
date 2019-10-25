@@ -61,6 +61,9 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
             .forEach {
                 this.additionalType(it)
             }
+
+        scanResult.close()
+
         return this
     }
 }
