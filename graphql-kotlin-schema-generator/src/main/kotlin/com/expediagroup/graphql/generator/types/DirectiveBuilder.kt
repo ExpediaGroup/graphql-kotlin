@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.safeCast
-import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
@@ -95,7 +94,7 @@ internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(genera
     }
 }
 
-private fun String.normalizeDirectiveName() = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, this)
+private fun String.normalizeDirectiveName() = this.decapitalize()
 
 private fun Annotation.getDirectiveInfo(): DirectiveInfo? = this.annotationClass.annotations
     .filterIsInstance(GraphQLDirectiveAnnotation::class.java)
