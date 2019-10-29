@@ -18,6 +18,7 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
@@ -75,6 +76,7 @@ class SchemaConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
+                assertThat(ctx).hasSingleBean(ContextWebFilter::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
     }
@@ -85,6 +87,7 @@ class SchemaConfigurationTest {
             .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring")
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomConfiguration::class.java)
+                val graphQLProperties = ctx.getBean(GraphQLConfigurationProperties::class.java)
 
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 assertThat(ctx).getBean(SchemaGeneratorConfig::class.java)
@@ -103,6 +106,10 @@ class SchemaConfigurationTest {
                     .isSameAs(customConfiguration.myDataLoaderRegistryFactory())
 
                 assertThat(ctx).hasSingleBean(QueryHandler::class.java)
+
+                assertThat(ctx).hasSingleBean(ContextWebFilter::class.java)
+                assertThat(ctx).getBean(ContextWebFilter::class.java)
+                    .isSameAs(customConfiguration.myCustomContextWebFilter(graphQLProperties, customConfiguration.myCustomContextFactory()))
 
                 assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
                 assertThat(ctx).getBean(GraphQLContextFactory::class.java)
@@ -152,6 +159,16 @@ class SchemaConfigurationTest {
 
         @Bean
         fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
+
+        @Bean
+        fun myCustomContextWebFilter(
+            config: GraphQLConfigurationProperties,
+            graphQLContextFactory: GraphQLContextFactory<*>
+        ): ContextWebFilter = object : ContextWebFilter(config, graphQLContextFactory) {
+            private val regex = config.endpoint.toRegex()
+
+            override fun isApplicable(path: String): Boolean = regex.matches(path)
+        }
     }
 
     class BasicQuery : Query {
