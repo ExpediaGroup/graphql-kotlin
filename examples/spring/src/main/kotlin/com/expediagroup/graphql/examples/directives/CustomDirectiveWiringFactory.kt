@@ -19,7 +19,6 @@ package com.expediagroup.graphql.examples.directives
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveEnvironment
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
-import com.google.common.base.CaseFormat
 import graphql.schema.GraphQLDirectiveContainer
 import kotlin.reflect.KClass
 
@@ -35,5 +34,4 @@ class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring =
     }
 }
 
-internal fun getDirectiveName(kClass: KClass<out Annotation>): String =
-    CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, kClass.simpleName!!)
+internal fun getDirectiveName(kClass: KClass<out Annotation>): String = kClass.simpleName!!.decapitalize()
