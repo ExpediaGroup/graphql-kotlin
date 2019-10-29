@@ -20,6 +20,7 @@ can be customized by providing custom beans in your application context. See sec
 
 | Bean                           | Description |
 |:-------------------------------|:------------|
+| ContextWebFilter               | Default web filter that populates GraphQL context in the reactor subscriber context. |
 | DataFetcherExceptionHandler    | GraphQL exception handler used from the various execution strategies, defaults to [KotlinDataFetcherExceptionHandler](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/exception/KotlinDataFetcherExceptionHandler.kt). |
 | GraphQL                        | GraphQL query execution engine generated using `GraphQLSchema` with default async execution strategies. GraphQL engine can be customized by optionally providing a list of [Instrumentation](https://www.graphql-java.com/documentation/v13/instrumentation/) beans (which can be ordered by implementing Spring Ordered interface), [ExecutionIdProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/ExecutionIdProvider.java) and [PreparsedDocumentProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/preparsed/PreparsedDocumentProvider.java) in the application context. |
 | DataLoaderRegistryFactory      | Factory used to create DataLoaderRegistry instance per query execution. See [graphql-java documentation](https://www.graphql-java.com/documentation/v13/batching/) for more details. |
@@ -30,7 +31,6 @@ can be customized by providing custom beans in your application context. See sec
 
 The following beans are currently automatically created and cannot be disabled:
 
-* Web filter for generating and populating GraphQL context
 * Default routes for GraphQL queries/mutations and SDL endpoint
 * Default route for [Prisma Labs Playground](https://github.com/prisma-labs/graphql-playground), created only if playground is enabled
 * Default `ApolloSubscriptionProtocolHandler` for handling GraphQL subscriptions, created only if `Subscription` bean is available in the context

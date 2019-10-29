@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
-import org.springframework.web.server.WebFilter
 import java.util.Optional
 
 /**
@@ -119,8 +118,9 @@ class GraphQLAutoConfiguration {
     fun graphQLContextFactory(): GraphQLContextFactory<*> = EmptyContextFactory
 
     @Bean
+    @ConditionalOnMissingBean
     fun contextWebFilter(
         config: GraphQLConfigurationProperties,
         graphQLContextFactory: GraphQLContextFactory<*>
-    ): WebFilter = ContextWebFilter(config, graphQLContextFactory)
+    ): ContextWebFilter = ContextWebFilter(config, graphQLContextFactory)
 }
