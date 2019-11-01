@@ -17,8 +17,6 @@
 package com.expediagroup.graphql.generator
 
 import io.github.classgraph.ClassGraph
-import io.github.classgraph.ClassInfo
-import io.github.classgraph.ClassInfoList
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
@@ -33,20 +31,11 @@ internal class SubTypeMapper(supportedPackages: List<String>) {
     fun getSubTypesOf(kclass: KClass<*>): List<KClass<*>> {
         val classInfo = scanResult.getClassInfo(kclass.jvmName) ?: return emptyList()
 
-        return getImplementingClasses(classInfo)
+        return scanResult.getClassesImplementing(kclass.jvmName)
             .union(classInfo.subclasses)
             .map { it.loadClass().kotlin }
             .filterNot { it.isAbstract }
     }
 
     fun close() = scanResult.close()
-
-    @Suppress("Detekt.SwallowedException")
-    private fun getImplementingClasses(classInfo: ClassInfo) =
-        try {
-            classInfo.classesImplementing
-        } catch (e: IllegalArgumentException) {
-            // Ignored, just return empty list
-            ClassInfoList.emptyList()
-        }
 }
