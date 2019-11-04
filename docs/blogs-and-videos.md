@@ -12,5 +12,6 @@ Here are some links to other blog posts and videos which may provide further exa
 * 📝 [Release of graphql-kotlin 1.0.0!](https://medium.com/expedia-group-tech/release-of-graphql-kotlin-1-0-0-791ad85d3116) - Full release announcement
 
 #### GraphQL
-* 📺 [Creating a federated schema for a global company](https://youtu.be/MuD3TAP0D9Y)
+* 📺 [Creating a federated schema for a global company (Shane Myrick)](https://youtu.be/MuD3TAP0D9Y) (en)
+* 📺 [Migrer ses APIs vers GraphQL: pourquoi? comment! (Guillaume Scheibel)](https://youtu.be/IRIkpvJo95s) (fr)
 
