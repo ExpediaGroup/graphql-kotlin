@@ -57,14 +57,14 @@ schema {
 union _Entity = Product
 
 type Product @key(fields : "id") {
-  description: Int!
-  id: String!
+  description: String!
+  id: Int!
 }
 
 type Query @extends {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
-  product(id: Int!): Product!
+  product(id: Int!): Product
 }
 
 type _Service {
@@ -149,7 +149,7 @@ schema {
 
 type Product {
   description: String!
-  id: String!
+  id: Int!
   reviews: [Review!]!
 }
 
@@ -159,7 +159,7 @@ type Review {
 }
 
 type Query {
-  product(id: String!): Product!
+  product(id: String!): Product
 }
 ```
 
