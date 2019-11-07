@@ -70,11 +70,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <!-- TODO enable detekt/ktlint -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-antrun-plugin</artifactId>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>dokka-maven-plugin</artifactId>

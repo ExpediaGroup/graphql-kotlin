@@ -60,7 +60,11 @@ class FunctionDataFetcher(
 
             if (fn.isSuspend) {
                 GlobalScope.async {
-                    fn.callSuspend(it, *parameterValues)
+                    try {
+                        fn.callSuspend(it, *parameterValues)
+                    } catch (exception: InvocationTargetException) {
+                        throw exception.cause ?: exception
+                    }
                 }.asCompletableFuture()
             } else {
                 try {
