@@ -23,15 +23,14 @@ import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 internal class FunctionDataFetcherTest {
 
@@ -44,18 +43,16 @@ internal class FunctionDataFetcherTest {
 
         fun context(@GraphQLContext string: String) = string
 
-        fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
+        fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
 
         suspend fun suspendPrint(string: String): String = coroutineScope {
-            delay(10)
             string
         }
 
         fun throwException() { throw GraphQLException("Test Exception") }
 
-        suspend fun suspendThrow(): String = coroutineScope {
-            delay(10)
-            throw GraphQLException("Suspended Exception")
+        suspend fun suspendThrow(value: String?): String = coroutineScope {
+            value ?: throw GraphQLException("Suspended Exception")
         }
     }
 
@@ -170,6 +167,7 @@ internal class FunctionDataFetcherTest {
     fun `suspendThrow throws exception when resolved`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendThrow)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
+        every { mockEnvironmet.arguments } returns mapOf("value" to null)
 
         try {
             val result = dataFetcher.get(mockEnvironmet)
@@ -179,7 +177,7 @@ internal class FunctionDataFetcherTest {
         } catch (e: Exception) {
             val message = e.message
             assertNotNull(message)
-            assertTrue(message.endsWith("Suspended Exception"))
+            assertTrue(message.endsWith("Suspended Exception"), "Exception from function is not returned")
         }
     }
 }
