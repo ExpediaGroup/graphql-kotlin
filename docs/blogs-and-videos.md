@@ -15,3 +15,4 @@ Here are some links to other blog posts and videos which may provide further exa
 #### GraphQL
 * 📺 [Creating a federated schema for a global company (Shane Myrick)](https://youtu.be/MuD3TAP0D9Y) (en)
 * 📺 [Migrer ses APIs vers GraphQL: pourquoi? comment! (Guillaume Scheibel)](https://youtu.be/IRIkpvJo95s) (fr)
+* 📺 [Transforming customer experiences and your organization with GraphQL (Jim Gust, Dan Boerner)](https://youtu.be/Jt-ZD4zj4Ow) (en)
