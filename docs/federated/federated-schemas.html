@@ -100,14 +100,14 @@ toFederatedSchema(config, queries)
 union _Entity = Product
 <span class="hljs-built_in">
 type </span>Product @key(fields : <span class="hljs-string">"id"</span>) {
-  description: Int!
-  id: String!
+  description: String!
+  id: Int!
 }
 <span class="hljs-built_in">
 type </span>Query @extends {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
-  product(id: Int!): Product!
+  product(id: Int!): Product
 }
 <span class="hljs-built_in">
 type </span>_Service {
@@ -181,7 +181,7 @@ to combine them into a single schema. Using the examples above, our final federa
 <span class="hljs-built_in">
 type </span>Product {
   description: String!
-  id: String!
+  id: Int!
   reviews: [Review!]!
 }
 <span class="hljs-built_in">
@@ -191,7 +191,7 @@ type </span>Review {
 }
 <span class="hljs-built_in">
 type </span>Query {
-  product(id: String!): Product!
+  product(id: String!): Product
 }
 </code></pre>
 <p>See our <a href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/federation">federation example</a> for additional details.</p>
