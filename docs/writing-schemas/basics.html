@@ -59,7 +59,7 @@ function accepts four arguments: <code>config</code>, <code>queries</code>, <cod
 <code>subscriptions</code> are a list of <code>TopLevelObject</code>s and will be used to generate corresponding GraphQL root types. See below
 on why we use this wrapper class. The <code>config</code> contains all the extra information you need to pass, including custom
 hooks, supported packages, and name overrides.
-See the <a href="generator-config">Generator Configuration</a> documentation for more information.</p>
+See the <a href="https://expediagroup.github.io/graphql-kotlin/docs/customizing-schemas/generator-config">Generator Configuration</a> documentation for more information.</p>
 <p>A query, mutation or a subscription type is simply a Kotlin class that specifies <strong>fields</strong>, which can be functions or
 properties:</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-keyword">data</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Widget</span></span>(<span class="hljs-keyword">val</span> id: <span class="hljs-built_in">Int</span>, <span class="hljs-keyword">val</span> value: String)
