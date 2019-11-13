@@ -35,4 +35,4 @@ jobs:
 
         # The following settings will only work with the personal access token we are using
         # Until GH Actions have a way to publish directly we are using this method
-        GH_USERNAME: smyrick
+        GH_USERNAME: eg-oss-ci
