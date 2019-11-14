@@ -38,6 +38,7 @@ data class GraphQLConfigurationProperties(
 /**
  * Apollo Federation configuration properties.
  */
+@ConstructorBinding
 data class FederationConfigurationProperties(
     /** Boolean flag indicating whether to generate federated GraphQL model */
     val enabled: Boolean = false
@@ -46,6 +47,7 @@ data class FederationConfigurationProperties(
 /**
  * GraphQL subscription configuration properties.
  */
+@ConstructorBinding
 data class SubscriptionConfigurationProperties(
     /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
     val endpoint: String = "subscriptions",
@@ -56,6 +58,7 @@ data class SubscriptionConfigurationProperties(
 /**
  * Playground configuration properties.
  */
+@ConstructorBinding
 data class PlaygroundConfigurationProperties(
     /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
     val enabled: Boolean = true,
@@ -66,6 +69,7 @@ data class PlaygroundConfigurationProperties(
 /**
  * SDL endpoint configuration properties.
  */
+@ConstructorBinding
 data class SDLConfigurationProperties(
     /** Boolean flag indicating whether SDL endpoint is enabled */
     val enabled: Boolean = true,
