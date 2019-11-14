@@ -19,9 +19,10 @@ package com.expediagroup.graphql.federation.data
 import com.expediagroup.graphql.federation.data.queries.federated.Book
 import com.expediagroup.graphql.federation.data.queries.federated.User
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
+import graphql.schema.DataFetchingEnvironment
 
 internal class BookResolver : FederatedTypeResolver<Book> {
-    override suspend fun resolve(representations: List<Map<String, Any>>): List<Book?> {
+    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Book?> {
         val results = mutableListOf<Book?>()
         for (keys in representations) {
             val book = Book(keys["id"].toString())
@@ -36,7 +37,7 @@ internal class BookResolver : FederatedTypeResolver<Book> {
 }
 
 internal class UserResolver : FederatedTypeResolver<User> {
-    override suspend fun resolve(representations: List<Map<String, Any>>): List<User?> {
+    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<User?> {
         val results = mutableListOf<User?>()
         for (keys in representations) {
             val id = keys["userId"].toString().toInt()

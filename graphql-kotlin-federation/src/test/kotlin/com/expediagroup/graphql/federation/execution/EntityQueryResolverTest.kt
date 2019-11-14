@@ -16,6 +16,10 @@
 
 package com.expediagroup.graphql.federation.execution
 
+import com.expediagroup.graphql.federation.data.BookResolver
+import com.expediagroup.graphql.federation.data.UserResolver
+import com.expediagroup.graphql.federation.data.queries.federated.Book
+import com.expediagroup.graphql.federation.data.queries.federated.User
 import graphql.GraphQLError
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.coEvery
@@ -24,10 +28,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import org.junit.jupiter.api.Test
-import com.expediagroup.graphql.federation.data.BookResolver
-import com.expediagroup.graphql.federation.data.UserResolver
-import com.expediagroup.graphql.federation.data.queries.federated.Book
-import com.expediagroup.graphql.federation.data.queries.federated.User
 import kotlin.test.assertEquals
 
 class EntityQueryResolverTest {
@@ -73,7 +73,7 @@ class EntityQueryResolverTest {
     @Test
     fun `verify federated entity resolver returns GraphQLError if exception is thrown during type resolution`() {
         val mockUserResolver: FederatedTypeResolver<User> = mockk {
-            coEvery { resolve(any()) } throws RuntimeException("JUnit exception")
+            coEvery { resolve(any(), any()) } throws RuntimeException("JUnit exception")
         }
         val resolver = EntityResolver(FederatedTypeRegistry(mapOf("User" to mockUserResolver)))
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
@@ -107,8 +107,8 @@ class EntityQueryResolverTest {
         verifyErrors(result.errors)
 
         coVerify {
-            spyUserResolver.resolve(listOf(user1.toRepresentation(), user2.toRepresentation()))
-            spyBookResolver.resolve(listOf(book.toRepresentation()))
+            spyUserResolver.resolve(any(), listOf(user1.toRepresentation(), user2.toRepresentation()))
+            spyBookResolver.resolve(any(), listOf(book.toRepresentation()))
         }
     }
 
@@ -125,7 +125,7 @@ class EntityQueryResolverTest {
 
         val spyUserResolver: UserResolver = spyk(UserResolver())
         val mockBookResolver: BookResolver = mockk {
-            coEvery { resolve(any()) } throws RuntimeException("JUnit")
+            coEvery { resolve(any(), any()) } throws RuntimeException("JUnit")
         }
         val resolver = EntityResolver(FederatedTypeRegistry(mapOf("User" to spyUserResolver, "Book" to mockBookResolver)))
         val result = resolver.get(env).get()
@@ -134,8 +134,8 @@ class EntityQueryResolverTest {
         verifyErrors(result.errors, "Exception was thrown while trying to resolve federated type, representation={__typename=Book, id=988, weight=1.0}")
 
         coVerify {
-            spyUserResolver.resolve(listOf(user.toRepresentation()))
-            mockBookResolver.resolve(listOf(book.toRepresentation()))
+            spyUserResolver.resolve(any(), listOf(user.toRepresentation()))
+            mockBookResolver.resolve(any(), listOf(book.toRepresentation()))
         }
     }
 
@@ -148,7 +148,7 @@ class EntityQueryResolverTest {
         }
 
         val mockUserResolver: UserResolver = mockk {
-            coEvery { resolve(any()) } returns listOf(user)
+            coEvery { resolve(any(), any()) } returns listOf(user)
         }
         val resolver = EntityResolver(FederatedTypeRegistry(mapOf("User" to mockUserResolver)))
         val result = resolver.get(env).get()
@@ -159,7 +159,7 @@ class EntityQueryResolverTest {
             "Federation batch request for User generated different number of results than requested, representations=2, results=1")
 
         coVerify {
-            mockUserResolver.resolve(listOf(user.toRepresentation(), user.toRepresentation()))
+            mockUserResolver.resolve(any(), listOf(user.toRepresentation(), user.toRepresentation()))
         }
     }
 

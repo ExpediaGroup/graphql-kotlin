@@ -21,6 +21,7 @@ import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
+import graphql.schema.DataFetchingEnvironment
 import kotlin.random.Random
 
 @KeyDirective(fields = FieldSet("id"))
@@ -36,7 +37,7 @@ class Widget(
 class InvalidWidgetIdException : RuntimeException()
 
 val widgetResolver = object : FederatedTypeResolver<Widget> {
-    override suspend fun resolve(representations: List<Map<String, Any>>): List<Widget?> = representations.map {
+    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Widget?> = representations.map {
         // Extract the 'id' from the other service
         val id = it["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
 
