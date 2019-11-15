@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
+import com.expediagroup.graphql.generator.extensions.getPropertyNullable
 import com.expediagroup.graphql.generator.extensions.isPropertyGraphQLID
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLInputObjectField
@@ -34,7 +35,7 @@ internal class InputPropertyBuilder(generator: SchemaGenerator) : TypeBuilder(ge
 
         builder.description(prop.getPropertyDescription(parentClass))
         builder.name(prop.getPropertyName(parentClass))
-        builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>())
+        builder.type(graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass), prop.getPropertyNullable(parentClass)).safeCast<GraphQLInputType>())
 
         generator.directives(prop, parentClass).forEach {
             builder.withDirective(it)

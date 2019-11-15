@@ -17,10 +17,13 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLInputNullable
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.test.utils.SimpleDirective
+import graphql.schema.GraphQLNonNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class InputPropertyBuilderTest : TypeTestHelper() {
 
@@ -41,7 +44,10 @@ internal class InputPropertyBuilderTest : TypeTestHelper() {
         val directiveWithNoPrefix: String,
 
         @property:SimpleDirective
-        val directiveWithPrefix: String
+        val directiveWithPrefix: String,
+
+        @GraphQLInputNullable(false)
+        val changeNullability: String? = null
     )
 
     @Test
@@ -65,5 +71,11 @@ internal class InputPropertyBuilderTest : TypeTestHelper() {
         val resultWithPrefix = builder.inputProperty(InputPropertyTestClass::directiveWithPrefix, InputPropertyTestClass::class)
         assertEquals(1, resultWithPrefix.directives.size)
         assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
+    }
+
+    @Test
+    fun `Input Nullability can be changed with @GraphQLInputNullable`() {
+        val result = builder.inputProperty(InputPropertyTestClass::changeNullability, InputPropertyTestClass::class)
+        assertTrue(result.type is GraphQLNonNull)
     }
 }

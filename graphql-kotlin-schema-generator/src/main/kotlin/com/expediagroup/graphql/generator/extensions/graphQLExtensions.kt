@@ -34,6 +34,15 @@ internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
     else -> GraphQLNonNull.nonNull(this)
 }
 
+internal fun GraphQLType.wrapByNullable(type: KType, nullable: Boolean? = null): GraphQLType {
+    val canBeNull = if (nullable != null) nullable else type.isMarkedNullable
+    return when {
+        this is GraphQLNonNull -> this
+        canBeNull -> this
+        else -> GraphQLNonNull.nonNull(this)
+    }
+}
+
 @Throws(CouldNotCastGraphQLType::class)
 internal inline fun <reified T : GraphQLType> GraphQLType.safeCast(): T {
     if (this !is T) throw CouldNotCastGraphQLType(this, T::class)

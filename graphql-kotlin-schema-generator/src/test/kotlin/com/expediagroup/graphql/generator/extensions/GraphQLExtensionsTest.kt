@@ -75,6 +75,30 @@ internal class GraphQLExtensionsTest {
     }
 
     @Test
+    fun `wrapByNullable twice returns object`() {
+        val nonNull = GraphQLNonNull(basicType)
+        val mockKType: KType = mockk()
+        assertEquals(nonNull, nonNull.wrapByNullable(mockKType, false))
+    }
+
+    @Test
+    fun `wrapByNullable with null kotlin type does nothing`() {
+        val mockKType: KType = mockk()
+        every { mockKType.isMarkedNullable } returns true
+
+        assertFalse(basicType.wrapByNullable(mockKType, true) is GraphQLNonNull)
+        assertEquals(expected = basicType, actual = basicType.wrapByNullable(mockKType, true))
+    }
+
+    @Test
+    fun `wrapByNullable override kotlin type nullability`() {
+        val mockKType: KType = mockk()
+        every { mockKType.isMarkedNullable } returns true
+
+        assertTrue(basicType.wrapByNullable(mockKType, false) is GraphQLNonNull)
+    }
+
+    @Test
     fun `GraphQLDirectiveContainer with no directives`() {
         val container: GraphQLDirectiveContainer = mockk()
         every { container.directives } returns emptyList()

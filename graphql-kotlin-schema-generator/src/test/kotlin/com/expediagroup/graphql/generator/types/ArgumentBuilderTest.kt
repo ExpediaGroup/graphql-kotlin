@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLID
+import com.expediagroup.graphql.annotations.GraphQLInputNullable
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
@@ -28,6 +29,7 @@ import kotlin.reflect.full.findParameterByName
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 internal class ArgumentBuilderTest : TypeTestHelper() {
 
@@ -51,6 +53,8 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
         fun id(@GraphQLID idArg: String) = "Your id is $idArg"
 
         fun interfaceArg(input: MyInterface) = input.id
+
+        fun changeNullability(@GraphQLInputNullable(false) input: String? = null) = "Your input is $input"
     }
 
     @Test
@@ -102,5 +106,13 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
         assertFailsWith(InvalidInputFieldTypeException::class) {
             builder.argument(kParameter)
         }
+    }
+
+    @Test
+    fun `Argument Nullability can be changed with @GraphQLInputNullable`() {
+        val kParameter = ArgumentTestClass::changeNullability.findParameterByName("input")
+        assertNotNull(kParameter)
+        val result = builder.argument(kParameter)
+        assertTrue(result.type is GraphQLNonNull)
     }
 }

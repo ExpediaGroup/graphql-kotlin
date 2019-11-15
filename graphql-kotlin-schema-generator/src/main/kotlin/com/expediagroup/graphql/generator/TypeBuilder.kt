@@ -22,7 +22,7 @@ import com.expediagroup.graphql.generator.extensions.isEnum
 import com.expediagroup.graphql.generator.extensions.isInterface
 import com.expediagroup.graphql.generator.extensions.isListType
 import com.expediagroup.graphql.generator.extensions.isUnion
-import com.expediagroup.graphql.generator.extensions.wrapInNonNull
+import com.expediagroup.graphql.generator.extensions.wrapByNullable
 import com.expediagroup.graphql.generator.state.KGraphQLType
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
 import com.expediagroup.graphql.generator.state.TypesCacheKey
@@ -39,7 +39,7 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
     protected val subTypeMapper: SubTypeMapper = generator.subTypeMapper
     protected val codeRegistry: GraphQLCodeRegistry.Builder = generator.codeRegistry
 
-    internal fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
+    internal fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false, nullable: Boolean? = null): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
         val graphQLType = hookGraphQLType
             ?: generator.scalarType(type, annotatedAsID)
@@ -47,7 +47,7 @@ internal open class TypeBuilder constructor(protected val generator: SchemaGener
 
         // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
         val unwrappedType = GraphQLTypeUtil.unwrapType(graphQLType).lastElement()
-        val typeWithNullability = graphQLType.wrapInNonNull(type)
+        val typeWithNullability = graphQLType.wrapByNullable(type, nullable)
         if (unwrappedType !is GraphQLTypeReference) {
             return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
         }

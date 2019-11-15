@@ -39,6 +39,9 @@ internal fun KProperty<*>.isPropertyGraphQLIgnored(parentClass: KClass<*>): Bool
 internal fun KProperty<*>.getPropertyDeprecationReason(parentClass: KClass<*>): String? =
     this.getDeprecationReason() ?: getConstructorParameter(parentClass)?.getDeprecationReason()
 
+internal fun KProperty<*>.getPropertyNullable(parentClass: KClass<*>): Boolean? =
+    this.getGraphQLInputNullable() ?: getConstructorParameter(parentClass)?.getGraphQLInputNullable()
+
 internal fun KProperty<*>.getPropertyDescription(parentClass: KClass<*>): String? =
     this.getGraphQLDescription() ?: getConstructorParameter(parentClass)?.getGraphQLDescription()
 

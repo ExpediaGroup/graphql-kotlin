@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLInputNullable
 import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
@@ -44,3 +45,5 @@ internal fun Deprecated.getReason(): String? {
 
     return builder.toString()
 }
+
+internal fun KAnnotatedElement.getGraphQLInputNullable(): Boolean? = this.findAnnotation<GraphQLInputNullable>()?.value
