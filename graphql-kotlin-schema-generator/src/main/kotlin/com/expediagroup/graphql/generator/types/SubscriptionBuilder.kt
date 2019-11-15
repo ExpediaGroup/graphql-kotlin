@@ -22,7 +22,9 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
+import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import graphql.schema.GraphQLObjectType
+import org.reactivestreams.Publisher
 
 internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
 
@@ -42,6 +44,10 @@ internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(gen
 
             subscription.kClass.getValidFunctions(config.hooks)
                 .forEach {
+                    if (it.returnType.isSubclassOf(Publisher::class).not()) {
+                        throw InvalidSubscriptionTypeException(subscription.kClass, it)
+                    }
+
                     val function = generator.function(it, config.topLevelNames.subscription, subscription.obj)
                     val functionFromHook = config.hooks.didGenerateSubscriptionType(it, function)
                     subscriptionBuilder.field(functionFromHook)

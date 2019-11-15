@@ -16,7 +16,13 @@
 
 package com.expediagroup.graphql.exceptions
 
+import com.expediagroup.graphql.generator.extensions.getSimpleName
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 
-class InvalidSubscriptionTypeException(kClass: KClass<*>) :
-    GraphQLKotlinException("Schema requires all subscriptions to be public, ${kClass.simpleName} has ${kClass.visibility} visibility modifier")
+class InvalidSubscriptionTypeException(kClass: KClass<*>, kFunction: KFunction<*>? = null) :
+    GraphQLKotlinException(
+        "Schema requires all subscriptions to be public and return a type of Publisher. " +
+        "${kClass.simpleName} has ${kClass.visibility} visibility modifier. " +
+        if (kFunction != null) "The function return type is ${kFunction.returnType.getSimpleName()}" else ""
+    )

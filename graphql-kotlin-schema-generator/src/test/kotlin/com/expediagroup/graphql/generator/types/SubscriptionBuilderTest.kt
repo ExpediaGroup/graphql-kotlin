@@ -41,7 +41,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `give a valid list, it should properly set the top level name`() {
+    fun `give a valid subscription class, it should properly set the top level name`() {
         val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
         every { config.topLevelNames } returns TopLevelNames(subscription = "FooBar")
@@ -54,6 +54,16 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
     fun `given a private class, it should throw an exception`() {
         val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPrivateTestSubscription()))
+
+        assertFailsWith(InvalidSubscriptionTypeException::class) {
+            builder.getSubscriptionObject(subscriptions)
+        }
+    }
+
+    @Test
+    fun `given a class with a function that does not return Publisher, it should throw an exception`() {
+        val builder = SubscriptionBuilder(generator)
+        val subscriptions = listOf(TopLevelObject(MyInvalidSubscriptionClass()))
 
         assertFailsWith(InvalidSubscriptionTypeException::class) {
             builder.getSubscriptionObject(subscriptions)
@@ -119,6 +129,11 @@ class MyPublicTestSubscription {
     fun flowabelCounter(): Flowable<Int> = Flowable.just(1)
 
     fun filterMe(): Publisher<Int> = Flowable.just(2)
+}
+
+class MyInvalidSubscriptionClass {
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
+    fun number(): Int = 1
 }
 
 private class MyPrivateTestSubscription {
