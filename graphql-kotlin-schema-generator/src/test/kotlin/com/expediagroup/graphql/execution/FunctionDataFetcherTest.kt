@@ -90,28 +90,8 @@ internal class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `valid target and value from predicate`() {
-        val mockPredicate: DataFetcherExecutionPredicate = mockk()
-        every { mockPredicate.evaluate<String>(any(), any(), any()) } returns "baz"
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::print, executionPredicate = mockPredicate)
-        val mockEnvironmet: DataFetchingEnvironment = mockk()
-        every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
-        assertEquals(expected = "baz", actual = dataFetcher.get(mockEnvironmet))
-    }
-
-    @Test
-    fun `valid target and null from predicate`() {
-        val mockPredicate: DataFetcherExecutionPredicate = mockk()
-        every { mockPredicate.evaluate<String?>(any(), any(), any()) } returns null
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::print, executionPredicate = mockPredicate)
-        val mockEnvironmet: DataFetchingEnvironment = mockk()
-        every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
-        assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironmet))
-    }
-
-    @Test
     fun `array inputs can be converted by the object mapper`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printArray, executionPredicate = null)
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printArray)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("items" to arrayOf("foo", "bar"))
         assertEquals(expected = "foo:bar", actual = dataFetcher.get(mockEnvironmet))
@@ -119,7 +99,7 @@ internal class FunctionDataFetcherTest {
 
     @Test
     fun `list inputs throws exception`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printList, executionPredicate = null)
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printList)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("items" to listOf("foo", "bar"))
 

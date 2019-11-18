@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.hooks
 
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.execution.DataFetcherExecutionPredicate
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
@@ -107,13 +106,6 @@ interface SchemaGeneratorHooks {
      * Called after converting the function to a field definition but before adding to the schema to allow customization
      */
     fun didGenerateSubscriptionType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
-
-    /**
-     * Execute a predicate on each function parameters after their deserialization
-     * If the execution is unsuccessful the `onFailure` method will be invoked
-     */
-    val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate?
-        get() = null
 
     val wiringFactory: KotlinDirectiveWiringFactory
         get() = KotlinDirectiveWiringFactory()

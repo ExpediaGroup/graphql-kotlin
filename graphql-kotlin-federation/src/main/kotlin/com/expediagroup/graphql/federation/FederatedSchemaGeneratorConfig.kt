@@ -27,5 +27,5 @@ class FederatedSchemaGeneratorConfig(
     override val supportedPackages: List<String>,
     override val topLevelNames: TopLevelNames = TopLevelNames(),
     override val hooks: FederatedSchemaGeneratorHooks,
-    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
+    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider()
 ) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider)
