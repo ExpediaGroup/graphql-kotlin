@@ -50,7 +50,7 @@ open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegist
             val errors = mutableListOf<GraphQLError>()
             indexedBatchRequestsByType.map { (typeName, indexedRequests) ->
                 async {
-                    resolveType(typeName, indexedRequests, federatedTypeRegistry)
+                    resolveType(env, typeName, indexedRequests, federatedTypeRegistry)
                 }
             }.awaitAll()
                 .flatten()
