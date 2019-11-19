@@ -15,7 +15,9 @@
 
     <properties>
         <project.root>${project.basedir}/..</project.root>
-        <rxjava2.version>2.2.12</rxjava2.version>
+
+        <!-- Test Dependencies -->
+        <rxjava2.version>2.2.14</rxjava2.version>
     </properties>
 
     <dependencies>
