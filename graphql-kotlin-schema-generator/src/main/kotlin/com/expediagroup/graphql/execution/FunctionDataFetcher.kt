@@ -28,6 +28,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspend
@@ -40,16 +41,13 @@ import kotlin.reflect.full.valueParameters
  *   to use source object from the environment
  * @param fn The Kotlin function being invoked
  * @param objectMapper Jackson ObjectMapper that will be used to deserialize environment arguments to the expected function arguments
- * @param executionPredicate Predicate to run to map the value to a new result
  */
-class FunctionDataFetcher(
+open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
-    private val executionPredicate: DataFetcherExecutionPredicate? = null
+    private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : DataFetcher<Any> {
 
-    @Suppress("Detekt.SpreadOperator")
     override fun get(environment: DataFetchingEnvironment): Any? {
         val instance = target ?: environment.getSource<Any>()
 
@@ -59,19 +57,9 @@ class FunctionDataFetcher(
                 .toTypedArray()
 
             if (fn.isSuspend) {
-                GlobalScope.async {
-                    try {
-                        fn.callSuspend(it, *parameterValues)
-                    } catch (exception: InvocationTargetException) {
-                        throw exception.cause ?: exception
-                    }
-                }.asCompletableFuture()
+                runSuspendingFunction(it, parameterValues)
             } else {
-                try {
-                    return fn.call(it, *parameterValues)
-                } catch (exception: InvocationTargetException) {
-                    throw exception.cause ?: exception
-                }
+                runBlockingFunction(it, parameterValues)
             }
         }
     }
@@ -86,9 +74,28 @@ class FunctionDataFetcher(
     private fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
         val name = param.getName()
         val klazz = param.javaTypeClass()
-        val value = objectMapper.convertValue(environment.arguments[name], klazz)
-        val predicateResult = executionPredicate?.evaluate(value = value, parameter = param, environment = environment)
+        val argument = environment.arguments[name]
 
-        return predicateResult ?: value
+        return objectMapper.convertValue(argument, klazz)
+    }
+
+    @Suppress("Detekt.SpreadOperator")
+    private fun runSuspendingFunction(it: Any, parameterValues: Array<Any?>): CompletableFuture<Any?> {
+        return GlobalScope.async {
+            try {
+                fn.callSuspend(it, *parameterValues)
+            } catch (exception: InvocationTargetException) {
+                throw exception.cause ?: exception
+            }
+        }.asCompletableFuture()
+    }
+
+    @Suppress("Detekt.SpreadOperator")
+    private fun runBlockingFunction(it: Any, parameterValues: Array<Any?>): Any? {
+        try {
+            return fn.call(it, *parameterValues)
+        } catch (exception: InvocationTargetException) {
+            throw exception.cause ?: exception
+        }
     }
 }

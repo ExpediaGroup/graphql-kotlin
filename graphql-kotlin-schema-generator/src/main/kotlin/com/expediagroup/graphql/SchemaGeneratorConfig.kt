@@ -27,7 +27,7 @@ open class SchemaGeneratorConfig(
     open val supportedPackages: List<String>,
     open val topLevelNames: TopLevelNames = TopLevelNames(),
     open val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks,
-    open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
+    open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider()
 )
 
 /**

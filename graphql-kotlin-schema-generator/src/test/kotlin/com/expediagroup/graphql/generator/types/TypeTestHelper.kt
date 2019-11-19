@@ -59,7 +59,7 @@ internal open class TypeTestHelper {
         override val wiringFactory: KotlinDirectiveWiringFactory
             get() = spyWiringFactory
     }
-    var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider(hooks)
+    var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider()
 
     private var scalarBuilder: ScalarBuilder? = null
     private var objectBuilder: ObjectBuilder? = null

@@ -27,7 +27,6 @@ import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import javax.validation.Validator
 
 @SpringBootApplication
 class Application {
@@ -36,12 +35,11 @@ class Application {
     fun wiringFactory() = CustomDirectiveWiringFactory()
 
     @Bean
-    fun hooks(validator: Validator, wiringFactory: KotlinDirectiveWiringFactory) =
-        CustomSchemaGeneratorHooks(validator, wiringFactory)
+    fun hooks(wiringFactory: KotlinDirectiveWiringFactory) = CustomSchemaGeneratorHooks(wiringFactory)
 
     @Bean
     fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: SchemaGeneratorHooks) =
-        CustomDataFetcherFactoryProvider(springDataFetcherFactory, hooks)
+        CustomDataFetcherFactoryProvider(springDataFetcherFactory)
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()

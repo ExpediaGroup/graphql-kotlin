@@ -62,7 +62,7 @@ class FederationAutoConfiguration {
         supportedPackages = config.packages,
         topLevelNames = topLevelNames.orElse(TopLevelNames()),
         hooks = hooks,
-        dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider(hooks))
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider())
     )
 
     @Bean

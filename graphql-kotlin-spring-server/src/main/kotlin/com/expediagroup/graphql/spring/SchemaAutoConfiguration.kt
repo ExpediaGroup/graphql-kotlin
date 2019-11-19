@@ -59,7 +59,7 @@ class SchemaAutoConfiguration {
             supportedPackages = config.packages,
             topLevelNames = topLevelNames.orElse(TopLevelNames()),
             hooks = generatorHooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider(generatorHooks))
+            dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider())
         )
     }
 

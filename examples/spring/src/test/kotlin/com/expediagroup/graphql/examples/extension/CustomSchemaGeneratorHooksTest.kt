@@ -20,7 +20,6 @@ import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import javax.validation.Validator
 import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -32,9 +31,8 @@ class CustomSchemaGeneratorHooksTest {
 
     @Test
     fun `UUID returns a string scalar`() {
-        val validator: Validator = mockk()
         val wiringFactory: KotlinDirectiveWiringFactory = mockk()
-        val hooks = CustomSchemaGeneratorHooks(validator, wiringFactory)
+        val hooks = CustomSchemaGeneratorHooks(wiringFactory)
 
         val result = hooks.willGenerateGraphQLType(UUID::class.createType())
         assertNotNull(result)
@@ -43,9 +41,8 @@ class CustomSchemaGeneratorHooksTest {
 
     @Test
     fun `Non valid type returns null`() {
-        val validator: Validator = mockk()
         val wiringFactory: KotlinDirectiveWiringFactory = mockk()
-        val hooks = CustomSchemaGeneratorHooks(validator, wiringFactory)
+        val hooks = CustomSchemaGeneratorHooks(wiringFactory)
 
         val result = hooks.willGenerateGraphQLType(NonScalar::class.createType())
         assertNull(result)

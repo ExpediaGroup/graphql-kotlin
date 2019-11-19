@@ -17,21 +17,18 @@
 package com.expediagroup.graphql.examples.extension
 
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.execution.DataFetcherExecutionPredicate
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.examples.validation.DataFetcherExecutionValidator
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import java.util.UUID
-import javax.validation.Validator
 import kotlin.reflect.KType
 
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomSchemaGeneratorHooks(validator: Validator, override val wiringFactory: KotlinDirectiveWiringFactory) : SchemaGeneratorHooks {
+class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiringFactory) : SchemaGeneratorHooks {
 
     /**
      * Register additional GraphQL scalar types.
@@ -40,8 +37,6 @@ class CustomSchemaGeneratorHooks(validator: Validator, override val wiringFactor
         UUID::class -> graphqlUUIDType
         else -> null
     }
-
-    override val dataFetcherExecutionPredicate: DataFetcherExecutionPredicate? = DataFetcherExecutionValidator(validator)
 }
 
 internal val graphqlUUIDType = GraphQLScalarType.newScalar()

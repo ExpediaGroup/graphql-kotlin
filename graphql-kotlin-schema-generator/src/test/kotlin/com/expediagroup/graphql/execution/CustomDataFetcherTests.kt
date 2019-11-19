@@ -19,7 +19,6 @@ package com.expediagroup.graphql.execution
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.extensions.deepName
-import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.toSchema
 import graphql.GraphQL
 import graphql.schema.DataFetcher
@@ -66,7 +65,7 @@ data class Animal(
 
 data class AnimalDetails(val specialId: Int)
 
-class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider(NoopSchemaGeneratorHooks) {
+class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider() {
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
         if (kProperty.isLateinit) {
