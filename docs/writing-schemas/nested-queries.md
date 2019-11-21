@@ -46,4 +46,4 @@ fun photos(@GraphQLContext context: MyContextObject, numberOfPhotos: Int): List<
 ------
 
 As an example we have some ways implemented in Spring boot in the [example
-app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/sample/query/NestedQueries.kt).
+app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/NestedQueries.kt).
