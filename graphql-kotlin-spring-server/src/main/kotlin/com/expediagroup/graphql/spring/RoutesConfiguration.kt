@@ -50,7 +50,13 @@ class RoutesConfiguration(
 
     @Bean
     fun graphQLRoutes() = coRouter {
-        (POST(config.endpoint) or GET(config.endpoint)).invoke { serverRequest ->
+        val isNotWebsocketRequest = headers {
+            it.asHttpHeaders()["Upgrade"]?.contains("websocket")?.not() == true
+        }
+
+        val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
+
+        (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
             if (graphQLRequest != null) {
                 val graphQLResult = queryHandler.executeQuery(graphQLRequest)
