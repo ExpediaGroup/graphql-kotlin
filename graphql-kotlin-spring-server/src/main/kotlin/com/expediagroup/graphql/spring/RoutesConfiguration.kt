@@ -52,8 +52,10 @@ class RoutesConfiguration(
     fun graphQLRoutes() = coRouter {
         val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
         val isNotWebsocketRequest = headers {
-            it.header("Connection").contains("Upgrade").not()
-        }
+            // These headers are defined in the HTTP Protocol upgrade mechanism
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
+            it.header("Connection").contains("Upgrade").and(it.header("Upgrade").contains("websocket"))
+        }.not()
 
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
