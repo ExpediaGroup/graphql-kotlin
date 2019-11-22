@@ -54,7 +54,9 @@ class RoutesConfiguration(
         val isNotWebsocketRequest = headers {
             // These headers are defined in the HTTP Protocol upgrade mechanism
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
-            it.header("Connection").contains("Upgrade").and(it.header("Upgrade").contains("websocket"))
+            val isUpgrade = requestContainsHeader(it, "Connection", "Upgrade")
+            val isWebSocket = requestContainsHeader(it, "Upgrade", "websocket")
+            isUpgrade.and(isWebSocket)
         }.not()
 
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
@@ -67,6 +69,9 @@ class RoutesConfiguration(
             }
         }
     }
+
+    private fun requestContainsHeader(headers: ServerRequest.Headers, headerName: String, headerValue: String): Boolean =
+        headers.header(headerName).map { it.toLowerCase() }.contains(headerValue.toLowerCase())
 
     @Bean
     @ConditionalOnProperty(value = ["graphql.sdl.enabled"], havingValue = "true", matchIfMissing = true)
