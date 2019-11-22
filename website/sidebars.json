@@ -50,7 +50,7 @@
       "federated/federated-directives",
       "federated/type-resolution"
     ],
-    "Server": [
+    "Spring Server": [
       "server/spring-auto-config",
       "server/spring-beans",
       "server/spring-properties",
