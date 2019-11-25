@@ -66,6 +66,7 @@ This project is part of Expedia Group Open Source but also maintained by a dedic
   
 * `@ExpediaGroup/graphql-kotlin-committers`
   * Tag us in an issue on Github
+  * We also have a public channel, ([#graphql-kotlin](https://app.slack.com/client/T09229ZC6/CQLNT7B29)), open on the Kotlin Slack instance. See the info [here on how to join this slack instance](https://slack.kotlinlang.org/)
 
 ## ✏️ Contributing
 
