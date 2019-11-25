@@ -33,7 +33,10 @@ import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.spring.routes"])
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["graphql.packages=com.expediagroup.graphql.spring.routes"]
+)
 @EnableAutoConfiguration
 class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
@@ -230,6 +233,45 @@ directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITIO
             .bodyValue(request)
             .exchange()
             .verifyGraphQLRoute("Hello JUNIT route with charset encoding!")
+    }
+
+    @Test
+    fun `verify POST graphQL request with websocket header fails`() {
+        val request = GraphQLRequest(
+            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+            variables = mapOf("name" to "JUNIT route"),
+            operationName = "helloWorldQuery"
+        )
+
+        testClient.post()
+            .uri("/graphql")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Connection", "Upgrade")
+            .header("Upgrade", "websocket")
+            .bodyValue(request)
+            .exchange()
+            .expectStatus()
+            .isNotFound
+    }
+
+    @Test
+    fun `verify POST graphQL request with partially missing websocket header still passes`() {
+        val request = GraphQLRequest(
+            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+            variables = mapOf("name" to "JUNIT route"),
+            operationName = "helloWorldQuery"
+        )
+
+        testClient.post()
+            .uri("/graphql")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Connection", "upgrade")
+            .bodyValue(request)
+            .exchange()
+            .expectStatus()
+            .isOk
     }
 
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk

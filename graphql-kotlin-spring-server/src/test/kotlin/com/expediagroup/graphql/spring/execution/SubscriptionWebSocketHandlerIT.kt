@@ -44,7 +44,10 @@ import java.net.URI
 import java.time.Duration
 import kotlin.random.Random
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.spring.execution"])
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["graphql.packages=com.expediagroup.graphql.spring.execution"]
+)
 @EnableAutoConfiguration
 class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
 

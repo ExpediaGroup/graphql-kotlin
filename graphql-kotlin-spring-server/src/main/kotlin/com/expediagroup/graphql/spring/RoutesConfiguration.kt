@@ -50,7 +50,16 @@ class RoutesConfiguration(
 
     @Bean
     fun graphQLRoutes() = coRouter {
-        (POST(config.endpoint) or GET(config.endpoint)).invoke { serverRequest ->
+        val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
+        val isNotWebsocketRequest = headers {
+            // These headers are defined in the HTTP Protocol upgrade mechanism
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
+            val isUpgrade = requestContainsHeader(it, "Connection", "Upgrade")
+            val isWebSocket = requestContainsHeader(it, "Upgrade", "websocket")
+            isUpgrade and isWebSocket
+        }.not()
+
+        (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
             if (graphQLRequest != null) {
                 val graphQLResult = queryHandler.executeQuery(graphQLRequest)
@@ -60,6 +69,9 @@ class RoutesConfiguration(
             }
         }
     }
+
+    private fun requestContainsHeader(headers: ServerRequest.Headers, headerName: String, headerValue: String): Boolean =
+        headers.header(headerName).map { it.toLowerCase() }.contains(headerValue.toLowerCase())
 
     @Bean
     @ConditionalOnProperty(value = ["graphql.sdl.enabled"], havingValue = "true", matchIfMissing = true)
