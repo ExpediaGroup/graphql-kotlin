@@ -237,14 +237,41 @@ directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITIO
 
     @Test
     fun `verify POST graphQL request with websocket header fails`() {
-        testClient.get()
+        val request = GraphQLRequest(
+            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+            variables = mapOf("name" to "JUNIT route"),
+            operationName = "helloWorldQuery"
+        )
+
+        testClient.post()
             .uri("/graphql")
             .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
             .header("Connection", "Upgrade")
             .header("Upgrade", "websocket")
+            .bodyValue(request)
             .exchange()
             .expectStatus()
             .isNotFound
+    }
+
+    @Test
+    fun `verify POST graphQL request with partially missing websocket header still passes`() {
+        val request = GraphQLRequest(
+            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+            variables = mapOf("name" to "JUNIT route"),
+            operationName = "helloWorldQuery"
+        )
+
+        testClient.post()
+            .uri("/graphql")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Connection", "upgrade")
+            .bodyValue(request)
+            .exchange()
+            .expectStatus()
+            .isOk
     }
 
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk

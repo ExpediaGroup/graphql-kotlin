@@ -56,7 +56,7 @@ class RoutesConfiguration(
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
             val isUpgrade = requestContainsHeader(it, "Connection", "Upgrade")
             val isWebSocket = requestContainsHeader(it, "Upgrade", "websocket")
-            isUpgrade.and(isWebSocket)
+            isUpgrade and isWebSocket
         }.not()
 
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->

@@ -38,16 +38,6 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 @ConditionalOnBean(Subscription::class)
 class SubscriptionAutoConfiguration {
 
-    /**
-     * This value is needed so that this url handler is run without a drastically different order
-     * to the graphql routes in [RoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
-     * high or low, then the requests are not handled properly.
-     *
-     * Hopefully we can eventually move the url handler to the same router DSL.
-     * https://github.com/spring-projects/spring-framework/issues/19476
-     */
-    private val urlHandlerOrder = 0
-
     @Bean
     @ConditionalOnMissingBean
     fun subscriptionHandler(graphQL: GraphQL): SubscriptionHandler = SimpleSubscriptionHandler(graphQL)
@@ -66,5 +56,17 @@ class SubscriptionAutoConfiguration {
 
     @Bean
     fun subscriptionHandlerMapping(config: GraphQLConfigurationProperties, subscriptionWebSocketHandler: SubscriptionWebSocketHandler): HandlerMapping =
-        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionWebSocketHandler), urlHandlerOrder)
+        SimpleUrlHandlerMapping(mapOf(config.subscriptions.endpoint to subscriptionWebSocketHandler), URL_HANDLER_ORDER)
+
+    private companion object {
+        /**
+         * This value is needed so that this url handler is run without a drastically different order
+         * to the graphql routes in [RoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
+         * high or low, then the requests are not handled properly.
+         *
+         * Hopefully we can eventually move the url handler to the same router DSL.
+         * https://github.com/spring-projects/spring-framework/issues/19476
+         */
+        private const val URL_HANDLER_ORDER = 0
+    }
 }
