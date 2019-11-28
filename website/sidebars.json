@@ -51,7 +51,7 @@
       "federated/type-resolution"
     ],
     "Spring Server": [
-      "server/spring-auto-config",
+      "server/spring-overview",
       "server/spring-beans",
       "server/spring-properties",
       "server/spring-graphql-context"

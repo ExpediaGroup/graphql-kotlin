@@ -1,6 +1,6 @@
 ---
-id: spring-auto-config
-title: Spring Boot Auto Configuration
+id: spring-overview
+title: Spring Server Overview
 ---
 
 [graphql-kotlin-spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-spring-server)
@@ -34,6 +34,11 @@ class MyAwesomeMutation : Mutation {
   fun myAwesomeMutation(widget: Widget): Widget { ... }
 }
 
+@Component
+class MyAwesomeSubscription : Subscription {
+  fun myAwesomeSubscription(): Publisher<Widget> { ... }
+}
+
 data class Widget(val id: Int, val value: String)
 ```
 
@@ -43,14 +48,19 @@ will result in a Spring Boot reactive GraphQL web application with following sch
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 type Query {
-  myAwesomeQuery(): Widget!
+  myAwesomeQuery: Widget!
 }
 
 type Mutation {
   myAwesomeMutation(widget: Widget!): Widget!
+}
+
+type Subscription {
+  myAwesomeSubscription: Widget!
 }
 
 type Widget {
@@ -59,8 +69,9 @@ type Widget {
 }
 ```
 
-Newly created GraphQL server starts up with following preconfigured default routes:
+Your newly created GraphQL server starts up with following preconfigured default routes:
 
-* **/graphql** - GraphQL server endpoint used for processing queries and mutations
-* **/sdl** - convenience endpoint that returns current schema in Schema Definition Language format
+* **/graphql** - GraphQL server endpoint used for processing queries and mutations
+* **/subscriptions** - GraphQL server endpoint used for processing subscriptions
+* **/sdl** - Convenience endpoint that returns current schema in Schema Definition Language format
 * **/playground** - Prisma Labs GraphQL Playground IDE endpoint
