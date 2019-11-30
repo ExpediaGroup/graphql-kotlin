@@ -86,7 +86,7 @@ class SchemaAutoConfiguration {
 
 internal fun List<Any>.toTopLevelObjects() = this.map {
     val klazz = if (AopUtils.isAopProxy(it) && it is Advised) {
-        it.targetSource.target::class
+        it.targetSource.target!!::class
     } else {
         it::class
     }

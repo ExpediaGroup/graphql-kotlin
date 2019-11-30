@@ -37,8 +37,8 @@ class NestedQueries(private val coffeeBean: CoffeeBean) : Query {
 }
 
 data class NestedAnimal(
-        val id: Int,
-        val type: String
+    val id: Int,
+    val type: String
 ) {
     @JsonIgnore
     lateinit var details: NestedAnimalDetails

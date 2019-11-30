@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,6 @@ class ValidatedQuery : Query {
 }
 
 data class TypeWithPattern(
-        @field:Pattern(regexp = "^[a-z]+$", message = "Argument must be lowercase")
-        val lowerCaseOnly: String
+    @field:Pattern(regexp = "^[a-z]+$", message = "Argument must be lowercase")
+    val lowerCaseOnly: String
 )

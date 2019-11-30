@@ -71,10 +71,10 @@ This project is part of Expedia Group Open Source but also maintained by a dedic
 
 ## ✏️ Contributing
 
-To get started, please fork the repo and checkout a new branch. You can then build the library locally with Maven
+To get started, please fork the repo and checkout a new branch. You can then build the library locally with Gradle
 
 ```shell script
-mvn clean install
+./gradlew clean build
 ```
 
 

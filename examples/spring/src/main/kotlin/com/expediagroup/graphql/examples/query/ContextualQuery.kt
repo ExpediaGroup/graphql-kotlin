@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component
  * @see com.expediagroup.graphql.execution.FunctionDataFetcher
  */
 @Component
-class ContextualQuery: Query {
+class ContextualQuery : Query {
 
     @GraphQLDescription("query that uses GraphQLContext context")
     fun contextualQuery(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
+import kotlin.test.assertNull
 
 @SpringBootTest
 @AutoConfigureWebTestClient
@@ -46,7 +47,10 @@ class EnvironmentQueryIT(@Autowired private val testClient: WebTestClient) {
             .exchange()
             .expectStatus().isOk
             .verifyOnlyDataExists(query)
-            .jsonPath("$DATA_JSON_PATH.$query.parentValue").isEqualTo(null)
+            .jsonPath("$DATA_JSON_PATH.$query.parentValue").value<String?> {
+                // workaround to NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS issue - when using jsonPath().isEqualTo() currently cannot pass null
+                assertNull(it)
+            }
             .jsonPath("$DATA_JSON_PATH.$query.value").isEqualTo("1")
             .jsonPath("$DATA_JSON_PATH.$query.nested").exists()
             .jsonPath("$DATA_JSON_PATH.$query.nested.parentValue").isEqualTo("1")
