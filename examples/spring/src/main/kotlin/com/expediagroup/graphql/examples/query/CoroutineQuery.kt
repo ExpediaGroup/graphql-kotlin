@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class CoroutineQuery: Query {
+class CoroutineQuery : Query {
 
     private val logger = LoggerFactory.getLogger(CoroutineQuery::class.java)
 

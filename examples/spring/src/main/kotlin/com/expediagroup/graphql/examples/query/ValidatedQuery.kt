@@ -27,6 +27,6 @@ class ValidatedQuery : Query {
 }
 
 data class TypeWithPattern(
-        @field:Pattern(regexp = "[a-z]*")
-        val lowerCaseOnly: String
+    @field:Pattern(regexp = "[a-z]*")
+    val lowerCaseOnly: String
 )

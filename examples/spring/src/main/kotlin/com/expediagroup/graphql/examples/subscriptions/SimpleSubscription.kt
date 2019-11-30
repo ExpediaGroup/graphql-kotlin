@@ -42,8 +42,7 @@ class SimpleSubscription : Subscription {
             val value = Random.nextInt()
             if (value % 2 == 0) {
                 throw Exception("Value is even $value")
-            }
-            else value
+            } else value
         }
 
     @GraphQLDescription("Returns list of values")
