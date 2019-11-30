@@ -1,10 +1,11 @@
-
 import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 import java.time.Instant
 
 description = "Libraries for running a GraphQL server in Kotlin"
+extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -12,13 +13,11 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
     id("io.gitlab.arturbosch.detekt")
     jacoco
-//    signing
+    signing
     `maven-publish`
 }
 
 allprojects {
-    group = "com.expediagroup"
-
     buildscript {
         repositories {
             mavenLocal()
@@ -53,7 +52,7 @@ subprojects {
         apply(plugin = "java-library")
         apply(plugin = "org.jetbrains.dokka")
         apply(plugin = "maven-publish")
-//        apply(plugin = "signing")
+        apply(plugin = "signing")
 
         tasks {
             jacoco {
@@ -88,16 +87,14 @@ subprojects {
             }
             publishing {
                 repositories {
-                    // TODO update to publish to nexus
-                    mavenLocal()
-//                    maven {
-//                        name = "ossrh"
-//                        url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-//                        credentials {
-//                            username = "TODO"
-//                            password = "TODO"
-//                        }
-//                    }
+                    maven {
+                        name = "ossrh"
+                        url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                        credentials {
+                            username = System.getenv("SONATYPE_USERNAME")
+                            password = System.getenv("SONATYPE_PASSWORD")
+                        }
+                    }
                 }
                 publications {
                     create<MavenPublication>("mavenJava") {
@@ -133,10 +130,12 @@ subprojects {
                     }
                 }
             }
-//            signing {
-//                // TODO enable signing
-//                sign(publishing.publications["mavenJava"])
-//            }
+            signing {
+                setRequired({
+                    (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
+                })
+                sign(publishing.publications["mavenJava"])
+            }
         }
     } else {
         // don't generate JARs for example projects
