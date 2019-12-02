@@ -33,7 +33,7 @@ jobs:
         run: ./mvnw clean verify -PdefaultBuild
 
       - name: Upload coverage to Codecov
-        if: ${{ matrix.java }} == 8
+        if: matrix.java == 8
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
