@@ -267,7 +267,7 @@ directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITIO
             .uri("/graphql")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .header("Connection", "upgrade")
+            .header("Connection", "foobar")
             .bodyValue(request)
             .exchange()
             .expectStatus()
