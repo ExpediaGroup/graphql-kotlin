@@ -5,7 +5,7 @@ title: Renaming Fields
 
 By default, the schema generator will use the simple name of the underlying class for the type names and function/property names for fields.
 You can change this default behavior by annotating the target class/field with `@GraphQLName`. The following Kotlin `Widget` class
-will be renamed to `MyCustomName` GraphQL type and it's fields will also be renamed.
+will be renamed to `MyCustomName` GraphQL type and its fields will also be renamed.
 
 ```kotlin
 @GraphQLName("MyCustomName")
