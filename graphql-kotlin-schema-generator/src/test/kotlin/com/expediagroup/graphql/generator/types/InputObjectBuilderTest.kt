@@ -41,6 +41,7 @@ internal class InputObjectBuilderTest : TypeTestHelper() {
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLName("InputClassRenamed")
     private class InputClassCustomName {
+        @GraphQLName("myFieldRenamed")
         val myField: String = "car"
     }
 
@@ -51,9 +52,16 @@ internal class InputObjectBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test custom naming`() {
+    fun `Test custom naming on classes`() {
         val result = builder.inputObjectType(InputClassCustomName::class)
         assertEquals("InputClassRenamedInput", result.name)
+    }
+
+    @Test
+    fun `Test custom naming on arguments`() {
+        val result = builder.inputObjectType(InputClassCustomName::class)
+        assertEquals(expected = 1, actual = result.fields.size)
+        assertEquals("myFieldRenamed", result.fields.first().name)
     }
 
     @Test

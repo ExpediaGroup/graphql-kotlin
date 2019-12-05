@@ -17,7 +17,9 @@
 package com.expediagroup.graphql.execution
 
 import com.expediagroup.graphql.annotations.GraphQLContext
+import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.CouldNotCastArgumentException
+import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
@@ -34,7 +36,7 @@ import kotlin.test.assertTrue
 
 internal class FunctionDataFetcherTest {
 
-    internal class MyClass {
+    class MyClass {
         fun print(string: String) = string
 
         fun printArray(items: Array<String>) = items.joinToString(separator = ":")
@@ -54,7 +56,17 @@ internal class FunctionDataFetcherTest {
         suspend fun suspendThrow(value: String?): String = coroutineScope {
             value ?: throw GraphQLException("Suspended Exception")
         }
+
+        @GraphQLName("myCustomField")
+        fun renamedFields(@GraphQLName("myCustomArgument") arg: MyInputClass) = "You sent ${arg.field1}"
     }
+
+    @GraphQLName("MyInputClassRenamed")
+    data class MyInputClass(
+        @JsonProperty("jacksonField")
+        @GraphQLName("jacksonField")
+        val field1: String
+    )
 
     @Test
     fun `null target and null source returns null`() {
@@ -159,5 +171,14 @@ internal class FunctionDataFetcherTest {
             assertNotNull(message)
             assertTrue(message.endsWith("Suspended Exception"), "Exception from function is not returned")
         }
+    }
+
+    @Test
+    fun `renamed fields can be converted by the object mapper`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::renamedFields)
+        val mockEnvironmet: DataFetchingEnvironment = mockk()
+        val arguments = mapOf("myCustomArgument" to mapOf("jacksonField" to "foo"))
+        every { mockEnvironmet.arguments } returns arguments
+        assertEquals(expected = "You sent foo", actual = dataFetcher.get(mockEnvironmet))
     }
 }
