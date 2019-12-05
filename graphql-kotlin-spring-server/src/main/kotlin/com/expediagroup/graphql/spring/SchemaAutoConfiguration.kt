@@ -78,7 +78,8 @@ class SchemaAutoConfiguration {
             subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects()
         )
 
-        logger.info(schema.print())
+        logger.info("\n${schema.print()}")
+
         return schema
     }
 }
