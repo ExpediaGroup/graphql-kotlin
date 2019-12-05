@@ -36,7 +36,7 @@ import kotlin.test.assertTrue
 
 internal class FunctionDataFetcherTest {
 
-    class MyClass {
+    internal class MyClass {
         fun print(string: String) = string
 
         fun printArray(items: Array<String>) = items.joinToString(separator = ":")
@@ -62,7 +62,7 @@ internal class FunctionDataFetcherTest {
     }
 
     @GraphQLName("MyInputClassRenamed")
-    data class MyInputClass(
+    internal data class MyInputClass(
         @JsonProperty("jacksonField")
         @GraphQLName("jacksonField")
         val field1: String
