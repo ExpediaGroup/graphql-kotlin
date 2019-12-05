@@ -79,3 +79,39 @@ type TopLevelQuery {
 
 ### Known Issues
 > NOTE: Due to a feature added in 1.0.0, we no longer support multiple levels of interfaces in a schema because the GraphQL spec does not support this feature.  [See 419](https://github.com/ExpediaGroup/graphql-kotlin/issues/419). If you do have multiple interfaces you will have to either combine them into a single interface or ignore all the parent interfaces.
+
+#### Invalid Schema
+```kotlin
+interface FirstLevel {
+    val id: String
+}
+
+interface SecondLevel : FirstLevel {
+    val name: String
+}
+
+class MyClass(override val id: String, override val name: String) : SecondLevel
+```
+
+#### Valid Schema
+```kotlin
+@GraphQLIgnore
+interface FirstLevel {
+    val id: String
+}
+
+interface SecondLevel : FirstLevel {
+    val name: String
+}
+
+class MyClass(override val id: String, override val name: String) : SecondLevel
+```
+OR
+```kotlin
+interface FirstLevel {
+     val id: String
+     val name: String
+}
+
+class MyClass(override val id: String, override val name: String) : FirstLevel
+```
