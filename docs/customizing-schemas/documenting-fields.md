@@ -4,12 +4,12 @@ title: Documenting Schema
 ---
 
 Since Javadocs are not available at runtime for introspection, `graphql-kotlin-schema-generator` includes an annotation
-class `@GraphQLDescription` that can be used to add schema descriptions to *any* GraphQL schema element:
+class `@GraphQLDescription` that can be used to add schema descriptions to *any* GraphQL schema element. The string value can be in the Markdown format, however due to an [issue in graphql-java](https://github.com/graphql-java/graphql-java/issues/1677) the `#` character is not supported to mark header levels.
 
 ```kotlin
 @GraphQLDescription("A useful widget")
 data class Widget(
-  @GraphQLDescription("The widget's value that can be null")
+  @GraphQLDescription("The widget's value that can be `null`")
   val value: Int?
 )
 
@@ -37,7 +37,7 @@ type Query {
 
 """A useful widget"""
 type Widget {
-  """The widget's value that can be null"""
+  """The widget's value that can be `null`"""
   value: Int
 }
 ```
