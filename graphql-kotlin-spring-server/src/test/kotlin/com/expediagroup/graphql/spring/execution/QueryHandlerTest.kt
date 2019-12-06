@@ -146,6 +146,16 @@ class QueryHandlerTest {
         assertNull(response.extensions)
     }
 
+    @Test
+    fun `default exception handler sets the response errors`() {
+        val exception = Exception("foo")
+        val response = queryHandler.handleException(exception)
+        assertNull(response.data)
+        assertNull(response.extensions)
+        assertEquals(1, response.errors?.size)
+        assertEquals("Exception while fetching data () : foo", response.errors?.firstOrNull()?.message)
+    }
+
     class BasicQuery {
         fun random(): Int = Random.nextInt()
 

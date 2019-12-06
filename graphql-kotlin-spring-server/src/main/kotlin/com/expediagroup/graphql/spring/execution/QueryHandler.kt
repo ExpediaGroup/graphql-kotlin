@@ -28,21 +28,26 @@ import kotlinx.coroutines.reactor.ReactorContext
 import kotlin.coroutines.coroutineContext
 
 /**
- * GraphQL query handler.
+ * The query handler is the first level that accepts both GraphQL query and mutation requests. This is the top level execution
+ * which may trigger many more data fetchers in your schema, each of which may have their own exception handling.
  */
 interface QueryHandler {
 
     /**
-     * Execute GraphQL query in a non-blocking fashion.
+     * Execute GraphQL request (query or mutation) in a non-blocking fashion.
      */
     suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse
 }
 
 /**
- * Default GraphQL query handler.
+* Default GraphQL query handler that executes queries and mutations asynchronously. All methods are open for extension if you want to
+ * override just parts of the request handler behaviour.
  */
 open class SimpleQueryHandler(private val graphql: GraphQL, private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null) : QueryHandler {
 
+    /**
+     * Execute a request passing in the GraphQL context from the coroutine context and the [DataLoaderRegistryFactory] if not null.
+     */
     @Suppress("TooGenericExceptionCaught")
     @ExperimentalCoroutinesApi
     override suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse {
@@ -54,9 +59,17 @@ open class SimpleQueryHandler(private val graphql: GraphQL, private val dataLoad
             graphql.executeAsync(input)
                 .await()
                 .toGraphQLResponse()
-        } catch (e: Exception) {
-            val graphQLError = SimpleKotlinGraphQLError(e)
-            GraphQLResponse(errors = listOf(graphQLError))
+        } catch (exception: Exception) {
+            handleException(exception)
         }
+    }
+
+    /**
+     * If [executeQuery] catches an exception while executing the request, this method will be called and map the exception to a basic [GraphQLResponse] with errors.
+     * If you wish to change the request exception handler behaviour but not the execution, you can just override this method.
+     */
+    open fun handleException(exception: Exception): GraphQLResponse {
+        val graphQLError = SimpleKotlinGraphQLError(exception)
+        return GraphQLResponse(errors = listOf(graphQLError))
     }
 }
