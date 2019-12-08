@@ -75,11 +75,11 @@ class ApolloSubscriptionProtocolHandler(
                 }
                 operationMessage.type == GQL_START.type -> startSubscription(operationMessage, session)
                 operationMessage.type == GQL_STOP.type -> {
-                    stopSubscription(operationMessage, session)
+                    stopSubscription(operationMessage, session, false)
                     Flux.empty()
                 }
                 operationMessage.type == GQL_CONNECTION_TERMINATE.type -> {
-                    stopSubscription(operationMessage, session)
+                    stopSubscription(operationMessage, session, true)
                     session.close()
                     Flux.empty()
                 }
@@ -131,9 +131,11 @@ class ApolloSubscriptionProtocolHandler(
         }
     }
 
-    private fun stopSubscription(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
+    private fun stopSubscription(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, terminate: Boolean) {
         if (operationMessage.id != null) {
-            keepAliveSubscriptions[session.id]?.cancel()
+            if (terminate) {
+                keepAliveSubscriptions[session.id]?.cancel()
+            }
             subscriptions[operationMessage.id]?.cancel()
         }
     }
