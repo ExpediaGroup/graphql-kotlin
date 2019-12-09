@@ -26,9 +26,13 @@ jobs:
       run: |
         cd website
         npm install
-        git config --global user.name "${GITHUB_ACTOR}"
-        echo "machine github.com login ${GITHUB_ACTOR} password ${{ secrets.GITHUB_TOKEN }}" > ~/.netrc
-        GIT_USER="${GITHUB_ACTOR}" npm run publish-gh-pages
+        git config --global user.name "${GH_USERNAME}"
+        echo "machine github.com login ${GH_USERNAME} password ${{ secrets.EG_CI_USER_TOKEN }}" > ~/.netrc
+        GIT_USER="${GH_USERNAME}" npm run publish-gh-pages
       env:
         CI: true
         CURRENT_BRANCH: master
+
+        # The following settings will only work with the personal access token we are using
+        # Until GH Actions have a way to publish directly we are using this method
+        GH_USERNAME: eg-oss-ci
