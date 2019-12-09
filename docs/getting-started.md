@@ -30,7 +30,7 @@ Using a JVM dependency manager, simply link `graphql-kotlin-schema-generator` to
 version and other examples in [Sonatype Central
 Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-schema-generator)
 
-With Maven:
+### Maven
 
 ```xml
 <dependency>
@@ -40,7 +40,7 @@ With Maven:
 </dependency>
 ```
 
-With Gradle:
+### Gradle
 
 ```groovy
 compile(group: 'com.expediagroup', name: 'graphql-kotlin-schema-generator', version: "$latestVersion")
