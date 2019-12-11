@@ -86,12 +86,11 @@ class ApolloSubscriptionProtocolHandler(
                 }
                 GQL_CONNECTION_TERMINATE.type -> {
                     terminateSubscription(session)
-                    session.close()
                     return Flux.empty()
                 }
                 else -> {
                     logger.error("Unknown subscription operation $operationMessage")
-                    stopSubscription(operationMessage)
+                    stopSubscription(operationMessage, session)
                     return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
                 }
             }
@@ -112,7 +111,7 @@ class ApolloSubscriptionProtocolHandler(
 
         if (payload == null) {
             logger.error("Payload was null instead of a GraphQLRequest object")
-            stopSubscription(operationMessage)
+            stopSubscription(operationMessage, session)
             return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
 
@@ -136,7 +135,7 @@ class ApolloSubscriptionProtocolHandler(
                 .doOnComplete { logger.trace("WebSocket GraphQL subscription complete, WebSocketSessionID=${session.id} OperationMessageID=${operationMessage.id}") }
         } catch (exception: Exception) {
             logger.error("Error running graphql subscription", exception)
-            stopSubscription(operationMessage)
+            stopSubscription(operationMessage, session)
             return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
     }
@@ -158,5 +157,6 @@ class ApolloSubscriptionProtocolHandler(
             subscriptions.forEach { this.subscriptions.remove(it) }
         }
         subscriptionsForClient.remove(session.id)
+        session.close()
     }
 }

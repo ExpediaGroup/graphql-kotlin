@@ -67,7 +67,9 @@ class ApolloSubscriptionProtocolHandlerTest {
     fun `Return GQL_CONNECTION_ERROR when SubscriptionOperationMessage type is not valid`() {
         val config: GraphQLConfigurationProperties = mockk()
         val operationMessage = SubscriptionOperationMessage("", id = "abc").toJson()
-        val session: WebSocketSession = mockk()
+        val session: WebSocketSession = mockk {
+            every { id } returns "abc"
+        }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
@@ -213,6 +215,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val session: WebSocketSession = mockk {
             every { close() } returns mockk()
+            every { id } returns "abc"
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
@@ -256,7 +259,9 @@ class ApolloSubscriptionProtocolHandlerTest {
     fun `Return GQL_CONNECTION_ERROR when sending GQL_START but payload is null`() {
         val config: GraphQLConfigurationProperties = mockk()
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = null).toJson()
-        val session: WebSocketSession = mockk()
+        val session: WebSocketSession = mockk {
+            every { id } returns "abc"
+        }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
@@ -272,7 +277,9 @@ class ApolloSubscriptionProtocolHandlerTest {
     fun `Return GQL_CONNECTION_ERROR when sending GQL_START but payload is invalid GraphQLRequest`() {
         val config: GraphQLConfigurationProperties = mockk()
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = "").toJson()
-        val session: WebSocketSession = mockk()
+        val session: WebSocketSession = mockk {
+            every { id } returns "abc"
+        }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
