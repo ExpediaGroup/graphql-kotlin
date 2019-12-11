@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -46,7 +45,7 @@ import kotlin.random.Random
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["graphql.packages=com.expediagroup.graphql.spring.execution"]
+    properties = ["graphql.packages=com.expediagroup.graphql.spring.execution", "graphql.subscriptions.keepAliveInterval=1"]
 )
 @EnableAutoConfiguration
 class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
@@ -56,17 +55,16 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest("subscription { characters }")
-        val message = SubscriptionOperationMessage(GQL_START.type, id = "1", payload = request)
+        val message = SubscriptionOperationMessage(GQL_START.type, id = "1", payload = request).toJson()
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+            session.send(Mono.just(session.textMessage(message)))
                 .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)
@@ -86,17 +84,16 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
 
     @Test
     fun `verify graphql-ws subscription init`() {
-        val request = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
+        val request = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type).toJson()
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(request))))
+            session.send(Mono.just(session.textMessage(request)))
                 .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)
@@ -112,17 +109,16 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscription to counter`() {
         val request = GraphQLRequest("subscription { counter }")
-        val message = SubscriptionOperationMessage(GQL_START.type, id = "2", payload = request)
+        val message = SubscriptionOperationMessage(GQL_START.type, id = "2", payload = request).toJson()
         val output = ReplayProcessor.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+            session.send(Mono.just(session.textMessage(message)))
                 .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)
@@ -139,7 +135,7 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscription with context`() {
         val request = GraphQLRequest("subscription { ticker }")
-        val message = SubscriptionOperationMessage(GQL_START.type, id = "3", payload = request)
+        val message = SubscriptionOperationMessage(GQL_START.type, id = "3", payload = request).toJson()
         val output = ReplayProcessor.create<String>()
 
         val httpClient = HttpClient.create().headers { it.set("X-Custom-Header", "junit") }
@@ -147,10 +143,9 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
         val uri = URI.create("ws://localhost:$port/subscriptions")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+            session.send(Mono.just(session.textMessage(message)))
                 .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)
@@ -193,4 +188,6 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
     }
 
     data class SubscriptionContext(val value: String)
+
+    private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
 }
