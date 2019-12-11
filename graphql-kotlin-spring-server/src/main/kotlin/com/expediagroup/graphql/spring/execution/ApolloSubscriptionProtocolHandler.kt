@@ -44,10 +44,10 @@ class ApolloSubscriptionProtocolHandler(
     private val subscriptionHandler: SubscriptionHandler,
     private val objectMapper: ObjectMapper
 ) {
-    // Keep Alive subscriptions are saved by web socket session id since they are sent on connection init
-    private val keepAliveSubscriptions = ConcurrentHashMap<String, Subscription>()
-    // Data subscriptions are saved by SubscriptionOperationMessage.id
+    // Data subscriptions are saved by web socket session id + SubscriptionOperationMessage.id
     private val subscriptions = ConcurrentHashMap<String, Subscription>()
+    // Mapping from client id to active subscriptions
+    private val subscriptionsForClient = ConcurrentHashMap<String, MutableList<String>>()
 
     private val logger = LoggerFactory.getLogger(ApolloSubscriptionProtocolHandler::class.java)
     private val keepAliveMessage = SubscriptionOperationMessage(type = GQL_CONNECTION_KEEP_ALIVE.type)
@@ -57,35 +57,36 @@ class ApolloSubscriptionProtocolHandler(
         try {
             val operationMessage: SubscriptionOperationMessage = objectMapper.readValue(payload)
 
-            return when {
-                operationMessage.type == GQL_CONNECTION_INIT.type -> {
+            return when (operationMessage.type) {
+                GQL_CONNECTION_INIT.type -> {
                     val flux = Flux.just(SubscriptionOperationMessage(GQL_CONNECTION_ACK.type))
                     val keepAliveInterval = config.subscriptions.keepAliveInterval
+                    subscriptionsForClient[session.id] = mutableListOf()
                     if (keepAliveInterval != null) {
+                        subscriptionsForClient[session.id]?.add(session.id)
                         // Send the GQL_CONNECTION_KEEP_ALIVE message every interval until the connection is closed or terminated
                         val keepAliveFlux = Flux.interval(Duration.ofMillis(keepAliveInterval))
-                            .map { keepAliveMessage }
-                            .doOnSubscribe {
-                                keepAliveSubscriptions[session.id] = it
-                            }
+                                .map { keepAliveMessage }
+                                .doOnSubscribe {
+                                    subscriptions[session.id] = it
+                                }
                         return flux.concatWith(keepAliveFlux)
                     }
-
                     return flux
                 }
-                operationMessage.type == GQL_START.type -> startSubscription(operationMessage, session)
-                operationMessage.type == GQL_STOP.type -> {
+                GQL_START.type -> startSubscription(operationMessage, session)
+                GQL_STOP.type -> {
                     stopSubscription(operationMessage, session)
-                    Flux.empty()
+                    return Flux.empty()
                 }
-                operationMessage.type == GQL_CONNECTION_TERMINATE.type -> {
-                    stopSubscription(operationMessage, session)
+                GQL_CONNECTION_TERMINATE.type -> {
+                    terminateSubscription(session)
                     session.close()
-                    Flux.empty()
+                    return Flux.empty()
                 }
                 else -> {
                     logger.error("Unknown subscription operation $operationMessage")
-                    Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+                    return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
                 }
             }
         } catch (exception: Exception) {
@@ -108,9 +109,9 @@ class ApolloSubscriptionProtocolHandler(
             return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
 
-        return try {
+        try {
             val request = objectMapper.convertValue<GraphQLRequest>(payload)
-            subscriptionHandler.executeSubscription(request)
+            return subscriptionHandler.executeSubscription(request)
                 .map {
                     if (it.errors?.isNotEmpty() == true) {
                         SubscriptionOperationMessage(type = GQL_ERROR.type, id = operationMessage.id, payload = it)
@@ -121,20 +122,33 @@ class ApolloSubscriptionProtocolHandler(
                 .concatWith(Flux.just(SubscriptionOperationMessage(type = GQL_COMPLETE.type, id = operationMessage.id)))
                 .doOnSubscribe {
                     logger.trace("WebSocket GraphQL subscription subscribe, WebSocketSessionID=${session.id} OperationMessageID=${operationMessage.id}")
-                    subscriptions[operationMessage.id] = it
+                    subscriptions[session.id + operationMessage.id] = it
+                    subscriptionsForClient[session.id]?.add(session.id + operationMessage.id)
                 }
                 .doOnCancel { logger.trace("WebSocket GraphQL subscription cancel, WebSocketSessionID=${session.id} OperationMessageID=${operationMessage.id}") }
                 .doOnComplete { logger.trace("WebSocket GraphQL subscription complete, WebSocketSessionID=${session.id} OperationMessageID=${operationMessage.id}") }
         } catch (exception: Exception) {
             logger.error("Error running graphql subscription", exception)
-            Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+            return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
     }
 
     private fun stopSubscription(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
         if (operationMessage.id != null) {
-            keepAliveSubscriptions[session.id]?.cancel()
-            subscriptions[operationMessage.id]?.cancel()
+            val key = session.id + operationMessage.id
+            subscriptions[key]?.let {
+                it.cancel()
+                subscriptions.remove(key)
+                subscriptionsForClient[session.id]?.remove(key)
+            }
         }
+    }
+
+    private fun terminateSubscription(session: WebSocketSession) {
+        subscriptionsForClient[session.id]?.let {
+            it.forEach { subscriptions[it]?.cancel() }
+            it.forEach { subscriptions.remove(it) }
+        }
+        subscriptionsForClient.remove(session.id)
     }
 }

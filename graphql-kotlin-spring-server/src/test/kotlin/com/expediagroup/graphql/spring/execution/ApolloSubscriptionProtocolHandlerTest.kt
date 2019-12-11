@@ -85,7 +85,9 @@ class ApolloSubscriptionProtocolHandlerTest {
             }
         }
         val operationMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
-        val session: WebSocketSession = mockk()
+        val session: WebSocketSession = mockk {
+            every { id } returns "123"
+        }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
@@ -104,7 +106,9 @@ class ApolloSubscriptionProtocolHandlerTest {
             }
         }
         val operationMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
-        val session: WebSocketSession = mockk()
+        val session: WebSocketSession = mockk {
+            every { id } returns "123"
+        }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper)
@@ -143,6 +147,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         val config: GraphQLConfigurationProperties = mockk()
         val operationMessage = SubscriptionOperationMessage(GQL_CONNECTION_TERMINATE.type)
         val session: WebSocketSession = mockk {
+            every { id } returns "123"
             every { close() } returns mockk()
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
