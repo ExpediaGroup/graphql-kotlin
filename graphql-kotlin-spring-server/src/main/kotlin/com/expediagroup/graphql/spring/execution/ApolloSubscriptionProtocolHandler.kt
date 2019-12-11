@@ -71,11 +71,12 @@ class ApolloSubscriptionProtocolHandler(
                         // Send the GQL_CONNECTION_KEEP_ALIVE message every interval until the connection is closed or terminated
                         val keepAliveFlux = Flux.interval(Duration.ofMillis(keepAliveInterval))
                             .map { keepAliveMessage }
+                            .doOnSubscribe { activeSessions[session.id] = it }
 
                         return flux.concatWith(keepAliveFlux)
                     }
 
-                    return flux.doOnSubscribe { activeSessions[session.id] = it }
+                    return flux
                 }
                 GQL_START.type -> startSubscription(operationMessage, session)
                 GQL_STOP.type -> {
