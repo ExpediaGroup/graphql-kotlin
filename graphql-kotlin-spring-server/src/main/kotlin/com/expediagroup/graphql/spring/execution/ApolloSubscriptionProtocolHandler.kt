@@ -152,9 +152,9 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     private fun terminateSubscription(session: WebSocketSession) {
-        subscriptionsForClient[session.id]?.let { subscriptions ->
-            subscriptions.forEach { this.subscriptions[it]?.cancel() }
-            subscriptions.forEach { this.subscriptions.remove(it) }
+        subscriptionsForClient[session.id]?.let { subscriptionsForSession ->
+            subscriptionsForSession.forEach { subscriptions[it]?.cancel() }
+            subscriptionsForSession.forEach { subscriptions.remove(it) }
         }
         subscriptionsForClient.remove(session.id)
         session.close()
