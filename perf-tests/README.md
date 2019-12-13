@@ -16,7 +16,11 @@ This is a simple performance test script that runs using [Artillery](https://git
     $ npm install
     ```
 
-* Run the GraphQL query tests
+* There are multiple performance test cases. To see the availabel tests, run the following command.
+    ```shell script
+    $ npm run
+    ```
+* To execute a test simply run the appropiate command through `npm`. Feel free to modify the config for the tests locally as well.
     ```shell script
     $ npm run perf-test-query
     ```
