@@ -1,0 +1,19 @@
+{
+  "name": "graphql-kotlin-perf-tests",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "description": "Simple load testing scripts",
+  "main": "index.js",
+  "engines": {
+    "node": "12",
+    "npm": "6"
+  },
+  "scripts": {
+    "perf-test-query": "yarn artillery run graphql-query.yml",
+    "perf-test-mutation": "yarn artillery run graphql-mutation.yml",
+    "perf-test-subscription": "yarn artillery run graphql-subscription.yml"
+  },
+  "devDependencies": {
+    "artillery": "1.6.0-29"
+  }
+}
