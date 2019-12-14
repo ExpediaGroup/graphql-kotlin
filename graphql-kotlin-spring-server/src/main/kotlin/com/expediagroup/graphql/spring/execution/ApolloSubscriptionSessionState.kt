@@ -58,6 +58,10 @@ internal class ApolloSubscriptionSessionState {
             val operationsForSession = activeOperations[session.id]
             operationsForSession?.get(operationMessage.id)?.cancel()
             operationsForSession?.remove(operationMessage.id)
+
+            if (operationsForSession?.isEmpty() == true) {
+                activeOperations.remove(session.id)
+            }
         }
     }
 

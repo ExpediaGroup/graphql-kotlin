@@ -25,6 +25,7 @@ import org.reactivestreams.Subscription
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class ApolloSubscriptionSessionStateTest {
 
@@ -131,7 +132,7 @@ class ApolloSubscriptionSessionStateTest {
     }
 
     @Test
-    fun `stopOperation cancels the subscription if operation id is valid`() {
+    fun `stopOperation clears entire operation cache if it is empty after removal`() {
         val state = ApolloSubscriptionSessionState()
         val mockSubscription: Subscription = mockk { every { cancel() } returns Unit }
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
@@ -144,9 +145,31 @@ class ApolloSubscriptionSessionStateTest {
 
         state.stopOperation(mockSession, inputOperation)
 
-        assertEquals(expected = 1, actual = state.activeOperations.size)
-        assertEquals(expected = 0, actual = state.activeOperations["123"]?.size)
+        assertEquals(expected = 0, actual = state.activeOperations.size)
+        assertNull(state.activeOperations["123"])
         verify(exactly = 1) { mockSubscription.cancel() }
+    }
+
+    @Test
+    fun `stopOperation cancels the subscription if operation id is valid`() {
+        val state = ApolloSubscriptionSessionState()
+        val mockSession: WebSocketSession = mockk { every { id } returns "123" }
+        val mockSubscription1: Subscription = mockk { every { cancel() } returns Unit }
+        val mockSubscription2: Subscription = mockk { every { cancel() } returns Unit }
+        val inputOperation1: SubscriptionOperationMessage = mockk { every { id } returns "abc" }
+        val inputOperation2: SubscriptionOperationMessage = mockk { every { id } returns "def" }
+
+        state.saveOperation(mockSession, inputOperation1, mockSubscription1)
+        state.saveOperation(mockSession, inputOperation2, mockSubscription2)
+
+        assertEquals(expected = 1, actual = state.activeOperations.size)
+        assertEquals(expected = 2, actual = state.activeOperations["123"]?.size)
+
+        state.stopOperation(mockSession, inputOperation1)
+
+        assertEquals(expected = 1, actual = state.activeOperations.size)
+        assertEquals(expected = 1, actual = state.activeOperations["123"]?.size)
+        verify(exactly = 1) { mockSubscription1.cancel() }
     }
 
     @Test
