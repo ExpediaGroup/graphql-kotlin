@@ -2,21 +2,17 @@ build:
   weights:
     comments: 0   # missing comments should not fail the build
 
-test-pattern: # Configure exclusions for test sources
-  active: true
-  patterns: # Test file regexes
-    - '.*/test/.*'
-    - '.*\\test\\.*'
-    - '.*Test.kt'
-    - '.*Spec.kt'
-    - '.*IT.kt'
-    - '.*TestConfiguration.kt'
-
 comments:
   EndOfSentenceFormat:
     active: false
   CommentOverPrivateFunction:
     active: false
+  UndocumentedPublicClass:
+    excludes: "**/test/**,**\\test\\**,**/*Test.kt,**/*Spec.kt,**/*IT.kt,**/*TestConfiguration.kt"
+  UndocumentedPublicFunction:
+    excludes: "**/test/**,**\\test\\**,**/*Test.kt,**/*Spec.kt,**/*IT.kt,**/*TestConfiguration.kt"
+  UndocumentedPublicProperty:
+    excludes: "**/test/**,**\\test\\**,**/*Test.kt,**/*Spec.kt,**/*IT.kt,**/*TestConfiguration.kt"
 
 complexity:
   LongParameterList:
@@ -32,6 +28,7 @@ complexity:
 naming:
   FunctionMaxLength:
     maximumFunctionNameLength: 35
+    excludes: "**/test/**,**\\test\\**,**/*Test.kt,**/*Spec.kt,**/*IT.kt,**/*TestConfiguration.kt"
 
 style:
   MagicNumber:

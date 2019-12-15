@@ -47,7 +47,7 @@ data class NestedAnimal(
 @Component
 @Scope("prototype")
 data class NestedAnimalDetails @Autowired(required = false) constructor(private val animalId: Int) {
-    fun veryDetailledFunction(): String = "Details($animalId)"
+    fun veryDetailedFunction(): String = "Details($animalId)"
 }
 
 @Component("NestedAnimalDetailsDataFetcher")
@@ -74,12 +74,12 @@ class AnimalDetailsDataFetcher : DataFetcher<NestedAnimalDetails>, BeanFactoryAw
 @Component
 class CoffeeBean {
 
-    fun icedCofee(environment: DataFetchingEnvironment, size: String): String {
+    fun icedCoffee(environment: DataFetchingEnvironment, size: String): String {
         val beanChoice = environment.executionStepInfo.parent.arguments["beanName"]
         return "Iced Coffee, Bean choice: $beanChoice, size: $size"
     }
 
-    fun hotCofee(environment: DataFetchingEnvironment, size: String): String {
+    fun hotCoffee(environment: DataFetchingEnvironment, size: String): String {
         val beanChoice = environment.executionStepInfo.parent.arguments["beanName"]
         return "Hot Coffee, Bean choice: $beanChoice, size: $size"
     }

@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.query
+package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.spring.operations.Query
-import org.springframework.stereotype.Component
-import org.springframework.validation.annotation.Validated
-import javax.validation.Valid
-import javax.validation.constraints.Pattern
+import org.springframework.http.MediaType
 
-@Validated
-@Component
-class ValidatedQuery : Query {
-    fun argumentWithValidation(@Valid arg: TypeWithPattern): String = arg.lowerCaseOnly
+object Constants {
+
+    const val DATA_JSON_PATH = "$.data"
+    const val ERRORS_JSON_PATH = "$.errors"
+    const val EXTENSIONS_JSON_PATH = "$.extensions"
+    const val GRAPHQL_ENDPOINT = "/graphql"
+    val GRAPHQL_MEDIA_TYPE = MediaType("application", "graphql")
+    const val SUBSCRIPTION_ENDPOINT = "/subscriptions"
 }
-
-data class TypeWithPattern(
-        @field:Pattern(regexp = "^[a-z]+$", message = "Argument must be lowercase")
-        val lowerCaseOnly: String
-)
