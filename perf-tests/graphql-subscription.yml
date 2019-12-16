@@ -1,0 +1,34 @@
+config:
+  target: 'ws://localhost:8080/subscriptions'
+  ws:
+    rejectUnauthorized: false
+    subprotocols:
+      - graphql-ws
+  phases:
+    - duration: 30
+      arrivalRate: 20
+
+scenarios:
+  - name: "Run GraphQL Subscription"
+    engine: "ws"
+    flow:
+      - send:
+          type: "connection_init"
+
+      - think: 1
+
+      - send:
+          type: "start"
+          id: "1"
+          payload:
+            query: |-
+              subscription TestSubscription {
+                counter
+              }
+
+      - think: 2
+
+      - send:
+          type: "connection_terminate"
+
+

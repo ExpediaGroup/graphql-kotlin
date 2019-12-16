@@ -1,0 +1,16 @@
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - duration: 30
+      arrivalRate: 20
+
+scenarios:
+  - name: "Run GraphQL Mutation"
+    flow:
+      - post:
+          url: "/graphql"
+          json:
+            query: |-
+              mutation TestMutation {
+                addToList(entry: "foo")
+              }

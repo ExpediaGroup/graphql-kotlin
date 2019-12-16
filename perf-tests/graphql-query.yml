@@ -1,0 +1,16 @@
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - duration: 30
+      arrivalRate: 20
+
+scenarios:
+  - name: "Run GraphQL Query"
+    flow:
+      - post:
+          url: "/graphql"
+          json:
+            query: |-
+              query TestQuery {
+                generateNumber
+              }
