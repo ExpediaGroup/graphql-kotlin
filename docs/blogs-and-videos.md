@@ -19,3 +19,4 @@ Here are some links to other blog posts and videos which may provide further exa
 * 📺 [Migrer ses APIs vers GraphQL: pourquoi? comment! (Guillaume Scheibel)](https://youtu.be/IRIkpvJo95s) (fr)
 * 📺 [Migrate your APIs to GraphQL: how? and why! (Guillaume Scheibel)](https://youtu.be/IkPMpzQ-TRI) (en)
 * 📺 [Transforming customer experiences and your organization with GraphQL (Jim Gust, Dan Boerner)](https://youtu.be/Jt-ZD4zj4Ow) (en)
+* 📺 [Bootiful GraphQL with Kotlin (Dariusz Kuc, Guillaume Scheibel)](https://www.youtube.com/watch?v=7YJyPXjLdug&amp;index=25) (en)
