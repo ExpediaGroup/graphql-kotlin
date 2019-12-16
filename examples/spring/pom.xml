@@ -17,6 +17,7 @@
         <project.root>${project.basedir}/../..</project.root>
         <!-- skip release plugins -->
         <maven.source.skip>true</maven.source.skip>
+        <reactor.version>3.3.0.RELEASE</reactor.version>
     </properties>
 
     <dependencies>
@@ -24,6 +25,18 @@
             <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-spring-server</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <version>${reactor.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -82,7 +95,7 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
+                <version>${nexus-staging-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
