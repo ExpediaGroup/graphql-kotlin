@@ -17,7 +17,6 @@
         <project.root>${project.basedir}/../..</project.root>
         <!-- skip release plugins -->
         <maven.source.skip>true</maven.source.skip>
-        <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
         <reactor.version>3.3.0.RELEASE</reactor.version>
     </properties>
 
@@ -102,25 +101,6 @@
                     <execution>
                         <id>default-deploy</id>
                         <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>add-integration-test-source</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/integration-test/kotlin</source>
-                            </sources>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

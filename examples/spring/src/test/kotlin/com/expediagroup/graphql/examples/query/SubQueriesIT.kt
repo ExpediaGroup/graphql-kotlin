@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.examples.Constants.DATA_JSON_PATH
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_ENDPOINT
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.IntegrationTest
+import com.expediagroup.graphql.examples.DATA_JSON_PATH
+import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
+import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
+import com.expediagroup.graphql.examples.verifyOnlyDataExists
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
@@ -32,34 +32,19 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class ScalarQueryIT(@Autowired private val testClient: WebTestClient) : IntegrationTest {
+class SubQueriesIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
-    fun `verify generateRandomUUID query`() {
-        val query = "generateRandomUUID"
+    fun `verify main query`() {
+        val query = "main"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query }")
+            .bodyValue("query { $query { secondary } }")
             .exchange()
             .verifyOnlyDataExists(query)
-            .jsonPath("$DATA_JSON_PATH.$query").isNotEmpty
-    }
-
-    @Test
-    fun `verify findPersonById query`() {
-        val query = "findPersonById"
-
-        testClient.post()
-            .uri(GRAPHQL_ENDPOINT)
-            .accept(APPLICATION_JSON)
-            .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query(id: \"1\") { id, name } }")
-            .exchange()
-            .verifyOnlyDataExists(query)
-            .jsonPath("$DATA_JSON_PATH.$query.id").isEqualTo("1")
-            .jsonPath("$DATA_JSON_PATH.$query.name").isEqualTo("Nelson")
+            .jsonPath("$DATA_JSON_PATH.$query.secondary").isEqualTo("secondary")
     }
 }

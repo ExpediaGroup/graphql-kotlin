@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.mutation
+package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.examples.Constants.DATA_JSON_PATH
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_ENDPOINT
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.IntegrationTest
-import org.junit.jupiter.api.Test
+import com.expediagroup.graphql.examples.DATA_JSON_PATH
+import com.expediagroup.graphql.examples.ERRORS_JSON_PATH
+import com.expediagroup.graphql.examples.EXTENSIONS_JSON_PATH
+import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
+import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
@@ -32,20 +34,24 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class ScalarMutationIT(@Autowired private val testClient: WebTestClient) : IntegrationTest {
+class DataAndErrorsQueryIT(@Autowired private val testClient: WebTestClient) {
 
-    @Test
-    fun `verify addPerson query`() {
-        val query = "addPerson"
+    @ParameterizedTest
+    @ValueSource(strings = ["returnDataAndErrors", "completableFutureDataAndErrors"])
+    fun `verify data and errors queries`(query: String) {
+        val expectedData = "Hello from data fetcher"
+        val expectedError = "Exception while fetching data () : null"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("mutation { $query(person: {id: 1, name: \"Alice\"}) { id, name } }")
+            .bodyValue("query { $query }")
             .exchange()
-            .verifyOnlyDataExists(query)
-            .jsonPath("$DATA_JSON_PATH.$query.id").isEqualTo(1)
-            .jsonPath("$DATA_JSON_PATH.$query.name").isEqualTo("Alice")
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$DATA_JSON_PATH.$query").isEqualTo(expectedData)
+            .jsonPath("$ERRORS_JSON_PATH.[0].message").isEqualTo(expectedError)
+            .jsonPath(EXTENSIONS_JSON_PATH).doesNotExist()
     }
 }

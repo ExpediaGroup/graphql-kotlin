@@ -16,14 +16,12 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_ENDPOINT
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.IntegrationTest
+import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
+import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
+import com.expediagroup.graphql.examples.verifyData
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
@@ -33,35 +31,47 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class ValidatedQueryIT(@Autowired private val testClient: WebTestClient) : IntegrationTest {
+class CoroutineQueryIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
-    fun `verify argumentWithValidation query`() {
-        val query = "argumentWithValidation"
-        val argument = "hello"
+    fun `verify exampleCoroutineQuery query`() {
+        val query = "exampleCoroutineQuery"
+        val expectedData = "hello:olleh"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query(arg: { lowerCaseOnly: \"$argument\" }) }")
+            .bodyValue("query { $query(msg: \"hello\") }")
             .exchange()
-            .verifyData(query, argument)
+            .verifyData(query, expectedData)
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["", " ", "Hello", "1234", "!@#$"])
-    fun `verify argumentWithValidation query when argument is not valid`(argument: String) {
-        val query = "argumentWithValidation"
-        val expectedError = "Exception while fetching data (argumentWithValidation) : " +
-            "argumentWithValidation.arg.lowerCaseOnly: Argument must be lowercase"
+    @Test
+    fun `verify slowFunction query`() {
+        val query = "slowFunction"
+        val expectedData = "olleh"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query(arg: { lowerCaseOnly: \"$argument\" }) }")
+            .bodyValue("query { $query(msg: \"hello\") }")
             .exchange()
-            .verifyError(expectedError)
+            .verifyData(query, expectedData)
+    }
+
+    @Test
+    fun `verify fastFunction query`() {
+        val query = "fastFunction"
+        val data = "hello"
+
+        testClient.post()
+            .uri(GRAPHQL_ENDPOINT)
+            .accept(APPLICATION_JSON)
+            .contentType(GRAPHQL_MEDIA_TYPE)
+            .bodyValue("query { $query(msg: \"$data\") }")
+            .exchange()
+            .verifyData(query, data)
     }
 }

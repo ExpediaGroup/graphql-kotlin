@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.subscriptions
 
-import com.expediagroup.graphql.examples.Constants.SUBSCRIPTION_ENDPOINT
+import com.expediagroup.graphql.examples.SUBSCRIPTION_ENDPOINT
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START

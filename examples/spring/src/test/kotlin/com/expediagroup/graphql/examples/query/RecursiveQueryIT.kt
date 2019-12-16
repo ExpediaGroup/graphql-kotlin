@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.examples.Constants.DATA_JSON_PATH
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_ENDPOINT
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.IntegrationTest
+import com.expediagroup.graphql.examples.DATA_JSON_PATH
+import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
+import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
+import com.expediagroup.graphql.examples.verifyOnlyDataExists
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -33,7 +33,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class RecursiveQueryIT(@Autowired private val testClient: WebTestClient) : IntegrationTest {
+class RecursiveQueryIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify nodeGraph query`() {

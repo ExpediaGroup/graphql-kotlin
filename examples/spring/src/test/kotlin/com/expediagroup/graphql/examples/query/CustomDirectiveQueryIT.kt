@@ -16,9 +16,10 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_ENDPOINT
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.IntegrationTest
+import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
+import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
+import com.expediagroup.graphql.examples.verifyData
+import com.expediagroup.graphql.examples.verifyError
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
@@ -35,7 +36,7 @@ import java.util.stream.Stream
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class CustomDirectiveQueryIT(@Autowired private val testClient: WebTestClient) : IntegrationTest {
+class CustomDirectiveQueryIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify justWhisper query`() {

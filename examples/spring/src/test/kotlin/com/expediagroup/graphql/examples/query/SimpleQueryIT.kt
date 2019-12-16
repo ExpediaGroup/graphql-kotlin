@@ -16,11 +16,14 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.examples.Constants
-import com.expediagroup.graphql.examples.Constants.DATA_JSON_PATH
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_ENDPOINT
-import com.expediagroup.graphql.examples.Constants.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.IntegrationTest
+import com.expediagroup.graphql.examples.DATA_JSON_PATH
+import com.expediagroup.graphql.examples.ERRORS_JSON_PATH
+import com.expediagroup.graphql.examples.EXTENSIONS_JSON_PATH
+import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
+import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
+import com.expediagroup.graphql.examples.verifyData
+import com.expediagroup.graphql.examples.verifyError
+import com.expediagroup.graphql.examples.verifyOnlyDataExists
 import org.hamcrest.Matchers.anyOf
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.instanceOf
@@ -37,7 +40,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class SimpleQueryIT(@Autowired private val testClient: WebTestClient) : IntegrationTest {
+class SimpleQueryIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify simpleDeprecatedQuery query`() {
@@ -124,8 +127,8 @@ class SimpleQueryIT(@Autowired private val testClient: WebTestClient) : Integrat
             .expectStatus().isOk
             .expectBody()
             .jsonPath("$DATA_JSON_PATH.$query").value(anyOf(nullValue(), instanceOf(Integer::class.java)))
-            .jsonPath(Constants.ERRORS_JSON_PATH).doesNotExist()
-            .jsonPath(Constants.EXTENSIONS_JSON_PATH).doesNotExist()
+            .jsonPath(ERRORS_JSON_PATH).doesNotExist()
+            .jsonPath(EXTENSIONS_JSON_PATH).doesNotExist()
     }
 
     @Test
