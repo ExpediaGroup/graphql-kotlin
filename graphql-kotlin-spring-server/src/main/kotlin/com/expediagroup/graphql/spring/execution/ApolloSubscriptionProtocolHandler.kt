@@ -65,10 +65,7 @@ class ApolloSubscriptionProtocolHandler(
                     return ackowledgeMessageFlux.concatWith(keepAliveFlux)
                 }
                 GQL_START.type -> return startSubscription(operationMessage, session)
-                GQL_STOP.type -> {
-                    sessionState.stopOperation(session, operationMessage)
-                    return Flux.empty()
-                }
+                GQL_STOP.type -> return sessionState.stopOperation(session, operationMessage)
                 GQL_CONNECTION_TERMINATE.type -> {
                     sessionState.terminateSession(session)
                     return Flux.empty()
@@ -107,6 +104,11 @@ class ApolloSubscriptionProtocolHandler(
             return Flux.just(basicConnectionErrorMessage)
         }
 
+        if (sessionState.operationExists(session, operationMessage)) {
+            logger.info("Already subscribed to operation ${operationMessage.id} for session ${session.id}")
+            return Flux.empty()
+        }
+
         val payload = operationMessage.payload
 
         if (payload == null) {
@@ -125,7 +127,6 @@ class ApolloSubscriptionProtocolHandler(
                         SubscriptionOperationMessage(type = GQL_DATA.type, id = operationMessage.id, payload = it)
                     }
                 }
-                .concatWith(Flux.just(SubscriptionOperationMessage(type = SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE.type, id = operationMessage.id)))
                 .doOnSubscribe { sessionState.saveOperation(session, operationMessage, it) }
         } catch (exception: Exception) {
             logger.error("Error running graphql subscription", exception)
