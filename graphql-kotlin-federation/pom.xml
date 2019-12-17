@@ -40,7 +40,7 @@
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
-                                            <minimum>0.98</minimum>
+                                            <minimum>0.95</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
