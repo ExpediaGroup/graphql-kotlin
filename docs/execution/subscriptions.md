@@ -34,10 +34,4 @@ validation of subscriptions the same as queries and mutations.
 
 ### Server Implementation
 
-The server that runs your GraphQL schema will have to support some method for subscriptions, like WebSockets.
-`graphql-kotlin-spring-server` provides default WebSocket based implementation and you can see an example implementation
-of a `Subscription` in the [example
-app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/sample/subscriptions/SimpleSubscription.kt).
-
-> NOTE: make sure that your implementation supports the `graphql-ws` sub-protocol which requires you handle some
-> specific websocket events.
+The server that runs your GraphQL schema will have to support some method for subscriptions, like WebSockets. `graphql-kotlin-spring-server` provides default WebSocket based implementation. See more details in the [server documentation](../server/subscriptions)

@@ -54,7 +54,8 @@
       "server/spring-overview",
       "server/spring-beans",
       "server/spring-properties",
-      "server/spring-graphql-context"
+      "server/spring-graphql-context",
+      "server/subscriptions"
     ],
     "Contributors": [
       "contributors/release-proc"
