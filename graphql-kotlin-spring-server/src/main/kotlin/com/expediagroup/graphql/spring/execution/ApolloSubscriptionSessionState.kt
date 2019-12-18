@@ -17,8 +17,10 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
 import org.reactivestreams.Subscription
 import org.springframework.web.reactive.socket.WebSocketSession
+import reactor.core.publisher.Flux
 import java.util.concurrent.ConcurrentHashMap
 
 internal class ApolloSubscriptionSessionState {
@@ -53,16 +55,19 @@ internal class ApolloSubscriptionSessionState {
     /**
      * Stop the subscription sending data. Does NOT terminate the session.
      */
-    fun stopOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage) {
+    fun stopOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Flux<SubscriptionOperationMessage> {
         if (operationMessage.id != null) {
             val operationsForSession = activeOperations[session.id]
-            operationsForSession?.get(operationMessage.id)?.cancel()
-            operationsForSession?.remove(operationMessage.id)
-
-            if (operationsForSession?.isEmpty() == true) {
-                activeOperations.remove(session.id)
+            operationsForSession?.get(operationMessage.id)?.let {
+                it.cancel()
+                operationsForSession.remove(operationMessage.id)
+                if (operationsForSession.isEmpty()) {
+                    activeOperations.remove(session.id)
+                }
+                return Flux.just(SubscriptionOperationMessage(type = GQL_COMPLETE.type, id = operationMessage.id))
             }
         }
+        return Flux.empty()
     }
 
     /**
@@ -75,4 +80,10 @@ internal class ApolloSubscriptionSessionState {
         activeKeepAliveSessions.remove(session.id)
         session.close()
     }
+
+    /**
+     * Looks up the operation for the client, to check if it already exists
+     */
+    fun operationExists(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Boolean =
+        activeOperations[session.id]?.containsKey(operationMessage.id) ?: false
 }
