@@ -45,7 +45,7 @@ import kotlin.reflect.full.valueParameters
 open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    open val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : DataFetcher<Any> {
 
     override fun get(environment: DataFetchingEnvironment): Any? {
