@@ -22,7 +22,7 @@ import com.expediagroup.graphql.examples.datafetchers.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.directives.CustomDirectiveWiringFactory
 import com.expediagroup.graphql.examples.exceptions.CustomDataFetcherExceptionHandler
 import com.expediagroup.graphql.examples.extension.CustomSchemaGeneratorHooks
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -38,8 +38,8 @@ class Application {
     fun hooks(wiringFactory: KotlinDirectiveWiringFactory) = CustomSchemaGeneratorHooks(wiringFactory)
 
     @Bean
-    fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, hooks: SchemaGeneratorHooks) =
-        CustomDataFetcherFactoryProvider(springDataFetcherFactory)
+    fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, objectMapper: ObjectMapper) =
+        CustomDataFetcherFactoryProvider(springDataFetcherFactory, objectMapper)
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()

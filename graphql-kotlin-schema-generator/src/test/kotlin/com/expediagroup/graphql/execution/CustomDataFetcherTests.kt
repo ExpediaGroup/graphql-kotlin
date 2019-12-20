@@ -65,7 +65,7 @@ data class Animal(
 
 data class AnimalDetails(val specialId: Int)
 
-class CustomDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider() {
+class CustomDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider() {
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
         if (kProperty.isLateinit) {

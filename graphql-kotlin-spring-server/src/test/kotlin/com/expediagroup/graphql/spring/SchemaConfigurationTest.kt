@@ -19,6 +19,7 @@ package com.expediagroup.graphql.spring
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
@@ -33,7 +34,6 @@ import graphql.execution.instrumentation.tracing.TracingInstrumentation
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
@@ -62,7 +62,7 @@ class SchemaConfigurationTest {
                 val mapper = ctx.getBean(ObjectMapper::class.java)
                 assertThat(ctx).hasSingleBean(KotlinDataFetcherFactoryProvider::class.java)
                 val dataFetcherFactoryProvider = ctx.getBean(KotlinDataFetcherFactoryProvider::class.java)
-                val privateMapperField = KotlinDataFetcherFactoryProvider::class.java.getDeclaredField("objectMapper")
+                val privateMapperField = SimpleKotlinDataFetcherFactoryProvider::class.java.getDeclaredField("objectMapper")
                 privateMapperField.isAccessible = true
                 val privateMapper = privateMapperField.get(dataFetcherFactoryProvider)
                 assertEquals(mapper, privateMapper)
