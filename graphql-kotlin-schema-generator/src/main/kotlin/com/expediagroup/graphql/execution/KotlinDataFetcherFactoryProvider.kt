@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.execution
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcherFactories
 import graphql.schema.DataFetcherFactory
@@ -28,9 +29,7 @@ import kotlin.reflect.KProperty
  * DataFetcherFactoryProvider is used during schema construction to obtain [DataFetcherFactory] that should be used
  * for target function and property resolution.
  */
-open class KotlinDataFetcherFactoryProvider {
-
-    private val defaultObjectMapper = jacksonObjectMapper()
+open class KotlinDataFetcherFactoryProvider(private val objectMapper: ObjectMapper = jacksonObjectMapper()) {
 
     /**
      * Retrieve instance of [DataFetcherFactory] that will be used to resolve target function.
@@ -44,7 +43,7 @@ open class KotlinDataFetcherFactoryProvider {
                 FunctionDataFetcher(
                         target = target,
                         fn = kFunction,
-                        objectMapper = defaultObjectMapper)
+                        objectMapper = objectMapper)
             )
 
     /**
