@@ -19,6 +19,7 @@ package com.expediagroup.graphql.federation
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 
 /**
  * Settings for generating the federated schema.
@@ -27,5 +28,5 @@ class FederatedSchemaGeneratorConfig(
     override val supportedPackages: List<String>,
     override val topLevelNames: TopLevelNames = TopLevelNames(),
     override val hooks: FederatedSchemaGeneratorHooks,
-    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider()
+    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
 ) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider)

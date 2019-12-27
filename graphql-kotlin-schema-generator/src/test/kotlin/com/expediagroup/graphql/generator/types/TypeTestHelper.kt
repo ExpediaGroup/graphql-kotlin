@@ -21,6 +21,7 @@ import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.SubTypeMapper
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
@@ -59,7 +60,7 @@ internal open class TypeTestHelper {
         override val wiringFactory: KotlinDirectiveWiringFactory
             get() = spyWiringFactory
     }
-    var dataFetcherFactory: KotlinDataFetcherFactoryProvider = KotlinDataFetcherFactoryProvider()
+    var dataFetcherFactory: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
 
     private var scalarBuilder: ScalarBuilder? = null
     private var objectBuilder: ObjectBuilder? = null

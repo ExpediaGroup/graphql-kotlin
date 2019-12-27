@@ -57,12 +57,12 @@ class FederationAutoConfiguration {
         config: GraphQLConfigurationProperties,
         hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
-        dataFetcherFactoryProvider: Optional<KotlinDataFetcherFactoryProvider>
+        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
     ): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
         supportedPackages = config.packages,
         topLevelNames = topLevelNames.orElse(TopLevelNames()),
         hooks = hooks,
-        dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider())
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider
     )
 
     @Bean

@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.examples.datafetchers
 
-import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -25,8 +26,8 @@ import kotlin.reflect.KProperty
  * Custom DataFetcherFactory provider that returns custom Spring based DataFetcherFactory for resolving lateinit properties.
  */
 class CustomDataFetcherFactoryProvider(
-    private val springDataFetcherFactory: SpringDataFetcherFactory
-) : KotlinDataFetcherFactoryProvider() {
+    private val springDataFetcherFactory: SpringDataFetcherFactory, objectMapper: ObjectMapper
+) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
         if (kProperty.isLateinit) {

@@ -52,14 +52,14 @@ class SchemaAutoConfiguration {
         config: GraphQLConfigurationProperties,
         topLevelNames: Optional<TopLevelNames>,
         hooks: Optional<SchemaGeneratorHooks>,
-        dataFetcherFactoryProvider: Optional<KotlinDataFetcherFactoryProvider>
+        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
     ): SchemaGeneratorConfig {
         val generatorHooks = hooks.orElse(NoopSchemaGeneratorHooks)
         return SchemaGeneratorConfig(
             supportedPackages = config.packages,
             topLevelNames = topLevelNames.orElse(TopLevelNames()),
             hooks = generatorHooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider.orElse(KotlinDataFetcherFactoryProvider())
+            dataFetcherFactoryProvider = dataFetcherFactoryProvider
         )
     }
 
