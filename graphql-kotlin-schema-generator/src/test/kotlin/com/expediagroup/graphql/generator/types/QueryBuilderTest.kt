@@ -25,6 +25,7 @@ import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLFieldDefinition
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -36,9 +37,9 @@ internal class QueryBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
-        override fun didGenerateQueryType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+        override fun didGenerateQueryType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
             calledHook = true
-            return super.didGenerateQueryType(function, fieldDefinition)
+            return super.didGenerateQueryType(kClass, function, fieldDefinition)
         }
     }
 

@@ -25,6 +25,7 @@ import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLFieldDefinition
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -37,9 +38,9 @@ internal class MutationBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
-        override fun didGenerateMutationType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+        override fun didGenerateMutationType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
             calledHook = true
-            return super.didGenerateMutationType(function, fieldDefinition)
+            return super.didGenerateMutationType(kClass, function, fieldDefinition)
         }
     }
 

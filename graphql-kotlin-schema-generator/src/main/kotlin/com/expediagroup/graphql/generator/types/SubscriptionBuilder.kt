@@ -49,7 +49,7 @@ internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(gen
                     }
 
                     val function = generator.function(it, config.topLevelNames.subscription, subscription.obj)
-                    val functionFromHook = config.hooks.didGenerateSubscriptionType(it, function)
+                    val functionFromHook = config.hooks.didGenerateSubscriptionType(subscription.kClass, it, function)
                     subscriptionBuilder.field(functionFromHook)
                 }
         }
