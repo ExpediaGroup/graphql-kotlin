@@ -28,27 +28,25 @@ import graphql.schema.GraphQLUnionType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal class UnionBuilder(private val generator: SchemaGenerator) {
-    internal fun unionType(kClass: KClass<*>): GraphQLUnionType {
-        val builder = GraphQLUnionType.newUnionType()
-        builder.name(kClass.getSimpleName())
-        builder.description(kClass.getGraphQLDescription())
+internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): GraphQLUnionType {
+    val builder = GraphQLUnionType.newUnionType()
+    builder.name(kClass.getSimpleName())
+    builder.description(kClass.getGraphQLDescription())
 
-        generator.directives(kClass).forEach {
-            builder.withDirective(it)
+    generateDirectives(generator, kClass).forEach {
+        builder.withDirective(it)
+    }
+
+    generator.subTypeMapper.getSubTypesOf(kClass)
+        .map { generator.graphQLTypeOf(it.createType()) }
+        .forEach {
+            when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
+                is GraphQLTypeReference -> builder.possibleType(unwrappedType)
+                is GraphQLObjectType -> builder.possibleType(unwrappedType)
+            }
         }
 
-        generator.subTypeMapper.getSubTypesOf(kClass)
-            .map { generator.graphQLTypeOf(it.createType()) }
-            .forEach {
-                when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
-                    is GraphQLTypeReference -> builder.possibleType(unwrappedType)
-                    is GraphQLObjectType -> builder.possibleType(unwrappedType)
-                }
-            }
-
-        val unionType = builder.build()
-        generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
-        return generator.config.hooks.onRewireGraphQLType(unionType).safeCast()
-    }
+    val unionType = builder.build()
+    generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
+    return generator.config.hooks.onRewireGraphQLType(unionType).safeCast()
 }

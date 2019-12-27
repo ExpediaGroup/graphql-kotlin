@@ -38,6 +38,8 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -80,7 +82,8 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @MethodSource("providesDirectiveValidations")
     @Suppress("UnusedPrivateMember")
     fun `validate @provide directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
-        val validatedType = schemaGenerator.objectType(targetClass) as? GraphQLObjectType
+        // TODO: This is failing because createType drops annonation information
+        val validatedType = schemaGenerator.graphQLTypeOf(targetClass.createType()) as? GraphQLObjectType
         assertNotNull(validatedType)
         assertEquals(targetClass.simpleName, validatedType.name)
 
@@ -106,13 +109,16 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
         // order of object instantiation matters
         // - BUG #397 - typeA -> typeB with provides (apply validation) -> reference typeA
         // - NO ISSUE - typeB with provides -> typeA (no validation) -> reference typeB
-        val validatedType = schemaGenerator.objectType(NestedProvidedType::class) as? GraphQLObjectType
+
+        // TODO: This is failing because createType drops annonation information
+        val validatedType = schemaGenerator.graphQLTypeOf(NestedProvidedType::class.createType()) as? GraphQLObjectType
         assertNotNull(validatedType)
         assertEquals(NestedProvidedType::class.simpleName, validatedType.name)
         validator.validateGraphQLType(validatedType)
         assertNotNull(validatedType.getDirective("key"))
 
-        val typeWithProvides = schemaGenerator.objectType(NestedProvides::class) as? GraphQLObjectType
+        // TODO: This is failing because createType drops annonation information
+        val typeWithProvides = schemaGenerator.graphQLTypeOf(NestedProvides::class.createType()) as? GraphQLObjectType
         assertNotNull(typeWithProvides)
         validator.validateGraphQLType(typeWithProvides)
         val providedField = typeWithProvides.getFieldDefinition("provided")

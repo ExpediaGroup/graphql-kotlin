@@ -31,40 +31,38 @@ import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal class InterfaceBuilder(private val generator: SchemaGenerator) {
-    internal fun interfaceType(kClass: KClass<*>): GraphQLInterfaceType {
-        // Interfaces can not implement another interface in GraphQL
-        if (kClass.getValidSuperclasses(generator.config.hooks).isNotEmpty()) {
-            throw InvalidInterfaceException()
-        }
-
-        val builder = GraphQLInterfaceType.newInterface()
-
-        builder.name(kClass.getSimpleName())
-        builder.description(kClass.getGraphQLDescription())
-
-        generator.directives(kClass).forEach {
-            builder.withDirective(it)
-        }
-
-        kClass.getValidProperties(generator.config.hooks)
-            .forEach { builder.field(generator.property(it, kClass)) }
-
-        kClass.getValidFunctions(generator.config.hooks)
-            .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
-
-        generator.subTypeMapper.getSubTypesOf(kClass)
-            .map { generator.graphQLTypeOf(it.createType()) }
-            .forEach {
-                // Do not add objects currently under construction to the additional types
-                val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()
-                if (unwrappedType !is GraphQLTypeReference) {
-                    generator.state.additionalTypes.add(it)
-                }
-            }
-
-        val interfaceType = builder.build()
-        generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
-        return generator.config.hooks.onRewireGraphQLType(interfaceType).safeCast()
+internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
+    // Interfaces can not implement another interface in GraphQL
+    if (kClass.getValidSuperclasses(generator.config.hooks).isNotEmpty()) {
+        throw InvalidInterfaceException()
     }
+
+    val builder = GraphQLInterfaceType.newInterface()
+
+    builder.name(kClass.getSimpleName())
+    builder.description(kClass.getGraphQLDescription())
+
+    generateDirectives(generator, kClass).forEach {
+        builder.withDirective(it)
+    }
+
+    kClass.getValidProperties(generator.config.hooks)
+        .forEach { builder.field(generateProperty(generator, it, kClass)) }
+
+    kClass.getValidFunctions(generator.config.hooks)
+        .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
+
+    generator.subTypeMapper.getSubTypesOf(kClass)
+        .map { generator.graphQLTypeOf(it.createType()) }
+        .forEach {
+            // Do not add objects currently under construction to the additional types
+            val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()
+            if (unwrappedType !is GraphQLTypeReference) {
+                generator.state.additionalTypes.add(it)
+            }
+        }
+
+    val interfaceType = builder.build()
+    generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
+    return generator.config.hooks.onRewireGraphQLType(interfaceType).safeCast()
 }

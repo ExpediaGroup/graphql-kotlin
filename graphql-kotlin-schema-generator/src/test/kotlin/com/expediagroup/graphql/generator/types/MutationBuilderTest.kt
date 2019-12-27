@@ -59,32 +59,26 @@ internal class MutationBuilderTest : TypeTestHelper() {
         fun echo(msg: String) = msg
     }
 
-    private lateinit var builder: MutationBuilder
-
     override fun beforeSetup() {
         hooks = SimpleHooks()
     }
 
-    override fun beforeTest() {
-        builder = MutationBuilder(generator)
-    }
-
     @Test
     fun `empty list`() {
-        assertNull(builder.getMutationObject(emptyList()))
+        assertNull(generateMutations(generator, emptyList()))
     }
 
     @Test
     fun `verify builder fails if non public mutation is specified`() {
         assertFailsWith(exceptionClass = InvalidMutationTypeException::class) {
-            builder.getMutationObject(listOf(TopLevelObject(PrivateMutation())))
+            generateMutations(generator, listOf(TopLevelObject(PrivateMutation())))
         }
     }
 
     @Test
     fun `mutation with no valid functions`() {
         val mutations = listOf(TopLevelObject(NoFunctions()))
-        val result = builder.getMutationObject(mutations)
+        val result = generateMutations(generator, mutations)
         assertEquals(expected = "TestTopLevelMutation", actual = result?.name)
         assertTrue(result?.fieldDefinitions?.isEmpty().isTrue())
     }
@@ -92,7 +86,7 @@ internal class MutationBuilderTest : TypeTestHelper() {
     @Test
     fun `mutation with valid functions`() {
         val mutations = listOf(TopLevelObject(MutationObject()))
-        val result = builder.getMutationObject(mutations)
+        val result = generateMutations(generator, mutations)
         assertEquals(expected = "TestTopLevelMutation", actual = result?.name)
         assertEquals(expected = 1, actual = result?.fieldDefinitions?.size)
         assertEquals(expected = "mutation", actual = result?.fieldDefinitions?.firstOrNull()?.name)
@@ -101,14 +95,14 @@ internal class MutationBuilderTest : TypeTestHelper() {
     @Test
     fun `verify hooks are called`() {
         assertFalse((hooks as? SimpleHooks)?.calledHook.isTrue())
-        builder.getMutationObject(listOf(TopLevelObject(MutationObject())))
+        generateMutations(generator, listOf(TopLevelObject(MutationObject())))
         assertTrue((hooks as? SimpleHooks)?.calledHook.isTrue())
     }
 
     @Test
     fun `mutation objects can have directives`() {
         val mutations = listOf(TopLevelObject(MutationObject()))
-        val result = builder.getMutationObject(mutations)
+        val result = generateMutations(generator, mutations)
         assertEquals(expected = 1, actual = result?.directives?.size)
         assertEquals(expected = "simpleDirective", actual = result?.directives?.first()?.name)
     }

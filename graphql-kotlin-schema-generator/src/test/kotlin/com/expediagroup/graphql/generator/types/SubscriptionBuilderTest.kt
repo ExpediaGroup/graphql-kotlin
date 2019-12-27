@@ -36,48 +36,42 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `given an empty list, it should not return a field`() {
-        val builder = SubscriptionBuilder(generator)
-        val result = builder.getSubscriptionObject(emptyList())
+        val result = generateSubscriptions(generator, emptyList())
         assertNull(result)
     }
 
     @Test
     fun `give a valid subscription class, it should properly set the top level name`() {
-        val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
         every { config.topLevelNames } returns TopLevelNames(subscription = "FooBar")
-        val result = builder.getSubscriptionObject(subscriptions)
+        val result = generateSubscriptions(generator, subscriptions)
 
         assertEquals(expected = "FooBar", actual = result?.name)
     }
 
     @Test
     fun `given a private class, it should throw an exception`() {
-        val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPrivateTestSubscription()))
 
         assertFailsWith(InvalidSubscriptionTypeException::class) {
-            builder.getSubscriptionObject(subscriptions)
+            generateSubscriptions(generator, subscriptions)
         }
     }
 
     @Test
     fun `given a class with a function that does not return Publisher, it should throw an exception`() {
-        val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyInvalidSubscriptionClass()))
 
         assertFailsWith(InvalidSubscriptionTypeException::class) {
-            builder.getSubscriptionObject(subscriptions)
+            generateSubscriptions(generator, subscriptions)
         }
     }
 
     @Test
     fun `given a function that returns a Publisher, it should add it to the schema`() {
-
-        val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
-        val result = builder.getSubscriptionObject(subscriptions)
+        val result = generateSubscriptions(generator, subscriptions)
 
         assertEquals(3, result?.fieldDefinitions?.size)
         assertNotNull(result?.fieldDefinitions?.find { it.name == "counter" })
@@ -87,7 +81,6 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `given custom hooks that filter functions, it should not generate those functions`() {
-        val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
         class CustomHooks : SchemaGeneratorHooks {
@@ -96,7 +89,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
 
         every { config.hooks } returns CustomHooks()
 
-        val result = builder.getSubscriptionObject(subscriptions)
+        val result = generateSubscriptions(generator, subscriptions)
 
         assertEquals(2, result?.fieldDefinitions?.size)
         assertNotNull(result?.fieldDefinitions?.find { it.name == "counter" })
@@ -104,7 +97,6 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `given custom hooks that change the field after generation, it should use the new fields`() {
-        val builder = SubscriptionBuilder(generator)
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
         class CustomHooks : SchemaGeneratorHooks {
@@ -117,7 +109,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
 
         every { config.hooks } returns CustomHooks()
 
-        val result = builder.getSubscriptionObject(subscriptions)
+        val result = generateSubscriptions(generator, subscriptions)
 
         assertEquals(3, result?.fieldDefinitions?.size)
         assertNotNull(result?.fieldDefinitions?.find { it.name == "changedField" })

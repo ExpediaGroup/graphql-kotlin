@@ -30,12 +30,6 @@ import kotlin.test.assertFailsWith
 
 internal class ScalarBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: ScalarBuilder
-
-    override fun beforeTest() {
-        builder = ScalarBuilder(generator)
-    }
-
     internal class Ids {
         internal val stringID: String = "abc"
         internal val intID: Int = 1
@@ -85,7 +79,7 @@ internal class ScalarBuilderTest : TypeTestHelper() {
     }
 
     private fun verify(kType: KType, expected: GraphQLScalarType?, annotatedAsID: Boolean = false) {
-        val actual = builder.scalarType(kType, annotatedAsID)
+        val actual = generateScalar(generator, kType, annotatedAsID)
         assertEquals(expected = expected, actual = actual)
     }
 }

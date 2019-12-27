@@ -31,12 +31,6 @@ import kotlin.test.assertNotNull
 
 internal class ArgumentBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: ArgumentBuilder
-
-    override fun beforeTest() {
-        builder = ArgumentBuilder(generator)
-    }
-
     internal interface MyInterface {
         val id: String
     }
@@ -57,7 +51,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
     fun `Description is set on arguments`() {
         val kParameter = ArgumentTestClass::description.findParameterByName("input")
         assertNotNull(kParameter)
-        val result = builder.argument(kParameter)
+        val result = generateArgument(generator, kParameter)
 
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
         assertEquals("Argument description", result.description)
@@ -67,7 +61,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
     fun `Directives are included on arguments`() {
         val kParameter = ArgumentTestClass::directive.findParameterByName("input")
         assertNotNull(kParameter)
-        val result = builder.argument(kParameter)
+        val result = generateArgument(generator, kParameter)
 
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
         assertEquals(1, result.directives.size)
@@ -78,7 +72,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
     fun `Argument names can be changed with @GraphQLName`() {
         val kParameter = ArgumentTestClass::changeName.findParameterByName("input")
         assertNotNull(kParameter)
-        val result = builder.argument(kParameter)
+        val result = generateArgument(generator, kParameter)
 
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
         assertEquals("newName", result.name)
@@ -88,7 +82,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
     fun `ID argument type is valid`() {
         val kParameter = ArgumentTestClass::id.findParameterByName("idArg")
         assertNotNull(kParameter)
-        val result = builder.argument(kParameter)
+        val result = generateArgument(generator, kParameter)
 
         assertEquals(expected = "idArg", actual = result.name)
         assertEquals(Scalars.GraphQLID, (result.type as? GraphQLNonNull)?.wrappedType)
@@ -100,7 +94,7 @@ internal class ArgumentBuilderTest : TypeTestHelper() {
         assertNotNull(kParameter)
 
         assertFailsWith(InvalidInputFieldTypeException::class) {
-            builder.argument(kParameter)
+            generateArgument(generator, kParameter)
         }
     }
 }

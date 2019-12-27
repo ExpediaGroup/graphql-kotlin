@@ -29,38 +29,35 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KFunction
 
-internal class FunctionBuilder(private val generator: SchemaGenerator) {
+internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
+    val builder = GraphQLFieldDefinition.newFieldDefinition()
+    val functionName = fn.getFunctionName()
+    builder.name(functionName)
+    builder.description(fn.getGraphQLDescription())
 
-    internal fun function(fn: KFunction<*>, parentName: String, target: Any?, abstract: Boolean): GraphQLFieldDefinition {
-        val builder = GraphQLFieldDefinition.newFieldDefinition()
-        val functionName = fn.getFunctionName()
-        builder.name(functionName)
-        builder.description(fn.getGraphQLDescription())
-
-        fn.getDeprecationReason()?.let {
-            builder.deprecate(it)
-            builder.withDirective(deprecatedDirectiveWithReason(it))
-        }
-
-        generator.directives(fn).forEach {
-            builder.withDirective(it)
-        }
-
-        fn.getValidArguments().forEach {
-            builder.argument(generator.argument(it))
-        }
-
-        val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
-        val returnType = getWrappedReturnType(typeFromHooks)
-        val graphQLOutputType = generator.graphQLTypeOf(returnType).safeCast<GraphQLOutputType>()
-        val graphQLType = builder.type(graphQLOutputType).build()
-        val coordinates = FieldCoordinates.coordinates(parentName, functionName)
-
-        if (!abstract) {
-            val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
-            generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
-        }
-
-        return generator.config.hooks.onRewireGraphQLType(graphQLType, coordinates, generator.codeRegistry).safeCast()
+    fn.getDeprecationReason()?.let {
+        builder.deprecate(it)
+        builder.withDirective(deprecatedDirectiveWithReason(it))
     }
+
+    generateDirectives(generator, fn).forEach {
+        builder.withDirective(it)
+    }
+
+    fn.getValidArguments().forEach {
+        builder.argument(generateArgument(generator, it))
+    }
+
+    val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
+    val returnType = getWrappedReturnType(typeFromHooks)
+    val graphQLOutputType = generator.graphQLTypeOf(returnType).safeCast<GraphQLOutputType>()
+    val graphQLType = builder.type(graphQLOutputType).build()
+    val coordinates = FieldCoordinates.coordinates(parentName, functionName)
+
+    if (!abstract) {
+        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
+        generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
+    }
+
+    return generator.config.hooks.onRewireGraphQLType(graphQLType, coordinates, generator.codeRegistry).safeCast()
 }

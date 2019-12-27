@@ -24,12 +24,6 @@ import kotlin.test.assertEquals
 
 internal class InputPropertyBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: InputPropertyBuilder
-
-    override fun beforeTest() {
-        builder = InputPropertyBuilder(generator)
-    }
-
     private data class InputPropertyTestClass(
         @GraphQLDescription("Custom description")
         val description: String,
@@ -46,23 +40,23 @@ internal class InputPropertyBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Input property can have a description`() {
-        val result = builder.inputProperty(InputPropertyTestClass::description, InputPropertyTestClass::class)
+        val result = generateInputProperty(generator, InputPropertyTestClass::description, InputPropertyTestClass::class)
         assertEquals("Custom description", result.description)
     }
 
     @Test
     fun `Input property names can change`() {
-        val result = builder.inputProperty(InputPropertyTestClass::changeMe, InputPropertyTestClass::class)
+        val result = generateInputProperty(generator, InputPropertyTestClass::changeMe, InputPropertyTestClass::class)
         assertEquals("newName", result.name)
     }
 
     @Test
     fun `Input property can have directives`() {
-        val resultWithNoPrefix = builder.inputProperty(InputPropertyTestClass::directiveWithNoPrefix, InputPropertyTestClass::class)
+        val resultWithNoPrefix = generateInputProperty(generator, InputPropertyTestClass::directiveWithNoPrefix, InputPropertyTestClass::class)
         assertEquals(1, resultWithNoPrefix.directives.size)
         assertEquals("simpleDirective", resultWithNoPrefix.directives.first().name)
 
-        val resultWithPrefix = builder.inputProperty(InputPropertyTestClass::directiveWithPrefix, InputPropertyTestClass::class)
+        val resultWithPrefix = generateInputProperty(generator, InputPropertyTestClass::directiveWithPrefix, InputPropertyTestClass::class)
         assertEquals(1, resultWithPrefix.directives.size)
         assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
     }

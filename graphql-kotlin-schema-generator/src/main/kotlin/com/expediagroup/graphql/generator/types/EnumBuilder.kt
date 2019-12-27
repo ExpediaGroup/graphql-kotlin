@@ -26,42 +26,40 @@ import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
 import kotlin.reflect.KClass
 
-internal class EnumBuilder(private val generator: SchemaGenerator) {
-    internal fun enumType(kClass: KClass<out Enum<*>>): GraphQLEnumType {
-        val enumBuilder = GraphQLEnumType.newEnum()
+internal fun generateEnum(generator: SchemaGenerator, kClass: KClass<out Enum<*>>): GraphQLEnumType {
+    val enumBuilder = GraphQLEnumType.newEnum()
 
-        enumBuilder.name(kClass.getSimpleName())
-        enumBuilder.description(kClass.getGraphQLDescription())
+    enumBuilder.name(kClass.getSimpleName())
+    enumBuilder.description(kClass.getGraphQLDescription())
 
-        generator.directives(kClass).forEach {
-            enumBuilder.withDirective(it)
-        }
-
-        kClass.java.enumConstants.forEach {
-            enumBuilder.value(getEnumValueDefinition(it, kClass))
-        }
-        return generator.config.hooks.onRewireGraphQLType(enumBuilder.build()).safeCast()
+    generateDirectives(generator, kClass).forEach {
+        enumBuilder.withDirective(it)
     }
 
-    private fun getEnumValueDefinition(enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
-        val valueBuilder = GraphQLEnumValueDefinition.newEnumValueDefinition()
-
-        valueBuilder.name(enum.name)
-        valueBuilder.value(enum.name)
-
-        val valueField = kClass.java.getField(enum.name)
-
-        generator.fieldDirectives(valueField).forEach {
-            valueBuilder.withDirective(it)
-        }
-
-        valueBuilder.description(valueField.getGraphQLDescription())
-
-        valueField.getDeprecationReason()?.let {
-            valueBuilder.deprecationReason(it)
-            valueBuilder.withDirective(deprecatedDirectiveWithReason(it))
-        }
-
-        return generator.config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
+    kClass.java.enumConstants.forEach {
+        enumBuilder.value(getEnumValueDefinition(generator, it, kClass))
     }
+    return generator.config.hooks.onRewireGraphQLType(enumBuilder.build()).safeCast()
+}
+
+private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
+    val valueBuilder = GraphQLEnumValueDefinition.newEnumValueDefinition()
+
+    valueBuilder.name(enum.name)
+    valueBuilder.value(enum.name)
+
+    val valueField = kClass.java.getField(enum.name)
+
+    generateFieldDirectives(generator, valueField).forEach {
+        valueBuilder.withDirective(it)
+    }
+
+    valueBuilder.description(valueField.getGraphQLDescription())
+
+    valueField.getDeprecationReason()?.let {
+        valueBuilder.deprecationReason(it)
+        valueBuilder.withDirective(deprecatedDirectiveWithReason(it))
+    }
+
+    return generator.config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
 }

@@ -46,12 +46,6 @@ import kotlin.test.assertTrue
 @Suppress("Detekt.UnusedPrivateClass")
 internal class FunctionBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: FunctionBuilder
-
-    override fun beforeTest() {
-        builder = FunctionBuilder(generator)
-    }
-
     internal interface MyInterface {
         fun printMessage(message: String): String
         fun nestedReturnType(): MyImplementation
@@ -112,21 +106,21 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `Function description can be set`() {
         val kFunction = Happy::littleTrees
-        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
         assertEquals("By bob", result.description)
     }
 
     @Test
     fun `Function names can be changed`() {
         val kFunction = Happy::originalName
-        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
         assertEquals("renamedFunction", result.name)
     }
 
     @Test
     fun `Functions can be deprecated`() {
         val kFunction = Happy::sketch
-        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
         assertTrue(result.isDeprecated)
         assertEquals("Should paint instead, replace with paint", result.deprecationReason)
 
@@ -138,7 +132,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `test custom directive on function`() {
         val kFunction = Happy::littleTrees
-        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
 
         assertEquals(1, result.directives.size)
         val directive = result.directives[0]
@@ -155,7 +149,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `test context on argument`() {
         val kFunction = Happy::context
-        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
 
         assertTrue(result.directives.isEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
@@ -166,7 +160,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `test ignored parameter`() {
         val kFunction = Happy::ignoredParameter
-        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
 
         assertTrue(result.directives.isEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
@@ -177,7 +171,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `non-abstract function`() {
         val kFunction = MyInterface::printMessage
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertTrue(generator.codeRegistry.getDataFetcher(FieldCoordinates.coordinates("Query", kFunction.name), result) is FunctionDataFetcher)
@@ -186,7 +180,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `abstract function`() {
         val kFunction = MyInterface::printMessage
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = true)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = true)
 
         assertEquals(expected = 1, actual = result.arguments.size)
     }
@@ -194,7 +188,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `abstract function with target`() {
         val kFunction = MyInterface::printMessage
-        val result = builder.function(fn = kFunction, parentName = "Query", target = MyImplementation(), abstract = true)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = MyImplementation(), abstract = true)
 
         assertEquals(expected = 1, actual = result.arguments.size)
     }
@@ -202,7 +196,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `publisher return type is valid`() {
         val kFunction = Happy::publisher
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -211,7 +205,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `a return type that implements Publisher is valid`() {
         val kFunction = Happy::flowable
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -220,7 +214,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `completable future return type is valid`() {
         val kFunction = Happy::completableFuture
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
         assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -229,7 +223,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `DataFetchingEnvironment argument type is ignored`() {
         val kFunction = Happy::dataFetchingEnvironment
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 0, actual = result.arguments.size)
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
@@ -238,7 +232,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `DataFetcherResult return type is valid and unwrapped in the schema`() {
         val kFunction = Happy::dataFetcherResult
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
     }
@@ -246,7 +240,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `DataFetcherResult of a List is valid and unwrapped in the schema`() {
         val kFunction = Happy::listDataFetcherResult
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertTrue(result.type is GraphQLNonNull)
         val listType = GraphQLTypeUtil.unwrapNonNull(result.type)
@@ -258,7 +252,7 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `DataFetcherResult of a nullable List is valid and unwrapped in the schema`() {
         val kFunction = Happy::nullalbeListDataFetcherResult
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         val listType = result.type
         assertTrue(listType is GraphQLList)
@@ -271,14 +265,14 @@ internal class FunctionBuilderTest : TypeTestHelper() {
         val kFunction = Happy::dataFetcherCompletableFutureResult
 
         assertFailsWith(TypeNotSupportedException::class) {
-            builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+            generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
         }
     }
 
     @Test
     fun `CompletableFuture of a DataFetcherResult is valid and unwrapped in the schema`() {
         val kFunction = Happy::completableFutureDataFetcherResult
-        val result = builder.function(fn = kFunction, parentName = "Query", target = null, abstract = false)
+        val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertTrue(result.type is GraphQLNonNull)
         val stringType = GraphQLTypeUtil.unwrapNonNull(result.type)
@@ -288,9 +282,9 @@ internal class FunctionBuilderTest : TypeTestHelper() {
     @Test
     fun `Nested Self referencing object returns non null`() {
         val kInterfaceFunction = MyInterface::nestedReturnType
-        val kInterfaceResult = builder.function(fn = kInterfaceFunction, parentName = "Query", target = null, abstract = false)
+        val kInterfaceResult = generateFunction(generator, fn = kInterfaceFunction, parentName = "Query", target = null, abstract = false)
         val kImplFunction = MyImplementation::nestedReturnType
-        val implResult = builder.function(fn = kImplFunction, parentName = "Query", target = null, abstract = false)
+        val implResult = generateFunction(generator, fn = kImplFunction, parentName = "Query", target = null, abstract = false)
 
         assertTrue(implResult.type is GraphQLNonNull)
         assertEquals(kInterfaceResult.type, implResult.type)

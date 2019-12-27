@@ -34,6 +34,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -90,7 +91,8 @@ class FederatedSchemaValidatorKeyDirectiveTest {
     @MethodSource("keyDirectiveValidations")
     @Suppress("UnusedPrivateMember")
     fun `validate @key directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
-        val validatedType = schemaGenerator.objectType(targetClass) as? GraphQLObjectType
+        // TODO: This is failing because createType drops annonation information
+        val validatedType = schemaGenerator.graphQLTypeOf(targetClass.createType()) as? GraphQLObjectType
         assertNotNull(validatedType)
         assertEquals(targetClass.simpleName, validatedType.name)
 

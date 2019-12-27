@@ -30,32 +30,30 @@ import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-internal class PropertyBuilder(private val generator: SchemaGenerator) {
-    internal fun property(prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
-        val propertyType = generator.graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
-            .safeCast<GraphQLOutputType>()
+internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
+    val propertyType = generator.graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
+        .safeCast<GraphQLOutputType>()
 
-        val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
-            .description(prop.getPropertyDescription(parentClass))
-            .name(prop.getPropertyName(parentClass))
-            .type(propertyType)
+    val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
+        .description(prop.getPropertyDescription(parentClass))
+        .name(prop.getPropertyName(parentClass))
+        .type(propertyType)
 
-        prop.getPropertyDeprecationReason(parentClass)?.let {
-            fieldBuilder.deprecate(it)
-            fieldBuilder.withDirective(deprecatedDirectiveWithReason(it))
-        }
-
-        generator.directives(prop, parentClass).forEach {
-            fieldBuilder.withDirective(it)
-        }
-
-        val field = fieldBuilder.build()
-
-        val parentType = parentClass.getSimpleName()
-        val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
-        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
-        generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
-
-        return generator.config.hooks.onRewireGraphQLType(field, coordinates, generator.codeRegistry).safeCast()
+    prop.getPropertyDeprecationReason(parentClass)?.let {
+        fieldBuilder.deprecate(it)
+        fieldBuilder.withDirective(deprecatedDirectiveWithReason(it))
     }
+
+    generateDirectives(generator, prop, parentClass).forEach {
+        fieldBuilder.withDirective(it)
+    }
+
+    val field = fieldBuilder.build()
+
+    val parentType = parentClass.getSimpleName()
+    val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
+    val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
+    generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
+
+    return generator.config.hooks.onRewireGraphQLType(field, coordinates, generator.codeRegistry).safeCast()
 }
