@@ -25,9 +25,7 @@ import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
 internal class ObjectBuilderTest : TypeTestHelper() {
@@ -84,18 +82,5 @@ internal class ObjectBuilderTest : TypeTestHelper() {
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.OBJECT)
         )
-    }
-
-    @Test
-    fun `verify object is build only once`() {
-        val cache = generator.state.cache
-        assertTrue(cache.doesNotContain(BeHappy::class))
-
-        val first = builder.objectType(BeHappy::class) as? GraphQLObjectType
-        assertNotNull(first)
-        assertFalse(cache.doesNotContain(BeHappy::class))
-        val second = builder.objectType(BeHappy::class) as? GraphQLObjectType
-        assertNotNull(second)
-        assertEquals(first.hashCode(), second.hashCode())
     }
 }

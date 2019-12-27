@@ -27,9 +27,7 @@ import com.expediagroup.graphql.generator.SubTypeMapper
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import graphql.schema.GraphQLCodeRegistry
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.spyk
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -50,17 +48,24 @@ import kotlin.reflect.KType
 )
 @TestInstance(Lifecycle.PER_CLASS)
 internal open class TypeTestHelper {
-    private val subTypeMapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
-    var generator = mockk<SchemaGenerator>()
-    var config = mockk<SchemaGeneratorConfig>()
-    var state = spyk(SchemaGeneratorState(listOf("com.expediagroup.graphql")))
-    var cache = spyk(TypesCache(listOf("com.expediagroup.graphql")))
+    private val supportedPackages = listOf("com.expediagroup.graphql")
+    private val subTypeMapper = SubTypeMapper(supportedPackages)
+    private val topLevelNames = TopLevelNames(
+        query = "TestTopLevelQuery",
+        mutation = "TestTopLevelMutation",
+        subscription = "TestTopLevelSubscription"
+    )
+
+    var state = spyk(SchemaGeneratorState(supportedPackages))
+    var cache = spyk(TypesCache(supportedPackages))
     val spyWiringFactory = spyk(KotlinDirectiveWiringFactory())
     var hooks: SchemaGeneratorHooks = object : SchemaGeneratorHooks {
         override val wiringFactory: KotlinDirectiveWiringFactory
             get() = spyWiringFactory
     }
     var dataFetcherFactory: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
+    var config = spyk(SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactory))
+    var generator = spyk(SchemaGenerator(config))
 
     private var scalarBuilder: ScalarBuilder? = null
     private var objectBuilder: ObjectBuilder? = null
@@ -79,16 +84,10 @@ internal open class TypeTestHelper {
         beforeSetup()
 
         cache.clear()
-
-        every { generator.state } returns state
         every { state.cache } returns cache
-        every { generator.config } returns config
-        every { generator.subTypeMapper } returns subTypeMapper
-        every { generator.codeRegistry } returns GraphQLCodeRegistry.newCodeRegistry()
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
         every { spyWiringFactory.getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
-
         every { config.topLevelNames } returns TopLevelNames(
             query = "TestTopLevelQuery",
             mutation = "TestTopLevelMutation",

@@ -98,19 +98,6 @@ internal class UnionBuilderTest : TypeTestHelper() {
     }
 
     @Test
-    fun `verify union is build only once`() {
-        val cache = generator.state.cache
-        assertTrue(cache.doesNotContain(Cake::class))
-
-        val first = builder.unionType(Cake::class) as? GraphQLUnionType
-        assertNotNull(first)
-        assertFalse(cache.doesNotContain(Cake::class))
-        val second = builder.unionType(Cake::class) as? GraphQLUnionType
-        assertNotNull(second)
-        assertEquals(first.hashCode(), second.hashCode())
-    }
-
-    @Test
     fun `verify nested classes resovle the type reference in the gererator`() {
         val cache = generator.state.cache
         assertTrue(cache.doesNotContain(NestedUnionA::class))

@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.directives.deprecatedDirectiveWithReason
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getPropertyDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
@@ -31,9 +30,9 @@ import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class PropertyBuilder(private val generator: SchemaGenerator) {
     internal fun property(prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
-        val propertyType = graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
+        val propertyType = generator.graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
             .safeCast<GraphQLOutputType>()
 
         val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
@@ -54,9 +53,9 @@ internal class PropertyBuilder(generator: SchemaGenerator) : TypeBuilder(generat
 
         val parentType = parentClass.getSimpleName()
         val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
-        val dataFetcherFactory = config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
+        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
         generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
 
-        return config.hooks.onRewireGraphQLType(field, coordinates, codeRegistry).safeCast()
+        return generator.config.hooks.onRewireGraphQLType(field, coordinates, generator.codeRegistry).safeCast()
     }
 }

@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.directives.deprecatedDirectiveWithReason
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getFunctionName
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
@@ -30,7 +29,7 @@ import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KFunction
 
-internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class FunctionBuilder(private val generator: SchemaGenerator) {
 
     internal fun function(fn: KFunction<*>, parentName: String, target: Any?, abstract: Boolean): GraphQLFieldDefinition {
         val builder = GraphQLFieldDefinition.newFieldDefinition()
@@ -51,17 +50,17 @@ internal class FunctionBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             builder.argument(generator.argument(it))
         }
 
-        val typeFromHooks = config.hooks.willResolveMonad(fn.returnType)
+        val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
         val returnType = getWrappedReturnType(typeFromHooks)
-        val graphQLOutputType = graphQLTypeOf(returnType).safeCast<GraphQLOutputType>()
+        val graphQLOutputType = generator.graphQLTypeOf(returnType).safeCast<GraphQLOutputType>()
         val graphQLType = builder.type(graphQLOutputType).build()
         val coordinates = FieldCoordinates.coordinates(parentName, functionName)
 
         if (!abstract) {
-            val dataFetcherFactory = config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
+            val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
             generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
         }
 
-        return config.hooks.onRewireGraphQLType(graphQLType, coordinates, codeRegistry).safeCast()
+        return generator.config.hooks.onRewireGraphQLType(graphQLType, coordinates, generator.codeRegistry).safeCast()
     }
 }

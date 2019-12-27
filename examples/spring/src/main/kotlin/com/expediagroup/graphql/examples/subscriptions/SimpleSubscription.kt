@@ -54,6 +54,10 @@ class SimpleSubscription : Subscription {
             else value
         }
 
+    @GraphQLDescription("Returns one value then an error")
+    fun singleValueThenError(): Flux<Int> = Flux.just(1, 2)
+        .map { if (it == 2) throw Exception("Second value") else it }
+
     @GraphQLDescription("Returns list of values")
     fun flow(): Publisher<Int> = flowOf(1, 2, 4).asPublisher()
 }

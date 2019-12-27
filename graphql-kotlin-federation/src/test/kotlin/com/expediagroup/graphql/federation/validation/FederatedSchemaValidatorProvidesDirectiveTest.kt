@@ -28,7 +28,6 @@ import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.directives.ProvidesDirective
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLObjectType
-import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
@@ -119,7 +118,7 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
         val providedField = typeWithProvides.getFieldDefinition("provided")
         assertNotNull(providedField)
         assertNotNull(providedField.getDirective("provides"))
-        val providedType = GraphQLTypeUtil.unwrapType(providedField.type).last() as? GraphQLTypeReference
+        val providedType = GraphQLTypeUtil.unwrapType(providedField.type).last() as? GraphQLObjectType
         assertNotNull(providedType)
     }
 

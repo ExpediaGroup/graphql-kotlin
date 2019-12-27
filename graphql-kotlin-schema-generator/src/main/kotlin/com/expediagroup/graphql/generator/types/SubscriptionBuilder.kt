@@ -19,14 +19,13 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import graphql.schema.GraphQLObjectType
 import org.reactivestreams.Publisher
 
-internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class SubscriptionBuilder(private val generator: SchemaGenerator) {
 
     internal fun getSubscriptionObject(subscriptions: List<TopLevelObject>): GraphQLObjectType? {
 
@@ -35,21 +34,21 @@ internal class SubscriptionBuilder(generator: SchemaGenerator) : TypeBuilder(gen
         }
 
         val subscriptionBuilder = GraphQLObjectType.Builder()
-        subscriptionBuilder.name(config.topLevelNames.subscription)
+        subscriptionBuilder.name(generator.config.topLevelNames.subscription)
 
         for (subscription in subscriptions) {
             if (subscription.kClass.isNotPublic()) {
                 throw InvalidSubscriptionTypeException(subscription.kClass)
             }
 
-            subscription.kClass.getValidFunctions(config.hooks)
+            subscription.kClass.getValidFunctions(generator.config.hooks)
                 .forEach {
                     if (it.returnType.isSubclassOf(Publisher::class).not()) {
                         throw InvalidSubscriptionTypeException(subscription.kClass, it)
                     }
 
-                    val function = generator.function(it, config.topLevelNames.subscription, subscription.obj)
-                    val functionFromHook = config.hooks.didGenerateSubscriptionType(subscription.kClass, it, function)
+                    val function = generator.function(it, generator.config.topLevelNames.subscription, subscription.obj)
+                    val functionFromHook = generator.config.hooks.didGenerateSubscriptionType(subscription.kClass, it, function)
                     subscriptionBuilder.field(functionFromHook)
                 }
         }

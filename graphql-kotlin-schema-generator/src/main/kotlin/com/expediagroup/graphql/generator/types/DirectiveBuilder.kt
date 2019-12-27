@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
@@ -30,7 +29,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import com.expediagroup.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
-internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class DirectiveBuilder(private val generator: SchemaGenerator) {
 
     internal fun directives(element: KAnnotatedElement, parentClass: KClass<*>?): List<GraphQLDirective> {
         val annotations = when {
@@ -50,7 +49,7 @@ internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(genera
 
     private fun getDirective(directiveInfo: DirectiveInfo): GraphQLDirective {
         val directiveName = directiveInfo.effectiveName
-        val directive = state.directives.computeIfAbsent(directiveName) {
+        val directive = generator.state.directives.computeIfAbsent(directiveName) {
             val builder = GraphQLDirective.newDirective()
                 .name(directiveInfo.effectiveName)
                 .description(directiveInfo.directiveAnnotation.description)
@@ -60,10 +59,10 @@ internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(genera
             }
 
             val directiveClass = directiveInfo.directive.annotationClass
-            directiveClass.getValidProperties(config.hooks).forEach { prop ->
+            directiveClass.getValidProperties(generator.config.hooks).forEach { prop ->
                 val propertyName = prop.name
                 val value = prop.call(directiveInfo.directive)
-                val type = graphQLTypeOf(prop.returnType)
+                val type = generator.graphQLTypeOf(prop.returnType)
 
                 val argument = GraphQLArgument.newArgument()
                     .name(propertyName)
@@ -79,7 +78,7 @@ internal class DirectiveBuilder(generator: SchemaGenerator) : TypeBuilder(genera
         return if (directive.arguments.isNotEmpty()) {
             // update args for this instance
             val builder = GraphQLDirective.newDirective(directive)
-            directiveInfo.directive.annotationClass.getValidProperties(config.hooks).forEach { prop ->
+            directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
                 val defaultArgument = directive.getArgument(prop.name)
                 val value = prop.call(directiveInfo.directive)
                 val argument = GraphQLArgument.newArgument(defaultArgument)

@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.directives.deprecatedDirectiveWithReason
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
@@ -27,7 +26,7 @@ import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
 import kotlin.reflect.KClass
 
-internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class EnumBuilder(private val generator: SchemaGenerator) {
     internal fun enumType(kClass: KClass<out Enum<*>>): GraphQLEnumType {
         val enumBuilder = GraphQLEnumType.newEnum()
 
@@ -41,7 +40,7 @@ internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) 
         kClass.java.enumConstants.forEach {
             enumBuilder.value(getEnumValueDefinition(it, kClass))
         }
-        return config.hooks.onRewireGraphQLType(enumBuilder.build()).safeCast()
+        return generator.config.hooks.onRewireGraphQLType(enumBuilder.build()).safeCast()
     }
 
     private fun getEnumValueDefinition(enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
@@ -62,6 +61,7 @@ internal class EnumBuilder(generator: SchemaGenerator) : TypeBuilder(generator) 
             valueBuilder.deprecationReason(it)
             valueBuilder.withDirective(deprecatedDirectiveWithReason(it))
         }
-        return config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
+
+        return generator.config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
     }
 }

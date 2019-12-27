@@ -20,30 +20,24 @@ import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertNotNull
 
-class RecursiveInputTest {
+class OutputTypeWithRecursiveInputTest {
 
     @Test
-    fun `Input type with a recursive argument should work`() {
-        val queries = listOf(TopLevelObject(RecursiveInputQueries()))
+    fun `An output type that gets generated first and then has fields with arguments of itself generates properly`() {
+        val queries = listOf(TopLevelObject(Query()))
         val schema = toSchema(testSchemaConfig, queries)
         assertNotNull(schema)
-        assertNotNull(schema.getType("RecursivePerson"))
-        assertNotNull(schema.getType("RecursivePersonInput"))
+        assertNotNull(schema.getType("MyObject"))
+        assertNotNull(schema.getType("MyObjectInput"))
     }
 
-    class RecursivePerson {
-        val id: String = UUID.randomUUID().toString()
-        val bestFriend: RecursivePerson = RecursivePerson()
-        val friends: List<RecursivePerson> = listOf(RecursivePerson(), RecursivePerson())
+    class Query {
+        fun getObject() = MyObject("foo")
     }
 
-    class RecursiveInputQueries {
-        fun getPerson() = RecursivePerson()
-        fun getMultiplePeople() = listOf(RecursivePerson(), RecursivePerson())
-        fun getId(inputPerson: RecursivePerson): String = inputPerson.id
-        fun getMultipleIds(people: ArrayList<RecursivePerson>): List<String> = people.map { it.id }
+    class MyObject(val value: String) {
+        fun getValueFromInput(myObject: MyObject): String = myObject.value
     }
 }

@@ -19,12 +19,11 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidMutationTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class MutationBuilder(private val generator: SchemaGenerator) {
 
     fun getMutationObject(mutations: List<TopLevelObject>): GraphQLObjectType? {
 
@@ -33,7 +32,7 @@ internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generat
         }
 
         val mutationBuilder = GraphQLObjectType.Builder()
-        mutationBuilder.name(config.topLevelNames.mutation)
+        mutationBuilder.name(generator.config.topLevelNames.mutation)
 
         for (mutation in mutations) {
             if (mutation.kClass.isNotPublic()) {
@@ -44,10 +43,10 @@ internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generat
                 mutationBuilder.withDirective(it)
             }
 
-            mutation.kClass.getValidFunctions(config.hooks)
+            mutation.kClass.getValidFunctions(generator.config.hooks)
                 .forEach {
-                    val function = generator.function(it, config.topLevelNames.mutation, mutation.obj)
-                    val functionFromHook = config.hooks.didGenerateMutationType(mutation.kClass, it, function)
+                    val function = generator.function(it, generator.config.topLevelNames.mutation, mutation.obj)
+                    val functionFromHook = generator.config.hooks.didGenerateMutationType(mutation.kClass, it, function)
                     mutationBuilder.field(functionFromHook)
                 }
         }
