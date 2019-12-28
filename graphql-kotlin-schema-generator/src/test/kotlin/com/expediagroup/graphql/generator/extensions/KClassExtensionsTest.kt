@@ -142,10 +142,10 @@ open class KClassExtensionsTest {
     }
 
     private class FilterHooks : SchemaGeneratorHooks {
-        override fun isValidProperty(property: KProperty<*>) =
+        override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>) =
             property.name.contains("filteredProperty").not()
 
-        override fun isValidFunction(function: KFunction<*>) =
+        override fun isValidFunction(kClass: KClass<*>, function: KFunction<*>) =
             function.name.contains("filteredFunction").not()
 
         override fun isValidSuperclass(kClass: KClass<*>) =

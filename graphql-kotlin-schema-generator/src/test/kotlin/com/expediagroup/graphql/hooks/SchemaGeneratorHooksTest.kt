@@ -27,6 +27,7 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -63,7 +64,7 @@ class SchemaGeneratorHooksTest {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var calledFilterFunction = false
 
-            override fun isValidProperty(property: KProperty<*>): Boolean {
+            override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean {
                 calledFilterFunction = true
                 return false
             }
@@ -84,7 +85,7 @@ class SchemaGeneratorHooksTest {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             var calledFilterFunction = false
 
-            override fun isValidFunction(function: KFunction<*>): Boolean {
+            override fun isValidFunction(kClass: KClass<*>, function: KFunction<*>): Boolean {
                 calledFilterFunction = true
                 return false
             }
@@ -155,6 +156,7 @@ class SchemaGeneratorHooksTest {
     fun `calls hook before adding query to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             override fun didGenerateQueryType(
+                kClass: KClass<*>,
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition
             ): GraphQLFieldDefinition {
@@ -181,6 +183,7 @@ class SchemaGeneratorHooksTest {
     fun `calls hook before adding mutation to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             override fun didGenerateMutationType(
+                kClass: KClass<*>,
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition
             ): GraphQLFieldDefinition {

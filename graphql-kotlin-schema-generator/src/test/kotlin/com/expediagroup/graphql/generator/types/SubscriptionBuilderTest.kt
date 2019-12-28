@@ -25,6 +25,7 @@ import io.mockk.every
 import io.reactivex.Flowable
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -90,7 +91,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
         class CustomHooks : SchemaGeneratorHooks {
-            override fun isValidFunction(function: KFunction<*>) = function.name != "filterMe"
+            override fun isValidFunction(kClass: KClass<*>, function: KFunction<*>) = function.name != "filterMe"
         }
 
         every { config.hooks } returns CustomHooks()
@@ -107,7 +108,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
         class CustomHooks : SchemaGeneratorHooks {
-            override fun didGenerateSubscriptionType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+            override fun didGenerateSubscriptionType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
                 return if (fieldDefinition.name == "filterMe") {
                     fieldDefinition.transform { fieldBuilder -> fieldBuilder.name("changedField") }
                 } else fieldDefinition

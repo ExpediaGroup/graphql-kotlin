@@ -71,14 +71,14 @@ interface SchemaGeneratorHooks {
      * If any filter returns false, it is rejected.
      */
     @Suppress("Detekt.FunctionOnlyReturningConstant")
-    fun isValidProperty(property: KProperty<*>): Boolean = true
+    fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean = true
 
     /**
      * Called when looking at the KClass functions to determine if it valid for adding to the generated schema.
      * If any filter returns false, it is rejected.
      */
     @Suppress("Detekt.FunctionOnlyReturningConstant")
-    fun isValidFunction(function: KFunction<*>): Boolean = true
+    fun isValidFunction(kClass: KClass<*>, function: KFunction<*>): Boolean = true
 
     /**
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
@@ -95,17 +95,17 @@ interface SchemaGeneratorHooks {
     /**
      * Called after converting the function to a field definition but before adding to the schema to allow customization
      */
-    fun didGenerateQueryType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateQueryType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
      * Called after converting the function to a field definition but before adding to the schema to allow customization
      */
-    fun didGenerateMutationType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateMutationType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
      * Called after converting the function to a field definition but before adding to the schema to allow customization
      */
-    fun didGenerateSubscriptionType(function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateSubscriptionType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     val wiringFactory: KotlinDirectiveWiringFactory
         get() = KotlinDirectiveWiringFactory()

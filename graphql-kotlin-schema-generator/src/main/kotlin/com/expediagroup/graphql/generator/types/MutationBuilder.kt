@@ -47,7 +47,7 @@ internal class MutationBuilder(generator: SchemaGenerator) : TypeBuilder(generat
             mutation.kClass.getValidFunctions(config.hooks)
                 .forEach {
                     val function = generator.function(it, config.topLevelNames.mutation, mutation.obj)
-                    val functionFromHook = config.hooks.didGenerateMutationType(it, function)
+                    val functionFromHook = config.hooks.didGenerateMutationType(mutation.kClass, it, function)
                     mutationBuilder.field(functionFromHook)
                 }
         }
