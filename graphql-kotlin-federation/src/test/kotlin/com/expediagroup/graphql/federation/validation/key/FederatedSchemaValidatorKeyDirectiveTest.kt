@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.federation.validation
+package com.expediagroup.graphql.federation.validation.key
 
 import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
@@ -81,7 +81,7 @@ class FederatedSchemaValidatorKeyDirectiveTest {
     @BeforeEach
     fun beforeTest() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.validation.key"),
             hooks = FederatedSchemaGeneratorHooks(mockk())
         )
         schemaGenerator = FederatedSchemaGenerator(config)

@@ -53,8 +53,8 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
     open fun generate(
         queries: List<TopLevelObject>,
-        mutations: List<TopLevelObject>,
-        subscriptions: List<TopLevelObject>,
+        mutations: List<TopLevelObject> = emptyList(),
+        subscriptions: List<TopLevelObject> = emptyList(),
         builder: GraphQLSchema.Builder = GraphQLSchema.newSchema()
     ): GraphQLSchema {
         builder.query(generateQueries(this, queries))

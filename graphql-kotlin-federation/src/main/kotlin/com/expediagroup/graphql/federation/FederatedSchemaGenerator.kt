@@ -43,7 +43,7 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
      * Scans specified packages for all the federated (extended) types and adds them to the target schema before generating the rest of the schema
      */
     @Suppress("Detekt.SpreadOperator")
-    fun GraphQLSchema.Builder.federation(supportedPackages: List<String>): GraphQLSchema.Builder {
+    private fun GraphQLSchema.Builder.federation(supportedPackages: List<String>): GraphQLSchema.Builder {
         val scanResult = ClassGraph().enableAllInfo().whitelistPackages(*supportedPackages.toTypedArray()).scan()
 
         scanResult.getClassesWithAnnotation(ExtendsDirective::class.jvmName)

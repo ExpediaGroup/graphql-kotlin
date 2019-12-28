@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.federation.validation
+package com.expediagroup.graphql.federation.validation.requires
 
+import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
@@ -36,7 +37,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.properties.Delegates
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -52,19 +52,19 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
      * @sample <testName>, <testClass>, (Optional)<expectedValidationError>
      */
     fun requiresDirectiveValidations() = Stream.of(
-        Arguments.of("[OK] @requires references valid fields", SimpleRequires::class, null),
-        Arguments.of("[ERROR] @requires references local fields", RequiresLocalField::class, "Invalid federated schema:\n" +
+        Arguments.of("[OK] @requires references valid fields", SimpleRequiresQuery::class, SimpleRequires::class, null),
+        Arguments.of("[ERROR] @requires references local fields", RequiresLocalFieldQuery::class, RequiresLocalField::class, "Invalid federated schema:\n" +
             " - @requires(fields = weight) directive on RequiresLocalField.shippingCost specifies invalid field set - extended type incorrectly references local field=weight"),
-        Arguments.of("[ERROR] @requires references non-existent fields", RequiresNonExistentField::class, "Invalid federated schema:\n" +
+        Arguments.of("[ERROR] @requires references non-existent fields", RequiresNonExistentFieldQuery::class, RequiresNonExistentField::class, "Invalid federated schema:\n" +
             " - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies fields that do not exist"),
-        Arguments.of("[ERROR] @requires declared on local type", RequiresOnLocalType::class, "Invalid federated schema:\n" +
+        Arguments.of("[ERROR] @requires declared on local type", RequiresOnLocalTypeQuery::class, RequiresOnLocalType::class, "Invalid federated schema:\n" +
             " - base RequiresOnLocalType type has fields marked with @requires directive, validatedField=shippingCost")
     )
 
     @BeforeEach
     fun beforeTest() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.validation.requires"),
             hooks = FederatedSchemaGeneratorHooks(mockk())
         )
         schemaGenerator = FederatedSchemaGenerator(config)
@@ -73,11 +73,13 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("requiresDirectiveValidations")
     @Suppress("UnusedPrivateMember")
-    fun `validate @requires directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
+    fun `validate @requires directive`(testCase: String, targetQueryClass: KClass<*>, federatedClass: KClass<*>, expectedError: String?) {
         // TODO: This is failing because createType drops annonation information
-        val validatedType = schemaGenerator.graphQLTypeOf(targetClass.createType()) as? GraphQLObjectType
+        val queries = listOf(TopLevelObject(targetQueryClass))
+        val schema = schemaGenerator.generate(queries)
+        val validatedType = schema.getType(federatedClass.simpleName) as? GraphQLObjectType
         assertNotNull(validatedType)
-        assertEquals(targetClass.simpleName, validatedType.name)
+        assertEquals(targetQueryClass.simpleName, validatedType.name)
 
         if (expectedError != null) {
             val exception = assertFailsWith(InvalidFederatedSchema::class) {
@@ -107,12 +109,16 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
-    private class SimpleRequires(@ExternalDirective val id: String, val description: String) {
+    class SimpleRequires(@ExternalDirective val id: String, val description: String) {
         @ExternalDirective
         var weight: Double by Delegates.notNull()
 
         @RequiresDirective(FieldSet("weight"))
         fun shippingCost(): String = "$${weight * 9.99}"
+    }
+
+    class SimpleRequiresQuery {
+        fun simpleRequires() = SimpleRequires("1", "foo")
     }
 
     /*
@@ -125,12 +131,16 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
      */
     @KeyDirective(fields = FieldSet("id"))
     @ExtendsDirective
-    private class RequiresLocalField(@ExternalDirective val id: String, val description: String) {
+    class RequiresLocalField(@ExternalDirective val id: String, val description: String) {
 
         var weight: Double = 0.0
 
         @RequiresDirective(FieldSet("weight"))
         fun shippingCost(): String = "$${weight * 9.99}"
+    }
+
+    class RequiresLocalFieldQuery {
+        fun requiresLocalField() = RequiresLocalField("1", "foo")
     }
 
     /*
@@ -152,6 +162,10 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
         fun shippingCost(): String = "$${weight * 9.99}"
     }
 
+    class RequiresNonExistentFieldQuery {
+        fun requiresNonExistentField() = RequiresNonExistentField("1", "foo")
+    }
+
     /*
     type RequiresOnLocalType @key(fields : "id") {
       description: String!
@@ -166,5 +180,9 @@ class FederatedSchemaValidatorRequiresDirectiveTest {
 
         @RequiresDirective(FieldSet("weight"))
         fun shippingCost(): String = "$${weight * 9.99}"
+    }
+
+    class RequiresOnLocalTypeQuery {
+        fun requiresOnLocalType() = RequiresOnLocalType("1", "foo")
     }
 }
