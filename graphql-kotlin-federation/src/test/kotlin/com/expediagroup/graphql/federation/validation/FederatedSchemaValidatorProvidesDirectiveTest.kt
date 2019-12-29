@@ -55,7 +55,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -100,7 +99,7 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     fun `validate @provide directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
         if (expectedError != null) {
             val exception = assertFailsWith(InvalidFederatedSchema::class) {
-                schemaGenerator.graphQLTypeOf(targetClass.starProjectedType)
+                schemaGenerator.graphQLTypeOf(targetClass.createType())
             }
             assertEquals(expectedError, exception.message)
         } else {
