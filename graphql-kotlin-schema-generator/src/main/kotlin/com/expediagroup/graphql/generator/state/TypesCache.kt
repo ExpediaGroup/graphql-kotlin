@@ -26,16 +26,16 @@ import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.starProjectedType
 
 internal class TypesCache(private val supportedPackages: List<String>) {
 
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
-    private val typeUnderConstruction: MutableSet<KClass<*>> = mutableSetOf()
+    private val typesUnderConstruction: MutableSet<TypesCacheKey> = mutableSetOf()
 
     @Throws(ConflictingTypesException::class)
-    fun get(cacheKey: TypesCacheKey): GraphQLType? {
+    internal fun get(cacheKey: TypesCacheKey): GraphQLType? {
         val cacheKeyString = getCacheKeyString(cacheKey) ?: return null
         val cachedType = cache[cacheKeyString]
 
@@ -51,7 +51,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
         return null
     }
 
-    fun put(key: TypesCacheKey, kGraphQLType: KGraphQLType): KGraphQLType? {
+    internal fun put(key: TypesCacheKey, kGraphQLType: KGraphQLType): KGraphQLType? {
         val cacheKey = getCacheKeyString(key)
 
         if (cacheKey != null) {
@@ -67,10 +67,10 @@ internal class TypesCache(private val supportedPackages: List<String>) {
      */
     internal fun clear() = cache.clear()
 
-    fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
+    internal fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }
 
-    fun doesNotContain(kClass: KClass<*>): Boolean = cache.none { (_, ktype) -> ktype.kClass == kClass }
+    internal fun doesNotContain(kClass: KClass<*>): Boolean = cache.none { (_, ktype) -> ktype.kClass == kClass }
 
     /**
      * We do not want to cache list types since it is just a simple wrapper.
@@ -90,17 +90,23 @@ internal class TypesCache(private val supportedPackages: List<String>) {
 
     private fun isTypeNotSupported(type: KType): Boolean = supportedPackages.none { type.qualifiedName.startsWith(it) }
 
-    fun buildIfNotUnderConstruction(kClass: KClass<*>, build: (KClass<*>) -> GraphQLType): GraphQLType {
-        val cachedType = cache[kClass.getSimpleName()]
+    internal fun buildIfNotUnderConstruction(kClass: KClass<*>, inputType: Boolean, build: (KClass<*>) -> GraphQLType): GraphQLType {
+        if (kClass.isListType()) {
+            return build(kClass)
+        }
+
+        val cacheKey = TypesCacheKey(kClass.starProjectedType, inputType)
+        val cachedType = get(cacheKey)
         return when {
-            cachedType != null -> cachedType.graphQLType
-            typeUnderConstruction.contains(kClass) -> GraphQLTypeReference.typeRef(kClass.getSimpleName())
+            cachedType != null -> cachedType
+            typesUnderConstruction.contains(cacheKey) -> GraphQLTypeReference.typeRef(kClass.getSimpleName(inputType))
             else -> {
-                typeUnderConstruction.add(kClass)
+                typesUnderConstruction.add(cacheKey)
                 val newType = build(kClass)
-                val key = TypesCacheKey(kClass.createType(), false)
-                put(key, KGraphQLType(kClass, newType))
-                typeUnderConstruction.remove(kClass)
+                if (newType !is GraphQLTypeReference) {
+                    put(cacheKey, KGraphQLType(kClass, newType))
+                }
+                typesUnderConstruction.remove(cacheKey)
                 newType
             }
         }

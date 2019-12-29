@@ -18,7 +18,14 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.generator.extensions.getKClass
+import com.expediagroup.graphql.generator.extensions.isEnum
+import com.expediagroup.graphql.generator.extensions.isInterface
+import com.expediagroup.graphql.generator.extensions.isListType
+import com.expediagroup.graphql.generator.extensions.isUnion
+import com.expediagroup.graphql.generator.extensions.wrapInNonNull
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
+import com.expediagroup.graphql.generator.state.TypesCacheKey
 import com.expediagroup.graphql.generator.types.ArgumentBuilder
 import com.expediagroup.graphql.generator.types.DirectiveBuilder
 import com.expediagroup.graphql.generator.types.EnumBuilder
@@ -38,6 +45,9 @@ import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
+import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
+import graphql.schema.GraphQLTypeUtil
 import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
@@ -93,6 +103,45 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
         subTypeMapper.close()
 
         return schema
+    }
+
+    open fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
+        val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
+        val graphQLType = hookGraphQLType
+            ?: scalarType(type, annotatedAsID)
+            ?: objectFromReflection(type, inputType)
+
+        // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
+        val unwrappedType = GraphQLTypeUtil.unwrapType(graphQLType).lastElement()
+        val typeWithNullability = graphQLType.wrapInNonNull(type)
+        if (unwrappedType !is GraphQLTypeReference) {
+            return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
+        }
+
+        return typeWithNullability
+    }
+
+    private fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
+        val cacheKey = TypesCacheKey(type, inputType)
+        val cachedType = state.cache.get(cacheKey)
+
+        if (cachedType != null) {
+            return cachedType
+        }
+
+        val kClass = type.getKClass()
+        val graphQLType = state.cache.buildIfNotUnderConstruction(kClass, inputType) { getGraphQLType(kClass, inputType, type) }
+
+        return config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
+    }
+
+    private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
+        kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (enumType(kClass as KClass<Enum<*>>))
+        kClass.isListType() -> listType(type, inputType)
+        kClass.isUnion() -> unionType(kClass)
+        kClass.isInterface() -> interfaceType(kClass)
+        inputType -> inputObjectType(kClass)
+        else -> objectType(kClass)
     }
 
     open fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false) =

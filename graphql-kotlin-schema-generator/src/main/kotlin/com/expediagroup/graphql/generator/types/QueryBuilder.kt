@@ -19,16 +19,15 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.TypeBuilder
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator) {
+internal class QueryBuilder(private val generator: SchemaGenerator) {
 
     fun getQueryObject(queries: List<TopLevelObject>): GraphQLObjectType {
         val queryBuilder = GraphQLObjectType.Builder()
-        queryBuilder.name(config.topLevelNames.query)
+        queryBuilder.name(generator.config.topLevelNames.query)
 
         for (query in queries) {
             if (query.kClass.isNotPublic()) {
@@ -39,10 +38,10 @@ internal class QueryBuilder(generator: SchemaGenerator) : TypeBuilder(generator)
                 queryBuilder.withDirective(it)
             }
 
-            query.kClass.getValidFunctions(config.hooks)
+            query.kClass.getValidFunctions(generator.config.hooks)
                 .forEach {
-                    val function = generator.function(it, config.topLevelNames.query, query.obj)
-                    val functionFromHook = config.hooks.didGenerateQueryType(query.kClass, it, function)
+                    val function = generator.function(it, generator.config.topLevelNames.query, query.obj)
+                    val functionFromHook = generator.config.hooks.didGenerateQueryType(query.kClass, it, function)
                     queryBuilder.field(functionFromHook)
                 }
         }

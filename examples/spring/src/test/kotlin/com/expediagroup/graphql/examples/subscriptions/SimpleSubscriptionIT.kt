@@ -67,8 +67,8 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     }
 
     @Test
-    fun `verify counterWithError query`() {
-        val query = "counterWithError"
+    fun `verify singleValueThenError query`() {
+        val query = "singleValueThenError"
         val subscription = subscribe(query, "3", 2L)
 
         StepVerifier.create(subscription)

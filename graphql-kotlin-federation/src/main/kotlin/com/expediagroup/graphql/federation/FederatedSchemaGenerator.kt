@@ -21,7 +21,7 @@ import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
 import graphql.schema.GraphQLSchema
 import io.github.classgraph.ClassGraph
-import kotlin.reflect.full.createType
+import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.jvm.jvmName
 
 /**
@@ -40,7 +40,7 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
     }
 
     /**
-     * Scans specified packages for all the federated (extended) types and adds them to the target schema.
+     * Scans specified packages for all the federated (extended) types and adds them to the target schema before generating the rest of the schema
      */
     @Suppress("Detekt.SpreadOperator")
     fun GraphQLSchema.Builder.federation(supportedPackages: List<String>): GraphQLSchema.Builder {
@@ -48,16 +48,7 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
 
         scanResult.getClassesWithAnnotation(ExtendsDirective::class.jvmName)
             .map { it.loadClass().kotlin }
-            .map {
-                val graphQLType = if (it.isAbstract) {
-                    interfaceType(it)
-                } else {
-                    objectType(it)
-                }
-
-                // workaround to explicitly apply validation
-                config.hooks.didGenerateGraphQLType(it.createType(), graphQLType)
-            }
+            .map { graphQLTypeOf(it.starProjectedType, inputType = false, annotatedAsID = false) }
             .forEach {
                 this.additionalType(it)
             }
