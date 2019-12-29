@@ -31,7 +31,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.federation.validation.provides
+package com.expediagroup.graphql.federation.validation
 
 import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
@@ -55,6 +55,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
+import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -87,7 +88,7 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @BeforeEach
     fun beforeTest() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.federation.validation.provides"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.validation"),
             hooks = FederatedSchemaGeneratorHooks(mockk())
         )
         schemaGenerator = FederatedSchemaGenerator(config)
@@ -97,18 +98,15 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @MethodSource("providesDirectiveValidations")
     @Suppress("UnusedPrivateMember")
     fun `validate @provide directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
-        // TODO: This is failing because createType drops annonation information
-        val validatedType = schemaGenerator.graphQLTypeOf(targetClass.createType()) as? GraphQLObjectType
-        assertNotNull(validatedType)
-        assertEquals(targetClass.simpleName, validatedType.name)
-
         if (expectedError != null) {
             val exception = assertFailsWith(InvalidFederatedSchema::class) {
-                validator.validateGraphQLType(validatedType)
+                schemaGenerator.graphQLTypeOf(targetClass.starProjectedType)
             }
             assertEquals(expectedError, exception.message)
         } else {
-            validator.validateGraphQLType(validatedType)
+            val validatedType = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(targetClass.createType())) as? GraphQLObjectType
+            assertNotNull(validatedType)
+            assertEquals(targetClass.simpleName, validatedType.name)
             assertNotNull(validatedType.getDirective("key"))
             val providedField = validatedType.getFieldDefinition("provided")
             assertNotNull(providedField)
@@ -124,23 +122,19 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
         // order of object instantiation matters
         // - BUG #397 - typeA -> typeB with provides (apply validation) -> reference typeA
         // - NO ISSUE - typeB with provides -> typeA (no validation) -> reference typeB
-
-        // TODO: This is failing because createType drops annonation information
-        val validatedType = schemaGenerator.graphQLTypeOf(NestedProvidedType::class.createType()) as? GraphQLObjectType
+        val validatedType = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(NestedProvidedType::class.createType())) as? GraphQLObjectType
         assertNotNull(validatedType)
         assertEquals(NestedProvidedType::class.simpleName, validatedType.name)
         validator.validateGraphQLType(validatedType)
         assertNotNull(validatedType.getDirective("key"))
 
-        // TODO: This is failing because createType drops annonation information
-        val typeWithProvides = schemaGenerator.graphQLTypeOf(NestedProvides::class.createType()) as? GraphQLObjectType
+        val typeWithProvides = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(NestedProvides::class.createType())) as? GraphQLObjectType
         assertNotNull(typeWithProvides)
         validator.validateGraphQLType(typeWithProvides)
         val providedField = typeWithProvides.getFieldDefinition("provided")
         assertNotNull(providedField)
         assertNotNull(providedField.getDirective("provides"))
-        val providedType = GraphQLTypeUtil.unwrapType(providedField.type).last() as? GraphQLObjectType
-        assertNotNull(providedType)
+        assertNotNull(providedField.type)
     }
 
     // ======================= TEST DATA ===========
