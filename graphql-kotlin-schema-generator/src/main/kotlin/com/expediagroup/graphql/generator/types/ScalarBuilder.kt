@@ -61,4 +61,3 @@ private val defaultScalarsMap = mapOf(
     String::class to Scalars.GraphQLString,
     Boolean::class to Scalars.GraphQLBoolean
 )
-
