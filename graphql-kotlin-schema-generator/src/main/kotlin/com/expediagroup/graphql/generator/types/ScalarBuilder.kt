@@ -30,11 +30,11 @@ import kotlin.reflect.full.isSubclassOf
 
 internal fun generateScalar(generator: SchemaGenerator, type: KType, annotatedAsID: Boolean): GraphQLScalarType? {
     val kClass = type.getKClass()
-
     val scalar = when {
         annotatedAsID -> getId(kClass)
-        else -> ScalarMap.defaultScalarsMap[kClass]
+        else -> defaultScalarsMap[kClass]
     }
+
     return scalar?.let {
         generator.config.hooks.onRewireGraphQLType(it).safeCast()
     }
@@ -49,17 +49,16 @@ private fun getId(kClass: KClass<*>): GraphQLScalarType? {
     }
 }
 
-private object ScalarMap {
-    val defaultScalarsMap = mapOf(
-        Int::class to Scalars.GraphQLInt,
-        Long::class to Scalars.GraphQLLong,
-        Short::class to Scalars.GraphQLShort,
-        Float::class to Scalars.GraphQLFloat,
-        Double::class to Scalars.GraphQLFloat,
-        BigDecimal::class to Scalars.GraphQLBigDecimal,
-        BigInteger::class to Scalars.GraphQLBigInteger,
-        Char::class to Scalars.GraphQLChar,
-        String::class to Scalars.GraphQLString,
-        Boolean::class to Scalars.GraphQLBoolean
-    )
-}
+private val defaultScalarsMap = mapOf(
+    Int::class to Scalars.GraphQLInt,
+    Long::class to Scalars.GraphQLLong,
+    Short::class to Scalars.GraphQLShort,
+    Float::class to Scalars.GraphQLFloat,
+    Double::class to Scalars.GraphQLFloat,
+    BigDecimal::class to Scalars.GraphQLBigDecimal,
+    BigInteger::class to Scalars.GraphQLBigInteger,
+    Char::class to Scalars.GraphQLChar,
+    String::class to Scalars.GraphQLString,
+    Boolean::class to Scalars.GraphQLBoolean
+)
+
