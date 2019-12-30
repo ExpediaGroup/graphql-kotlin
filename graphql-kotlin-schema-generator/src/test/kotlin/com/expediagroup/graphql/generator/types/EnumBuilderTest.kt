@@ -51,16 +51,9 @@ internal class EnumBuilderTest : TypeTestHelper() {
     @GraphQLName("MyTestEnumRenamed")
     private enum class MyTestEnumCustomName
 
-    lateinit var builder: EnumBuilder
-
-    override fun beforeTest() {
-        super.beforeTest()
-        builder = EnumBuilder(generator)
-    }
-
     @Test
     fun enumType() {
-        val actual = builder.enumType(MyTestEnum::class)
+        val actual = generateEnum(generator, MyTestEnum::class)
         assertEquals(expected = 3, actual = actual.values.size)
         assertEquals(expected = "MyTestEnum", actual = actual.name)
         assertEquals(expected = "ONE", actual = actual.values[0].value)
@@ -70,13 +63,13 @@ internal class EnumBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Custom name on enum class`() {
-        val gqlEnum = assertNotNull(builder.enumType(MyTestEnumCustomName::class))
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnumCustomName::class))
         assertEquals("MyTestEnumRenamed", gqlEnum.name)
     }
 
     @Test
     fun `Description on enum class and values`() {
-        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
         assertEquals("MyTestEnum description", gqlEnum.description)
 
         assertEquals("enum 'ONE' description", assertNotNull(gqlEnum.getValue("ONE")).description)
@@ -86,7 +79,7 @@ internal class EnumBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Deprecation on enum values`() {
-        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
 
         val one = assertNotNull(gqlEnum.getValue("ONE"))
         assertFalse(one.isDeprecated)
@@ -103,14 +96,14 @@ internal class EnumBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Enum classes can have directives`() {
-        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
         assertEquals(1, gqlEnum.directives.size)
         assertEquals("simpleDirective", gqlEnum.directives.first().name)
     }
 
     @Test
     fun `Enum values can have directives`() {
-        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
 
         val enumValuesDirectives = gqlEnum.values.last().directives
         assertEquals(3, enumValuesDirectives.size)
@@ -121,7 +114,7 @@ internal class EnumBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Enum values can have a multiple directives`() {
-        val gqlEnum = assertNotNull(builder.enumType(MyTestEnum::class))
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
         assertEquals(1, gqlEnum.values.first().directives.size)
         assertEquals("simpleDirective", gqlEnum.values.first().directives.first().name)
     }

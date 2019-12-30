@@ -30,12 +30,6 @@ import kotlin.test.assertNotNull
 @Suppress("Detekt.UnusedPrivateClass")
 internal class ObjectBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: ObjectBuilder
-
-    override fun beforeTest() {
-        builder = ObjectBuilder(generator)
-    }
-
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.OBJECT])
     internal annotation class ObjectDirective(val arg: String)
 
@@ -48,28 +42,28 @@ internal class ObjectBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test naming`() {
-        val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
+        val result = generateObject(generator, BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
         assertEquals("BeHappy", result.name)
     }
 
     @Test
     fun `Test custom naming`() {
-        val result = builder.objectType(BeHappyCustomName::class) as? GraphQLObjectType
+        val result = generateObject(generator, BeHappyCustomName::class) as? GraphQLObjectType
         assertNotNull(result)
         assertEquals("BeHappyRenamed", result.name)
     }
 
     @Test
     fun `Test description`() {
-        val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
+        val result = generateObject(generator, BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
         assertEquals("The truth", result.description)
     }
 
     @Test
     fun `Test custom directive`() {
-        val result = builder.objectType(BeHappy::class) as? GraphQLObjectType
+        val result = generateObject(generator, BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
         assertEquals(1, result.directives.size)
 

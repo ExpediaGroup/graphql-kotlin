@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 @file:Suppress("MethodOverloading")
 /*
  * Copyright 2019 Expedia, Inc
@@ -38,6 +54,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -70,7 +87,7 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @BeforeEach
     fun beforeTest() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.validation"),
             hooks = FederatedSchemaGeneratorHooks(mockk())
         )
         schemaGenerator = FederatedSchemaGenerator(config)
@@ -80,17 +97,15 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
     @MethodSource("providesDirectiveValidations")
     @Suppress("UnusedPrivateMember")
     fun `validate @provide directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
-        val validatedType = schemaGenerator.objectType(targetClass) as? GraphQLObjectType
-        assertNotNull(validatedType)
-        assertEquals(targetClass.simpleName, validatedType.name)
-
         if (expectedError != null) {
             val exception = assertFailsWith(InvalidFederatedSchema::class) {
-                validator.validateGraphQLType(validatedType)
+                schemaGenerator.graphQLTypeOf(targetClass.createType())
             }
             assertEquals(expectedError, exception.message)
         } else {
-            validator.validateGraphQLType(validatedType)
+            val validatedType = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(targetClass.createType())) as? GraphQLObjectType
+            assertNotNull(validatedType)
+            assertEquals(targetClass.simpleName, validatedType.name)
             assertNotNull(validatedType.getDirective("key"))
             val providedField = validatedType.getFieldDefinition("provided")
             assertNotNull(providedField)
@@ -106,20 +121,19 @@ class FederatedSchemaValidatorProvidesDirectiveTest {
         // order of object instantiation matters
         // - BUG #397 - typeA -> typeB with provides (apply validation) -> reference typeA
         // - NO ISSUE - typeB with provides -> typeA (no validation) -> reference typeB
-        val validatedType = schemaGenerator.objectType(NestedProvidedType::class) as? GraphQLObjectType
+        val validatedType = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(NestedProvidedType::class.createType())) as? GraphQLObjectType
         assertNotNull(validatedType)
         assertEquals(NestedProvidedType::class.simpleName, validatedType.name)
         validator.validateGraphQLType(validatedType)
         assertNotNull(validatedType.getDirective("key"))
 
-        val typeWithProvides = schemaGenerator.objectType(NestedProvides::class) as? GraphQLObjectType
+        val typeWithProvides = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(NestedProvides::class.createType())) as? GraphQLObjectType
         assertNotNull(typeWithProvides)
         validator.validateGraphQLType(typeWithProvides)
         val providedField = typeWithProvides.getFieldDefinition("provided")
         assertNotNull(providedField)
         assertNotNull(providedField.getDirective("provides"))
-        val providedType = GraphQLTypeUtil.unwrapType(providedField.type).last() as? GraphQLObjectType
-        assertNotNull(providedType)
+        assertNotNull(providedField.type)
     }
 
     // ======================= TEST DATA ===========

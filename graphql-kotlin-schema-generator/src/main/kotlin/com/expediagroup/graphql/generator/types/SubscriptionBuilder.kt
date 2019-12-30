@@ -25,34 +25,31 @@ import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import graphql.schema.GraphQLObjectType
 import org.reactivestreams.Publisher
 
-internal class SubscriptionBuilder(private val generator: SchemaGenerator) {
+internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: List<TopLevelObject>): GraphQLObjectType? {
 
-    internal fun getSubscriptionObject(subscriptions: List<TopLevelObject>): GraphQLObjectType? {
-
-        if (subscriptions.isEmpty()) {
-            return null
-        }
-
-        val subscriptionBuilder = GraphQLObjectType.Builder()
-        subscriptionBuilder.name(generator.config.topLevelNames.subscription)
-
-        for (subscription in subscriptions) {
-            if (subscription.kClass.isNotPublic()) {
-                throw InvalidSubscriptionTypeException(subscription.kClass)
-            }
-
-            subscription.kClass.getValidFunctions(generator.config.hooks)
-                .forEach {
-                    if (it.returnType.isSubclassOf(Publisher::class).not()) {
-                        throw InvalidSubscriptionTypeException(subscription.kClass, it)
-                    }
-
-                    val function = generator.function(it, generator.config.topLevelNames.subscription, subscription.obj)
-                    val functionFromHook = generator.config.hooks.didGenerateSubscriptionType(subscription.kClass, it, function)
-                    subscriptionBuilder.field(functionFromHook)
-                }
-        }
-
-        return subscriptionBuilder.build()
+    if (subscriptions.isEmpty()) {
+        return null
     }
+
+    val subscriptionBuilder = GraphQLObjectType.Builder()
+    subscriptionBuilder.name(generator.config.topLevelNames.subscription)
+
+    for (subscription in subscriptions) {
+        if (subscription.kClass.isNotPublic()) {
+            throw InvalidSubscriptionTypeException(subscription.kClass)
+        }
+
+        subscription.kClass.getValidFunctions(generator.config.hooks)
+            .forEach {
+                if (it.returnType.isSubclassOf(Publisher::class).not()) {
+                    throw InvalidSubscriptionTypeException(subscription.kClass, it)
+                }
+
+                val function = generateFunction(generator, it, generator.config.topLevelNames.subscription, subscription.obj)
+                val functionFromHook = generator.config.hooks.didGenerateSubscriptionType(subscription.kClass, it, function)
+                subscriptionBuilder.field(functionFromHook)
+            }
+    }
+
+    return subscriptionBuilder.build()
 }

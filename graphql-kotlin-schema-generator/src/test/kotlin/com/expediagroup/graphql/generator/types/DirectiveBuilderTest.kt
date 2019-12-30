@@ -88,32 +88,32 @@ internal class DirectiveBuilderTest {
 
     @Test
     fun `no annotation`() {
-        assertTrue(basicGenerator.directives(MyClass::noAnnotation).isEmpty().isTrue())
+        assertTrue(generateDirectives(basicGenerator, MyClass::noAnnotation).isEmpty().isTrue())
     }
 
     @Test
     fun `no directive`() {
-        assertTrue(basicGenerator.directives(MyClass::noDirective).isEmpty().isTrue())
+        assertTrue(generateDirectives(basicGenerator, MyClass::noDirective).isEmpty().isTrue())
     }
 
     @Test
     fun `has directive`() {
-        assertEquals(expected = 1, actual = basicGenerator.directives(MyClass::simpleDirective).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::simpleDirective).size)
     }
 
     @Test
     fun `has directive with string`() {
-        assertEquals(expected = 1, actual = basicGenerator.directives(MyClass::directiveWithString).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::directiveWithString).size)
     }
 
     @Test
     fun `has directive with enum`() {
-        assertEquals(expected = 1, actual = basicGenerator.directives(MyClass::directiveWithEnum).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::directiveWithEnum).size)
     }
 
     @Test
     fun `has directive with class`() {
-        assertEquals(expected = 1, actual = basicGenerator.directives(MyClass::directiveWithClass).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::directiveWithClass).size)
     }
 
     @Test
@@ -123,9 +123,9 @@ internal class DirectiveBuilderTest {
         assertTrue(basicGenerator.state.directives.containsKey(Directives.SkipDirective.name))
         assertTrue(basicGenerator.state.directives.containsKey(DeprecatedDirective.name))
 
-        val firstInvocation = basicGenerator.directives(MyClass::simpleDirective)
+        val firstInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
         assertEquals(1, firstInvocation.size)
-        val secondInvocation = basicGenerator.directives(MyClass::simpleDirective)
+        val secondInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
         assertEquals(1, secondInvocation.size)
         assertEquals(firstInvocation.first(), secondInvocation.first())
         assertEquals(initialCount + 1, basicGenerator.state.directives.size)
@@ -135,7 +135,7 @@ internal class DirectiveBuilderTest {
     fun `directives are valid on fields (enum values)`() {
         val field = Type::class.java.getField("ONE")
 
-        val directives = basicGenerator.fieldDirectives(field)
+        val directives = generateFieldDirectives(basicGenerator, field)
 
         assertEquals(2, directives.size)
         assertEquals("directiveWithString", directives.first().name)
@@ -146,7 +146,7 @@ internal class DirectiveBuilderTest {
     fun `directives are empty on an enum with no valid annotations`() {
         val field = Type::class.java.getField("TWO")
 
-        val directives = basicGenerator.fieldDirectives(field)
+        val directives = generateFieldDirectives(basicGenerator, field)
 
         assertEquals(0, directives.size)
     }
@@ -154,8 +154,8 @@ internal class DirectiveBuilderTest {
     @Test
     fun `directives are created per each declaration`() {
         val initialCount = basicGenerator.state.directives.size
-        val directivesOnFirstField = basicGenerator.directives(MyClass::directiveWithString)
-        val directivesOnSecondField = basicGenerator.directives(MyClass::directiveWithAnotherString)
+        val directivesOnFirstField = generateDirectives(basicGenerator, MyClass::directiveWithString)
+        val directivesOnSecondField = generateDirectives(basicGenerator, MyClass::directiveWithAnotherString)
         assertEquals(expected = 1, actual = directivesOnFirstField.size)
         assertEquals(expected = 1, actual = directivesOnSecondField.size)
 
@@ -171,21 +171,21 @@ internal class DirectiveBuilderTest {
 
     @Test
     fun `directives on constructor arguments can be used with or without annotation prefix`() {
-        val noDirectiveResult = basicGenerator.directives(MyClassWithConstructorArgs::noDirective)
+        val noDirectiveResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noDirective)
         assertEquals(expected = 0, actual = noDirectiveResult.size)
 
-        val propertyPrefixResult = basicGenerator.directives(MyClassWithConstructorArgs::propertyPrefix)
+        val propertyPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::propertyPrefix)
         assertEquals(expected = 1, actual = propertyPrefixResult.size)
         assertEquals(expected = "simpleDirective", actual = propertyPrefixResult.first().name)
 
-        val noPrefixResult = basicGenerator.directives(MyClassWithConstructorArgs::noPrefix, MyClassWithConstructorArgs::class)
+        val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, MyClassWithConstructorArgs::class)
         assertEquals(expected = 1, actual = noPrefixResult.size)
         assertEquals(expected = "simpleDirective", actual = noPrefixResult.first().name)
     }
 
     @Test
     fun `directives on constructor arguments only works with parent class`() {
-        val noPrefixResult = basicGenerator.directives(MyClassWithConstructorArgs::noPrefix, null)
+        val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, null)
         assertEquals(expected = 0, actual = noPrefixResult.size)
     }
 }

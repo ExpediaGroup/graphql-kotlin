@@ -23,29 +23,26 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-internal class QueryBuilder(private val generator: SchemaGenerator) {
+fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): GraphQLObjectType {
+    val queryBuilder = GraphQLObjectType.Builder()
+    queryBuilder.name(generator.config.topLevelNames.query)
 
-    fun getQueryObject(queries: List<TopLevelObject>): GraphQLObjectType {
-        val queryBuilder = GraphQLObjectType.Builder()
-        queryBuilder.name(generator.config.topLevelNames.query)
-
-        for (query in queries) {
-            if (query.kClass.isNotPublic()) {
-                throw InvalidQueryTypeException(query.kClass)
-            }
-
-            generator.directives(query.kClass).forEach {
-                queryBuilder.withDirective(it)
-            }
-
-            query.kClass.getValidFunctions(generator.config.hooks)
-                .forEach {
-                    val function = generator.function(it, generator.config.topLevelNames.query, query.obj)
-                    val functionFromHook = generator.config.hooks.didGenerateQueryType(query.kClass, it, function)
-                    queryBuilder.field(functionFromHook)
-                }
+    for (query in queries) {
+        if (query.kClass.isNotPublic()) {
+            throw InvalidQueryTypeException(query.kClass)
         }
 
-        return queryBuilder.build()
+        generateDirectives(generator, query.kClass).forEach {
+            queryBuilder.withDirective(it)
+        }
+
+        query.kClass.getValidFunctions(generator.config.hooks)
+            .forEach {
+                val function = generateFunction(generator, it, generator.config.topLevelNames.query, query.obj)
+                val functionFromHook = generator.config.hooks.didGenerateQueryType(query.kClass, it, function)
+                queryBuilder.field(functionFromHook)
+            }
     }
+
+    return queryBuilder.build()
 }

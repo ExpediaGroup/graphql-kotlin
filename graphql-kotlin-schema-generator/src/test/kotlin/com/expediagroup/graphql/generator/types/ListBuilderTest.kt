@@ -32,17 +32,11 @@ internal class ListBuilderTest : TypeTestHelper() {
         val primitiveArray = booleanArrayOf(true)
     }
 
-    private lateinit var builder: ListBuilder
-
-    override fun beforeTest() {
-        builder = ListBuilder(generator)
-    }
-
     @Test
     fun `test list of primitive`() {
         val listProp = ClassWithListAndArray::testList
 
-        val result = builder.listType(listProp.returnType, false)
+        val result = generateList(generator, listProp.returnType, false)
         assertEquals(Int::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
@@ -50,7 +44,7 @@ internal class ListBuilderTest : TypeTestHelper() {
     fun `test list of class`() {
         val listProp = ClassWithListAndArray::testListOfClass
 
-        val result = builder.listType(listProp.returnType, false)
+        val result = generateList(generator, listProp.returnType, false)
         assertEquals(MyDataClass::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
@@ -58,7 +52,7 @@ internal class ListBuilderTest : TypeTestHelper() {
     fun `test array`() {
         val arrayProp = ClassWithListAndArray::testArray
 
-        val result = builder.listType(arrayProp.returnType, false)
+        val result = generateList(generator, arrayProp.returnType, false)
         assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 
@@ -66,7 +60,7 @@ internal class ListBuilderTest : TypeTestHelper() {
     fun `test array of primitives`() {
         val primitiveArray = ClassWithListAndArray::primitiveArray
 
-        val result = builder.listType(primitiveArray.returnType, false)
+        val result = generateList(generator, primitiveArray.returnType, false)
         assertEquals(Boolean::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
     }
 }

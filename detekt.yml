@@ -13,11 +13,11 @@ complexity:
     threshold: 10
     active: true
   TooManyFunctions:
-    thresholdInInterfaces: 20
-    thresholdInClasses: 20
-    thresholdInFiles: 20
+    thresholdInInterfaces: 15
+    thresholdInClasses: 15
+    thresholdInFiles: 15
   ComplexInterface:
-    threshold: 20
+    threshold: 15
 
 naming:
   FunctionMaxLength:

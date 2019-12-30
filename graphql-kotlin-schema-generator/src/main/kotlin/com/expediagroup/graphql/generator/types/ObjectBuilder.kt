@@ -30,34 +30,31 @@ import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal class ObjectBuilder(private val generator: SchemaGenerator) {
+internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLObjectType {
+    val builder = GraphQLObjectType.newObject()
 
-    internal fun objectType(kClass: KClass<*>): GraphQLObjectType {
-        val builder = GraphQLObjectType.newObject()
+    val name = kClass.getSimpleName()
+    builder.name(name)
+    builder.description(kClass.getGraphQLDescription())
 
-        val name = kClass.getSimpleName()
-        builder.name(name)
-        builder.description(kClass.getGraphQLDescription())
+    generateDirectives(generator, kClass).forEach {
+        builder.withDirective(it)
+    }
 
-        generator.directives(kClass).forEach {
-            builder.withDirective(it)
+    kClass.getValidSuperclasses(generator.config.hooks)
+        .map { generator.graphQLTypeOf(it.createType()) }
+        .forEach {
+            when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
+                is GraphQLTypeReference -> builder.withInterface(unwrappedType)
+                is GraphQLInterfaceType -> builder.withInterface(unwrappedType)
+            }
         }
 
-        kClass.getValidSuperclasses(generator.config.hooks)
-            .map { generator.graphQLTypeOf(it.createType()) }
-            .forEach {
-                when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
-                    is GraphQLTypeReference -> builder.withInterface(unwrappedType)
-                    is GraphQLInterfaceType -> builder.withInterface(unwrappedType)
-                }
-            }
+    kClass.getValidProperties(generator.config.hooks)
+        .forEach { builder.field(generateProperty(generator, it, kClass)) }
 
-        kClass.getValidProperties(generator.config.hooks)
-            .forEach { builder.field(generator.property(it, kClass)) }
+    kClass.getValidFunctions(generator.config.hooks)
+        .forEach { builder.field(generateFunction(generator, it, name)) }
 
-        kClass.getValidFunctions(generator.config.hooks)
-            .forEach { builder.field(generator.function(it, name)) }
-
-        return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
-    }
+    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
 }

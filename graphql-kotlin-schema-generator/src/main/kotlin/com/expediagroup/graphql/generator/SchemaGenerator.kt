@@ -26,68 +26,39 @@ import com.expediagroup.graphql.generator.extensions.isUnion
 import com.expediagroup.graphql.generator.extensions.wrapInNonNull
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
 import com.expediagroup.graphql.generator.state.TypesCacheKey
-import com.expediagroup.graphql.generator.types.ArgumentBuilder
-import com.expediagroup.graphql.generator.types.DirectiveBuilder
-import com.expediagroup.graphql.generator.types.EnumBuilder
-import com.expediagroup.graphql.generator.types.FunctionBuilder
-import com.expediagroup.graphql.generator.types.InputObjectBuilder
-import com.expediagroup.graphql.generator.types.InputPropertyBuilder
-import com.expediagroup.graphql.generator.types.InterfaceBuilder
-import com.expediagroup.graphql.generator.types.ListBuilder
-import com.expediagroup.graphql.generator.types.MutationBuilder
-import com.expediagroup.graphql.generator.types.ObjectBuilder
-import com.expediagroup.graphql.generator.types.PropertyBuilder
-import com.expediagroup.graphql.generator.types.QueryBuilder
-import com.expediagroup.graphql.generator.types.ScalarBuilder
-import com.expediagroup.graphql.generator.types.SubscriptionBuilder
-import com.expediagroup.graphql.generator.types.UnionBuilder
-import graphql.schema.GraphQLArgument
+import com.expediagroup.graphql.generator.types.generateEnum
+import com.expediagroup.graphql.generator.types.generateInputObject
+import com.expediagroup.graphql.generator.types.generateInterface
+import com.expediagroup.graphql.generator.types.generateList
+import com.expediagroup.graphql.generator.types.generateMutations
+import com.expediagroup.graphql.generator.types.generateObject
+import com.expediagroup.graphql.generator.types.generateQueries
+import com.expediagroup.graphql.generator.types.generateScalar
+import com.expediagroup.graphql.generator.types.generateSubscriptions
+import com.expediagroup.graphql.generator.types.generateUnion
 import graphql.schema.GraphQLCodeRegistry
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil
-import java.lang.reflect.Field
-import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
-import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 
-@Suppress("LeakingThis")
 open class SchemaGenerator(val config: SchemaGeneratorConfig) {
 
     internal val state = SchemaGeneratorState(config.supportedPackages)
     internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
 
-    private val queryBuilder = QueryBuilder(this)
-    private val mutationBuilder = MutationBuilder(this)
-    private val subscriptionBuilder = SubscriptionBuilder(this)
-    private val objectTypeBuilder = ObjectBuilder(this)
-    private val unionTypeBuilder = UnionBuilder(this)
-    private val interfaceTypeBuilder = InterfaceBuilder(this)
-    private val propertyTypeBuilder = PropertyBuilder(this)
-    private val inputObjectTypeBuilder = InputObjectBuilder(this)
-    private val inputPropertyBuilder = InputPropertyBuilder(this)
-    private val listTypeBuilder = ListBuilder(this)
-    private val functionTypeBuilder = FunctionBuilder(this)
-    private val enumTypeBuilder = EnumBuilder(this)
-    private val scalarTypeBuilder = ScalarBuilder(this)
-    private val directiveTypeBuilder = DirectiveBuilder(this)
-    private val argumentBuilder = ArgumentBuilder(this)
-
     open fun generate(
         queries: List<TopLevelObject>,
-        mutations: List<TopLevelObject>,
-        subscriptions: List<TopLevelObject>,
+        mutations: List<TopLevelObject> = emptyList(),
+        subscriptions: List<TopLevelObject> = emptyList(),
         builder: GraphQLSchema.Builder = GraphQLSchema.newSchema()
     ): GraphQLSchema {
-        builder.query(queryBuilder.getQueryObject(queries))
-        builder.mutation(mutationBuilder.getMutationObject(mutations))
-        builder.subscription(subscriptionBuilder.getSubscriptionObject(subscriptions))
+        builder.query(generateQueries(this, queries))
+        builder.mutation(generateMutations(this, mutations))
+        builder.subscription(generateSubscriptions(this, subscriptions))
 
         // add unreferenced interface implementations
         state.additionalTypes.forEach {
@@ -108,7 +79,7 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     open fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
         val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
         val graphQLType = hookGraphQLType
-            ?: scalarType(type, annotatedAsID)
+            ?: generateScalar(this, type, annotatedAsID)
             ?: objectFromReflection(type, inputType)
 
         // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
@@ -136,50 +107,11 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
     }
 
     private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
-        kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (enumType(kClass as KClass<Enum<*>>))
-        kClass.isListType() -> listType(type, inputType)
-        kClass.isUnion() -> unionType(kClass)
-        kClass.isInterface() -> interfaceType(kClass)
-        inputType -> inputObjectType(kClass)
-        else -> objectType(kClass)
+        kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(this, kClass as KClass<Enum<*>>))
+        kClass.isListType() -> generateList(this, type, inputType)
+        kClass.isUnion() -> generateUnion(this, kClass)
+        kClass.isInterface() -> generateInterface(this, kClass)
+        inputType -> generateInputObject(this, kClass)
+        else -> generateObject(this, kClass)
     }
-
-    open fun function(fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false) =
-        functionTypeBuilder.function(fn, parentName, target, abstract)
-
-    open fun property(prop: KProperty<*>, parentClass: KClass<*>) =
-        propertyTypeBuilder.property(prop, parentClass)
-
-    open fun listType(type: KType, inputType: Boolean) =
-        listTypeBuilder.listType(type, inputType)
-
-    open fun objectType(kClass: KClass<*>) =
-        objectTypeBuilder.objectType(kClass)
-
-    open fun inputObjectType(kClass: KClass<*>) =
-        inputObjectTypeBuilder.inputObjectType(kClass)
-
-    open fun inputProperty(prop: KProperty<*>, parentClass: KClass<*>) =
-        inputPropertyBuilder.inputProperty(prop, parentClass)
-
-    open fun interfaceType(kClass: KClass<*>) =
-        interfaceTypeBuilder.interfaceType(kClass)
-
-    open fun unionType(kClass: KClass<*>) =
-        unionTypeBuilder.unionType(kClass)
-
-    open fun enumType(kClass: KClass<out Enum<*>>) =
-        enumTypeBuilder.enumType(kClass)
-
-    open fun scalarType(type: KType, annotatedAsID: Boolean) =
-        scalarTypeBuilder.scalarType(type, annotatedAsID)
-
-    open fun directives(element: KAnnotatedElement, parentClass: KClass<*>? = null): List<GraphQLDirective> =
-        directiveTypeBuilder.directives(element, parentClass)
-
-    open fun fieldDirectives(field: Field): List<GraphQLDirective> =
-        directiveTypeBuilder.fieldDirectives(field)
-
-    open fun argument(parameter: KParameter): GraphQLArgument =
-        argumentBuilder.argument(parameter)
 }

@@ -26,27 +26,24 @@ import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLArgument
 import kotlin.reflect.KParameter
 
-internal class ArgumentBuilder(private val generator: SchemaGenerator) {
+@Throws(InvalidInputFieldTypeException::class)
+internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter): GraphQLArgument {
 
-    @Throws(InvalidInputFieldTypeException::class)
-    internal fun argument(parameter: KParameter): GraphQLArgument {
-
-        if (parameter.isInterface()) {
-            throw InvalidInputFieldTypeException(parameter)
-        }
-
-        val graphQLType = generator.graphQLTypeOf(parameter.type, inputType = true, annotatedAsID = parameter.isGraphQLID())
-
-        // Deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
-        val builder = GraphQLArgument.newArgument()
-            .name(parameter.getName())
-            .description(parameter.getGraphQLDescription())
-            .type(graphQLType.safeCast())
-
-        generator.directives(parameter).forEach {
-            builder.withDirective(it)
-        }
-
-        return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    if (parameter.isInterface()) {
+        throw InvalidInputFieldTypeException(parameter)
     }
+
+    val graphQLType = generator.graphQLTypeOf(parameter.type, inputType = true, annotatedAsID = parameter.isGraphQLID())
+
+    // Deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
+    val builder = GraphQLArgument.newArgument()
+        .name(parameter.getName())
+        .description(parameter.getGraphQLDescription())
+        .type(graphQLType.safeCast())
+
+    generateDirectives(generator, parameter).forEach {
+        builder.withDirective(it)
+    }
+
+    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
 }

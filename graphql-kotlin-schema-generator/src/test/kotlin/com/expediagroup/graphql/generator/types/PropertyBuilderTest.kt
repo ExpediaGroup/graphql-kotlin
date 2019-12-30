@@ -77,16 +77,10 @@ internal class PropertyBuilderTest : TypeTestHelper() {
         val directiveWithPrefix: String
     )
 
-    private lateinit var builder: PropertyBuilder
-
-    override fun beforeTest() {
-        builder = PropertyBuilder(generator)
-    }
-
     @Test
     fun `Test naming`() {
         val prop = ClassWithProperties::cake
-        val result = builder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertEquals("cake", result.name)
     }
@@ -94,7 +88,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test deprecation`() {
         val prop = ClassWithProperties::dessert
-        val result = builder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertTrue(result.isDeprecated)
         assertEquals("Only cake", result.deprecationReason)
@@ -103,7 +97,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test deprecation with replacement`() {
         val prop = ClassWithProperties::healthyFood
-        val result = builder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertTrue(result.isDeprecated)
         assertEquals("Healthy food is deprecated, replace with cake", result.deprecationReason)
@@ -112,7 +106,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test description`() {
         val prop = ClassWithProperties::cake
-        val result = builder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertEquals("It's not a lie", result.description)
     }
@@ -120,7 +114,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test description on data class`() {
         val prop = DataClassWithProperties::fooBar
-        val result = builder.property(prop, DataClassWithProperties::class)
+        val result = generateProperty(generator, prop, DataClassWithProperties::class)
 
         assertEquals("A great description", result.description)
     }
@@ -128,7 +122,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test graphql id on data class`() {
         val prop = DataClassWithProperties::myId
-        val result = builder.property(prop, DataClassWithProperties::class)
+        val result = generateProperty(generator, prop, DataClassWithProperties::class)
 
         assertEquals("ID", (result.type as? GraphQLNonNull)?.wrappedType?.name)
     }
@@ -136,7 +130,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test custom directive`() {
         val prop = ClassWithProperties::cake
-        val result = builder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertEquals(1, result.directives.size)
         val directive = result.directives[0]
@@ -152,17 +146,17 @@ internal class PropertyBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Properties with no directives are not set`() {
-        val resultWithPrefix = builder.property(DataClassWithProperties::myId, DataClassWithProperties::class)
+        val resultWithPrefix = generateProperty(generator, DataClassWithProperties::myId, DataClassWithProperties::class)
         assertEquals(0, resultWithPrefix.directives.size)
     }
 
     @Test
     fun `Properties can have directives on the constructor args`() {
-        val resultWithPrefix = builder.property(DataClassWithProperties::directiveWithPrefix, DataClassWithProperties::class)
+        val resultWithPrefix = generateProperty(generator, DataClassWithProperties::directiveWithPrefix, DataClassWithProperties::class)
         assertEquals(1, resultWithPrefix.directives.size)
         assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
 
-        val resultWithNoPrefix = builder.property(DataClassWithProperties::directiveWithNoPrefix, DataClassWithProperties::class)
+        val resultWithNoPrefix = generateProperty(generator, DataClassWithProperties::directiveWithNoPrefix, DataClassWithProperties::class)
         assertEquals(1, resultWithNoPrefix.directives.size)
         assertEquals("simpleDirective", resultWithNoPrefix.directives.first().name)
     }
@@ -170,7 +164,7 @@ internal class PropertyBuilderTest : TypeTestHelper() {
     @Test
     fun `Test nullable property`() {
         val prop = ClassWithProperties::nullableCake
-        val result = builder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertNull(result.description)
         assertTrue(result.type !is GraphQLNonNull)
@@ -202,10 +196,9 @@ internal class PropertyBuilderTest : TypeTestHelper() {
             dataFetcherFactoryProvider = mockDataFetcherFactoryProvider
         )
         val localGenerator = SchemaGenerator(localConfig)
-        val localBuilder = PropertyBuilder(localGenerator)
 
         val prop = ClassWithProperties::cake
-        val result = localBuilder.property(prop, ClassWithProperties::class)
+        val result = generateProperty(localGenerator, prop, ClassWithProperties::class)
 
         val parentType = ClassWithProperties::class.getSimpleName()
         val coordinates = FieldCoordinates.coordinates(parentType, prop.name)

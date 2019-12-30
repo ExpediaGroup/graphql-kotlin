@@ -19,13 +19,13 @@ package com.expediagroup.graphql.federation.validation
 import com.expediagroup.graphql.federation.FederatedSchemaGenerator
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.FederatedSchemaValidator
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -34,13 +34,13 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.reflect.KClass
+import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FederatedSchemaValidatorKeyDirectiveTest {
-    private val validator = FederatedSchemaValidator()
     private lateinit var schemaGenerator: FederatedSchemaGenerator
 
     /**
@@ -80,7 +80,7 @@ class FederatedSchemaValidatorKeyDirectiveTest {
     @BeforeEach
     fun beforeTest() {
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup"),
+            supportedPackages = listOf("com.expediagroup.graphql.federation.validation"),
             hooks = FederatedSchemaGeneratorHooks(mockk())
         )
         schemaGenerator = FederatedSchemaGenerator(config)
@@ -90,17 +90,15 @@ class FederatedSchemaValidatorKeyDirectiveTest {
     @MethodSource("keyDirectiveValidations")
     @Suppress("UnusedPrivateMember")
     fun `validate @key directive`(testCase: String, targetClass: KClass<*>, expectedError: String?) {
-        val validatedType = schemaGenerator.objectType(targetClass) as? GraphQLObjectType
-        assertNotNull(validatedType)
-        assertEquals(targetClass.simpleName, validatedType.name)
-
         if (expectedError != null) {
             val exception = assertFailsWith(InvalidFederatedSchema::class) {
-                validator.validateGraphQLType(validatedType)
+                schemaGenerator.graphQLTypeOf(targetClass.starProjectedType)
             }
             assertEquals(expectedError, exception.message)
         } else {
-            validator.validateGraphQLType(validatedType)
+            val validatedType = GraphQLTypeUtil.unwrapNonNull(schemaGenerator.graphQLTypeOf(targetClass.starProjectedType)) as? GraphQLObjectType
+            assertNotNull(validatedType)
+            assertEquals(targetClass.simpleName, validatedType.name)
             assertNotNull(validatedType.getDirective("key"))
         }
     }

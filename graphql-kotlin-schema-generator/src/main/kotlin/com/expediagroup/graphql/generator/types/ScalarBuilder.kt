@@ -28,41 +28,36 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 
-internal class ScalarBuilder(private val generator: SchemaGenerator) {
-
-    internal fun scalarType(type: KType, annotatedAsID: Boolean): GraphQLScalarType? {
-        val kClass = type.getKClass()
-
-        val scalar = when {
-            annotatedAsID -> getId(kClass)
-            else -> defaultScalarsMap[kClass]
-        }
-        return scalar?.let {
-            generator.config.hooks.onRewireGraphQLType(it).safeCast()
-        }
+internal fun generateScalar(generator: SchemaGenerator, type: KType, annotatedAsID: Boolean): GraphQLScalarType? {
+    val kClass = type.getKClass()
+    val scalar = when {
+        annotatedAsID -> getId(kClass)
+        else -> defaultScalarsMap[kClass]
     }
 
-    @Throws(InvalidIdTypeException::class)
-    private fun getId(kClass: KClass<*>): GraphQLScalarType? {
-        return if (kClass.isSubclassOf(String::class)) {
-            Scalars.GraphQLID
-        } else {
-            throw InvalidIdTypeException(kClass)
-        }
-    }
-
-    private companion object {
-        private val defaultScalarsMap = mapOf(
-            Int::class to Scalars.GraphQLInt,
-            Long::class to Scalars.GraphQLLong,
-            Short::class to Scalars.GraphQLShort,
-            Float::class to Scalars.GraphQLFloat,
-            Double::class to Scalars.GraphQLFloat,
-            BigDecimal::class to Scalars.GraphQLBigDecimal,
-            BigInteger::class to Scalars.GraphQLBigInteger,
-            Char::class to Scalars.GraphQLChar,
-            String::class to Scalars.GraphQLString,
-            Boolean::class to Scalars.GraphQLBoolean
-        )
+    return scalar?.let {
+        generator.config.hooks.onRewireGraphQLType(it).safeCast()
     }
 }
+
+@Throws(InvalidIdTypeException::class)
+private fun getId(kClass: KClass<*>): GraphQLScalarType? {
+    return if (kClass.isSubclassOf(String::class)) {
+        Scalars.GraphQLID
+    } else {
+        throw InvalidIdTypeException(kClass)
+    }
+}
+
+private val defaultScalarsMap = mapOf(
+    Int::class to Scalars.GraphQLInt,
+    Long::class to Scalars.GraphQLLong,
+    Short::class to Scalars.GraphQLShort,
+    Float::class to Scalars.GraphQLFloat,
+    Double::class to Scalars.GraphQLFloat,
+    BigDecimal::class to Scalars.GraphQLBigDecimal,
+    BigInteger::class to Scalars.GraphQLBigInteger,
+    Char::class to Scalars.GraphQLChar,
+    String::class to Scalars.GraphQLString,
+    Boolean::class to Scalars.GraphQLBoolean
+)

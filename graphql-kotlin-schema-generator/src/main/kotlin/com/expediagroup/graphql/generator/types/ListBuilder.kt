@@ -21,9 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getWrappedType
 import graphql.schema.GraphQLList
 import kotlin.reflect.KType
 
-internal class ListBuilder(private val generator: SchemaGenerator) {
-    internal fun listType(type: KType, inputType: Boolean): GraphQLList {
-        val wrappedType = generator.graphQLTypeOf(type.getWrappedType(), inputType)
-        return GraphQLList.list(wrappedType)
-    }
+internal fun generateList(generator: SchemaGenerator, type: KType, inputType: Boolean): GraphQLList {
+    val wrappedType = generator.graphQLTypeOf(type.getWrappedType(), inputType)
+    return GraphQLList.list(wrappedType)
 }

@@ -30,12 +30,6 @@ import kotlin.test.assertTrue
 @Suppress("Detekt.UnusedPrivateClass")
 internal class UnionBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: UnionBuilder
-
-    override fun beforeTest() {
-        builder = UnionBuilder(generator)
-    }
-
     @GraphQLDescription("The truth")
     @SimpleDirective
     private interface Cake
@@ -60,7 +54,7 @@ internal class UnionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test naming`() {
-        val result = builder.unionType(Cake::class) as? GraphQLUnionType
+        val result = generateUnion(generator, Cake::class) as? GraphQLUnionType
         assertNotNull(result)
 
         assertEquals(Cake::class.java.simpleName, result.name)
@@ -70,7 +64,7 @@ internal class UnionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test custom naming`() {
-        val result = builder.unionType(CakeCustomName::class) as? GraphQLUnionType
+        val result = generateUnion(generator, CakeCustomName::class) as? GraphQLUnionType
         assertNotNull(result)
 
         assertEquals("CakeRenamed", result.name)
@@ -80,7 +74,7 @@ internal class UnionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test description`() {
-        val result = builder.unionType(Cake::class) as? GraphQLUnionType
+        val result = generateUnion(generator, Cake::class) as? GraphQLUnionType
         assertNotNull(result)
 
         assertEquals("The truth", result.description)
@@ -90,7 +84,7 @@ internal class UnionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Unions can have directives`() {
-        val result = builder.unionType(Cake::class) as? GraphQLUnionType
+        val result = generateUnion(generator, Cake::class) as? GraphQLUnionType
 
         assertNotNull(result)
         assertEquals(1, result.directives.size)
@@ -102,7 +96,7 @@ internal class UnionBuilderTest : TypeTestHelper() {
         val cache = generator.state.cache
         assertTrue(cache.doesNotContain(NestedUnionA::class))
 
-        val unionType = builder.unionType(NestedUnionA::class) as? GraphQLUnionType
+        val unionType = generateUnion(generator, NestedUnionA::class) as? GraphQLUnionType
         assertNotNull(unionType)
         assertFalse(cache.doesNotContain(NestedUnionA::class))
     }

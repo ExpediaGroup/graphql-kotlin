@@ -26,20 +26,17 @@ import graphql.schema.GraphQLInputType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-internal class InputPropertyBuilder(private val generator: SchemaGenerator) {
+internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
+    val builder = GraphQLInputObjectField.newInputObjectField()
+    val graphQLInputType = generator.graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>()
 
-    internal fun inputProperty(prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
-        val builder = GraphQLInputObjectField.newInputObjectField()
-        val graphQLInputType = generator.graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>()
+    builder.description(prop.getPropertyDescription(parentClass))
+    builder.name(prop.getPropertyName(parentClass))
+    builder.type(graphQLInputType)
 
-        builder.description(prop.getPropertyDescription(parentClass))
-        builder.name(prop.getPropertyName(parentClass))
-        builder.type(graphQLInputType)
-
-        generator.directives(prop, parentClass).forEach {
-            builder.withDirective(it)
-        }
-
-        return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    generateDirectives(generator, prop, parentClass).forEach {
+        builder.withDirective(it)
     }
+
+    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
 }

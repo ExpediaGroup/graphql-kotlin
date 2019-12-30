@@ -24,12 +24,6 @@ import kotlin.test.assertEquals
 
 internal class InputObjectBuilderTest : TypeTestHelper() {
 
-    private lateinit var builder: InputObjectBuilder
-
-    override fun beforeTest() {
-        builder = InputObjectBuilder(generator)
-    }
-
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
     @SimpleDirective
@@ -47,39 +41,39 @@ internal class InputObjectBuilderTest : TypeTestHelper() {
 
     @Test
     fun `Test naming`() {
-        val result = builder.inputObjectType(InputClass::class)
+        val result = generateInputObject(generator, InputClass::class)
         assertEquals("InputClassInput", result.name)
     }
 
     @Test
     fun `Test custom naming on classes`() {
-        val result = builder.inputObjectType(InputClassCustomName::class)
+        val result = generateInputObject(generator, InputClassCustomName::class)
         assertEquals("InputClassRenamedInput", result.name)
     }
 
     @Test
     fun `Test custom naming on arguments`() {
-        val result = builder.inputObjectType(InputClassCustomName::class)
+        val result = generateInputObject(generator, InputClassCustomName::class)
         assertEquals(expected = 1, actual = result.fields.size)
         assertEquals("myFieldRenamed", result.fields.first().name)
     }
 
     @Test
     fun `Test description`() {
-        val result = builder.inputObjectType(InputClass::class)
+        val result = generateInputObject(generator, InputClass::class)
         assertEquals("The truth", result.description)
     }
 
     @Test
     fun `directives should be on input objects`() {
-        val result = builder.inputObjectType(InputClass::class)
+        val result = generateInputObject(generator, InputClass::class)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.first().name)
     }
 
     @Test
     fun `directives should be on input object fields`() {
-        val result = builder.inputObjectType(InputClass::class)
+        val result = generateInputObject(generator, InputClass::class)
         assertEquals(1, result.fields.first().directives.size)
         assertEquals("simpleDirective", result.fields.first().directives.first().name)
     }

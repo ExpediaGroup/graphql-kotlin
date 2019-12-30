@@ -24,22 +24,20 @@ import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLInputObjectType
 import kotlin.reflect.KClass
 
-internal class InputObjectBuilder(private val generator: SchemaGenerator) {
-    internal fun inputObjectType(kClass: KClass<*>): GraphQLInputObjectType {
-        val builder = GraphQLInputObjectType.newInputObject()
+internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInputObjectType {
+    val builder = GraphQLInputObjectType.newInputObject()
 
-        builder.name(kClass.getSimpleName(isInputClass = true))
-        builder.description(kClass.getGraphQLDescription())
+    builder.name(kClass.getSimpleName(isInputClass = true))
+    builder.description(kClass.getGraphQLDescription())
 
-        generator.directives(kClass).forEach {
-            builder.withDirective(it)
-        }
-
-        // It does not make sense to run functions against the input types so we only process the properties
-        kClass.getValidProperties(generator.config.hooks).forEach {
-            builder.field(generator.inputProperty(it, kClass))
-        }
-
-        return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    generateDirectives(generator, kClass).forEach {
+        builder.withDirective(it)
     }
+
+    // It does not make sense to run functions against the input types so we only process the properties
+    kClass.getValidProperties(generator.config.hooks).forEach {
+        builder.field(generateInputProperty(generator, it, kClass))
+    }
+
+    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
 }
