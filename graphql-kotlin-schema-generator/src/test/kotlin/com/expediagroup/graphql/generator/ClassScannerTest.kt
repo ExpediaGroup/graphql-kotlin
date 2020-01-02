@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class SubTypeMapperTest {
+internal class ClassScannerTest {
 
     private interface NoSubTypesInterface
 
@@ -56,7 +56,7 @@ internal class SubTypeMapperTest {
     @Test
     fun `valid subtypes`() {
 
-        val mapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
+        val mapper = ClassScanner(listOf("com.expediagroup.graphql"))
         val list = mapper.getSubTypesOf(MyInterface::class)
 
         assertEquals(expected = 2, actual = list.size)
@@ -65,7 +65,7 @@ internal class SubTypeMapperTest {
     @Test
     fun `abstract subtypes`() {
 
-        val mapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
+        val mapper = ClassScanner(listOf("com.expediagroup.graphql"))
         val list = mapper.getSubTypesOf(MyAbstractClass::class)
 
         assertEquals(expected = 1, actual = list.size)
@@ -74,7 +74,7 @@ internal class SubTypeMapperTest {
     @Test
     fun `subtypes of non-supported packages`() {
 
-        val mapper = SubTypeMapper(listOf("com.example"))
+        val mapper = ClassScanner(listOf("com.example"))
         val list = mapper.getSubTypesOf(MyInterface::class)
 
         assertEquals(expected = 0, actual = list.size)
@@ -82,7 +82,7 @@ internal class SubTypeMapperTest {
 
     @Test
     fun `interface with no subtypes`() {
-        val mapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
+        val mapper = ClassScanner(listOf("com.expediagroup.graphql"))
         val list = mapper.getSubTypesOf(NoSubTypesInterface::class)
 
         assertEquals(expected = 0, actual = list.size)
@@ -90,7 +90,7 @@ internal class SubTypeMapperTest {
 
     @Test
     fun `abstract class with no subtypes`() {
-        val mapper = SubTypeMapper(listOf("com.expediagroup.graphql"))
+        val mapper = ClassScanner(listOf("com.expediagroup.graphql"))
         val list = mapper.getSubTypesOf(NoSubTypesClass::class)
 
         assertEquals(expected = 0, actual = list.size)

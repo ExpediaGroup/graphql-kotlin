@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.isPropertyGraphQLID
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -31,7 +32,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
-    val propertyType = generator.graphQLTypeOf(type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
+    val propertyType = generateGraphQLType(generator, type = prop.returnType, annotatedAsID = prop.isPropertyGraphQLID(parentClass))
         .safeCast<GraphQLOutputType>()
 
     val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()

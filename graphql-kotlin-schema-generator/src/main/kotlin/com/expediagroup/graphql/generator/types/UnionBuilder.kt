@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
@@ -38,7 +39,7 @@ internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): Graph
     }
 
     generator.subTypeMapper.getSubTypesOf(kClass)
-        .map { generator.graphQLTypeOf(it.createType()) }
+        .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
                 is GraphQLTypeReference -> builder.possibleType(unwrappedType)

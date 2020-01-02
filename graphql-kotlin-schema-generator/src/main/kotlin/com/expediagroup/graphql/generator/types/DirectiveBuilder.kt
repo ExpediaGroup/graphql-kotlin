@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
@@ -60,7 +61,7 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
         directiveClass.getValidProperties(generator.config.hooks).forEach { prop ->
             val propertyName = prop.name
             val value = prop.call(directiveInfo.directive)
-            val type = generator.graphQLTypeOf(prop.returnType)
+            val type = generateGraphQLType(generator, prop.returnType)
 
             val argument = GraphQLArgument.newArgument()
                 .name(propertyName)

@@ -23,6 +23,7 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
@@ -42,7 +43,7 @@ internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): Grap
     }
 
     kClass.getValidSuperclasses(generator.config.hooks)
-        .map { generator.graphQLTypeOf(it.createType()) }
+        .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
                 is GraphQLTypeReference -> builder.withInterface(unwrappedType)

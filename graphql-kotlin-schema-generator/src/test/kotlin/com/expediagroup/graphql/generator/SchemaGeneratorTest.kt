@@ -69,7 +69,8 @@ class SchemaGeneratorTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema with default builder`() {
         val schemaGenerator = SchemaGenerator(testSchemaConfig)
-        val schema = schemaGenerator.generate(
+        val schema = generateSchema(
+            generator = schemaGenerator,
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
             subscriptions = emptyList()
@@ -97,7 +98,8 @@ class SchemaGeneratorTest {
         val builder = GraphQLSchema.newSchema()
             .additionalType(customObject)
 
-        val schema = schemaGenerator.generate(
+        val schema = generateSchema(
+            generator = schemaGenerator,
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
             subscriptions = emptyList(),

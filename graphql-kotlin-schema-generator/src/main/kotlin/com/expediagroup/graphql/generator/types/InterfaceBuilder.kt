@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLTypeReference
@@ -53,12 +54,12 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
     generator.subTypeMapper.getSubTypesOf(kClass)
-        .map { generator.graphQLTypeOf(it.createType()) }
+        .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             // Do not add objects currently under construction to the additional types
             val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()
             if (unwrappedType !is GraphQLTypeReference) {
-                generator.state.additionalTypes.add(it)
+                generator.addAdditionalType(it)
             }
         }
 

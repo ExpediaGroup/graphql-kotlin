@@ -22,7 +22,7 @@ import io.github.classgraph.ClassInfoList
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
-internal class SubTypeMapper(supportedPackages: List<String>) {
+internal class ClassScanner(supportedPackages: List<String>) {
 
     @Suppress("Detekt.SpreadOperator")
     private val scanResult = ClassGraph()
@@ -38,6 +38,8 @@ internal class SubTypeMapper(supportedPackages: List<String>) {
             .map { it.loadClass().kotlin }
             .filterNot { it.isAbstract }
     }
+
+    fun getClassesWithAnnotation(annotationName: String) = scanResult.getClassesWithAnnotation(annotationName).map { it.loadClass().kotlin }
 
     fun close() = scanResult.close()
 

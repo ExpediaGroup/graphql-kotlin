@@ -16,11 +16,9 @@
 
 package com.expediagroup.graphql.federation
 
-import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
-import graphql.schema.GraphQLSchema
-import io.github.classgraph.ClassGraph
+import com.expediagroup.graphql.generator.generateGraphQLType
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.jvm.jvmName
 
@@ -29,32 +27,12 @@ import kotlin.reflect.jvm.jvmName
  */
 open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
 
-    override fun generate(
-        queries: List<TopLevelObject>,
-        mutations: List<TopLevelObject>,
-        subscriptions: List<TopLevelObject>,
-        builder: GraphQLSchema.Builder
-    ): GraphQLSchema {
-        builder.federation(config.supportedPackages)
-        return super.generate(queries, mutations, subscriptions, builder)
-    }
-
     /**
-     * Scans specified packages for all the federated (extended) types and adds them to the target schema before generating the rest of the schema
+     * Scans specified packages for all the federated (extended) types and adds them to the schema additional types
      */
-    @Suppress("Detekt.SpreadOperator")
-    private fun GraphQLSchema.Builder.federation(supportedPackages: List<String>): GraphQLSchema.Builder {
-        val scanResult = ClassGraph().enableAllInfo().whitelistPackages(*supportedPackages.toTypedArray()).scan()
-
-        scanResult.getClassesWithAnnotation(ExtendsDirective::class.jvmName)
-            .map { it.loadClass().kotlin }
-            .map { graphQLTypeOf(it.starProjectedType, inputType = false, annotatedAsID = false) }
-            .forEach {
-                this.additionalType(it)
-            }
-
-        scanResult.close()
-
-        return this
-    }
+    internal fun addExtendedTypes() = getClassesWithAnnotation(ExtendsDirective::class.jvmName)
+        .map { generateGraphQLType(this, it.starProjectedType, inputType = false, annotatedAsID = false) }
+        .forEach {
+            this.addAdditionalType(it)
+        }
 }

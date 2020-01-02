@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.types
+package com.expediagroup.graphql
 
-import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.extensions.getWrappedType
-import com.expediagroup.graphql.generator.generateGraphQLType
-import graphql.schema.GraphQLList
-import kotlin.reflect.KType
-
-internal fun generateList(generator: SchemaGenerator, type: KType, inputType: Boolean): GraphQLList {
-    val wrappedType = generateGraphQLType(generator, type.getWrappedType(), inputType)
-    return GraphQLList.list(wrappedType)
-}
+/**
+ * The names of the top level objects in the schema.
+ */
+data class TopLevelNames(
+    val query: String = "Query",
+    val mutation: String = "Mutation",
+    val subscription: String = "Subscription"
+)

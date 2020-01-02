@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.isPropertyGraphQLID
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KClass
@@ -28,7 +29,7 @@ import kotlin.reflect.KProperty
 
 internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
     val builder = GraphQLInputObjectField.newInputObjectField()
-    val graphQLInputType = generator.graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>()
+    val graphQLInputType = generateGraphQLType(generator, prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>()
 
     builder.description(prop.getPropertyDescription(parentClass))
     builder.name(prop.getPropertyName(parentClass))

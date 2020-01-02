@@ -18,6 +18,7 @@ package com.expediagroup.graphql.federation
 
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
+import com.expediagroup.graphql.generator.generateSchema
 import graphql.schema.GraphQLSchema
 
 /**
@@ -38,5 +39,8 @@ fun toFederatedSchema(
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
     val generator = FederatedSchemaGenerator(config)
-    return generator.generate(queries, mutations, subscriptions)
+    generator.addExtendedTypes()
+    val schema = generateSchema(generator, queries, mutations, subscriptions)
+    generator.close()
+    return schema
 }

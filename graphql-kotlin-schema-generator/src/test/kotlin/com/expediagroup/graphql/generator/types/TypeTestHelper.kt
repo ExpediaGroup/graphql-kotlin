@@ -23,7 +23,7 @@ import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.SubTypeMapper
+import com.expediagroup.graphql.generator.ClassScanner
 import com.expediagroup.graphql.generator.state.SchemaGeneratorState
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
@@ -42,7 +42,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle
 @TestInstance(Lifecycle.PER_CLASS)
 internal open class TypeTestHelper {
     private val supportedPackages = listOf("com.expediagroup.graphql")
-    private val subTypeMapper = SubTypeMapper(supportedPackages)
+    private val classScanner = ClassScanner(supportedPackages)
     private val dataFetcherFactory: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
     private val topLevelNames = TopLevelNames(
         query = "TestTopLevelQuery",
@@ -79,7 +79,7 @@ internal open class TypeTestHelper {
 
     @AfterAll
     fun cleanup() {
-        subTypeMapper.close()
+        classScanner.close()
     }
 
     open fun beforeTest() {}
