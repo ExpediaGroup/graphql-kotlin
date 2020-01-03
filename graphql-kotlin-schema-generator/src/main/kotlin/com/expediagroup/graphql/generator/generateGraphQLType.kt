@@ -37,8 +37,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 /**
- * Internal use only. Please use [com.expediagroup.graphql.toSchema] instead.
- *
  * Return a basic GraphQL type given all the information about the kotlin type.
  */
 internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
