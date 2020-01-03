@@ -18,7 +18,9 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.directives.DeprecatedDirective
+import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
+import com.expediagroup.graphql.generator.types.generateGraphQLType
 import graphql.Directives
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective

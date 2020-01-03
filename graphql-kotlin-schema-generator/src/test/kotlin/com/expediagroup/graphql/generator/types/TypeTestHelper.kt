@@ -22,7 +22,7 @@ import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.ClassScanner
+import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every

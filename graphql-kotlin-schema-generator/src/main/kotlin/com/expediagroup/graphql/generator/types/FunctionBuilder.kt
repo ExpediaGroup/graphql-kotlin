@@ -23,7 +23,6 @@ import com.expediagroup.graphql.generator.extensions.getFunctionName
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getValidArguments
 import com.expediagroup.graphql.generator.extensions.safeCast
-import com.expediagroup.graphql.generator.generateGraphQLType
 import com.expediagroup.graphql.generator.types.utils.getWrappedReturnType
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition

@@ -23,7 +23,6 @@ import com.expediagroup.graphql.generator.extensions.getName
 import com.expediagroup.graphql.generator.extensions.isGraphQLID
 import com.expediagroup.graphql.generator.extensions.isInterface
 import com.expediagroup.graphql.generator.extensions.safeCast
-import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.GraphQLArgument
 import kotlin.reflect.KParameter
 

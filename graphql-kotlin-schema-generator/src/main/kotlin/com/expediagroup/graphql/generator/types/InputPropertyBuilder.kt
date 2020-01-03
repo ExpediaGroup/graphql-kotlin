@@ -21,7 +21,6 @@ import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.isPropertyGraphQLID
 import com.expediagroup.graphql.generator.extensions.safeCast
-import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KClass

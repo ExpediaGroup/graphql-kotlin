@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getWrappedType
-import com.expediagroup.graphql.generator.generateGraphQLType
 import graphql.schema.GraphQLList
 import kotlin.reflect.KType
 

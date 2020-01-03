@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator
+package com.expediagroup.graphql.generator.state
 
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfo

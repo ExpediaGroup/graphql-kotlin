@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator
+package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.isEnum
 import com.expediagroup.graphql.generator.extensions.isInterface
@@ -23,13 +24,6 @@ import com.expediagroup.graphql.generator.extensions.isListType
 import com.expediagroup.graphql.generator.extensions.isUnion
 import com.expediagroup.graphql.generator.extensions.wrapInNonNull
 import com.expediagroup.graphql.generator.state.TypesCacheKey
-import com.expediagroup.graphql.generator.types.generateEnum
-import com.expediagroup.graphql.generator.types.generateInputObject
-import com.expediagroup.graphql.generator.types.generateInterface
-import com.expediagroup.graphql.generator.types.generateList
-import com.expediagroup.graphql.generator.types.generateObject
-import com.expediagroup.graphql.generator.types.generateScalar
-import com.expediagroup.graphql.generator.types.generateUnion
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil

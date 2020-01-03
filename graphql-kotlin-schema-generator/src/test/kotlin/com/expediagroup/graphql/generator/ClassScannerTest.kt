@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator
 
+import com.expediagroup.graphql.generator.state.ClassScanner
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
