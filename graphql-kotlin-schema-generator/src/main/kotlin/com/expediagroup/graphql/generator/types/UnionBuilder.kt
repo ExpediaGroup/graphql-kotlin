@@ -38,7 +38,7 @@ internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): Graph
         builder.withDirective(it)
     }
 
-    generator.subTypeMapper.getSubTypesOf(kClass)
+    generator.classScanner.getSubTypesOf(kClass)
         .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {

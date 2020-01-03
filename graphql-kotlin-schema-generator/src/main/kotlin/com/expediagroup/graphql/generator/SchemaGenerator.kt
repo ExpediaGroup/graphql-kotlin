@@ -17,21 +17,35 @@
 package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.generator.state.SchemaGeneratorState
+import com.expediagroup.graphql.directives.DeprecatedDirective
+import com.expediagroup.graphql.generator.state.TypesCache
+import graphql.Directives
 import graphql.schema.GraphQLCodeRegistry
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLType
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
 
-open class SchemaGenerator(val config: SchemaGeneratorConfig) {
+open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
-    internal val state = SchemaGeneratorState(config.supportedPackages)
-    internal val subTypeMapper = ClassScanner(config.supportedPackages)
+    internal val classScanner = ClassScanner(config.supportedPackages)
+    internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
+    internal val additionalTypes = mutableSetOf<GraphQLType>()
+    internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
-    /**
-     * Add a GraphQL type to be included in the schema that may not be directly used by a data fetcher.
-     * This can include interface implementations or federated types.
-     */
-    fun addAdditionalType(type: GraphQLType) = this.state.additionalTypes.add(type)
+    init {
+        // NOTE: @include and @defer query directives are added by graphql-java by default
+        // adding them explicitly here to keep it consistent with missing deprecated directive
+        directives[Directives.IncludeDirective.name] = Directives.IncludeDirective
+        directives[Directives.SkipDirective.name] = Directives.SkipDirective
+
+        // graphql-kotlin default directives
+        // @deprecated directive is a built-in directive that each GraphQL server should provide bu currently it is not added by graphql-java
+        //   see https://github.com/graphql-java/graphql-java/issues/1598
+        directives[DeprecatedDirective.name] = DeprecatedDirective
+    }
 
     /**
      * Clean up the state and saved information after schema generation.
@@ -40,14 +54,19 @@ open class SchemaGenerator(val config: SchemaGeneratorConfig) {
      * but it can help clean up memory early if it not being used.
      */
     fun close() {
-        subTypeMapper.close()
+        classScanner.close()
     }
 
     /**
-     * Return the classes with a certain annoation.
+     * Add all types with the following annotation to the schema.
      *
-     * We are exposing it as protected so we don't have to have
-     * another class scanner open and we can instead reuse the [ClassScanner].
+     * This is helpful for things like federation or combining external schemas
      */
-    protected fun getClassesWithAnnotation(annotationName: String) = subTypeMapper.getClassesWithAnnotation(annotationName)
+    protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>) {
+        classScanner.getClassesWithAnnotation(annotation)
+            .map { generateGraphQLType(this, it.createType(), inputType = false, annotatedAsID = false) }
+            .forEach {
+                additionalTypes.add(it)
+            }
+    }
 }

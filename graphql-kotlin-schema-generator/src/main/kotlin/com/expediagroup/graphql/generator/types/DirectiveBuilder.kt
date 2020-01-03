@@ -48,7 +48,7 @@ internal fun generateFieldDirectives(generator: SchemaGenerator, field: Field): 
 
 private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLDirective {
     val directiveName = directiveInfo.effectiveName
-    val directive = generator.state.directives.computeIfAbsent(directiveName) {
+    val directive = generator.directives.computeIfAbsent(directiveName) {
         val builder = GraphQLDirective.newDirective()
             .name(directiveInfo.effectiveName)
             .description(directiveInfo.directiveAnnotation.description)

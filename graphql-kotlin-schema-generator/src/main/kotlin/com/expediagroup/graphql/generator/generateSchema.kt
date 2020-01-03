@@ -31,19 +31,19 @@ fun generateSchema(
     generator: SchemaGenerator,
     queries: List<TopLevelObject>,
     mutations: List<TopLevelObject> = emptyList(),
-    subscriptions: List<TopLevelObject> = emptyList(),
-    builder: GraphQLSchema.Builder = GraphQLSchema.newSchema()
+    subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
+    val builder = GraphQLSchema.newSchema()
     builder.query(generateQueries(generator, queries))
     builder.mutation(generateMutations(generator, mutations))
     builder.subscription(generateSubscriptions(generator, subscriptions))
 
     // add unreferenced interface implementations
-    generator.state.additionalTypes.forEach {
+    generator.additionalTypes.forEach {
         builder.additionalType(it)
     }
 
-    builder.additionalDirectives(generator.state.directives.values.toSet())
+    builder.additionalDirectives(generator.directives.values.toSet())
     builder.codeRegistry(generator.codeRegistry.build())
 
     return generator.config.hooks.willBuildSchema(builder).build()

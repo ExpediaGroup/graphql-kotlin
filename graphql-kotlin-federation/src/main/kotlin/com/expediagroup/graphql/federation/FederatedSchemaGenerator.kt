@@ -18,21 +18,14 @@ package com.expediagroup.graphql.federation
 
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.generateGraphQLType
-import kotlin.reflect.full.starProjectedType
-import kotlin.reflect.jvm.jvmName
 
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
  */
-open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
+class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
 
     /**
      * Scans specified packages for all the federated (extended) types and adds them to the schema additional types
      */
-    internal fun addExtendedTypes() = getClassesWithAnnotation(ExtendsDirective::class.jvmName)
-        .map { generateGraphQLType(this, it.starProjectedType, inputType = false, annotatedAsID = false) }
-        .forEach {
-            this.addAdditionalType(it)
-        }
+    internal fun addExtendedTypes() = addAdditionalTypesWithAnnotation(ExtendsDirective::class)
 }

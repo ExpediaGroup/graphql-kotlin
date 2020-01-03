@@ -53,13 +53,13 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
     kClass.getValidFunctions(generator.config.hooks)
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
-    generator.subTypeMapper.getSubTypesOf(kClass)
+    generator.classScanner.getSubTypesOf(kClass)
         .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             // Do not add objects currently under construction to the additional types
             val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()
             if (unwrappedType !is GraphQLTypeReference) {
-                generator.addAdditionalType(it)
+                generator.additionalTypes.add(it)
             }
         }
 

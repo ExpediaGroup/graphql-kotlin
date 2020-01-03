@@ -118,17 +118,17 @@ internal class DirectiveBuilderTest {
 
     @Test
     fun `directives are only added to the schema once`() {
-        val initialCount = basicGenerator.state.directives.size
-        assertTrue(basicGenerator.state.directives.containsKey(Directives.IncludeDirective.name))
-        assertTrue(basicGenerator.state.directives.containsKey(Directives.SkipDirective.name))
-        assertTrue(basicGenerator.state.directives.containsKey(DeprecatedDirective.name))
+        val initialCount = basicGenerator.directives.size
+        assertTrue(basicGenerator.directives.containsKey(Directives.IncludeDirective.name))
+        assertTrue(basicGenerator.directives.containsKey(Directives.SkipDirective.name))
+        assertTrue(basicGenerator.directives.containsKey(DeprecatedDirective.name))
 
         val firstInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
         assertEquals(1, firstInvocation.size)
         val secondInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
         assertEquals(1, secondInvocation.size)
         assertEquals(firstInvocation.first(), secondInvocation.first())
-        assertEquals(initialCount + 1, basicGenerator.state.directives.size)
+        assertEquals(initialCount + 1, basicGenerator.directives.size)
     }
 
     @Test
@@ -153,7 +153,7 @@ internal class DirectiveBuilderTest {
 
     @Test
     fun `directives are created per each declaration`() {
-        val initialCount = basicGenerator.state.directives.size
+        val initialCount = basicGenerator.directives.size
         val directivesOnFirstField = generateDirectives(basicGenerator, MyClass::directiveWithString)
         val directivesOnSecondField = generateDirectives(basicGenerator, MyClass::directiveWithAnotherString)
         assertEquals(expected = 1, actual = directivesOnFirstField.size)
@@ -166,7 +166,7 @@ internal class DirectiveBuilderTest {
         assertEquals("foo", firstDirective.getArgument("string")?.value)
         assertEquals("bar", seconDirective.getArgument("string")?.value)
 
-        assertEquals(initialCount + 1, basicGenerator.state.directives.size)
+        assertEquals(initialCount + 1, basicGenerator.directives.size)
     }
 
     @Test

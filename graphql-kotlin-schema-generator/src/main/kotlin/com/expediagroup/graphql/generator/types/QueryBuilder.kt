@@ -23,7 +23,7 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): GraphQLObjectType {
+internal fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): GraphQLObjectType {
     val queryBuilder = GraphQLObjectType.Builder()
     queryBuilder.name(generator.config.topLevelNames.query)
 

@@ -23,7 +23,8 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject>): GraphQLObjectType? {
+internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject>): GraphQLObjectType? {
+
     if (mutations.isEmpty()) {
         return null
     }

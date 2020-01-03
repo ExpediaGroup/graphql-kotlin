@@ -22,10 +22,8 @@ import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.ClassScanner
-import com.expediagroup.graphql.generator.state.SchemaGeneratorState
-import com.expediagroup.graphql.generator.state.TypesCache
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
@@ -49,8 +47,7 @@ internal open class TypeTestHelper {
         mutation = "TestTopLevelMutation",
         subscription = "TestTopLevelSubscription"
     )
-    private val state = spyk(SchemaGeneratorState(supportedPackages))
-    private val cache = spyk(TypesCache(supportedPackages))
+
     val spyWiringFactory = spyk(KotlinDirectiveWiringFactory())
     var hooks: SchemaGeneratorHooks = object : SchemaGeneratorHooks {
         override val wiringFactory: KotlinDirectiveWiringFactory
@@ -63,16 +60,10 @@ internal open class TypeTestHelper {
     fun setup() {
         beforeSetup()
 
-        cache.clear()
-        every { state.cache } returns cache
+        generator.cache.clear()
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
         every { spyWiringFactory.getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
-        every { config.topLevelNames } returns TopLevelNames(
-            query = "TestTopLevelQuery",
-            mutation = "TestTopLevelMutation",
-            subscription = "TestTopLevelSubscription"
-        )
 
         beforeTest()
     }

@@ -39,7 +39,7 @@ internal class ClassScanner(supportedPackages: List<String>) {
             .filterNot { it.isAbstract }
     }
 
-    fun getClassesWithAnnotation(annotationName: String) = scanResult.getClassesWithAnnotation(annotationName).map { it.loadClass().kotlin }
+    fun getClassesWithAnnotation(annotation: KClass<*>) = scanResult.getClassesWithAnnotation(annotation.jvmName).map { it.loadClass().kotlin }
 
     fun close() = scanResult.close()
 

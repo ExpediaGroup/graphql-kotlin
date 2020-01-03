@@ -97,9 +97,9 @@ internal class QueryBuilderTest : TypeTestHelper() {
 
     @Test
     fun `verify hooks are called`() {
-        assertFalse((hooks as? SimpleHooks)?.calledHook.isTrue())
+        assertFalse((generator.config.hooks as? SimpleHooks)?.calledHook.isTrue())
         generateQueries(generator, listOf(TopLevelObject(QueryObject())))
-        assertTrue((hooks as? SimpleHooks)?.calledHook.isTrue())
+        assertTrue((generator.config.hooks as? SimpleHooks)?.calledHook.isTrue())
     }
 
     @Test
