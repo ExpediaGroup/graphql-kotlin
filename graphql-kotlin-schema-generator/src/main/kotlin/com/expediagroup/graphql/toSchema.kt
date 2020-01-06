@@ -18,7 +18,6 @@ package com.expediagroup.graphql
 
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.generateSchema
 import graphql.schema.GraphQLSchema
 
 /**
@@ -39,7 +38,7 @@ fun toSchema(
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
     val generator = SchemaGenerator(config)
-    val schema = generateSchema(generator, queries, mutations, subscriptions)
+    val schema = generator.generateSchema(queries, mutations, subscriptions)
     generator.close()
     return schema
 }
