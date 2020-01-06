@@ -7,6 +7,8 @@ title: Spring Server Overview
 is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive GraphQL
 web server.
 
+> NOTE: The server configuration is built on a [Spring WebFlux (reactive)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) stack. If you include Spring WebMVC or Spring Servlet, you may encouter issues.
+
 At a minimum, in order for `graphql-kotlin-spring-server` to automatically configure your GraphQL web server you need to
 specify a list of supported packages that can be scanned for exposing your schema objects through reflections.
 
