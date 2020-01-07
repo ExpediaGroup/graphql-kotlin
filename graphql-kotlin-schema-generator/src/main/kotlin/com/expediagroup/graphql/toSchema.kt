@@ -38,7 +38,5 @@ fun toSchema(
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
     val generator = SchemaGenerator(config)
-    val schema = generator.generateSchema(queries, mutations, subscriptions)
-    generator.close()
-    return schema
+    return generator.generateSchema(queries, mutations, subscriptions)
 }

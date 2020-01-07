@@ -63,7 +63,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
      */
-    fun generateSchema(
+    open fun generateSchema(
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList()
@@ -81,17 +81,11 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
 
-        return config.hooks.willBuildSchema(builder).build()
-    }
+        val schema = config.hooks.willBuildSchema(builder).build()
 
-    /**
-     * Clean up the state and saved information after schema generation.
-     *
-     * Not required to call, as the state and subTypeMapper will be cleaned up by the garbage collector,
-     * but it can help clean up memory early if it not being used.
-     */
-    fun close() {
         classScanner.close()
+
+        return schema
     }
 
     /**

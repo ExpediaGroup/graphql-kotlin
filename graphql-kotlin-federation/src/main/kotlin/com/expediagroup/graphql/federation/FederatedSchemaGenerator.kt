@@ -16,16 +16,18 @@
 
 package com.expediagroup.graphql.federation
 
+import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
+import graphql.schema.GraphQLSchema
 
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
  */
 class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
 
-    /**
-     * Scans specified packages for all the federated (extended) types and adds them to the schema additional types
-     */
-    internal fun addExtendedTypes() = addAdditionalTypesWithAnnotation(ExtendsDirective::class)
+    override fun generateSchema(queries: List<TopLevelObject>, mutations: List<TopLevelObject>, subscriptions: List<TopLevelObject>): GraphQLSchema {
+        addAdditionalTypesWithAnnotation(ExtendsDirective::class)
+        return super.generateSchema(queries, mutations, subscriptions)
+    }
 }
