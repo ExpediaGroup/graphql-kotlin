@@ -4,8 +4,10 @@ title: Spring Server Overview
 ---
 
 [graphql-kotlin-spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-spring-server)
-is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive (aka [WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html)) GraphQL
+is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive GraphQL
 web server.
+
+This library is built on a [Spring WebFlux (reactive)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) stack. By dropping dependencies like [Spring Web MVC (servlet)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) we can have a fully non-blocking server.
 
 ## Setup
 
