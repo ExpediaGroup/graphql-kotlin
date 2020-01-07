@@ -63,7 +63,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
      */
-    open fun generateSchema(
+    fun generateSchema(
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList()
