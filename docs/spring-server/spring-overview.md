@@ -7,6 +7,36 @@ title: Spring Server Overview
 is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive GraphQL
 web server.
 
+This library is built on a [Spring WebFlux (reactive)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) stack which is a non-blocking alternative to a traditional [Spring Web MVC (servlet)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) based stack. Since both frameworks utilize different threading models they cannot and should not be intermixed. When building a GraphQL server using `graphql-kotlin-spring-server` all your queries and mutations should follow one of the supported [asynchronous execution models](https://expediagroup.github.io/graphql-kotlin/docs/execution/async-models). 
+
+## Setup
+
+### Creating a Spring Server
+
+The simplest way to create a new Kotlin Spring Boot app is by generating one using [Spring Initializr.](https://start.spring.io/)
+
+![Image of https://start.spring.io/](assets/spring-initializer.png)
+
+Once you get the sample application setup locally, you will need to add `graphql-kotlin-spring-server` dependency:
+
+With Maven:
+
+```xml
+<dependency>
+  <groupId>com.expediagroup</groupId>
+  <artifactId>graphql-kotlin-spring-server</artifactId>
+  <version>${latestVersion}</version>
+</dependency>
+```
+
+With Gradle:
+
+```groovy
+compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version: "$latestVersion")
+```
+
+### Configuration
+
 At a minimum, in order for `graphql-kotlin-spring-server` to automatically configure your GraphQL web server you need to
 specify a list of supported packages that can be scanned for exposing your schema objects through reflections.
 
@@ -18,7 +48,7 @@ graphql:
     - "com.your.package"
 ```
 
-
+### Writing Schema Code
 In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you simply need to implement
 corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
 auto-configuration library.
@@ -68,6 +98,8 @@ type Widget {
   value: String!
 }
 ```
+
+### Default Routes
 
 Your newly created GraphQL server starts up with following preconfigured default routes:
 
