@@ -1,5 +1,5 @@
 ---
-id: getting-started 
+id: getting-started
 title: Getting Started
 ---
 
@@ -79,7 +79,7 @@ The `GraphQLSchema` generated can be used to expose a GraphQL API endpoint.
 This function accepts four arguments: `config`, `queries`, `mutations` and `subscriptions`. The `queries`, `mutations`
 and `subscriptions` are a list of `TopLevelObject`s and will be used to generate corresponding GraphQL root types. See
 below on why we use this wrapper class. The `config` contains all the extra information you need to pass, including
-custom hooks, supported packages, and name overrides. See the full documentation: [Spring Server Overview](server/spring-overview).
+custom hooks, supported packages, and name overrides. See the full documentation: [Spring Server Overview](spring-server/spring-overview).
 
 You can see the definition for `toSchema` [in the
 source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/toSchema.kt)
