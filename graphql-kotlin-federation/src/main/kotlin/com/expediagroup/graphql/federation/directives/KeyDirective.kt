@@ -17,7 +17,9 @@
 package com.expediagroup.graphql.federation.directives
 
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
 import graphql.introspection.Introspection
+import graphql.schema.GraphQLArgument
 
 /**
  * ```graphql
@@ -55,8 +57,18 @@ import graphql.introspection.Introspection
  * @see ExternalDirective
  */
 @GraphQLDirective(
-    name = "key",
+    name = KEY_DIRECTIVE_NAME,
     description = "Space separated list of primary keys needed to access federated object",
     locations = [Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE]
 )
 annotation class KeyDirective(val fields: FieldSet)
+
+private const val KEY_DIRECTIVE_NAME = "key"
+private const val KEY_DIRECTIVE_ARGUMENT_NAME = "fields"
+
+internal val keyDirectiveType = graphql.schema.GraphQLDirective.newDirective()
+    .name(KEY_DIRECTIVE_NAME)
+    .argument(GraphQLArgument.newArgument()
+        .name(KEY_DIRECTIVE_ARGUMENT_NAME)
+        .type(FIELD_SET_SCALAR_TYPE))
+    .build()

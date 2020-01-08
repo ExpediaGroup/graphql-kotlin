@@ -19,6 +19,7 @@ package com.expediagroup.graphql.federation.validation
 import graphql.Scalars
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
+import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -55,7 +56,7 @@ class ValidateFieldSelectionKtTest {
             .build()
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "",
+            validatedDirective = "taco",
             iterator = listOf("foo", "{", "bar", "}").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
@@ -63,6 +64,33 @@ class ValidateFieldSelectionKtTest {
         )
 
         assertEquals(expected = 1, actual = errors.size)
+        assertEquals(expected = "taco specifies invalid field set - field set references GraphQLInterfaceType, field=foo", actual = errors.first())
+    }
+
+    @Test
+    fun `GraphQLObjectType type is unwrapped, and returns a no errors on valid selection`() {
+        val field = GraphQLFieldDefinition.newFieldDefinition()
+            .name("bar")
+            .type(Scalars.GraphQLString)
+            .build()
+        val objectDefinition = GraphQLObjectType.newObject()
+            .name("MyObject")
+            .field(field)
+            .build()
+        val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
+            .name("foo")
+            .type(objectDefinition)
+            .build()
+        val errors = mutableListOf<String>()
+        validateFieldSelection(
+            validatedDirective = "",
+            iterator = listOf("foo", "{", "bar", "}").iterator(),
+            fields = mapOf("foo" to fieldDefinition),
+            extendedType = false,
+            errors = errors
+        )
+
+        assertEquals(expected = 0, actual = errors.size)
     }
 
     @Test

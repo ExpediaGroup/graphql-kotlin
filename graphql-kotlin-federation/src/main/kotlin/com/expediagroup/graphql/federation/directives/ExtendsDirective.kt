@@ -59,7 +59,7 @@ private const val DESCRIPTION = "Marks target object as extending part of the fe
 )
 annotation class ExtendsDirective
 
-val extendsDirectiveType: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+internal val extendsDirectiveType: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(NAME)
     .description(DESCRIPTION)
     .validLocations(Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE)

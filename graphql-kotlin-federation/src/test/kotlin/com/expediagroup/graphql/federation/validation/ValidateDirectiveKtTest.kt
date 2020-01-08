@@ -184,4 +184,35 @@ internal class ValidateDirectiveKtTest {
 
         assertTrue(validationErrors.isEmpty())
     }
+
+    @Test
+    fun `if directive argument value is FieldSet with valid multiple values, no errors are returned`() {
+        val directive: GraphQLDirective = mockk {
+            every { getArgument(eq("fields")) } returns mockk {
+                every { value } returns mockk<FieldSet> {
+                    every { value } returns "bar baz"
+                }
+            }
+        }
+
+        val graphqlField1 = GraphQLFieldDefinition.newFieldDefinition()
+            .name("bar")
+            .type(Scalars.GraphQLString)
+            .build()
+
+        val graphqlField2 = GraphQLFieldDefinition.newFieldDefinition()
+            .name("baz")
+            .type(Scalars.GraphQLString)
+            .build()
+
+        val validationErrors = validateDirective(
+            validatedType = "MyType",
+            targetDirective = "foo",
+            directives = mapOf("foo" to directive),
+            fieldMap = mapOf("bar" to graphqlField1, "baz" to graphqlField2),
+            extendedType = false
+        )
+
+        assertTrue(validationErrors.isEmpty())
+    }
 }

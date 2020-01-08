@@ -75,6 +75,10 @@
                                             <counter>INSTRUCTION</counter>
                                             <minimum>0.98</minimum>
                                         </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <minimum>0.96</minimum>
+                                        </limit>
                                     </limits>
                                 </rule>
                             </rules>
