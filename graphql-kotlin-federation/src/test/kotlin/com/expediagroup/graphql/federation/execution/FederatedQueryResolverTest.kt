@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.federation.execution
 
-import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.data.BookResolver
 import com.expediagroup.graphql.federation.data.UserResolver
 import com.expediagroup.graphql.federation.data.federatedTestSchema
@@ -49,7 +48,6 @@ class FederatedQueryResolverTest {
     @Test
     fun `verify can resolve federated entities`() {
         val schema = federatedTestSchema(
-            queries = listOf(TopLevelObject(ResolverTestQuery())),
             federatedTypeResolvers = mapOf("Book" to BookResolver(), "User" to UserResolver())
         )
         val userRepresentation = mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
@@ -101,12 +99,5 @@ class FederatedQueryResolverTest {
                 assertEquals("Unable to resolve federated type, representation={id=124}", error["message"])
             }
         }
-    }
-
-    // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
-    // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
-    class ResolverTestQuery {
-        @Suppress("Detekt.FunctionOnlyReturningConstant")
-        fun query(): String = "hello"
     }
 }

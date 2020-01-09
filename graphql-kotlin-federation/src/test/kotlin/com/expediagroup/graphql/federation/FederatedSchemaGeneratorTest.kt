@@ -67,7 +67,6 @@ type Query @extends {
   #Union of all types that use the @key directive, including both types native to the schema and extended types
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
-  hello(name: String!): String!
 }
 
 type Review {
@@ -109,7 +108,7 @@ class FederatedSchemaGeneratorTest {
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
-        val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery())))
+        val schema = toFederatedSchema(config = config)
         assertEquals(FEDERATED_SDL, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)

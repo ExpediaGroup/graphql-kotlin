@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
@@ -25,10 +24,6 @@ import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
 fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): GraphQLObjectType {
-    if (queries.isEmpty()) {
-        throw EmptyQueryTypeException
-    }
-
     val queryBuilder = GraphQLObjectType.Builder()
     queryBuilder.name(generator.config.topLevelNames.query)
 

@@ -43,10 +43,6 @@ type Book implements Product @extends @key(fields : "id") {
   weight: Float! @external
 }
 
-type Query {
-  hello(name: String!): String!
-}
-
 type Review {
   body: String!
   content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
@@ -80,7 +76,7 @@ class ServiceQueryResolverTest {
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
-        val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery())))
+        val schema = toFederatedSchema(config = config)
         val query = """
             query sdlQuery {
               _service {

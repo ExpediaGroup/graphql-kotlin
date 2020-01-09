@@ -24,7 +24,7 @@ import graphql.schema.GraphQLSchema
  * Entry point to generate federated graphql schema using reflection on the passed objects.
  *
  * @param config federated schema generation configuration
- * @param queries list of [TopLevelObject] to use for GraphQL queries
+ * @param queries optional list of [TopLevelObject] to use for GraphQL queries
  * @param mutations optional list of [TopLevelObject] to use for GraphQL mutations
  * @param subscriptions optional list of [TopLevelObject] to use for GraphQL subscriptions
  *
@@ -33,7 +33,7 @@ import graphql.schema.GraphQLSchema
 @Throws(GraphQLKotlinException::class)
 fun toFederatedSchema(
     config: FederatedSchemaGeneratorConfig,
-    queries: List<TopLevelObject>,
+    queries: List<TopLevelObject> = emptyList(),
     mutations: List<TopLevelObject> = emptyList(),
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
