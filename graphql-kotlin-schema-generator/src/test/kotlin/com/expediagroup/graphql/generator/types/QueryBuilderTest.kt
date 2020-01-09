@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLFieldDefinition
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
@@ -37,9 +39,9 @@ internal class QueryBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
-        override fun didGenerateQueryType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+        override fun didGenerateQueryFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
             calledHook = true
-            return super.didGenerateQueryType(kClass, function, fieldDefinition)
+            return super.didGenerateQueryFieldType(kClass, function, fieldDefinition)
         }
     }
 
@@ -72,9 +74,16 @@ internal class QueryBuilderTest : TypeTestHelper() {
     @Test
     fun `query with no valid functions`() {
         val queries = listOf(TopLevelObject(NoFunctions()))
-        val result = generateQueries(generator, queries)
-        assertEquals(expected = "TestTopLevelQuery", actual = result.name)
-        assertTrue(result.fieldDefinitions.isEmpty())
+        assertThrows<EmptyQueryTypeException> {
+            generateQueries(generator, queries)
+        }
+    }
+
+    @Test
+    fun `verify builder fails if no queries are specified`() {
+        assertThrows<EmptyQueryTypeException> {
+            generateQueries(generator, emptyList())
+        }
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package com.expediagroup.graphql.federation.execution
 
-import graphql.ExecutionInput
-import graphql.GraphQL
-import org.junit.jupiter.api.Test
+import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.data.BookResolver
 import com.expediagroup.graphql.federation.data.UserResolver
 import com.expediagroup.graphql.federation.data.federatedTestSchema
+import graphql.ExecutionInput
+import graphql.GraphQL
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -47,7 +48,10 @@ class FederatedQueryResolverTest {
 
     @Test
     fun `verify can resolve federated entities`() {
-        val schema = federatedTestSchema(mapOf("Book" to BookResolver(), "User" to UserResolver()))
+        val schema = federatedTestSchema(
+            queries = listOf(TopLevelObject(ResolverTestQuery())),
+            federatedTypeResolvers = mapOf("Book" to BookResolver(), "User" to UserResolver())
+        )
         val userRepresentation = mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
         val book1Representation = mapOf<String, Any>("__typename" to "Book", "id" to 987, "weight" to 2.0)
         val book2Representation = mapOf<String, Any>("__typename" to "Book", "id" to 988, "weight" to 1.0)
@@ -97,5 +101,12 @@ class FederatedQueryResolverTest {
                 assertEquals("Unable to resolve federated type, representation={id=124}", error["message"])
             }
         }
+    }
+
+    // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
+    // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
+    class ResolverTestQuery {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun query(): String = "hello"
     }
 }

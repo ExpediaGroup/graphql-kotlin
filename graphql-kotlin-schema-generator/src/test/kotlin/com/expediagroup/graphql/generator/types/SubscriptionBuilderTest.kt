@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLFieldDefinition
 import io.mockk.every
 import io.reactivex.Flowable
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.reactivestreams.Publisher
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -38,6 +40,13 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
     fun `given an empty list, it should not return a field`() {
         val result = generateSubscriptions(generator, emptyList())
         assertNull(result)
+    }
+
+    @Test
+    fun `given subscription without fields should throw exception`() {
+        assertThrows<EmptySubscriptionTypeException> {
+            generateSubscriptions(generator, listOf(TopLevelObject(MyEmptyTestSubscription())))
+        }
     }
 
     @Test
@@ -100,7 +109,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
         class CustomHooks : SchemaGeneratorHooks {
-            override fun didGenerateSubscriptionType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+            override fun didGenerateSubscriptionFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
                 return if (fieldDefinition.name == "filterMe") {
                     fieldDefinition.transform { fieldBuilder -> fieldBuilder.name("changedField") }
                 } else fieldDefinition
@@ -132,3 +141,5 @@ class MyInvalidSubscriptionClass {
 private class MyPrivateTestSubscription {
     fun counter(): Publisher<Int> = Flowable.just(3)
 }
+
+class MyEmptyTestSubscription

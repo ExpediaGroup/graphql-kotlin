@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ type Query @extends {
   #Union of all types that use the @key directive, including both types native to the schema and extended types
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
+  hello(name: String!): String!
 }
 
 type Review {
@@ -108,7 +109,7 @@ class FederatedSchemaGeneratorTest {
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
-        val schema = toFederatedSchema(config)
+        val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery())))
         assertEquals(FEDERATED_SDL, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)

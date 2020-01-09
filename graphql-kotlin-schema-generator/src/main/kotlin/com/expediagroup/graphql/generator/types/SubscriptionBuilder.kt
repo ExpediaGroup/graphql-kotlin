@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import graphql.schema.GraphQLObjectType
 import org.reactivestreams.Publisher
 
 internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: List<TopLevelObject>): GraphQLObjectType? {
-
     if (subscriptions.isEmpty()) {
         return null
     }
@@ -46,10 +45,10 @@ internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: Li
                 }
 
                 val function = generateFunction(generator, it, generator.config.topLevelNames.subscription, subscription.obj)
-                val functionFromHook = generator.config.hooks.didGenerateSubscriptionType(subscription.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateSubscriptionFieldType(subscription.kClass, it, function)
                 subscriptionBuilder.field(functionFromHook)
             }
     }
 
-    return subscriptionBuilder.build()
+    return generator.config.hooks.didGenerateSubscriptionObjectType(subscriptionBuilder.build())
 }

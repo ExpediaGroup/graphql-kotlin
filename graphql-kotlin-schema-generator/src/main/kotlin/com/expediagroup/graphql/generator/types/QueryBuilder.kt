@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
@@ -24,6 +25,10 @@ import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
 fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): GraphQLObjectType {
+    if (queries.isEmpty()) {
+        throw EmptyQueryTypeException
+    }
+
     val queryBuilder = GraphQLObjectType.Builder()
     queryBuilder.name(generator.config.topLevelNames.query)
 
@@ -39,10 +44,10 @@ fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): 
         query.kClass.getValidFunctions(generator.config.hooks)
             .forEach {
                 val function = generateFunction(generator, it, generator.config.topLevelNames.query, query.obj)
-                val functionFromHook = generator.config.hooks.didGenerateQueryType(query.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateQueryFieldType(query.kClass, it, function)
                 queryBuilder.field(functionFromHook)
             }
     }
 
-    return queryBuilder.build()
+    return generator.config.hooks.didGenerateQueryObjectType(queryBuilder.build())
 }

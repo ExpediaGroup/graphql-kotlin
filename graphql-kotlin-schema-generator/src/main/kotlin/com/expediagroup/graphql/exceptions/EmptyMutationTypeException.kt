@@ -16,12 +16,9 @@
 
 package com.expediagroup.graphql.exceptions
 
-import kotlin.reflect.KClass
-
 /**
- * Thrown when an interface implements another interface or abstract class that is not excluded from the schema.
+ * Thrown when generated GraphQL Mutation type does not expose any fields.
  *
- * This is an invalid schema until the GraphQL spec is updated
- * https://github.com/ExpediaGroup/graphql-kotlin/issues/419
+ * @see [Issue 568](https://github.com/graphql/graphql-spec/issues/568)
  */
-class InvalidInterfaceException(klazz: KClass<*>) : GraphQLKotlinException("Invalid ${klazz.simpleName} interface - interfaces can not have any superclasses.")
+object EmptyMutationTypeException : GraphQLKotlinException("Invalid mutation object type - no valid mutations are available.")

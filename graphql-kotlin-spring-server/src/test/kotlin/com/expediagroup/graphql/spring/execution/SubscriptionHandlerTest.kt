@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class SubscriptionHandlerTest {
 
     private val testSchema: GraphQLSchema = toSchema(
         config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.spring.execution")),
-        queries = listOf(),
+        queries = listOf(TopLevelObject(BasicQuery())),
         subscriptions = listOf(TopLevelObject(BasicSubscription()))
     )
     private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()
@@ -103,6 +103,13 @@ class SubscriptionHandlerTest {
             }
             .expectComplete()
             .verify()
+    }
+
+    // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
+    // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
+    class BasicQuery {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun query(): String = "hello"
     }
 
     class BasicSubscription {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,13 @@
 package com.expediagroup.graphql.hooks
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.exceptions.EmptyInputObjectTypeException
+import com.expediagroup.graphql.exceptions.EmptyInterfaceTypeException
+import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
+import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
@@ -26,6 +31,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -68,6 +74,9 @@ class SchemaGeneratorHooksTest {
                 calledFilterFunction = true
                 return false
             }
+
+            // skip validation
+            override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
         }
 
         val hooks = MockSchemaGeneratorHooks()
@@ -89,6 +98,12 @@ class SchemaGeneratorHooksTest {
                 calledFilterFunction = true
                 return false
             }
+
+            // skip validation
+            override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
+
+            // skip validation
+            override fun didGenerateQueryObjectType(type: GraphQLObjectType): GraphQLObjectType = type
         }
 
         val hooks = MockSchemaGeneratorHooks()
@@ -118,6 +133,33 @@ class SchemaGeneratorHooksTest {
         assertTrue(hooks.seenTypes.contains(RandomData::class.createType()))
         assertTrue(hooks.seenTypes.contains(SomeData::class.createType()))
         assertTrue(hooks.seenTypes.contains(OtherData::class.createType()))
+    }
+
+    @Test
+    fun `empty object type will not be added to the schema`() {
+        assertThrows<EmptyObjectTypeException> {
+            toSchema(
+                queries = listOf(TopLevelObject(TestWithEmptyObjectQuery())),
+                config = testSchemaConfig)
+        }
+    }
+
+    @Test
+    fun `empty input object type will not be added to the schema`() {
+        assertThrows<EmptyInputObjectTypeException> {
+            toSchema(
+                queries = listOf(TopLevelObject(TestWithEmptyInputObjectQuery())),
+                config = testSchemaConfig)
+        }
+    }
+
+    @Test
+    fun `empty interface will not be added to the schema`() {
+        assertThrows<EmptyInterfaceTypeException> {
+            toSchema(
+                queries = listOf(TopLevelObject(TestWithEmptyInterfaceQuery())),
+                config = testSchemaConfig)
+        }
     }
 
     @Test
@@ -153,18 +195,15 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
-    fun `calls hook before adding query to schema`() {
+    fun `calls hook before adding query field to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            override fun didGenerateQueryType(
+            override fun didGenerateQueryFieldType(
                 kClass: KClass<*>,
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition
             ): GraphQLFieldDefinition {
-                val newField = GraphQLFieldDefinition.Builder()
+                val newField = GraphQLFieldDefinition.Builder(fieldDefinition)
                 newField.description("Hijacked Description")
-                newField.name(fieldDefinition.name)
-                newField.type(fieldDefinition.type)
-                newField.arguments(fieldDefinition.arguments)
                 return newField.build()
             }
         }
@@ -180,18 +219,15 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
-    fun `calls hook before adding mutation to schema`() {
+    fun `calls hook before adding mutation field to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            override fun didGenerateMutationType(
+            override fun didGenerateMutationFieldType(
                 kClass: KClass<*>,
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition
             ): GraphQLFieldDefinition {
-                val newField = GraphQLFieldDefinition.Builder()
+                val newField = GraphQLFieldDefinition.Builder(fieldDefinition)
                 newField.description("Hijacked Description")
-                newField.name(fieldDefinition.name)
-                newField.type(fieldDefinition.type)
-                newField.arguments(fieldDefinition.arguments)
                 return newField.build()
             }
         }
@@ -234,4 +270,28 @@ class SchemaGeneratorHooksTest {
     data class SomeData(override val id: String, val someNumber: Int) : RandomData
 
     data class OtherData(override val id: String, val otherNumber: Int) : RandomData
+
+    class TestWithEmptyObjectQuery {
+        fun emptyObject(): EmptyData = EmptyData()
+    }
+
+    class EmptyData
+
+    class TestWithEmptyInputObjectQuery {
+        fun emptyObject(input: PrivateData) = input
+    }
+
+    @Suppress("Detekt.UnusedPrivateMember")
+    data class PrivateData(private val id: String)
+
+    class TestWithEmptyInterfaceQuery {
+        fun emptyInterface(): EmptyInterface = EmptyImplementation("123")
+    }
+
+    interface EmptyInterface {
+        @GraphQLIgnore
+        val id: String
+    }
+
+    class EmptyImplementation(override val id: String) : EmptyInterface
 }

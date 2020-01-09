@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
 fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject>): GraphQLObjectType? {
-
     if (mutations.isEmpty()) {
         return null
     }
@@ -44,10 +43,10 @@ fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject
         mutation.kClass.getValidFunctions(generator.config.hooks)
             .forEach {
                 val function = generateFunction(generator, it, generator.config.topLevelNames.mutation, mutation.obj)
-                val functionFromHook = generator.config.hooks.didGenerateMutationType(mutation.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateMutationFieldType(mutation.kClass, it, function)
                 mutationBuilder.field(functionFromHook)
             }
     }
 
-    return mutationBuilder.build()
+    return generator.config.hooks.didGenerateMutationObjectType(mutationBuilder.build())
 }

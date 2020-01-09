@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ package com.expediagroup.graphql.federation.execution
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
+import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
 import org.junit.jupiter.api.Test
-import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
-import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -41,6 +41,10 @@ type Book implements Product @extends @key(fields : "id") {
   reviews: [Review!]!
   shippingCost: String! @requires(fields : "weight")
   weight: Float! @external
+}
+
+type Query {
+  hello(name: String!): String!
 }
 
 type Review {
@@ -76,7 +80,7 @@ class ServiceQueryResolverTest {
             hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
         )
 
-        val schema = toFederatedSchema(config)
+        val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery())))
         val query = """
             query sdlQuery {
               _service {
