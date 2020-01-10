@@ -178,5 +178,4 @@ class FederatedKeyDirectiveTest {
     class FederatedKeyWithNestedFieldsQuery {
         fun federatedKeyWithNestedFields() = FederatedKeyWithNestedFields(FederatedNestedId("1"), "foo")
     }
-
 }
