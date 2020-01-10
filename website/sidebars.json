@@ -37,9 +37,11 @@
         "type": "subcategory",
         "label": "Execution",
         "ids": [
+          "execution/fetching-data",
+          "execution/async-models",
+          "execution/exceptions",
           "execution/data-fetching-environment",
           "execution/contextual-data",
-          "execution/async-models",
           "execution/subscriptions"
         ]
       }

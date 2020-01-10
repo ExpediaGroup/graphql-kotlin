@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
 @Component
-class DataAndErrors : Query {
+class DataAndErrorsQuery : Query {
 
     fun returnDataAndErrors(): DataFetcherResult<String> {
         val error = SimpleKotlinGraphQLError(RuntimeException(), listOf(SourceLocation(1, 1)), ExecutionPath.rootPath().toList())
