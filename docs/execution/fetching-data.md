@@ -6,10 +6,10 @@ title: Fetching Data
 Each field exposed through a GraphQL query has a corresponding resolver (aka data fetcher) associated with it. `graphql-kotlin-schema-generator` generates GraphQL schema
 directly from the source code automatically mapping all the fields either to use
 [FunctionDataFetcher](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/FunctionDataFetcher.kt)
-to resolve underlying functions or a [PropertyDataFetcher](https://www.graphql-java.com/documentation/v13/data-fetching/) to read value from an underlying Kotlin property.
+to resolve underlying functions or a [PropertyDataFetcher](https://www.graphql-java.com/documentation/v13/data-fetching/) to read a value from an underlying Kotlin property.
 
-While all the fields in a GraphQL query are resolved independently to produce a final result, depending whether field is backed by a function or a property can have significant
-performance repercussions. For example, given a following schema
+While all the fields in a GraphQL query are resolved independently to produce a final result, whether field is backed by a function or a property can have significant
+performance repercussions. For example, given the following schema:
 
 ```graphql
 type Query {
@@ -28,7 +28,7 @@ type Review {
 }
 ```
 
-depending whether we structure `Product` as
+We can define `Product` as
 
 ```kotlin
 data class Product(val id: Int, val name: String, reviews: List<Review>)
@@ -44,9 +44,9 @@ class Product(val id: Int, val name: String) {
 }
 ```
 
-we end up with different run characteristics. If we expose `reviews` field as a property it will always be populated regardless whether or not your client actually asks for it.
-On the other hand if `reviews` are backed by a function, it will only be fired if your client ask for this data. In order to minimize the over-fetching of data from your
-underlying data sources we recommend to expose all your GraphQL fields that require some additional computations through functions.
+If we expose the `reviews` field as a property it will always be populated regardless whether or not your client actually asks for it. On the other hand if `reviews` is backed
+by a function, it will only be called if your client asks for this data. In order to minimize the over-fetching of data from your underlying data sources we recommend to
+expose all your GraphQL fields that require some additional computations through functions.
 
 ### Customizing Default Behavior
 

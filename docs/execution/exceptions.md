@@ -9,8 +9,8 @@ Exceptions thrown during execution of a query will result in a GraphQLError that
 ### Partial Data
 
 GraphQL allows you to return both data and errors in a single response. Depending on the criticality of the encountered error you may want to return
-partial data together with the corresponding errors. In Kotlin functions can return single value which means in order to return both data and errors
-you have to explicitly return them wrapped in `DataFetcherResult` object.
+partial data together with the corresponding errors. In Kotlin, functions return only a single value, which means that in order to return both data
+and errors you have to explicitly return them wrapped in a `DataFetcherResult` object.
 
 ```kotlin
 class DataAndErrorsQuery {
