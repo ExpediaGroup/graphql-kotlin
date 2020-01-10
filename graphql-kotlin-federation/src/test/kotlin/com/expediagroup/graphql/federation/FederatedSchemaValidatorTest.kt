@@ -134,7 +134,8 @@ class FederatedSchemaValidatorTest {
     }
 
     /**
-     * type Foo @key(fields: "bar") {
+     * type Foo @key(fields: "id") {
+     *   id: String
      *   bar: String @provides
      * }
      */
@@ -144,10 +145,13 @@ class FederatedSchemaValidatorTest {
             every { name } returns "key"
             every { getArgument(eq("fields")) } returns mockk {
                 every { value } returns mockk<FieldSet> {
-                    every { value } returns "bar"
+                    every { value } returns "id"
                 }
             }
         }
+        val id = GraphQLFieldDefinition.newFieldDefinition()
+            .name("id")
+            .type(GraphQLString)
         val directive = GraphQLDirective.newDirective().name("provides")
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
@@ -157,6 +161,7 @@ class FederatedSchemaValidatorTest {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
             .field(field)
+            .field(id)
             .withDirective(keyDirective)
             .build()
 
@@ -173,7 +178,8 @@ class FederatedSchemaValidatorTest {
     }
 
     /**
-     * type Foo @key(fields: "bar") {
+     * type Foo @key(fields: "id") {
+     *   id: String
      *   bar: String @requires
      * }
      */
@@ -183,10 +189,13 @@ class FederatedSchemaValidatorTest {
             every { name } returns "key"
             every { getArgument(eq("fields")) } returns mockk {
                 every { value } returns mockk<FieldSet> {
-                    every { value } returns "bar"
+                    every { value } returns "id"
                 }
             }
         }
+        val id = GraphQLFieldDefinition.newFieldDefinition()
+            .name("id")
+            .type(GraphQLString)
         val directive = GraphQLDirective.newDirective().name("requires")
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
@@ -196,6 +205,7 @@ class FederatedSchemaValidatorTest {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
             .field(field)
+            .field(id)
             .withDirective(keyDirective)
             .build()
 
@@ -212,7 +222,8 @@ class FederatedSchemaValidatorTest {
     }
 
     /**
-     * type Foo @key(fields: "bar") {
+     * type Foo @key(fields: "id") {
+     *   id: String
      *   bar: String @external
      * }
      */
@@ -222,10 +233,13 @@ class FederatedSchemaValidatorTest {
             every { name } returns "key"
             every { getArgument(eq("fields")) } returns mockk {
                 every { value } returns mockk<FieldSet> {
-                    every { value } returns "bar"
+                    every { value } returns "id"
                 }
             }
         }
+        val id = GraphQLFieldDefinition.newFieldDefinition()
+            .name("id")
+            .type(GraphQLString)
         val directive = GraphQLDirective.newDirective().name("external")
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
@@ -235,6 +249,7 @@ class FederatedSchemaValidatorTest {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
             .field(field)
+            .field(id)
             .withDirective(keyDirective)
             .build()
 
@@ -244,7 +259,6 @@ class FederatedSchemaValidatorTest {
 
         val expectedError = """
             Invalid federated schema:
-             - @key(fields = bar) directive on Foo specifies invalid field set - type incorrectly references external field=bar
              - base Foo type has fields marked with @external directive, fields=[bar]
         """.trimIndent()
 
