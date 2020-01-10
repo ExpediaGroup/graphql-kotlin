@@ -112,42 +112,42 @@ interface SchemaGeneratorHooks {
     }
 
     /**
-     * Called after converting the function to a field definition but before adding to the schema to allow customization
+     * Called after converting the function to a field definition but before adding to the query object to allow customization
      */
-    fun didGenerateQueryFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateQueryField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after converting the function to a field definition but before adding to the schema to allow customization
+     * Called after converting the function to a field definition but before adding to the mutation object to allow customization
      */
-    fun didGenerateMutationFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateMutationField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after converting the function to a field definition but before adding to the schema to allow customization
+     * Called after converting the function to a field definition but before adding to the subscription object to allow customization
      */
-    fun didGenerateSubscriptionFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateSubscriptionField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after generating the Query object type but before adding it to the schema.
+     * Called after generating the Query object but before adding it to the schema.
      */
-    fun didGenerateQueryObjectType(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
+    fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
         throw EmptyQueryTypeException
     } else {
         type
     }
 
     /**
-     * Called after generating the Mutation object type but before adding it to the schema.
+     * Called after generating the Mutation object but before adding it to the schema.
      */
-    fun didGenerateMutationObjectType(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
+    fun didGenerateMutationObject(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
         throw EmptyMutationTypeException
     } else {
         type
     }
 
     /**
-     * Called after generating the Subscription object type but before adding it to the schema.
+     * Called after generating the Subscription object but before adding it to the schema.
      */
-    fun didGenerateSubscriptionObjectType(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
+    fun didGenerateSubscriptionObject(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
         throw EmptySubscriptionTypeException
     } else {
         type

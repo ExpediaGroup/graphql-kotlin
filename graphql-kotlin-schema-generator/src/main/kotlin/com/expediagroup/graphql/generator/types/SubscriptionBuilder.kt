@@ -45,10 +45,10 @@ internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: Li
                 }
 
                 val function = generateFunction(generator, it, generator.config.topLevelNames.subscription, subscription.obj)
-                val functionFromHook = generator.config.hooks.didGenerateSubscriptionFieldType(subscription.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateSubscriptionField(subscription.kClass, it, function)
                 subscriptionBuilder.field(functionFromHook)
             }
     }
 
-    return generator.config.hooks.didGenerateSubscriptionObjectType(subscriptionBuilder.build())
+    return generator.config.hooks.didGenerateSubscriptionObject(subscriptionBuilder.build())
 }

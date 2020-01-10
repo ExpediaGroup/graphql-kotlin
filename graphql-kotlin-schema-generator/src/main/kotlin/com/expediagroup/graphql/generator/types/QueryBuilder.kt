@@ -39,10 +39,10 @@ fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): 
         query.kClass.getValidFunctions(generator.config.hooks)
             .forEach {
                 val function = generateFunction(generator, it, generator.config.topLevelNames.query, query.obj)
-                val functionFromHook = generator.config.hooks.didGenerateQueryFieldType(query.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateQueryField(query.kClass, it, function)
                 queryBuilder.field(functionFromHook)
             }
     }
 
-    return generator.config.hooks.didGenerateQueryObjectType(queryBuilder.build())
+    return generator.config.hooks.didGenerateQueryObject(queryBuilder.build())
 }

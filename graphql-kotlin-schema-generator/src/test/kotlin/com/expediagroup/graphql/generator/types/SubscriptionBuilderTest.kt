@@ -109,7 +109,7 @@ internal class SubscriptionBuilderTest : TypeTestHelper() {
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
 
         class CustomHooks : SchemaGeneratorHooks {
-            override fun didGenerateSubscriptionFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+            override fun didGenerateSubscriptionField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
                 return if (fieldDefinition.name == "filterMe") {
                     fieldDefinition.transform { fieldBuilder -> fieldBuilder.name("changedField") }
                 } else fieldDefinition

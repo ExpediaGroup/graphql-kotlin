@@ -39,9 +39,9 @@ internal class QueryBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
-        override fun didGenerateQueryFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+        override fun didGenerateQueryField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
             calledHook = true
-            return super.didGenerateQueryFieldType(kClass, function, fieldDefinition)
+            return super.didGenerateQueryField(kClass, function, fieldDefinition)
         }
     }
 

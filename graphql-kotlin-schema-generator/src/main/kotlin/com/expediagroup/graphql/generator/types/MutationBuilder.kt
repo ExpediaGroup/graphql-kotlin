@@ -43,10 +43,10 @@ fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject
         mutation.kClass.getValidFunctions(generator.config.hooks)
             .forEach {
                 val function = generateFunction(generator, it, generator.config.topLevelNames.mutation, mutation.obj)
-                val functionFromHook = generator.config.hooks.didGenerateMutationFieldType(mutation.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateMutationField(mutation.kClass, it, function)
                 mutationBuilder.field(functionFromHook)
             }
     }
 
-    return generator.config.hooks.didGenerateMutationObjectType(mutationBuilder.build())
+    return generator.config.hooks.didGenerateMutationObject(mutationBuilder.build())
 }

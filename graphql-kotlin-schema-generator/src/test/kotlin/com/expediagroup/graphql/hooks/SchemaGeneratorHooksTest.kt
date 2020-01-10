@@ -103,7 +103,7 @@ class SchemaGeneratorHooksTest {
             override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
 
             // skip validation
-            override fun didGenerateQueryObjectType(type: GraphQLObjectType): GraphQLObjectType = type
+            override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = type
         }
 
         val hooks = MockSchemaGeneratorHooks()
@@ -197,7 +197,7 @@ class SchemaGeneratorHooksTest {
     @Test
     fun `calls hook before adding query field to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            override fun didGenerateQueryFieldType(
+            override fun didGenerateQueryField(
                 kClass: KClass<*>,
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition
@@ -221,7 +221,7 @@ class SchemaGeneratorHooksTest {
     @Test
     fun `calls hook before adding mutation field to schema`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            override fun didGenerateMutationFieldType(
+            override fun didGenerateMutationField(
                 kClass: KClass<*>,
                 function: KFunction<*>,
                 fieldDefinition: GraphQLFieldDefinition

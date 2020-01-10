@@ -40,9 +40,9 @@ internal class MutationBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
-        override fun didGenerateMutationFieldType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+        override fun didGenerateMutationField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
             calledHook = true
-            return super.didGenerateMutationFieldType(kClass, function, fieldDefinition)
+            return super.didGenerateMutationField(kClass, function, fieldDefinition)
         }
     }
 
