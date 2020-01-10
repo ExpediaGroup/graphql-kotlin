@@ -105,7 +105,7 @@ class FederatedSchemaValidatorTest {
      * }
      */
     @Test
-    fun `validate federated GraphQLObjectType with key directive`() {
+    fun `validate federated GraphQLObjectType with empty key directive`() {
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(GraphQLString)
