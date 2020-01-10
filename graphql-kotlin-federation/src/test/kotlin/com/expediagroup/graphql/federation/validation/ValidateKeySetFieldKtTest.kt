@@ -45,6 +45,11 @@ class ValidateKeySetFieldKtTest {
         assertEquals("foo specifies invalid field set - field set specifies fields that do not exist", errors.first())
     }
 
+    /**
+     * type Parent @extends {
+     *   foo: String
+     * }
+     */
     @Test
     fun `returns an error on extended type without external directive`() {
         val errors = mutableListOf<String>()
@@ -63,6 +68,11 @@ class ValidateKeySetFieldKtTest {
         assertEquals("foo specifies invalid field set - extended type incorrectly references local field=foo", errors.first())
     }
 
+    /**
+     * type Parent {
+     *   foo: String @external
+     * }
+     */
     @Test
     fun `returns an error on a non extended type with external directive`() {
         val errors = mutableListOf<String>()
@@ -82,6 +92,11 @@ class ValidateKeySetFieldKtTest {
         assertEquals("foo specifies invalid field set - type incorrectly references external field=foo", errors.first())
     }
 
+    /**
+     * type Parent @extends {
+     *   foo: [String] @external
+     * }
+     */
     @Test
     fun `returns an error when the field type is a list`() {
         val errors = mutableListOf<String>()
@@ -101,6 +116,14 @@ class ValidateKeySetFieldKtTest {
         assertEquals("foo specifies invalid field set - field set references GraphQLList, field=foo", errors.first())
     }
 
+    /**
+     * interface MyInterface {
+     *   bar: String
+     * }
+     * type Parent @extends {
+     *   foo: MyInterface @external
+     * }
+     */
     @Test
     fun `returns an error when the field type is a interface`() {
         val errors = mutableListOf<String>()
@@ -124,11 +147,18 @@ class ValidateKeySetFieldKtTest {
         assertEquals("foo specifies invalid field set - field set references GraphQLInterfaceType, field=foo", errors.first())
     }
 
+    /**
+     * union MyUnion = MyType
+     *
+     * type Parent @extends {
+     *   foo: MyUnion @external
+     * }
+     */
     @Test
     fun `returns an error when the field type is a union`() {
         val errors = mutableListOf<String>()
         val unionType = GraphQLUnionType.newUnionType()
-            .name("MyInterface")
+            .name("MyUnion")
             .possibleType(GraphQLTypeReference("MyType"))
 
         val target = GraphQLFieldDefinition.newFieldDefinition()
@@ -147,6 +177,11 @@ class ValidateKeySetFieldKtTest {
         assertEquals("foo specifies invalid field set - field set references GraphQLUnionType, field=foo", errors.first())
     }
 
+    /**
+     * type Parent @extends {
+     *   foo: String @external
+     * }
+     */
     @Test
     fun `returns no errors when there is extended type with external directive`() {
         val errors = mutableListOf<String>()

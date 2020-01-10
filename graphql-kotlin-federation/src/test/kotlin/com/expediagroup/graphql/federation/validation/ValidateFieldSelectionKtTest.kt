@@ -40,6 +40,15 @@ class ValidateFieldSelectionKtTest {
         assertTrue(errors.isEmpty())
     }
 
+    /**
+     * interface MyInterface {
+     *   bar: String
+     * }
+     *
+     * type Parent {
+     *   foo: MyInterface @taco("foo { bar }")
+     * }
+     */
     @Test
     fun `GraphQLInterface type is unwrapped, and returns a single error`() {
         val interfaceField = GraphQLFieldDefinition.newFieldDefinition()
@@ -67,6 +76,15 @@ class ValidateFieldSelectionKtTest {
         assertEquals(expected = "taco specifies invalid field set - field set references GraphQLInterfaceType, field=foo", actual = errors.first())
     }
 
+    /**
+     * type MyObject {
+     *   bar: String
+     * }
+     *
+     * type Parent {
+     *   foo: MyObject @taco("foo { bar }")
+     * }
+     */
     @Test
     fun `GraphQLObjectType type is unwrapped, and returns a no errors on valid selection`() {
         val field = GraphQLFieldDefinition.newFieldDefinition()
@@ -83,7 +101,7 @@ class ValidateFieldSelectionKtTest {
             .build()
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "",
+            validatedDirective = "taco",
             iterator = listOf("foo", "{", "bar", "}").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
@@ -93,6 +111,11 @@ class ValidateFieldSelectionKtTest {
         assertEquals(expected = 0, actual = errors.size)
     }
 
+    /**
+     * type Parent {
+     *   foo: String @taco("foo")
+     * }
+     */
     @Test
     fun `A valid field definition returns no errors`() {
         val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
@@ -101,7 +124,7 @@ class ValidateFieldSelectionKtTest {
             .build()
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "",
+            validatedDirective = "taco",
             iterator = listOf("foo").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
@@ -111,6 +134,11 @@ class ValidateFieldSelectionKtTest {
         assertTrue(errors.isEmpty())
     }
 
+    /**
+     * type Parent {
+     *   foo: String @taco("bar { foo }")
+     * }
+     */
     @Test
     fun `A valid field definition but with invalid sub fields returns two errors`() {
         val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()

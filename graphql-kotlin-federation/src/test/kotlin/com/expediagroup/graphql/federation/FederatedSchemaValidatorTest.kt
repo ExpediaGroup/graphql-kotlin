@@ -31,6 +31,9 @@ import kotlin.test.assertFailsWith
 
 class FederatedSchemaValidatorTest {
 
+    /**
+     * type Foo {}
+     */
     @Test
     fun `validate GraphQLObjectType but not federated should do nothing`() {
         val typeToValidate = GraphQLObjectType.newObject()
@@ -42,6 +45,11 @@ class FederatedSchemaValidatorTest {
         }
     }
 
+    /**
+     * interface Foo {
+     *   bar: String
+     * }
+     */
     @Test
     fun `validate GraphQLInterfaceType but not federated should do nothing`() {
         val typeToValidate = GraphQLInterfaceType.newInterface()
@@ -54,6 +62,9 @@ class FederatedSchemaValidatorTest {
         }
     }
 
+    /**
+     * type Foo @extends {}
+     */
     @Test
     fun `validate federated GraphQLObjectType with no fields`() {
         val typeToValidate = GraphQLObjectType.newObject()
@@ -66,6 +77,11 @@ class FederatedSchemaValidatorTest {
         }
     }
 
+    /**
+     * type Foo @extends {
+     *   bar: String
+     * }
+     */
     @Test
     fun `validate federated GraphQLObjectType with no key directive`() {
         val field = GraphQLFieldDefinition.newFieldDefinition()
@@ -83,6 +99,11 @@ class FederatedSchemaValidatorTest {
         }
     }
 
+    /**
+     * type Foo @key {
+     *   bar: String
+     * }
+     */
     @Test
     fun `validate federated GraphQLObjectType with key directive`() {
         val field = GraphQLFieldDefinition.newFieldDefinition()
@@ -107,6 +128,11 @@ class FederatedSchemaValidatorTest {
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
 
+    /**
+     * type Foo @key {
+     *   bar: String @provides
+     * }
+     */
     @Test
     fun `validate federated GraphQLObjectType with key directive and field with provides directive`() {
         val directive = GraphQLDirective.newDirective().name("provides")
@@ -134,6 +160,11 @@ class FederatedSchemaValidatorTest {
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
 
+    /**
+     * type Foo @key {
+     *   bar: String @requires
+     * }
+     */
     @Test
     fun `validate federated GraphQLObjectType with key directive and field with requires directive`() {
         val directive = GraphQLDirective.newDirective().name("requires")
@@ -161,6 +192,11 @@ class FederatedSchemaValidatorTest {
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
 
+    /**
+     * type Foo @key {
+     *   bar: String @external
+     * }
+     */
     @Test
     fun `validate federated GraphQLObjectType with key directive and field with external directive`() {
         val directive = GraphQLDirective.newDirective().name("external")

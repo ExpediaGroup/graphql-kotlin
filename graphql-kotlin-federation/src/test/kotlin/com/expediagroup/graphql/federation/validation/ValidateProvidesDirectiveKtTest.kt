@@ -26,6 +26,11 @@ import kotlin.test.assertEquals
 
 class ValidateProvidesDirectiveKtTest {
 
+    /**
+     * type MyType {
+     *   foo: String @provides
+     * }
+     */
     @Test
     fun `returns an error when the type is not GraphQLObjectType or GraphQLTypeReference`() {
         val federatedType = GraphQLFieldDefinition.newFieldDefinition()
@@ -39,6 +44,11 @@ class ValidateProvidesDirectiveKtTest {
         assertEquals("@provides directive is specified on a MyType.foo field but it does not return an object type", errors.first())
     }
 
+    /**
+     * type MyType {
+     *   foo: MyOtherType @provides
+     * }
+     */
     @Test
     fun `returns no errors when the type is GraphQLTypeReference`() {
         val federatedType = GraphQLFieldDefinition.newFieldDefinition()
@@ -51,6 +61,15 @@ class ValidateProvidesDirectiveKtTest {
         assertEquals(0, errors.size)
     }
 
+    /**
+     * type MyObject {
+     *   bar: String
+     * }
+     *
+     * type MyType {
+     *   foo: MyObject @provides
+     * }
+     */
     @Test
     fun `returns an error when the type is GraphQLObjectType but is not extended`() {
         val objectType = GraphQLObjectType.newObject()
@@ -69,6 +88,15 @@ class ValidateProvidesDirectiveKtTest {
         assertEquals("@provides directive is specified on a MyType.foo field references local object", errors.first())
     }
 
+    /**
+     * type MyObject @extends {
+     *   bar: String
+     * }
+     *
+     * type MyType {
+     *   foo: MyObject @provides
+     * }
+     */
     @Test
     fun `validates the return type fields when the type is GraphQLObjectType and is extended`() {
         val objectType = GraphQLObjectType.newObject()

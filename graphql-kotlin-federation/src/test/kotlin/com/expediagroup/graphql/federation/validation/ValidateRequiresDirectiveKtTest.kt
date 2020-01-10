@@ -34,6 +34,11 @@ class ValidateRequiresDirectiveKtTest {
         .field(descriptionField)
         .build()
 
+    /**
+     * type Foo {
+     *   description: String
+     * }
+     */
     @Test
     fun `non extended types return an error`() {
         val errors = validateRequiresDirective(
@@ -46,6 +51,11 @@ class ValidateRequiresDirectiveKtTest {
         assertEquals("base Foo type has fields marked with @requires directive, validatedField=description", errors.first())
     }
 
+    /**
+     * type Foo @extends {
+     *   description: String
+     * }
+     */
     @Test
     fun `extended types run validation on the directive`() {
         val errors = validateRequiresDirective(
