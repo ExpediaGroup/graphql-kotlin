@@ -126,10 +126,6 @@ class ValidateRequiresDirectiveKtTest {
      */
     @Test
     fun `Verify valid requires directive and but selected field is not external`() {
-        val id = GraphQLFieldDefinition.newFieldDefinition()
-            .name("id")
-            .type(GraphQLString)
-
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
@@ -160,10 +156,6 @@ class ValidateRequiresDirectiveKtTest {
      */
     @Test
     fun `Verify valid requires directive and valid field selection`() {
-        val id = GraphQLFieldDefinition.newFieldDefinition()
-            .name("id")
-            .type(GraphQLString)
-
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
