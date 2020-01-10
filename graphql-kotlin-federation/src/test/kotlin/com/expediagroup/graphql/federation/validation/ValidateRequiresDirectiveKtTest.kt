@@ -16,55 +16,110 @@
 
 package com.expediagroup.graphql.federation.validation
 
+import com.expediagroup.graphql.federation.directives.FieldSet
+import graphql.Scalars.GraphQLFloat
 import graphql.Scalars.GraphQLString
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class ValidateRequiresDirectiveKtTest {
 
-    private val descriptionField: GraphQLFieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
-        .name("description")
+    private val requiresDirective: GraphQLDirective = mockk {
+        every { name } returns "requires"
+        every { getArgument(eq("fields")) } returns mockk {
+            every { value } returns mockk<FieldSet> {
+                every { value } returns "weight"
+            }
+        }
+    }
+
+    private val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
+        .name("shippingCost")
         .type(GraphQLString)
+        .withDirective(requiresDirective)
         .build()
 
-    private val validatedType: GraphQLObjectType = GraphQLObjectType.newObject()
-        .name("Foo")
-        .field(descriptionField)
+    private val weight = GraphQLFieldDefinition.newFieldDefinition()
+        .name("weight")
+        .type(GraphQLFloat)
         .build()
 
     /**
      * type Foo {
-     *   description: String
+     *   shippingCost: String @requires(fields: "weight")
+     *   weight: Float
      * }
      */
     @Test
-    fun `non extended types return an error`() {
+    fun `Verify non extended types return an error`() {
+        val validatedType = GraphQLObjectType.newObject()
+            .name("Foo")
+            .field(shippingCost)
+            .field(weight)
+            .build()
+
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
             fieldMap = emptyMap(),
-            validatedField = descriptionField,
+            validatedField = shippingCost,
             extendedType = false)
 
         assertEquals(1, errors.size)
-        assertEquals("base Foo type has fields marked with @requires directive, validatedField=description", errors.first())
+        assertEquals("base Foo type has fields marked with @requires directive, validatedField=shippingCost", errors.first())
     }
 
     /**
      * type Foo @extends {
-     *   description: String
+     *   shippingCost: String @requires(fields: "weight")
+     *   weight: Float
      * }
      */
     @Test
-    fun `extended types run validation on the directive`() {
+    fun `Verify valid requires directive, but invalid field selection`() {
+        val validatedType = GraphQLObjectType.newObject()
+            .name("Foo")
+            .field(shippingCost)
+            .field(weight)
+            .build()
+
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
-            fieldMap = emptyMap(),
-            validatedField = descriptionField,
+            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            validatedField = shippingCost,
             extendedType = true)
 
         assertEquals(1, errors.size)
-        assertEquals("@requires directive is missing on federated Foo.description type", errors.first())
+        assertEquals("@requires(fields = weight) directive on Foo.shippingCost specifies invalid field set - extended type incorrectly references local field=weight", errors.first())
+    }
+
+    /**
+     * type Foo @extends {
+     *   shippingCost: String @requires(fields: "weight")
+     *   weight: Float @external
+     * }
+     */
+    @Test
+    fun `Verify valid requires directive and valid field selection`() {
+        val modifiedWeight = GraphQLFieldDefinition.newFieldDefinition(weight)
+            .withDirective(GraphQLDirective.newDirective().name("external"))
+
+        val validatedType = GraphQLObjectType.newObject()
+            .name("Foo")
+            .field(shippingCost)
+            .field(modifiedWeight)
+            .build()
+
+        val errors = validateRequiresDirective(
+            validatedType = validatedType.name,
+            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            validatedField = shippingCost,
+            extendedType = true)
+
+        assertEquals(0, errors.size)
     }
 }
