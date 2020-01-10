@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.expediagroup.graphql.spring
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.execution.SubscriptionHandler
+import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -103,6 +104,9 @@ class SubscriptionConfigurationTest {
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
         @Bean
+        fun query(): Query = SimpleQuery()
+
+        @Bean
         fun subscription(): Subscription = SimpleSubscription()
     }
 
@@ -114,6 +118,9 @@ class SubscriptionConfigurationTest {
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
         @Bean
+        fun query(): Query = SimpleQuery()
+
+        @Bean
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
@@ -123,6 +130,13 @@ class SubscriptionConfigurationTest {
 
         @Bean
         fun webSocketHandlerAdapter(): WebSocketHandlerAdapter = mockk()
+    }
+
+    // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
+    // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
+    class SimpleQuery : Query {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun query(): String = "hello!"
     }
 
     class SimpleSubscription : Subscription {

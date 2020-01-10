@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import kotlin.reflect.full.createType
 internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
     // Interfaces can not implement another interface in GraphQL
     if (kClass.getValidSuperclasses(generator.config.hooks).isNotEmpty()) {
-        throw InvalidInterfaceException()
+        throw InvalidInterfaceException(klazz = kClass)
     }
 
     val builder = GraphQLInterfaceType.newInterface()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.exceptions.EmptyMutationTypeException
 import com.expediagroup.graphql.exceptions.InvalidMutationTypeException
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLFieldDefinition
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
@@ -38,9 +40,9 @@ internal class MutationBuilderTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false
-        override fun didGenerateMutationType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
+        override fun didGenerateMutationField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition {
             calledHook = true
-            return super.didGenerateMutationType(kClass, function, fieldDefinition)
+            return super.didGenerateMutationField(kClass, function, fieldDefinition)
         }
     }
 
@@ -78,9 +80,9 @@ internal class MutationBuilderTest : TypeTestHelper() {
     @Test
     fun `mutation with no valid functions`() {
         val mutations = listOf(TopLevelObject(NoFunctions()))
-        val result = generateMutations(generator, mutations)
-        assertEquals(expected = "TestTopLevelMutation", actual = result?.name)
-        assertTrue(result?.fieldDefinitions?.isEmpty().isTrue())
+        assertThrows<EmptyMutationTypeException> {
+            generateMutations(generator, mutations)
+        }
     }
 
     @Test

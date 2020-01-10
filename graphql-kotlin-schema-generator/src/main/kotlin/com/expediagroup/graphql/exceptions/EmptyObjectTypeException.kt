@@ -16,12 +16,13 @@
 
 package com.expediagroup.graphql.exceptions
 
-import kotlin.reflect.KClass
+import com.expediagroup.graphql.generator.extensions.getSimpleName
+import kotlin.reflect.KType
 
 /**
- * Thrown when an interface implements another interface or abstract class that is not excluded from the schema.
+ * Thrown when schema object type does not expose any fields. Since GraphQL always requires you to select fields down to scalar values, an object type without any defined fields cannot be accessed
+ * in any way in a query.
  *
- * This is an invalid schema until the GraphQL spec is updated
- * https://github.com/ExpediaGroup/graphql-kotlin/issues/419
+ * @see [Issue 568](https://github.com/graphql/graphql-spec/issues/568)
  */
-class InvalidInterfaceException(klazz: KClass<*>) : GraphQLKotlinException("Invalid ${klazz.simpleName} interface - interfaces can not have any superclasses.")
+class EmptyObjectTypeException(ktype: KType) : GraphQLKotlinException("Invalid ${ktype.getSimpleName()} object type - object does not expose any fields.")

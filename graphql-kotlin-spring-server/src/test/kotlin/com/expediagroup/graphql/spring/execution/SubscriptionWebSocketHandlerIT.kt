@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
+import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -161,6 +162,10 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
 
     @Configuration
     class TestConfiguration {
+
+        @Bean
+        fun query(): Query = SimpleQuery()
+
         @Bean
         fun subscription(): Subscription = SimpleSubscription()
 
@@ -170,6 +175,13 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
                 value = request.headers.getFirst("X-Custom-Header") ?: "default"
             )
         }
+    }
+
+    // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
+    // see: https://github.com/graphql/graphql-spec/issues/490 and https://github.com/graphql/graphql-spec/issues/568
+    class SimpleQuery : Query {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun query(): String = "hello!"
     }
 
     class SimpleSubscription : Subscription {

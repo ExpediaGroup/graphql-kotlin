@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -269,4 +269,7 @@ class Cheesecake : Cake {
 
 interface Dessert
 
-class IceCream : Dessert
+@Suppress("Detekt.FunctionOnlyReturningConstant")
+class IceCream : Dessert {
+    fun flavor(): String = "chocolate"
+}

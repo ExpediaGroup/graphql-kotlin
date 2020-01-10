@@ -108,6 +108,9 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
         return federatedSchema.query(federatedQuery.build())
             .codeRegistry(federatedCodeRegistry.build())
     }
+
+    // skip validation for empty query type - federation will add _service query
+    override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = type
 }
 
 private fun TypeResolutionEnvironment.getObjectName(): String? {

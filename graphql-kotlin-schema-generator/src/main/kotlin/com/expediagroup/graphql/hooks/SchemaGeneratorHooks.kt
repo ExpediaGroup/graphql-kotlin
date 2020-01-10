@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,21 @@
 package com.expediagroup.graphql.hooks
 
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.exceptions.EmptyInputObjectTypeException
+import com.expediagroup.graphql.exceptions.EmptyInterfaceTypeException
+import com.expediagroup.graphql.exceptions.EmptyMutationTypeException
+import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
+import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
+import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
+import graphql.schema.GraphQLInputObjectType
+import graphql.schema.GraphQLInterfaceType
+import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -90,22 +100,58 @@ interface SchemaGeneratorHooks {
     /**
      * Called after wrapping the type based on nullity but before adding the generated type to the schema
      */
-    fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType) = generatedType
+    @Suppress("Detekt.ThrowsCount")
+    fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
+        val unwrapped = GraphQLTypeUtil.unwrapNonNull(generatedType)
+        return when {
+            unwrapped is GraphQLInterfaceType && unwrapped.fieldDefinitions.isEmpty() -> throw EmptyInterfaceTypeException(ktype = type)
+            unwrapped is GraphQLObjectType && unwrapped.fieldDefinitions.isEmpty() -> throw EmptyObjectTypeException(ktype = type)
+            unwrapped is GraphQLInputObjectType && unwrapped.fieldDefinitions.isEmpty() -> throw EmptyInputObjectTypeException(ktype = type)
+            else -> generatedType
+        }
+    }
 
     /**
-     * Called after converting the function to a field definition but before adding to the schema to allow customization
+     * Called after converting the function to a field definition but before adding to the query object to allow customization
      */
-    fun didGenerateQueryType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateQueryField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after converting the function to a field definition but before adding to the schema to allow customization
+     * Called after converting the function to a field definition but before adding to the mutation object to allow customization
      */
-    fun didGenerateMutationType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateMutationField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
 
     /**
-     * Called after converting the function to a field definition but before adding to the schema to allow customization
+     * Called after converting the function to a field definition but before adding to the subscription object to allow customization
      */
-    fun didGenerateSubscriptionType(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+    fun didGenerateSubscriptionField(kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition): GraphQLFieldDefinition = fieldDefinition
+
+    /**
+     * Called after generating the Query object but before adding it to the schema.
+     */
+    fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
+        throw EmptyQueryTypeException
+    } else {
+        type
+    }
+
+    /**
+     * Called after generating the Mutation object but before adding it to the schema.
+     */
+    fun didGenerateMutationObject(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
+        throw EmptyMutationTypeException
+    } else {
+        type
+    }
+
+    /**
+     * Called after generating the Subscription object but before adding it to the schema.
+     */
+    fun didGenerateSubscriptionObject(type: GraphQLObjectType): GraphQLObjectType = if (type.fieldDefinitions.isEmpty()) {
+        throw EmptySubscriptionTypeException
+    } else {
+        type
+    }
 
     val wiringFactory: KotlinDirectiveWiringFactory
         get() = KotlinDirectiveWiringFactory()

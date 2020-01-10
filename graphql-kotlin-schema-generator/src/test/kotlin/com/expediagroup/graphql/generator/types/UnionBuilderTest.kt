@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,14 +34,20 @@ internal class UnionBuilderTest : TypeTestHelper() {
     @SimpleDirective
     private interface Cake
 
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
     @GraphQLDescription("so red")
-    private class StrawBerryCake : Cake
+    private class StrawBerryCake : Cake {
+        fun recipe(): String = "google it"
+    }
 
     @GraphQLName("CakeRenamed")
     private interface CakeCustomName
 
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
     @GraphQLName("StrawBerryCakeRenamed")
-    private class StrawBerryCakeCustomName : CakeCustomName
+    private class StrawBerryCakeCustomName : CakeCustomName {
+        fun recipe(): String = "bing it"
+    }
 
     private interface NestedUnionA
 
