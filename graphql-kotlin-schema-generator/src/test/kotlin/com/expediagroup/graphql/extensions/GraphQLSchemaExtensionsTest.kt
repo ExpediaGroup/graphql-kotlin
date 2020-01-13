@@ -218,7 +218,7 @@ class GraphQLSchemaExtensionsTest {
     }
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
-    internal annotation class CustomDirective
+    annotation class CustomDirective
 
     class QueryWithDirectives {
         fun echo(msg: String): String = msg
