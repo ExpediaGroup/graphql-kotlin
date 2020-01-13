@@ -16,7 +16,9 @@
 
 package com.expediagroup.graphql.federation
 
-import com.expediagroup.graphql.federation.directives.FieldSet
+import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.extendsDirectiveType
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import graphql.Scalars.GraphQLString
@@ -24,8 +26,6 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
@@ -109,7 +109,7 @@ class FederatedSchemaValidatorTest {
     @Test
     fun `validate federated GraphQLObjectType with empty key directive`() {
         val keyDirectiveType = GraphQLDirective.newDirective()
-            .name("key")
+            .name(KEY_DIRECTIVE_NAME)
 
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
@@ -134,25 +134,20 @@ class FederatedSchemaValidatorTest {
     }
 
     /**
-     * type Foo @key(fields: "id") {
-     *   id: String
+     * type Foo @key(fields: "id") @extends {
+     *   id: String @external
      *   bar: String @provides
      * }
      */
     @Test
-    fun `validate federated GraphQLObjectType with valid key directive and scalar field with provides directive`() {
-        val keyDirective: GraphQLDirective = mockk {
-            every { name } returns "key"
-            every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
-                    every { value } returns "id"
-                }
-            }
-        }
+    fun `validate federated GraphQLObjectType with valid key directive and scalar field with invalid provides directive`() {
+        val keyDirective: GraphQLDirective = getKeyDirective("id")
         val id = GraphQLFieldDefinition.newFieldDefinition()
             .name("id")
             .type(GraphQLString)
-        val directive = GraphQLDirective.newDirective().name("provides")
+            .withDirective(externalDirective)
+
+        val directive = GraphQLDirective.newDirective().name(PROVIDES_DIRECTIVE_NAME)
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .withDirective(directive)
@@ -163,6 +158,7 @@ class FederatedSchemaValidatorTest {
             .field(field)
             .field(id)
             .withDirective(keyDirective)
+            .withDirective(extendsDirectiveType)
             .build()
 
         val result = kotlin.runCatching {
@@ -178,25 +174,20 @@ class FederatedSchemaValidatorTest {
     }
 
     /**
-     * type Foo @key(fields: "id") {
-     *   id: String
+     * type Foo @key(fields: "id") @extends {
+     *   id: String @external
      *   bar: String @requires
      * }
      */
     @Test
-    fun `validate federated GraphQLObjectType with valid key directive and field with requires directive`() {
-        val keyDirective: GraphQLDirective = mockk {
-            every { name } returns "key"
-            every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
-                    every { value } returns "id"
-                }
-            }
-        }
+    fun `validate federated GraphQLObjectType with valid key directive and field with invalid requires directive`() {
+        val keyDirective: GraphQLDirective = getKeyDirective("id")
         val id = GraphQLFieldDefinition.newFieldDefinition()
             .name("id")
             .type(GraphQLString)
-        val directive = GraphQLDirective.newDirective().name("requires")
+            .withDirective(externalDirective)
+
+        val directive = GraphQLDirective.newDirective().name(REQUIRES_DIRECTIVE_NAME)
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .withDirective(directive)
@@ -207,6 +198,7 @@ class FederatedSchemaValidatorTest {
             .field(field)
             .field(id)
             .withDirective(keyDirective)
+            .withDirective(extendsDirectiveType)
             .build()
 
         val result = kotlin.runCatching {
@@ -215,7 +207,7 @@ class FederatedSchemaValidatorTest {
 
         val expectedError = """
             Invalid federated schema:
-             - base Foo type has fields marked with @requires directive, validatedField=bar
+             - @requires directive on Foo.bar is missing field information
         """.trimIndent()
 
         assertEquals(expectedError, result.exceptionOrNull()?.message)
@@ -228,22 +220,14 @@ class FederatedSchemaValidatorTest {
      * }
      */
     @Test
-    fun `validate local GraphQLObjectType with valid key directive and field with external directive`() {
-        val keyDirective: GraphQLDirective = mockk {
-            every { name } returns "key"
-            every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
-                    every { value } returns "id"
-                }
-            }
-        }
+    fun `validate local GraphQLObjectType with valid key directive and field with invalid external directive`() {
+        val keyDirective: GraphQLDirective = getKeyDirective("id")
         val id = GraphQLFieldDefinition.newFieldDefinition()
             .name("id")
             .type(GraphQLString)
-        val directive = GraphQLDirective.newDirective().name("external")
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
-            .withDirective(directive)
+            .withDirective(externalDirective)
             .type(GraphQLString)
 
         val typeToValidate = GraphQLObjectType.newObject()

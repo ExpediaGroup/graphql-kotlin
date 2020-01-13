@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.federation.extensions
 
+import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import graphql.schema.GraphQLDirectiveContainer
 
-internal fun GraphQLDirectiveContainer.isFederatedType() = this.getDirective("key") != null || isExtendedType()
+internal fun GraphQLDirectiveContainer.isFederatedType() = this.getDirective(KEY_DIRECTIVE_NAME) != null || isExtendedType()
 
-internal fun GraphQLDirectiveContainer.isExtendedType() = this.getDirective("extends") != null
+internal fun GraphQLDirectiveContainer.isExtendedType() = this.getDirective(EXTENDS_DIRECTIVE_NAME) != null

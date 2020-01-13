@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.federation.validation
 
+import com.expediagroup.graphql.federation.externalDirective
 import graphql.Scalars.GraphQLString
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
@@ -27,10 +27,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class ValidateKeySetFieldKtTest {
-
-    private val externalDirective: GraphQLDirective = GraphQLDirective.newDirective()
-        .name("external")
-        .build()
 
     @Test
     fun `returns an error on null targetField`() {

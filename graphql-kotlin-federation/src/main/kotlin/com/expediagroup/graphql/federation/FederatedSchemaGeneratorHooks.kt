@@ -19,6 +19,7 @@ package com.expediagroup.graphql.federation
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.directives.FieldSet
+import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.extendsDirectiveType
 import com.expediagroup.graphql.federation.execution.EntityResolver
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
@@ -91,7 +92,7 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
         val entityTypeNames = originalSchema.allTypesAsList
             .asSequence()
             .filterIsInstance<GraphQLObjectType>()
-            .filter { type -> type.getDirective("key") != null }
+            .filter { type -> type.getDirective(KEY_DIRECTIVE_NAME) != null }
             .map { it.name }
             .toSet()
 

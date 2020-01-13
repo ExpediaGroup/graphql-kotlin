@@ -52,8 +52,10 @@ import graphql.introspection.Introspection
  * @see RequiresDirective
  */
 @GraphQLDirective(
-    name = "external",
+    name = EXTERNAL_DIRECTIVE_NAME,
     description = "Marks target field as external meaning it will be resolved by federated schema",
     locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class ExternalDirective
+
+internal const val EXTERNAL_DIRECTIVE_NAME = "external"

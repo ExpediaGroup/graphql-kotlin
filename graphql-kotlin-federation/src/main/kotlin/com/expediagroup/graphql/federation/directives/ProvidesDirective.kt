@@ -68,8 +68,10 @@ import graphql.introspection.Introspection
  * @see ExtendsDirective
  */
 @GraphQLDirective(
-    name = "provides",
+    name = PROVIDES_DIRECTIVE_NAME,
     description = "Specifies the base type field set that will be selectable by the gateway",
     locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class ProvidesDirective(val fields: FieldSet)
+
+internal const val PROVIDES_DIRECTIVE_NAME = "provides"

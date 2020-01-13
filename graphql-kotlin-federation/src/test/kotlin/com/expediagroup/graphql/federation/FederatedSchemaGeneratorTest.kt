@@ -20,6 +20,7 @@ import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
+import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -112,7 +113,7 @@ class FederatedSchemaGeneratorTest {
         assertEquals(FEDERATED_SDL, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
-        assertNotNull(productType.getDirective("key"))
+        assertNotNull(productType.getDirective(KEY_DIRECTIVE_NAME))
 
         val entityUnion = schema.getType("_Entity") as? GraphQLUnionType
         assertNotNull(entityUnion)

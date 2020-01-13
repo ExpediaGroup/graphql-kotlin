@@ -16,27 +16,16 @@
 
 package com.expediagroup.graphql.federation.validation
 
-import com.expediagroup.graphql.federation.directives.FieldSet
+import com.expediagroup.graphql.federation.externalDirective
+import com.expediagroup.graphql.federation.getRequiresDirective
 import graphql.Scalars.GraphQLFloat
 import graphql.Scalars.GraphQLString
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class ValidateRequiresDirectiveKtTest {
-
-    private fun requiresDirective(directiveValue: String = "weight"): GraphQLDirective = mockk {
-        every { name } returns "requires"
-        every { getArgument(eq("fields")) } returns mockk {
-            every { value } returns mockk<FieldSet> {
-                every { value } returns directiveValue
-            }
-        }
-    }
 
     private val weight = GraphQLFieldDefinition.newFieldDefinition()
         .name("weight")
@@ -75,7 +64,7 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(requiresDirective())
+            .withDirective(getRequiresDirective("weight"))
             .build()
 
         val errors = validateRequiresDirective(
@@ -99,7 +88,7 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(requiresDirective("bar"))
+            .withDirective(getRequiresDirective("bar"))
             .build()
 
         val validatedType = GraphQLObjectType.newObject()
@@ -129,7 +118,7 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(requiresDirective())
+            .withDirective(getRequiresDirective("weight"))
             .build()
 
         val validatedType = GraphQLObjectType.newObject()
@@ -159,11 +148,11 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(requiresDirective())
+            .withDirective(getRequiresDirective("weight"))
             .build()
 
         val modifiedWeight = GraphQLFieldDefinition.newFieldDefinition(weight)
-            .withDirective(GraphQLDirective.newDirective().name("external"))
+            .withDirective(externalDirective)
 
         val validatedType = GraphQLObjectType.newObject()
             .name("Foo")
