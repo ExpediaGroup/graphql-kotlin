@@ -55,8 +55,10 @@ import graphql.introspection.Introspection
  * @see ExternalDirective
  */
 @GraphQLDirective(
-    name = "key",
+    name = KEY_DIRECTIVE_NAME,
     description = "Space separated list of primary keys needed to access federated object",
     locations = [Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE]
 )
 annotation class KeyDirective(val fields: FieldSet)
+
+internal const val KEY_DIRECTIVE_NAME = "key"

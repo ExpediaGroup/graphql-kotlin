@@ -73,8 +73,10 @@ import graphql.introspection.Introspection
  * @see kotlin.properties.Delegates.notNull
  */
 @GraphQLDirective(
-    name = "requires",
+    name = REQUIRES_DIRECTIVE_NAME,
     description = "Specifies required input field set from the base type for a resolver",
     locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class RequiresDirective(val fields: FieldSet)
+
+internal const val REQUIRES_DIRECTIVE_NAME = "requires"
