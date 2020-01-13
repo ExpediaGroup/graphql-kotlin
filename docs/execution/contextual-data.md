@@ -15,7 +15,8 @@ build context per query execution through
 [GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
 Once context factory bean is available in the Spring application context it will then be used in a corresponding
 [ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
-to populate GraphQL context based on the incoming request and make it available during query execution.
+to populate GraphQL context based on the incoming request and make it available during query execution. See [graphql-kotlin-spring-server documentation](../spring-server/spring-graphql-context)
+for additional details
 
 Once your application is configured to build your custom `MyGraphQLContext`, simply add `@GraphQLContext` annotation to
 any function argument and the corresponding GraphQL context from the environment will be automatically injected during
