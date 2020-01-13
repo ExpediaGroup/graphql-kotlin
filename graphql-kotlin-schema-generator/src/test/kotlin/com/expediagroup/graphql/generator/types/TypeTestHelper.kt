@@ -22,8 +22,8 @@ import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.SchemaGenerator
+import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle
     "Detekt.LongMethod"
 )
 @TestInstance(Lifecycle.PER_CLASS)
-internal open class TypeTestHelper {
+open class TypeTestHelper {
     private val supportedPackages = listOf("com.expediagroup.graphql")
     private val classScanner = ClassScanner(supportedPackages)
     private val dataFetcherFactory: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()

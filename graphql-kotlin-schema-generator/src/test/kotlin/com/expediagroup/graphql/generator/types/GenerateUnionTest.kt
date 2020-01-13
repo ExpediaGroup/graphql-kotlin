@@ -59,13 +59,13 @@ internal class GenerateUnionTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test naming`() {
+    fun `Test simple case`() {
         val result = generateUnion(generator, Cake::class) as? GraphQLUnionType
         assertNotNull(result)
 
-        assertEquals(Cake::class.java.simpleName, result.name)
+        assertEquals("Cake", result.name)
         assertEquals(1, result.types.size)
-        assertEquals(StrawBerryCake::class.java.simpleName, result.types[0].name)
+        assertEquals("StrawBerryCake", result.types[0].name)
     }
 
     @Test

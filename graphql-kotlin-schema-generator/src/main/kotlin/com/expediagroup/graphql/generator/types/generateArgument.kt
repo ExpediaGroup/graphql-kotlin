@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getName
 import com.expediagroup.graphql.generator.extensions.isGraphQLID
 import com.expediagroup.graphql.generator.extensions.isInterface
+import com.expediagroup.graphql.generator.extensions.isList
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLArgument
 import kotlin.reflect.KParameter
@@ -29,7 +30,7 @@ import kotlin.reflect.KParameter
 @Throws(InvalidInputFieldTypeException::class)
 internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter): GraphQLArgument {
 
-    if (parameter.isInterface()) {
+    if (parameter.isInterface() && parameter.isList().not()) {
         throw InvalidInputFieldTypeException(parameter)
     }
 

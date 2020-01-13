@@ -18,7 +18,6 @@ package com.expediagroup.graphql.execution
 
 import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLName
-import com.expediagroup.graphql.exceptions.CouldNotCastArgumentException
 import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
@@ -28,7 +27,6 @@ import kotlinx.coroutines.coroutineScope
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -110,14 +108,12 @@ internal class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `list inputs throws exception`() {
+    fun `list can be converted by the object mapper`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printList)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("items" to listOf("foo", "bar"))
 
-        assertFailsWith(CouldNotCastArgumentException::class) {
-            dataFetcher.get(mockEnvironmet)
-        }
+        assertEquals(expected = "foo:bar", actual = dataFetcher.get(mockEnvironmet))
     }
 
     @Test

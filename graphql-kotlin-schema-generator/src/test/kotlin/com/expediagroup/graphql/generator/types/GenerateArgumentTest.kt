@@ -22,7 +22,9 @@ import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.Scalars
+import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.findParameterByName
 import kotlin.test.assertEquals
@@ -45,6 +47,12 @@ internal class GenerateArgumentTest : TypeTestHelper() {
         fun id(@GraphQLID idArg: String) = "Your id is $idArg"
 
         fun interfaceArg(input: MyInterface) = input.id
+
+        fun arrayArg(input: IntArray) = input
+
+        fun arrayListArg(input: ArrayList<String>) = input
+
+        fun listArg(input: List<String>) = input
     }
 
     @Test
@@ -96,5 +104,35 @@ internal class GenerateArgumentTest : TypeTestHelper() {
         assertFailsWith(InvalidInputFieldTypeException::class) {
             generateArgument(generator, kParameter)
         }
+    }
+
+    @Test
+    fun `Primitive array argument type is valid`() {
+        val kParameter = ArgumentTestClass::arrayArg.findParameterByName("input")
+        assertNotNull(kParameter)
+        val result = generateArgument(generator, kParameter)
+
+        assertEquals(expected = "input", actual = result.name)
+        assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
+    }
+
+    @Test
+    fun `ArrayList argument type is valid`() {
+        val kParameter = ArgumentTestClass::arrayListArg.findParameterByName("input")
+        assertNotNull(kParameter)
+        val result = generateArgument(generator, kParameter)
+
+        assertEquals(expected = "input", actual = result.name)
+        assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
+    }
+
+    @Test
+    fun `List argument type is valid`() {
+        val kParameter = ArgumentTestClass::listArg.findParameterByName("input")
+        assertNotNull(kParameter)
+        val result = generateArgument(generator, kParameter)
+
+        assertEquals(expected = "input", actual = result.name)
+        assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
     }
 }
