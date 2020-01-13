@@ -70,7 +70,7 @@ class ValidateKeySetFieldKtTest {
      * }
      */
     @Test
-    fun `returns an error on a non local type with external directive`() {
+    fun `returns an error on a local type with external directive`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
