@@ -44,7 +44,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class FunctionBuilderTest : TypeTestHelper() {
+internal class GenerateFunctionTest : TypeTestHelper() {
 
     internal interface MyInterface {
         fun printMessage(message: String): String

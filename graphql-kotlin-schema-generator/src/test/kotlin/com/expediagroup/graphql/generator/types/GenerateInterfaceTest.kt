@@ -23,7 +23,7 @@ import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class InterfaceBuilderTest : TypeTestHelper() {
+internal class GenerateInterfaceTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")

@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
-internal class ArgumentBuilderTest : TypeTestHelper() {
+internal class GenerateArgumentTest : TypeTestHelper() {
 
     internal interface MyInterface {
         val id: String

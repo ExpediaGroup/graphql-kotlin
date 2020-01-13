@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class DirectiveBuilderTest {
+internal class GenerateDirectiveTest {
 
     @GraphQLDirective
     internal annotation class DirectiveWithString(val string: String)

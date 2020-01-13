@@ -34,7 +34,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-internal class SubscriptionBuilderTest : TypeTestHelper() {
+internal class GenerateSubscriptionTest : TypeTestHelper() {
 
     @Test
     fun `given an empty list, it should not return a field`() {
