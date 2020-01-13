@@ -63,7 +63,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
      */
-    fun generateSchema(
+    open fun generateSchema(
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList()
@@ -95,7 +95,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>) {
         classScanner.getClassesWithAnnotation(annotation)
-            .map { generateGraphQLType(this, it.createType(), inputType = false, annotatedAsID = false) }
+            .map { generateGraphQLType(this, it.createType()) }
             .forEach {
                 additionalTypes.add(it)
             }
