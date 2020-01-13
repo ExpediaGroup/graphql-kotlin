@@ -62,29 +62,34 @@ class ApolloSubscriptionProtocolHandler(
                 val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
                 when (operationMessage.type) {
                     GQL_CONNECTION_INIT.type -> {
-                        val connectionParams: Map<String, String> = operationMessage.payload as? Map<String, String> ?: emptyMap()
-                        subscriptionLifecycleEvents.onConnect(connectionParams, session, graphQLContext)
-                        val acknowledgeMessageFlux = Flux.just(acknowledgeMessage)
-                        val keepAliveFlux = getKeepAliveFlux(session)
-                        return@flatMapMany acknowledgeMessageFlux.concatWith(keepAliveFlux)
+                        val connectionParams = operationMessage.payload as? Map<String, String> ?: emptyMap()
+                        val onConnect = subscriptionLifecycleEvents.onConnect(connectionParams, session, graphQLContext)
+                        onConnect.flatMapMany {
+                            val acknowledgeMessageFlux = Flux.just(acknowledgeMessage)
+                            val keepAliveFlux = getKeepAliveFlux(session)
+                            acknowledgeMessageFlux.concatWith(keepAliveFlux)
+                        }
                     }
                     GQL_START.type -> {
-                        subscriptionLifecycleEvents.onOperation(operationMessage, session, graphQLContext)
-                        return@flatMapMany startSubscription(operationMessage, session)
+                        val onOperation = subscriptionLifecycleEvents.onOperation(operationMessage, session, graphQLContext)
+                        onOperation.flatMapMany { startSubscription(operationMessage, session) }
                     }
+
                     GQL_STOP.type -> {
-                        subscriptionLifecycleEvents.onOperationComplete(session)
-                        return@flatMapMany sessionState.stopOperation(session, operationMessage)
+                        val onOperationComplete = subscriptionLifecycleEvents.onOperationComplete(session)
+                        onOperationComplete.flatMapMany { sessionState.stopOperation(session, operationMessage) }
                     }
                     GQL_CONNECTION_TERMINATE.type -> {
-                        subscriptionLifecycleEvents.onDisconnect(session, graphQLContext)
-                        sessionState.terminateSession(session)
-                        return@flatMapMany Flux.empty()
+                        val onDisconnect = subscriptionLifecycleEvents.onDisconnect(session, graphQLContext)
+                        onDisconnect.flatMapMany {
+                                sessionState.terminateSession(session)
+                                Flux.empty<SubscriptionOperationMessage>()
+                            }
                     }
                     else -> {
                         logger.error("Unknown subscription operation $operationMessage")
                         sessionState.stopOperation(session, operationMessage)
-                        return@flatMapMany Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+                        Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
                     }
                 }
             }

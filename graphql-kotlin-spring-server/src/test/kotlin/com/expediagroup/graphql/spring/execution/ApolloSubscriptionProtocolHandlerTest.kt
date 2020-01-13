@@ -308,6 +308,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         val flux = handler.handle(operationMessage, session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
+
         assertNotNull(message)
         assertEquals(expected = GQL_DATA.type, actual = message.type)
         assertEquals(expected = "abc", actual = message.id)
@@ -367,7 +368,6 @@ class ApolloSubscriptionProtocolHandlerTest {
         val flux = handler.handle(operationMessage, session)
         flux.blockFirst(Duration.ofSeconds(2))
         val fluxTwo = handler.handle(operationMessage, session)
-
         assertEquals(expected = 1, actual = flux.count().block())
         assertEquals(expected = 0, actual = fluxTwo.count().block())
         verify(exactly = 0) { session.close() }

@@ -16,7 +16,9 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
+import kotlinx.coroutines.reactor.mono
 import org.springframework.web.reactive.socket.WebSocketSession
+import reactor.core.publisher.Mono
 
 /**
  * Implementation of Apollo Subscription Server Lifecycle Events
@@ -27,26 +29,31 @@ interface ApolloSubscriptionLifecycleEvents {
      * Allows validation of connectionParams prior to starting the connection.
      * You can reject the connection by throwing an exception
      */
-    fun onConnect(connectionParams: Map<String, String>, session: WebSocketSession, graphQLContext: Any?) {
-        // potential example:
-        // val token = connectionParams["Authorization"] ?: throw Exception("Unauthorized")
-        // validateToken(token)
-    }
+    fun onConnect(connectionParams: Map<String, String>, session: WebSocketSession, graphQLContext: Any?): Mono<Unit> =
+        mono {
+            // potential example:
+            // val token = connectionParams["Authorization"] ?: throw Exception("Unauthorized")
+            // validateToken(token)
+        }
 
     /**
      * Called when the client executes a GraphQL operation
      */
-    fun onOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?) = Unit
+    fun onOperation(
+        operationMessage: SubscriptionOperationMessage,
+        session: WebSocketSession,
+        graphQLContext: Any?
+    ): Mono<Unit> = mono { }
 
     /**
      * Called when client's unsubscribes
      */
-    fun onOperationComplete(session: WebSocketSession) = Unit
+    fun onOperationComplete(session: WebSocketSession): Mono<Unit> = mono { }
 
     /**
      * Called when the client disconnects
      */
-    fun onDisconnect(session: WebSocketSession, graphQLContext: Any?) = Unit
+    fun onDisconnect(session: WebSocketSession, graphQLContext: Any?): Mono<Unit> = mono { }
 }
 
 /**
