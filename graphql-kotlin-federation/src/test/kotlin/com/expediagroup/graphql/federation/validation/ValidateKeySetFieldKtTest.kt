@@ -42,7 +42,7 @@ class ValidateKeySetFieldKtTest {
     }
 
     /**
-     * type Parent @extends {
+     * type Parent @key(fields: "foo") @extends {
      *   foo: String
      * }
      */
@@ -65,7 +65,7 @@ class ValidateKeySetFieldKtTest {
     }
 
     /**
-     * type Parent {
+     * type Parent @key(fields: "foo") {
      *   foo: String @external
      * }
      */
@@ -89,7 +89,7 @@ class ValidateKeySetFieldKtTest {
     }
 
     /**
-     * type Parent @extends {
+     * type Parent @key(fields: "foo") @extends {
      *   foo: [String] @external
      * }
      */
@@ -116,7 +116,7 @@ class ValidateKeySetFieldKtTest {
      * interface MyInterface {
      *   bar: String
      * }
-     * type Parent @extends {
+     * type Parent @key(fields: "foo") @extends {
      *   foo: MyInterface @external
      * }
      */
@@ -146,7 +146,7 @@ class ValidateKeySetFieldKtTest {
     /**
      * union MyUnion = MyType
      *
-     * type Parent @extends {
+     * type Parent @key(fields: "foo") @extends {
      *   foo: MyUnion @external
      * }
      */
@@ -174,7 +174,7 @@ class ValidateKeySetFieldKtTest {
     }
 
     /**
-     * type Parent @extends {
+     * type Parent @key(fields: "foo") @extends {
      *   foo: String @external
      * }
      */
