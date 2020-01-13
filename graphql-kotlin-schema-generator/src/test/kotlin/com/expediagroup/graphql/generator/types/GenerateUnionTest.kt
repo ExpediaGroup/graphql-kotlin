@@ -28,7 +28,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class UnionBuilderTest : TypeTestHelper() {
+internal class GenerateUnionTest : TypeTestHelper() {
 
     @GraphQLDescription("The truth")
     @SimpleDirective

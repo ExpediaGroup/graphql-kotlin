@@ -28,7 +28,7 @@ import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-internal class ScalarBuilderTest : TypeTestHelper() {
+internal class GenerateScalarTest : TypeTestHelper() {
 
     internal class Ids {
         internal val stringID: String = "abc"

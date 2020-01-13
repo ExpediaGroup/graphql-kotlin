@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class ObjectBuilderTest : TypeTestHelper() {
+internal class GenerateObjectTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.OBJECT])
     internal annotation class ObjectDirective(val arg: String)

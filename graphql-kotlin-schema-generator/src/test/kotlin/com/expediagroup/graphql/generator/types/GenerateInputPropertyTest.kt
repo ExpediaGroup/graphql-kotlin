@@ -22,7 +22,7 @@ import com.expediagroup.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class InputPropertyBuilderTest : TypeTestHelper() {
+internal class GenerateInputPropertyTest : TypeTestHelper() {
 
     private data class InputPropertyTestClass(
         @GraphQLDescription("Custom description")

@@ -44,7 +44,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class PropertyBuilderTest : TypeTestHelper() {
+internal class GeneratePropertyTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class PropertyDirective(val arg: String)

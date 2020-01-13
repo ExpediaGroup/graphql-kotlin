@@ -35,7 +35,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.NestedClassesVisibility")
-internal class QueryBuilderTest : TypeTestHelper() {
+internal class GenerateQueryTest : TypeTestHelper() {
 
     internal class SimpleHooks : SchemaGeneratorHooks {
         var calledHook = false

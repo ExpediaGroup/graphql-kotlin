@@ -22,7 +22,7 @@ import com.expediagroup.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class InputObjectBuilderTest : TypeTestHelper() {
+internal class GenerateInputObjectTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
