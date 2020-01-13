@@ -70,8 +70,6 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     internal fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }
 
-    internal fun doesNotContain(kClass: KClass<*>): Boolean = cache.none { (_, ktype) -> ktype.kClass == kClass }
-
     /**
      * We do not want to cache list types since it is just a simple wrapper.
      * Enums do not have a different name for input and output.
