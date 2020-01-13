@@ -18,100 +18,86 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.generator.extensions.getKClass
-import com.expediagroup.graphql.generator.extensions.isEnum
-import com.expediagroup.graphql.generator.extensions.isInterface
-import com.expediagroup.graphql.generator.extensions.isListType
-import com.expediagroup.graphql.generator.extensions.isUnion
-import com.expediagroup.graphql.generator.extensions.wrapInNonNull
-import com.expediagroup.graphql.generator.state.SchemaGeneratorState
-import com.expediagroup.graphql.generator.state.TypesCacheKey
-import com.expediagroup.graphql.generator.types.generateEnum
-import com.expediagroup.graphql.generator.types.generateInputObject
-import com.expediagroup.graphql.generator.types.generateInterface
-import com.expediagroup.graphql.generator.types.generateList
+import com.expediagroup.graphql.directives.DeprecatedDirective
+import com.expediagroup.graphql.generator.state.ClassScanner
+import com.expediagroup.graphql.generator.state.TypesCache
+import com.expediagroup.graphql.generator.types.generateGraphQLType
 import com.expediagroup.graphql.generator.types.generateMutations
-import com.expediagroup.graphql.generator.types.generateObject
 import com.expediagroup.graphql.generator.types.generateQueries
-import com.expediagroup.graphql.generator.types.generateScalar
 import com.expediagroup.graphql.generator.types.generateSubscriptions
-import com.expediagroup.graphql.generator.types.generateUnion
+import graphql.Directives
 import graphql.schema.GraphQLCodeRegistry
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeReference
-import graphql.schema.GraphQLTypeUtil
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 
-open class SchemaGenerator(val config: SchemaGeneratorConfig) {
+/**
+ * Generate a schema object given some configuration and top level objects for the queries, mutaitons, and subscriptions.
+ *
+ * This class maintains the state of the schema while generation is taking place. It is passed into the internal functions
+ * so they can use the cache and add additional types and directives into the schema as they parse the Kotlin code.
+ */
+open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
-    internal val state = SchemaGeneratorState(config.supportedPackages)
-    internal val subTypeMapper = SubTypeMapper(config.supportedPackages)
+    internal val classScanner = ClassScanner(config.supportedPackages)
+    internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
+    internal val additionalTypes = mutableSetOf<GraphQLType>()
+    internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
-    open fun generate(
+    init {
+        // NOTE: @include and @defer query directives are added by graphql-java by default
+        // adding them explicitly here to keep it consistent with missing deprecated directive
+        directives[Directives.IncludeDirective.name] = Directives.IncludeDirective
+        directives[Directives.SkipDirective.name] = Directives.SkipDirective
+
+        // graphql-kotlin default directives
+        // @deprecated directive is a built-in directive that each GraphQL server should provide bu currently it is not added by graphql-java
+        //   see https://github.com/graphql-java/graphql-java/issues/1598
+        directives[DeprecatedDirective.name] = DeprecatedDirective
+    }
+
+    /**
+     * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
+     */
+    open fun generateSchema(
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
-        subscriptions: List<TopLevelObject> = emptyList(),
-        builder: GraphQLSchema.Builder = GraphQLSchema.newSchema()
+        subscriptions: List<TopLevelObject> = emptyList()
     ): GraphQLSchema {
+        val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))
         builder.mutation(generateMutations(this, mutations))
         builder.subscription(generateSubscriptions(this, subscriptions))
 
         // add unreferenced interface implementations
-        state.additionalTypes.forEach {
+        additionalTypes.forEach {
             builder.additionalType(it)
         }
 
-        builder.additionalDirectives(state.directives.values.toSet())
+        builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
 
         val schema = config.hooks.willBuildSchema(builder).build()
 
-        // Clean up the classpath scanner
-        subTypeMapper.close()
+        classScanner.close()
 
         return schema
     }
 
-    open fun graphQLTypeOf(type: KType, inputType: Boolean = false, annotatedAsID: Boolean = false): GraphQLType {
-        val hookGraphQLType = config.hooks.willGenerateGraphQLType(type)
-        val graphQLType = hookGraphQLType
-            ?: generateScalar(this, type, annotatedAsID)
-            ?: objectFromReflection(type, inputType)
-
-        // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
-        val unwrappedType = GraphQLTypeUtil.unwrapType(graphQLType).lastElement()
-        val typeWithNullability = graphQLType.wrapInNonNull(type)
-        if (unwrappedType !is GraphQLTypeReference) {
-            return config.hooks.didGenerateGraphQLType(type, typeWithNullability)
-        }
-
-        return typeWithNullability
-    }
-
-    private fun objectFromReflection(type: KType, inputType: Boolean): GraphQLType {
-        val cacheKey = TypesCacheKey(type, inputType)
-        val cachedType = state.cache.get(cacheKey)
-
-        if (cachedType != null) {
-            return cachedType
-        }
-
-        val kClass = type.getKClass()
-        val graphQLType = state.cache.buildIfNotUnderConstruction(kClass, inputType) { getGraphQLType(kClass, inputType, type) }
-
-        return config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
-    }
-
-    private fun getGraphQLType(kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {
-        kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(this, kClass as KClass<Enum<*>>))
-        kClass.isListType() -> generateList(this, type, inputType)
-        kClass.isUnion() -> generateUnion(this, kClass)
-        kClass.isInterface() -> generateInterface(this, kClass)
-        inputType -> generateInputObject(this, kClass)
-        else -> generateObject(this, kClass)
+    /**
+     * Add all types with the following annotation to the schema.
+     *
+     * This is helpful for things like federation or combining external schemas
+     */
+    protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>) {
+        classScanner.getClassesWithAnnotation(annotation)
+            .map { generateGraphQLType(this, it.createType()) }
+            .forEach {
+                additionalTypes.add(it)
+            }
     }
 }

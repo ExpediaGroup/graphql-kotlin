@@ -96,9 +96,9 @@ internal class MutationBuilderTest : TypeTestHelper() {
 
     @Test
     fun `verify hooks are called`() {
-        assertFalse((hooks as? SimpleHooks)?.calledHook.isTrue())
+        assertFalse((generator.config.hooks as? SimpleHooks)?.calledHook.isTrue())
         generateMutations(generator, listOf(TopLevelObject(MutationObject())))
-        assertTrue((hooks as? SimpleHooks)?.calledHook.isTrue())
+        assertTrue((generator.config.hooks as? SimpleHooks)?.calledHook.isTrue())
     }
 
     @Test

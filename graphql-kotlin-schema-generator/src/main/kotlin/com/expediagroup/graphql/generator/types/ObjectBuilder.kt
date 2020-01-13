@@ -42,7 +42,7 @@ internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): Grap
     }
 
     kClass.getValidSuperclasses(generator.config.hooks)
-        .map { generator.graphQLTypeOf(it.createType()) }
+        .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
                 is GraphQLTypeReference -> builder.withInterface(unwrappedType)

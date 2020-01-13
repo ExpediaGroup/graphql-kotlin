@@ -33,7 +33,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
         throw InvalidInputFieldTypeException(parameter)
     }
 
-    val graphQLType = generator.graphQLTypeOf(parameter.type, inputType = true, annotatedAsID = parameter.isGraphQLID())
+    val graphQLType = generateGraphQLType(generator, parameter.type, inputType = true, annotatedAsID = parameter.isGraphQLID())
 
     // Deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197
     val builder = GraphQLArgument.newArgument()

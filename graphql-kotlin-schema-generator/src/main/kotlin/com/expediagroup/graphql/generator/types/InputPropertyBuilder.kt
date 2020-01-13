@@ -28,7 +28,7 @@ import kotlin.reflect.KProperty
 
 internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
     val builder = GraphQLInputObjectField.newInputObjectField()
-    val graphQLInputType = generator.graphQLTypeOf(prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>()
+    val graphQLInputType = generateGraphQLType(generator, prop.returnType, true, prop.isPropertyGraphQLID(parentClass)).safeCast<GraphQLInputType>()
 
     builder.description(prop.getPropertyDescription(parentClass))
     builder.name(prop.getPropertyName(parentClass))

@@ -20,41 +20,18 @@ import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
 import graphql.schema.GraphQLSchema
-import io.github.classgraph.ClassGraph
-import kotlin.reflect.full.starProjectedType
-import kotlin.reflect.jvm.jvmName
 
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
  */
-open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
-
-    override fun generate(
-        queries: List<TopLevelObject>,
-        mutations: List<TopLevelObject>,
-        subscriptions: List<TopLevelObject>,
-        builder: GraphQLSchema.Builder
-    ): GraphQLSchema {
-        builder.federation(config.supportedPackages)
-        return super.generate(queries, mutations, subscriptions, builder)
-    }
+class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
 
     /**
-     * Scans specified packages for all the federated (extended) types and adds them to the target schema before generating the rest of the schema
+     * Scans specified packages for all the federated (extended) types and adds them to the schema additional types,
+     * then it generates the schema as usual using the [FederatedSchemaGeneratorConfig].
      */
-    @Suppress("Detekt.SpreadOperator")
-    private fun GraphQLSchema.Builder.federation(supportedPackages: List<String>): GraphQLSchema.Builder {
-        val scanResult = ClassGraph().enableAllInfo().whitelistPackages(*supportedPackages.toTypedArray()).scan()
-
-        scanResult.getClassesWithAnnotation(ExtendsDirective::class.jvmName)
-            .map { it.loadClass().kotlin }
-            .map { graphQLTypeOf(it.starProjectedType, inputType = false, annotatedAsID = false) }
-            .forEach {
-                this.additionalType(it)
-            }
-
-        scanResult.close()
-
-        return this
+    override fun generateSchema(queries: List<TopLevelObject>, mutations: List<TopLevelObject>, subscriptions: List<TopLevelObject>): GraphQLSchema {
+        addAdditionalTypesWithAnnotation(ExtendsDirective::class)
+        return super.generateSchema(queries, mutations, subscriptions)
     }
 }

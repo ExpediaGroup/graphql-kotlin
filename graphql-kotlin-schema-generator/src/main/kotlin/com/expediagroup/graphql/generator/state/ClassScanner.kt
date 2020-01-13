@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator
+package com.expediagroup.graphql.generator.state
 
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfo
@@ -22,7 +22,7 @@ import io.github.classgraph.ClassInfoList
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
-internal class SubTypeMapper(supportedPackages: List<String>) {
+internal class ClassScanner(supportedPackages: List<String>) {
 
     @Suppress("Detekt.SpreadOperator")
     private val scanResult = ClassGraph()
@@ -38,6 +38,8 @@ internal class SubTypeMapper(supportedPackages: List<String>) {
             .map { it.loadClass().kotlin }
             .filterNot { it.isAbstract }
     }
+
+    fun getClassesWithAnnotation(annotation: KClass<*>) = scanResult.getClassesWithAnnotation(annotation.jvmName).map { it.loadClass().kotlin }
 
     fun close() = scanResult.close()
 

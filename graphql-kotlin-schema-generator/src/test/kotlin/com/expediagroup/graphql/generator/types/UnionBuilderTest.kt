@@ -99,7 +99,7 @@ internal class UnionBuilderTest : TypeTestHelper() {
 
     @Test
     fun `verify nested classes resovle the type reference in the gererator`() {
-        val cache = generator.state.cache
+        val cache = generator.cache
         assertTrue(cache.doesNotContain(NestedUnionA::class))
 
         val unionType = generateUnion(generator, NestedUnionA::class) as? GraphQLUnionType
