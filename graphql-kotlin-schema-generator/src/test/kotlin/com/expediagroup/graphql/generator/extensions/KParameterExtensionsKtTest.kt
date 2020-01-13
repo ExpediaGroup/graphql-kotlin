@@ -128,6 +128,8 @@ internal class KParameterExtensionsKtTest {
     @Test
     fun javaTypeClass() {
         assertEquals(expected = String::class.java, actual = MyKotlinClass::stringFun.findParameterByName("string")?.javaTypeClass())
+        assertEquals(expected = List::class.java, actual = Container::listInput.findParameterByName("myList")?.javaTypeClass())
+        assertEquals(expected = MyInterface::class.java, actual = Container::interfaceInput.findParameterByName("myInterface")?.javaTypeClass())
     }
 
     @Test
