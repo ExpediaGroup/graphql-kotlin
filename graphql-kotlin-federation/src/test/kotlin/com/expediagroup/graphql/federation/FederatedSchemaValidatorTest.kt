@@ -228,7 +228,7 @@ class FederatedSchemaValidatorTest {
      * }
      */
     @Test
-    fun `validate federated GraphQLObjectType with valid key directive and field with external directive`() {
+    fun `validate local GraphQLObjectType with valid key directive and field with external directive`() {
         val keyDirective: GraphQLDirective = mockk {
             every { name } returns "key"
             every { getArgument(eq("fields")) } returns mockk {
