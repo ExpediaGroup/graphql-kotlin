@@ -45,7 +45,7 @@ class ApolloSubscriptionProtocolHandler(
     private val config: GraphQLConfigurationProperties,
     private val subscriptionHandler: SubscriptionHandler,
     private val objectMapper: ObjectMapper,
-    private val subscriptionLifecycleEvents: ApolloSubscriptionLifecycleEvents
+    private val subscriptionHooks: ApolloSubscriptionHooks
 ) {
     private val sessionState = ApolloSubscriptionSessionState()
     private val logger = LoggerFactory.getLogger(ApolloSubscriptionProtocolHandler::class.java)
@@ -63,7 +63,7 @@ class ApolloSubscriptionProtocolHandler(
                 when (operationMessage.type) {
                     GQL_CONNECTION_INIT.type -> {
                         val connectionParams = operationMessage.payload as? Map<String, String> ?: emptyMap()
-                        val onConnect = subscriptionLifecycleEvents.onConnect(connectionParams, session, graphQLContext)
+                        val onConnect = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
                         onConnect.flatMapMany {
                             val acknowledgeMessageFlux = Flux.just(acknowledgeMessage)
                             val keepAliveFlux = getKeepAliveFlux(session)
@@ -71,16 +71,16 @@ class ApolloSubscriptionProtocolHandler(
                         }
                     }
                     GQL_START.type -> {
-                        val onOperation = subscriptionLifecycleEvents.onOperation(operationMessage, session, graphQLContext)
+                        val onOperation = subscriptionHooks.onOperation(operationMessage, session, graphQLContext)
                         onOperation.flatMapMany { startSubscription(operationMessage, session) }
                     }
 
                     GQL_STOP.type -> {
-                        val onOperationComplete = subscriptionLifecycleEvents.onOperationComplete(session)
+                        val onOperationComplete = subscriptionHooks.onOperationComplete(session)
                         onOperationComplete.flatMapMany { sessionState.stopOperation(session, operationMessage) }
                     }
                     GQL_CONNECTION_TERMINATE.type -> {
-                        val onDisconnect = subscriptionLifecycleEvents.onDisconnect(session, graphQLContext)
+                        val onDisconnect = subscriptionHooks.onDisconnect(session, graphQLContext)
                         onDisconnect.flatMapMany {
                                 sessionState.terminateSession(session)
                                 Flux.empty<SubscriptionOperationMessage>()

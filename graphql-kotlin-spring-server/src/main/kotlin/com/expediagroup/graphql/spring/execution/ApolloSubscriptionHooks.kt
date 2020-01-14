@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono
  * Implementation of Apollo Subscription Server Lifecycle Events
  * https://www.apollographql.com/docs/graphql-subscriptions/lifecycle-events/
  */
-interface ApolloSubscriptionLifecycleEvents {
+interface ApolloSubscriptionHooks {
     /**
      * Allows validation of connectionParams prior to starting the connection.
      * You can reject the connection by throwing an exception
@@ -59,4 +59,4 @@ interface ApolloSubscriptionLifecycleEvents {
 /**
  * Default implementation of Apollo Subscription Lifecycle Events.
  */
-open class SimpleSubscriptionLifecycleEvents : ApolloSubscriptionLifecycleEvents
+open class SimpleSubscriptionHooks : ApolloSubscriptionHooks
