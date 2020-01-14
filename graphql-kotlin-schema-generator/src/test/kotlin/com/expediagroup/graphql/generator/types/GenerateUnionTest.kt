@@ -23,9 +23,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
 internal class GenerateUnionTest : TypeTestHelper() {
@@ -59,13 +57,13 @@ internal class GenerateUnionTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test naming`() {
+    fun `Test simple case`() {
         val result = generateUnion(generator, Cake::class) as? GraphQLUnionType
         assertNotNull(result)
 
-        assertEquals(Cake::class.java.simpleName, result.name)
+        assertEquals("Cake", result.name)
         assertEquals(1, result.types.size)
-        assertEquals(StrawBerryCake::class.java.simpleName, result.types[0].name)
+        assertEquals("StrawBerryCake", result.types[0].name)
     }
 
     @Test
@@ -95,15 +93,5 @@ internal class GenerateUnionTest : TypeTestHelper() {
         assertNotNull(result)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.first().name)
-    }
-
-    @Test
-    fun `verify nested classes resovle the type reference in the gererator`() {
-        val cache = generator.cache
-        assertTrue(cache.doesNotContain(NestedUnionA::class))
-
-        val unionType = generateUnion(generator, NestedUnionA::class) as? GraphQLUnionType
-        assertNotNull(unionType)
-        assertFalse(cache.doesNotContain(NestedUnionA::class))
     }
 }

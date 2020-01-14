@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-@Suppress("Detekt.UnusedPrivateClass")
-internal class GenerateObjectTest : TypeTestHelper() {
+class GenerateObjectTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.OBJECT])
     internal annotation class ObjectDirective(val arg: String)
@@ -39,6 +38,12 @@ internal class GenerateObjectTest : TypeTestHelper() {
 
     @GraphQLName("BeHappyRenamed")
     private class BeHappyCustomName
+
+    interface MyInterface {
+        val foo: String
+    }
+
+    class ClassWithInterface(override val foo: String) : MyInterface
 
     @Test
     fun `Test naming`() {
@@ -76,5 +81,13 @@ internal class GenerateObjectTest : TypeTestHelper() {
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.OBJECT)
         )
+    }
+
+    @Test
+    fun `Test object with interface`() {
+        val result = generateObject(generator, ClassWithInterface::class) as? GraphQLObjectType
+        assertNotNull(result)
+        assertEquals(1, result.interfaces.size)
+        assertEquals(1, result.fieldDefinitions.size)
     }
 }

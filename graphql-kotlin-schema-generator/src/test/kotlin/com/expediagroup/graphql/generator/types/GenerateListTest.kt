@@ -16,51 +16,85 @@
 
 package com.expediagroup.graphql.generator.types
 
-import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLList
+import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-@Suppress("Detekt.UnusedPrivateClass")
 internal class GenerateListTest : TypeTestHelper() {
 
     private data class MyDataClass(val id: String)
 
     private class ClassWithListAndArray {
-        val testList = listOf<Int>()
-        val testListOfClass = listOf<MyDataClass>()
-        val testArray = arrayOf<String>()
-        val primitiveArray = booleanArrayOf(true)
+        val testList: List<Int> = listOf(1)
+        val testListOfClass: List<MyDataClass> = listOf(MyDataClass("bar"))
+        val testArray: Array<String> = arrayOf("foo")
+        val primitiveArray: BooleanArray = booleanArrayOf(true)
     }
 
     @Test
-    fun `test list of primitive`() {
+    fun `verify a list of primitives for output`() {
         val listProp = ClassWithListAndArray::testList
 
         val result = generateList(generator, listProp.returnType, false)
-        assertEquals(Int::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals("Int", getListTypeName(result))
     }
 
     @Test
-    fun `test list of class`() {
+    fun `verify a list of objects for ouput`() {
         val listProp = ClassWithListAndArray::testListOfClass
 
         val result = generateList(generator, listProp.returnType, false)
-        assertEquals(MyDataClass::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals("MyDataClass", getListTypeName(result))
     }
 
     @Test
-    fun `test array`() {
+    fun `verify arrays are valid output`() {
         val arrayProp = ClassWithListAndArray::testArray
 
         val result = generateList(generator, arrayProp.returnType, false)
-        assertEquals(String::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals("String", getListTypeName(result))
     }
 
     @Test
-    fun `test array of primitives`() {
+    fun `verify primitive arrays are valid output`() {
         val primitiveArray = ClassWithListAndArray::primitiveArray
 
         val result = generateList(generator, primitiveArray.returnType, false)
-        assertEquals(Boolean::class.simpleName, (result.wrappedType as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals("Boolean", getListTypeName(result))
     }
+
+    @Test
+    fun `verify arrays are valid input`() {
+        val arrayProp = ClassWithListAndArray::testArray
+
+        val result = generateList(generator, arrayProp.returnType, true)
+        assertEquals("String", getListTypeName(result))
+    }
+
+    @Test
+    fun `verify primitive arrays are valid input`() {
+        val primitiveArray = ClassWithListAndArray::primitiveArray
+
+        val result = generateList(generator, primitiveArray.returnType, true)
+        assertEquals("Boolean", getListTypeName(result))
+    }
+
+    @Test
+    fun `verify a list of primitives for input`() {
+        val listProp = ClassWithListAndArray::testList
+
+        val result = generateList(generator, listProp.returnType, true)
+        assertEquals("Int", getListTypeName(result))
+    }
+
+    @Test
+    fun `verify a list of objects for input`() {
+        val listProp = ClassWithListAndArray::testListOfClass
+
+        val result = generateList(generator, listProp.returnType, true)
+        assertEquals("MyDataClassInput", getListTypeName(result))
+    }
+
+    private fun getListTypeName(list: GraphQLList) = GraphQLTypeUtil.unwrapNonNull(list.wrappedType).name
 }
