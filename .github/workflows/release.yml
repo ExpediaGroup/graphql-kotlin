@@ -29,10 +29,10 @@ jobs:
       - name: Build library with Gradle
         run: ./gradlew clean build
       - name: Publish library with Gradle
-        run: ./gradlew publish -Pversion=${{ steps.tag.outputs.result }} -Psigning.gnupg.executable=$GPG_EXECUTABLE -Psigning.gnupg.passphrase=$GPG_PASSPHRASE
+        run: ./gradlew publish -Pversion=${{ steps.tag.outputs.result }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: {{ secrets.SONATYPE_PASSWORD }}
-          GPG_EXECUTABLE: {{ secrets.GPG_EXECUTABLE }}
+          GPG_SECRET: {{ secrets.GPG_SECRET }}
           GPG_PASSPHRASE: {{ secrets.GPG_PASSPHRASE }}
 

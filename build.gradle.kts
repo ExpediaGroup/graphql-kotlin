@@ -150,9 +150,12 @@ subprojects {
             }
         }
         signing {
-            setRequired({
+            setRequired {
                 (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
-            })
+            }
+            val signingKey: String? = System.getenv("GPG_SECRET")
+            val signingPassword: String? = System.getenv("GPG_PASSPHRASE")
+            useInMemoryPgpKeys(signingKey, signingPassword)
             sign(publishing.publications["mavenJava"])
         }
     }
