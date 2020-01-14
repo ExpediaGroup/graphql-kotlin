@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ class ValidateFieldSelectionKtTest {
      *   bar: String
      * }
      *
-     * type Parent {
-     *   foo: MyInterface @taco("foo { bar }")
+     * type Parent @taco("foo { bar }") {
+     *   foo: MyInterface
      * }
      */
     @Test
@@ -81,12 +81,12 @@ class ValidateFieldSelectionKtTest {
      *   bar: String
      * }
      *
-     * type Parent {
-     *   foo: MyObject @taco("foo { bar }")
+     * type Parent @taco("foo { bar }") {
+     *   foo: MyObject
      * }
      */
     @Test
-    fun `GraphQLObjectType type is unwrapped, and returns a no errors on valid selection`() {
+    fun `GraphQLObjectType type is unwrapped, and returns no errors on a valid selection`() {
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(Scalars.GraphQLString)
@@ -112,8 +112,8 @@ class ValidateFieldSelectionKtTest {
     }
 
     /**
-     * type Parent {
-     *   foo: String @taco("foo")
+     * type Parent @taco("foo") {
+     *   foo: String
      * }
      */
     @Test
@@ -135,8 +135,8 @@ class ValidateFieldSelectionKtTest {
     }
 
     /**
-     * type Parent {
-     *   foo: String @taco("bar { foo }")
+     * type Parent @taco("bar { foo }") {
+     *   foo: String
      * }
      */
     @Test
