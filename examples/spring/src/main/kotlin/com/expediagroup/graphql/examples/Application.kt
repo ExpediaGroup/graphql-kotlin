@@ -21,7 +21,9 @@ import com.expediagroup.graphql.examples.datafetchers.CustomDataFetcherFactoryPr
 import com.expediagroup.graphql.examples.datafetchers.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.directives.CustomDirectiveWiringFactory
 import com.expediagroup.graphql.examples.exceptions.CustomDataFetcherExceptionHandler
+import com.expediagroup.graphql.examples.execution.MySubscriptionHooks
 import com.expediagroup.graphql.examples.extension.CustomSchemaGeneratorHooks
+import com.expediagroup.graphql.spring.execution.ApolloSubscriptionHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -43,6 +45,9 @@ class Application {
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()
+
+    @Bean
+    fun apolloSubscriptionHooks(): ApolloSubscriptionHooks = MySubscriptionHooks()
 }
 
 fun main(args: Array<String>) {
