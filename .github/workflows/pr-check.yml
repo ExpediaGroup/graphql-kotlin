@@ -15,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: check the github repository
+        run: echo ${{ github.repository }}
 
       - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v1
