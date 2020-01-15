@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'docs/**'
+      - 'website/**'
 
 jobs:
   check-docs:
