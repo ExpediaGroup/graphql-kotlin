@@ -1,0 +1,29 @@
+name: Documentation PR Check
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - 'website/**'
+
+jobs:
+  check-docs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+
+    - name: Run npm commands
+      if: github.repository == 'ExpediaGroup/graphql-kotlin'
+      run: |
+        cd website
+        npm install
+        npm build
