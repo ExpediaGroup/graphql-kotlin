@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: check the github repository
-        run: echo ${{ github.ref }}
+        run: echo ${{ github.head_ref }}
 
       - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v1
