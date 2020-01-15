@@ -16,10 +16,10 @@ where "my-new-feature" describes what you're working on.
 
 ## Verify your changes locally
 
-You can use Maven to build all the modules from the root directory
+You can use Gradle to build all the modules from the root directory
 
 ```shell script
-mvn clean install
+gradle clean build
 ```
 
 Or you can navigate to each module to build them individually
@@ -33,7 +33,7 @@ We are using [mockk](http://mockk.io), [JUnit](https://junit.org/junit5/), and [
 To run tests use Maven
 
 ```shell script
-mvn verify
+gradle check
 ```
 
 You can also view the code coverage reports published to Codecov. This validates that our coverage levels are maintained. Links are in the README.
@@ -45,17 +45,17 @@ We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.
 These will be run as part of the `validate` phase of a full build but if you want to run them manually you will have to navigate to each module directory and run the command
 
 ```shell script
-mvn antrun:run@ktlint
+gradle ktlintCheck
 ```
 ```shell script
-mvn antrun:run@detekt
+gradle detekt
 ```
 
 ## Add documentation for new or updated functionality
 
 Please add appropriate javadocs in the source code and ask the maintainers to update the documentation with any relevant
 information.
-Further instructions on how to add documentation content are in `webserver/README.md`.
+Further instructions on how to add documentation content are in `website/README.md`.
 
 ## Add license information
 All source files must contain the following license header. If you are using an IDE please add this as a copyright template for this project so that it will be added automatically.

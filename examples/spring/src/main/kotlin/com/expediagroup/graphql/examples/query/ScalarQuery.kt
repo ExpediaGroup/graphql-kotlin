@@ -27,7 +27,7 @@ import java.util.UUID
  * Simple query that exposes custom scalar.
  */
 @Component
-class ScalarQuery: Query {
+class ScalarQuery : Query {
 
     @GraphQLDescription("generates random UUID")
     fun generateRandomUUID() = UUID.randomUUID()

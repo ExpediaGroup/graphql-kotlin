@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
  * semantics - mutations imply underlying data gets modified.
  */
 @Component
-class SimpleMutation: Mutation {
+class SimpleMutation : Mutation {
 
     private val data: MutableList<String> = mutableListOf()
 

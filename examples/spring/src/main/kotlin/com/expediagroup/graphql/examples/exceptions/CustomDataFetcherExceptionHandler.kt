@@ -37,7 +37,7 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         val sourceLocation = handlerParameters.sourceLocation
         val path = handlerParameters.path
 
-        val error: GraphQLError = when(exception) {
+        val error: GraphQLError = when (exception) {
             is ValidationException -> ValidationDataFetchingGraphQLError(exception.constraintErrors, path, exception, sourceLocation)
             else -> SimpleKotlinGraphQLError(exception = exception, locations = listOf(sourceLocation), path = path.toList())
         }
@@ -48,10 +48,10 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 
 @JsonIgnoreProperties("exception")
 class ValidationDataFetchingGraphQLError(
-        val constraintErrors: List<ConstraintError>,
-        path: ExecutionPath,
-        exception: Throwable,
-        sourceLocation: SourceLocation
+    val constraintErrors: List<ConstraintError>,
+    path: ExecutionPath,
+    exception: Throwable,
+    sourceLocation: SourceLocation
 ) : ExceptionWhileDataFetching(
         path,
         exception,

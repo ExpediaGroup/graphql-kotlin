@@ -9,12 +9,12 @@ First you must build all the other modules since this is a multi-module project.
 From the root directory:
 
 ```shell script
-mvn clean install
+gradle build
 ```
 
 Then to start the server:
 
 * Run `Application.kt` directly from your IDE
-* Alternatively you can also use the spring boot maven plugin by running `mvn spring-boot:run` from the command line in the spring example directory.
+* Alternatively you can also use the spring boot maven plugin by running `gradle bootRun` from the command line in the spring example directory.
 
 Once the app has started you can explore the example schema by opening the GraphQL Playground endpoint at http://localhost:8080/playground.

@@ -32,7 +32,7 @@ class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
         val lowerCaseFetcher = DataFetcherFactories.wrapDataFetcher(
             originalDataFetcher,
-            BiFunction<DataFetchingEnvironment, Any, Any>{ _, value -> value.toString().toLowerCase() }
+            BiFunction<DataFetchingEnvironment, Any, Any> { _, value -> value.toString().toLowerCase() }
         )
         environment.setDataFetcher(lowerCaseFetcher)
         return field

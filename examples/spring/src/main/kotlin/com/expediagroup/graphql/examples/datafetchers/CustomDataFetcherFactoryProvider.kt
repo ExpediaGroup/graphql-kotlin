@@ -26,7 +26,8 @@ import kotlin.reflect.KProperty
  * Custom DataFetcherFactory provider that returns custom Spring based DataFetcherFactory for resolving lateinit properties.
  */
 class CustomDataFetcherFactoryProvider(
-    private val springDataFetcherFactory: SpringDataFetcherFactory, objectMapper: ObjectMapper
+    private val springDataFetcherFactory: SpringDataFetcherFactory,
+    objectMapper: ObjectMapper
 ) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
