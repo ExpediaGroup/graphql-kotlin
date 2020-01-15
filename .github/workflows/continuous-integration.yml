@@ -7,12 +7,6 @@ on:
     paths-ignore:
       - 'docs/**'
       - 'website/**'
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - 'docs/**'
-      - 'website/**'
 
 jobs:
   build:
@@ -42,8 +36,6 @@ jobs:
         working-directory: examples
         run: ./gradlew clean build
       - name: Upload coverage to Codecov
-        # currently this doesn't work for PR from forks
-        # see: https://github.com/codecov/codecov-action/issues/29
         if: matrix.java == 8
         uses: codecov/codecov-action@v1
         with:
