@@ -60,7 +60,7 @@ class SubscriptionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun apolloSubscriptionLifecycleEvents(): ApolloSubscriptionHooks = SimpleSubscriptionHooks()
+    fun apolloSubscriptionHooks(): ApolloSubscriptionHooks = SimpleSubscriptionHooks()
 
     @Bean
     fun apolloSubscriptionProtocolHandler(
