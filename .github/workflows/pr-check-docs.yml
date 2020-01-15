@@ -1,4 +1,4 @@
-name: Documentation PR Check
+name: Pull Request Check Documentation
 
 on:
   pull_request:
