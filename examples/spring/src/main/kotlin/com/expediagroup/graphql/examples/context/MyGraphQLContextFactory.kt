@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component
  * [GraphQLContextFactory] that generates [MyGraphQLContext] that will be available when processing GraphQL requests.
  */
 @Component
-class MyGraphQLContextFactory: GraphQLContextFactory<MyGraphQLContext> {
+class MyGraphQLContextFactory : GraphQLContextFactory<MyGraphQLContext> {
 
     override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): MyGraphQLContext = MyGraphQLContext(
-            myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext",
-            request = request,
-            response = response)
+        myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext",
+        request = request,
+        response = response,
+        subscriptionValue = null)
 }

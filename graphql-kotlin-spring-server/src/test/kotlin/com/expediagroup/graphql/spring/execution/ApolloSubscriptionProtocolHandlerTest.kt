@@ -46,7 +46,7 @@ import kotlin.test.assertTrue
 class ApolloSubscriptionProtocolHandlerTest {
 
     private val objectMapper = jacksonObjectMapper()
-    private val lifeCycleEvents = SimpleSubscriptionHooks()
+    private val subscriptionHooks = SimpleSubscriptionHooks()
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
 
     @Test
@@ -55,7 +55,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         val session: WebSocketSession = mockk()
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle("", session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -72,7 +72,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -82,7 +82,7 @@ class ApolloSubscriptionProtocolHandlerTest {
     }
 
     @Test
-    fun `Return GQL_CONNECTION_ACK when sending GQL_CONNECTION_INIT and keep alive is off`() {
+    fun `Return only GQL_CONNECTION_ACK when sending GQL_CONNECTION_INIT and keep alive is off`() {
         val config: GraphQLConfigurationProperties = mockk {
             every { subscriptions } returns mockk {
                 every { keepAliveInterval } returns null
@@ -94,7 +94,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -115,7 +115,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -136,9 +136,10 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
 
         val initFlux = handler.handle(operationMessage, session)
+        initFlux.blockFirst(Duration.ofSeconds(2))
 
         val message = initFlux.blockFirst(Duration.ofSeconds(2))
         assertNotNull(message)
@@ -156,7 +157,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(objectMapper.writeValueAsString(operationMessage), session)
 
         StepVerifier.create(flux)
@@ -175,7 +176,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         StepVerifier.create(flux)
@@ -192,10 +193,11 @@ class ApolloSubscriptionProtocolHandlerTest {
         val operationMessage = SubscriptionOperationMessage(GQL_STOP.type).toJson()
         val session: WebSocketSession = mockk {
             every { close() } returns mockk()
+            every { id } returns "abc"
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         StepVerifier.create(flux)
@@ -218,19 +220,10 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { id } returns "abc"
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
 
-        val initMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type).toJson()
         val stopMessage = SubscriptionOperationMessage(GQL_STOP.type).toJson()
-        val initFlux = handler.handle(initMessage, session)
         val stopFlux = handler.handle(stopMessage, session)
-
-        StepVerifier.create(initFlux)
-            .expectSubscription()
-            .expectNextMatches { it.type == "connection_ack" }
-            .expectNextMatches { it.type == "ka" }
-            .thenCancel()
-            .verify()
 
         StepVerifier.create(stopFlux)
             .expectSubscription()
@@ -247,7 +240,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         val mockSession: WebSocketSession = mockk { every { id } returns "123" }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, mockSession)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -264,7 +257,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -282,7 +275,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SubscriptionHandler = mockk()
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
         val message = flux.blockFirst(Duration.ofSeconds(2))
@@ -304,9 +297,11 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { executeSubscription(eq(graphQLRequest)) } returns Flux.just(GraphQLResponse("myData"))
         }
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
+
         val message = flux.blockFirst(Duration.ofSeconds(2))
+
         assertNotNull(message)
         assertEquals(expected = GQL_DATA.type, actual = message.type)
         assertEquals(expected = "abc", actual = message.id)
@@ -314,8 +309,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         assertNotNull(payload)
         val graphQLResponse: GraphQLResponse = objectMapper.convertValue(payload)
         assertEquals(expected = "myData", actual = graphQLResponse.data)
-
-//        assertEquals(expected = 1, actual = flux.count().block())
+        // validate that there are no messages left
+        assertEquals(expected = 0, actual = flux.count().block())
         verify(exactly = 0) { session.close() }
     }
 
@@ -333,7 +328,7 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { executeSubscription(eq(graphQLRequest)) } returns Flux.just(GraphQLResponse("myData"))
         }
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val startFlux = handler.handle(startRequest, session)
         startFlux.blockFirst(Duration.ofSeconds(2))
         val stopFlux = handler.handle(stopRequest, session)
@@ -362,9 +357,9 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { executeSubscription(eq(graphQLRequest)) } returns Flux.just(GraphQLResponse("myData"))
         }
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        flux.blockFirst(Duration.ofSeconds(2))
+        assertEquals(expected = 1, actual = flux.count().block())
         val fluxTwo = handler.handle(operationMessage, session)
         assertEquals(expected = 0, actual = fluxTwo.count().block())
         verify(exactly = 0) { session.close() }
@@ -384,19 +379,22 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { executeSubscription(eq(graphQLRequest)) } returns Flux.just(GraphQLResponse(errors = errors))
         }
 
-        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, lifeCycleEvents)
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        StepVerifier.create(flux)
-            .expectSubscription()
-            .assertNext{message ->
-                assertNotNull(message)
-                assertEquals(expected = GQL_ERROR.type, actual = message.type)
-                assertEquals(expected = "abc", actual = message.id)
-                val response = message.payload as? GraphQLResponse
-                assertNotNull(response)
-                assertTrue(response.errors?.isNotEmpty() == true)
-            }
-            .verifyComplete()
+        // this no longer works because of SubscriptionContext().flatMapMany()
+//        assertEquals(expected = 1, actual = flux.count().block())
+
+        // pull the first message and validate not null
+        val message = flux.blockFirst(Duration.ofSeconds(2))
+        assertNotNull(message)
+        // now check that there are no messages left
+        assertEquals(expected = 0, actual = flux.count().block())
+        assertEquals(expected = GQL_ERROR.type, actual = message.type)
+        assertEquals(expected = "abc", actual = message.id)
+        val response = message.payload as? GraphQLResponse
+        assertNotNull(response)
+        assertTrue(response.errors?.isNotEmpty() == true)
+
         verify(exactly = 0) { session.close() }
     }
 }

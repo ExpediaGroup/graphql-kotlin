@@ -23,4 +23,4 @@ import org.springframework.http.server.reactive.ServerHttpResponse
 /**
  * Simple [GraphQLContext] that holds extra value.
  */
-class MyGraphQLContext(val myCustomValue: String, val request: ServerHttpRequest, val response: ServerHttpResponse)
+class MyGraphQLContext(val myCustomValue: String, val request: ServerHttpRequest, val response: ServerHttpResponse, var subscriptionValue: String? = null)
