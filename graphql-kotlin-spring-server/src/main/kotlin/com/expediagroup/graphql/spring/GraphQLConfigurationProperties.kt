@@ -33,46 +33,42 @@ data class GraphQLConfigurationProperties(
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties()
-)
+) {
+    /**
+     * Apollo Federation configuration properties.
+     */
+    data class FederationConfigurationProperties(
+        /** Boolean flag indicating whether to generate federated GraphQL model */
+        val enabled: Boolean = false
+    )
 
-/**
- * Apollo Federation configuration properties.
- */
-@ConstructorBinding
-data class FederationConfigurationProperties(
-    /** Boolean flag indicating whether to generate federated GraphQL model */
-    val enabled: Boolean = false
-)
+    /**
+     * GraphQL subscription configuration properties.
+     */
+    data class SubscriptionConfigurationProperties(
+        /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
+        val endpoint: String = "subscriptions",
+        /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
+        val keepAliveInterval: Long? = null
+    )
 
-/**
- * GraphQL subscription configuration properties.
- */
-@ConstructorBinding
-data class SubscriptionConfigurationProperties(
-    /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
-    val endpoint: String = "subscriptions",
-    /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
-    val keepAliveInterval: Long? = null
-)
+    /**
+     * Playground configuration properties.
+     */
+    data class PlaygroundConfigurationProperties(
+        /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
+        val enabled: Boolean = true,
+        /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
+        val endpoint: String = "playground"
+    )
 
-/**
- * Playground configuration properties.
- */
-@ConstructorBinding
-data class PlaygroundConfigurationProperties(
-    /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
-    val enabled: Boolean = true,
-    /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
-    val endpoint: String = "playground"
-)
-
-/**
- * SDL endpoint configuration properties.
- */
-@ConstructorBinding
-data class SDLConfigurationProperties(
-    /** Boolean flag indicating whether SDL endpoint is enabled */
-    val enabled: Boolean = true,
-    /** GraphQL SDL endpoint */
-    val endpoint: String = "sdl"
-)
+    /**
+     * SDL endpoint configuration properties.
+     */
+    data class SDLConfigurationProperties(
+        /** Boolean flag indicating whether SDL endpoint is enabled */
+        val enabled: Boolean = true,
+        /** GraphQL SDL endpoint */
+        val endpoint: String = "sdl"
+    )
+}

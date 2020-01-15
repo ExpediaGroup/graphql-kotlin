@@ -1,0 +1,93 @@
+{
+  "groups": [
+    {
+      "name": "graphql",
+      "type": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties"
+    },
+    {
+      "name": "graphql.federation",
+      "type": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$FederationConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getFederation()"
+    },
+    {
+      "name": "graphql.playground",
+      "type": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$PlaygroundConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getPlayground()"
+    },
+    {
+      "name": "graphql.sdl",
+      "type": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$SDLConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getSdl()"
+    },
+    {
+      "name": "graphql.subscriptions",
+      "type": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$SubscriptionConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getSubscriptions()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "graphql.endpoint",
+      "type": "java.lang.String",
+      "description": "GraphQL server endpoint, defaults to 'graphql'",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties"
+    },
+    {
+      "name": "graphql.federation.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Boolean flag indicating whether to generate federated GraphQL model",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$FederationConfigurationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "graphql.packages",
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of supported packages that can contain GraphQL schema type definitions",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties"
+    },
+    {
+      "name": "graphql.playground.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$PlaygroundConfigurationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "graphql.playground.endpoint",
+      "type": "java.lang.String",
+      "description": "Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground'",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$PlaygroundConfigurationProperties"
+    },
+    {
+      "name": "graphql.sdl.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Boolean flag indicating whether SDL endpoint is enabled",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$SDLConfigurationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "graphql.sdl.endpoint",
+      "type": "java.lang.String",
+      "description": "GraphQL SDL endpoint",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$SDLConfigurationProperties"
+    },
+    {
+      "name": "graphql.subscriptions.endpoint",
+      "type": "java.lang.String",
+      "description": "GraphQL subscriptions endpoint, defaults to 'subscriptions'",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$SubscriptionConfigurationProperties"
+    },
+    {
+      "name": "graphql.subscriptions.keep-alive-interval",
+      "type": "java.lang.Long",
+      "description": "Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages",
+      "sourceType": "com.expediagroup.graphql.spring.GraphQLConfigurationProperties$SubscriptionConfigurationProperties"
+    }
+  ],
+  "hints": []
+}
