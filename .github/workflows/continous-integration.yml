@@ -1,7 +1,13 @@
 name: Continuous Integration
 
 on:
-  [push, pull_request]:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - 'website/**'
+  pull_request:
     branches:
       - master
     paths-ignore:
