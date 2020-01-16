@@ -118,6 +118,7 @@ subprojects {
             publications {
                 create<MavenPublication>("mavenJava") {
                     pom {
+                        name.set("${currentProject.group}:${currentProject.name}")
                         url.set("https://github.com/ExpediaGroup/graphql-kotlin")
                         licenses {
                             license {
@@ -141,6 +142,12 @@ subprojects {
                             connection.set("scm:git:git://github.com/ExpediaGroup/graphql-kotlin.git")
                             developerConnection.set("scm:git:git://github.com/ExpediaGroup/graphql-kotlin.git")
                             url.set("https://github.com/ExpediaGroup/graphql-kotlin")
+                        }
+
+                        // child projects need to be evaluated before their description can be read
+                        val mavenPom = this
+                        afterEvaluate {
+                            mavenPom.description.set(currentProject.description)
                         }
                     }
                     from(jarComponent)
