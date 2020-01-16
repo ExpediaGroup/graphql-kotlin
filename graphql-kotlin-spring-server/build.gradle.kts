@@ -2,7 +2,7 @@ description = "Spring Boot autoconfiguration library for creating reactive Graph
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring")
-    kotlin("kapt")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 val kotlinCoroutinesVersion: String by project

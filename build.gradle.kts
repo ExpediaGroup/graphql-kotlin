@@ -16,6 +16,7 @@ plugins {
     jacoco
     signing
     `maven-publish`
+    id("io.codearte.nexus-staging")
 }
 
 allprojects {
@@ -180,4 +181,7 @@ tasks {
     jar {
         enabled = false
     }
+    val closeAndReleaseRepository by getting
+    val publish by getting
+    publish.finalizedBy(closeAndReleaseRepository)
 }

@@ -19,10 +19,12 @@ where "my-new-feature" describes what you're working on.
 You can use Gradle to build all the modules from the root directory
 
 ```shell script
-gradle clean build
+./gradlew clean build
 ```
 
-Or you can navigate to each module to build them individually
+Or you can navigate to each module to build them individually.
+
+> NOTE: in order to ensure you use the right version of Gradle we highly recommend to use the provided wrapper scripts
 
 ## Add tests for any bug fixes or new functionality
 
@@ -33,7 +35,7 @@ We are using [mockk](http://mockk.io), [JUnit](https://junit.org/junit5/), and [
 To run tests use Maven
 
 ```shell script
-gradle check
+./gradlew check
 ```
 
 You can also view the code coverage reports published to Codecov. This validates that our coverage levels are maintained. Links are in the README.
@@ -45,10 +47,10 @@ We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.
 These will be run as part of the `validate` phase of a full build but if you want to run them manually you will have to navigate to each module directory and run the command
 
 ```shell script
-gradle ktlintCheck
+./gradlew ktlintCheck
 ```
 ```shell script
-gradle detekt
+./gradlew detekt
 ```
 
 ## Add documentation for new or updated functionality
