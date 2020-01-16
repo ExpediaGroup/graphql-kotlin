@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.spring.context
 
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
-import com.expediagroup.graphql.spring.SubscriptionConfigurationProperties
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_KEY
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
@@ -118,7 +117,7 @@ class ContextWebFilterTest {
         val props = GraphQLConfigurationProperties(
             endpoint = graphQLRoute,
             packages = listOf("com.expediagroup.graphql"),
-            subscriptions = SubscriptionConfigurationProperties(endpoint = subscriptionRoute))
+            subscriptions = GraphQLConfigurationProperties.SubscriptionConfigurationProperties(endpoint = subscriptionRoute))
 
         val contextFilter = ContextWebFilter(props, mockk())
         for (path in listOf("/${graphQLRoute.toLowerCase()}", "/${subscriptionRoute.toLowerCase()}")) {
