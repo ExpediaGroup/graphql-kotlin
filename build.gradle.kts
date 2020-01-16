@@ -181,7 +181,9 @@ tasks {
     jar {
         enabled = false
     }
-    val closeAndReleaseRepository by getting
-    val publish by getting
-    publish.finalizedBy(closeAndReleaseRepository)
+    nexusStaging {
+        serverUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        username = System.getenv("SONATYPE_USERNAME")
+        password = System.getenv("SONATYPE_PASSWORD")
+    }
 }
