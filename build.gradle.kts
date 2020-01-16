@@ -182,8 +182,9 @@ tasks {
         enabled = false
     }
     nexusStaging {
-        serverUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
         username = System.getenv("SONATYPE_USERNAME")
         password = System.getenv("SONATYPE_PASSWORD")
+
+        packageGroup = rootProject.group.toString()
     }
 }
