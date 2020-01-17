@@ -3,6 +3,7 @@ pluginManagement {
     val dokkaVersion: String by settings
     val kotlinVersion: String by settings
     val ktlintPluginVersion: String by settings
+    val nexusPublishPluginVersion: String by settings
     val springBootVersion: String by settings
     val stagingPluginVersion: String by settings
 
@@ -15,6 +16,7 @@ pluginManagement {
         id("org.jetbrains.dokka") version dokkaVersion
         id("org.springframework.boot") version springBootVersion
         id("io.codearte.nexus-staging") version stagingPluginVersion
+        id("de.marcphilipp.nexus-publish") version nexusPublishPluginVersion
     }
 }
 
