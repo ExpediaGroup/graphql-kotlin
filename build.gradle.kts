@@ -16,7 +16,7 @@ plugins {
     jacoco
     signing
     `maven-publish`
-    id("de.marcphilipp.nexus-publish") apply false
+    id("de.marcphilipp.nexus-publish")
     id("io.codearte.nexus-staging")
 }
 
@@ -56,15 +56,6 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "de.marcphilipp.nexus-publish")
     apply(plugin = "signing")
-
-    configure<NexusPublishExtension> {
-        repositories {
-            sonatype {
-                username.set(System.getenv("SONATYPE_USERNAME"))
-                password.set(System.getenv("SONATYPE_PASSWORD"))
-            }
-        }
-    }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
@@ -178,6 +169,15 @@ subprojects {
     }
 }
 
+configure<NexusPublishExtension> {
+    repositories {
+        sonatype {
+            username.set(System.getenv("SONATYPE_USERNAME"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
+        }
+    }
+}
+
 tasks {
     jar {
         enabled = false
@@ -188,4 +188,6 @@ tasks {
 
         packageGroup = rootProject.group.toString()
     }
+    val publish by getting
+    publish.dependsOn(":initializeSonatypeStagingRepository")
 }
