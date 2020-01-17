@@ -29,7 +29,7 @@ import graphql.schema.GraphQLScalarType
  * This means it can represent a single field "upc", multiple fields "id countryCode", and even nested selection sets
  * "id organization { id }".
  */
-val FIELD_SET_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar(Scalars.GraphQLString)
+internal val FIELD_SET_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar(Scalars.GraphQLString)
     .name("_FieldSet")
     .description("Federation type representing set of fields")
     .coercing(FieldSetCoercing)

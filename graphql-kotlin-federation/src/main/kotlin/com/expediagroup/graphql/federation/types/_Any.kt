@@ -34,7 +34,7 @@ import java.util.stream.Collectors
  * The _Any scalar is used to pass representations of entities from external services into the root _entities field for execution.
  * Validation of the _Any scalar is done by matching the __typename and @external fields defined in the schema.
  */
-val ANY_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar()
+internal val ANY_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar()
     .name("_Any")
     .description("Federation scalar type used to represent any external entities passed to _entities query.")
     .coercing(AnyCoercing)

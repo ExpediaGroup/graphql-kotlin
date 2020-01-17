@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.federation
+package com.expediagroup.graphql.federation.validation
 
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.extendsDirectiveType
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
+import com.expediagroup.graphql.federation.externalDirective
+import com.expediagroup.graphql.federation.getKeyDirective
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
