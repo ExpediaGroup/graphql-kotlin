@@ -34,6 +34,17 @@ allprojects {
         jcenter()
         mavenCentral()
     }
+
+    apply(plugin = "de.marcphilipp.nexus-publish")
+
+    configure<NexusPublishExtension> {
+        repositories {
+            sonatype {
+                username.set(System.getenv("SONATYPE_USERNAME"))
+                password.set(System.getenv("SONATYPE_PASSWORD"))
+            }
+        }
+    }
 }
 
 subprojects {
@@ -54,7 +65,6 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "maven-publish")
-    apply(plugin = "de.marcphilipp.nexus-publish")
     apply(plugin = "signing")
 
     tasks.withType<KotlinCompile> {
@@ -167,15 +177,6 @@ subprojects {
         testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
         testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
         testImplementation("io.mockk:mockk:$mockkVersion")
-    }
-}
-
-configure<NexusPublishExtension> {
-    repositories {
-        sonatype {
-            username.set(System.getenv("SONATYPE_USERNAME"))
-            password.set(System.getenv("SONATYPE_PASSWORD"))
-        }
     }
 }
 
