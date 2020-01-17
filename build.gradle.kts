@@ -65,6 +65,9 @@ subprojects {
     }
 
     tasks {
+        check {
+            dependsOn(jacocoTestCoverageVerification)
+        }
         detekt {
             toolVersion = detektVersion
             config = files("${rootProject.projectDir}/detekt.yml")
@@ -74,9 +77,6 @@ subprojects {
         }
         jacoco {
             toolVersion = jacocoVersion
-        }
-        build {
-            dependsOn(jacocoTestReport)
         }
         jar {
             manifest {
@@ -90,6 +90,7 @@ subprojects {
         }
         test {
             useJUnitPlatform()
+            finalizedBy(jacocoTestReport)
         }
 
         // published artifacts

@@ -15,3 +15,22 @@ dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     testImplementation("io.reactivex.rxjava2:rxjava:2.2.14")
 }
+
+tasks {
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    counter = "INSTRUCTION"
+                    value = "COVEREDRATIO"
+                    minimum = "0.98".toBigDecimal()
+                }
+                limit {
+                    counter = "BRANCH"
+                    value = "COVEREDRATIO"
+                    minimum = "0.96".toBigDecimal()
+                }
+            }
+        }
+    }
+}
