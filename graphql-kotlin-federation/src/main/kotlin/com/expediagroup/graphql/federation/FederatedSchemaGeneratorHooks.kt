@@ -51,8 +51,8 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
-    private val directiveDefinitionRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val scalarDefinitionRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val directiveDefinitionRegex = "(^\".+\"$[\\r\\n])?^directive @\\w+.+\$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
