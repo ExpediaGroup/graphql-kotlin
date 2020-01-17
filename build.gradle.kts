@@ -1,8 +1,8 @@
 
+import de.marcphilipp.gradle.nexus.NexusPublishExtension
 import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.net.URI
 import java.time.Instant
 
 description = "Libraries for running a GraphQL server in Kotlin"
@@ -16,6 +16,7 @@ plugins {
     jacoco
     signing
     `maven-publish`
+    id("de.marcphilipp.nexus-publish") apply false
     id("io.codearte.nexus-staging")
 }
 
@@ -53,7 +54,17 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "maven-publish")
+    apply(plugin = "de.marcphilipp.nexus-publish")
     apply(plugin = "signing")
+
+    configure<NexusPublishExtension> {
+        repositories {
+            sonatype {
+                username.set(System.getenv("SONATYPE_USERNAME"))
+                password.set(System.getenv("SONATYPE_PASSWORD"))
+            }
+        }
+    }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
@@ -106,16 +117,6 @@ subprojects {
             dependsOn(dokka.path)
         }
         publishing {
-            repositories {
-                maven {
-                    name = "ossrh"
-                    url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-                    credentials {
-                        username = System.getenv("SONATYPE_USERNAME")
-                        password = System.getenv("SONATYPE_PASSWORD")
-                    }
-                }
-            }
             publications {
                 create<MavenPublication>("mavenJava") {
                     pom {
