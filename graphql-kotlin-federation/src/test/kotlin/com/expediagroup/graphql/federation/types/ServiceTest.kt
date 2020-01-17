@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.types
 
+import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
@@ -40,6 +41,6 @@ internal class ServiceTest {
 
         val fieldType = serviceObject.fieldDefinitions.first().type as? GraphQLNonNull
         assertNotNull(fieldType)
-        assertEquals(expected = "String", actual = fieldType.wrappedType.name)
+        assertEquals(expected = GraphQLString, actual = fieldType.wrappedType)
     }
 }

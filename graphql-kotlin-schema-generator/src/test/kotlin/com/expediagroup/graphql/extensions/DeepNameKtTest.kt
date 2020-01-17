@@ -17,24 +17,18 @@
 package com.expediagroup.graphql.extensions
 
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
-import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeVisitor
-import graphql.util.TraversalControl
-import graphql.util.TraverserContext
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class DeepNameKtTest {
 
-    private class BasicType : GraphQLType {
-        override fun getName() = "BasicType"
-
-        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl =
-            context.thisNode().accept(context, visitor)
+    private val basicType = mockk<GraphQLNamedType> {
+        every { name } returns "BasicType"
     }
-
-    private val basicType = BasicType()
 
     @Test
     fun `deepname of basic type`() {

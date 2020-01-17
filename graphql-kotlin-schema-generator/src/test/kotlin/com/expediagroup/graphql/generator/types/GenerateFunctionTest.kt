@@ -25,6 +25,8 @@ import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.execution.FunctionDataFetcher
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
+import graphql.Scalars.GraphQLInt
+import graphql.Scalars.GraphQLString
 import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionPath
 import graphql.introspection.Introspection
@@ -199,7 +201,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLInt, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -208,7 +210,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLInt, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -217,7 +219,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertEquals("Int", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLInt, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -226,7 +228,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 0, actual = result.arguments.size)
-        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -234,7 +236,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val kFunction = Happy::dataFetcherResult
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
-        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test
@@ -246,7 +248,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val listType = GraphQLTypeUtil.unwrapNonNull(result.type)
         assertTrue(listType is GraphQLList)
         val stringType = GraphQLTypeUtil.unwrapNonNull(GraphQLTypeUtil.unwrapOne(listType))
-        assertEquals("String", stringType.name)
+        assertEquals(GraphQLString, stringType)
     }
 
     @Test
@@ -257,7 +259,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val listType = result.type
         assertTrue(listType is GraphQLList)
         val stringType = listType.wrappedType
-        assertEquals("String", stringType.name)
+        assertEquals(GraphQLString, stringType)
     }
 
     @Test
@@ -276,7 +278,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
 
         assertTrue(result.type is GraphQLNonNull)
         val stringType = GraphQLTypeUtil.unwrapNonNull(result.type)
-        assertEquals("String", stringType.name)
+        assertEquals(GraphQLString, stringType)
     }
 
     @Test

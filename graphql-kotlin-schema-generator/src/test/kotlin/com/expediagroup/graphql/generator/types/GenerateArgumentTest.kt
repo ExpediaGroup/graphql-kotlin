@@ -22,6 +22,7 @@ import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.Scalars
+import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeUtil
@@ -61,7 +62,7 @@ internal class GenerateArgumentTest : TypeTestHelper() {
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 
-        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals("Argument description", result.description)
     }
 
@@ -71,7 +72,7 @@ internal class GenerateArgumentTest : TypeTestHelper() {
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 
-        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.firstOrNull()?.name)
     }
@@ -82,7 +83,7 @@ internal class GenerateArgumentTest : TypeTestHelper() {
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 
-        assertEquals("String", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals("newName", result.name)
     }
 

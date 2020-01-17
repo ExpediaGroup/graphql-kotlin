@@ -16,18 +16,16 @@
 
 package com.expediagroup.graphql.generator.extensions
 
-import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLType
+import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLSchemaElement
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeVisitor
-import graphql.util.TraversalControl
-import graphql.util.TraverserContext
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -40,14 +38,9 @@ import kotlin.test.assertTrue
 @Suppress("Detekt.LargeClass")
 internal class GraphQLExtensionsTest {
 
-    private class BasicType : GraphQLType {
-        override fun getName() = "BasicType"
-
-        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl =
-            context.thisNode().accept(context, visitor)
+    private val basicType = mockk<GraphQLNamedType> {
+        every { name } returns "BasicType"
     }
-
-    private val basicType = BasicType()
     private val mockDirective: GraphQLDirective = mockk()
 
     @Test
@@ -125,10 +118,10 @@ internal class GraphQLExtensionsTest {
 
     @Test
     fun `safeCast with GraphQLType passes`() {
-        val type: GraphQLType = mockk()
+        val type: GraphQLNamedType = mockk()
         every { type.name } returns "foo"
 
-        val castedType = type.safeCast<GraphQLType>()
+        val castedType = type.safeCast<GraphQLNamedType>()
         assertEquals("foo", castedType.name)
     }
 
@@ -144,7 +137,7 @@ internal class GraphQLExtensionsTest {
     fun `safeCast valid type to the wrong type fails`() {
         val type: GraphQLType = GraphQLObjectType.newObject().name("name").description("description").build()
 
-        assertFailsWith(CouldNotCastGraphQLType::class) {
+        assertFailsWith(CouldNotCastGraphQLSchemaElement::class) {
             type.safeCast<GraphQLInterfaceType>()
         }
     }

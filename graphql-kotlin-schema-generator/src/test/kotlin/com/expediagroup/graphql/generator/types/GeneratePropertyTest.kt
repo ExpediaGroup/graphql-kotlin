@@ -32,7 +32,9 @@ import graphql.introspection.Introspection
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactory
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLTypeUtil
 import graphql.schema.PropertyDataFetcher
 import io.mockk.every
 import io.mockk.mockk
@@ -124,7 +126,7 @@ internal class GeneratePropertyTest : TypeTestHelper() {
         val prop = DataClassWithProperties::myId
         val result = generateProperty(generator, prop, DataClassWithProperties::class)
 
-        assertEquals("ID", (result.type as? GraphQLNonNull)?.wrappedType?.name)
+        assertEquals("ID", (GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLNamedType)?.name)
     }
 
     @Test

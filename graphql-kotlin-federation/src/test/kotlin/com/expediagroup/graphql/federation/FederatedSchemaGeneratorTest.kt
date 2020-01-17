@@ -32,21 +32,36 @@ private const val FEDERATED_SDL = """schema {
   query: Query
 }
 
-#Marks target field as external meaning it will be resolved by federated schema
+"Directs the executor to include this field or fragment only when the `if` argument is true"
+directive @include(
+    "Included when true."
+    if: Boolean!
+  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Directs the executor to skip this field or fragment when the `if`'argument is true."
+directive @skip(
+    "Skipped when true."
+    if: Boolean!
+  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Marks target field as external meaning it will be resolved by federated schema"
 directive @external on FIELD_DEFINITION
 
-#Marks target object as extending part of the federated schema
+"Marks target object as extending part of the federated schema"
 directive @extends on OBJECT | INTERFACE
 
-#Specifies the base type field set that will be selectable by the gateway
+"Specifies the base type field set that will be selectable by the gateway"
 directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+"Marks the target field/enum value as deprecated"
+directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
 
 directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-#Space separated list of primary keys needed to access federated object
+"Space separated list of primary keys needed to access federated object"
 directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
 
-#Specifies required input field set from the base type for a resolver
+"Specifies required input field set from the base type for a resolver"
 directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
 interface Product @extends @key(fields : "id") {
@@ -65,7 +80,7 @@ type Book implements Product @extends @key(fields : "id") {
 }
 
 type Query @extends {
-  #Union of all types that use the @key directive, including both types native to the schema and extended types
+  "Union of all types that use the @key directive, including both types native to the schema and extended types"
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
 }
@@ -85,20 +100,11 @@ type _Service {
   sdl: String!
 }
 
-#Federation scalar type used to represent any external entities passed to _entities query.
+"Federation scalar type used to represent any external entities passed to _entities query."
 scalar _Any
 
-#Federation type representing set of fields
-scalar _FieldSet
-
-#Directs the executor to include this field or fragment only when the `if` argument is true
-directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-#Directs the executor to skip this field or fragment when the `if`'argument is true.
-directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-#Marks the target field/enum value as deprecated
-directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE"""
+"Federation type representing set of fields"
+scalar _FieldSet"""
 
 class FederatedSchemaGeneratorTest {
 
