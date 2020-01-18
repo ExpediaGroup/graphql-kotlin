@@ -28,6 +28,7 @@ import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.federation.types.SERVICE_FIELD_DEFINITION
 import com.expediagroup.graphql.federation.types._Service
 import com.expediagroup.graphql.federation.types.generateEntityFieldDefinition
+import com.expediagroup.graphql.federation.validation.FederatedSchemaValidator
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher

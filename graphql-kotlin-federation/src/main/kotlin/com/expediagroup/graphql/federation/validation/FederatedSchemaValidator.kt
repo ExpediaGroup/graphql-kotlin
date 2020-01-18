@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.federation
+package com.expediagroup.graphql.federation.validation
 
 import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_NAME
@@ -23,9 +23,6 @@ import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.extensions.isFederatedType
-import com.expediagroup.graphql.federation.validation.validateDirective
-import com.expediagroup.graphql.federation.validation.validateProvidesDirective
-import com.expediagroup.graphql.federation.validation.validateRequiresDirective
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
@@ -36,7 +33,7 @@ import graphql.schema.GraphQLTypeUtil
 /**
  * Validates generated federated objects.
  */
-class FederatedSchemaValidator {
+internal class FederatedSchemaValidator {
 
     /**
      * Validates target GraphQLType whether it is a valid federated object.
@@ -48,7 +45,7 @@ class FederatedSchemaValidator {
      * - @requires directive is only applicable on extended types and references @external fields
      * - @provides directive references valid @external fields
      */
-    fun validateGraphQLType(type: GraphQLType) {
+    internal fun validateGraphQLType(type: GraphQLType) {
         val unwrappedType = GraphQLTypeUtil.unwrapAll(type)
         if (unwrappedType is GraphQLObjectType && unwrappedType.isFederatedType()) {
             validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.directivesByName)
