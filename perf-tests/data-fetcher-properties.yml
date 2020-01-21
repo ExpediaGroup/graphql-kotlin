@@ -1,0 +1,33 @@
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - name: "Warm up the application"
+      duration: 30
+      arrivalRate: 0
+      rampTo: 100
+
+    - name: "Test the application"
+      duration: 60
+      arrivalRate: 100
+
+scenarios:
+  - name: "Run PerfTest_DataFetcher_Properties"
+    flow:
+      - post:
+          url: "/graphql"
+          json:
+            query: |-
+              query PerfTest_DataFetcher_Properties {
+                getDataFetcherTestModel {
+                  one
+                  two
+                  three
+                  four
+                  five
+                  six
+                  seven
+                  eight
+                  nine
+                  ten
+                }
+              }

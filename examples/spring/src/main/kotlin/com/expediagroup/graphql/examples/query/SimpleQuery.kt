@@ -18,6 +18,7 @@ package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.examples.model.DataFetcherTestModel
 import com.expediagroup.graphql.spring.operations.Query
 import org.springframework.stereotype.Component
 import java.util.Random
@@ -27,6 +28,8 @@ import java.util.Random
  */
 @Component
 class SimpleQuery : Query {
+
+    private val testModel = DataFetcherTestModel()
 
     @Deprecated(message = "this query is deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
     @GraphQLDescription("old query that should not be used always returns false")
@@ -76,4 +79,6 @@ class SimpleQuery : Query {
         @GraphQLDescription("this field is optional") optionalValue: Int? = null
     ) =
             "required value=$requiredValue, optional value=$optionalValue"
+
+    fun getDataFetcherTestModel() = testModel
 }
