@@ -16,27 +16,12 @@
 
 package com.expediagroup.graphql.examples.model
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class DataFetcherTestModel {
-    val one = 1
-    val two = 2
-    val three = 3
-    val four = 4
-    val five = 5
-    val six = 6
-    val seven = 7
-    val eight = 8
-    val nine = 9
-    val ten = 10
+    val myProperty = 1
+    fun myFunction() = 2
+    fun myFunctionArg(value: Int) = value
+    fun myFunctionDataArg(input: DataFetcherTestInput) = input.value
 
-    fun funOne() = one
-    fun funTwo() = two
-    fun funThree() = three
-    fun funFour() = four
-    fun funFive() = five
-    fun funSix() = six
-    fun funSeven() = seven
-    fun funEight() = eight
-    fun funNine() = nine
-    fun funTen() = ten
+    data class DataFetcherTestInput(val value: Int)
 }
