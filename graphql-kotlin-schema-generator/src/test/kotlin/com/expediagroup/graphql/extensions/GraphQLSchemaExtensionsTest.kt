@@ -200,16 +200,16 @@ class GraphQLSchemaExtensionsTest {
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
-            #documented type
+            "documented type"
             type DocumentedType {
-              #documented property
+              "documented property"
               id: Int!
             }
 
             type Query {
-              #documented query
+              "documented query"
               documented(
-                #documented argument
+                "documented argument"
                 id: Int!
               ): DocumentedType!
             }
@@ -257,6 +257,21 @@ class GraphQLSchemaExtensionsTest {
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false).trim()
         val expected = """
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Marks the target field/enum value as deprecated"
+            directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
+
             directive @customDirective on FIELD_DEFINITION
 
             type ClassWithDirective {
@@ -278,15 +293,6 @@ class GraphQLSchemaExtensionsTest {
               THREE @deprecated(reason : "deprecated enum value, replace with ONE")
               TWO @deprecated(reason : "deprecated enum value")
             }
-
-            #Directs the executor to include this field or fragment only when the `if` argument is true
-            directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-            #Directs the executor to skip this field or fragment when the `if`'argument is true.
-            directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-            #Marks the target field/enum value as deprecated
-            directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
         """.trimIndent()
         assertEquals(expected, sdl)
     }

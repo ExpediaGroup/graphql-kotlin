@@ -23,7 +23,7 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLType
+import graphql.schema.GraphQLSchemaElement
 
 /**
  * Wiring factory that is used to provide the directives.
@@ -35,10 +35,10 @@ open class KotlinDirectiveWiringFactory(
     /**
      * Wire up the directive based on the GraphQL type.
      */
-    fun onWire(graphQLType: GraphQLType, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder? = null): GraphQLType {
-        if (graphQLType !is GraphQLDirectiveContainer) return graphQLType
+    fun onWire(graphQLSchemaElement: GraphQLSchemaElement, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder? = null): GraphQLSchemaElement {
+        if (graphQLSchemaElement !is GraphQLDirectiveContainer) return graphQLSchemaElement
 
-        return wireDirectives(graphQLType, coordinates, graphQLType.getAllDirectives(), codeRegistry)
+        return wireDirectives(graphQLSchemaElement, coordinates, graphQLSchemaElement.getAllDirectives(), codeRegistry)
     }
 
     /**

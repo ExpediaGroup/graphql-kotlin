@@ -16,11 +16,12 @@
 
 package com.expediagroup.graphql.generator.extensions
 
-import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLType
+import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLSchemaElement
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLSchemaElement
 import graphql.schema.GraphQLType
 import kotlin.reflect.KType
 
@@ -34,9 +35,9 @@ internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
     else -> GraphQLNonNull.nonNull(this)
 }
 
-@Throws(CouldNotCastGraphQLType::class)
-internal inline fun <reified T : GraphQLType> GraphQLType.safeCast(): T {
-    if (this !is T) throw CouldNotCastGraphQLType(this, T::class)
+@Throws(CouldNotCastGraphQLSchemaElement::class)
+internal inline fun <reified T : GraphQLSchemaElement> GraphQLSchemaElement.safeCast(): T {
+    if (this !is T) throw CouldNotCastGraphQLSchemaElement(this, T::class)
     return this
 }
 

@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.types
 
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -96,5 +97,5 @@ internal class GenerateListTest : TypeTestHelper() {
         assertEquals("MyDataClassInput", getListTypeName(result))
     }
 
-    private fun getListTypeName(list: GraphQLList) = GraphQLTypeUtil.unwrapNonNull(list.wrappedType).name
+    private fun getListTypeName(list: GraphQLList) = (GraphQLTypeUtil.unwrapNonNull(list.wrappedType) as? GraphQLNamedType)?.name
 }

@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.exceptions
 
-import graphql.schema.GraphQLType
+import graphql.schema.GraphQLSchemaElement
 import kotlin.reflect.KClass
 
 /**
- * Thrown when the casting a GraphQLType to some parent type is invalid
+ * Thrown when the casting a [GraphQLSchemaElement] to some parent type is invalid
  */
-class CouldNotCastGraphQLType(type: GraphQLType, kClass: KClass<*>) :
-    GraphQLKotlinException("Could not cast GraphQLType $type to $kClass")
+class CouldNotCastGraphQLSchemaElement(graphQLSchemaElement: GraphQLSchemaElement, kClass: KClass<*>) :
+    GraphQLKotlinException("Could not cast GraphQLSchemaElement $graphQLSchemaElement to $kClass")

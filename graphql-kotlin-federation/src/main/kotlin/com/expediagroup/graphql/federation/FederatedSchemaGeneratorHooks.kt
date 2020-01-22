@@ -17,9 +17,14 @@
 package com.expediagroup.graphql.federation
 
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.directives.DEPRECATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.extensions.print
+import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.extendsDirectiveType
 import com.expediagroup.graphql.federation.execution.EntityResolver
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
@@ -34,9 +39,11 @@ import graphql.TypeResolutionEnvironment
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import java.util.function.Predicate
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 
@@ -44,12 +51,13 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
-    private val directiveDefinitionRegex = "(^#.+$[\\r\\n])?^directive @\\w+.+$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val customDirectivesRegex = "\\s*@(?!extends)(?!external)(?!key)(?!provides)(?!requires)(?!deprecated)\\w+(?:\\(.*(?=\\))\\))?".toRegex(
-        setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val scalarDefinitionRegex = "(^#.+$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val directiveDefinitionRegex = "(^\".+\"$[\\r\\n])?^directive @\\w+.+\$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
+
+    private val directivesToInclude = listOf(EXTENDS_DIRECTIVE_NAME, EXTERNAL_DIRECTIVE_NAME, KEY_DIRECTIVE_NAME, PROVIDES_DIRECTIVE_NAME, REQUIRES_DIRECTIVE_NAME, DEPRECATED_DIRECTIVE_NAME)
+    private val customDirectivePredicate: Predicate<GraphQLDirective> = Predicate { directivesToInclude.contains(it.name) }
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         FieldSet::class -> FIELD_SET_SCALAR_TYPE
@@ -79,14 +87,13 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
          * - any custom directives
          * - new federated scalars
          */
-        val sdl = originalSchema.print(includeDefaultSchemaDefinition = false)
+        val sdl = originalSchema.print(includeDefaultSchemaDefinition = false, includeDirectivesFilter = customDirectivePredicate)
             /**
-             * TODO: this can be simplified once this is solved: apollographql/apollo-server#3334
+             * TODO: this can be simplified once this is solved: https://github.com/apollographql/apollo-server/issues/3334
              */
             .replace(directiveDefinitionRegex, "")
             .replace(scalarDefinitionRegex, "")
             .replace(emptyQueryRegex, "")
-            .replace(customDirectivesRegex, "")
             .trim()
         federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
 

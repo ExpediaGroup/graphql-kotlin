@@ -82,7 +82,8 @@ class PolymorphicQueryIT(@Autowired private val testClient: WebTestClient) {
             .exchange()
             .expectStatus().isOk
             .verifyError("Validation error of type WrongType: " +
-                "argument 'type' with value 'EnumValue{name='$unknownType'}' is not a valid 'AnimalType' @ 'animal'")
+                "argument 'type' with value 'EnumValue{name='$unknownType'}' is not a valid 'AnimalType' - " +
+                "Expected enum literal value not in allowable values -  'EnumValue{name='HELLO'}'. @ 'animal'")
     }
 
     @Test

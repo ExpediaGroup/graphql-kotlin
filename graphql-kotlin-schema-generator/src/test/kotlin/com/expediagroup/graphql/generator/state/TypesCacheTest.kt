@@ -16,10 +16,9 @@
 
 package com.expediagroup.graphql.generator.state
 
-import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeVisitor
-import graphql.util.TraversalControl
-import graphql.util.TraverserContext
+import graphql.schema.GraphQLNamedType
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
@@ -33,16 +32,12 @@ class TypesCacheTest {
 
     internal data class MyType(val id: Int = 0)
 
-    private val graphQLType: GraphQLType = object : GraphQLType {
-        override fun getName(): String = "MyType"
-
-        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+    private val graphQLType: GraphQLNamedType = mockk {
+        every { name } returns "MyType"
     }
 
-    private val secondGraphQLType: GraphQLType = object : GraphQLType {
-        override fun getName(): String = "MySecondType"
-
-        override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
+    private val secondGraphQLType: GraphQLNamedType = mockk {
+        every { name } returns "MySecondType"
     }
 
     internal class MyClass {
