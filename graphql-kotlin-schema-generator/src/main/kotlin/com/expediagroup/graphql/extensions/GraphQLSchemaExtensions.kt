@@ -32,7 +32,6 @@ import java.util.function.Predicate
  *   default root type names
  * @param includeDirectives boolean flag indicating whether SDL should include directive information
  * @param includeDirectivesFilter Predicate to filter out specifc directives. Defaults to filter all directives by the value of [includeDirectives]
- * @param descriptionsAsHashComments boolean flag indicating whether SDL print the description with # instead of ""
  */
 fun GraphQLSchema.print(
     includeIntrospectionTypes: Boolean = false,
@@ -40,8 +39,7 @@ fun GraphQLSchema.print(
     includeExtendedScalarTypes: Boolean = true,
     includeDefaultSchemaDefinition: Boolean = true,
     includeDirectives: Boolean = true,
-    includeDirectivesFilter: Predicate<GraphQLDirective> = Predicate { includeDirectives },
-    descriptionsAsHashComments: Boolean = false
+    includeDirectivesFilter: Predicate<GraphQLDirective> = Predicate { includeDirectives }
 ): String {
     val schemaPrinter = SchemaPrinter(
         SchemaPrinter.Options.defaultOptions()
@@ -51,7 +49,6 @@ fun GraphQLSchema.print(
             .includeSchemaDefinition(includeDefaultSchemaDefinition)
             .includeDirectives(includeDirectives)
             .includeDirectives(includeDirectivesFilter)
-            .descriptionsAsHashComments(descriptionsAsHashComments)
     )
 
     return schemaPrinter.print(this)
