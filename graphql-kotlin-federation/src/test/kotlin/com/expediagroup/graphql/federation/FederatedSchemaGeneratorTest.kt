@@ -79,6 +79,10 @@ type Book implements Product @extends @key(fields : "id") {
   weight: Float! @external
 }
 
+type CustomScalar {
+  value: String!
+}
+
 type Query @extends {
   "Union of all types that use the @key directive, including both types native to the schema and extended types"
   _entities(representations: [_Any!]!): [_Entity]!
@@ -88,6 +92,7 @@ type Query @extends {
 type Review {
   body: String! @custom
   content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
+  customScalar: CustomScalar!
   id: String!
 }
 

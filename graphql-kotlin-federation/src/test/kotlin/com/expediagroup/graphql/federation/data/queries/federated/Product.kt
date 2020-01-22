@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.data.queries.federated
 
+import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.federation.directives.ExtendsDirective
@@ -59,7 +60,7 @@ class Book(
     @ExternalDirective
     var weight: Double by Delegates.notNull()
 
-    override fun reviews(): List<Review> = listOf(Review("parent-$id", "Dummy Review $id"))
+    override fun reviews(): List<Review> = listOf(Review(id = "parent-$id", body = "Dummy Review $id", content = null, customScalar = CustomScalar("foo")))
 
     @RequiresDirective(FieldSet("weight"))
     fun shippingCost(): String = "$${weight * 9.99}"
@@ -98,7 +99,8 @@ type Review {
 data class Review(
     val id: String,
     @CustomDirective val body: String,
-    @Deprecated(message = "no longer supported", replaceWith = ReplaceWith("use Review.body instead")) val content: String? = null
+    @Deprecated(message = "no longer supported", replaceWith = ReplaceWith("use Review.body instead")) val content: String? = null,
+    val customScalar: CustomScalar
 )
 
 /*
@@ -115,4 +117,11 @@ data class User(
 )
 
 @GraphQLDirective(name = "custom")
+@GraphQLDescription("""
+    This is a multi-line comment on a custom directive.
+    This should still work multiline and double quotes (") in the description.
+    Line 3.
+""")
 annotation class CustomDirective
+
+class CustomScalar(val value: String)
