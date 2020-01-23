@@ -9,9 +9,9 @@
     "npm": "6"
   },
   "scripts": {
-    "perf-test-query": "yarn artillery run graphql-query.yml",
-    "perf-test-mutation": "yarn artillery run graphql-mutation.yml",
-    "perf-test-subscription": "yarn artillery run graphql-subscription.yml"
+    "perf-test-query": "npx artillery run graphql-query.yml",
+    "perf-test-mutation": "npx artillery run graphql-mutation.yml",
+    "perf-test-subscription": "npx artillery run graphql-subscription.yml"
   },
   "devDependencies": {
     "artillery": "1.6.0-29"
