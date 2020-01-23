@@ -5,7 +5,7 @@
   "description": "Simple load testing scripts",
   "main": "index.js",
   "engines": {
-    "node": "13",
+    "node": "12",
     "npm": "6"
   },
   "scripts": {
