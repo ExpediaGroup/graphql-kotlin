@@ -14,8 +14,13 @@ in this documentation should be available in the sample app.
 
 In order to run it you can run
 [Application.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/Application.kt)
-directly from your IDE. Alternatively you can also use the Spring Boot maven plugin by running `mvn spring-boot:run`
-from the command line. Once the app has started you can explore the example schema by opening Playground endpoint at
+directly from your IDE. Alternatively you can also use the Spring Boot plugin from the command line.
+
+```shell script
+./gradlew bootRun
+```
+
+Once the app has started you can explore the example schema by opening Playground endpoint at
 [http://localhost:8080/playground](http://localhost:8080/playground).
 
 ## Federation Example

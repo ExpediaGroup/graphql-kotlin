@@ -21,6 +21,10 @@ From the root examples directory you can run the following:
 Then to start the server:
 
 * Run `Application.kt` directly from your IDE
-* Alternatively you can also use the spring boot maven plugin by running `./gradlew :spring-example:bootRun` from the command line in the root examples directory.
+* Alternatively you can also use the spring boot plugin from the command line in the root examples directory.
+
+```shell script
+./gradlew :spring-example:bootRun
+```
 
 Once the app has started you can explore the example schema by opening the GraphQL Playground endpoint at http://localhost:8080/playground.

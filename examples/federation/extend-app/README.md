@@ -18,7 +18,11 @@ Build the application by running the following from examples root directory:
 Start the server:
 
 * Run `Application.kt` directly from your IDE
-* Alternatively you can also use the spring boot maven plugin by running `./gradlew :federation-example:extend-app:bootRun` from the command line in the root examples directory.
+* Alternatively you can also use the spring boot plugin from the command line in the root examples directory.
+
+```shell script
+./gradlew :federation-example:extend-app:bootRun
+```
 
 
 Once the app has started you can explore the example schema by opening Playground endpoint at http://localhost:8080/playground.

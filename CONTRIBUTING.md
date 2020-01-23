@@ -32,7 +32,7 @@ Or you can navigate to each module to build them individually.
 
 We are using [mockk](http://mockk.io), [JUnit](https://junit.org/junit5/), and [jacoco](https://www.eclemma.org/jacoco/) for our main testing libraries. This ensures we have good code coverage and can easily test all cases of schema generation.
 
-To run tests use Maven
+To run tests:
 
 ```shell script
 ./gradlew check
@@ -41,7 +41,7 @@ To run tests use Maven
 You can also view the code coverage reports published to Codecov. This validates that our coverage levels are maintained. Links are in the README.
 
 ### Linting
-We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.github.io/detekt/) for code style checking and linting. These can be run with the following Maven commands
+We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.github.io/detekt/) for code style checking and linting.
 
 **Note**:
 These will be run as part of the `validate` phase of a full build but if you want to run them manually you will have to navigate to each module directory and run the command
