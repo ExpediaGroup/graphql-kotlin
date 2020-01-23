@@ -13,13 +13,17 @@ You can make queries against the spring apps directly or combined queries from t
 Build the spring applications by running the following commands in the `/federation` directory
 
 ```shell script
-mvn clean install
-``` 
+./gradlew clean build
+```
 
 Start the servers:
 
 * Run each `Application.kt` directly from your IDE
-* Alternatively you can also use the spring boot maven plugin by running `mvn spring-boot:run` from the command line.
+* Alternatively you can also use the spring boot plugin from the command line.
+
+```shell script
+./gradlew bootRun
+```
 
 
 Once the app has started you can explore the example schema by opening Playground endpoint
