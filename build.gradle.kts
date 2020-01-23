@@ -187,9 +187,11 @@ tasks {
     nexusStaging {
         username = System.getenv("SONATYPE_USERNAME")
         password = System.getenv("SONATYPE_PASSWORD")
-
         packageGroup = rootProject.group.toString()
+        numberOfRetries = 60
+        delayBetweenRetriesInMillis = 5000
     }
+
     val publish by getting
     publish.dependsOn(":initializeSonatypeStagingRepository")
 }
