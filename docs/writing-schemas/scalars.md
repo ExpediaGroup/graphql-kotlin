@@ -20,7 +20,7 @@ extended scalar types provided by `graphql-java`.
 | `kotlin.BigDecimal` | `BigDecimal` |
 | `kotlin.Char`       | `Char`       |
 
-> NOTE: Extended GraphQL scalar types provided by `graphql-java` are generated as custom scalar types. When using those custom scalar types your GraphQL clients will have to know how to correctly parse and serialize them. See `graphql-java` [documentation](https://www.graphql-java.com/documentation/v13/scalars/) for more details.
+> NOTE: Extended GraphQL scalar types provided by `graphql-java` are generated as custom scalar types. When using those custom scalar types your GraphQL clients will have to know how to correctly parse and serialize them. See `graphql-java` [documentation](https://www.graphql-java.com/documentation/v14/scalars/) for more details.
 
 ## ID
 

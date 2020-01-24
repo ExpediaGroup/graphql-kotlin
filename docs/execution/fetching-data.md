@@ -6,7 +6,7 @@ title: Fetching Data
 Each field exposed through a GraphQL query has a corresponding resolver (aka data fetcher) associated with it. `graphql-kotlin-schema-generator` generates GraphQL schema
 directly from the source code automatically mapping all the fields either to use
 [FunctionDataFetcher](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/FunctionDataFetcher.kt)
-to resolve underlying functions or a [PropertyDataFetcher](https://www.graphql-java.com/documentation/v13/data-fetching/) to read a value from an underlying Kotlin property.
+to resolve underlying functions or a [PropertyDataFetcher](https://www.graphql-java.com/documentation/v14/data-fetching/) to read a value from an underlying Kotlin property.
 
 While all the fields in a GraphQL query are resolved independently to produce a final result, whether field is backed by a function or a property can have significant
 performance repercussions. For example, given the following schema:
