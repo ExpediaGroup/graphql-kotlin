@@ -4,7 +4,7 @@ title: Exceptions and Partial Data
 ---
 
 Exceptions thrown during execution of a query will result in a GraphQLError that is added to a list of errors of the result. See
-[graphql-java documentation](https://www.graphql-java.com/documentation/v13/execution/) for more details on how to customize your exception handling.
+[graphql-java documentation](https://www.graphql-java.com/documentation/v14/execution/) for more details on how to customize your exception handling.
 
 ### Partial Data
 
