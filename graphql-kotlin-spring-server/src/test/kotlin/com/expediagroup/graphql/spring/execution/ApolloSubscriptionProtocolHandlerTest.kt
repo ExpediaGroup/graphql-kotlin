@@ -395,7 +395,6 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
-
         val message = flux.blockFirst(Duration.ofSeconds(2))
         assertNotNull(message)
         assertEquals(expected = 0, actual = flux.count().block())
