@@ -33,10 +33,10 @@ private val SERVICE_OBJECT_TYPE = GraphQLObjectType.newObject()
             .build())
     .build()
 
-val SERVICE_FIELD_DEFINITION: GraphQLFieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
+internal val SERVICE_FIELD_DEFINITION: GraphQLFieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
     .name("_service")
     .type(SERVICE_OBJECT_TYPE)
     .build()
 
-@Suppress("ClassNaming")
-data class _Service(val sdl: String)
+@Suppress("ClassNaming", "ClassName")
+internal data class _Service(val sdl: String)

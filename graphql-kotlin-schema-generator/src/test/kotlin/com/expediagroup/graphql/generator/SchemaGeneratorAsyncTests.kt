@@ -21,6 +21,7 @@ import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -29,6 +30,8 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KType
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class SchemaGeneratorAsyncTests {
 
@@ -44,33 +47,41 @@ class SchemaGeneratorAsyncTests {
     @Test
     fun `SchemaGenerator strips type argument from CompletableFuture to support async servlet`() {
         val schema = toSchema(queries = listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig)
-        val returnTypeName =
-            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
-        assertEquals("Int", returnTypeName)
+        val returnType =
+            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType
+        assertNotNull(returnType)
+        assertTrue(returnType is GraphQLNamedType)
+        assertEquals("Int", returnType.name)
     }
 
     @Test
     fun `SchemaGenerator strips type argument from RxJava2 Observable`() {
         val schema = toSchema(queries = listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
-        val returnTypeName =
-            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType?.name
-        assertEquals("Int", returnTypeName)
+        val returnType =
+            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType
+        assertNotNull(returnType)
+        assertTrue(returnType is GraphQLNamedType)
+        assertEquals("Int", returnType.name)
     }
 
     @Test
     fun `SchemaGenerator strips type argument from RxJava2 Single`() {
         val schema = toSchema(queries = listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
-        val returnTypeName =
-            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDoSingle").type as? GraphQLNonNull)?.wrappedType?.name
-        assertEquals("Int", returnTypeName)
+        val returnType =
+            (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDoSingle").type as? GraphQLNonNull)?.wrappedType
+        assertNotNull(returnType)
+        assertTrue(returnType is GraphQLNamedType)
+        assertEquals("Int", returnType.name)
     }
 
     @Test
     fun `SchemaGenerator strips type argument from RxJava2 Maybe`() {
         val schema = toSchema(queries = listOf(TopLevelObject(RxJava2Query())), config = configWithRxJavaMonads)
-        val returnTypeName =
-            (schema.getObjectType("Query").getFieldDefinition("maybe").type as? GraphQLNonNull)?.wrappedType?.name
-        assertEquals("Int", returnTypeName)
+        val returnType =
+            (schema.getObjectType("Query").getFieldDefinition("maybe").type as? GraphQLNonNull)?.wrappedType
+        assertNotNull(returnType)
+        assertTrue(returnType is GraphQLNamedType)
+        assertEquals("Int", returnType.name)
     }
 
     class AsyncQuery {

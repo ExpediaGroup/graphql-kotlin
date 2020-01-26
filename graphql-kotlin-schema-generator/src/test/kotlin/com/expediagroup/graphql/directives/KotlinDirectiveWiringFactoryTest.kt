@@ -25,12 +25,7 @@ import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
-import graphql.schema.GraphQLOutputType
-import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
-import graphql.schema.GraphQLTypeVisitor
-import graphql.util.TraversalControl
-import graphql.util.TraverserContext
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -119,18 +114,12 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify directive wirings provided by wiring factory are applied on a field with directives`() {
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type(
-                object : GraphQLOutputType {
-                    override fun getName(): String = "MyOutputType"
-
-                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                }
-            )
+            .type { context, visitor -> context.thisNode().accept(context, visitor) }
             .description("My Field Description")
             .withDirective(graphQLLowercaseDirective)
             .build()
 
-        val actual = SimpleWiringFactory().onWire(graphQLType = original, coordinates = mockk(), codeRegistry = mockk())
+        val actual = SimpleWiringFactory().onWire(graphQLSchemaElement = original, coordinates = mockk(), codeRegistry = mockk())
         assertNotEquals(original, actual)
         val updatedField = actual as? GraphQLFieldDefinition
         assertEquals("my field description", updatedField?.description)
@@ -165,13 +154,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type(
-                object : GraphQLOutputType {
-                    override fun getName(): String = "MyOutputType"
-
-                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                }
-            )
+            .type { context, visitor -> context.thisNode().accept(context, visitor) }
             .argument(argument)
             .description("My Field Description")
             .build()
@@ -179,7 +162,7 @@ class KotlinDirectiveWiringFactoryTest {
         val newDescription = "overwritten"
 
         val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(newDescription)))
-            .onWire(graphQLType = original, coordinates = mockk(), codeRegistry = mockk())
+            .onWire(graphQLSchemaElement = original, coordinates = mockk(), codeRegistry = mockk())
         assertNotEquals(original, actual)
         val actualField = actual as? GraphQLFieldDefinition
         assertEquals(newDescription, actualField?.description)
@@ -191,13 +174,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify manual wirings take precedence over wiring factory`() {
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type(
-                object : GraphQLOutputType {
-                    override fun getName(): String = "MyOutputType"
-
-                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                }
-            )
+            .type { context, visitor -> context.thisNode().accept(context, visitor) }
             .description("My Field Description")
             .withDirective(graphQLLowercaseDirective)
             .build()
@@ -206,7 +183,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         // reusing lower case directive that just overwrites the description
         val actual = SimpleWiringFactory(overrides = mapOf("lowercase" to UpdateDescriptionWiringKotlinSchema(overwrittenDescription)))
-            .onWire(graphQLType = original, coordinates = mockk(), codeRegistry = mockk())
+            .onWire(graphQLSchemaElement = original, coordinates = mockk(), codeRegistry = mockk())
         assertNotEquals(original, actual)
 
         val updatedField = actual as? GraphQLFieldDefinition
@@ -217,13 +194,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify directives are applied in order they were declared`() {
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type(
-                object : GraphQLOutputType {
-                    override fun getName(): String = "MyOutputType"
-
-                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                }
-            )
+            .type { context, visitor -> context.thisNode().accept(context, visitor) }
             .description("My Field Description")
             .withDirective(graphQLOverrideDescriptionDirective)
             .withDirective(graphQLLowercaseDirective)
@@ -231,7 +202,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         val overwrittenDescription = "OverWriTTen"
         val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(overwrittenDescription)))
-            .onWire(graphQLType = original, coordinates = mockk(), codeRegistry = mockk())
+            .onWire(graphQLSchemaElement = original, coordinates = mockk(), codeRegistry = mockk())
         assertNotEquals(original, actual)
 
         val updatedField = actual as? GraphQLFieldDefinition
@@ -242,19 +213,13 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify exception is thrown if no coordinates or code registry is specified for the field`() {
         val myTestField = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type(
-                object : GraphQLOutputType {
-                    override fun getName(): String = "MyOutputType"
-
-                    override fun accept(context: TraverserContext<GraphQLType>, visitor: GraphQLTypeVisitor): TraversalControl = context.thisNode().accept(context, visitor)
-                }
-            )
+            .type { context, visitor -> context.thisNode().accept(context, visitor) }
             .description("My Field Description")
             .withDirective(graphQLLowercaseDirective)
             .build()
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            SimpleWiringFactory().onWire(graphQLType = myTestField, coordinates = null, codeRegistry = null)
+            SimpleWiringFactory().onWire(graphQLSchemaElement = myTestField, coordinates = null, codeRegistry = null)
         }
     }
 
@@ -281,7 +246,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
             SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail")))
-                .onWire(graphQLType = myTestObject, coordinates = mockk())
+                .onWire(graphQLSchemaElement = myTestObject, coordinates = mockk())
         }
     }
 }

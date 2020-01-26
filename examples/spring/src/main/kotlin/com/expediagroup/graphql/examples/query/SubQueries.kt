@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
 @Component
-class SubQueries: Query, BeanFactoryAware {
+class SubQueries : Query, BeanFactoryAware {
     private lateinit var beanFactory: BeanFactory
 
     @GraphQLIgnore

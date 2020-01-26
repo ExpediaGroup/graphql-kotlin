@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2019 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,5 +38,5 @@ fun toFederatedSchema(
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
     val generator = FederatedSchemaGenerator(config)
-    return generator.generate(queries, mutations, subscriptions)
+    return generator.generateSchema(queries, mutations, subscriptions)
 }

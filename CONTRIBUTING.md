@@ -16,13 +16,15 @@ where "my-new-feature" describes what you're working on.
 
 ## Verify your changes locally
 
-You can use Maven to build all the modules from the root directory
+You can use Gradle to build all the modules from the root directory
 
 ```shell script
-mvn clean install
+./gradlew clean build
 ```
 
-Or you can navigate to each module to build them individually
+Or you can navigate to each module to build them individually.
+
+> NOTE: in order to ensure you use the right version of Gradle we highly recommend to use the provided wrapper scripts
 
 ## Add tests for any bug fixes or new functionality
 
@@ -30,32 +32,32 @@ Or you can navigate to each module to build them individually
 
 We are using [mockk](http://mockk.io), [JUnit](https://junit.org/junit5/), and [jacoco](https://www.eclemma.org/jacoco/) for our main testing libraries. This ensures we have good code coverage and can easily test all cases of schema generation.
 
-To run tests use Maven
+To run tests:
 
 ```shell script
-mvn verify
+./gradlew check
 ```
 
 You can also view the code coverage reports published to Codecov. This validates that our coverage levels are maintained. Links are in the README.
 
 ### Linting
-We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.github.io/detekt/) for code style checking and linting. These can be run with the following Maven commands
+We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.github.io/detekt/) for code style checking and linting.
 
 **Note**:
 These will be run as part of the `validate` phase of a full build but if you want to run them manually you will have to navigate to each module directory and run the command
 
 ```shell script
-mvn antrun:run@ktlint
+./gradlew ktlintCheck
 ```
 ```shell script
-mvn antrun:run@detekt
+./gradlew detekt
 ```
 
 ## Add documentation for new or updated functionality
 
 Please add appropriate javadocs in the source code and ask the maintainers to update the documentation with any relevant
 information.
-Further instructions on how to add documentation content are in `webserver/README.md`.
+Further instructions on how to add documentation content are in `website/README.md`.
 
 ## Add license information
 All source files must contain the following license header. If you are using an IDE please add this as a copyright template for this project so that it will be added automatically.

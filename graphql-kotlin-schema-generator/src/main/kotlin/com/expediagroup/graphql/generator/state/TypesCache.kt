@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.isListType
 import com.expediagroup.graphql.generator.extensions.qualifiedName
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
@@ -35,7 +36,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     private val typesUnderConstruction: MutableSet<TypesCacheKey> = mutableSetOf()
 
     @Throws(ConflictingTypesException::class)
-    internal fun get(cacheKey: TypesCacheKey): GraphQLType? {
+    internal fun get(cacheKey: TypesCacheKey): GraphQLNamedType? {
         val cacheKeyString = getCacheKeyString(cacheKey) ?: return null
         val cachedType = cache[cacheKeyString]
 
@@ -67,10 +68,8 @@ internal class TypesCache(private val supportedPackages: List<String>) {
      */
     internal fun clear() = cache.clear()
 
-    internal fun doesNotContainGraphQLType(graphQLType: GraphQLType) =
+    internal fun doesNotContainGraphQLType(graphQLType: GraphQLNamedType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }
-
-    internal fun doesNotContain(kClass: KClass<*>): Boolean = cache.none { (_, ktype) -> ktype.kClass == kClass }
 
     /**
      * We do not want to cache list types since it is just a simple wrapper.
@@ -103,7 +102,7 @@ internal class TypesCache(private val supportedPackages: List<String>) {
             else -> {
                 typesUnderConstruction.add(cacheKey)
                 val newType = build(kClass)
-                if (newType !is GraphQLTypeReference) {
+                if (newType !is GraphQLTypeReference && newType is GraphQLNamedType) {
                     put(cacheKey, KGraphQLType(kClass, newType))
                 }
                 typesUnderConstruction.remove(cacheKey)

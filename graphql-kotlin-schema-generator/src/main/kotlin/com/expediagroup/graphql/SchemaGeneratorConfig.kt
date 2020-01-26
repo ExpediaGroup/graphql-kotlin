@@ -30,12 +30,3 @@ open class SchemaGeneratorConfig(
     open val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks,
     open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
 )
-
-/**
- * The names of the top level objects in the schema.
- */
-data class TopLevelNames(
-    val query: String = "Query",
-    val mutation: String = "Mutation",
-    val subscription: String = "Subscription"
-)

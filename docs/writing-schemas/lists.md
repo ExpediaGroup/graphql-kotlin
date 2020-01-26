@@ -10,25 +10,27 @@ are also supported.
 
 ```kotlin
 class SimpleQuery {
-  fun generateList(): List<Int> {
-    // some logic here that generates list
-  }
+    fun generateList(): List<Int> {
+        // some logic here that generates list
+    }
 
-  fun doSomethingWithIntArray(ints: IntArray): String {
-    // some logic here that processes array
-  }
+    fun doSomethingWithIntArray(ints: IntArray): String {
+        // some logic here that processes array
+    }
+
+    fun doSomethingWithIntList(ints: List<Int>): String {
+        // some logic here that processes list
+    }
+}
 ```
 
 The above Kotlin class would produce the following GraphQL schema:
 
 ```graphql
-schema {
-  query: Query
-}
-
 type Query {
-  generateList: [Int!]!
-  doSomethingWithIntArray(ints: [Int!]!): String!
+    generateList: [Int!]!
+    doSomethingWithIntArray(ints: [Int!]!): String!
+    doSomethingWithIntList(ints: [Int!]!): String!
 }
 ```
 
@@ -51,6 +53,3 @@ Currently GraphQL spec only supports `Lists`. Therefore even though Java and Kot
 types, `graphql-kotlin-schema-generator` only explicitly supports `Lists` and primitive arrays. Other collection types
 such as `Sets` (see [#201](https://github.com/ExpediaGroup/graphql-kotlin/issues/201)) and arbitrary `Map` data
 structures are not supported.
-
-Additionally, GraphQL spec does not allow interfaces/union types to be used for a query input arguments which means you
-can only use lists of concrete GraphQL types as your query input arguments.

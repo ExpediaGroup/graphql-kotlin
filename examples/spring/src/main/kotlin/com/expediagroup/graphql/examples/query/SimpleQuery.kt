@@ -26,7 +26,7 @@ import java.util.Random
  * Example queries.
  */
 @Component
-class SimpleQuery: Query {
+class SimpleQuery : Query {
 
     @Deprecated(message = "this query is deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
     @GraphQLDescription("old query that should not be used always returns false")
@@ -41,8 +41,10 @@ class SimpleQuery: Query {
     private fun privateFunctionsAreNotVisible() = "ignored private function"
 
     @GraphQLDescription("performs some operation")
-    fun doSomething(@GraphQLDescription("super important value")
-                    value: Int): Boolean = true
+    fun doSomething(
+        @GraphQLDescription("super important value")
+        value: Int
+    ): Boolean = true
 
     @GraphQLDescription("generates pseudo random int and returns it if it is less than 50")
     fun generateNullableNumber(): Int? {
@@ -70,7 +72,8 @@ class SimpleQuery: Query {
 
     @GraphQLDescription("query with optional input")
     fun doSomethingWithOptionalInput(
-            @GraphQLDescription("this field is required") requiredValue: Int,
-            @GraphQLDescription("this field is optional") optionalValue: Int? = null)
-            = "required value=$requiredValue, optional value=$optionalValue"
+        @GraphQLDescription("this field is required") requiredValue: Int,
+        @GraphQLDescription("this field is optional") optionalValue: Int? = null
+    ) =
+            "required value=$requiredValue, optional value=$optionalValue"
 }

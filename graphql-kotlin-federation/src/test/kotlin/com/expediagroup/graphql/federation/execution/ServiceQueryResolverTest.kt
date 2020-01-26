@@ -19,12 +19,20 @@ package com.expediagroup.graphql.federation.execution
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.federation.data.queries.federated.CustomScalar
 import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
+import graphql.language.StringValue
+import graphql.schema.Coercing
+import graphql.schema.CoercingParseValueException
+import graphql.schema.GraphQLScalarType
+import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -46,13 +54,21 @@ type Book implements Product @extends @key(fields : "id") {
 type Review {
   body: String!
   content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
+  customScalar: CustomScalar!
   id: String!
 }
 
 type User @extends @key(fields : "userId") {
   name: String! @external
   userId: Int! @external
-}"""
+}
+
+""${'"'}
+This is a multi-line comment on a custom scalar.
+This should still work multiline and double quotes (") in the description.
+Line 3.
+""${'"'}
+scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL = """
 type Query {
@@ -69,11 +85,38 @@ type SelfReferenceObject {
 
 class ServiceQueryResolverTest {
 
+    class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(FederatedTypeRegistry()) {
+        override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
+            CustomScalar::class -> graphqlCustomScalar
+            else -> super.willGenerateGraphQLType(type)
+        }
+
+        private val graphqlCustomScalar = GraphQLScalarType.newScalar()
+            .name("CustomScalar")
+            .description("""
+                This is a multi-line comment on a custom scalar.
+                This should still work multiline and double quotes (") in the description.
+                Line 3.
+                """.trimIndent())
+            .coercing(CustomScalarCoercing()).build()
+
+        private class CustomScalarCoercing : Coercing<CustomScalar, String> {
+            override fun parseValue(input: Any?): CustomScalar = CustomScalar(serialize(input))
+
+            override fun parseLiteral(input: Any?): CustomScalar? {
+                val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("CustomScalar value is null")
+                return CustomScalar(customValue)
+            }
+
+            override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+        }
+    }
+
     @Test
     fun `verify can retrieve SDL using _service query`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+            hooks = CustomScalarFederatedHooks()
         )
 
         val schema = toFederatedSchema(config = config)

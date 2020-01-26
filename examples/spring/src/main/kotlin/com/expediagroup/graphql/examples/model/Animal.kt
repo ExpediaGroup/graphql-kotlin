@@ -34,7 +34,7 @@ enum class AnimalType {
 }
 
 @GraphQLDescription("dog is one of the implementations of animal")
-class Dog: Animal {
+class Dog : Animal {
 
     override val type: AnimalType
         get() = AnimalType.DOG
@@ -46,7 +46,7 @@ class Dog: Animal {
 }
 
 @GraphQLDescription("cat is another implementation of animal")
-class Cat: Animal {
+class Cat : Animal {
     override val type: AnimalType
         get() = AnimalType.CAT
 

@@ -27,7 +27,7 @@ import graphql.schema.GraphQLUnionType
  * Generates union of all types that use the  @key directive, including both types native to the schema and extended types.
  */
 @Suppress("SpreadOperator")
-fun generateEntityFieldDefinition(federatedTypes: Set<String>): GraphQLFieldDefinition {
+internal fun generateEntityFieldDefinition(federatedTypes: Set<String>): GraphQLFieldDefinition {
     val possibleTypes = federatedTypes
         .map { GraphQLTypeReference(it) }
         .toTypedArray()

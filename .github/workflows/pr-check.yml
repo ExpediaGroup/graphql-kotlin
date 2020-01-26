@@ -1,40 +1,37 @@
-name: Pull Request CI
+name: Pull Request Check
 
 on:
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
+      - 'website/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # test against latest update of each major Java version, as well as specific updates of LTS versions:
+        # test against latest update of each major Java version, as well as specific updates of LTS versions
         java: [ 8, 11.0.x ]
 
     steps:
       - uses: actions/checkout@v2
-
+      - uses: gradle/wrapper-validation-action@v1
       - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
-
-      - name: Set up Maven cache
+      - name: Set up Gradle cache
         uses: actions/cache@v1
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Build with Maven
-        run: ./mvnw clean verify -PdefaultBuild
-
-      - name: Upload coverage to Codecov
-        if: matrix.java == 8
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          yml: ./codecov.yml
+            ${{ runner.os }}-gradle-
+      - name: Build library with Gradle
+        run: ./gradlew clean build
+      - name: Build examples with Gradle
+        working-directory: examples
+        run: ./gradlew clean build

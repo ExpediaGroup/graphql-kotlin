@@ -63,23 +63,32 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify SDL route`() {
-        val expectedSchema = """schema {
-  query: Query
-}
+        val expectedSchema = """
+            schema {
+              query: Query
+            }
 
-type Query {
-  context: String!
-  hello(name: String!): String!
-}
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-#Directs the executor to include this field or fragment only when the `if` argument is true
-directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-#Directs the executor to skip this field or fragment when the `if`'argument is true.
-directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+            "Marks the target field/enum value as deprecated"
+            directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
 
-#Marks the target field/enum value as deprecated
-directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE"""
+            type Query {
+              context: String!
+              hello(name: String!): String!
+            }
+
+            """.trimIndent()
 
         testClient.get().uri("/sdl")
             .accept(MediaType.TEXT_PLAIN)

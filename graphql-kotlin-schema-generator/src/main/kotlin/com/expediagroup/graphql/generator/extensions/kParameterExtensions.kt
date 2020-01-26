@@ -17,14 +17,16 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.annotations.GraphQLContext
-import com.expediagroup.graphql.exceptions.CouldNotCastArgumentException
 import com.expediagroup.graphql.exceptions.CouldNotGetNameOfKParameterException
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.javaType
 
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
+
+internal fun KParameter.isList() = this.type.getKClass().isSubclassOf(List::class)
 
 internal fun KParameter.isGraphQLContext() = this.findAnnotation<GraphQLContext>() != null
 
@@ -34,6 +36,9 @@ internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == Da
 internal fun KParameter.getName(): String =
     this.getGraphQLName() ?: this.name ?: throw CouldNotGetNameOfKParameterException(this)
 
-@Throws(CouldNotCastArgumentException::class)
 internal fun KParameter.javaTypeClass(): Class<*> =
-    this.type.javaType as? Class<*> ?: throw CouldNotCastArgumentException(this)
+    if (this.isList()) {
+        this.type.getKClass().java
+    } else {
+        this.type.javaType as Class<*>
+    }
