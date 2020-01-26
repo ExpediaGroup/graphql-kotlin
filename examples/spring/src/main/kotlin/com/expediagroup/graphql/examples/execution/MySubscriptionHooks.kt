@@ -19,9 +19,5 @@ open class MySubscriptionHooks :
         val bearer = connectionParams["Authorization"] ?: "none"
         val context = graphQLContext as? MyGraphQLContext
         context?.subscriptionValue = bearer
-//        val jwt =  validator.validate(bearer)
-//        return jwt.map {
-//            context?.subscriptionContext = SubscriptionContext(session, connectionParams, it.userId)
-//        }
     }
 }

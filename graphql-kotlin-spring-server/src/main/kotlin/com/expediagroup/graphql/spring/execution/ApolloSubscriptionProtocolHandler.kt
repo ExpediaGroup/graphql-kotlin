@@ -163,8 +163,6 @@ class ApolloSubscriptionProtocolHandler(
         session: WebSocketSession,
         graphQLContext: Any?
     ): Flux<SubscriptionOperationMessage> {
-        // should it be an error if there wasn't an onConnect state set?
-        // many of the tests skip the init state, but is this possible in reality?
         val onConnect = sessionState.onConnect(session) ?: mono {}
         return onConnect.map { subscriptionHooks.onOperation(operationMessage, session, graphQLContext) }
             .flatMapMany { startSubscription(operationMessage, session) }

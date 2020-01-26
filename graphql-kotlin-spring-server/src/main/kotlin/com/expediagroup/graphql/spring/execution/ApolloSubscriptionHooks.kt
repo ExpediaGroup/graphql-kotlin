@@ -29,12 +29,7 @@ interface ApolloSubscriptionHooks {
      * Allows validation of connectionParams prior to starting the connection.
      * You can reject the connection by throwing an exception
      */
-    fun onConnect(connectionParams: Map<String, String>, session: WebSocketSession, graphQLContext: Any?): Mono<Unit> =
-        mono {
-            // potential example:
-            // val token = connectionParams["Authorization"] ?: throw Exception("Unauthorized")
-            // validateToken(token)
-        }
+    fun onConnect(connectionParams: Map<String, String>, session: WebSocketSession, graphQLContext: Any?): Mono<Unit> = mono {}
 
     /**
      * Called when the client executes a GraphQL operation
