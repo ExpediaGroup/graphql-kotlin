@@ -69,12 +69,7 @@ class ApolloSubscriptionProtocolHandler(
                     else -> {
                         logger.error("Unknown subscription operation $operationMessage")
                         sessionState.stopOperation(session, operationMessage)
-                        Flux.just(
-                            SubscriptionOperationMessage(
-                                type = GQL_CONNECTION_ERROR.type,
-                                id = operationMessage.id
-                            )
-                        )
+                        Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
                     }
                 }
             } catch (exception: Exception) {
@@ -164,7 +159,7 @@ class ApolloSubscriptionProtocolHandler(
         graphQLContext: Any?
     ): Flux<SubscriptionOperationMessage> {
         val onConnect = sessionState.onConnect(session) ?: mono {}
-        return onConnect.map { subscriptionHooks.onOperation(operationMessage, session, graphQLContext) }
+        return onConnect.flatMap { subscriptionHooks.onOperation(operationMessage, session, graphQLContext) }
             .flatMapMany { startSubscription(operationMessage, session) }
     }
 
