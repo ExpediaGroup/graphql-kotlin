@@ -321,7 +321,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         val graphQLResponse: GraphQLResponse = objectMapper.convertValue(payload)
         assertEquals(expected = "myData", actual = graphQLResponse.data)
 
-        assertEquals(expected = 1, actual = flux.count().block())
+        assertEquals(expected = 0, actual = flux.count().block())
         verify(exactly = 0) { session.close() }
     }
 
@@ -373,7 +373,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         flux.blockFirst(Duration.ofSeconds(2))
         val fluxTwo = handler.handle(operationMessage, session)
 
-        assertEquals(expected = 1, actual = flux.count().block())
+        assertEquals(expected = 0, actual = flux.count().block())
         assertEquals(expected = 0, actual = fluxTwo.count().block())
         verify(exactly = 0) { session.close() }
     }
@@ -395,9 +395,10 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
-        assertEquals(expected = 1, actual = flux.count().block())
+
         val message = flux.blockFirst(Duration.ofSeconds(2))
         assertNotNull(message)
+        assertEquals(expected = 0, actual = flux.count().block())
         assertEquals(expected = GQL_ERROR.type, actual = message.type)
         assertEquals(expected = "abc", actual = message.id)
         val response = message.payload as? GraphQLResponse
