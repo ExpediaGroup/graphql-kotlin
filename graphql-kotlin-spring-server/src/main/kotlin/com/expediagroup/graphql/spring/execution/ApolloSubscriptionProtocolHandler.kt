@@ -31,7 +31,6 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Server
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
@@ -158,7 +157,7 @@ class ApolloSubscriptionProtocolHandler(
         session: WebSocketSession,
         graphQLContext: Any?
     ): Flux<SubscriptionOperationMessage> {
-        val onConnect = sessionState.onConnect(session) ?: mono {}
+        val onConnect = sessionState.onConnect(session) ?: subscriptionHooks.onConnect(emptyMap(), session, graphQLContext)
         return onConnect.flatMap { subscriptionHooks.onOperation(operationMessage, session, graphQLContext) }
             .flatMapMany { startSubscription(operationMessage, session) }
     }
