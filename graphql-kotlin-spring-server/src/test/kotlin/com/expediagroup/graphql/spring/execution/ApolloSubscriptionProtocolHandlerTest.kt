@@ -145,7 +145,6 @@ class ApolloSubscriptionProtocolHandlerTest {
         val initFlux = handler.handle(operationMessage, session)
 
         val message = initFlux.blockFirst(Duration.ofSeconds(2))
-        assertEquals(1, initFlux.count().block(Duration.ofSeconds(2)))
         assertNotNull(message)
         assertEquals(expected = GQL_CONNECTION_ACK.type, actual = message.type)
         initFlux.subscribe().dispose()
