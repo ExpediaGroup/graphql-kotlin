@@ -29,7 +29,6 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Server
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ERROR
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_DATA
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
-import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
@@ -43,8 +42,6 @@ import reactor.test.StepVerifier
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class ApolloSubscriptionProtocolHandlerTest {
 
@@ -311,17 +308,15 @@ class ApolloSubscriptionProtocolHandlerTest {
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-
-        val message = flux.blockFirst(Duration.ofSeconds(2))
-        assertNotNull(message)
-        assertEquals(expected = GQL_DATA.type, actual = message.type)
-        assertEquals(expected = "abc", actual = message.id)
-        val payload = message.payload
-        assertNotNull(payload)
-        val graphQLResponse: GraphQLResponse = objectMapper.convertValue(payload)
-        assertEquals(expected = "myData", actual = graphQLResponse.data)
-
-        assertEquals(expected = 0, actual = flux.count().block())
+        StepVerifier.create(flux)
+            .expectNextMatches {
+                val payload = it.payload as? GraphQLResponse
+                it.type == GQL_DATA.type &&
+                    it.id == "abc" &&
+                    payload?.data == "myData"
+            }
+            .expectComplete()
+            .verify()
         verify(exactly = 0) { session.close() }
     }
 
@@ -370,11 +365,14 @@ class ApolloSubscriptionProtocolHandlerTest {
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        flux.blockFirst(Duration.ofSeconds(2))
+        StepVerifier.create(flux)
+            .expectNextCount(1)
+            .expectComplete()
+            .verify()
         val fluxTwo = handler.handle(operationMessage, session)
-
-        assertEquals(expected = 0, actual = flux.count().block())
-        assertEquals(expected = 0, actual = fluxTwo.count().block())
+        StepVerifier.create(fluxTwo)
+            .expectComplete()
+            .verify()
         verify(exactly = 0) { session.close() }
     }
 
@@ -395,15 +393,15 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
 
-        val message = flux.blockFirst(Duration.ofSeconds(2))
-        assertNotNull(message)
-        assertEquals(expected = 0, actual = flux.count().block())
-        assertEquals(expected = GQL_ERROR.type, actual = message.type)
-        assertEquals(expected = "abc", actual = message.id)
-        val response = message.payload as? GraphQLResponse
-        assertNotNull(response)
-        assertTrue(response.errors?.isNotEmpty() == true)
-
+        StepVerifier.create(flux)
+            .expectNextMatches {
+                val payload = it.payload as? GraphQLResponse
+                it.type == GQL_ERROR.type &&
+                    it.id == "abc" &&
+                    payload?.errors?.isNotEmpty() == true
+            }
+            .expectComplete()
+            .verify()
         verify(exactly = 0) { session.close() }
     }
 
@@ -475,7 +473,10 @@ class ApolloSubscriptionProtocolHandlerTest {
         val initFlux = handler.handle(initMessage, session)
         val startFlux = handler.handle(startMessage, session)
         initFlux.blockFirst(Duration.ofSeconds(2))
-        val message = startFlux.blockFirst(Duration.ofSeconds(2))
+        StepVerifier.create(startFlux)
+            .expectNextMatches { it.payload == expectedResponse }
+            .expectComplete()
+            .verify()
         verify(exactly = 1) {
             subscriptionHooks.onConnect(any(), any(), any())
             subscriptionHooks.onOperation(any(), any(), any())
@@ -484,7 +485,6 @@ class ApolloSubscriptionProtocolHandlerTest {
             subscriptionHooks.onConnect(any(), any(), any())
             subscriptionHooks.onOperation(any(), any(), any())
         }
-        assertEquals(expectedResponse, message?.payload)
     }
 
     @Test
@@ -508,10 +508,13 @@ class ApolloSubscriptionProtocolHandlerTest {
         val initFlux = handler.handle(initMessage, session)
         val startFlux = handler.handle(startMessage, session)
         initFlux.blockFirst(Duration.ofSeconds(2))
-        val startResponse = startFlux.blockFirst(Duration.ofSeconds(2))
-        assertEquals("connection_error", startResponse?.type)
-        assertNull(startResponse?.payload)
-        assertEquals(expected = 1, actual = startFlux.count().block())
+        StepVerifier.create(startFlux)
+            .expectNextMatches {
+                it.type == GQL_CONNECTION_ERROR.type
+                it.payload == null
+            }
+            .expectComplete()
+            .verify()
     }
 
     @Test
