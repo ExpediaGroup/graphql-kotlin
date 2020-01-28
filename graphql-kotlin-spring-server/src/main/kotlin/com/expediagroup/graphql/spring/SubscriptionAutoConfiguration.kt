@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.spring
 
+import com.expediagroup.graphql.spring.execution.ApolloSubscriptionHooks
 import com.expediagroup.graphql.spring.execution.ApolloSubscriptionProtocolHandler
 import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHandler
+import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHooks
 import com.expediagroup.graphql.spring.execution.SubscriptionHandler
 import com.expediagroup.graphql.spring.execution.SubscriptionWebSocketHandler
 import com.expediagroup.graphql.spring.operations.Subscription
@@ -57,8 +59,16 @@ class SubscriptionAutoConfiguration {
     fun websocketHandlerAdapter(): WebSocketHandlerAdapter = WebSocketHandlerAdapter()
 
     @Bean
-    fun apolloSubscriptionProtocolHandler(config: GraphQLConfigurationProperties, handler: SubscriptionHandler, objectMapper: ObjectMapper) =
-        ApolloSubscriptionProtocolHandler(config, handler, objectMapper)
+    @ConditionalOnMissingBean
+    fun apolloSubscriptionHooks(): ApolloSubscriptionHooks = SimpleSubscriptionHooks()
+
+    @Bean
+    fun apolloSubscriptionProtocolHandler(
+        config: GraphQLConfigurationProperties,
+        handler: SubscriptionHandler,
+        objectMapper: ObjectMapper,
+        apolloSubscriptionHooks: ApolloSubscriptionHooks
+    ) = ApolloSubscriptionProtocolHandler(config, handler, objectMapper, apolloSubscriptionHooks)
 
     @Bean
     fun subscriptionWebSocketHandler(handler: ApolloSubscriptionProtocolHandler, objectMapper: ObjectMapper) =

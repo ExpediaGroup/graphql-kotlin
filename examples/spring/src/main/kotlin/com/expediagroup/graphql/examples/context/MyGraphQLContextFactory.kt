@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component
 class MyGraphQLContextFactory : GraphQLContextFactory<MyGraphQLContext> {
 
     override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): MyGraphQLContext = MyGraphQLContext(
-            myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext",
-            request = request,
-            response = response)
+        myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext",
+        request = request,
+        response = response,
+        subscriptionValue = null)
 }

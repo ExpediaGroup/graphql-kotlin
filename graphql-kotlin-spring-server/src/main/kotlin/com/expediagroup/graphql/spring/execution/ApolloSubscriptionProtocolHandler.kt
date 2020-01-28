@@ -34,6 +34,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.Duration
 
 /**
@@ -43,7 +44,8 @@ import java.time.Duration
 class ApolloSubscriptionProtocolHandler(
     private val config: GraphQLConfigurationProperties,
     private val subscriptionHandler: SubscriptionHandler,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val subscriptionHooks: ApolloSubscriptionHooks
 ) {
     private val sessionState = ApolloSubscriptionSessionState()
     private val logger = LoggerFactory.getLogger(ApolloSubscriptionProtocolHandler::class.java)
@@ -53,37 +55,39 @@ class ApolloSubscriptionProtocolHandler(
 
     @Suppress("Detekt.TooGenericExceptionCaught")
     fun handle(payload: String, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
-        try {
-            val operationMessage: SubscriptionOperationMessage = objectMapper.readValue(payload)
-
-            logger.debug("GraphQL subscription client message, sessionId=${session.id} operationMessage=$operationMessage")
-
-            when (operationMessage.type) {
-                GQL_CONNECTION_INIT.type -> {
-                    val ackowledgeMessageFlux = Flux.just(acknowledgeMessage)
-                    val keepAliveFlux = getKeepAliveFlux(session)
-                    return ackowledgeMessageFlux.concatWith(keepAliveFlux)
+        val operationMessage = convertToMessageOrNull(payload) ?: return Flux.just(basicConnectionErrorMessage)
+        logger.debug("GraphQL subscription client message, sessionId=${session.id} operationMessage=$operationMessage")
+        return Mono.subscriberContext().flatMapMany<SubscriptionOperationMessage> { reactorContext ->
+            try {
+                val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
+                when (operationMessage.type) {
+                    GQL_CONNECTION_INIT.type -> onInit(operationMessage, session, graphQLContext)
+                    GQL_START.type -> onStart(operationMessage, session, graphQLContext)
+                    GQL_STOP.type -> onStop(operationMessage, session)
+                    GQL_CONNECTION_TERMINATE.type -> onDisconnect(session, graphQLContext)
+                    else -> {
+                        logger.error("Unknown subscription operation $operationMessage")
+                        sessionState.stopOperation(session, operationMessage)
+                        Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+                    }
                 }
-                GQL_START.type -> return startSubscription(operationMessage, session)
-                GQL_STOP.type -> return sessionState.stopOperation(session, operationMessage)
-                GQL_CONNECTION_TERMINATE.type -> {
-                    sessionState.terminateSession(session)
-                    return Flux.empty()
-                }
-                else -> {
-                    logger.error("Unknown subscription operation $operationMessage")
-                    sessionState.stopOperation(session, operationMessage)
-                    return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
-                }
+            } catch (exception: Exception) {
+                logger.error("Error parsing the subscription message", exception)
+                Flux.just(basicConnectionErrorMessage)
             }
-        } catch (exception: Exception) {
-            logger.error("Error parsing the subscription message", exception)
-            return Flux.just(basicConnectionErrorMessage)
         }
     }
-
+    @Suppress("Detekt.TooGenericExceptionCaught")
+    private fun convertToMessageOrNull(payload: String): SubscriptionOperationMessage? {
+        return try {
+            objectMapper.readValue(payload)
+        } catch (exception: Exception) {
+            logger.error("Error parsing the subscription message", exception)
+            null
+        }
+    }
     /**
-     * If the keep alive configuraation is set, send a message back to client at every interval until the session is terminated.
+     * If the keep alive configuration is set, send a message back to client at every interval until the session is terminated.
      * Otherwise just return empty flux to append to the acknowledge message.
      */
     private fun getKeepAliveFlux(session: WebSocketSession): Flux<SubscriptionOperationMessage> {
@@ -98,7 +102,10 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     @Suppress("Detekt.TooGenericExceptionCaught")
-    private fun startSubscription(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+    private fun startSubscription(
+        operationMessage: SubscriptionOperationMessage,
+        session: WebSocketSession
+    ): Flux<SubscriptionOperationMessage> {
         if (operationMessage.id == null) {
             logger.error("GraphQL subscription operation id is required")
             return Flux.just(basicConnectionErrorMessage)
@@ -135,4 +142,40 @@ class ApolloSubscriptionProtocolHandler(
             return Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
         }
     }
+
+    private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?): Flux<SubscriptionOperationMessage> {
+        val connectionParams = operationMessage.payload as? Map<String, String> ?: emptyMap()
+        val onConnect = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
+        sessionState.saveOnConnectHook(session, onConnect)
+        val acknowledgeMessageFlux = Flux.just(acknowledgeMessage)
+        val keepAliveFlux = getKeepAliveFlux(session)
+        return acknowledgeMessageFlux.concatWith(keepAliveFlux)
+    }
+
+    private fun onStart(
+        operationMessage: SubscriptionOperationMessage,
+        session: WebSocketSession,
+        graphQLContext: Any?
+    ): Flux<SubscriptionOperationMessage> {
+        val onConnect = sessionState.onConnect(session) ?: subscriptionHooks.onConnect(emptyMap(), session, graphQLContext)
+        return onConnect.flatMap { subscriptionHooks.onOperation(operationMessage, session, graphQLContext) }
+            .flatMapMany { startSubscription(operationMessage, session) }
+    }
+
+    private fun onStop(
+        operationMessage: SubscriptionOperationMessage,
+        session: WebSocketSession
+    ): Flux<SubscriptionOperationMessage> = subscriptionHooks.onOperationComplete(session)
+        .flatMapMany {
+            sessionState.stopOperation(session, operationMessage)
+        }
+
+    private fun onDisconnect(
+        session: WebSocketSession,
+        graphQLContext: Any?
+    ): Flux<SubscriptionOperationMessage> = subscriptionHooks.onDisconnect(session, graphQLContext)
+        .flatMapMany {
+            sessionState.terminateSession(session)
+            Flux.empty<SubscriptionOperationMessage>()
+        }
 }
