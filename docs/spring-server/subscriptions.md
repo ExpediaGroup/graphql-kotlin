@@ -27,7 +27,7 @@ If you would like to implement your own subscription hooks, you can provide a pr
 
 
 ## Example
-You can see an example implementation of a `Subscription` in the [example app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/sample/subscriptions/SimpleSubscription.kt).
+You can see an example implementation of a `Subscription` in the [example app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/subscriptions/SimpleSubscription.kt).
 
 
 
