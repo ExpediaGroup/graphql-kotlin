@@ -24,11 +24,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspend
@@ -42,19 +45,21 @@ import kotlin.reflect.full.valueParameters
  * @param fn The Kotlin function being invoked
  * @param objectMapper Jackson ObjectMapper that will be used to deserialize environment arguments to the expected function arguments
  */
+@Suppress("Detekt.SpreadOperator")
 open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : DataFetcher<Any> {
 
+    /**
+     * Invoke a suspend function or blocking function, passing in the [target] if not null or default to using the source from the environment.
+     */
     override fun get(environment: DataFetchingEnvironment): Any? {
         val instance = target ?: environment.getSource<Any>()
 
         return instance?.let {
-            val parameterValues = fn.valueParameters
-                .map { param -> mapParameterToValue(param, environment) }
-                .toTypedArray()
+            val parameterValues = getParameterValues(fn, environment)
 
             if (fn.isSuspend) {
                 runSuspendingFunction(it, parameterValues)
@@ -64,14 +69,36 @@ open class FunctionDataFetcher(
         }
     }
 
-    private fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
+    /**
+     * Iterate over all the function parameters and map them to the proper input values from the environment
+     */
+    protected open fun getParameterValues(fn: KFunction<*>, environment: DataFetchingEnvironment): Array<Any?> = fn.valueParameters
+        .map { param -> mapParameterToValue(param, environment) }
+        .toTypedArray()
+
+    /**
+     * Retreives the provided parameter value in the operation input to pass to the function to execute.
+     * If the parameter is of a special type then we do not read the input and instead just pass on that value.
+     *
+     * The special values include:
+     *   - If the parameter is annotated with [com.expediagroup.graphql.annotations.GraphQLContext],
+     *     then return the environment context
+     *
+     *   - The entire environment is returned if the parameter is of type [DataFetchingEnvironment]
+     */
+    protected open fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
         when {
             param.isGraphQLContext() -> environment.getContext()
             param.isDataFetchingEnvironment() -> environment
             else -> convertParameterValue(param, environment)
         }
 
-    private fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
+    /**
+     * Called to convert the generic input object to the parameter class.
+     *
+     * This is currently achieved by using a Jackson [ObjectMapper].
+     */
+    protected open fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
         val name = param.getName()
         val klazz = param.javaTypeClass()
         val argument = environment.arguments[name]
@@ -79,21 +106,33 @@ open class FunctionDataFetcher(
         return objectMapper.convertValue(argument, klazz)
     }
 
-    @Suppress("Detekt.SpreadOperator")
-    private fun runSuspendingFunction(it: Any, parameterValues: Array<Any?>): CompletableFuture<Any?> {
-        return GlobalScope.async {
+    /**
+     * Once all parameters values are properly converted, this function will be called to run a suspendable function.
+     * If you need to override the exception handling you can override the entire method.
+     * You can also call it from [get] with different values to override the default corotuine context or start parameter.
+     */
+    protected open fun runSuspendingFunction(
+        instance: Any,
+        parameterValues: Array<Any?>,
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
+    ): CompletableFuture<Any?> {
+        return GlobalScope.async(context = coroutineContext, start = coroutineStart) {
             try {
-                fn.callSuspend(it, *parameterValues)
+                fn.callSuspend(instance, *parameterValues)
             } catch (exception: InvocationTargetException) {
                 throw exception.cause ?: exception
             }
         }.asCompletableFuture()
     }
 
-    @Suppress("Detekt.SpreadOperator")
-    private fun runBlockingFunction(it: Any, parameterValues: Array<Any?>): Any? {
+    /**
+     * Once all parameters values are properly converted, this function will be called to run a simple blocking function.
+     * If you need to override the exception handling you can override this method.
+     */
+    protected open fun runBlockingFunction(instance: Any, parameterValues: Array<Any?>): Any? {
         try {
-            return fn.call(it, *parameterValues)
+            return fn.call(instance, *parameterValues)
         } catch (exception: InvocationTargetException) {
             throw exception.cause ?: exception
         }
