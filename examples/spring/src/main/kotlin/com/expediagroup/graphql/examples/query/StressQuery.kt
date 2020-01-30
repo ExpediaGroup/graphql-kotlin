@@ -18,6 +18,7 @@
 
 package com.expediagroup.graphql.examples.query
 
+import com.expediagroup.graphql.examples.directives.TrackTimesInvoked
 import com.expediagroup.graphql.spring.operations.Query
 import io.netty.util.internal.ThreadLocalRandom
 import org.springframework.stereotype.Component
@@ -32,7 +33,7 @@ class StressQuery : Query {
 
     fun stressNode(traceId: String?, count: Int?): List<StressNode> {
         val id = traceId ?: getRandomStringFromThread()
-        return getStressNodeLIst(id, count)
+        return (1..(count ?: 1)).map { StressNode(id) }
     }
 }
 
@@ -45,12 +46,12 @@ class StressNode(val traceId: String) {
 
     suspend fun suspendId(): String = getRandomStringFromThread()
 
-    fun stressNode(count: Int?): List<StressNode> = getStressNodeLIst(traceId, count)
+    @TrackTimesInvoked
+    fun loggingFunctionId(): String = getRandomStringFromThread()
 
-    suspend fun suspendStressNode(count: Int?): List<StressNode> = getStressNodeLIst(traceId, count)
+    @TrackTimesInvoked
+    suspend fun suspendLoggingFunctionId(): String = getRandomStringFromThread()
 }
-
-private fun getStressNodeLIst(traceId: String, count: Int?): List<StressNode> = (1..(count ?: 1)).map { StressNode(traceId) }
 
 private fun getRandomStringFromThread(): String {
     val random = ThreadLocalRandom.current()
