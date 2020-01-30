@@ -14,76 +14,45 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.spring.operations.Query
 import io.netty.util.internal.ThreadLocalRandom
 import org.springframework.stereotype.Component
 import java.util.UUID
 
+/**
+ * Used to stress test the performance of running many data fetchers.
+ * Tests properties vs functions vs suspend functions.
+ */
 @Component
 class StressQuery : Query {
 
-    fun lazyStressQuery(traceId: String?, count: Int?): List<LazyStressNode> {
-        val id = generateId(traceId)
-        return (1..(count ?: 1)).map { LazyStressNode(id) }
-    }
-
-    fun eagerStressQuery(traceId: String?, count: Int?): List<EagerStressNode> {
-        val id = generateId(traceId)
-        return (1..(count ?: 1)).map { EagerStressNode(id) }
-    }
-
-    @GraphQLIgnore
-    fun generateId(traceId: String?): String {
-        if (traceId == null) {
-            val random = ThreadLocalRandom.current()
-            return UUID(random.nextLong(), random.nextLong()).toString()
-        }
-        return traceId
+    fun stressNode(traceId: String?, count: Int?): List<StressNode> {
+        val id = traceId ?: getRandomStringFromThread()
+        return getStressNodeLIst(id, count)
     }
 }
 
-@Suppress("MemberVisibilityCanBePrivate")
-class LazyStressNode(val traceId: String) {
+@Suppress("MemberVisibilityCanBePrivate", "RedundantSuspendModifier")
+class StressNode(val traceId: String) {
 
-    fun functionId(): String {
-        val random = ThreadLocalRandom.current()
-        return UUID(random.nextLong(), random.nextLong()).toString()
-    }
+    val valueId: String = getRandomStringFromThread()
 
-    fun ignoredId(): String {
-        val random = ThreadLocalRandom.current()
-        return UUID(random.nextLong(), random.nextLong()).toString()
-    }
+    fun functionId(): String = getRandomStringFromThread()
 
-    suspend fun suspendId(): String {
-        val random = ThreadLocalRandom.current()
-        return UUID(random.nextLong(), random.nextLong()).toString()
-    }
+    suspend fun suspendId(): String = getRandomStringFromThread()
 
-    suspend fun suspendIgnoredId(): String {
-        val random = ThreadLocalRandom.current()
-        return UUID(random.nextLong(), random.nextLong()).toString()
-    }
+    fun stressNode(count: Int?): List<StressNode> = getStressNodeLIst(traceId, count)
 
-    fun stressNode(count: Int?): List<LazyStressNode> {
-        return (1..(count ?: 1)).map { LazyStressNode(traceId) }
-    }
+    suspend fun suspendStressNode(count: Int?): List<StressNode> = getStressNodeLIst(traceId, count)
 }
 
-@Suppress("MemberVisibilityCanBePrivate")
-class EagerStressNode(val traceId: String) {
+private fun getStressNodeLIst(traceId: String, count: Int?): List<StressNode> = (1..(count ?: 1)).map { StressNode(traceId) }
 
-    val valueId: String
-
-    init {
-        val random = ThreadLocalRandom.current()
-        valueId = UUID(random.nextLong(), random.nextLong()).toString()
-    }
-
-    fun stressNode(count: Int?): List<EagerStressNode> {
-        return (1..(count ?: 1)).map { EagerStressNode(traceId) }
-    }
+private fun getRandomStringFromThread(): String {
+    val random = ThreadLocalRandom.current()
+    return UUID(random.nextLong(), random.nextLong()).toString()
 }
