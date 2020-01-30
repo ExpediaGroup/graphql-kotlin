@@ -52,16 +52,19 @@ class TrackTimesInvokedInstrumentation : SimpleInstrumentation() {
         logger.info("TrackTimesInvokedInstrumentation fields invoked: $count")
         return super.instrumentExecutionResult(executionResult, parameters)
     }
-}
 
-class TrackTimesInvokedInstrumenationState : InstrumentationState {
+    /**
+     * The state per execution for this Instrumentation
+     */
+    private class TrackTimesInvokedInstrumenationState : InstrumentationState {
 
-    private val fieldCount = ConcurrentHashMap<String, Int>()
+        private val fieldCount = ConcurrentHashMap<String, Int>()
 
-    fun incrementCount(fieldName: String) {
-        val currentCount = fieldCount.getOrDefault(fieldName, 0)
-        fieldCount[fieldName] = currentCount.plus(1)
+        fun incrementCount(fieldName: String) {
+            val currentCount = fieldCount.getOrDefault(fieldName, 0)
+            fieldCount[fieldName] = currentCount.plus(1)
+        }
+
+        fun getCount() = fieldCount.toString()
     }
-
-    fun getCount() = fieldCount.toString()
 }
