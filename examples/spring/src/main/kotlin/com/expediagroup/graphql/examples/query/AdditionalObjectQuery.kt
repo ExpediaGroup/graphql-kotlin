@@ -16,12 +16,10 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.model.AdditionalObject
 import com.expediagroup.graphql.spring.operations.Query
 import org.springframework.stereotype.Component
-import javax.management.Query
 
 /**
  * Example usage of adding an additional object to the schema.
@@ -30,5 +28,5 @@ import javax.management.Query
 class AdditionalObjectQuery : Query {
 
     @GraphQLDescription("query that uses a set as a list and relies on an object that isn't built elsewhere")
-    fun additionalQuery(msg: String): Set<AdditionalObject> = setOf(AdditionalObject(msg))
+    fun additionalObjectQuery(msg: String, msg2: String): Set<AdditionalObject> = setOf(AdditionalObject(msg), AdditionalObject(msg2))
 }

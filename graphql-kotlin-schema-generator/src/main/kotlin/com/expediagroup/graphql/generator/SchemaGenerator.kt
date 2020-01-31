@@ -79,7 +79,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         }
 
         config.hooks.onAddAdditionalTypes().forEach {
-            generateGraphQLType(this, it, false, false)
+            builder.additionalType(generateGraphQLType(this, it, false, false))
         }
 
         builder.additionalDirectives(directives.values.toSet())

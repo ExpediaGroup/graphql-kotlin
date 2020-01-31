@@ -51,9 +51,11 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
         }
         else -> null
     }
+
     override fun isValidSuperclass(kClass: KClass<*>): Boolean {
-        return if(kClass == Set::class) false else  super.isValidSuperclass(kClass)
+        return if (kClass == Set::class) false else super.isValidSuperclass(kClass)
     }
+
     override fun onAddAdditionalTypes() = setOf(AdditionalObject::class.starProjectedType)
 
     private fun getNestedType(type: KType): KType = type.arguments.firstOrNull()?.type ?: throw IllegalArgumentException("Type is not a list")
@@ -61,7 +63,7 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
     private fun getSimpleName(kClass: KClass<*>): String = kClass.findAnnotation<GraphQLName>()?.value
         ?: kClass.simpleName
         ?: throw IllegalArgumentException("Could not get graphql name")
-
+}
     internal val graphqlUUIDType = GraphQLScalarType.newScalar()
         .name("UUID")
         .description("A type representing a formatted java.util.UUID")
