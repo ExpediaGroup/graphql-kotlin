@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.directives.DeprecatedDirective
-import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.generator.types.generateGraphQLType
@@ -31,7 +30,6 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeReference
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -98,15 +96,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         }
     }
 
-    private fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.mapNotNull {
-        val graphQLType = generateGraphQLType(this, it, inputType = false, annotatedAsID = false)
-
-        // Do not add objects currently under construction to the additional types
-        val unwrappedType = graphQLType.unwrapType()
-        if (unwrappedType !is GraphQLTypeReference) {
-            graphQLType
-        } else {
-            null
-        }
-    }.toSet()
+    /**
+     * Gererate the GraphQL type for all the additional types. They are generated as non-inputs and not as IDs.
+     * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
+     * you modify the set before you call this method.
+     */
+    protected fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
 }
