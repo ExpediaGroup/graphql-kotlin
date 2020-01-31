@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.isEnum
@@ -26,7 +27,6 @@ import com.expediagroup.graphql.generator.extensions.wrapInNonNull
 import com.expediagroup.graphql.generator.state.TypesCacheKey
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
-import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -40,7 +40,7 @@ internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputT
         ?: objectFromReflection(generator, type, inputType)
 
     // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
-    val unwrappedType = GraphQLTypeUtil.unwrapType(graphQLType).lastElement()
+    val unwrappedType = graphQLType.unwrapType()
     val typeWithNullability = graphQLType.wrapInNonNull(type)
     if (unwrappedType !is GraphQLTypeReference) {
         return generator.config.hooks.didGenerateGraphQLType(type, typeWithNullability)
@@ -58,9 +58,11 @@ private fun objectFromReflection(generator: SchemaGenerator, type: KType, inputT
     }
 
     val kClass = type.getKClass()
-    val graphQLType = generator.cache.buildIfNotUnderConstruction(kClass, inputType) { getGraphQLType(generator, kClass, inputType, type) }
 
-    return generator.config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
+    return generator.cache.buildIfNotUnderConstruction(kClass, inputType) {
+        val graphQLType = getGraphQLType(generator, kClass, inputType, type)
+        generator.config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
+    }
 }
 
 private fun getGraphQLType(generator: SchemaGenerator, kClass: KClass<*>, inputType: Boolean, type: KType): GraphQLType = when {

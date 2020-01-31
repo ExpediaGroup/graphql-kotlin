@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.directives.DeprecatedDirective
+import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.generator.types.generateGraphQLType
@@ -30,8 +31,10 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 /**
@@ -45,7 +48,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
-    internal val additionalTypes = mutableSetOf<GraphQLType>()
+    internal val additionalTypes = mutableSetOf<KType>()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     init {
@@ -68,16 +71,12 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList()
     ): GraphQLSchema {
+
         val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))
         builder.mutation(generateMutations(this, mutations))
         builder.subscription(generateSubscriptions(this, subscriptions))
-
-        // add unreferenced interface implementations
-        additionalTypes.forEach {
-            builder.additionalType(it)
-        }
-
+        builder.additionalTypes(generateAdditionalTypes(additionalTypes))
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
 
@@ -94,10 +93,20 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
      * This is helpful for things like federation or combining external schemas
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>) {
-        classScanner.getClassesWithAnnotation(annotation)
-            .map { generateGraphQLType(this, it.createType()) }
-            .forEach {
-                additionalTypes.add(it)
-            }
+        classScanner.getClassesWithAnnotation(annotation).forEach {
+            additionalTypes.add(it.createType())
+        }
     }
+
+    private fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.mapNotNull {
+        val graphQLType = generateGraphQLType(this, it, inputType = false, annotatedAsID = false)
+
+        // Do not add objects currently under construction to the additional types
+        val unwrappedType = graphQLType.unwrapType()
+        if (unwrappedType !is GraphQLTypeReference) {
+            graphQLType
+        } else {
+            null
+        }
+    }.toSet()
 }

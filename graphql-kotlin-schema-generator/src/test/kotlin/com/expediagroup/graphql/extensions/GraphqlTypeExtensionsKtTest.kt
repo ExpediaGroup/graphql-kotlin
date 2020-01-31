@@ -24,7 +24,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class DeepNameKtTest {
+internal class GraphqlTypeExtensionsKtTest {
 
     private val basicType = mockk<GraphQLNamedType> {
         every { name } returns "BasicType"
@@ -51,5 +51,28 @@ internal class DeepNameKtTest {
     fun `deepname of non null list of non nulls`() {
         val complicated = GraphQLNonNull(GraphQLList(GraphQLNonNull(basicType)))
         assertEquals(expected = "[BasicType!]!", actual = complicated.deepName)
+    }
+
+    @Test
+    fun `unwrapType works on basic types that are not wrapped`() {
+        assertEquals("BasicType", basicType.unwrapType().deepName)
+    }
+
+    @Test
+    fun `unwrapType works on non null`() {
+        val nonNull = GraphQLNonNull.nonNull(basicType)
+        assertEquals("BasicType", nonNull.unwrapType().deepName)
+    }
+
+    @Test
+    fun `unwrapType works on lists`() {
+        val graphQLList = GraphQLList.list(basicType)
+        assertEquals("BasicType", graphQLList.unwrapType().deepName)
+    }
+
+    @Test
+    fun `unwrapType works on multiple layers`() {
+        val graphQLList = GraphQLNonNull.nonNull(GraphQLList.list(GraphQLNonNull.nonNull(basicType)))
+        assertEquals("BasicType", graphQLList.unwrapType().deepName)
     }
 }

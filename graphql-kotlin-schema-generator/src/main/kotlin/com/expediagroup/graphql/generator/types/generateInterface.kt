@@ -26,8 +26,6 @@ import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
-import graphql.schema.GraphQLTypeReference
-import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -53,14 +51,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
     generator.classScanner.getSubTypesOf(kClass)
-        .map { generateGraphQLType(generator, it.createType()) }
-        .forEach {
-            // Do not add objects currently under construction to the additional types
-            val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()
-            if (unwrappedType !is GraphQLTypeReference) {
-                generator.additionalTypes.add(it)
-            }
-        }
+        .forEach { generator.additionalTypes.add(it.createType()) }
 
     val interfaceType = builder.build()
     generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }

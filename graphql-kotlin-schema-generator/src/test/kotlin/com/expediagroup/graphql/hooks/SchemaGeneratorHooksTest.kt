@@ -25,13 +25,17 @@ import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import graphql.language.StringValue
+import graphql.schema.Coercing
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.UUID
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -251,8 +255,38 @@ class SchemaGeneratorHooksTest {
         assertEquals(expected = "SomeData", actual = hooks.willResolveMonad(type).getSimpleName())
     }
 
+    @Test
+    fun `willGenerateGraphQLType can override to provide a custom type`() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
+            var hookCalled = false
+
+            override fun willGenerateGraphQLType(type: KType): GraphQLType? {
+                hookCalled = true
+
+                return when (type.classifier as? KClass<*>) {
+                    UUID::class -> graphqlUUIDType
+                    else -> null
+                }
+            }
+        }
+
+        val hooks = MockSchemaGeneratorHooks()
+        val schema = toSchema(
+            queries = listOf(TopLevelObject(CustomTypesQuery())),
+            config = getTestSchemaConfigWithHooks(hooks)
+        )
+
+        assertTrue(hooks.hookCalled)
+        val graphQLType = assertNotNull(schema.getType("UUID"))
+        assertTrue(graphQLType is GraphQLScalarType)
+    }
+
     class TestQuery {
         fun query(): SomeData = SomeData("someData", 0)
+    }
+
+    class CustomTypesQuery {
+        fun uuid(): UUID = UUID.randomUUID()
     }
 
     class TestInterfaceQuery {
@@ -294,4 +328,21 @@ class SchemaGeneratorHooksTest {
     }
 
     class EmptyImplementation(override val id: String) : EmptyInterface
+
+    private val graphqlUUIDType = GraphQLScalarType.newScalar()
+        .name("UUID")
+        .description("A type representing a formatted java.util.UUID")
+        .coercing(UUIDCoercing)
+        .build()
+
+    private object UUIDCoercing : Coercing<UUID, String> {
+        override fun parseValue(input: Any?): UUID = UUID.fromString(serialize(input))
+
+        override fun parseLiteral(input: Any?): UUID? {
+            val uuidString = (input as? StringValue)?.value
+            return UUID.fromString(uuidString)
+        }
+
+        override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+    }
 }
