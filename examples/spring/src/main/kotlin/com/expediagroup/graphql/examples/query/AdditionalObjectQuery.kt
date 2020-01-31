@@ -30,5 +30,5 @@ import javax.management.Query
 class AdditionalObjectQuery : Query {
 
     @GraphQLDescription("query that uses a set as a list and relies on an object that isn't built elsewhere")
-    fun additionalQuery(): Set<AdditionalObject> = setOf(AdditionalObject("I wouldn't have been built without the onAddAdditionalTypes hook."))
+    fun additionalQuery(msg: String): Set<AdditionalObject> = setOf(AdditionalObject(msg))
 }
