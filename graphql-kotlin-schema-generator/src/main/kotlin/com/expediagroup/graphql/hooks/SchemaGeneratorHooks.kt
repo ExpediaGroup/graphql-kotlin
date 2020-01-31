@@ -154,6 +154,11 @@ interface SchemaGeneratorHooks {
         type
     }
 
+    /**
+     * Called after generating the all objects but before adding directives.
+     */
+    fun onAddAdditionalTypes(): Set<KType> = setOf()
+
     val wiringFactory: KotlinDirectiveWiringFactory
         get() = KotlinDirectiveWiringFactory()
 }
