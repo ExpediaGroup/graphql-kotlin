@@ -19,7 +19,6 @@ package com.expediagroup.graphql.examples.query
 import com.expediagroup.graphql.examples.DATA_JSON_PATH
 import com.expediagroup.graphql.examples.GRAPHQL_ENDPOINT
 import com.expediagroup.graphql.examples.GRAPHQL_MEDIA_TYPE
-import com.expediagroup.graphql.examples.verifyData
 import com.expediagroup.graphql.examples.verifyOnlyDataExists
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
