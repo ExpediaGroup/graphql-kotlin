@@ -26,6 +26,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.coroutineScope
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -65,6 +66,34 @@ internal class FunctionDataFetcherTest {
         @GraphQLName("jacksonField")
         val field1: String
     )
+
+    class CustomFunctionDataFetcher(private val target: Any?, private val fn: KFunction<*>) : FunctionDataFetcher(target, fn) {
+        internal var ranCustomMethod = false
+
+        override fun get(environment: DataFetchingEnvironment): Any? {
+            ranCustomMethod = true
+            val instance = target ?: environment.getSource<Any>()
+
+            return instance?.let {
+                val parameterValues = getParameterValues(fn, environment)
+
+                if (fn.isSuspend) {
+                    runSuspendingFunction(it, parameterValues)
+                } else {
+                    runBlockingFunction(it, parameterValues)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `get method can be overriden`() {
+        val dataFetcher = CustomFunctionDataFetcher(target = null, fn = MyClass::print)
+        val mockEnvironmet: DataFetchingEnvironment = mockk()
+        every { mockEnvironmet.getSource<Any>() } returns null
+        assertNull(dataFetcher.get(mockEnvironmet))
+        assertTrue(dataFetcher.ranCustomMethod)
+    }
 
     @Test
     fun `null target and null source returns null`() {

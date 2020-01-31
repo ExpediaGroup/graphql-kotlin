@@ -72,7 +72,7 @@ open class FunctionDataFetcher(
     /**
      * Iterate over all the function parameters and map them to the proper input values from the environment
      */
-    protected open fun getParameterValues(fn: KFunction<*>, environment: DataFetchingEnvironment): Array<Any?> = fn.valueParameters
+    protected fun getParameterValues(fn: KFunction<*>, environment: DataFetchingEnvironment): Array<Any?> = fn.valueParameters
         .map { param -> mapParameterToValue(param, environment) }
         .toTypedArray()
 
@@ -86,7 +86,7 @@ open class FunctionDataFetcher(
      *
      *   - The entire environment is returned if the parameter is of type [DataFetchingEnvironment]
      */
-    protected open fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
+    private fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
         when {
             param.isGraphQLContext() -> environment.getContext()
             param.isDataFetchingEnvironment() -> environment
@@ -98,7 +98,7 @@ open class FunctionDataFetcher(
      *
      * This is currently achieved by using a Jackson [ObjectMapper].
      */
-    protected open fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
+    private fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
         val name = param.getName()
         val klazz = param.javaTypeClass()
         val argument = environment.arguments[name]
@@ -111,7 +111,7 @@ open class FunctionDataFetcher(
      * If you need to override the exception handling you can override the entire method.
      * You can also call it from [get] with different values to override the default corotuine context or start parameter.
      */
-    protected open fun runSuspendingFunction(
+    protected fun runSuspendingFunction(
         instance: Any,
         parameterValues: Array<Any?>,
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
@@ -130,7 +130,7 @@ open class FunctionDataFetcher(
      * Once all parameters values are properly converted, this function will be called to run a simple blocking function.
      * If you need to override the exception handling you can override this method.
      */
-    protected open fun runBlockingFunction(instance: Any, parameterValues: Array<Any?>): Any? {
+    protected fun runBlockingFunction(instance: Any, parameterValues: Array<Any?>): Any? {
         try {
             return fn.call(instance, *parameterValues)
         } catch (exception: InvocationTargetException) {
