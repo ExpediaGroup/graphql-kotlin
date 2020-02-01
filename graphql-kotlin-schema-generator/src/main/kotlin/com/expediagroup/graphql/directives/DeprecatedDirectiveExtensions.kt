@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,14 @@
 
 package com.expediagroup.graphql.directives
 
-import graphql.Scalars
-import graphql.introspection.Introspection
-import graphql.schema.GraphQLArgument
+import graphql.Directives.DeprecatedDirective
 import graphql.schema.GraphQLDirective
 
 const val DEPRECATED_DIRECTIVE_NAME = "deprecated"
 
-private val DefaultDeprecatedArgument: GraphQLArgument = GraphQLArgument.newArgument()
-    .name("reason")
-    .type(Scalars.GraphQLString)
-    .defaultValue("No longer supported")
-    .build()
-
-internal val DeprecatedDirective: GraphQLDirective = GraphQLDirective.newDirective()
-    .name(DEPRECATED_DIRECTIVE_NAME)
-    .description("Marks the target field/enum value as deprecated")
-    .argument(DefaultDeprecatedArgument)
-    .validLocations(Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.ENUM_VALUE)
-    .build()
-
 internal fun deprecatedDirectiveWithReason(reason: String): GraphQLDirective = DeprecatedDirective.transform { directive ->
-    directive.argument(DefaultDeprecatedArgument.transform { arg ->
-        arg.value(reason)
-    })
+    val deprecatedArgument = DeprecatedDirective.getArgument("reason").transform { argument ->
+        argument.value(reason)
+    }
+    directive.argument(deprecatedArgument)
 }

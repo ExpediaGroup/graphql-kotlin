@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,4 +23,7 @@ import org.springframework.stereotype.Component
 @Component
 class SimpleQuery : Query {
     fun dataFromBaseApp() = "hello from base app"
+
+    @Deprecated(message = "old deprecated query", replaceWith = ReplaceWith("dataFromBaseApp"))
+    fun deprecatedBaseAppQuery() = "this is deprecated"
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.directives.DeprecatedDirective
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.generator.types.generateGraphQLType
 import com.expediagroup.graphql.generator.types.generateMutations
 import com.expediagroup.graphql.generator.types.generateQueries
 import com.expediagroup.graphql.generator.types.generateSubscriptions
-import graphql.Directives
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
@@ -47,18 +45,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
     internal val additionalTypes = mutableSetOf<GraphQLType>()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
-
-    init {
-        // NOTE: @include and @defer query directives are added by graphql-java by default
-        // adding them explicitly here to keep it consistent with missing deprecated directive
-        directives[Directives.IncludeDirective.name] = Directives.IncludeDirective
-        directives[Directives.SkipDirective.name] = Directives.SkipDirective
-
-        // graphql-kotlin default directives
-        // @deprecated directive is a built-in directive that each GraphQL server should provide bu currently it is not added by graphql-java
-        //   see https://github.com/graphql-java/graphql-java/issues/1598
-        directives[DeprecatedDirective.name] = DeprecatedDirective
-    }
 
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.

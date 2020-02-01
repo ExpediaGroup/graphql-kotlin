@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,8 +80,11 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
                 if: Boolean!
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            "Marks the target field/enum value as deprecated"
-            directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
+            "Marks the field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String! = "No longer supported"
+              ) on FIELD_DEFINITION | ENUM_VALUE
 
             type Query {
               context: String!

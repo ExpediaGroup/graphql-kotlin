@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,10 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import com.expediagroup.graphql.directives.DeprecatedDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.test.utils.SimpleDirective
-import graphql.Directives
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
@@ -119,10 +117,6 @@ internal class GenerateDirectiveTest {
     @Test
     fun `directives are only added to the schema once`() {
         val initialCount = basicGenerator.directives.size
-        assertTrue(basicGenerator.directives.containsKey(Directives.IncludeDirective.name))
-        assertTrue(basicGenerator.directives.containsKey(Directives.SkipDirective.name))
-        assertTrue(basicGenerator.directives.containsKey(DeprecatedDirective.name))
-
         val firstInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
         assertEquals(1, firstInvocation.size)
         val secondInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
