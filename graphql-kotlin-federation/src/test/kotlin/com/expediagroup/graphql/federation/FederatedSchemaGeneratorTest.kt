@@ -53,9 +53,6 @@ directive @extends on OBJECT | INTERFACE
 "Specifies the base type field set that will be selectable by the gateway"
 directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 
-"Marks the target field/enum value as deprecated"
-directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
-
 directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 "Space separated list of primary keys needed to access federated object"
@@ -63,6 +60,12 @@ directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
 
 "Specifies required input field set from the base type for a resolver"
 directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+
+"Marks the field or enum value as deprecated"
+directive @deprecated(
+    "The reason for the deprecation"
+    reason: String! = "No longer supported"
+  ) on FIELD_DEFINITION | ENUM_VALUE
 
 interface Product @extends @key(fields : "id") {
   id: String! @external
