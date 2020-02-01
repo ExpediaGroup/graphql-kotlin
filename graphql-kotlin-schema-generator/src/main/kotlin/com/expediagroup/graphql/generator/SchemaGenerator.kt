@@ -32,6 +32,7 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 /**
@@ -45,7 +46,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
-    internal val additionalTypes = mutableSetOf<GraphQLType>()
+    internal val additionalTypes = mutableSetOf<KType>()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     init {
@@ -68,16 +69,12 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList()
     ): GraphQLSchema {
+
         val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))
         builder.mutation(generateMutations(this, mutations))
         builder.subscription(generateSubscriptions(this, subscriptions))
-
-        // add unreferenced interface implementations
-        additionalTypes.forEach {
-            builder.additionalType(it)
-        }
-
+        builder.additionalTypes(generateAdditionalTypes(additionalTypes))
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
 
@@ -94,10 +91,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
      * This is helpful for things like federation or combining external schemas
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>) {
-        classScanner.getClassesWithAnnotation(annotation)
-            .map { generateGraphQLType(this, it.createType()) }
-            .forEach {
-                additionalTypes.add(it)
-            }
+        classScanner.getClassesWithAnnotation(annotation).forEach {
+            additionalTypes.add(it.createType())
+        }
     }
+
+    private fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
 }

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
@@ -26,7 +27,6 @@ import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
-import graphql.schema.GraphQLTypeUtil
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
@@ -44,7 +44,7 @@ internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): Grap
     kClass.getValidSuperclasses(generator.config.hooks)
         .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
-            when (val unwrappedType = GraphQLTypeUtil.unwrapType(it).last()) {
+            when (val unwrappedType = it.unwrapType()) {
                 is GraphQLTypeReference -> builder.withInterface(unwrappedType)
                 is GraphQLInterfaceType -> builder.withInterface(unwrappedType)
             }

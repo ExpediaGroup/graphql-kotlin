@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.filters
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertFalse
@@ -35,12 +36,18 @@ class SuperclassFiltersKtTest {
         fun internal(): String
     }
 
+    @GraphQLIgnore
+    interface IgnoredInterface {
+        fun public(): String
+    }
+
     @Test
     fun superclassFilters() {
         assertTrue(isValidSuperclass(Interface::class))
         assertFalse(isValidSuperclass(Union::class))
         assertFalse(isValidSuperclass(NonPublic::class))
         assertFalse(isValidSuperclass(Class::class))
+        assertFalse(isValidSuperclass(IgnoredInterface::class))
     }
 
     private fun isValidSuperclass(kClass: KClass<*>): Boolean = superclassFilters.all { it(kClass) }

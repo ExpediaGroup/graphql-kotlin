@@ -51,8 +51,8 @@ internal class FunctionDataFetcherTest {
 
         fun throwException() { throw GraphQLException("Test Exception") }
 
-        suspend fun suspendThrow(value: String?): String = coroutineScope {
-            value ?: throw GraphQLException("Suspended Exception")
+        suspend fun suspendThrow(): String = coroutineScope<String> {
+            throw GraphQLException("Suspended Exception")
         }
 
         @GraphQLName("myCustomField")
@@ -155,7 +155,6 @@ internal class FunctionDataFetcherTest {
     fun `suspendThrow throws exception when resolved`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendThrow)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
-        every { mockEnvironmet.arguments } returns mapOf("value" to null)
 
         try {
             val result = dataFetcher.get(mockEnvironmet)

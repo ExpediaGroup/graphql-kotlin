@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.federation.types
 
-import graphql.schema.GraphQLTypeUtil
+import com.expediagroup.graphql.extensions.unwrapType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -41,7 +41,7 @@ internal class EntityTest {
         assertFalse(result.description.isNullOrEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
 
-        val graphQLUnionType = GraphQLTypeUtil.unwrapType(result.type).last() as? GraphQLUnionType
+        val graphQLUnionType = result.type.unwrapType() as? GraphQLUnionType
 
         assertNotNull(graphQLUnionType)
         assertEquals(expected = "_Entity", actual = graphQLUnionType.name)
@@ -52,7 +52,7 @@ internal class EntityTest {
     @Test
     fun `generateEntityFieldDefinition should return a valid type on a multiple values`() {
         val result = generateEntityFieldDefinition(setOf("MyType", "MySecondType"))
-        val graphQLUnionType = GraphQLTypeUtil.unwrapType(result.type).last() as? GraphQLUnionType
+        val graphQLUnionType = result.type.unwrapType() as? GraphQLUnionType
 
         assertNotNull(graphQLUnionType)
         assertEquals(expected = 2, actual = graphQLUnionType.types.size)

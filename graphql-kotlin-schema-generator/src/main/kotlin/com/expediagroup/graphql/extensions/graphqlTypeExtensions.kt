@@ -28,3 +28,10 @@ import graphql.schema.GraphQLTypeUtil
  */
 val GraphQLType.deepName: String
     get() = GraphQLTypeUtil.simplePrint(this)
+
+/**
+ * Unwrap the type of all layers and return the last element.
+ * This includes GraphQLNonNull and GraphQLList.
+ * If the type is not wrapped, it will just be returned.
+ */
+fun GraphQLType.unwrapType(): GraphQLType = GraphQLTypeUtil.unwrapType(this).last()

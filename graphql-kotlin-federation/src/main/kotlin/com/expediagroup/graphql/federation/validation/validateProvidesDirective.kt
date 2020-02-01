@@ -16,12 +16,12 @@
 
 package com.expediagroup.graphql.federation.validation
 
+import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.extensions.isExtendedType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
-import graphql.schema.GraphQLTypeUtil
 
 // [OK]    @provides on base type references valid @external fields on @extend object
 // [ERROR] @provides on base type references local object fields
@@ -30,7 +30,7 @@ import graphql.schema.GraphQLTypeUtil
 // [OK]    @provides references list of valid @extend objects
 // [ERROR] @provides references @external list field
 // [ERROR] @provides references @external interface field
-internal fun validateProvidesDirective(federatedType: String, field: GraphQLFieldDefinition): List<String> = when (val returnType = GraphQLTypeUtil.unwrapType(field.type).last()) {
+internal fun validateProvidesDirective(federatedType: String, field: GraphQLFieldDefinition): List<String> = when (val returnType = field.type.unwrapType()) {
     is GraphQLObjectType -> {
         if (!returnType.isExtendedType()) {
             listOf("@provides directive is specified on a $federatedType.${field.name} field references local object")
