@@ -82,5 +82,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         }
     }
 
-    private fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
+    /**
+     * Generate the GraphQL type for all the `additionalTypes`. They are generated as non-inputs and not as IDs.
+     * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
+     * you can modify the set of `additionalTypes` before you call this method.
+     */
+    protected open fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
 }
