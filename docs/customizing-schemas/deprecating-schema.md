@@ -1,6 +1,6 @@
 ---
-id: evolving-schema
-title: Evolving Schema
+id: deprecating-schema
+title: Deprecating Schema
 ---
 
 ### Deprecating Fields

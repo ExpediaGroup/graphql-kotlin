@@ -12,4 +12,4 @@ for things that can't be directly derived from Kotlin reflection.
 * [@GraphQLID](scalars#id) - Marks given field as GraphQL `ID`
 * [@GraphQLIgnore](../customizing-schemas/excluding-fields) - Exclude field from the GraphQL schema
 * [@GraphQLName](../customizing-schemas/renaming-fields) - Override the name used for the type
-* Kotlin built in [@Deprecated](../customizing-schemas/evolving-schema) - Apply the GraphQL `@deprecated` directive on the field
+* Kotlin built in [@Deprecated](../customizing-schemas/deprecating-schema) - Apply the GraphQL `@deprecated` directive on the field
