@@ -82,5 +82,5 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         }
     }
 
-    private fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
+    protected fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
 }
