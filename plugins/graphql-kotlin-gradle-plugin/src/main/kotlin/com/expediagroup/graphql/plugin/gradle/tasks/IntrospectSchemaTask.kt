@@ -1,17 +1,6 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
-import graphql.introspection.IntrospectionQuery.INTROSPECTION_QUERY
-import graphql.introspection.IntrospectionResultToSchema
-import graphql.schema.idl.SchemaPrinter
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.request.accept
-import io.ktor.client.request.post
-import io.ktor.client.request.url
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.util.KtorExperimentalAPI
+import com.expediagroup.graphql.plugin.runIntrospectionQuery
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFile
@@ -45,33 +34,12 @@ open class IntrospectSchemaTask : DefaultTask() {
         outputFileName.convention("schema.graphql")
     }
 
-    @KtorExperimentalAPI
+    @Suppress("EXPERIMENTAL_API_USAGE")
     @TaskAction
     fun introspectSchema() {
         logger.debug("starting introspection task against ${endpoint.get()}")
         runBlocking {
-            HttpClient(engineFactory = CIO) {
-                install(feature = JsonFeature)
-            }.use { client ->
-                val introspectionResult = client.post<Map<String, Any?>> {
-                    url(endpoint.get())
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    body = mapOf(
-                        "query" to INTROSPECTION_QUERY,
-                        "operationName" to "IntrospectionQuery"
-                    )
-                }
-
-                @Suppress("UNCHECKED_CAST")
-                val graphQLDocument = IntrospectionResultToSchema().createSchemaDefinition(introspectionResult["data"] as? Map<String, Any?>)
-                val options = SchemaPrinter.Options.defaultOptions()
-                    .includeScalarTypes(true)
-                    .includeExtendedScalarTypes(true)
-                    .includeSchemaDefinition(true)
-                    .includeDirectives(true)
-                outputFile.get().asFile.writeText(SchemaPrinter(options).print(graphQLDocument))
-            }
+            runIntrospectionQuery(endpoint = endpoint.get(), outputFile = outputFile.get().asFile)
         }
     }
 }

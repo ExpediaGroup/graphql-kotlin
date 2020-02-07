@@ -1,16 +1,11 @@
-description = "GraphQL Kotlin gradle plugin"
+description = "GraphQL Kotlin Gradle plugin"
 
 plugins {
     `java-gradle-plugin`
 }
 
-val ktorVersion: String by project
-
 dependencies {
-    api(project(path = ":graphql-kotlin-schema-generator"))
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-json:$ktorVersion")
-    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
+    api(project(path = ":plugins:graphql-kotlin-plugin-core"))
 }
 
 gradlePlugin {

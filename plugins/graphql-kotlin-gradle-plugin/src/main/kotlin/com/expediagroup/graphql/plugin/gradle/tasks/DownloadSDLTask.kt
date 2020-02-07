@@ -1,9 +1,6 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.request.get
-import io.ktor.util.KtorExperimentalAPI
+import com.expediagroup.graphql.plugin.downloadSchema
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFile
@@ -37,15 +34,12 @@ open class DownloadSDLTask : DefaultTask() {
         outputFileName.convention("schema.graphql")
     }
 
-    @KtorExperimentalAPI
+    @Suppress("EXPERIMENTAL_API_USAGE")
     @TaskAction
     fun downloadSDL() {
-        logger.debug("starting introspection task against ${endpoint.get()}")
+        logger.debug("starting download SDL task against ${endpoint.get()}")
         runBlocking {
-            HttpClient(CIO).use { client ->
-                val sdl = client.get<String>(urlString = endpoint.get())
-                outputFile.get().asFile.writeText(sdl)
-            }
+            downloadSchema(endpoint = endpoint.get(), outputFile = outputFile.get().asFile)
         }
     }
 }
