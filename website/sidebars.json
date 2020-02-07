@@ -30,7 +30,8 @@
           "customizing-schemas/excluding-fields",
           "customizing-schemas/renaming-fields",
           "customizing-schemas/directives",
-          "customizing-schemas/evolving-schema"
+          "customizing-schemas/deprecating-schema",
+          "customizing-schemas/advanced-features"
         ]
       },
       {
