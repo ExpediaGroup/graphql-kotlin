@@ -22,6 +22,7 @@ import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import reactor.core.publisher.Mono
 import java.util.UUID
 import kotlin.reflect.KType
 
@@ -36,6 +37,16 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
         else -> null
+    }
+
+    override fun willResolveFunctionType(type: KType): KType = when (type.classifier) {
+        Mono::class -> type.arguments.first().type!!
+        else -> type
+    }
+
+    override fun willReturnFunctionResult(result: Any?): Any? = when (result) {
+        is Mono<*> -> result.toFuture()
+        else -> result
     }
 }
 

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.execution
 
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcherFactory
@@ -37,7 +38,7 @@ interface KotlinDataFetcherFactoryProvider {
      * retrieved during data fetcher execution from [graphql.schema.DataFetchingEnvironment]
      * @param kFunction Kotlin function being invoked
      */
-    fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any>
+    fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>, hooks: SchemaGeneratorHooks): DataFetcherFactory<Any>
 
     /**
      * Retrieve an instance of [DataFetcherFactory] that will be used to resolve target property.
@@ -56,14 +57,16 @@ open class SimpleKotlinDataFetcherFactoryProvider(
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : KotlinDataFetcherFactoryProvider {
 
-    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
+    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>, hooks: SchemaGeneratorHooks): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
         FunctionDataFetcher(
             target = target,
             fn = kFunction,
-            objectMapper = objectMapper)
+            hooks = hooks,
+            objectMapper = objectMapper
+        )
     }
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
-        PropertyDataFetcher(kProperty.name)
+        PropertyDataFetcher<Any>(kProperty.name)
     }
 }

@@ -36,7 +36,7 @@ import kotlin.test.assertTrue
 class SchemaGeneratorAsyncTests {
 
     private class MonadHooks : SchemaGeneratorHooks {
-        override fun willResolveMonad(type: KType): KType = when (type.classifier) {
+        override fun willResolveFunctionType(type: KType): KType = when (type.classifier) {
             Observable::class, Single::class, Maybe::class -> type.arguments.firstOrNull()?.type
             else -> type
         } ?: type

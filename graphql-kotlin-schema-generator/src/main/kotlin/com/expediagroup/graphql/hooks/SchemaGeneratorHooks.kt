@@ -65,10 +65,28 @@ interface SchemaGeneratorHooks {
     fun willAddGraphQLTypeToSchema(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
 
     /**
-     * Called before resolving a KType to the GraphQL type.
-     * This allows for a custom resolver on how to extract wrapped values, like in a CompletableFuture.
+     * Called after the using reflection to get the return type of a function,
+     * and before the GraphQLType is calculated. You can use this with other common asynchronous
+     * librarys that wrap the return type like Reactor or RxJava.
+     *
+     * If you convert the value to a [java.util.concurrent.CompletableFuture] with out fetching the
+     * result then graphql-java will natively handle fetching the value for you.
+     *
+     * This allows for a custom resolver on how to extract wrapped values information.
+     * You will most likely have to also provide hooks with [willReturnFunctionResult]
+     * to retrieve the value of the result when executing the data fetcher.
      */
-    fun willResolveMonad(type: KType): KType = type
+    fun willResolveFunctionType(type: KType): KType = type
+
+    /**
+     * Called after running the [com.expediagroup.graphql.execution.FunctionDataFetcher] and
+     * before the result is passed to the execution engine. You can use this with other common
+     * asynchronous librarys that wrap the return type like Reactor or RxJava.
+     *
+     * If you are using [willResolveFunctionType], you will most likely have to add logic here
+     * on how to retrieve the value from your wrapped type.
+     */
+    fun willReturnFunctionResult(result: Any?): Any? = result
 
     /**
      * Called when looking at the KClass superclasses to determine if it valid for adding to the generated schema.

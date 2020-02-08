@@ -20,6 +20,8 @@ import com.expediagroup.graphql.generator.extensions.getName
 import com.expediagroup.graphql.generator.extensions.isDataFetchingEnvironment
 import com.expediagroup.graphql.generator.extensions.isGraphQLContext
 import com.expediagroup.graphql.generator.extensions.javaTypeClass
+import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
@@ -44,12 +46,14 @@ import kotlin.reflect.full.valueParameters
  *   to use source object from the environment
  * @param fn The Kotlin function being invoked
  * @param objectMapper Jackson ObjectMapper that will be used to deserialize environment arguments to the expected function arguments
+ * @param hooks The [SchemaGeneratorHooks] from the config. These hooks can be used to resolve any custom data fetcher values.
  */
 @Suppress("Detekt.SpreadOperator")
 open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
+    private val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks
 ) : DataFetcher<Any> {
 
     /**
@@ -60,12 +64,7 @@ open class FunctionDataFetcher(
 
         return instance?.let {
             val parameterValues = getParameterValues(fn, environment)
-
-            if (fn.isSuspend) {
-                runSuspendingFunction(it, parameterValues)
-            } else {
-                runBlockingFunction(it, parameterValues)
-            }
+            runFunction(it, parameterValues)
         }
     }
 
@@ -104,6 +103,21 @@ open class FunctionDataFetcher(
         val argument = environment.arguments[name]
 
         return objectMapper.convertValue(argument, klazz)
+    }
+
+    /**
+     * Once all parameters values are properly converted, this function will be called to run the function.
+     * It will check if the function is a Kotlin suspend function or a standard blocking function and run the
+     * appropiate method. If you want to change the logic here of which protected method to run you can.
+     */
+    protected open fun runFunction(it: Any, parameterValues: Array<Any?>): Any? {
+        val result: Any? = if (fn.isSuspend) {
+            runSuspendingFunction(it, parameterValues)
+        } else {
+            runBlockingFunction(it, parameterValues)
+        }
+
+        return hooks.willReturnFunctionResult(result)
     }
 
     /**

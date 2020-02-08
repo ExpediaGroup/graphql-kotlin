@@ -48,14 +48,14 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
         builder.argument(generateArgument(generator, it))
     }
 
-    val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
+    val typeFromHooks = generator.config.hooks.willResolveFunctionType(fn.returnType)
     val returnType = getWrappedReturnType(typeFromHooks)
     val graphQLOutputType = generateGraphQLType(generator, returnType).safeCast<GraphQLOutputType>()
     val graphQLType = builder.type(graphQLOutputType).build()
     val coordinates = FieldCoordinates.coordinates(parentName, functionName)
 
     if (!abstract) {
-        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
+        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn, hooks = generator.config.hooks)
         generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
     }
 
