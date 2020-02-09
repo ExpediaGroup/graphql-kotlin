@@ -24,7 +24,7 @@ import graphql.schema.GraphQLSchema
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
  */
-class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
+open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
 
     /**
      * Scans specified packages for all the federated (extended) types and adds them to the schema additional types,
