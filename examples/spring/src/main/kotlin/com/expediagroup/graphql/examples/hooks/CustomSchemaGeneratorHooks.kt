@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,38 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.extension
+package com.expediagroup.graphql.examples.hooks
 
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import reactor.core.publisher.Mono
 import java.util.UUID
 import kotlin.reflect.KType
 
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomFederationSchemaGeneratorHooks(federatedTypeRegistry: FederatedTypeRegistry) : FederatedSchemaGeneratorHooks(federatedTypeRegistry) {
+class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiringFactory) : SchemaGeneratorHooks {
 
     /**
      * Register additional GraphQL scalar types.
      */
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
-        else -> super.willGenerateGraphQLType(type)
+        else -> null
     }
+
+    /**
+     * Register Reactor Mono monad type.
+     */
+    override fun willResolveMonad(type: KType): KType = when (type.classifier) {
+        Mono::class -> type.arguments.firstOrNull()?.type
+        else -> type
+    } ?: type
 }
 
 internal val graphqlUUIDType = GraphQLScalarType.newScalar()

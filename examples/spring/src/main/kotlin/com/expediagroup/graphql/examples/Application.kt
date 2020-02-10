@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
 package com.expediagroup.graphql.examples
 
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.examples.datafetchers.CustomDataFetcherFactoryProvider
-import com.expediagroup.graphql.examples.datafetchers.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.directives.CustomDirectiveWiringFactory
 import com.expediagroup.graphql.examples.exceptions.CustomDataFetcherExceptionHandler
+import com.expediagroup.graphql.examples.execution.CustomDataFetcherFactoryProvider
 import com.expediagroup.graphql.examples.execution.MySubscriptionHooks
-import com.expediagroup.graphql.examples.extension.CustomSchemaGeneratorHooks
+import com.expediagroup.graphql.examples.execution.SpringDataFetcherFactory
+import com.expediagroup.graphql.examples.hooks.CustomSchemaGeneratorHooks
 import com.expediagroup.graphql.spring.execution.ApolloSubscriptionHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
