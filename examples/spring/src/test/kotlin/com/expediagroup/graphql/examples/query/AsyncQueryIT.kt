@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,13 +36,41 @@ class AsyncQueryIT(@Autowired private val testClient: WebTestClient) {
     @Test
     fun `verify delayedEchoUsingCompletableFuture query`() {
         val query = "delayedEchoUsingCompletableFuture"
-        val data = "hello"
+        val data = "helloUsingCompletableFuture"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query(msg: \"$data\", delaySeconds: 1) }")
+            .bodyValue("query { $query(msg: \"$data\", delayMilliseconds: 200) }")
+            .exchange()
+            .verifyData(query, data)
+    }
+
+    @Test
+    fun `verify delayedEchoUsingReactorMono query`() {
+        val query = "delayedEchoUsingReactorMono"
+        val data = "helloUsingMono"
+
+        testClient.post()
+            .uri(GRAPHQL_ENDPOINT)
+            .accept(APPLICATION_JSON)
+            .contentType(GRAPHQL_MEDIA_TYPE)
+            .bodyValue("query { $query(msg: \"$data\", delayMilliseconds: 200) }")
+            .exchange()
+            .verifyData(query, data)
+    }
+
+    @Test
+    fun `verify delayedEchoUsingCoroutine query`() {
+        val query = "delayedEchoUsingCoroutine"
+        val data = "helloUsingCoroutine"
+
+        testClient.post()
+            .uri(GRAPHQL_ENDPOINT)
+            .accept(APPLICATION_JSON)
+            .contentType(GRAPHQL_MEDIA_TYPE)
+            .bodyValue("query { $query(msg: \"$data\", delayMilliseconds: 200) }")
             .exchange()
             .verifyData(query, data)
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.Duration
 import kotlin.random.Random
 
@@ -37,7 +36,7 @@ class SimpleSubscription : Subscription {
     val logger: Logger = LoggerFactory.getLogger(SimpleSubscription::class.java)
 
     @GraphQLDescription("Returns a single value")
-    fun singleValueSubscription(): Mono<Int> = Mono.just(1)
+    fun singleValueSubscription(): Flux<Int> = Flux.just(1)
 
     @GraphQLDescription("Returns a random number every second")
     fun counter(): Flux<Int> = Flux.interval(Duration.ofSeconds(1)).map {

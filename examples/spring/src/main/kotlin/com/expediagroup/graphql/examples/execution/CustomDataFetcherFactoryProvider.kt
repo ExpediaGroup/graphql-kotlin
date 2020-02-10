@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.datafetchers
+package com.expediagroup.graphql.examples.execution
 
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 
 /**
@@ -27,8 +28,15 @@ import kotlin.reflect.KProperty
  */
 class CustomDataFetcherFactoryProvider(
     private val springDataFetcherFactory: SpringDataFetcherFactory,
-    objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper
 ) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
+
+    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
+        CustomFunctionDataFetcher(
+            target = target,
+            fn = kFunction,
+            objectMapper = objectMapper)
+    }
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
         if (kProperty.isLateinit) {
