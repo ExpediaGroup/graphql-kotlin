@@ -36,7 +36,7 @@ import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeUtil
-import io.reactivex.Flowable
+import io.reactivex.rxjava3.core.Flowable
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import java.util.UUID

@@ -5,7 +5,7 @@ val graphQLJavaVersion: String by project
 val jacksonVersion: String by project
 val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
-val rxjavaVersion = "2.2.17"
+val rxjavaVersion = "3.0.0"
 
 dependencies {
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
@@ -14,7 +14,7 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     api("io.github.classgraph:classgraph:$classGraphVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    testImplementation("io.reactivex.rxjava2:rxjava:$rxjavaVersion")
+    testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
 }
 
 tasks {

@@ -23,7 +23,7 @@ import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLFieldDefinition
 import io.mockk.every
-import io.reactivex.Flowable
+import io.reactivex.rxjava3.core.Flowable
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.reactivestreams.Publisher
