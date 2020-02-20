@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.types.utils
 
 import graphql.execution.DataFetcherResult
-import io.reactivex.Flowable
+import io.reactivex.rxjava3.core.Flowable
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
