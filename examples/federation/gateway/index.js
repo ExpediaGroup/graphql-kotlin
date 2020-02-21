@@ -15,7 +15,7 @@
  */
 
 const { ApolloServer } = require("apollo-server");
-const { ApolloGateway, RemoteGraphQLDataSource } = require("@apollo/gateway");
+const { ApolloGateway } = require("@apollo/gateway");
 
 const server = new ApolloServer({
   gateway: new ApolloGateway({

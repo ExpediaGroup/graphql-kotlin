@@ -1,19 +1,19 @@
 # Apollo Federation
 
-This is a simple Apollo Federation Gateway. For more info see the Apollo docs
+This is a simple Apollo Federation Gateway server. For more info see the Apollo docs
 
 https://www.apollographql.com/docs/apollo-server/federation/introduction/
 
 ## Setup
 
-Install the correct version of Node and have yarn installed locally
+Install the correct version of Node locally. You can also use [nvm](https://github.com/nvm-sh/nvm)
 
 ```shell script
 nvm i
 ```
 
 ```shell script
-yarn install
+npm install
 ```
 
 Then start the other applications
@@ -23,5 +23,5 @@ Then start the other applications
 
 Then you can start the gateway
 ```shell script
-yarn start
+npm start
 ```
