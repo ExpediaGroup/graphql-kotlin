@@ -36,7 +36,7 @@ npm start
 Your project file structure should look something like this
 
 ```
-my-docusaurus/
+graphql-kotlin/
   docs/
     doc-1.md
     doc-2.md
