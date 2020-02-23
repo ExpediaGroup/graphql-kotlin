@@ -35,6 +35,10 @@ import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
 
+private const val REQUEST_PARAM_QUERY = "query"
+private const val REQUEST_PARAM_OPERATION_NAME = "operationName"
+private const val REQUEST_PARAM_VARIABLES = "variables"
+
 /**
  * Default route configuration for GraphQL service and SDL service endpoints.
  */
@@ -84,10 +88,10 @@ class RoutesConfiguration(
     // https://github.com/FasterXML/jackson-module-kotlin/issues/221
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun createGraphQLRequest(serverRequest: ServerRequest): GraphQLRequest? = when {
-        serverRequest.queryParam("query").isPresent -> {
-            val query = serverRequest.queryParam("query").get()
-            val operationName: String? = serverRequest.queryParam("operationName").orElseGet { null }
-            val variables: String? = serverRequest.queryParam("variables").orElseGet { null }
+        serverRequest.queryParam(REQUEST_PARAM_QUERY).isPresent -> {
+            val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
+            val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
+            val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
             val graphQLVariables: Map<String, Any>? = variables?.let {
                 objectMapper.readValue(it, mapTypeReference)
             }
