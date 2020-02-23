@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.spring.context
 
-import com.expediagroup.graphql.annotations.GraphQLContext
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_FILTER_ODER
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.model.GraphQLRequest
@@ -86,8 +86,8 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
     }
 
     class ContextualQuery : Query {
-        fun context(@GraphQLContext ctx: CustomContext): CustomContext = ctx
+        fun context(ctx: CustomContext): CustomContext = ctx
     }
 
-    data class CustomContext(val first: String?, val second: String?)
+    data class CustomContext(val first: String?, val second: String?) : GraphQLContext
 }

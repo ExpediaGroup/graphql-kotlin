@@ -18,8 +18,8 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.toSchema
@@ -153,8 +153,8 @@ class QueryHandlerTest {
 
         fun alwaysThrows(): String = throw GraphQLKotlinException("JUNIT Failure")
 
-        fun contextualValue(@GraphQLContext context: MyContext): String = context.value ?: "default"
+        fun contextualValue(context: MyContext): String = context.value ?: "default"
     }
 
-    data class MyContext(val value: String? = null)
+    data class MyContext(val value: String? = null) : GraphQLContext
 }

@@ -16,15 +16,14 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.execution.FunctionDataFetcher
+import com.expediagroup.graphql.execution.GraphQLContext
 import graphql.ExceptionWhileDataFetching
-import graphql.Scalars
 import graphql.Scalars.GraphQLInt
 import graphql.Scalars.GraphQLString
 import graphql.execution.DataFetcherResult
@@ -58,6 +57,8 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         override fun nestedReturnType(): MyImplementation = MyImplementation()
     }
 
+    internal class MyContext(val value: String) : GraphQLContext
+
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class FunctionDirective(val arg: String)
 
@@ -73,7 +74,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         @GraphQLName("renamedFunction")
         fun originalName(input: String) = input
 
-        fun context(@GraphQLContext context: String, string: String) = "$context and $string"
+        fun context(context: MyContext, string: String) = "${context.value} and $string"
 
         fun ignoredParameter(color: String, @GraphQLIgnore ignoreMe: String) = "$color and $ignoreMe"
 
@@ -141,7 +142,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         assertEquals("functionDirective", directive.name)
         assertEquals("happy", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
-        assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
+        assertEquals(GraphQLNonNull(GraphQLString), directive.arguments[0].type)
         assertEquals(
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)

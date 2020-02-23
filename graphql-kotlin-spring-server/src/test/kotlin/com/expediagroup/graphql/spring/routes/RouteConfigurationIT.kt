@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.spring.routes
 
-import com.expediagroup.graphql.annotations.GraphQLContext
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.REQUEST_PARAM_VARIABLES
@@ -60,10 +60,10 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
     class SimpleQuery : Query {
         fun hello(name: String) = "Hello $name!"
 
-        fun context(@GraphQLContext ctx: CustomContext) = ctx.value
+        fun context(ctx: CustomContext) = ctx.value
     }
 
-    data class CustomContext(val value: String)
+    data class CustomContext(val value: String) : GraphQLContext
 
     @Test
     fun `verify SDL route`() {

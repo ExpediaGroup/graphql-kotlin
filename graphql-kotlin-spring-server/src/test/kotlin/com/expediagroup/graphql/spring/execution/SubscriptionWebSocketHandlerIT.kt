@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.annotations.GraphQLContext
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
@@ -196,10 +196,10 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
             .delayElements(Duration.ofMillis(100))
             .map { Random.nextInt() }
 
-        fun ticker(@GraphQLContext ctx: SubscriptionContext): Flux<String> = Flux.just("${ctx.value}:${Random.nextInt()}")
+        fun ticker(ctx: SubscriptionContext): Flux<String> = Flux.just("${ctx.value}:${Random.nextInt()}")
     }
 
-    data class SubscriptionContext(val value: String)
+    data class SubscriptionContext(val value: String) : GraphQLContext
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
 }

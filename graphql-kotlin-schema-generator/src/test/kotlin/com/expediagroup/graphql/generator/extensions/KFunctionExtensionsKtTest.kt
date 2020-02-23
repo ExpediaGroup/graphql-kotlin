@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.generator.extensions
 
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -39,7 +39,7 @@ internal class KFunctionExtensionsKtTest {
     }
 
     @Test
-    fun `getValidArguments should ignore @GraphQLContext`() {
+    fun `getValidArguments should ignore GraphQLContext`() {
         val args = TestingClass::context.getValidArguments()
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notContext", actual = args.first().getName())
@@ -57,7 +57,7 @@ internal class KFunctionExtensionsKtTest {
 
         fun ignored(@GraphQLIgnore ignoredArg: String, notIgnored: String) = "$ignoredArg and $notIgnored"
 
-        fun context(@GraphQLContext contextArg: String, notContext: String) = "$contextArg and $notContext"
+        fun context(contextArg: GraphQLContext, notContext: String) = "$contextArg and $notContext"
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment, notEnvironment: String): String = "${environment.field.name} and $notEnvironment"
     }
