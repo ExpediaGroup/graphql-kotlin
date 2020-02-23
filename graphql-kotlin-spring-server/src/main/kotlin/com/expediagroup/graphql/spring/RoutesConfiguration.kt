@@ -35,9 +35,10 @@ import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
 
-private const val REQUEST_PARAM_QUERY = "query"
-private const val REQUEST_PARAM_OPERATION_NAME = "operationName"
-private const val REQUEST_PARAM_VARIABLES = "variables"
+internal const val REQUEST_PARAM_QUERY = "query"
+internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
+internal const val REQUEST_PARAM_VARIABLES = "variables"
+internal val graphQLMediaType = MediaType("application", "graphql")
 
 /**
  * Default route configuration for GraphQL service and SDL service endpoints.
@@ -49,7 +50,6 @@ class RoutesConfiguration(
     private val queryHandler: QueryHandler,
     private val objectMapper: ObjectMapper
 ) {
-    private val graphQLMediaType: MediaType = MediaType("application", "graphql")
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean

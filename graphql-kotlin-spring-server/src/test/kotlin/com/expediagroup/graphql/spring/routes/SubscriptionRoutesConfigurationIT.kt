@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.spring.routes
 
+import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.operations.Query
@@ -96,7 +97,7 @@ class SubscriptionRoutesConfigurationIT(
         testClient.get()
             .uri { builder ->
                 builder.path("/foo")
-                    .queryParam("query", "{query}")
+                    .queryParam(REQUEST_PARAM_QUERY, "{query}")
                     .build(query)
             }
             .exchange()
