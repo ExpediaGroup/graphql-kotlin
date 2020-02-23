@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.types
 
+import com.apollographql.federation.graphqljava._Any
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLList
@@ -40,7 +41,7 @@ internal fun generateEntityFieldDefinition(federatedTypes: Set<String>): GraphQL
             .type(GraphQLNonNull(
                 GraphQLList(
                     GraphQLNonNull(
-                        GraphQLTypeReference(ANY_SCALAR_TYPE.name)
+                        GraphQLTypeReference(_Any.typeName)
                     )
                 )
             ))

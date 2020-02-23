@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation
 
+import com.apollographql.federation.graphqljava.Federation
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.directives.DEPRECATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.extensions.print
@@ -73,7 +74,12 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
 
-        val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
+        return Federation.transform(originalSchema)
+            .resolveEntityType { it.schema.getObjectType(it.getObjectName()) }
+            .fetchEntities { EntityResolver(federatedTypeRegistry) }
+            .build()
+
+        /*val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
         val federatedSchema = GraphQLSchema.newSchema(originalSchema)
         val federatedQuery = GraphQLObjectType.newObject(originalQuery)
             .field(SERVICE_FIELD_DEFINITION)
@@ -115,7 +121,7 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
         }
 
         return federatedSchema.query(federatedQuery.build())
-            .codeRegistry(federatedCodeRegistry.build())
+            .codeRegistry(federatedCodeRegistry.build())*/
     }
 
     // skip validation for empty query type - federation will add _service query

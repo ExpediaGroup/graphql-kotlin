@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.types
 
+import com.apollographql.federation.graphqljava._Any
 import graphql.AssertException
 import graphql.language.ArrayValue
 import graphql.language.BooleanValue
@@ -95,7 +96,7 @@ internal class AnyTest {
 
     @Test
     fun `_Any scalar serialize should just return`() {
-        val coercing = ANY_SCALAR_TYPE.coercing
+        val coercing = _Any(
 
         assertEquals(expected = 1, actual = coercing.serialize(1))
     }
