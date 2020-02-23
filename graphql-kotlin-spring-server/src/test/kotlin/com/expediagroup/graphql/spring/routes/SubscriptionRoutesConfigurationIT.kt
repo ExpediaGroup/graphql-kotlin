@@ -32,7 +32,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -69,6 +68,7 @@ class SubscriptionRoutesConfigurationIT(
         fun hello(name: String) = "Hello $name!"
     }
 
+    @Suppress("unused")
     class SimpleSubscription : Subscription {
         fun getNumber(): Flux<Int> = Flux.just(42)
     }
@@ -113,10 +113,9 @@ class SubscriptionRoutesConfigurationIT(
         val uri = URI.create("ws://localhost:$port/foo")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+            session.send(Mono.just(session.textMessage(convertValueToString(message))))
                 .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)
@@ -129,6 +128,8 @@ class SubscriptionRoutesConfigurationIT(
             .expectComplete()
             .verify()
     }
+
+    private fun convertValueToString(message: SubscriptionOperationMessage) = objectMapper.writeValueAsString(message)
 
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk
         .expectBody()
