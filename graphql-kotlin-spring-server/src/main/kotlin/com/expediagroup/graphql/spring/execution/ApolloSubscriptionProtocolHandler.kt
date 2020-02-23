@@ -144,13 +144,21 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?): Flux<SubscriptionOperationMessage> {
-        val connectionParams = operationMessage.payload as? Map<String, String> ?: emptyMap()
+        val connectionParams = convertPayloadToMap(operationMessage.payload)
         val onConnect = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
         sessionState.saveOnConnectHook(session, onConnect)
         val acknowledgeMessageFlux = Flux.just(acknowledgeMessage)
         val keepAliveFlux = getKeepAliveFlux(session)
         return acknowledgeMessageFlux.concatWith(keepAliveFlux)
     }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun convertPayloadToMap(payload: Any?): Map<String, String> =
+        if (payload is Map<*, *>) {
+            payload as? Map<String, String> ?: emptyMap()
+        } else {
+            emptyMap()
+        }
 
     private fun onStart(
         operationMessage: SubscriptionOperationMessage,
