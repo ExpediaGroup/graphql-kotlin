@@ -166,7 +166,7 @@ class SchemaConfigurationTest {
             .build()
 
         @Bean
-        fun myCustomContextFactory(): GraphQLContextFactory<Map<String, Any>> = mockk()
+        fun myCustomContextFactory(): GraphQLContextFactory = mockk()
 
         @Bean
         fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
@@ -174,7 +174,7 @@ class SchemaConfigurationTest {
         @Bean
         fun myCustomContextWebFilter(
             config: GraphQLConfigurationProperties,
-            graphQLContextFactory: GraphQLContextFactory<*>
+            graphQLContextFactory: GraphQLContextFactory
         ): ContextWebFilter = object : ContextWebFilter(config, graphQLContextFactory) {
             private val regex = config.endpoint.toRegex()
 

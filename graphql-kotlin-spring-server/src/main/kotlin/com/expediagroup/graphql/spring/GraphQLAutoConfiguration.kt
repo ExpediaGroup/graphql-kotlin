@@ -123,12 +123,12 @@ class GraphQLAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLContextFactory(): GraphQLContextFactory<*> = EmptyContextFactory
+    fun graphQLContextFactory(): GraphQLContextFactory = EmptyContextFactory
 
     @Bean
     @ConditionalOnMissingBean
     fun contextWebFilter(
         config: GraphQLConfigurationProperties,
-        graphQLContextFactory: GraphQLContextFactory<*>
+        graphQLContextFactory: GraphQLContextFactory
     ): ContextWebFilter = ContextWebFilter(config, graphQLContextFactory)
 }

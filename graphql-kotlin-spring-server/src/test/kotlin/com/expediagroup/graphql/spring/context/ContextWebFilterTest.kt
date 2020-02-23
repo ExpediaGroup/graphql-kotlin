@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.spring.context
 
+import com.expediagroup.graphql.execution.EmptyGraphQLContext
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_KEY
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
-import graphql.GraphQLContext
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -54,8 +54,8 @@ class ContextWebFilterTest {
             }
         }
 
-        val simpleFactory: GraphQLContextFactory<Any> = mockk {
-            coEvery { generateContext(any(), any()) } returns GraphQLContext.newContext().build()
+        val simpleFactory: GraphQLContextFactory = mockk {
+            coEvery { generateContext(any(), any()) } returns EmptyGraphQLContext()
         }
 
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), simpleFactory)
@@ -63,7 +63,7 @@ class ContextWebFilterTest {
             .verifyComplete()
 
         assertNotNull(generatedContext)
-        val graphQLContext = generatedContext?.getOrDefault<GraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
+        val graphQLContext = generatedContext?.getOrDefault<EmptyGraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
         assertNotNull(graphQLContext)
     }
 
@@ -90,8 +90,8 @@ class ContextWebFilterTest {
             }
         }
 
-        val simpleFactory: GraphQLContextFactory<Any> = mockk {
-            coEvery { generateContext(any(), any()) } returns GraphQLContext.newContext().build()
+        val simpleFactory: GraphQLContextFactory = mockk {
+            coEvery { generateContext(any(), any()) } returns EmptyGraphQLContext()
         }
 
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), simpleFactory)
