@@ -21,3 +21,8 @@ package com.expediagroup.graphql.execution
  * as the GraphQL context. This means the implementing class will not appear in the schema.
  */
 interface GraphQLContext
+
+/**
+ * Can be used as a default [GraphQLContext] if there is none provided.
+ */
+class EmptyGraphQLContext : GraphQLContext
