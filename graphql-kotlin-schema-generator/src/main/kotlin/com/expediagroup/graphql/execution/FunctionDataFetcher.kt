@@ -26,8 +26,7 @@ import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.future.future
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.CoroutineContext
@@ -50,13 +49,13 @@ open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
-) : DataFetcher<Any> {
+) : DataFetcher<Any?> {
 
     /**
      * Invoke a suspend function or blocking function, passing in the [target] if not null or default to using the source from the environment.
      */
     override fun get(environment: DataFetchingEnvironment): Any? {
-        val instance = target ?: environment.getSource<Any>()
+        val instance = target ?: environment.getSource<Any?>()
 
         return instance?.let {
             val parameterValues = getParameterValues(fn, environment)
@@ -116,14 +115,12 @@ open class FunctionDataFetcher(
         parameterValues: Array<Any?>,
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
         coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
-    ): CompletableFuture<Any?> {
-        return GlobalScope.async(context = coroutineContext, start = coroutineStart) {
-            try {
-                fn.callSuspend(instance, *parameterValues)
-            } catch (exception: InvocationTargetException) {
-                throw exception.cause ?: exception
-            }
-        }.asCompletableFuture()
+    ): CompletableFuture<Any?> = GlobalScope.future(context = coroutineContext, start = coroutineStart) {
+        try {
+            fn.callSuspend(instance, *parameterValues)
+        } catch (exception: InvocationTargetException) {
+            throw exception.cause ?: exception
+        }
     }
 
     /**
