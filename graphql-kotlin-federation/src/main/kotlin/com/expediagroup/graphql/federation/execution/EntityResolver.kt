@@ -23,7 +23,7 @@ import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -45,7 +45,7 @@ open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegist
         val representations: List<Map<String, Any>> = env.getArgument("representations")
 
         val indexedBatchRequestsByType = representations.withIndex().groupBy { it.value["__typename"].toString() }
-        return GlobalScope.async {
+        return GlobalScope.future {
             val data = mutableListOf<Any?>()
             val errors = mutableListOf<GraphQLError>()
             indexedBatchRequestsByType.map { (typeName, indexedRequests) ->
@@ -68,6 +68,6 @@ open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegist
                 .data(data)
                 .errors(errors)
                 .build()
-        }.asCompletableFuture()
+        }
     }
 }
