@@ -12,6 +12,7 @@ jobs:
   check-docs:
 
     runs-on: ubuntu-latest
+    if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
     steps:
     - uses: actions/checkout@v2
@@ -21,8 +22,14 @@ jobs:
       with:
         node-version: 12
 
-    - name: Run npm commands
-      if: github.repository == 'ExpediaGroup/graphql-kotlin'
+    - uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Build website
       run: |
         cd website
         npm install
