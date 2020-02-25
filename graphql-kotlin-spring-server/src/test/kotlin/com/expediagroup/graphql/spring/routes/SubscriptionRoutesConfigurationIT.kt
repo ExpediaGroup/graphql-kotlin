@@ -114,7 +114,7 @@ class SubscriptionRoutesConfigurationIT(
         val uri = URI.create("ws://localhost:$port/foo")
 
         val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(convertValueToString(message))))
+            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
                 .thenMany(session.receive()
                     .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
@@ -129,8 +129,6 @@ class SubscriptionRoutesConfigurationIT(
             .expectComplete()
             .verify()
     }
-
-    private fun convertValueToString(message: SubscriptionOperationMessage) = objectMapper.writeValueAsString(message)
 
     private fun WebTestClient.ResponseSpec.verifyGraphQLRoute(expected: String) = this.expectStatus().isOk
         .expectBody()
