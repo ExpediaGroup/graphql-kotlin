@@ -87,10 +87,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
      * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
      * you can modify the set of `additionalTypes` before you call this method.
      *
-     * This function is recursive because generating the additionalTypes make create more additionalTypes.
+     * This function is recursive because while generating the additionalTypes it is possible to create additional types that need to be processed.
      */
     protected open fun generateAdditionalTypes(): Set<GraphQLType> {
-        val currentAdditionalTypes = this.additionalTypes.toSet()
+        val currentlyProcessedTypes = this.additionalTypes.toSet()
         this.additionalTypes.clear()
         val graphqlTypes = currentAdditionalTypes.map { generateGraphQLType(this, it) }.toSet()
 
