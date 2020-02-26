@@ -3,7 +3,7 @@ id: getting-started
 title: Getting Started
 ---
 
-GraphQL Kotlin consists of number of libraries that aim to simplify running a GraphQL server in Kotlin.
+GraphQL Kotlin is a collection of libraries built on top of [graphql-java](https://www.graphql-java.com/) that aim to simplify running a GraphQL server in Kotlin
 
 ## Modules
 
