@@ -12,6 +12,7 @@ jobs:
   publish-docs:
 
     runs-on: ubuntu-latest
+    if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
     steps:
     - uses: actions/checkout@v2
@@ -21,18 +22,23 @@ jobs:
       with:
         node-version: 12
 
-    - name: Run npm commands
-      if: github.repository == 'ExpediaGroup/graphql-kotlin'
+    - uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Build website
       run: |
         cd website
         npm install
-        git config --global user.name "${GH_USERNAME}"
-        echo "machine github.com login ${GH_USERNAME} password ${{ secrets.EG_CI_USER_TOKEN }}" > ~/.netrc
-        GIT_USER="${GH_USERNAME}" npm run publish-gh-pages
-      env:
-        CI: true
-        CURRENT_BRANCH: master
+        npm run build
 
-        # The following settings will only work with the personal access token we are using
-        # Until GH Actions have a way to publish directly we are using this method
-        GH_USERNAME: eg-oss-ci
+    - name: Deploy GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build
+        user_name: eg-oss-ci
+        user_email: oss@expediagroup.com

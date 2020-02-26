@@ -32,7 +32,7 @@ const siteConfig = {
 
   url: 'https://expediagroup.github.io', // Your website URL
   baseUrl: '/graphql-kotlin/', // Base URL for your project
-  projectName: 'graphql-kotlin',
+  projectName: 'graphql-kotlin-docs',
   organizationName: 'ExpediaGroup',
 
   // For no header links in the top nav bar -> headerLinks: [],
