@@ -50,7 +50,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         fun query(): Query = SimpleQuery()
 
         @Bean
-        fun customContextFactory(): GraphQLContextFactory = object : GraphQLContextFactory {
+        fun customContextFactory(): GraphQLContextFactory<CustomContext> = object : GraphQLContextFactory<CustomContext> {
             override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): CustomContext = CustomContext(
                 value = request.headers.getFirst("X-Custom-Header") ?: "default"
             )

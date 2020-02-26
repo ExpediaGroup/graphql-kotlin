@@ -170,7 +170,7 @@ class SubscriptionWebSocketHandlerIT(@LocalServerPort private var port: Int) {
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun customContextFactory(): GraphQLContextFactory = object : GraphQLContextFactory {
+        fun customContextFactory(): GraphQLContextFactory<SubscriptionContext> = object : GraphQLContextFactory<SubscriptionContext> {
             override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): SubscriptionContext = SubscriptionContext(
                 value = request.headers.getFirst("X-Custom-Header") ?: "default"
             )

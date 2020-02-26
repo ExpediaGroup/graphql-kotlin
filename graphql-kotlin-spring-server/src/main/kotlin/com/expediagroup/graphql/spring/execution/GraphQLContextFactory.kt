@@ -29,18 +29,18 @@ const val GRAPHQL_CONTEXT_KEY = "graphQLContext"
 /**
  * Factory that generates GraphQL context.
  */
-interface GraphQLContextFactory {
+interface GraphQLContextFactory<out T : Any> {
 
     /**
      * Generate GraphQL context based on the incoming request and the corresponding response.
      */
-    suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): GraphQLContext
+    suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): T
 }
 
 /**
  * Default context factory that generates empty GraphQL context.
  */
-internal object EmptyContextFactory : GraphQLContextFactory {
+internal object EmptyContextFactory : GraphQLContextFactory<GraphQLContext> {
 
     override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): EmptyGraphQLContext = EmptyGraphQLContext()
 }

@@ -67,7 +67,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
 
         @Bean
         @ExperimentalCoroutinesApi
-        fun customContextFactory(): GraphQLContextFactory = object : GraphQLContextFactory {
+        fun customContextFactory(): GraphQLContextFactory<CustomContext> = object : GraphQLContextFactory<CustomContext> {
             override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): CustomContext {
                 val firstValue = coroutineContext[ReactorContext]?.context?.get<String>("firstFilterValue")
                 return CustomContext(
