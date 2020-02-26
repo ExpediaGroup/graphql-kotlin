@@ -90,14 +90,12 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
      * This function is recursive because while generating the additionalTypes it is possible to create additional types that need to be processed.
      */
     protected open fun generateAdditionalTypes(): Set<GraphQLType> {
-        val currentlyProcessedTypes = mutableSetOf<KType>()
         val graphqlTypes = mutableSetOf<GraphQLType>()
-        do {
-            currentlyProcessedTypes.addAll(this.additionalTypes)
+        while (this.additionalTypes.isNotEmpty()) {
+            val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
             this.additionalTypes.clear()
             graphqlTypes.addAll(currentlyProcessedTypes.map { generateGraphQLType(this, it) })
-            currentlyProcessedTypes.clear()
-        } while (this.additionalTypes.isNotEmpty())
+        }
 
         return graphqlTypes.toSet()
     }
