@@ -92,10 +92,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     protected open fun generateAdditionalTypes(): Set<GraphQLType> {
         val currentlyProcessedTypes = this.additionalTypes.toSet()
         this.additionalTypes.clear()
-        val graphqlTypes = currentAdditionalTypes.map { generateGraphQLType(this, it) }.toSet()
+        val graphqlTypes = currentlyProcessedTypes.map { generateGraphQLType(this, it) }.toSet()
 
         return if (this.additionalTypes.isNotEmpty()) {
-            generateAdditionalTypes().plus(graphqlTypes)
+            graphqlTypes.plus(generateAdditionalTypes())
         } else {
             graphqlTypes
         }
