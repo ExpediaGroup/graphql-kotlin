@@ -48,7 +48,7 @@ class SchemaGeneratorTest {
         val result = generator.generateCustomAdditionalTypes()
 
         assertEquals(1, result.size)
-        assertEquals("SomeObjectWithAnnotaiton!", result.first().deepName)
+        assertEquals("SomeObjectWithAnnotation!", result.first().deepName)
     }
 
     class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
@@ -61,5 +61,5 @@ class SchemaGeneratorTest {
     annotation class MyOtherCustomAnnotation
 
     @MyCustomAnnotation
-    data class SomeObjectWithAnnotaiton(val name: String)
+    data class SomeObjectWithAnnotation(val name: String)
 }
