@@ -20,8 +20,6 @@ import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.extensions.deepName
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
-import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 
 class SchemaGeneratorTest {
@@ -45,9 +43,9 @@ class SchemaGeneratorTest {
     fun generateAdditionalTypes() {
         val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"))
         val generator = CustomSchemaGenerator(config)
-        val types = setOf(SomeObjectWithAnnotaiton::class.createType())
+        generator.addTypes(MyCustomAnnotation::class)
 
-        val result = generator.generateCustomAdditionalTypes(types)
+        val result = generator.generateCustomAdditionalTypes()
 
         assertEquals(1, result.size)
         assertEquals("SomeObjectWithAnnotaiton!", result.first().deepName)
@@ -56,7 +54,7 @@ class SchemaGeneratorTest {
     class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
         internal fun addTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation)
 
-        internal fun generateCustomAdditionalTypes(types: Set<KType>) = generateAdditionalTypes(types)
+        internal fun generateCustomAdditionalTypes() = generateAdditionalTypes()
     }
 
     annotation class MyCustomAnnotation
