@@ -60,7 +60,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         builder.query(generateQueries(this, queries))
         builder.mutation(generateMutations(this, mutations))
         builder.subscription(generateSubscriptions(this, subscriptions))
-        builder.additionalTypes(generateAdditionalTypes(additionalTypes))
+        builder.additionalTypes(generateAdditionalTypes())
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
 
@@ -86,6 +86,18 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
      * Generate the GraphQL type for all the `additionalTypes`. They are generated as non-inputs and not as IDs.
      * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
      * you can modify the set of `additionalTypes` before you call this method.
+     *
+     * This function is recursive because generating the additionalTypes make create more additionalTypes.
      */
-    protected open fun generateAdditionalTypes(additionalTypes: Set<KType>): Set<GraphQLType> = additionalTypes.map { generateGraphQLType(this, it) }.toSet()
+    protected open fun generateAdditionalTypes(): Set<GraphQLType> {
+        val currentAdditionalTypes = this.additionalTypes.toSet()
+        this.additionalTypes.clear()
+        val graphqlTypes = currentAdditionalTypes.map { generateGraphQLType(this, it) }.toSet()
+
+        return if (this.additionalTypes.isNotEmpty()) {
+            generateAdditionalTypes().plus(graphqlTypes)
+        } else {
+            graphqlTypes
+        }
+    }
 }
