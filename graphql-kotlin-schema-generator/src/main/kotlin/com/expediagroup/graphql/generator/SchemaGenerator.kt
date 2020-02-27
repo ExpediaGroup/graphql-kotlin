@@ -56,7 +56,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         subscriptions: List<TopLevelObject> = emptyList(),
         additionalTypes: Set<KType> = emptySet()
     ): GraphQLSchema {
-        
+
         this.additionalTypes.addAll(additionalTypes)
         val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))
@@ -65,7 +65,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         builder.additionalTypes(generateAdditionalTypes())
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
-        
         val schema = config.hooks.willBuildSchema(builder).build()
 
         classScanner.close()
