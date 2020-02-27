@@ -41,10 +41,10 @@ import kotlin.reflect.full.createType
  */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
+    internal val additionalTypes = mutableSetOf<KType>()
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
-    internal val additionalTypes = mutableSetOf<KType>()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     /**
@@ -53,9 +53,11 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     open fun generateSchema(
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
-        subscriptions: List<TopLevelObject> = emptyList()
+        subscriptions: List<TopLevelObject> = emptyList(),
+        additionalTypes: Set<KType> = emptySet()
     ): GraphQLSchema {
 
+        this.additionalTypes.addAll(additionalTypes)
         val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))
         builder.mutation(generateMutations(this, mutations))
@@ -63,7 +65,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         builder.additionalTypes(generateAdditionalTypes())
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
-
         val schema = config.hooks.willBuildSchema(builder).build()
 
         classScanner.close()
@@ -85,11 +86,11 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
     /**
      * Generate the GraphQL type for all the `additionalTypes`. They are generated as non-inputs and not as IDs.
      * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
-     * you can modify the set of `additionalTypes` before you call this method.
+     * you can provide more types to be added through [generateSchema].
      *
-     * This function is recursive because while generating the additionalTypes it is possible to create additional types that need to be processed.
+     * This function loops because while generating the additionalTypes it is possible to create more additional types that need to be processed.
      */
-    protected open fun generateAdditionalTypes(): Set<GraphQLType> {
+    protected fun generateAdditionalTypes(): Set<GraphQLType> {
         val graphqlTypes = mutableSetOf<GraphQLType>()
         while (this.additionalTypes.isNotEmpty()) {
             val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
