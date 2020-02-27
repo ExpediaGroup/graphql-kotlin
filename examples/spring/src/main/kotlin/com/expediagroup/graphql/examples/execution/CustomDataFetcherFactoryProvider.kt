@@ -31,14 +31,14 @@ class CustomDataFetcherFactoryProvider(
     private val objectMapper: ObjectMapper
 ) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
 
-    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
+    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
         CustomFunctionDataFetcher(
             target = target,
             fn = kFunction,
             objectMapper = objectMapper)
     }
 
-    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
         if (kProperty.isLateinit) {
             springDataFetcherFactory
         } else {

@@ -185,8 +185,8 @@ internal class GeneratePropertyTest : TypeTestHelper() {
                     every { getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
                 }
         }
-        val mockDataFetcher: DataFetcher<Any> = mockk()
-        val mockFactory: DataFetcherFactory<Any> = mockk()
+        val mockDataFetcher: DataFetcher<Any?> = mockk()
+        val mockFactory: DataFetcherFactory<Any?> = mockk()
         val mockDataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = mockk()
 
         every { mockDataFetcherFactoryProvider.propertyDataFetcherFactory(any(), any()) } returns mockFactory

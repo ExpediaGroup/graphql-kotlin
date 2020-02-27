@@ -37,7 +37,7 @@ interface KotlinDataFetcherFactoryProvider {
      * retrieved during data fetcher execution from [graphql.schema.DataFetchingEnvironment]
      * @param kFunction Kotlin function being invoked
      */
-    fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any>
+    fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any?>
 
     /**
      * Retrieve an instance of [DataFetcherFactory] that will be used to resolve target property.
@@ -45,7 +45,7 @@ interface KotlinDataFetcherFactoryProvider {
      * @param kClass parent class that contains this property
      * @param kProperty Kotlin property that should be resolved
      */
-    fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any>
+    fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?>
 }
 
 /**
@@ -56,14 +56,14 @@ open class SimpleKotlinDataFetcherFactoryProvider(
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : KotlinDataFetcherFactoryProvider {
 
-    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
+    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
         FunctionDataFetcher(
             target = target,
             fn = kFunction,
             objectMapper = objectMapper)
     }
 
-    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> = DataFetcherFactory<Any> {
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>) = DataFetcherFactory<Any?> {
         PropertyDataFetcher(kProperty.name)
     }
 }
