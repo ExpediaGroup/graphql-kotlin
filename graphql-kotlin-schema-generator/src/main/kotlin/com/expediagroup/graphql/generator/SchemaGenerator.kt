@@ -41,10 +41,11 @@ import kotlin.reflect.full.createType
  */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
 
+    val additionalTypes = mutableSetOf<KType>()
+    
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
-    internal val additionalTypes = mutableSetOf<KType>()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     /**
