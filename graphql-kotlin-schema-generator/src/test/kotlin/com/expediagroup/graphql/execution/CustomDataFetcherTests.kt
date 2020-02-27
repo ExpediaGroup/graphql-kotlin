@@ -67,7 +67,7 @@ data class AnimalDetails(val specialId: Int)
 
 class CustomDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider() {
 
-    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any> =
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
         if (kProperty.isLateinit) {
             DataFetcherFactories.useDataFetcher(AnimalDetailsDataFetcher())
         } else {
@@ -75,7 +75,7 @@ class CustomDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider(
         }
 }
 
-class AnimalDetailsDataFetcher : DataFetcher<Any> {
+class AnimalDetailsDataFetcher : DataFetcher<Any?> {
 
     override fun get(environment: DataFetchingEnvironment?): AnimalDetails {
         val animal = environment?.getSource<Animal>()
