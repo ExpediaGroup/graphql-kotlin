@@ -5,7 +5,7 @@ val graphQLJavaVersion: String by project
 val jacksonVersion: String by project
 val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
-val rxjavaVersion = "3.0.0"
+val rxjavaVersion: String by project
 
 dependencies {
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
