@@ -21,6 +21,7 @@ import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.exceptions.EmptyInputObjectTypeException
 import com.expediagroup.graphql.exceptions.EmptyInterfaceTypeException
 import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
+import com.expediagroup.graphql.extensions.deepName
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.test.utils.graphqlUUIDType
@@ -32,8 +33,11 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.reactive.asPublisher
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.reactivestreams.Publisher
 import java.util.UUID
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -247,6 +251,22 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
+    fun `noop subscription basics`() {
+        for (hooks in listOf(NoopSchemaGeneratorHooks, FlowSubscriptionSchemaGeneratorHooks())) {
+            val schema = toSchema(
+                queries = listOf(TopLevelObject(TestQuery())),
+                mutations = listOf(TopLevelObject(TestQuery())),
+                subscriptions = listOf(TopLevelObject(TestSubscription())),
+                config = getTestSchemaConfigWithHooks(hooks)
+            )
+            assertTrue(hooks.isValidSubscriptionReturnType(Publisher::class, TestSubscription::subscription))
+            val topLevelSub = schema.getObjectType("Subscription")
+            val sub = topLevelSub.getFieldDefinition("subscription")
+            assertEquals("SomeData!", sub.type.deepName)
+        }
+    }
+
+    @Test
     fun `willResolveMonad returns basic type`() {
         val hooks = NoopSchemaGeneratorHooks
         val type = TestQuery::query.returnType
@@ -282,6 +302,10 @@ class SchemaGeneratorHooksTest {
 
     class TestQuery {
         fun query(): SomeData = SomeData("someData", 0)
+    }
+
+    class TestSubscription {
+        fun subscription(): Publisher<SomeData> = flowOf(SomeData("someData", 0)).asPublisher()
     }
 
     class CustomTypesQuery {
