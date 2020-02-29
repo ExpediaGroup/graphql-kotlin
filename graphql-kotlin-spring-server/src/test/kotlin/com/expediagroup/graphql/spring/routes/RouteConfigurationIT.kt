@@ -17,7 +17,11 @@
 package com.expediagroup.graphql.spring.routes
 
 import com.expediagroup.graphql.annotations.GraphQLContext
+import com.expediagroup.graphql.spring.REQUEST_PARAM_OPERATION_NAME
+import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
+import com.expediagroup.graphql.spring.REQUEST_PARAM_VARIABLES
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.graphQLMediaType
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -124,7 +128,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         testClient.get()
             .uri { builder ->
                 builder.path("/graphql")
-                    .queryParam("query", "{query}")
+                    .queryParam(REQUEST_PARAM_QUERY, "{query}")
                     .build(query)
             }
             .exchange()
@@ -139,9 +143,9 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         testClient.get()
             .uri { builder ->
                 builder.path("/graphql")
-                    .queryParam("query", "{query}")
-                    .queryParam("variables", "{variables}")
-                    .queryParam("operationName", "{operationName}")
+                    .queryParam(REQUEST_PARAM_QUERY, "{query}")
+                    .queryParam(REQUEST_PARAM_VARIABLES, "{variables}")
+                    .queryParam(REQUEST_PARAM_OPERATION_NAME, "{operationName}")
                     .build(query, jacksonObjectMapper().writeValueAsString(variables), operationName)
             }
             .exchange()
@@ -159,7 +163,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         testClient.post()
             .uri { builder ->
                 builder.path("/graphql")
-                    .queryParam("query", "{query}")
+                    .queryParam(REQUEST_PARAM_QUERY, "{query}")
                     .build("{ hello(name: \"POST query param\") }")
             }
             .accept(MediaType.APPLICATION_JSON)
@@ -174,7 +178,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         testClient.post()
             .uri("/graphql")
             .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType("application", "graphql"))
+            .contentType(graphQLMediaType)
             .bodyValue("query { hello(name: \"POST application/graphql\") }")
             .exchange()
             .verifyGraphQLRoute("Hello POST application/graphql!")

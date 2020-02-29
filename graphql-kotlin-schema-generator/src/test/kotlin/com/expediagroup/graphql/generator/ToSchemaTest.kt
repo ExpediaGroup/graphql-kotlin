@@ -44,10 +44,14 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-@Suppress("Detekt.UnusedPrivateMember",
+@Suppress(
+    "Detekt.UnusedPrivateMember",
     "Detekt.FunctionOnlyReturningConstant",
     "Detekt.LargeClass",
-    "Detekt.MethodOverloading")
+    "Detekt.MethodOverloading",
+    "UNUSED_PARAMETER",
+    "unused"
+)
 class ToSchemaTest {
 
     @Test
@@ -452,11 +456,11 @@ class ToSchemaTest {
     }
 
     class QueryWithJavaClass {
-        fun query(): java.net.CookieManager? = CookieManager()
+        fun query(): CookieManager? = CookieManager()
     }
 
     class QueryWithListOfJavaClass {
-        fun listQuery(): List<java.net.CookieManager> = listOf(CookieManager())
+        fun listQuery(): List<CookieManager> = listOf(CookieManager())
     }
 
     class QueryWithConflictingTypes {
