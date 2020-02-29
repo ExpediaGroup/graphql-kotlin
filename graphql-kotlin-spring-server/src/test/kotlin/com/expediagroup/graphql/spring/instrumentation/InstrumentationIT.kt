@@ -38,6 +38,7 @@ class InstrumentationIT(@Autowired private val testClient: WebTestClient) {
         fun secondInstrumentation(): Instrumentation = OrderedInstrumentation(DEFAULT_INSTRUMENTATION_ORDER + 1, atomicCounter)
     }
 
+    @Suppress("unused")
     class BasicQuery : Query {
         fun helloWorld(name: String) = "Hello $name!"
     }

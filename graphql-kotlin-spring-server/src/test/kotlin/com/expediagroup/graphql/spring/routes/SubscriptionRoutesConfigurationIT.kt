@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.spring.routes
 
+import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.operations.Query
@@ -32,7 +33,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -69,6 +69,7 @@ class SubscriptionRoutesConfigurationIT(
         fun hello(name: String) = "Hello $name!"
     }
 
+    @Suppress("unused")
     class SimpleSubscription : Subscription {
         fun getNumber(): Flux<Int> = Flux.just(42)
     }
@@ -96,7 +97,7 @@ class SubscriptionRoutesConfigurationIT(
         testClient.get()
             .uri { builder ->
                 builder.path("/foo")
-                    .queryParam("query", "{query}")
+                    .queryParam(REQUEST_PARAM_QUERY, "{query}")
                     .build(query)
             }
             .exchange()
@@ -115,8 +116,7 @@ class SubscriptionRoutesConfigurationIT(
         val sessionMono = client.execute(uri) { session ->
             session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
                 .thenMany(session.receive()
-                    .map(WebSocketMessage::getPayloadAsText)
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it) }
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)

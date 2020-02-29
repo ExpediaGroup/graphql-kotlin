@@ -35,6 +35,11 @@ import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
 
+internal const val REQUEST_PARAM_QUERY = "query"
+internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
+internal const val REQUEST_PARAM_VARIABLES = "variables"
+internal val graphQLMediaType = MediaType("application", "graphql")
+
 /**
  * Default route configuration for GraphQL service and SDL service endpoints.
  */
@@ -45,7 +50,6 @@ class RoutesConfiguration(
     private val queryHandler: QueryHandler,
     private val objectMapper: ObjectMapper
 ) {
-    private val graphQLMediaType: MediaType = MediaType("application", "graphql")
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean
@@ -84,10 +88,10 @@ class RoutesConfiguration(
     // https://github.com/FasterXML/jackson-module-kotlin/issues/221
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun createGraphQLRequest(serverRequest: ServerRequest): GraphQLRequest? = when {
-        serverRequest.queryParam("query").isPresent -> {
-            val query = serverRequest.queryParam("query").get()
-            val operationName: String? = serverRequest.queryParam("operationName").orElseGet { null }
-            val variables: String? = serverRequest.queryParam("variables").orElseGet { null }
+        serverRequest.queryParam(REQUEST_PARAM_QUERY).isPresent -> {
+            val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
+            val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
+            val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
             val graphQLVariables: Map<String, Any>? = variables?.let {
                 objectMapper.readValue(it, mapTypeReference)
             }

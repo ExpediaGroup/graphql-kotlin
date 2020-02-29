@@ -132,6 +132,7 @@ class FederationConfigurationTest {
         )
     }
 
+    @Suppress("unused")
     class FederatedQuery : Query {
         fun widget(): Widget = Widget(1, "hello")
     }

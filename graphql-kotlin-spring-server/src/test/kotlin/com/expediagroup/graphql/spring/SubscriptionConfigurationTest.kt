@@ -139,6 +139,7 @@ class SubscriptionConfigurationTest {
         fun query(): String = "hello!"
     }
 
+    @Suppress("unused")
     class SimpleSubscription : Subscription {
         fun ticker(): Flux<Int> = Flux.range(1, 5)
             .delayElements(Duration.ofMillis(100))
