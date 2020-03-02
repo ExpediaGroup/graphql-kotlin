@@ -9,6 +9,7 @@ description = "Libraries for running a GraphQL server in Kotlin"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
 plugins {
+    idea
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka") apply false
     id("org.jlleitschuh.gradle.ktlint")
@@ -58,6 +59,7 @@ subprojects {
 
     val currentProject = this
 
+    apply(plugin = "idea")
     apply(plugin = "kotlin")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -75,6 +77,12 @@ subprojects {
     }
 
     tasks {
+        idea {
+            module {
+                isDownloadSources = true
+                isDownloadJavadoc = true
+            }
+        }
         check {
             dependsOn(jacocoTestCoverageVerification)
         }

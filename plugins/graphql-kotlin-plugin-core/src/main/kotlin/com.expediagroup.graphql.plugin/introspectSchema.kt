@@ -19,14 +19,18 @@ suspend fun runIntrospectionQuery(endpoint: String, outputFile: File) {
     HttpClient(engineFactory = CIO) {
         install(feature = JsonFeature)
     }.use { client ->
-        val introspectionResult = client.post<Map<String, Any?>> {
-            url(endpoint)
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            body = mapOf(
-                "query" to IntrospectionQuery.INTROSPECTION_QUERY,
-                "operationName" to "IntrospectionQuery"
-            )
+        val introspectionResult = try {
+            client.post<Map<String, Any?>> {
+                url(endpoint)
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                body = mapOf(
+                    "query" to IntrospectionQuery.INTROSPECTION_QUERY,
+                    "operationName" to "IntrospectionQuery"
+                )
+            }
+        } catch (e: Error) {
+            throw RuntimeException("Unable to run introspection query against the specified endpoint=$endpoint")
         }
 
         @Suppress("UNCHECKED_CAST")

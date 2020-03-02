@@ -1,0 +1,6 @@
+query WidgetQuery{
+    widget {
+        id
+        name
+    }
+}
