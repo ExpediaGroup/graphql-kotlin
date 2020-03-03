@@ -55,7 +55,7 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
             this.superclasses.flatMap { it.getValidSuperclasses(hooks) }
         }
 
-internal fun KClass<*>.findConstructorParamter(name: String): KParameter? =
+internal fun KClass<*>.findConstructorParameter(name: String): KParameter? =
     this.primaryConstructor?.findParameterByName(name)
 
 internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface || this.isAbstract
