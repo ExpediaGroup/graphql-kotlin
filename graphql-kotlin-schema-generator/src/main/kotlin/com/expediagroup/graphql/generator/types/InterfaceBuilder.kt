@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
+import com.expediagroup.graphql.generator.extensions.isGraphQLIgnored
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
@@ -58,6 +59,7 @@ internal class InterfaceBuilder(generator: SchemaGenerator) : TypeBuilder(genera
                 .forEach { builder.field(generator.function(it, kClass.getSimpleName(), abstract = true)) }
 
             subTypeMapper.getSubTypesOf(kClass)
+                .filter { it.isGraphQLIgnored().not() }
                 .map { graphQLTypeOf(it.createType()) }
                 .forEach {
                     // Do not add objects currently under construction to the additional types

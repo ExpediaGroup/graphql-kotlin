@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.testSchemaConfig
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class PolymorphicTests {
@@ -144,6 +146,33 @@ internal class PolymorphicTests {
         val strawberryCakeResolver = dessertResolver.getType(mockTypeResolutionEnvironment(BerryCake(), schema))
         assertNotNull(strawberryCakeResolver)
         assertEquals("StrawberryCake", strawberryCakeResolver.name)
+    }
+
+    @Test
+    fun `Interface implementations are not computed when marked with GraphQLIgnore annotation`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo())), config = testSchemaConfig)
+        val service = schema.getType("Service") as? GraphQLInterfaceType
+        assertNotNull(service)
+
+        val webService = schema.getType("WebService") as? GraphQLObjectType
+        assertNotNull(webService)
+
+        val microService = schema.getType("MicroService") as? GraphQLObjectType
+        assertNull(microService)
+    }
+
+    @Test
+    fun `Ignored interface properties should not appear in the subtype`() {
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo())), config = testSchemaConfig)
+        val service = schema.getType("Service") as? GraphQLInterfaceType
+        assertNotNull(service)
+        val interfaceIgnoredField = service.getFieldDefinition("shouldNotBeInTheSchema")
+        assertNull(interfaceIgnoredField)
+
+        val webService = schema.getType("WebService") as? GraphQLObjectType
+        assertNotNull(webService)
+        val subtypeIgnoredField = webService.getFieldDefinition("shouldNotBeInTheSchema")
+        assertNull(subtypeIgnoredField)
     }
 
     private fun mockTypeResolutionEnvironment(target: Any, schema: GraphQLSchema): TypeResolutionEnvironment =
@@ -270,3 +299,20 @@ class Cheesecake : Cake {
 interface Dessert
 
 class IceCream : Dessert
+
+class QueryWithIgnoredInfo {
+    fun webservice(): Service = WebService("gql-kotlin-service")
+    fun microservice(): Service = MicroService("micro-gql-kotlin-service")
+}
+
+interface Service {
+    val name: String
+
+    @GraphQLIgnore
+    val shouldNotBeInTheSchema: Boolean
+}
+
+data class WebService(override val name: String, override val shouldNotBeInTheSchema: Boolean = false) : Service
+
+@GraphQLIgnore
+data class MicroService(override val name: String, override val shouldNotBeInTheSchema: Boolean = true) : Service
