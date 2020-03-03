@@ -48,4 +48,4 @@ internal fun KProperty<*>.getPropertyName(parentClass: KClass<*>): String? =
 internal fun KProperty<*>.getPropertyAnnotations(parentClass: KClass<*>): List<Annotation> =
     this.annotations.union(getConstructorParameter(parentClass)?.annotations.orEmpty()).toList()
 
-private fun KProperty<*>.getConstructorParameter(parentClass: KClass<*>) = parentClass.findConstructorParamter(this.name)
+private fun KProperty<*>.getConstructorParameter(parentClass: KClass<*>) = parentClass.findConstructorParameter(this.name)

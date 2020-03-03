@@ -234,10 +234,10 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test findConstructorParamter`() {
-        assertNotNull(MyTestClass::class.findConstructorParamter("publicProperty"))
-        assertNull(MyTestClass::class.findConstructorParamter("foobar"))
-        assertNull(EmptyConstructorClass::class.findConstructorParamter("id"))
-        assertNull(TestInterface::class.findConstructorParamter("foobar"))
+        assertNotNull(MyTestClass::class.findConstructorParameter("publicProperty"))
+        assertNull(MyTestClass::class.findConstructorParameter("foobar"))
+        assertNull(EmptyConstructorClass::class.findConstructorParameter("id"))
+        assertNull(TestInterface::class.findConstructorParameter("foobar"))
     }
 
     @Test
