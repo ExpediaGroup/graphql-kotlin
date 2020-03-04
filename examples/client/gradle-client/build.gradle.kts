@@ -1,4 +1,3 @@
-import com.expediagroup.graphql.plugin.gradle.tasks.DownloadSDLTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GenerateClientTask
 
 plugins {
@@ -9,14 +8,15 @@ dependencies {
     implementation("com.expediagroup:graphql-kotlin-client")
 }
 
-val downloadSDL by tasks.getting(DownloadSDLTask::class) {
-    endpoint.set("http://localhost:8080/sdl")
-}
+// val downloadSDL by tasks.getting(DownloadSDLTask::class) {
+//    endpoint.set("http://localhost:8080/sdl")
+// }
 val generateClient by tasks.getting(GenerateClientTask::class) {
     packageName.set("com.expediagroup.graphql.generated")
-    schemaFile.set(downloadSDL.outputFile)
+    schemaFile.set(File(project.projectDir, "schema.graphql"))
 
-    dependsOn("downloadSDL")
+//    schemaFile.set(downloadSDL.outputFile)
+//    dependsOn("downloadSDL")
 }
 
 tasks {

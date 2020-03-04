@@ -1,0 +1,1 @@
+description = "Example Maven project"
