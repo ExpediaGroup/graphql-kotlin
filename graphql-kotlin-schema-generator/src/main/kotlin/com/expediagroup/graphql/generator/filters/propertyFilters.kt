@@ -43,8 +43,7 @@ private val isNotIgnoredFromSuperClass: PropertyFilter = { prop, parentClass ->
 
     superPropsIgnored.none { superProp ->
         superProp.name == prop.name &&
-            superProp.returnType == prop.returnType &&
-            superProp.visibility == prop.visibility
+            superProp.returnType == prop.returnType
     }
 }
 
