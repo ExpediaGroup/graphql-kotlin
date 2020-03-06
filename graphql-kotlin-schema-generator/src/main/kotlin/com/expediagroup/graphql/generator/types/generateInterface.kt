@@ -23,6 +23,7 @@ import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
+import com.expediagroup.graphql.generator.extensions.isGraphQLIgnored
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
@@ -51,6 +52,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
     generator.classScanner.getSubTypesOf(kClass)
+        .filter { it.isGraphQLIgnored().not() }
         .forEach { generator.additionalTypes.add(it.createType()) }
 
     val interfaceType = builder.build()
