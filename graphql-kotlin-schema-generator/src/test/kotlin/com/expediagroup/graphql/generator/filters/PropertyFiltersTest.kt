@@ -33,6 +33,8 @@ internal class PropertyFiltersTest {
         assertFalse(isValidProperty(MyClass::kClass, MyDataClass::class))
         assertTrue(isValidProperty(MyDataClass::id, MyDataClass::class))
         assertFalse(isValidProperty(MyDataClass::ignoredProperty, MyDataClass::class))
+        assertFalse(isValidProperty(MyDataClass::ignoredProperty, MyDataClass::class))
+        assertFalse(isValidProperty(MyClass::foo, MyClass::class))
     }
 
     internal data class MyDataClass(
@@ -42,7 +44,12 @@ internal class PropertyFiltersTest {
         internal val ignoredProperty: Int = 0
     )
 
-    internal class MyClass {
+    interface MyInterface {
+        @GraphQLIgnore
+        val foo: Int
+    }
+
+    internal class MyClass : MyInterface {
 
         val publicProperty: Int = 0
 
@@ -52,6 +59,7 @@ internal class PropertyFiltersTest {
 
         @GraphQLIgnore
         internal val ignoredProperty: Int = 0
+        override val foo: Int = 5
     }
 
     private fun isValidProperty(property: KProperty<*>, parentClass: KClass<*>): Boolean = propertyFilters.all { it(property, parentClass) }
