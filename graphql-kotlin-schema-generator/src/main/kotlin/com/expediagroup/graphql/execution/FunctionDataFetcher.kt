@@ -97,7 +97,7 @@ open class FunctionDataFetcher(
     /**
      * Called to convert the generic input object to the parameter class.
      *
-     * This is currently achieved by using a Jackson [ObjectMapper].
+     * This is currently achieved by using a Jackson ObjectMapper.
      */
     protected open fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
         val name = param.getName()
