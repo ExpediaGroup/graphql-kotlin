@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 
@@ -63,10 +64,10 @@ class CustomScalarExecutionTest {
 
     @Test
     fun `a custom scalar can be used as input in a list`() {
-        val result = graphQL.execute("{ uuidListInput(uuids: [\"435f5808-936b-40ab-89b6-ec4e8cd1ba36\"]) }")
+        val result = graphQL.execute("{ uuidListInput(uuids: [\"435f5808-936b-40ab-89b6-ec4e8cd1ba36\", \"435f5808-936b-40ab-89b6-ec4e8cd1ba36\"]) }")
         val data: Map<String, String>? = result.getData()
 
-        assertNotNull(data?.get("uuidListInput"))
+        assertEquals("You sent 2 items and there are 1 unqiue items", data?.get("uuidListInput"))
     }
 
     class QueryObject {
@@ -74,7 +75,12 @@ class CustomScalarExecutionTest {
 
         fun uuidInput(uuid: UUID) = "You sent $uuid"
 
-        fun uuidListInput(uuids: List<UUID>) = "You sent ${uuids.size} items"
+        fun uuidListInput(uuids: List<UUID>): String {
+            // This verifies that the custom scalar is converted properly by jackson
+            // and we can run comparisons on the original class
+            val group = uuids.groupBy { it }
+            return "You sent ${uuids.size} items and there are ${group.size} unqiue items"
+        }
     }
 
     class CustomScalarHooks : SchemaGeneratorHooks {

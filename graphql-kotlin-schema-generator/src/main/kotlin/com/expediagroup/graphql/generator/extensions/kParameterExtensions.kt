@@ -22,7 +22,6 @@ import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.jvm.javaType
 
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
 
@@ -35,10 +34,3 @@ internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == Da
 @Throws(CouldNotGetNameOfKParameterException::class)
 internal fun KParameter.getName(): String =
     this.getGraphQLName() ?: this.name ?: throw CouldNotGetNameOfKParameterException(this)
-
-internal fun KParameter.javaTypeClass(): Class<*> =
-    if (this.isList()) {
-        this.type.getKClass().java
-    } else {
-        this.type.javaType as Class<*>
-    }
