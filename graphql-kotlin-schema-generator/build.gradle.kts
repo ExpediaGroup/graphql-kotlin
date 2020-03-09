@@ -13,7 +13,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
     api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     api("io.github.classgraph:classgraph:$classGraphVersion")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
 }
 

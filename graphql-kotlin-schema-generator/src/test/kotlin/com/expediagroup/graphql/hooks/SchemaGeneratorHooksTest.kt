@@ -23,10 +23,9 @@ import com.expediagroup.graphql.exceptions.EmptyInterfaceTypeException
 import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
+import com.expediagroup.graphql.test.utils.graphqlUUIDType
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
-import graphql.language.StringValue
-import graphql.schema.Coercing
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
@@ -328,21 +327,4 @@ class SchemaGeneratorHooksTest {
     }
 
     class EmptyImplementation(override val id: String) : EmptyInterface
-
-    private val graphqlUUIDType = GraphQLScalarType.newScalar()
-        .name("UUID")
-        .description("A type representing a formatted java.util.UUID")
-        .coercing(UUIDCoercing)
-        .build()
-
-    private object UUIDCoercing : Coercing<UUID, String> {
-        override fun parseValue(input: Any?): UUID = UUID.fromString(serialize(input))
-
-        override fun parseLiteral(input: Any?): UUID? {
-            val uuidString = (input as? StringValue)?.value
-            return UUID.fromString(uuidString)
-        }
-
-        override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
-    }
 }
