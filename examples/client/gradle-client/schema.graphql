@@ -24,7 +24,20 @@ type Query {
   widget: Widget!
 }
 
+"Simple Widget"
 type Widget {
+  "Unique identifier"
   id: Int!
+  "Name of the widget"
   name: String!
+  "Type of the widget"
+  type: WidgetType!
+}
+
+"Supported widget types"
+enum WidgetType {
+  "CONTROL type widget"
+  CONTROL
+  "INFORMATION type widget"
+  INFORMATION
 }

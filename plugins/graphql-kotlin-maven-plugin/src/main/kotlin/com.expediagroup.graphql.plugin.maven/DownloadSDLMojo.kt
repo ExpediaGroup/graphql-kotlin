@@ -29,7 +29,8 @@ class DownloadSDLMojo : AbstractMojo() {
 
         val schemaFile = File("${outputDirectory.absolutePath}/$outputFileName")
         runBlocking {
-            downloadSchema(endpoint = endpoint, outputFile = schemaFile)
+            val schema = downloadSchema(endpoint = endpoint)
+            schemaFile.writeText(schema)
         }
     }
 }

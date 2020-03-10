@@ -39,7 +39,9 @@ open class DownloadSDLTask : DefaultTask() {
     fun downloadSDL() {
         logger.debug("starting download SDL task against ${endpoint.get()}")
         runBlocking {
-            downloadSchema(endpoint = endpoint.get(), outputFile = outputFile.get().asFile)
+            val schema = downloadSchema(endpoint = endpoint.get())
+            val outputFile = outputFile.get().asFile
+            outputFile.writeText(schema)
         }
     }
 }

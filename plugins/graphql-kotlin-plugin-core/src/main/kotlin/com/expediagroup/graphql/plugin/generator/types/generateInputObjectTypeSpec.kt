@@ -1,7 +1,6 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
-import com.expediagroup.graphql.plugin.generator.graphQLComments
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -11,7 +10,7 @@ import graphql.language.InputObjectTypeDefinition
 internal fun generateInputObjectTypeSpec(context: GraphQLClientGeneratorContext, inputObjectDefinition: InputObjectTypeDefinition): TypeSpec {
     val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputObjectDefinition.name)
     inputObjectTypeSpecBuilder.modifiers.add(KModifier.DATA)
-    inputObjectDefinition.graphQLComments()?.let { kdoc ->
+    inputObjectDefinition.description?.content?.let { kdoc ->
         inputObjectTypeSpecBuilder.addKdoc(kdoc)
     }
 

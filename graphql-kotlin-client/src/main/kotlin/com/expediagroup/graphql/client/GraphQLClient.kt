@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.client
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.cio.CIO
@@ -23,7 +24,9 @@ class GraphQLClient(private val url: URL, engine: HttpClientEngineFactory<*> = C
         // install default serializer
         if (features.none { "json".equals(it.key.name, ignoreCase = true) }) {
             install(JsonFeature) {
-                serializer = JacksonSerializer()
+                serializer = JacksonSerializer {
+                    this.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                }
             }
         }
     }
