@@ -27,7 +27,7 @@ it is just used to inform the schema generator that this is the class that shoul
 class MyGraphQLContext(val customValue: String) : GraphQLContext
 ```
 
-Then you can just use the class as an argument and it will be automaticall injected during execution time.
+Then you can just use the class as an argument and it will be automatically injected during execution time.
 
 ```kotlin
 class ContextualQuery {
@@ -55,7 +55,7 @@ Note that the argument that implements `GraphQLContext` is not reflected in the 
 
 ### GraphQLContext Annotation
 
-From the 1.0.0 release we also support marking any argument with the annotaiton `@GraphQLContext`.
+From the 1.0.0 release we also support marking any argument with the annotation `@GraphQLContext`.
 If the schema generator sees this annotation on an argument, it will assume that this is the context class and inject the context as this argument value.
 This does require that you mark **all** usages of the arument with the annotation. This will cause an error if you incorrectly mark the wrong argument,
 which is why the interface method may be better, but the annotation can be helpful if you do no control the implementation of the context class you are using.
