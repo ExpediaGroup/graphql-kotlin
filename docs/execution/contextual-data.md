@@ -18,17 +18,19 @@ Once context factory bean is available in the Spring application context it will
 to populate GraphQL context based on the incoming request and make it available during query execution. See [graphql-kotlin-spring-server documentation](../spring-server/spring-graphql-context)
 for additional details
 
-Once your application is configured to build your custom `MyGraphQLContext`, simply add `@GraphQLContext` annotation to
-any function argument and the corresponding GraphQL context from the environment will be automatically injected during
-execution.
+## GraphQLContext Interface
+
+Once your application is configured to build your custom `MyGraphQLContext`, simply mark the class with the `GraphQLContext` interface and the
+corresponding GraphQL context from the environment will be automatically injected during execution.
 
 ```kotlin
-class ContextualQuery {
+class MyGraphQLContext(val customValue: String) : GraphQLContext
 
+class ContextualQuery {
     fun contextualQuery(
-        value: Int,
-        @GraphQLContext context: MyGraphQLContext
-    ): ContextualResponse = ContextualResponse(value, context.myCustomValue)
+        context: MyGraphQLContext,
+        value: Int
+    ): String = "The custom value was ${context.customValue} and the value was $value"
 }
 ```
 
@@ -40,10 +42,27 @@ schema {
 }
 
 type Query {
-  contextualQuery(
-    value: Int!
-  ): ContextualResponse!
+  contextualQuery(value: Int!): String!
 }
 ```
 
-Note that the `@GraphQLContext` annotated argument is not reflected in the GraphQL schema.
+Note that the argument that implements `GraphQLContext` is not reflected in the GraphQL schema.
+
+
+### GraphQLContext Annotation
+
+From the 1.x.x release we also support marking any argument with the annotaiton `@GraphQLContext`.
+If the schema generator sees this annotation on an argument it will assume that this is the class used in the `GraphQLContextFactory` and return the context as this argument value.
+This does require though that you mark every usage of the arument with the annotation. This can be helpful if you do no control the implementation of the context
+class you are using.
+
+```kotlin
+class MyGraphQLContext(val customValue: String)
+
+class ContextualQuery {
+    fun contextualQuery(
+        @GraphQLContext context: MyGraphQLContext,
+        value: Int
+    ): String = "The custom value was ${context.customValue} and the value was $value"
+}
+```

@@ -24,7 +24,7 @@ In Kotlin code, when we are in the `photos` function, if we want access to the p
 arguments there are a couple ways we can access it.
 
 * You can add the `DataFetchingEnvironment` as an argument which will allow you to view the entire query sent to the
-  server
+  server. See more in the [DataFetchingEnvironment documentation](../execution/data-fetching-environment)
 
 ```kotlin
 fun photos(environment: DataFetchingEnvironment, numberOfPhotos: Int): List<Photo> {
@@ -33,11 +33,11 @@ fun photos(environment: DataFetchingEnvironment, numberOfPhotos: Int): List<Phot
 }
 ```
 
-* You can add the `@GraphQLContext` as an argument which will allow you to view the context object you set up in the
-  data fetchers
+* You can add the `GraphQLContext` as an argument which will allow you to view the context object you set up in the
+  data fetchers. See more in the [GraphQLContext documentation](../execution/contextual-data)
 
 ```kotlin
-fun photos(@GraphQLContext context: MyContextObject, numberOfPhotos: Int): List<Photo> {
+fun photos(context: MyContextObject, numberOfPhotos: Int): List<Photo> {
   val nameInput = context.getDataFromMyCustomFunction()
   return getPhotosFromDataSource()
 }
