@@ -4,10 +4,10 @@ title: Contextual Data
 ---
 
 All GraphQL servers have a concept of a "context". A GraphQL context contains metadata that is useful to the GraphQL
-server, but shouldn't necessarily be part of the GraphQL query's API. A prime example of something that is appropriate
+server, but shouldn't necessarily be part of the GraphQL schema. A prime example of something that is appropriate
 for the GraphQL context would be trace headers for an OpenTracing system such as
-[Haystack](https://expediadotcom.github.io/haystack). The GraphQL query itself does not need the information to perform
-its function, but the server itself needs the information to ensure observability.
+[Haystack](https://expediadotcom.github.io/haystack). The GraphQL query does not need the information to perform
+its function, but the server needs the information to ensure observability.
 
 The contents of the GraphQL context vary across applications and it is up to the GraphQL server developers to decide
 what it should contain. For Spring based applications, `graphql-kotlin-spring-server` provides a simple mechanism to
@@ -20,12 +20,16 @@ for additional details
 
 ## GraphQLContext Interface
 
-Once your application is configured to build your custom `MyGraphQLContext`, simply mark the class with the `GraphQLContext` interface and the
-corresponding GraphQL context from the environment will be automatically injected during execution.
+The easiest way to specify a context class is to use the `GraphQLContext` marker interface. This interface does not require any implementations,
+it is just used to inform the schema generator that this is the class that should be used as the context for every request.
 
 ```kotlin
 class MyGraphQLContext(val customValue: String) : GraphQLContext
+```
 
+Then you can just use the class as an argument and it will be automaticall injected during execution time.
+
+```kotlin
 class ContextualQuery {
     fun contextualQuery(
         context: MyGraphQLContext,
@@ -51,10 +55,10 @@ Note that the argument that implements `GraphQLContext` is not reflected in the 
 
 ### GraphQLContext Annotation
 
-From the 1.x.x release we also support marking any argument with the annotaiton `@GraphQLContext`.
-If the schema generator sees this annotation on an argument it will assume that this is the class used in the `GraphQLContextFactory` and return the context as this argument value.
-This does require though that you mark every usage of the arument with the annotation. This can be helpful if you do no control the implementation of the context
-class you are using.
+From the 1.0.0 release we also support marking any argument with the annotaiton `@GraphQLContext`.
+If the schema generator sees this annotation on an argument, it will assume that this is the context class and inject the context as this argument value.
+This does require that you mark **all** usages of the arument with the annotation. This will cause an error if you incorrectly mark the wrong argument,
+which is why the interface method may be better, but the annotation can be helpful if you do no control the implementation of the context class you are using.
 
 ```kotlin
 class MyGraphQLContext(val customValue: String)
