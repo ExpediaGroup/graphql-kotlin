@@ -15,7 +15,7 @@ For example if we define our custom context as follows:
 data class MyGraphQLContext(val myCustomValue: String)
 ```
 
-We can generate corresponding `GraphQLContextFactory` bean:
+We can generate the corresponding `GraphQLContextFactory` bean:
 
 ```kotlin
 @Component
