@@ -21,6 +21,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
 private val primitiveArrayTypes = mapOf(
@@ -34,6 +35,8 @@ private val primitiveArrayTypes = mapOf(
 )
 
 internal fun KType.getKClass() = this.jvmErasure
+
+internal fun KType.getJavaClass() = this.javaType as Class<*>
 
 internal fun KType.isSubclassOf(kClass: KClass<*>) = this.getKClass().isSubclassOf(kClass)
 

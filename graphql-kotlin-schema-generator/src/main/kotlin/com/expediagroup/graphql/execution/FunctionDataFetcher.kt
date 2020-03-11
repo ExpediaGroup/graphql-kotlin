@@ -16,10 +16,12 @@
 
 package com.expediagroup.graphql.execution
 
+import com.expediagroup.graphql.generator.extensions.getJavaClass
 import com.expediagroup.graphql.generator.extensions.getName
+import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.extensions.isDataFetchingEnvironment
 import com.expediagroup.graphql.generator.extensions.isGraphQLContext
-import com.expediagroup.graphql.generator.extensions.javaTypeClass
+import com.expediagroup.graphql.generator.extensions.isList
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
@@ -95,14 +97,20 @@ open class FunctionDataFetcher(
     /**
      * Called to convert the generic input object to the parameter class.
      *
-     * This is currently achieved by using a Jackson [ObjectMapper].
+     * This is currently achieved by using a Jackson ObjectMapper.
      */
     protected open fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
         val name = param.getName()
-        val klazz = param.javaTypeClass()
         val argument = environment.arguments[name]
 
-        return objectMapper.convertValue(argument, klazz)
+        return if (param.isList()) {
+            val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
+            val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
+            objectMapper.convertValue(argument, jacksonCollectionType)
+        } else {
+            val javaClass = param.type.getJavaClass()
+            objectMapper.convertValue(argument, javaClass)
+        }
     }
 
     /**
