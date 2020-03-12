@@ -52,21 +52,5 @@ type Query {
 
 Note that the argument that implements `GraphQLContext` is not reflected in the GraphQL schema.
 
-
-### GraphQLContext Annotation
-
-From the 1.0.0 release we also support marking any argument with the annotation `@GraphQLContext`.
-If the schema generator sees this annotation on an argument, it will assume that this is the context class and inject the context as this argument value.
-This does require that you mark **all** usages of the arument with the annotation. This will cause an error if you incorrectly mark the wrong argument,
-which is why the interface method may be better, but the annotation can be helpful if you do no control the implementation of the context class you are using.
-
-```kotlin
-class MyGraphQLContext(val customValue: String)
-
-class ContextualQuery {
-    fun contextualQuery(
-        @GraphQLContext context: MyGraphQLContext,
-        value: Int
-    ): String = "The custom value was ${context.customValue} and the value was $value"
-}
-```
+### Customization
+The context is injected into the execution through the `FunctionDataFetcher` class. If you want to customize the logic on how the context is determined, that is possible to override. See more details on the [Fetching Data documentation](./fetching-data)

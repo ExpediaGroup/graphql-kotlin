@@ -12,7 +12,7 @@ to populate the GraphQL context based on the incoming request and make it availa
 For example if we define our custom context as follows:
 
 ```kotlin
-data class MyGraphQLContext(val myCustomValue: String)
+class MyGraphQLContext(val myCustomValue: String) : GraphQLContext
 ```
 
 We can generate the corresponding `GraphQLContextFactory` bean:
@@ -32,4 +32,4 @@ class MyGraphQLContextFactory: GraphQLContextFactory<MyGraphQLContext> {
 Once your application is configured to build your custom `MyGraphQLContext`, we can then specify it as function argument but it will not be included in the schema.
 While executing the query, the corresponding GraphQL context will be read from the environment and automatically injected to the function input arguments.
 
-For more details see the [Contextual Data page](../execution/contextual-data).
+For more details see the [Contextual Data documentation](../execution/contextual-data).
