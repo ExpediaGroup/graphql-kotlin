@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.EmptyGraphQLContext
-import com.expediagroup.graphql.execution.GraphQLContext
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 
@@ -40,7 +39,7 @@ interface GraphQLContextFactory<out T : Any> {
 /**
  * Default context factory that generates empty GraphQL context.
  */
-internal object EmptyContextFactory : GraphQLContextFactory<GraphQLContext> {
+internal object EmptyContextFactory : GraphQLContextFactory<EmptyGraphQLContext> {
 
-    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): EmptyGraphQLContext = EmptyGraphQLContext()
+    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse) = EmptyGraphQLContext()
 }

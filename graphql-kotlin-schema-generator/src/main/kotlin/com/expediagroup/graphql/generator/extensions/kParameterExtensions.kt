@@ -20,15 +20,13 @@ import com.expediagroup.graphql.exceptions.CouldNotGetNameOfKParameterException
 import com.expediagroup.graphql.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
-import com.expediagroup.graphql.annotations.GraphQLContext as GraphQLContextAnnotation
 
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
 
 internal fun KParameter.isList() = this.type.getKClass().isSubclassOf(List::class)
 
-internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class) || this.findAnnotation<GraphQLContextAnnotation>() != null
+internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class)
 
 internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == DataFetchingEnvironment::class
 

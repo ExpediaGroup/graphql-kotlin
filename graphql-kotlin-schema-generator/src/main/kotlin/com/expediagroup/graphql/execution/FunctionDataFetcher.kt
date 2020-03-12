@@ -82,7 +82,7 @@ open class FunctionDataFetcher(
      * If the parameter is of a special type then we do not read the input and instead just pass on that value.
      *
      * The special values include:
-     *   - If the parameter is annotated with [com.expediagroup.graphql.annotations.GraphQLContext],
+     *   - If the parameter is marked as a [com.expediagroup.graphql.execution.GraphQLContext],
      *     then return the environment context
      *
      *   - The entire environment is returned if the parameter is of type [DataFetchingEnvironment]

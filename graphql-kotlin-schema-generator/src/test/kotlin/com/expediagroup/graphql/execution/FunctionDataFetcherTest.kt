@@ -30,7 +30,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import com.expediagroup.graphql.annotations.GraphQLContext as GraphQLContextAnnotation
 
 internal class FunctionDataFetcherTest {
 
@@ -42,8 +41,6 @@ internal class FunctionDataFetcherTest {
         fun printArray(items: Array<String>) = items.joinToString(separator = ":")
 
         fun printList(items: List<String>) = items.joinToString(separator = ":")
-
-        fun context(@GraphQLContextAnnotation string: String) = string
 
         fun contextClass(myContext: MyContext) = myContext.value
 
@@ -93,14 +90,6 @@ internal class FunctionDataFetcherTest {
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
         assertEquals(expected = "hello", actual = dataFetcher.get(mockEnvironmet))
-    }
-
-    @Test
-    fun `valid target with context annotation`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::context)
-        val mockEnvironmet: DataFetchingEnvironment = mockk()
-        every { mockEnvironmet.getContext<String>() } returns "foo"
-        assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironmet))
     }
 
     @Test

@@ -21,7 +21,6 @@ import com.expediagroup.graphql.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import com.expediagroup.graphql.annotations.GraphQLContext as GraphQLContextAnnotation
 
 internal class KFunctionExtensionsKtTest {
 
@@ -58,8 +57,10 @@ internal class KFunctionExtensionsKtTest {
 
         fun ignored(@GraphQLIgnore ignoredArg: String, notIgnored: String) = "$ignoredArg and $notIgnored"
 
-        fun context(@GraphQLContextAnnotation contextAnnation: String, contextClass: GraphQLContext, notContext: String) = "Value was $notContext"
+        fun context(contextAnnation: TestContext, contextClass: GraphQLContext, notContext: String) = "Value was $notContext"
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment, notEnvironment: String): String = "${environment.field.name} and $notEnvironment"
     }
+
+    private class TestContext : GraphQLContext
 }
