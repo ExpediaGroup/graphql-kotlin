@@ -19,11 +19,15 @@ internal fun generateInputObjectTypeSpec(context: GraphQLClientGeneratorContext,
         val kotlinFieldType = generateKotlinTypeName(context, fieldDefinition.type)
         val fieldName = fieldDefinition.name
 
-        val propertySpec = PropertySpec.builder(fieldName, kotlinFieldType)
+        val inputPropertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
             .initializer(fieldName)
-            .build()
-        inputObjectTypeSpecBuilder.addProperty(propertySpec)
-        constructorBuilder.addParameter(propertySpec.name, propertySpec.type)
+        fieldDefinition.description?.content?.let { kdoc ->
+            inputPropertySpecBuilder.addKdoc(kdoc)
+        }
+
+        val inputPropertySpec = inputPropertySpecBuilder.build()
+        inputObjectTypeSpecBuilder.addProperty(inputPropertySpec)
+        constructorBuilder.addParameter(inputPropertySpec.name, inputPropertySpec.type)
     }
     inputObjectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 

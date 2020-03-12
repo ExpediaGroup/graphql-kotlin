@@ -22,7 +22,6 @@ class GraphQLClientGenerator(
     private val graphQLSchema: TypeDefinitionRegistry,
     private val config: GraphQLClientGeneratorConfig
 ) {
-
     private val documentParser: Parser = Parser()
 
     fun generate(queryFile: File): FileSpec {

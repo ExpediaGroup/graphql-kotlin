@@ -1,11 +1,11 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.testSchema
 import com.squareup.kotlinpoet.FileSpec
 import graphql.language.Field
 import graphql.language.ObjectTypeDefinition
 import graphql.language.SelectionSet
-import graphql.schema.idl.SchemaParser
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
@@ -15,21 +15,6 @@ class GenerateObjectTypeSpecTest {
 
     @Test
     fun `verify we can generate valid object type spec`() {
-        val sdl = """
-            type Query {
-              objectTestQuery: MyCustomObject
-            }
-
-            "Custom type description"
-            type MyCustomObject {
-              "Some unique identifier"
-              id: Int!,
-              "Some object name"
-              name: String!,
-              "Optional value"
-              optional: String
-            }
-        """.trimIndent()
         val expected = """
             package com.expediagroup.graphql.plugin.generator.types.test
 
@@ -55,12 +40,11 @@ class GenerateObjectTypeSpecTest {
             )
         """.trimIndent()
 
-        val schema = SchemaParser().parse(sdl)
-        val objectTypeDefinition = schema.getType("MyCustomObject", ObjectTypeDefinition::class.java).get()
+        val objectTypeDefinition = testSchema.getType("MyCustomObject", ObjectTypeDefinition::class.java).get()
 
         val ctx = GraphQLClientGeneratorContext(
             packageName = "com.expediagroup.graphql.plugin.generator.types.test",
-            graphQLSchema = schema,
+            graphQLSchema = testSchema,
             rootType = "ObjectQueryTest",
             queryDocument = mockk()
         )
@@ -81,33 +65,6 @@ class GenerateObjectTypeSpecTest {
 
     @Test
     fun `verify we can generate objects referencing other objects`() {
-        val sdl = """
-            type Query {
-              objectTestQuery: MyCustomObject
-            }
-
-            "Custom type description"
-            type MyCustomObject {
-              "Some unique identifier"
-              id: Int!,
-              "Some object name"
-              name: String!,
-              "Optional value"
-              optional: String,
-              "Some additional details"
-              details: MyDetailsObject
-            }
-
-            "Inner type object description"
-            type MyDetailsObject {
-              "Unique identifier"
-              id: Int!,
-              "Boolean flag"
-              flag: Boolean!,
-              "Actual detail value"
-              value: String!
-            }
-        """.trimIndent()
         val expected = """
             package com.expediagroup.graphql.plugin.generator.types.test
 
@@ -152,12 +109,11 @@ class GenerateObjectTypeSpecTest {
             )
         """.trimIndent()
 
-        val schema = SchemaParser().parse(sdl)
-        val objectTypeDefinition = schema.getType("MyCustomObject", ObjectTypeDefinition::class.java).get()
+        val objectTypeDefinition = testSchema.getType("MyCustomObject", ObjectTypeDefinition::class.java).get()
 
         val ctx = GraphQLClientGeneratorContext(
             packageName = "com.expediagroup.graphql.plugin.generator.types.test",
-            graphQLSchema = schema,
+            graphQLSchema = testSchema,
             rootType = "ObjectQueryTest",
             queryDocument = mockk()
         )

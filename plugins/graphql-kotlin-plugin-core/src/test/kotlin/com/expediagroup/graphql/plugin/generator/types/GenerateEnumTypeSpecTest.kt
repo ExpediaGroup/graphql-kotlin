@@ -1,9 +1,9 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.testSchema
 import com.squareup.kotlinpoet.FileSpec
 import graphql.language.EnumTypeDefinition
-import graphql.schema.idl.SchemaParser
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
@@ -40,25 +40,11 @@ class GenerateEnumTypeSpecTest {
             }
         """.trimIndent()
 
-        val sdl = """
-            type Query {
-              enumTestQuery: MyCustomEnum
-            }
-
-            "Custom enum description"
-            enum MyCustomEnum {
-              "First enum value"
-              ONE,
-              "Second enum value"
-              TWO
-            }
-        """.trimIndent()
-        val schema = SchemaParser().parse(sdl)
-        val enumTypeDefinition = schema.getType("MyCustomEnum", EnumTypeDefinition::class.java).get()
+        val enumTypeDefinition = testSchema.getType("MyCustomEnum", EnumTypeDefinition::class.java).get()
 
         val ctx = GraphQLClientGeneratorContext(
             packageName = "com.expediagroup.graphql.plugin.generator.types.test",
-            graphQLSchema = schema,
+            graphQLSchema = testSchema,
             rootType = "EnumQueryTest",
             queryDocument = mockk()
         )
