@@ -54,7 +54,7 @@ class ContextWebFilterTest {
             }
         }
 
-        val simpleFactory: GraphQLContextFactory<Any> = mockk {
+        val simpleFactory: GraphQLContextFactory<*> = mockk {
             coEvery { generateContext(any(), any()) } returns EmptyGraphQLContext()
         }
 
@@ -90,7 +90,7 @@ class ContextWebFilterTest {
             }
         }
 
-        val simpleFactory: GraphQLContextFactory<Any> = mockk {
+        val simpleFactory: GraphQLContextFactory<*> = mockk {
             coEvery { generateContext(any(), any()) } returns EmptyGraphQLContext()
         }
 

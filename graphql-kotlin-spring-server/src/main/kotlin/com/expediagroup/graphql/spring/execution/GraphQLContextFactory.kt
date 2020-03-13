@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.EmptyGraphQLContext
+import com.expediagroup.graphql.execution.GraphQLContext
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 
@@ -28,7 +29,7 @@ const val GRAPHQL_CONTEXT_KEY = "graphQLContext"
 /**
  * Factory that generates GraphQL context.
  */
-interface GraphQLContextFactory<out T : Any> {
+interface GraphQLContextFactory<out T : GraphQLContext> {
 
     /**
      * Generate GraphQL context based on the incoming request and the corresponding response.

@@ -33,7 +33,7 @@ const val GRAPHQL_CONTEXT_FILTER_ODER = 0
 /**
  * Default web filter that populates GraphQL context in the reactor subscriber context.
  */
-open class ContextWebFilter(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<Any>) : WebFilter, Ordered {
+open class ContextWebFilter(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<*>) : WebFilter, Ordered {
     private val graphQLRoute = enforceAbsolutePath(config.endpoint)
     private val subscriptionsRoute = enforceAbsolutePath(config.subscriptions.endpoint)
 

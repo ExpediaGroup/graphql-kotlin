@@ -166,7 +166,7 @@ class SchemaConfigurationTest {
             .build()
 
         @Bean
-        fun myCustomContextFactory(): GraphQLContextFactory<Map<String, Any>> = mockk()
+        fun myCustomContextFactory(): GraphQLContextFactory<*> = mockk()
 
         @Bean
         fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()

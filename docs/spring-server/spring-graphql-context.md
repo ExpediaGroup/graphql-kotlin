@@ -24,7 +24,7 @@ class MyGraphQLContextFactory: GraphQLContextFactory<MyGraphQLContext> {
         request: ServerHttpRequest,
         response: ServerHttpResponse
     ): MyGraphQLContext = MyGraphQLContext(
-        myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext"
+        myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultValue"
     )
 }
 ```
