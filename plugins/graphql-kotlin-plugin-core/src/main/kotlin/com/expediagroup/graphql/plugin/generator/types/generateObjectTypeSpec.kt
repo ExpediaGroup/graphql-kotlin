@@ -22,7 +22,7 @@ internal fun generateObjectTypeSpec(context: GraphQLClientGeneratorContext, pare
     }
 
     val constructorBuilder = FunSpec.constructorBuilder()
-    processSelectionSet(context, parentObject, selectionSet).forEach { propertySpec ->
+    selectionSet.generatePropertySpecs(context, parentObject).forEach { propertySpec ->
         objectTypeSpecBuilder.addProperty(propertySpec)
         constructorBuilder.addParameter(propertySpec.name, propertySpec.type)
     }
@@ -32,7 +32,7 @@ internal fun generateObjectTypeSpec(context: GraphQLClientGeneratorContext, pare
             val fragmentDefinition = context.queryDocument
                 .getDefinitionsOfType(FragmentDefinition::class.java)
                 .find { it.name == fragment.name } ?: throw RuntimeException("fragment not found")
-            processSelectionSet(context, parentObject, fragmentDefinition.selectionSet).forEach { propertySpec ->
+            fragmentDefinition.selectionSet.generatePropertySpecs(context, parentObject).forEach { propertySpec ->
                 objectTypeSpecBuilder.addProperty(propertySpec)
                 constructorBuilder.addParameter(propertySpec.name, propertySpec.type)
             }
@@ -44,11 +44,10 @@ internal fun generateObjectTypeSpec(context: GraphQLClientGeneratorContext, pare
     return objectTypeSpec
 }
 
-private fun processSelectionSet(
+private fun SelectionSet.generatePropertySpecs(
     context: GraphQLClientGeneratorContext,
-    parentObject: ObjectTypeDefinition,
-    selectionSet: SelectionSet
-): List<PropertySpec> = selectionSet.getSelectionsOfType(Field::class.java)
+    parentObject: ObjectTypeDefinition
+): List<PropertySpec> = this.getSelectionsOfType(Field::class.java)
     .filterNot { it.name == "__typename" }
     .map { selectedField ->
         val fieldDefinition = parentObject.fieldDefinitions.find { it.name == selectedField.name }
