@@ -4,8 +4,11 @@ import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.generator.testSchema
 import com.squareup.kotlinpoet.FileSpec
 import graphql.language.Field
+import graphql.language.FragmentDefinition
+import graphql.language.FragmentSpread
 import graphql.language.ObjectTypeDefinition
 import graphql.language.SelectionSet
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
@@ -13,33 +16,33 @@ import kotlin.test.assertEquals
 
 class GenerateObjectTypeSpecTest {
 
+    val customObjectTypeSpec = """
+        package com.expediagroup.graphql.plugin.generator.types.test
+
+        import kotlin.Int
+        import kotlin.String
+
+        /**
+         * Custom type description
+         */
+        data class MyCustomObject(
+          /**
+           * Some unique identifier
+           */
+          val id: Int,
+          /**
+           * Some object name
+           */
+          val name: String,
+          /**
+           * Optional value
+           */
+          val optional: String?
+        )
+    """.trimIndent()
+
     @Test
     fun `verify we can generate valid object type spec`() {
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.types.test
-
-            import kotlin.Int
-            import kotlin.String
-
-            /**
-             * Custom type description
-             */
-            data class MyCustomObject(
-              /**
-               * Some unique identifier
-               */
-              val id: Int,
-              /**
-               * Some object name
-               */
-              val name: String,
-              /**
-               * Optional value
-               */
-              val optional: String?
-            )
-        """.trimIndent()
-
         val objectTypeDefinition = testSchema.getType("MyCustomObject", ObjectTypeDefinition::class.java).get()
 
         val ctx = GraphQLClientGeneratorContext(
@@ -60,7 +63,7 @@ class GenerateObjectTypeSpecTest {
 
         val result = StringWriter()
         fileSpec.writeTo(result)
-        assertEquals(expected, result.toString().trim())
+        assertEquals(customObjectTypeSpec, result.toString().trim())
     }
 
     @Test
@@ -105,7 +108,7 @@ class GenerateObjectTypeSpecTest {
               /**
                * Some additional details
                */
-              val details: ObjectQueryTest.MyDetailsObject?
+              val details: NestedObjectQueryTest.MyDetailsObject?
             )
         """.trimIndent()
 
@@ -114,7 +117,7 @@ class GenerateObjectTypeSpecTest {
         val ctx = GraphQLClientGeneratorContext(
             packageName = "com.expediagroup.graphql.plugin.generator.types.test",
             graphQLSchema = testSchema,
-            rootType = "ObjectQueryTest",
+            rootType = "NestedObjectQueryTest",
             queryDocument = mockk()
         )
         val selectionSet: SelectionSet = SelectionSet.newSelectionSet()
@@ -135,5 +138,39 @@ class GenerateObjectTypeSpecTest {
         val result = StringWriter()
         fileSpec.build().writeTo(result)
         assertEquals(expected, result.toString().trim())
+    }
+
+    @Test
+    fun `verify we can generate objects using fragment definitions`() {
+        val objectTypeDefinition = testSchema.getType("MyCustomObject", ObjectTypeDefinition::class.java).get()
+
+        val testFragmentDefinition = FragmentDefinition.newFragmentDefinition()
+            .name("testFragment")
+            .selectionSet(SelectionSet.newSelectionSet()
+                .selection(Field("id"))
+                .selection(Field("name"))
+                .selection(Field("optional"))
+                .build())
+            .build()
+        val ctx = GraphQLClientGeneratorContext(
+            packageName = "com.expediagroup.graphql.plugin.generator.types.test",
+            graphQLSchema = testSchema,
+            rootType = "FragmentObjectQueryTest",
+            queryDocument = mockk {
+                every { getDefinitionsOfType(FragmentDefinition::class.java) } returns listOf(testFragmentDefinition)
+            }
+        )
+        val selectionSet: SelectionSet = SelectionSet.newSelectionSet()
+            .selection(FragmentSpread("testFragment"))
+            .build()
+        generateObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
+        val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
+        ctx.typeSpecs.forEach {
+            fileSpec.addType(it)
+        }
+
+        val result = StringWriter()
+        fileSpec.build().writeTo(result)
+        assertEquals(customObjectTypeSpec, result.toString().trim())
     }
 }

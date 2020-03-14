@@ -28,12 +28,13 @@ class GraphQLClientGenerator(
         // TODO modify query to include __typeName
         val queryConst = queryFile.readText()
         val queryDocument = documentParser.parseDocument(queryConst)
-        if (queryDocument.definitions.size > 1) {
+        val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
+        if (operationDefinitions.size > 1) {
             throw RuntimeException("GraphQL client does not support query files with multiple operations")
         }
 
         val fileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension)
-        queryDocument.definitions.filterIsInstance(OperationDefinition::class.java).forEach { operationDefinition ->
+        operationDefinitions.forEach { operationDefinition ->
             val operationName = operationDefinition.name ?: "anonymous${operationDefinition.operation.name.toLowerCase().capitalize()}"
             val operationTypeName = operationName.capitalize()
             val context = GraphQLClientGeneratorContext(
