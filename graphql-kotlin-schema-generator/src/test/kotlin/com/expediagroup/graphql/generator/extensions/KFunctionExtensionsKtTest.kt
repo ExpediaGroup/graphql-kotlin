@@ -39,7 +39,7 @@ internal class KFunctionExtensionsKtTest {
     }
 
     @Test
-    fun `getValidArguments should ignore GraphQLContext annotations and classes`() {
+    fun `getValidArguments should ignore GraphQLContext classes`() {
         val args = TestingClass::context.getValidArguments()
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notContext", actual = args.first().getName())

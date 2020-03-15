@@ -69,7 +69,7 @@ class ContextWebFilterTest {
 
     @Test
     fun `verify web filter order`() {
-        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk())
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         assertEquals(expected = 0, actual = contextFilter.order)
     }
 
@@ -104,7 +104,7 @@ class ContextWebFilterTest {
 
     @Test
     fun `verify context web filter is applicable on default graphql routes`() {
-        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk())
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         for (path in listOf("/graphql", "/subscriptions")) {
             assertTrue(contextFilter.isApplicable(path))
         }
@@ -119,7 +119,7 @@ class ContextWebFilterTest {
             packages = listOf("com.expediagroup.graphql"),
             subscriptions = GraphQLConfigurationProperties.SubscriptionConfigurationProperties(endpoint = subscriptionRoute))
 
-        val contextFilter = ContextWebFilter(props, mockk())
+        val contextFilter = ContextWebFilter(props, mockk<GraphQLContextFactory<*>>())
         for (path in listOf("/${graphQLRoute.toLowerCase()}", "/${subscriptionRoute.toLowerCase()}")) {
             assertTrue(contextFilter.isApplicable(path))
         }
@@ -127,7 +127,7 @@ class ContextWebFilterTest {
 
     @Test
     fun `verify context web filter is not applicable on non graphql routes`() {
-        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk())
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         assertFalse(contextFilter.isApplicable("/whatever"))
     }
 }

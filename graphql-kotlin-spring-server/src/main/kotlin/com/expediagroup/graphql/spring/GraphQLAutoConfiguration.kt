@@ -130,5 +130,5 @@ class GraphQLAutoConfiguration {
     fun contextWebFilter(
         config: GraphQLConfigurationProperties,
         graphQLContextFactory: GraphQLContextFactory<*>
-    ): ContextWebFilter = ContextWebFilter(config, graphQLContextFactory)
+    ): ContextWebFilter<*> = ContextWebFilter(config, graphQLContextFactory)
 }

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.spring.execution
 
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
 import kotlinx.coroutines.reactor.mono
 import org.springframework.core.Ordered
@@ -33,7 +34,7 @@ const val GRAPHQL_CONTEXT_FILTER_ODER = 0
 /**
  * Default web filter that populates GraphQL context in the reactor subscriber context.
  */
-open class ContextWebFilter(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<*>) : WebFilter, Ordered {
+open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<T>) : WebFilter, Ordered {
     private val graphQLRoute = enforceAbsolutePath(config.endpoint)
     private val subscriptionsRoute = enforceAbsolutePath(config.subscriptions.endpoint)
 

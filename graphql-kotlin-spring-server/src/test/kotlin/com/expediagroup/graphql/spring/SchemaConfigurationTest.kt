@@ -18,6 +18,7 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
@@ -175,11 +176,13 @@ class SchemaConfigurationTest {
         fun myCustomContextWebFilter(
             config: GraphQLConfigurationProperties,
             graphQLContextFactory: GraphQLContextFactory<*>
-        ): ContextWebFilter = object : ContextWebFilter(config, graphQLContextFactory) {
-            private val regex = config.endpoint.toRegex()
+        ) = CustomWebFilter(config, graphQLContextFactory)
+    }
 
-            override fun isApplicable(path: String): Boolean = regex.matches(path)
-        }
+    class CustomWebFilter<out T : GraphQLContext>(config: GraphQLConfigurationProperties, graphQLContextFactory: GraphQLContextFactory<T>) : ContextWebFilter<T>(config, graphQLContextFactory) {
+        private val regex = config.endpoint.toRegex()
+
+        override fun isApplicable(path: String): Boolean = regex.matches(path)
     }
 
     class BasicQuery : Query {
