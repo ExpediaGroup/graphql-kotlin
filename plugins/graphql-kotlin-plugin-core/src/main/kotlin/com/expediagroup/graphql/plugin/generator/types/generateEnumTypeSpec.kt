@@ -23,6 +23,6 @@ internal fun generateEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDe
         .build())
 
     val enumTypeSpec = enumTypeSpecBuilder.build()
-    context.typeSpecs.add(enumTypeSpec)
+    context.typeSpecs[enumDefinition.name] = enumTypeSpec
     return enumTypeSpec
 }

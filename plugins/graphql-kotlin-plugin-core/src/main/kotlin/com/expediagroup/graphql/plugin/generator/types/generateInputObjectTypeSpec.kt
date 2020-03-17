@@ -32,6 +32,6 @@ internal fun generateInputObjectTypeSpec(context: GraphQLClientGeneratorContext,
     inputObjectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
     val inputTypeObjectTypeSpec = inputObjectTypeSpecBuilder.build()
-    context.typeSpecs.add(inputTypeObjectTypeSpec)
+    context.typeSpecs[inputObjectDefinition.name] = inputTypeObjectTypeSpec
     return inputTypeObjectTypeSpec
 }

@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 
 class GenerateObjectTypeSpecTest {
 
-    val customObjectTypeSpec = """
+    private val customObjectTypeSpec = """
         package com.expediagroup.graphql.plugin.generator.types.test
 
         import kotlin.Int
@@ -132,7 +132,7 @@ class GenerateObjectTypeSpecTest {
         generateObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
         ctx.typeSpecs.forEach {
-            fileSpec.addType(it)
+            fileSpec.addType(it.value)
         }
 
         val result = StringWriter()
@@ -166,7 +166,7 @@ class GenerateObjectTypeSpecTest {
         generateObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
         ctx.typeSpecs.forEach {
-            fileSpec.addType(it)
+            fileSpec.addType(it.value)
         }
 
         val result = StringWriter()

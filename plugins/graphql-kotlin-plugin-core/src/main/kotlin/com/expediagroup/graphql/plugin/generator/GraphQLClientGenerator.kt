@@ -25,7 +25,8 @@ class GraphQLClientGenerator(
     private val documentParser: Parser = Parser()
 
     fun generate(queryFile: File): FileSpec {
-        // TODO modify query to include __typeName
+        // TODO modify query to include __typeName for unions/interfaces
+        // TODO fail on deprecated
         val queryConst = queryFile.readText()
         val queryDocument = documentParser.parseDocument(queryConst)
         val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
@@ -73,7 +74,7 @@ class GraphQLClientGenerator(
             operationTypeSpec.addFunction(funSpec.build())
 
             context.typeSpecs.forEach {
-                operationTypeSpec.addType(it)
+                operationTypeSpec.addType(it.value)
             }
             fileSpec.addProperty(PropertySpec.builder(queryConstName, STRING)
                 .addModifiers(KModifier.CONST)

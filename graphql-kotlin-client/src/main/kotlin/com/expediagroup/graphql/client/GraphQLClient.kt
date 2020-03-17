@@ -22,11 +22,9 @@ class GraphQLClient(private val url: URL, engine: HttpClientEngineFactory<*> = C
             install(feature)
         }
         // install default serializer
-        if (features.none { "json".equals(it.key.name, ignoreCase = true) }) {
-            install(JsonFeature) {
-                serializer = JacksonSerializer {
-                    this.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-                }
+        install(JsonFeature) {
+            serializer = JacksonSerializer {
+                this.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             }
         }
     }

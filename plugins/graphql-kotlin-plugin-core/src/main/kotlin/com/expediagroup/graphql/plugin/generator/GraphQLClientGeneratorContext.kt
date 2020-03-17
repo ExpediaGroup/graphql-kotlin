@@ -12,5 +12,5 @@ data class GraphQLClientGeneratorContext(
     val queryDocument: Document
 ) {
     val typeNameCache: MutableMap<String, TypeName> = mutableMapOf()
-    val typeSpecs: MutableList<TypeSpec> = mutableListOf()
+    val typeSpecs: MutableMap<String, TypeSpec> = mutableMapOf()
 }

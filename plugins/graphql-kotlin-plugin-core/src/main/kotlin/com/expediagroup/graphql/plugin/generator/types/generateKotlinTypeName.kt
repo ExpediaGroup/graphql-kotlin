@@ -12,13 +12,16 @@ import com.squareup.kotlinpoet.TypeName
 import graphql.Scalars
 import graphql.language.EnumTypeDefinition
 import graphql.language.InputObjectTypeDefinition
+import graphql.language.InterfaceTypeDefinition
 import graphql.language.ListType
 import graphql.language.NamedNode
 import graphql.language.NonNullType
 import graphql.language.ObjectTypeDefinition
+import graphql.language.ScalarTypeDefinition
 import graphql.language.SelectionSet
 import graphql.language.Type
 import graphql.language.TypeDefinition
+import graphql.language.UnionTypeDefinition
 
 internal fun generateKotlinTypeName(context: GraphQLClientGeneratorContext, graphQLType: Type<*>, selectionSet: SelectionSet? = null): TypeName {
     val nullable = graphQLType !is NonNullType
@@ -58,7 +61,17 @@ internal fun generateCustomKotlinTypeName(context: GraphQLClientGeneratorContext
             }
             is InputObjectTypeDefinition -> generateInputObjectTypeSpec(context, graphQLTypeDefinition)
             is EnumTypeDefinition -> generateEnumTypeSpec(context, graphQLTypeDefinition)
-            // TODO handle interface + unions
+            is InterfaceTypeDefinition -> if (selectionSet == null) {
+                throw RuntimeException("cannot select empty interface")
+            } else {
+                generateInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
+            }
+            is UnionTypeDefinition -> if (selectionSet == null) {
+                throw RuntimeException("cannot select empty interface")
+            } else {
+                generateUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
+            }
+            is ScalarTypeDefinition -> generateCustomScalarTypeSpec(context, graphQLTypeDefinition)
             else -> throw RuntimeException("Not supported")
         }
 
