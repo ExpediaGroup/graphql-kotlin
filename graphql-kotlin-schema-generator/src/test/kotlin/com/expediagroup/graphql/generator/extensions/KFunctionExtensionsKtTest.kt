@@ -57,7 +57,7 @@ internal class KFunctionExtensionsKtTest {
 
         fun ignored(@GraphQLIgnore ignoredArg: String, notIgnored: String) = "$ignoredArg and $notIgnored"
 
-        fun context(contextAnnation: TestContext, contextClass: GraphQLContext, notContext: String) = "Value was $notContext"
+        fun context(contextClass: TestContext, notContext: String) = "Context was $contextClass and value was $notContext"
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment, notEnvironment: String): String = "${environment.field.name} and $notEnvironment"
     }
