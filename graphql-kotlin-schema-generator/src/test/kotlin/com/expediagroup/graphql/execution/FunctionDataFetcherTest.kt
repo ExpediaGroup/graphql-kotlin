@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.execution
 
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.GraphQLException
@@ -34,6 +33,8 @@ import kotlin.test.assertTrue
 
 internal class FunctionDataFetcherTest {
 
+    internal class MyContext(val value: String) : GraphQLContext
+
     internal class MyClass {
         fun print(string: String) = string
 
@@ -41,7 +42,7 @@ internal class FunctionDataFetcherTest {
 
         fun printList(items: List<String>) = items.joinToString(separator = ":")
 
-        fun context(@GraphQLContext string: String) = string
+        fun contextClass(myContext: MyContext) = myContext.value
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
 
@@ -92,10 +93,10 @@ internal class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `valid target with context`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::context)
+    fun `valid target with context class`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::contextClass)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
-        every { mockEnvironmet.getContext<String>() } returns "foo"
+        every { mockEnvironmet.getContext<MyContext>() } returns MyContext("foo")
         assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironmet))
     }
 

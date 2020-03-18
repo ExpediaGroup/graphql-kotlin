@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
 import com.expediagroup.graphql.examples.model.ContextualResponse
@@ -37,6 +36,6 @@ class ContextualQuery : Query {
     fun contextualQuery(
         @GraphQLDescription("some value that will be returned to the user")
         value: Int,
-        @GraphQLContext context: MyGraphQLContext
+        context: MyGraphQLContext
     ): ContextualResponse = ContextualResponse(value, context.myCustomValue)
 }

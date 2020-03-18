@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.examples.subscriptions
 
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
 import com.expediagroup.graphql.spring.operations.Subscription
@@ -62,6 +61,6 @@ class SimpleSubscription : Subscription {
     fun flow(): Publisher<Int> = flowOf(1, 2, 4).asPublisher()
 
     @GraphQLDescription("Returns a value from the subscription context")
-    fun subscriptionContext(@GraphQLContext myGraphQLContext: MyGraphQLContext): Publisher<String> =
+    fun subscriptionContext(myGraphQLContext: MyGraphQLContext): Publisher<String> =
         flowOf(myGraphQLContext.subscriptionValue ?: "", "value 2", "value3").asPublisher()
 }

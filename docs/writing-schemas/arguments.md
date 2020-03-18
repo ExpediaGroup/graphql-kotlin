@@ -25,15 +25,16 @@ type Query {
 }
 ```
 
-This behavior is true for all arguments except for the GraphQL context objects. See section below for detailed
-information about `@GraphQLContext`.
+This behavior is true for all arguments except for the special classes for the [GraphQLContext](../execution/contextual-data) and the [DataFetchingEnvironment](../execution/data-fetching-environment)
 
 ### Input Types
 
 Query and mutation function arguments are automatically converted to corresponding GraphQL input fields. GraphQL makes a
 distinction between input and output types and requires unique names for all the types. Since we can use the same
 objects for input and output in our Kotlin functions, `graphql-kotlin-schema-generator` will automatically append
-`Input` suffix to the query input objects.
+an `Input` suffix to the query input objects.
+
+For example, the following code:
 
 ```kotlin
 class WidgetMutation {
@@ -57,7 +58,7 @@ data class Widget(
 }
 ```
 
-Will generate
+Will generate the following schema:
 
 ```graphql
 type Mutation {
@@ -92,15 +93,15 @@ input WidgetInput {
 Please note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output
 types.
 
-If you know a type will only be used for input types you can call your class `CustomTypeInput`. The library will not
+If you know a type will only be used for input types you can call your class something like `CustomTypeInput`. The library will not
 append `Input` if the class name already ends with `Input` but that means you can not use this type as output because
-the schema would have two types with the same name and will be invalid.
+the schema would have two types with the same name and that would be invalid.
 
 ### Optional input fields
 
 Kotlin requires variables/values to be initialized upon their declaration either from the user input OR by providing
-defaults (even if they are marked as nullable). Therefore in order for GraphQL input field to be optional it needs to be
-nullable and also specify default Kotlin value.
+defaults (even if they are marked as nullable). Therefore in order for a GraphQL input field to be optional it needs to be
+nullable and also specify a default Kotlin value.
 
 ```kotlin
     @GraphQLDescription("query with optional input")
@@ -110,12 +111,12 @@ nullable and also specify default Kotlin value.
             = "required value=$requiredValue, optional value=$optionalValue"
 ```
 
-NOTE: Non nullable input fields will always require users to specify the value regardless whether default Kotlin value
+NOTE: Non nullable input fields will always require users to specify the value regardless of whether a default Kotlin value
 is provided or not.
 
-NOTE: Even though you could specify a default value in Kotlin `optionalValue: Int? = null`, this will not be used since
-if no value is provided to the schema `graphql-java` passes null as the value so the Kotlin default value will never be
-used, like in this argument `optionalList: List<Int>? = emptyList()`, the value will be null if not passed a value by
+NOTE: Even though you could specify a default value in Kotlin `optionalValue: Int? = null`, this will not be used. This is because
+if no value is provided to the schema, `graphql-java` passes null as the value. The Kotlin default value will never be
+used. For example, with argument `optionalList: List<Int>? = emptyList()`, the value will be null if not passed a value by
 the client.
 
 ### Default values

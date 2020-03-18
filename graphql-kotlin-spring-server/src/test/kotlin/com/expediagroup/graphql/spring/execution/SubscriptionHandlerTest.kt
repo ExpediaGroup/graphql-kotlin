@@ -18,8 +18,8 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.toSchema
 import graphql.ErrorType
@@ -119,10 +119,10 @@ class SubscriptionHandlerTest {
 
         fun alwaysThrows(): Flux<String> = Flux.error(GraphQLKotlinException("JUNIT subscription failure"))
 
-        fun contextualTicker(@GraphQLContext context: SubscriptionContext): Flux<String> = Flux.range(1, 5)
+        fun contextualTicker(context: SubscriptionContext): Flux<String> = Flux.range(1, 5)
                 .delayElements(Duration.ofMillis(100))
                 .map { "${context.value}:${Random.nextInt(100)}" }
     }
 
-    data class SubscriptionContext(val value: String)
+    data class SubscriptionContext(val value: String) : GraphQLContext
 }

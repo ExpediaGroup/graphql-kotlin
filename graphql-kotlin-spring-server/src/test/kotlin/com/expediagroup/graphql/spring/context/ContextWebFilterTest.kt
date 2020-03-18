@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.spring.context
 
+import com.expediagroup.graphql.execution.EmptyGraphQLContext
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_KEY
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
-import graphql.GraphQLContext
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -54,8 +54,8 @@ class ContextWebFilterTest {
             }
         }
 
-        val simpleFactory: GraphQLContextFactory<Any> = mockk {
-            coEvery { generateContext(any(), any()) } returns GraphQLContext.newContext().build()
+        val simpleFactory: GraphQLContextFactory<*> = mockk {
+            coEvery { generateContext(any(), any()) } returns EmptyGraphQLContext()
         }
 
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), simpleFactory)
@@ -63,13 +63,13 @@ class ContextWebFilterTest {
             .verifyComplete()
 
         assertNotNull(generatedContext)
-        val graphQLContext = generatedContext?.getOrDefault<GraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
+        val graphQLContext = generatedContext?.getOrDefault<EmptyGraphQLContext>(GRAPHQL_CONTEXT_KEY, null)
         assertNotNull(graphQLContext)
     }
 
     @Test
     fun `verify web filter order`() {
-        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk())
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         assertEquals(expected = 0, actual = contextFilter.order)
     }
 
@@ -90,8 +90,8 @@ class ContextWebFilterTest {
             }
         }
 
-        val simpleFactory: GraphQLContextFactory<Any> = mockk {
-            coEvery { generateContext(any(), any()) } returns GraphQLContext.newContext().build()
+        val simpleFactory: GraphQLContextFactory<*> = mockk {
+            coEvery { generateContext(any(), any()) } returns EmptyGraphQLContext()
         }
 
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), simpleFactory)
@@ -104,7 +104,7 @@ class ContextWebFilterTest {
 
     @Test
     fun `verify context web filter is applicable on default graphql routes`() {
-        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk())
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         for (path in listOf("/graphql", "/subscriptions")) {
             assertTrue(contextFilter.isApplicable(path))
         }
@@ -119,7 +119,7 @@ class ContextWebFilterTest {
             packages = listOf("com.expediagroup.graphql"),
             subscriptions = GraphQLConfigurationProperties.SubscriptionConfigurationProperties(endpoint = subscriptionRoute))
 
-        val contextFilter = ContextWebFilter(props, mockk())
+        val contextFilter = ContextWebFilter(props, mockk<GraphQLContextFactory<*>>())
         for (path in listOf("/${graphQLRoute.toLowerCase()}", "/${subscriptionRoute.toLowerCase()}")) {
             assertTrue(contextFilter.isApplicable(path))
         }
@@ -127,7 +127,7 @@ class ContextWebFilterTest {
 
     @Test
     fun `verify context web filter is not applicable on non graphql routes`() {
-        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk())
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         assertFalse(contextFilter.isApplicable("/whatever"))
     }
 }
