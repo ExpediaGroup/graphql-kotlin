@@ -2,7 +2,7 @@ import io.gitlab.arturbosch.detekt.detekt
 import java.util.Properties
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
     id("org.jlleitschuh.gradle.ktlint")
     id("io.gitlab.arturbosch.detekt")
 }
@@ -41,8 +41,8 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-        testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
+        implementation(kotlin("stdlib", kotlinVersion))
+        testImplementation(kotlin("test-junit5", kotlinVersion))
         testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
         testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     }

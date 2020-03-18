@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring")
+    kotlin("plugin.spring")
     id("org.springframework.boot")
 }
 

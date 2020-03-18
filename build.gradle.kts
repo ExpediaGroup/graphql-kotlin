@@ -9,7 +9,7 @@ description = "Libraries for running a GraphQL server in Kotlin"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
     id("org.jetbrains.dokka") apply false
     id("org.jlleitschuh.gradle.ktlint")
     id("io.gitlab.arturbosch.detekt")
@@ -49,6 +49,7 @@ allprojects {
 
 subprojects {
     val kotlinVersion: String by project
+    val kotlinCoroutinesVersion: String by project
     val junitVersion: String by project
     val mockkVersion: String by project
 
@@ -172,8 +173,10 @@ subprojects {
     }
 
     dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-        testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
+        implementation(kotlin("stdlib", kotlinVersion))
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
+        testImplementation(kotlin("test", kotlinVersion))
+        testImplementation(kotlin("test-junit5", kotlinVersion))
         testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
         testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
         testImplementation("io.mockk:mockk:$mockkVersion")
