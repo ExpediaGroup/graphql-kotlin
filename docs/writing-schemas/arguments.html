@@ -70,13 +70,13 @@
   ): Boolean!
 }
 </code></pre>
-<p>This behavior is true for all arguments except for the GraphQL context objects. See section below for detailed
-information about <code>@GraphQLContext</code>.</p>
+<p>This behavior is true for all arguments except for the special classes for the <a href="../execution/contextual-data">GraphQLContext</a> and the <a href="../execution/data-fetching-environment">DataFetchingEnvironment</a></p>
 <h3><a class="anchor" aria-hidden="true" id="input-types"></a><a href="#input-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Input Types</h3>
 <p>Query and mutation function arguments are automatically converted to corresponding GraphQL input fields. GraphQL makes a
 distinction between input and output types and requires unique names for all the types. Since we can use the same
 objects for input and output in our Kotlin functions, <code>graphql-kotlin-schema-generator</code> will automatically append
-<code>Input</code> suffix to the query input objects.</p>
+an <code>Input</code> suffix to the query input objects.</p>
+<p>For example, the following code:</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WidgetMutation</span> </span>{
 
     <span class="hljs-meta">@GraphQLDescription(<span class="hljs-meta-string">"modifies passed in widget so it doesn't have null value"</span>)</span>
@@ -97,7 +97,7 @@ objects for input and output in our Kotlin functions, <code>graphql-kotlin-schem
     <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">multiplyValueBy</span><span class="hljs-params">(multiplier: <span class="hljs-type">Int</span>)</span></span> = value?.times(multiplier)
 }
 </code></pre>
-<p>Will generate</p>
+<p>Will generate the following schema:</p>
 <pre><code class="hljs css language-graphql"><span class="hljs-keyword">type</span> Mutation {
   <span class="hljs-string">"""modifies passed in widget so it doesn't have null value"""</span>
   processWidget(
@@ -128,24 +128,24 @@ input WidgetInput {
 </code></pre>
 <p>Please note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output
 types.</p>
-<p>If you know a type will only be used for input types you can call your class <code>CustomTypeInput</code>. The library will not
+<p>If you know a type will only be used for input types you can call your class something like <code>CustomTypeInput</code>. The library will not
 append <code>Input</code> if the class name already ends with <code>Input</code> but that means you can not use this type as output because
-the schema would have two types with the same name and will be invalid.</p>
+the schema would have two types with the same name and that would be invalid.</p>
 <h3><a class="anchor" aria-hidden="true" id="optional-input-fields"></a><a href="#optional-input-fields" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optional input fields</h3>
 <p>Kotlin requires variables/values to be initialized upon their declaration either from the user input OR by providing
-defaults (even if they are marked as nullable). Therefore in order for GraphQL input field to be optional it needs to be
-nullable and also specify default Kotlin value.</p>
+defaults (even if they are marked as nullable). Therefore in order for a GraphQL input field to be optional it needs to be
+nullable and also specify a default Kotlin value.</p>
 <pre><code class="hljs css language-kotlin">    <span class="hljs-meta">@GraphQLDescription(<span class="hljs-meta-string">"query with optional input"</span>)</span>
     <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">doSomethingWithOptionalInput</span><span class="hljs-params">(
             <span class="hljs-meta">@GraphQLDescription(<span class="hljs-meta-string">"this field is required"</span>)</span> requiredValue: <span class="hljs-type">Int</span>,
             <span class="hljs-meta">@GraphQLDescription(<span class="hljs-meta-string">"this field is optional"</span>)</span> optionalValue: <span class="hljs-type">Int</span>?)</span></span>
             = <span class="hljs-string">"required value=<span class="hljs-variable">$requiredValue</span>, optional value=<span class="hljs-variable">$optionalValue</span>"</span>
 </code></pre>
-<p>NOTE: Non nullable input fields will always require users to specify the value regardless whether default Kotlin value
+<p>NOTE: Non nullable input fields will always require users to specify the value regardless of whether a default Kotlin value
 is provided or not.</p>
-<p>NOTE: Even though you could specify a default value in Kotlin <code>optionalValue: Int? = null</code>, this will not be used since
-if no value is provided to the schema <code>graphql-java</code> passes null as the value so the Kotlin default value will never be
-used, like in this argument <code>optionalList: List&lt;Int&gt;? = emptyList()</code>, the value will be null if not passed a value by
+<p>NOTE: Even though you could specify a default value in Kotlin <code>optionalValue: Int? = null</code>, this will not be used. This is because
+if no value is provided to the schema, <code>graphql-java</code> passes null as the value. The Kotlin default value will never be
+used. For example, with argument <code>optionalList: List&lt;Int&gt;? = emptyList()</code>, the value will be null if not passed a value by
 the client.</p>
 <h3><a class="anchor" aria-hidden="true" id="default-values"></a><a href="#default-values" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Default values</h3>
 <p>Default argument values are currently not supported. See issue
