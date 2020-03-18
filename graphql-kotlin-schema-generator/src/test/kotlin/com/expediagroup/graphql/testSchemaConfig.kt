@@ -18,12 +18,14 @@ package com.expediagroup.graphql
 
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
 
 val defaultSupportedPackages = listOf("com.expediagroup")
 val testSchemaConfig = SchemaGeneratorConfig(defaultSupportedPackages)
+val testGenerator = SchemaGenerator(testSchemaConfig)
 
 fun getTestSchemaConfigWithHooks(hooks: SchemaGeneratorHooks) = SchemaGeneratorConfig(defaultSupportedPackages, hooks = hooks)
 

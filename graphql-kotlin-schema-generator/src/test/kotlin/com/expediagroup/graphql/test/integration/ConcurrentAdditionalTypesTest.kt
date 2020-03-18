@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 
@@ -27,7 +26,7 @@ class ConcurrentAdditionalTypesTest {
     @Test
     fun `verify a concurrent exception is not thrown if there are additionalTypes added when generating the additionalTypes`() {
         val queries = listOf(TopLevelObject(SimpleQuery()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = testGenerator.generateSchema(queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("InterfaceOne"))
         assertNotNull(schema.getType("InterfaceTwo"))

@@ -19,7 +19,7 @@ package com.expediagroup.graphql.execution
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.extensions.deepName
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.generator.SchemaGenerator
 import graphql.GraphQL
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactories
@@ -34,7 +34,8 @@ class CustomDataFetcherTests {
     @Test
     fun `Custom DataFetcher can be used on functions`() {
         val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup"), dataFetcherFactoryProvider = CustomDataFetcherFactoryProvider())
-        val schema = toSchema(queries = listOf(TopLevelObject(AnimalQuery())), config = config)
+        val generator = SchemaGenerator(config)
+        val schema = generator.generateSchema(queries = listOf(TopLevelObject(AnimalQuery())))
 
         val animalType = schema.getObjectType("Animal")
         assertEquals("AnimalDetails!", animalType.getFieldDefinition("details").type.deepName)

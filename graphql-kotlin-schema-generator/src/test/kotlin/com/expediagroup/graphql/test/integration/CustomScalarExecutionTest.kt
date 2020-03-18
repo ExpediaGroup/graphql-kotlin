@@ -17,10 +17,10 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.graphqlUUIDType
-import com.expediagroup.graphql.toSchema
 import graphql.GraphQL
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
@@ -33,10 +33,8 @@ import kotlin.test.assertNotNull
 
 class CustomScalarExecutionTest {
 
-    private val schema = toSchema(
-        queries = listOf(TopLevelObject(QueryObject())),
-        config = getTestSchemaConfigWithHooks(CustomScalarHooks())
-    )
+    private val generator = SchemaGenerator(getTestSchemaConfigWithHooks(CustomScalarHooks()))
+    private val schema = generator.generateSchema(listOf(TopLevelObject(QueryObject())))
     private val graphQL: GraphQL = GraphQL.newGraphQL(schema).build()
 
     @Test

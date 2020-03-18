@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 
@@ -27,7 +26,7 @@ class OutputTypeWithRecursiveInputTest {
     @Test
     fun `An output type that gets generated first and then has fields with arguments of itself generates properly`() {
         val queries = listOf(TopLevelObject(Query()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = testGenerator.generateSchema(queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("MyObject"))
         assertNotNull(schema.getType("MyObjectInput"))

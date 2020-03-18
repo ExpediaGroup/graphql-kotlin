@@ -18,10 +18,10 @@ package com.expediagroup.graphql.directives
 
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import graphql.Scalars
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
@@ -34,7 +34,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated fields in the return objects`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())))
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedFieldQuery")
         val result = (query.type as? GraphQLNonNull)?.wrappedType as? GraphQLObjectType
@@ -46,7 +46,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated queries and documents replacement`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())))
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedQueryWithReplacement")
 
@@ -56,7 +56,7 @@ class DirectiveTests {
 
     @Test
     fun `SchemaGenerator marks deprecated queries`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())))
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedQuery")
         assertTrue(query.isDeprecated)
@@ -70,7 +70,8 @@ class DirectiveTests {
             override val wiringFactory: KotlinDirectiveWiringFactory
                 get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
         })
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
+        val generator = SchemaGenerator(config)
+        val schema = generator.generateSchema(queries = listOf(TopLevelObject(QueryObject())))
 
         val query = schema.queryType.getFieldDefinition("query")
         assertNotNull(query)
@@ -84,7 +85,8 @@ class DirectiveTests {
             override val wiringFactory: KotlinDirectiveWiringFactory
                 get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
         })
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
+        val generator = SchemaGenerator(config)
+        val schema = generator.generateSchema(queries = listOf(TopLevelObject(QueryObject())))
 
         val directive = assertNotNull(
                 (schema.getType("Location") as? GraphQLObjectType)

@@ -22,9 +22,9 @@ import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLSchema
 import org.junit.jupiter.api.Test
@@ -42,7 +42,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a simple schema`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(SimpleQuery())))
 
         val sdl = schema.print(includeDirectives = false).trim()
         val expected = """
@@ -60,7 +60,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a simple schema with extended scalars`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(SimpleQuery())))
 
         val sdl = schema.print(includeDirectives = false, includeScalarTypes = false, includeExtendedScalarTypes = true).trim()
         val expected = """
@@ -78,7 +78,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a simple schema with no scalars`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(SimpleQuery())))
 
         val sdl = schema.print(includeDirectives = false, includeScalarTypes = false, includeExtendedScalarTypes = false).trim()
         val expected = """
@@ -107,7 +107,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with renamed fields`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(RenamedQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(RenamedQuery())))
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
@@ -134,7 +134,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with GraphQL ID`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithId())))
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
@@ -168,7 +168,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with ignored elements`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithExcludedFields())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithExcludedFields())))
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
@@ -196,7 +196,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a documented schema`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(DocumentedQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = testGenerator.generateSchema(queries = listOf(TopLevelObject(DocumentedQuery())))
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected = """
@@ -253,7 +253,8 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with directives`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithDirectives())), config = getTestSchemaConfigWithMockedDirectives())
+        val generator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
+        val schema: GraphQLSchema = generator.generateSchema(queries = listOf(TopLevelObject(QueryWithDirectives())))
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false).trim()
         val expected = """

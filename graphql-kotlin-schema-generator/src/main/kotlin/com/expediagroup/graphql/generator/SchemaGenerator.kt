@@ -67,7 +67,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         builder.codeRegistry(codeRegistry.build())
         val schema = config.hooks.willBuildSchema(builder).build()
 
-        classScanner.close()
+        cleanUpResources()
 
         return schema
     }
@@ -99,5 +99,11 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         }
 
         return graphqlTypes.toSet()
+    }
+
+    private fun cleanUpResources() {
+        additionalTypes.clear()
+        cache.clear()
+        directives.clear()
     }
 }

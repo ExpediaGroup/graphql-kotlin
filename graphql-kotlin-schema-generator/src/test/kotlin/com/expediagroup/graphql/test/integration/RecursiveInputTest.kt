@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertNotNull
@@ -28,7 +27,7 @@ class RecursiveInputTest {
     @Test
     fun `Input type with a recursive argument should work`() {
         val queries = listOf(TopLevelObject(RecursiveInputQueries()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = testGenerator.generateSchema(queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("RecursivePerson"))
         assertNotNull(schema.getType("RecursivePersonInput"))

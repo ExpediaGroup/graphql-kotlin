@@ -21,11 +21,11 @@ import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.exceptions.EmptyInputObjectTypeException
 import com.expediagroup.graphql.exceptions.EmptyInterfaceTypeException
 import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.test.utils.graphqlUUIDType
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
@@ -60,9 +60,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
+            queries = listOf(TopLevelObject(TestQuery()))
         )
         assertTrue(hooks.willBuildSchemaCalled)
         assertNotNull(schema.getType("InjectedFromHook"))
@@ -83,9 +83,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
+            queries = listOf(TopLevelObject(TestQuery()))
         )
         assertTrue(hooks.calledFilterFunction)
         assertFalse(schema.queryType.fieldDefinitions.isEmpty())
@@ -110,9 +110,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
+            queries = listOf(TopLevelObject(TestQuery()))
         )
         assertTrue(hooks.calledFilterFunction)
         assertTrue(schema.queryType.fieldDefinitions.isEmpty())
@@ -129,9 +129,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        toSchema(
-            queries = listOf(TopLevelObject(TestInterfaceQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        generator.generateSchema(
+            queries = listOf(TopLevelObject(TestInterfaceQuery()))
         )
         assertTrue(hooks.seenTypes.contains(RandomData::class.createType()))
         assertTrue(hooks.seenTypes.contains(SomeData::class.createType()))
@@ -141,27 +141,27 @@ class SchemaGeneratorHooksTest {
     @Test
     fun `empty object type will not be added to the schema`() {
         assertThrows<EmptyObjectTypeException> {
-            toSchema(
-                queries = listOf(TopLevelObject(TestWithEmptyObjectQuery())),
-                config = testSchemaConfig)
+            testGenerator.generateSchema(
+                queries = listOf(TopLevelObject(TestWithEmptyObjectQuery()))
+            )
         }
     }
 
     @Test
     fun `empty input object type will not be added to the schema`() {
         assertThrows<EmptyInputObjectTypeException> {
-            toSchema(
-                queries = listOf(TopLevelObject(TestWithEmptyInputObjectQuery())),
-                config = testSchemaConfig)
+            testGenerator.generateSchema(
+                queries = listOf(TopLevelObject(TestWithEmptyInputObjectQuery()))
+            )
         }
     }
 
     @Test
     fun `empty interface will not be added to the schema`() {
         assertThrows<EmptyInterfaceTypeException> {
-            toSchema(
-                queries = listOf(TopLevelObject(TestWithEmptyInterfaceQuery())),
-                config = testSchemaConfig)
+            testGenerator.generateSchema(
+                queries = listOf(TopLevelObject(TestWithEmptyInterfaceQuery()))
+            )
         }
     }
 
@@ -182,9 +182,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
+            queries = listOf(TopLevelObject(TestQuery()))
         )
         assertTrue(hooks.hookCalled)
 
@@ -212,9 +212,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
+            queries = listOf(TopLevelObject(TestQuery()))
         )
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("query")
@@ -236,10 +236,10 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
             queries = listOf(TopLevelObject(TestQuery())),
-            mutations = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+            mutations = listOf(TopLevelObject(TestQuery()))
         )
         val topLevelQuery = schema.getObjectType("Mutation")
         val query = topLevelQuery.getFieldDefinition("query")
@@ -270,9 +270,9 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(CustomTypesQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.generateSchema(
+            queries = listOf(TopLevelObject(CustomTypesQuery()))
         )
 
         assertTrue(hooks.hookCalled)

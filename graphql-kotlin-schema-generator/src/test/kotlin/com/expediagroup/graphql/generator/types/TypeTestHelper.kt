@@ -27,7 +27,6 @@ import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
@@ -66,11 +65,6 @@ open class TypeTestHelper {
         every { spyWiringFactory.getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
 
         beforeTest()
-    }
-
-    @AfterAll
-    fun cleanup() {
-        classScanner.close()
     }
 
     open fun beforeTest() {}

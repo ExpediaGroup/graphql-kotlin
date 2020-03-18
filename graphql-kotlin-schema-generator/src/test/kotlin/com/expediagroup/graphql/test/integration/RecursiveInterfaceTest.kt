@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -27,7 +26,7 @@ class RecursiveInterfaceTest {
     @Test
     fun recursiveInterface() {
         val queries = listOf(TopLevelObject(RecursiveInterfaceQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = queries)
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)
@@ -36,7 +35,7 @@ class RecursiveInterfaceTest {
     @Test
     fun `interface with self field`() {
         val queries = listOf(TopLevelObject(InterfaceWithSelfFieldQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = queries)
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getInterface", field.name)

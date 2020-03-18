@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import graphql.GraphQL
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -28,10 +27,9 @@ import kotlin.test.assertNull
 class OptionalResultsTest {
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema`() {
-        val schema = toSchema(
+        val schema = testGenerator.generateSchema(
             queries = listOf(TopLevelObject(QueryObject())),
-            mutations = listOf(),
-            config = testSchemaConfig
+            mutations = listOf()
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
 

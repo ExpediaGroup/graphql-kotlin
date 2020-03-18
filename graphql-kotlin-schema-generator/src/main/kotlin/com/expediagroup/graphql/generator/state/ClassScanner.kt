@@ -41,8 +41,6 @@ internal class ClassScanner(supportedPackages: List<String>) {
 
     fun getClassesWithAnnotation(annotation: KClass<*>) = scanResult.getClassesWithAnnotation(annotation.jvmName).map { it.loadClass().kotlin }
 
-    fun close() = scanResult.close()
-
     @Suppress("Detekt.SwallowedException")
     private fun getImplementingClasses(classInfo: ClassInfo) =
         try {

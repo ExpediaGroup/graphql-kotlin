@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -27,7 +26,7 @@ class RecursiveUnionTest {
     @Test
     fun recursiveUnion() {
         val queries = listOf(TopLevelObject(RecursiveUnionQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = queries)
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)

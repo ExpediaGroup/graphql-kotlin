@@ -17,8 +17,7 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.testSchemaConfig
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.testGenerator
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import org.junit.jupiter.api.Test
@@ -31,7 +30,7 @@ class NodeGraphTest {
     fun nodeGraph() {
         val queries = listOf(TopLevelObject(NodeQuery()))
 
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = testGenerator.generateSchema(queries = queries)
 
         assertEquals(expected = 1, actual = schema.queryType.fieldDefinitions.size)
         assertEquals(expected = "nodeGraph", actual = schema.queryType.fieldDefinitions.first().name)
