@@ -21,7 +21,6 @@ import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.createNewTestGenerator
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
-import com.expediagroup.graphql.testGenerator
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
@@ -39,7 +38,7 @@ class PolymorphicTests {
 
     @Test
     fun `Schema generator creates union types from marked up interface`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithUnion())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithUnion()))) }
 
         val graphqlType = schema.getType("BodyPart") as? GraphQLUnionType
         assertNotNull(graphqlType)
@@ -56,7 +55,7 @@ class PolymorphicTests {
 
     @Test
     fun `SchemaGenerator can expose an interface and its implementations`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithInterface())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithInterface()))) }
 
         val interfaceType = schema.getType("AnInterface") as? GraphQLInterfaceType
         assertNotNull(interfaceType)
@@ -70,20 +69,20 @@ class PolymorphicTests {
     @Test
     fun `Interfaces cannot be used as input field types`() {
         assertThrows(InvalidInputFieldTypeException::class.java) {
-            testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithUnAuthorizedInterfaceArgument())))
+            createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithUnAuthorizedInterfaceArgument()))) }
         }
     }
 
     @Test
     fun `Union cannot be used as input field types`() {
         assertThrows(InvalidInputFieldTypeException::class.java) {
-            testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithUnAuthorizedUnionArgument())))
+            createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithUnAuthorizedUnionArgument()))) }
         }
     }
 
     @Test
     fun `Object types implementing union and interfaces are only created once`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithInterfaceAndUnion())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithInterfaceAndUnion()))) }
 
         val carType = schema.getType("Car") as? GraphQLObjectType
         assertNotNull(carType)
@@ -97,7 +96,7 @@ class PolymorphicTests {
 
     @Test
     fun `Interfaces can declare properties of their own type`() {
-        val schema = createNewTestGenerator().generateSchema(queries = listOf(TopLevelObject(QueryWithRecursiveType())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithRecursiveType()))) }
 
         val personType = schema.getType("Person")
         assertNotNull(personType)
@@ -105,7 +104,7 @@ class PolymorphicTests {
 
     @Test
     fun `Abstract classes should be converted to interfaces`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithAbstract())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithAbstract()))) }
 
         val abstractInterface = schema.getType("MyAbstract") as? GraphQLInterfaceType
         assertNotNull(abstractInterface)
@@ -118,7 +117,7 @@ class PolymorphicTests {
 
     @Test
     fun `Interface types can be correctly resolved`() {
-        val schema = createNewTestGenerator().generateSchema(queries = listOf(TopLevelObject(QueryWithRenamedAbstracts())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithRenamedAbstracts()))) }
 
         val cakeInterface = schema.getType("Cake") as? GraphQLInterfaceType
         assertNotNull(cakeInterface)
@@ -134,7 +133,7 @@ class PolymorphicTests {
 
     @Test
     fun `Union types can be correctly resolved`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithRenamedAbstracts())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithRenamedAbstracts()))) }
 
         val dessertUnion = schema.getType("Dessert") as? GraphQLUnionType
         assertNotNull(dessertUnion)
@@ -150,7 +149,7 @@ class PolymorphicTests {
 
     @Test
     fun `Interface implementations are not computed when marked with GraphQLIgnore annotation`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo()))) }
         val service = schema.getType("Service") as? GraphQLInterfaceType
         assertNotNull(service)
 
@@ -163,7 +162,7 @@ class PolymorphicTests {
 
     @Test
     fun `Ignored interface properties should not appear in the subtype`() {
-        val schema = createNewTestGenerator().generateSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo())))
+        val schema = createNewTestGenerator().use { it.generateSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo()))) }
         val service = schema.getType("Service") as? GraphQLInterfaceType
         assertNotNull(service)
         val interfaceIgnoredField = service.getFieldDefinition("shouldNotBeInTheSchema")
