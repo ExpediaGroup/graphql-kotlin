@@ -28,6 +28,7 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -39,7 +40,7 @@ import kotlin.reflect.full.createType
  * This class maintains the state of the schema while generation is taking place. It is passed into the internal functions
  * so they can use the cache and add additional types and directives into the schema as they parse the Kotlin code.
  */
-open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
+open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
     internal val additionalTypes = mutableSetOf<KType>()
     internal val classScanner = ClassScanner(config.supportedPackages)
@@ -99,5 +100,21 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) {
         }
 
         return graphqlTypes.toSet()
+    }
+
+    /**
+     * Clear the generator type cache, reflection scan, additional types,
+     * and the saved directives. You may want call this after you have
+     * called [generateSchema] and performed some other actions which is why
+     * we have a separate method to explicitly clear.
+     *
+     * If you use the built in [com.expediagroup.graphql.toSchema], we will handle
+     * clean up of resources for you.
+     */
+    override fun close() {
+        classScanner.close()
+        cache.clear()
+        additionalTypes.clear()
+        directives.clear()
     }
 }
