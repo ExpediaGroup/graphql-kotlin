@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.createNewTestGenerator
 import com.expediagroup.graphql.exceptions.InvalidInterfaceException
-import com.expediagroup.graphql.testGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -29,7 +29,7 @@ class InterfaceOfInterfaceTest {
         val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
 
         assertFailsWith(InvalidInterfaceException::class) {
-            testGenerator.generateSchema(queries = queries)
+            createNewTestGenerator().generateSchema(queries = queries)
         }
     }
 
