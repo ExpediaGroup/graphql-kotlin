@@ -31,7 +31,6 @@ subprojects {
     }
 
     val kotlinVersion: String by project
-    val kotlinCoroutinesVersion: String by project
     val junitVersion: String by project
 
     val detektVersion: String by project

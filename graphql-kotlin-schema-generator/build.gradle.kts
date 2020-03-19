@@ -4,7 +4,6 @@ val classGraphVersion: String by project
 val graphQLJavaVersion: String by project
 val jacksonVersion: String by project
 val kotlinVersion: String by project
-val kotlinCoroutinesVersion: String by project
 val rxjavaVersion: String by project
 
 dependencies {
