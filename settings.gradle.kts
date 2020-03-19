@@ -8,9 +8,9 @@ pluginManagement {
     val stagingPluginVersion: String by settings
 
     plugins {
-        id("org.jetbrains.kotlin.jvm") version kotlinVersion
-        id("org.jetbrains.kotlin.kapt") version kotlinVersion
-        id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
+        kotlin("jvm") version kotlinVersion
+        kotlin("kapt") version kotlinVersion
+        kotlin("plugin.spring") version kotlinVersion
         id("io.gitlab.arturbosch.detekt") version detektVersion
         id("org.jlleitschuh.gradle.ktlint") version ktlintPluginVersion
         id("org.jetbrains.dokka") version dokkaVersion

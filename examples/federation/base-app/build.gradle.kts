@@ -1,8 +1,6 @@
-plugins {
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.springframework.boot")
-}
+description = "An example spring service for federation that implements some basic types"
 
-dependencies {
-    implementation("com.expediagroup:graphql-kotlin-spring-server")
+plugins {
+    kotlin("plugin.spring")
+    id("org.springframework.boot")
 }
