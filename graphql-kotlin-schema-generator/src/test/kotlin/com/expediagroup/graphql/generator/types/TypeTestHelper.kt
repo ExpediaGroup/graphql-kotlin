@@ -18,12 +18,12 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelNames
+import com.expediagroup.graphql.defaultSupportedPackages
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
@@ -38,8 +38,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle
 )
 @TestInstance(Lifecycle.PER_CLASS)
 open class TypeTestHelper {
-    private val supportedPackages = listOf("com.expediagroup.graphql")
-    private val classScanner = ClassScanner(supportedPackages)
     private val dataFetcherFactory: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
     private val topLevelNames = TopLevelNames(
         query = "TestTopLevelQuery",
@@ -52,7 +50,7 @@ open class TypeTestHelper {
         override val wiringFactory: KotlinDirectiveWiringFactory
             get() = spyWiringFactory
     }
-    val config = spyk(SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactory))
+    val config = spyk(SchemaGeneratorConfig(defaultSupportedPackages, topLevelNames, hooks, dataFetcherFactory))
     val generator = spyk(SchemaGenerator(config))
 
     @BeforeEach
@@ -60,6 +58,9 @@ open class TypeTestHelper {
         beforeSetup()
 
         generator.cache.clear()
+        generator.additionalTypes.clear()
+        generator.directives.clear()
+
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
         every { spyWiringFactory.getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
