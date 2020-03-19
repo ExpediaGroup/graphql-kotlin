@@ -14,6 +14,7 @@ dependencies {
 
     // Implementation dependencies are for our internal use and not exposed in our library jar
     implementation(kotlin("reflect", kotlinVersion))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
 }
