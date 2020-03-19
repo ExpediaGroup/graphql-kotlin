@@ -19,10 +19,11 @@ package com.expediagroup.graphql.generator.state
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfo
 import io.github.classgraph.ClassInfoList
+import java.io.Closeable
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
-internal class ClassScanner(supportedPackages: List<String>) {
+internal class ClassScanner(supportedPackages: List<String>) : Closeable {
 
     @Suppress("Detekt.SpreadOperator")
     private val scanResult = ClassGraph()
@@ -38,6 +39,8 @@ internal class ClassScanner(supportedPackages: List<String>) {
             .map { it.loadClass().kotlin }
             .filterNot { it.isAbstract }
     }
+
+    override fun close() = scanResult.close()
 
     fun getClassesWithAnnotation(annotation: KClass<*>) = scanResult.getClassesWithAnnotation(annotation.jvmName).map { it.loadClass().kotlin }
 

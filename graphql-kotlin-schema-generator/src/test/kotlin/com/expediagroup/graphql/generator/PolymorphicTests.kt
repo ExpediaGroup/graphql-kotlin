@@ -20,6 +20,7 @@ import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
+import com.expediagroup.graphql.createNewTestGenerator
 import com.expediagroup.graphql.testGenerator
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
@@ -96,7 +97,7 @@ class PolymorphicTests {
 
     @Test
     fun `Interfaces can declare properties of their own type`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithRecursiveType())))
+        val schema = createNewTestGenerator().generateSchema(queries = listOf(TopLevelObject(QueryWithRecursiveType())))
 
         val personType = schema.getType("Person")
         assertNotNull(personType)
@@ -117,7 +118,7 @@ class PolymorphicTests {
 
     @Test
     fun `Interface types can be correctly resolved`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithRenamedAbstracts())))
+        val schema = createNewTestGenerator().generateSchema(queries = listOf(TopLevelObject(QueryWithRenamedAbstracts())))
 
         val cakeInterface = schema.getType("Cake") as? GraphQLInterfaceType
         assertNotNull(cakeInterface)
@@ -162,7 +163,7 @@ class PolymorphicTests {
 
     @Test
     fun `Ignored interface properties should not appear in the subtype`() {
-        val schema = testGenerator.generateSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo())))
+        val schema = createNewTestGenerator().generateSchema(queries = listOf(TopLevelObject(QueryWithIgnoredInfo())))
         val service = schema.getType("Service") as? GraphQLInterfaceType
         assertNotNull(service)
         val interfaceIgnoredField = service.getFieldDefinition("shouldNotBeInTheSchema")
