@@ -8,13 +8,9 @@ val kotlinCoroutinesVersion: String by project
 val rxjavaVersion: String by project
 
 dependencies {
-    // To use this library you should also depend on the following api() dependencies
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-
-    // Implementation dependencies are for our internal use and not exposed in our library jar
     implementation(kotlin("reflect", kotlinVersion))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
 }

@@ -1,6 +1,7 @@
 description = "Federated GraphQL schema generator"
 
 val junitVersion: String by project
+val kotlinCoroutinesVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))

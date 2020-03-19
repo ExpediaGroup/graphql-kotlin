@@ -11,13 +11,10 @@ val reactorVersion: String by project
 val reactorExtensionsVersion: String by project
 
 dependencies {
-    // To use this library you should also depend on the following api() dependencies
     api(project(path = ":graphql-kotlin-federation"))
     api("org.springframework.boot:spring-boot-starter-webflux:$springBootVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
     kapt("org.springframework.boot:spring-boot-configuration-processor:$springBootVersion")
-
-    // Implementation dependencies are for our internal use and not exposed in our library jar
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinCoroutinesVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
