@@ -50,37 +50,37 @@ class CustomDataFetcherTests {
         val details = data?.get("details") as? Map<*, *>
         assertEquals(11, details?.get("specialId"))
     }
-}
 
-class AnimalQuery {
-    fun findAnimal(): Animal = Animal(1, "cat")
-}
+    class AnimalQuery {
+        fun findAnimal(): Animal = Animal(1, "cat")
+    }
 
-@Suppress("DataClassShouldBeImmutable")
-data class Animal(
-    val id: Int,
-    val type: String
-) {
-    lateinit var details: AnimalDetails
-}
+    @Suppress("DataClassShouldBeImmutable")
+    data class Animal(
+        val id: Int,
+        val type: String
+    ) {
+        lateinit var details: AnimalDetails
+    }
 
-data class AnimalDetails(val specialId: Int)
+    data class AnimalDetails(val specialId: Int)
 
-class CustomDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider() {
+    class CustomDataFetcherFactoryProvider : SimpleKotlinDataFetcherFactoryProvider() {
 
-    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
-        if (kProperty.isLateinit) {
-            DataFetcherFactories.useDataFetcher(AnimalDetailsDataFetcher())
-        } else {
-            super.propertyDataFetcherFactory(kClass, kProperty)
+        override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
+            if (kProperty.isLateinit) {
+                DataFetcherFactories.useDataFetcher(AnimalDetailsDataFetcher())
+            } else {
+                super.propertyDataFetcherFactory(kClass, kProperty)
+            }
+    }
+
+    class AnimalDetailsDataFetcher : DataFetcher<Any?> {
+
+        override fun get(environment: DataFetchingEnvironment?): AnimalDetails {
+            val animal = environment?.getSource<Animal>()
+            val specialId = animal?.id?.plus(10) ?: 0
+            return animal.let { AnimalDetails(specialId) }
         }
-}
-
-class AnimalDetailsDataFetcher : DataFetcher<Any?> {
-
-    override fun get(environment: DataFetchingEnvironment?): AnimalDetails {
-        val animal = environment?.getSource<Animal>()
-        val specialId = animal?.id?.plus(10) ?: 0
-        return animal.let { AnimalDetails(specialId) }
     }
 }

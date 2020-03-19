@@ -97,50 +97,50 @@ class DirectiveTests {
         assertEquals("arg", directive.arguments[0].name)
         assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
     }
+
+    @GraphQLDirective(name = "RightNameDirective")
+    annotation class WrongNameDirective(val arg: String)
+
+    @GraphQLDirective
+    annotation class DummyDirective
+
+    class Geography(
+        val id: Int?,
+        val type: GeoType,
+        val locations: List<Location>
+    ) {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun somethingCool(): String = "Something cool"
+    }
+
+    enum class GeoType {
+        CITY, STATE
+    }
+
+    @WrongNameDirective(arg = "arenaming")
+    data class Location(val lat: Double, val lon: Double)
+
+    class QueryObject {
+
+        @DummyDirective
+        fun query(value: Int): Geography = Geography(value, GeoType.CITY, listOf())
+    }
+
+    class QueryWithDeprecatedFields {
+        @Deprecated("this query is deprecated")
+        fun deprecatedQuery(something: String) = something
+
+        @Deprecated("this query is also deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
+        fun deprecatedQueryWithReplacement(something: String) = something
+
+        fun deprecatedFieldQuery(something: String) = ClassWithDeprecatedField(something, something.reversed())
+
+        fun deprecatedArgumentQuery(input: ClassWithDeprecatedField) = input.something
+    }
+
+    data class ClassWithDeprecatedField(
+        val something: String,
+        @Deprecated("this field is deprecated")
+        val deprecatedField: String
+    )
 }
-
-@GraphQLDirective(name = "RightNameDirective")
-annotation class WrongNameDirective(val arg: String)
-
-@GraphQLDirective
-annotation class DummyDirective
-
-class Geography(
-    val id: Int?,
-    val type: GeoType,
-    val locations: List<Location>
-) {
-    @Suppress("Detekt.FunctionOnlyReturningConstant")
-    fun somethingCool(): String = "Something cool"
-}
-
-enum class GeoType {
-    CITY, STATE
-}
-
-@WrongNameDirective(arg = "arenaming")
-data class Location(val lat: Double, val lon: Double)
-
-class QueryObject {
-
-    @DummyDirective
-    fun query(value: Int): Geography = Geography(value, GeoType.CITY, listOf())
-}
-
-class QueryWithDeprecatedFields {
-    @Deprecated("this query is deprecated")
-    fun deprecatedQuery(something: String) = something
-
-    @Deprecated("this query is also deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
-    fun deprecatedQueryWithReplacement(something: String) = something
-
-    fun deprecatedFieldQuery(something: String) = ClassWithDeprecatedField(something, something.reversed())
-
-    fun deprecatedArgumentQuery(input: ClassWithDeprecatedField) = input.something
-}
-
-data class ClassWithDeprecatedField(
-    val something: String,
-    @Deprecated("this field is deprecated")
-    val deprecatedField: String
-)

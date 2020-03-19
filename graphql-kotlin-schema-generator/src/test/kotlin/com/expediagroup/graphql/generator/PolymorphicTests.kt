@@ -19,8 +19,8 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
-import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.createNewTestGenerator
+import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.testGenerator
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
@@ -177,145 +177,145 @@ class PolymorphicTests {
 
     private fun mockTypeResolutionEnvironment(target: Any, schema: GraphQLSchema): TypeResolutionEnvironment =
         TypeResolutionEnvironment(target, emptyMap(), null, null, schema, null)
-}
 
-class QueryWithInterface {
-    fun fromUnion(): Union = AnImplementation()
-    fun query(): AnInterface = AnImplementation()
-    fun fromImplementation(): AnImplementation = AnImplementation()
-}
-
-class QueryWithUnAuthorizedInterfaceArgument {
-    fun notAllowed(arg: AnInterface): AnInterface = arg
-}
-
-class QueryWithUnAuthorizedUnionArgument {
-    fun notAllowed(body: BodyPart): BodyPart = body
-}
-
-interface Union
-
-interface AnInterface {
-    val property: String
-}
-
-data class AnImplementation(
-    override val property: String = "A value",
-    val implementationSpecific: String = "It's implementation specific"
-) : AnInterface, Union
-
-class QueryWithUnion {
-    fun query(whichHand: String): BodyPart = when (whichHand) {
-        "right" -> RightHand(12)
-        else -> LeftHand("hello world", Arm(true))
-    }
-}
-
-interface BodyPart
-
-data class LeftHand(
-    val field: String,
-    val associatedWith: BodyPart
-) : BodyPart
-
-data class RightHand(
-    val property: Int
-) : BodyPart
-
-data class Arm(
-    val value: Boolean
-) : BodyPart
-
-class QueryWithInterfaceAndUnion {
-    fun product(): Product = Car("DB9", "black")
-}
-
-interface Vehicle {
-    val color: String
-}
-
-interface Product
-
-data class Car(val model: String, override val color: String) : Vehicle, Product
-
-class QueryWithRecursiveType {
-    fun query(): Person = Father("knock knock", Child())
-}
-
-interface Person {
-    val child: Person?
-}
-
-data class Child(
-    override val child: Person? = null
-) : Person
-
-data class Father(
-    val dadJoke: String,
-    override val child: Person?
-) : Person
-
-class QueryWithAbstract {
-    fun query(): MyAbstract = MyClass(id = 1, name = "JUnit")
-
-    fun queryImplementation(): MyClass = MyClass(id = 1, name = "JUnit_2")
-}
-
-@Suppress("UnnecessaryAbstractClass")
-abstract class MyAbstract {
-    abstract val id: Int
-}
-
-data class MyClass(override val id: Int, val name: String) : MyAbstract()
-
-class QueryWithRenamedAbstracts {
-
-    fun randomCake(): Cake = if (Random.nextBoolean()) {
-        BerryCake()
-    } else {
-        Cheesecake()
+    class QueryWithInterface {
+        fun fromUnion(): Union = AnImplementation()
+        fun query(): AnInterface = AnImplementation()
+        fun fromImplementation(): AnImplementation = AnImplementation()
     }
 
-    fun randomDessert(): Dessert = if (Random.nextBoolean()) {
-        IceCream()
-    } else {
-        BerryCake()
+    class QueryWithUnAuthorizedInterfaceArgument {
+        fun notAllowed(arg: AnInterface): AnInterface = arg
     }
-}
 
-interface Cake {
-    fun recipe(): String
-}
+    class QueryWithUnAuthorizedUnionArgument {
+        fun notAllowed(body: BodyPart): BodyPart = body
+    }
 
-@GraphQLName("StrawberryCake")
-class BerryCake : Cake, Dessert {
-    override fun recipe(): String = "google it"
-}
+    interface Union
 
-class Cheesecake : Cake {
-    override fun recipe(): String = "use bing"
-}
+    interface AnInterface {
+        val property: String
+    }
 
-interface Dessert
+    data class AnImplementation(
+        override val property: String = "A value",
+        val implementationSpecific: String = "It's implementation specific"
+    ) : AnInterface, Union
 
-@Suppress("Detekt.FunctionOnlyReturningConstant")
-class IceCream : Dessert {
-    fun flavor(): String = "chocolate"
-}
+    class QueryWithUnion {
+        fun query(whichHand: String): BodyPart = when (whichHand) {
+            "right" -> RightHand(12)
+            else -> LeftHand("hello world", Arm(true))
+        }
+    }
 
-class QueryWithIgnoredInfo {
-    fun webservice(): Service = WebService("gql-kotlin-service")
-    fun microservice(): Service = MicroService("micro-gql-kotlin-service")
-}
+    interface BodyPart
 
-interface Service {
-    val name: String
+    data class LeftHand(
+        val field: String,
+        val associatedWith: BodyPart
+    ) : BodyPart
+
+    data class RightHand(
+        val property: Int
+    ) : BodyPart
+
+    data class Arm(
+        val value: Boolean
+    ) : BodyPart
+
+    class QueryWithInterfaceAndUnion {
+        fun product(): Product = Car("DB9", "black")
+    }
+
+    interface Vehicle {
+        val color: String
+    }
+
+    interface Product
+
+    data class Car(val model: String, override val color: String) : Vehicle, Product
+
+    class QueryWithRecursiveType {
+        fun query(): Person = Father("knock knock", Child())
+    }
+
+    interface Person {
+        val child: Person?
+    }
+
+    data class Child(
+        override val child: Person? = null
+    ) : Person
+
+    data class Father(
+        val dadJoke: String,
+        override val child: Person?
+    ) : Person
+
+    class QueryWithAbstract {
+        fun query(): MyAbstract = MyClass(id = 1, name = "JUnit")
+
+        fun queryImplementation(): MyClass = MyClass(id = 1, name = "JUnit_2")
+    }
+
+    @Suppress("UnnecessaryAbstractClass")
+    abstract class MyAbstract {
+        abstract val id: Int
+    }
+
+    data class MyClass(override val id: Int, val name: String) : MyAbstract()
+
+    class QueryWithRenamedAbstracts {
+
+        fun randomCake(): Cake = if (Random.nextBoolean()) {
+            BerryCake()
+        } else {
+            Cheesecake()
+        }
+
+        fun randomDessert(): Dessert = if (Random.nextBoolean()) {
+            IceCream()
+        } else {
+            BerryCake()
+        }
+    }
+
+    interface Cake {
+        fun recipe(): String
+    }
+
+    @GraphQLName("StrawberryCake")
+    class BerryCake : Cake, Dessert {
+        override fun recipe(): String = "google it"
+    }
+
+    class Cheesecake : Cake {
+        override fun recipe(): String = "use bing"
+    }
+
+    interface Dessert
+
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
+    class IceCream : Dessert {
+        fun flavor(): String = "chocolate"
+    }
+
+    class QueryWithIgnoredInfo {
+        fun webservice(): Service = WebService("gql-kotlin-service")
+        fun microservice(): Service = MicroService("micro-gql-kotlin-service")
+    }
+
+    interface Service {
+        val name: String
+
+        @GraphQLIgnore
+        val shouldNotBeInTheSchema: Boolean
+    }
+
+    data class WebService(override val name: String, override val shouldNotBeInTheSchema: Boolean = false) : Service
 
     @GraphQLIgnore
-    val shouldNotBeInTheSchema: Boolean
+    data class MicroService(override val name: String, override val shouldNotBeInTheSchema: Boolean = true) : Service
 }
-
-data class WebService(override val name: String, override val shouldNotBeInTheSchema: Boolean = false) : Service
-
-@GraphQLIgnore
-data class MicroService(override val name: String, override val shouldNotBeInTheSchema: Boolean = true) : Service

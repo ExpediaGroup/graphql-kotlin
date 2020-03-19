@@ -31,18 +31,18 @@ class RecursiveUnionTest {
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)
     }
-}
 
-class RecursiveUnionQuery {
-    fun getRoot() = RecursiveUnionA()
-}
+    class RecursiveUnionQuery {
+        fun getRoot() = RecursiveUnionA()
+    }
 
-interface SomeUnion
+    interface SomeUnion
 
-class RecursiveUnionA : SomeUnion {
-    fun getB() = RecursiveUnionB()
-}
+    class RecursiveUnionA : SomeUnion {
+        fun getB() = RecursiveUnionB()
+    }
 
-class RecursiveUnionB : SomeUnion {
-    fun getA() = RecursiveUnionA()
+    class RecursiveUnionB : SomeUnion {
+        fun getA() = RecursiveUnionA()
+    }
 }

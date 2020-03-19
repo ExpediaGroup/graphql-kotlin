@@ -42,13 +42,13 @@ class OptionalResultsTest {
         assertEquals("req", optionalResults["required"])
         assertNull(optionalResults["optional"])
     }
-}
 
-data class HasOptionalData(
-    val required: String,
-    val optional: String?
-)
+    data class HasOptionalData(
+        val required: String,
+        val optional: String?
+    )
 
-class QueryObject {
-    fun optionalResults() = HasOptionalData("req", null)
+    class QueryObject {
+        fun optionalResults() = HasOptionalData("req", null)
+    }
 }

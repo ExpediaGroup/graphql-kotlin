@@ -123,23 +123,23 @@ internal class GenerateSubscriptionTest : TypeTestHelper() {
         assertEquals(3, result?.fieldDefinitions?.size)
         assertNotNull(result?.fieldDefinitions?.find { it.name == "changedField" })
     }
+
+    class MyPublicTestSubscription {
+        fun counter(): Publisher<Int> = Flowable.just(1)
+
+        fun flowabelCounter(): Flowable<Int> = Flowable.just(1)
+
+        fun filterMe(): Publisher<Int> = Flowable.just(2)
+    }
+
+    class MyInvalidSubscriptionClass {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun number(): Int = 1
+    }
+
+    private class MyPrivateTestSubscription {
+        fun counter(): Publisher<Int> = Flowable.just(3)
+    }
+
+    class MyEmptyTestSubscription
 }
-
-class MyPublicTestSubscription {
-    fun counter(): Publisher<Int> = Flowable.just(1)
-
-    fun flowabelCounter(): Flowable<Int> = Flowable.just(1)
-
-    fun filterMe(): Publisher<Int> = Flowable.just(2)
-}
-
-class MyInvalidSubscriptionClass {
-    @Suppress("Detekt.FunctionOnlyReturningConstant")
-    fun number(): Int = 1
-}
-
-private class MyPrivateTestSubscription {
-    fun counter(): Publisher<Int> = Flowable.just(3)
-}
-
-class MyEmptyTestSubscription

@@ -40,38 +40,38 @@ class RecursiveInterfaceTest {
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getInterface", field.name)
     }
-}
 
-class RecursiveInterfaceQuery {
-    fun getRoot() = RecursiveClassA()
-}
+    class RecursiveInterfaceQuery {
+        fun getRoot() = RecursiveClassA()
+    }
 
-class InterfaceWithSelfFieldQuery {
-    fun getInterface() = InterfaceWithSelfFieldB()
-}
+    class InterfaceWithSelfFieldQuery {
+        fun getInterface() = InterfaceWithSelfFieldB()
+    }
 
-interface SomeInterfaceWithId {
-    val id: String
-}
+    interface SomeInterfaceWithId {
+        val id: String
+    }
 
-interface InterfaceWithSelfField {
-    val parent: InterfaceWithSelfField?
-}
+    interface InterfaceWithSelfField {
+        val parent: InterfaceWithSelfField?
+    }
 
-class RecursiveClassA : SomeInterfaceWithId {
-    override val id = "A"
-    fun getB() = RecursiveClassB()
-}
+    class RecursiveClassA : SomeInterfaceWithId {
+        override val id = "A"
+        fun getB() = RecursiveClassB()
+    }
 
-class RecursiveClassB : SomeInterfaceWithId {
-    override val id = "B"
-    fun getA() = RecursiveClassA()
-}
+    class RecursiveClassB : SomeInterfaceWithId {
+        override val id = "B"
+        fun getA() = RecursiveClassA()
+    }
 
-class InterfaceWithSelfFieldA : InterfaceWithSelfField {
-    override val parent: InterfaceWithSelfField? = null
-}
+    class InterfaceWithSelfFieldA : InterfaceWithSelfField {
+        override val parent: InterfaceWithSelfField? = null
+    }
 
-class InterfaceWithSelfFieldB : InterfaceWithSelfField {
-    override val parent = InterfaceWithSelfFieldA()
+    class InterfaceWithSelfFieldB : InterfaceWithSelfField {
+        override val parent = InterfaceWithSelfFieldA()
+    }
 }
