@@ -8,7 +8,6 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InlineFragment
-import graphql.language.InterfaceTypeDefinition
 import graphql.language.ObjectTypeDefinition
 import graphql.language.SelectionSet
 import graphql.language.UnionTypeDefinition
