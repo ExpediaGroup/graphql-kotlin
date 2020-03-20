@@ -139,7 +139,6 @@ internal class GenerateSubscriptionTest : TypeTestHelper() {
                 type.isSubclassOf(Flow::class) -> type.getTypeOfFirstArgument()
                 else -> this.willResolveMonad(type)
             }
-
         }
 
         every { config.hooks } returns CustomHooks()
