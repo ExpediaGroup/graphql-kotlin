@@ -20,15 +20,20 @@ import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
+import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
+import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import graphql.schema.GraphQLFieldDefinition
 import io.mockk.every
 import io.reactivex.rxjava3.core.Flowable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.reactivestreams.Publisher
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -123,6 +128,27 @@ internal class GenerateSubscriptionTest : TypeTestHelper() {
         assertEquals(3, result?.fieldDefinitions?.size)
         assertNotNull(result?.fieldDefinitions?.find { it.name == "changedField" })
     }
+
+    @Test
+    fun `given custom hooks that allow custom subscription return types, it should generate a valid schema`() {
+        val subscriptions = listOf(TopLevelObject(MyCustomSubscriptionClass()))
+
+        class CustomHooks : SchemaGeneratorHooks {
+            override fun isValidSubscriptionReturnType(kClass: KClass<*>, function: KFunction<*>) = function.returnType.isSubclassOf(Flow::class)
+            override fun willResolveMonad(type: KType): KType = when {
+                type.isSubclassOf(Flow::class) -> type.getTypeOfFirstArgument()
+                else -> this.willResolveMonad(type)
+            }
+
+        }
+
+        every { config.hooks } returns CustomHooks()
+
+        val result = generateSubscriptions(generator, subscriptions)
+
+        assertEquals(1, result?.fieldDefinitions?.size)
+        assertNotNull(result?.fieldDefinitions?.find { it.name == "number" })
+    }
 }
 
 class MyPublicTestSubscription {
@@ -136,6 +162,11 @@ class MyPublicTestSubscription {
 class MyInvalidSubscriptionClass {
     @Suppress("Detekt.FunctionOnlyReturningConstant")
     fun number(): Int = 1
+}
+
+class MyCustomSubscriptionClass {
+    @Suppress("Detekt.FunctionOnlyReturningConstant")
+    fun number(): Flow<Int> = flowOf(1)
 }
 
 private class MyPrivateTestSubscription {

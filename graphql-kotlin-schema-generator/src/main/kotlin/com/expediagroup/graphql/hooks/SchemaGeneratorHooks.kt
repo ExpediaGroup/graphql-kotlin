@@ -23,6 +23,7 @@ import com.expediagroup.graphql.exceptions.EmptyMutationTypeException
 import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
 import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
+import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
@@ -33,6 +34,7 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLSchemaElement
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
+import org.reactivestreams.Publisher
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -90,6 +92,15 @@ interface SchemaGeneratorHooks {
      */
     @Suppress("Detekt.FunctionOnlyReturningConstant")
     fun isValidFunction(kClass: KClass<*>, function: KFunction<*>): Boolean = true
+
+    /**
+     * Called when looking at the subscription functions to determine if it is using a valid return type.
+     * By default, graphql-java supports org.reactivestreams.Publisher in the subscription execution strategy.
+     * If you want to provide a custom execution strategy, you may need to override this hook.
+     *
+     * NOTE: You will most likely need to also override the [willResolveMonad] hook to allow for your custom type to be generated.
+     */
+    fun isValidSubscriptionReturnType(kClass: KClass<*>, function: KFunction<*>): Boolean = function.returnType.isSubclassOf(Publisher::class)
 
     /**
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
