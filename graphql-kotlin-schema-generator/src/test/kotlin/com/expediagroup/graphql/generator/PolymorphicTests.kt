@@ -257,8 +257,6 @@ data class Father(
 
 class QueryWithAbstract {
     fun query(): MyAbstract = MyClass(id = 1, name = "JUnit")
-
-    fun queryImplementation(): MyClass = MyClass(id = 1, name = "JUnit_2")
 }
 
 @Suppress("UnnecessaryAbstractClass")

@@ -60,7 +60,10 @@ open class TypeTestHelper {
     fun setup() {
         beforeSetup()
 
+        generator.additionalTypes.clear()
+        generator.directives.clear()
         generator.cache.clear()
+
         every { config.hooks } returns hooks
         every { config.dataFetcherFactoryProvider } returns dataFetcherFactory
         every { spyWiringFactory.getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}

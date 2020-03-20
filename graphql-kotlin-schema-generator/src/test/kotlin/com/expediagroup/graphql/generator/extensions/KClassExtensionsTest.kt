@@ -131,6 +131,11 @@ open class KClassExtensionsTest {
 
     interface TestInterface
 
+    sealed class Pet(val name: String) {
+        class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
+        class Cat(name: String, val livesRemaining: Int) : Pet(name)
+    }
+
     private interface InvalidPropertyUnionInterface {
         val test: Int
             get() = 1
@@ -258,6 +263,7 @@ open class KClassExtensionsTest {
     fun `test graphql interface extension`() {
         assertTrue(TestInterface::class.isInterface())
         assertTrue(SomeAbstractClass::class.isInterface())
+        assertTrue(Pet::class.isInterface())
         assertFalse(MyTestClass::class.isInterface())
     }
 
@@ -266,6 +272,7 @@ open class KClassExtensionsTest {
         assertTrue(TestInterface::class.isUnion())
         assertFalse(InvalidPropertyUnionInterface::class.isUnion())
         assertFalse(InvalidFunctionUnionInterface::class.isUnion())
+        assertFalse(Pet::class.isUnion())
     }
 
     // TODO remove JUnit condition once we only build artifacts using Java 11

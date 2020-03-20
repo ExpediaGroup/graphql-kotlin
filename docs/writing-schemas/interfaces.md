@@ -7,7 +7,7 @@ Functions returning interfaces will automatically expose all the types implement
 the classpath. Due to the GraphQL distinction between interface and a union type, interfaces need to specify at least
 one common field (property or a function).
 
-Abstract classes will also be converted to a GraphQL Interface.
+Abstract and sealed classes will also be converted to a GraphQL Interface.
 
 ```kotlin
 interface Animal {
@@ -46,7 +46,7 @@ class PolymorphicQuery {
 }
 ```
 
-Code above will produce the following GraphQL schema
+The above code will produce the following GraphQL schema:
 
 ```graphql
 interface Animal {
@@ -75,6 +75,20 @@ type TopLevelQuery {
   animal(type: AnimalType!): Animal
 }
 
+```
+
+### Abstract and Sealed Classes
+[Abstract](https://kotlinlang.org/docs/reference/classes.html#abstract-classes) and [sealed](https://kotlinlang.org/docs/reference/sealed-classes.html) classes can also be used for interface types.
+
+```kotlin
+abstract class Shape(val area: Double)
+class Circle(radius: Double) : Shape(PI * radius * radius)
+class Square(sideLength: Double) : Shape(sideLength * sideLength)
+
+sealed class Pet(val name: String) {
+    class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
+    class Cat(name: String, val livesRemaining: Int) : Pet(name)
+}
 ```
 
 ### Known Issues
