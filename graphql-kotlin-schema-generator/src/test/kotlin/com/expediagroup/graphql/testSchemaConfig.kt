@@ -22,7 +22,7 @@ import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import io.mockk.every
 import io.mockk.spyk
 
-val defaultSupportedPackages = listOf("com.expediagroup")
+val defaultSupportedPackages = listOf("com.expediagroup.graphql")
 val testSchemaConfig = SchemaGeneratorConfig(defaultSupportedPackages)
 
 fun getTestSchemaConfigWithHooks(hooks: SchemaGeneratorHooks) = SchemaGeneratorConfig(defaultSupportedPackages, hooks = hooks)

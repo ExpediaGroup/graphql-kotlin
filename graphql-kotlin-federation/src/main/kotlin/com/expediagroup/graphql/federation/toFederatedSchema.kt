@@ -38,5 +38,7 @@ fun toFederatedSchema(
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
     val generator = FederatedSchemaGenerator(config)
-    return generator.generateSchema(queries, mutations, subscriptions)
+    return generator.use {
+        it.generateSchema(queries, mutations, subscriptions)
+    }
 }
