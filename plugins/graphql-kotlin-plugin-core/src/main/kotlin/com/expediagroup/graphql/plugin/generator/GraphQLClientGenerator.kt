@@ -25,10 +25,13 @@ class GraphQLClientGenerator(
     private val documentParser: Parser = Parser()
 
     fun generate(queryFile: File): FileSpec {
-        // TODO modify query to include __typeName for unions/interfaces
-        // TODO fail on deprecated
+        // TODO validate query document
+        //      fail if referencing deprecated fields
+        //      fail if __typename is not included for polymorphic types
+        //      fail if inline fragments don't specify all polymorphic types
         val queryConst = queryFile.readText()
         val queryDocument = documentParser.parseDocument(queryConst)
+
         val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
         if (operationDefinitions.size > 1) {
             throw RuntimeException("GraphQL client does not support query files with multiple operations")
@@ -85,15 +88,18 @@ class GraphQLClientGenerator(
         return fileSpec.build()
     }
 
-    // TODO support custom query/mutation/subscription types
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {
-        val rootTypeName = when (operationDefinition.operation) {
-            OperationDefinition.Operation.QUERY -> "Query"
-            OperationDefinition.Operation.MUTATION -> "Mutation"
-            OperationDefinition.Operation.SUBSCRIPTION -> "Subscription"
-            else -> throw RuntimeException("invalid query - operation type is not specified")
+        val operationNames = if (graphQLSchema.schemaDefinition().isPresent) {
+            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.toUpperCase() }, { it.typeName.name })
+        } else {
+            mapOf(
+                OperationDefinition.Operation.QUERY.name to "Query",
+                OperationDefinition.Operation.MUTATION to "Mutation",
+                OperationDefinition.Operation.SUBSCRIPTION to "Subscription"
+            )
         }
-        return graphQLSchema.getType(rootTypeName).get() as ObjectTypeDefinition
+        val rootType = operationNames[operationDefinition.operation.name]
+        return graphQLSchema.getType(rootType).get() as ObjectTypeDefinition
     }
 }
 
