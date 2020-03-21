@@ -92,7 +92,7 @@ sealed class Pet(val name: String) {
 ```
 
 ### Known Issues
-> NOTE: Due to a feature added in 1.0.0, we no longer support multiple levels of interfaces in a schema because the GraphQL spec does not support this feature.  [See 419](https://github.com/ExpediaGroup/graphql-kotlin/issues/419). If you do have multiple interfaces you will have to either combine them into a single interface or ignore all the parent interfaces.
+> We currently do not support multiple levels of interfaces in a schema. We are waiting until graphql-java supports the newly added feature to the GraphQL spec. [See 589](https://github.com/ExpediaGroup/graphql-kotlin/issues/589). If you do have multiple interfaces you will have to either combine them into a single interface or ignore all the parent interfaces by marking them private or using `@GraphQLIgnore`.
 
 #### Invalid Schema
 ```kotlin
