@@ -26,7 +26,6 @@ class GraphQLClientGenerator(
 
     fun generate(queryFile: File): FileSpec {
         // TODO validate query document
-        //      fail if referencing deprecated fields
         //      fail if __typename is not included for polymorphic types
         //      fail if inline fragments don't specify all polymorphic types
         val queryConst = queryFile.readText()
@@ -45,7 +44,8 @@ class GraphQLClientGenerator(
                 packageName = config.packageName,
                 graphQLSchema = graphQLSchema,
                 rootType = operationTypeName,
-                queryDocument = queryDocument
+                queryDocument = queryDocument,
+                allowDeprecated = config.allowDeprecated
             )
 
             val variableType: TypeSpec? = generateVariableTypeSpec(context, operationDefinition.variableDefinitions)
