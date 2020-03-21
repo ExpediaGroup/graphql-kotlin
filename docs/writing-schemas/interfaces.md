@@ -7,7 +7,7 @@ Functions returning interfaces will automatically expose all the types implement
 the classpath. Due to the GraphQL distinction between interface and a union type, interfaces need to specify at least
 one common field (property or a function).
 
-Abstract classes will also be converted to a GraphQL Interface.
+Abstract and sealed classes will also be converted to a GraphQL Interface.
 
 ```kotlin
 interface Animal {
@@ -46,7 +46,7 @@ class PolymorphicQuery {
 }
 ```
 
-Code above will produce the following GraphQL schema
+The above code will produce the following GraphQL schema:
 
 ```graphql
 interface Animal {
@@ -77,8 +77,22 @@ type TopLevelQuery {
 
 ```
 
+### Abstract and Sealed Classes
+[Abstract](https://kotlinlang.org/docs/reference/classes.html#abstract-classes) and [sealed](https://kotlinlang.org/docs/reference/sealed-classes.html) classes can also be used for interface types.
+
+```kotlin
+abstract class Shape(val area: Double)
+class Circle(radius: Double) : Shape(PI * radius * radius)
+class Square(sideLength: Double) : Shape(sideLength * sideLength)
+
+sealed class Pet(val name: String) {
+    class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
+    class Cat(name: String, val livesRemaining: Int) : Pet(name)
+}
+```
+
 ### Known Issues
-> NOTE: Due to a feature added in 1.0.0, we no longer support multiple levels of interfaces in a schema because the GraphQL spec does not support this feature.  [See 419](https://github.com/ExpediaGroup/graphql-kotlin/issues/419). If you do have multiple interfaces you will have to either combine them into a single interface or ignore all the parent interfaces.
+> We currently do not support multiple levels of interfaces in a schema. We are waiting until graphql-java supports the newly added feature to the GraphQL spec. [See 589](https://github.com/ExpediaGroup/graphql-kotlin/issues/589). If you do have multiple interfaces you will have to either combine them into a single interface or ignore all the parent interfaces by marking them private or using `@GraphQLIgnore`.
 
 #### Invalid Schema
 ```kotlin

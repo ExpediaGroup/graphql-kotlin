@@ -18,21 +18,15 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
+import kotlin.math.PI
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 internal class GenerateInterfaceTest : TypeTestHelper() {
-
-    @Suppress("Detekt.UnusedPrivateClass")
-    @GraphQLDescription("The truth")
-    @SimpleDirective
-    private interface HappyInterface
-
-    @Suppress("Detekt.UnusedPrivateClass")
-    @GraphQLName("HappyInterfaceRenamed")
-    private interface HappyInterfaceCustomName
 
     @Test
     fun `Test naming`() {
@@ -57,5 +51,43 @@ internal class GenerateInterfaceTest : TypeTestHelper() {
         val result = generateInterface(generator, HappyInterface::class) as? GraphQLInterfaceType
         assertEquals(1, result?.directives?.size)
         assertEquals("simpleDirective", result?.directives?.first()?.name)
+    }
+
+    @Test
+    fun `absctract classes generate interfaces`() {
+        assertEquals(0, generator.additionalTypes.size)
+        val result = generateInterface(generator, Shape::class) as? GraphQLInterfaceType
+        assertEquals("Shape", result?.name)
+        assertEquals(2, generator.additionalTypes.size)
+        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Circle" })
+        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Square" })
+    }
+
+    @Test
+    fun `sealed classes generate interfaces`() {
+        assertEquals(0, generator.additionalTypes.size)
+        val result = generateInterface(generator, Pet::class) as? GraphQLInterfaceType
+        assertEquals("Pet", result?.name)
+        assertEquals(2, generator.additionalTypes.size)
+        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Cat" })
+        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Dog" })
+    }
+
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLDescription("The truth")
+    @SimpleDirective
+    interface HappyInterface
+
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLName("HappyInterfaceRenamed")
+    interface HappyInterfaceCustomName
+
+    abstract class Shape(val area: Double)
+    class Circle(radius: Double) : Shape(PI * radius * radius)
+    class Square(sideLength: Double) : Shape(sideLength * sideLength)
+
+    sealed class Pet(val name: String) {
+        class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
+        class Cat(name: String, val livesRemaining: Int) : Pet(name)
     }
 }

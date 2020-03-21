@@ -22,6 +22,7 @@ import com.expediagroup.graphql.examples.model.AnimalType
 import com.expediagroup.graphql.examples.model.BodyPart
 import com.expediagroup.graphql.examples.model.Cat
 import com.expediagroup.graphql.examples.model.Dog
+import com.expediagroup.graphql.examples.model.Fruit
 import com.expediagroup.graphql.examples.model.LeftHand
 import com.expediagroup.graphql.examples.model.RightHand
 import com.expediagroup.graphql.spring.operations.Query
@@ -46,4 +47,7 @@ class PolymorphicQuery : Query {
         "right" -> RightHand(12)
         else -> LeftHand("hello world")
     }
+
+    @GraphQLDescription("Example of interfaces with sealed classes")
+    fun getFruit(orange: Boolean) = if (orange) Fruit.Orange() else Fruit.Apple("granny smith")
 }
