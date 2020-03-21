@@ -28,9 +28,14 @@ toSchema(
 
 ### Subscription Hooks
 
-Through the hooks a new method was added `didGenerateSubscriptionType` which is called after a new subscription type is
-generated but before it is added to the schema. The other hook are still called so you can add logic for the types and
+#### `didGenerateSubscriptionType`
+This hook is called after a new subscription type is generated but before it is added to the schema. The other generator hooks are still called so you can add logic for the types and
 validation of subscriptions the same as queries and mutations.
+
+#### `isValidSubscriptionReturnType`
+This hook is called when generating the functions for each subscription. It allows for changing the rules of what classes can be used as the return type. By default, graphql-java supports `org.reactivestreams.Publisher`.
+
+To effectively use this hook, you should also override the `willResolveMonad` hook, and if you are using `graphql-kotlin-spring-server` you should override the `GraphQL` bean to specify a custom subscription execution strategy.
 
 ### Server Implementation
 

@@ -21,9 +21,7 @@ import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
-import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import graphql.schema.GraphQLObjectType
-import org.reactivestreams.Publisher
 
 internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: List<TopLevelObject>): GraphQLObjectType? {
     if (subscriptions.isEmpty()) {
@@ -34,18 +32,20 @@ internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: Li
     subscriptionBuilder.name(generator.config.topLevelNames.subscription)
 
     for (subscription in subscriptions) {
-        if (subscription.kClass.isNotPublic()) {
-            throw InvalidSubscriptionTypeException(subscription.kClass)
+        val kClass = subscription.kClass
+
+        if (kClass.isNotPublic()) {
+            throw InvalidSubscriptionTypeException(kClass)
         }
 
-        subscription.kClass.getValidFunctions(generator.config.hooks)
+        kClass.getValidFunctions(generator.config.hooks)
             .forEach {
-                if (it.returnType.isSubclassOf(Publisher::class).not()) {
-                    throw InvalidSubscriptionTypeException(subscription.kClass, it)
+                if (generator.config.hooks.isValidSubscriptionReturnType(kClass, it).not()) {
+                    throw InvalidSubscriptionTypeException(kClass, it)
                 }
 
                 val function = generateFunction(generator, it, generator.config.topLevelNames.subscription, subscription.obj)
-                val functionFromHook = generator.config.hooks.didGenerateSubscriptionField(subscription.kClass, it, function)
+                val functionFromHook = generator.config.hooks.didGenerateSubscriptionField(kClass, it, function)
                 subscriptionBuilder.field(functionFromHook)
             }
     }
