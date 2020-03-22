@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.generator.state
 
+import com.expediagroup.graphql.defaultSupportedPackages
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -59,54 +61,53 @@ internal class ClassScannerTest {
     @SimpleAnnotation
     private class MyClassWithAnnotaiton
 
+    private val basicClassScanner = ClassScanner(defaultSupportedPackages)
+
     @Test
     fun `valid subtypes`() {
-        val classScanner = ClassScanner(listOf("com.expediagroup.graphql"))
-        val list = classScanner.getSubTypesOf(MyInterface::class)
-
+        val list = basicClassScanner.getSubTypesOf(MyInterface::class)
         assertEquals(expected = 2, actual = list.size)
     }
 
     @Test
     fun `abstract subtypes`() {
-        val classScanner = ClassScanner(listOf("com.expediagroup.graphql"))
-        val list = classScanner.getSubTypesOf(MyAbstractClass::class)
-
+        val list = basicClassScanner.getSubTypesOf(MyAbstractClass::class)
         assertEquals(expected = 1, actual = list.size)
     }
 
     @Test
     fun `subtypes of non-supported packages`() {
-        val classScanner = ClassScanner(listOf("com.example"))
-        val list = classScanner.getSubTypesOf(MyInterface::class)
-
+        val classScannerOfOtherPackages = ClassScanner(listOf("com.example"))
+        val list = classScannerOfOtherPackages.getSubTypesOf(MyInterface::class)
         assertEquals(expected = 0, actual = list.size)
+        classScannerOfOtherPackages.close()
     }
 
     @Test
     fun `interface with no subtypes`() {
-        val classScanner = ClassScanner(listOf("com.expediagroup.graphql"))
-        val list = classScanner.getSubTypesOf(NoSubTypesInterface::class)
-
+        val list = basicClassScanner.getSubTypesOf(NoSubTypesInterface::class)
         assertEquals(expected = 0, actual = list.size)
     }
 
     @Test
     fun `abstract class with no subtypes`() {
-        val classScanner = ClassScanner(listOf("com.expediagroup.graphql"))
-        val list = classScanner.getSubTypesOf(NoSubTypesClass::class)
-
+        val list = basicClassScanner.getSubTypesOf(NoSubTypesClass::class)
         assertEquals(expected = 0, actual = list.size)
     }
 
     @Test
     fun `classes with annotation returns all values`() {
-        val classScanner = ClassScanner(listOf("com.expediagroup.graphql.generator"))
-
-        val invalidClasses = classScanner.getClassesWithAnnotation(OtherSimpleAnnotation::class)
+        val invalidClasses = basicClassScanner.getClassesWithAnnotation(OtherSimpleAnnotation::class)
         assertEquals(0, invalidClasses.size)
 
-        val validClasses = classScanner.getClassesWithAnnotation(SimpleAnnotation::class)
+        val validClasses = basicClassScanner.getClassesWithAnnotation(SimpleAnnotation::class)
         assertEquals(1, validClasses.size)
+    }
+
+    companion object {
+        @AfterAll
+        fun afterAll(classScannerTest: ClassScannerTest) {
+            classScannerTest.basicClassScanner.close()
+        }
     }
 }

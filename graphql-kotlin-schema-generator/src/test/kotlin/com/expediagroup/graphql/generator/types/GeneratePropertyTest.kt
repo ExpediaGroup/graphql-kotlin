@@ -207,5 +207,6 @@ internal class GeneratePropertyTest : TypeTestHelper() {
         val targetDataFetcher = localGenerator.codeRegistry.getDataFetcher(coordinates, result)
         assertFalse(targetDataFetcher is PropertyDataFetcher)
         assertEquals(expected = mockDataFetcher, actual = targetDataFetcher)
+        localGenerator.close()
     }
 }

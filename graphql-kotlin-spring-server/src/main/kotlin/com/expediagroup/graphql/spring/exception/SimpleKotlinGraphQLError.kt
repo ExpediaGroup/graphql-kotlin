@@ -32,13 +32,12 @@ open class SimpleKotlinGraphQLError(
 ) : GraphQLError {
     override fun getErrorType(): ErrorClassification = errorType
 
-    override fun getExtensions(): Map<String, Any> {
-        val newExtensions = mutableMapOf<String, Any>()
+    override fun getExtensions(): Map<String, Any> =
         if (exception is GraphQLError && exception.extensions != null) {
-            newExtensions.putAll(exception.extensions)
+            exception.extensions
+        } else {
+            emptyMap()
         }
-        return newExtensions
-    }
 
     override fun getLocations(): List<SourceLocation> = locations
 
