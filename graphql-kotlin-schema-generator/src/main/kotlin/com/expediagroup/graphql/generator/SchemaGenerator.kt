@@ -42,7 +42,7 @@ import kotlin.reflect.full.createType
  */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
-    internal val additionalTypes = mutableSetOf<KType>()
+    internal val additionalTypes: MutableSet<KType> = mutableSetOf()
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
@@ -66,11 +66,8 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         builder.additionalTypes(generateAdditionalTypes())
         builder.additionalDirectives(directives.values.toSet())
         builder.codeRegistry(codeRegistry.build())
-        val schema = config.hooks.willBuildSchema(builder).build()
 
-        classScanner.close()
-
-        return schema
+        return config.hooks.willBuildSchema(builder).build()
     }
 
     /**
@@ -113,7 +110,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      */
     override fun close() {
         classScanner.close()
-        cache.clear()
+        cache.close()
         additionalTypes.clear()
         directives.clear()
     }

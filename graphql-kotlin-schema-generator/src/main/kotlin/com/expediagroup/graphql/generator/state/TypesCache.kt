@@ -25,12 +25,13 @@ import com.expediagroup.graphql.generator.extensions.qualifiedName
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
+import java.io.Closeable
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.starProjectedType
 
-internal class TypesCache(private val supportedPackages: List<String>) {
+internal class TypesCache(private val supportedPackages: List<String>) : Closeable {
 
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
     private val typesUnderConstruction: MutableSet<TypesCacheKey> = mutableSetOf()
@@ -64,9 +65,12 @@ internal class TypesCache(private val supportedPackages: List<String>) {
     }
 
     /**
-     * Clear the map of all saved values
+     * Clear the cache of all saved values
      */
-    internal fun clear() = cache.clear()
+    override fun close() {
+        cache.clear()
+        typesUnderConstruction.clear()
+    }
 
     internal fun doesNotContainGraphQLType(graphQLType: GraphQLNamedType) =
         cache.none { (_, v) -> v.graphQLType.name == graphQLType.name }

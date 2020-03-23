@@ -45,13 +45,10 @@ class InstrumentationIT(@Autowired private val testClient: WebTestClient) {
 
     class OrderedInstrumentation(private val instrumentationOrder: Int, private val counter: AtomicInteger) : SimpleInstrumentation(), Ordered {
         override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters): CompletableFuture<ExecutionResult> {
-            val extensions = mutableMapOf<Any, Any>()
-            extensions[instrumentationOrder] = counter.getAndIncrement()
-            val currentExt: Map<Any, Any>? = executionResult.extensions
-            if (currentExt != null) {
-                extensions.putAll(currentExt)
-            }
-            return CompletableFuture.completedFuture(ExecutionResultImpl(executionResult.getData(), executionResult.errors, extensions))
+            val currentExt: MutableMap<Any, Any> = executionResult.extensions?.toMutableMap() ?: mutableMapOf()
+            currentExt[instrumentationOrder] = counter.getAndIncrement()
+
+            return CompletableFuture.completedFuture(ExecutionResultImpl(executionResult.getData(), executionResult.errors, currentExt))
         }
 
         override fun getOrder(): Int = instrumentationOrder

@@ -22,7 +22,7 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.test.utils.SimpleDirective
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -77,12 +77,7 @@ internal class GenerateDirectiveTest {
         val noDirective: String
     )
 
-    private lateinit var basicGenerator: SchemaGenerator
-
-    @BeforeEach
-    fun setUp() {
-        basicGenerator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
-    }
+    private val basicGenerator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
 
     @Test
     fun `no annotation`() {
@@ -181,5 +176,12 @@ internal class GenerateDirectiveTest {
     fun `directives on constructor arguments only works with parent class`() {
         val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, null)
         assertEquals(expected = 0, actual = noPrefixResult.size)
+    }
+
+    companion object {
+        @AfterAll
+        fun cleanUp(generateDirectiveTest: GenerateDirectiveTest) {
+            generateDirectiveTest.basicGenerator.close()
+        }
     }
 }
