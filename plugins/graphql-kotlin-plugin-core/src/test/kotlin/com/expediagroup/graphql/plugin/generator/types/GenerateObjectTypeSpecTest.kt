@@ -56,7 +56,7 @@ class GenerateObjectTypeSpecTest {
             .selection(Field("name"))
             .selection(Field("optional"))
             .build()
-        val objectTypeSpec = generateObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
+        val objectTypeSpec = generateGraphQLObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
             .addType(objectTypeSpec)
             .build()
@@ -129,7 +129,7 @@ class GenerateObjectTypeSpecTest {
                 .selection(Field("value"))
                 .build()))
             .build()
-        generateObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
+        generateGraphQLObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
         ctx.typeSpecs.forEach {
             fileSpec.addType(it.value)
@@ -163,7 +163,7 @@ class GenerateObjectTypeSpecTest {
         val selectionSet: SelectionSet = SelectionSet.newSelectionSet()
             .selection(FragmentSpread("testFragment"))
             .build()
-        generateObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
+        generateGraphQLObjectTypeSpec(ctx, objectTypeDefinition, selectionSet)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
         ctx.typeSpecs.forEach {
             fileSpec.addType(it.value)

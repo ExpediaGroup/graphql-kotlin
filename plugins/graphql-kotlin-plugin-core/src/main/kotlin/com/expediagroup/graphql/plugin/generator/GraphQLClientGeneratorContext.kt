@@ -1,6 +1,6 @@
 package com.expediagroup.graphql.plugin.generator
 
-import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.Document
 import graphql.schema.idl.TypeDefinitionRegistry
@@ -12,6 +12,6 @@ data class GraphQLClientGeneratorContext(
     val queryDocument: Document,
     val allowDeprecated: Boolean = false
 ) {
-    val typeNameCache: MutableMap<String, TypeName> = mutableMapOf()
+    val classNameCache: MutableMap<String, ClassName> = mutableMapOf()
     val typeSpecs: MutableMap<String, TypeSpec> = mutableMapOf()
 }

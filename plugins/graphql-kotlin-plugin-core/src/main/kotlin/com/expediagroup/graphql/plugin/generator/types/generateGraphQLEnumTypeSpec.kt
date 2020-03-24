@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.EnumTypeDefinition
 
-internal fun generateEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDefinition: EnumTypeDefinition): TypeSpec {
+internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDefinition: EnumTypeDefinition): TypeSpec {
     val enumTypeSpecBuilder = TypeSpec.enumBuilder(enumDefinition.name)
     enumDefinition.description?.content?.let { kdoc ->
         enumTypeSpecBuilder.addKdoc(kdoc)

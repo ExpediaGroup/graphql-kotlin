@@ -1,6 +1,6 @@
 package com.expediagroup.graphql.plugin.generator
 
-import com.expediagroup.graphql.plugin.generator.types.generateObjectTypeSpec
+import com.expediagroup.graphql.plugin.generator.types.generateGraphQLObjectTypeSpec
 import com.expediagroup.graphql.plugin.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -27,7 +27,6 @@ class GraphQLClientGenerator(
     fun generate(queryFile: File): FileSpec {
         // TODO validate query document
         //      fail if __typename is not included for polymorphic types
-        //      fail if inline fragments don't specify all polymorphic types
         val queryConst = queryFile.readText()
         val queryDocument = documentParser.parseDocument(queryConst)
 
@@ -51,7 +50,7 @@ class GraphQLClientGenerator(
             val variableType: TypeSpec? = generateVariableTypeSpec(context, operationDefinition.variableDefinitions)
 
             val rootType = findRootType(operationDefinition)
-            val graphQLResultTypeSpec = generateObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "${operationTypeName}Result")
+            val graphQLResultTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "${operationTypeName}Result")
             val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResultTypeSpec.name}")
 
             val operationTypeSpec = TypeSpec.classBuilder(operationTypeName)

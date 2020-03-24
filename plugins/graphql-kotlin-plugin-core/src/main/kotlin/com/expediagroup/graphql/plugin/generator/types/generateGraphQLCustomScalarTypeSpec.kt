@@ -9,7 +9,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.jvm.jvmStatic
 import graphql.language.ScalarTypeDefinition
 
-fun generateCustomScalarTypeSpec(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition): TypeSpec {
+internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition): TypeSpec {
     val customScalarName = scalarTypeDefinition.name
     val scalarTypeSpec = TypeSpec.classBuilder(customScalarName)
     scalarTypeDefinition.description?.content?.let { kdoc ->

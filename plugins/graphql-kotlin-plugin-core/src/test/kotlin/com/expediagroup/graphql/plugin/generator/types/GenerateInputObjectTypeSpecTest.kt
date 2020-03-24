@@ -41,7 +41,7 @@ class GenerateInputObjectTypeSpecTest {
             rootType = "InputObjectQueryTest",
             queryDocument = mockk()
         )
-        val objectTypeSpec = generateInputObjectTypeSpec(ctx, inputObjectTypeDefinition)
+        val objectTypeSpec = generateGraphQLInputObjectTypeSpec(ctx, inputObjectTypeDefinition)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
             .addType(objectTypeSpec)
             .build()

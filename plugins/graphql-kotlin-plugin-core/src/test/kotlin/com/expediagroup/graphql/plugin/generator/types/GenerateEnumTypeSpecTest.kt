@@ -48,7 +48,7 @@ class GenerateEnumTypeSpecTest {
             rootType = "EnumQueryTest",
             queryDocument = mockk()
         )
-        val enumTypeSpec = generateEnumTypeSpec(ctx, enumTypeDefinition)
+        val enumTypeSpec = generateGraphQLEnumTypeSpec(ctx, enumTypeDefinition)
         val fileSpec = FileSpec.builder(packageName = ctx.packageName, fileName = ctx.rootType)
             .addType(enumTypeSpec)
             .build()

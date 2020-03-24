@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InputObjectTypeDefinition
 
-internal fun generateInputObjectTypeSpec(context: GraphQLClientGeneratorContext, inputObjectDefinition: InputObjectTypeDefinition): TypeSpec {
+internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorContext, inputObjectDefinition: InputObjectTypeDefinition): TypeSpec {
     val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputObjectDefinition.name)
     inputObjectTypeSpecBuilder.modifiers.add(KModifier.DATA)
     inputObjectDefinition.description?.content?.let { kdoc ->
@@ -16,7 +16,7 @@ internal fun generateInputObjectTypeSpec(context: GraphQLClientGeneratorContext,
 
     val constructorBuilder = FunSpec.constructorBuilder()
     inputObjectDefinition.inputValueDefinitions.forEach { fieldDefinition ->
-        val kotlinFieldType = generateKotlinTypeName(context, fieldDefinition.type)
+        val kotlinFieldType = generateTypeName(context, fieldDefinition.type)
         val fieldName = fieldDefinition.name
 
         val inputPropertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
