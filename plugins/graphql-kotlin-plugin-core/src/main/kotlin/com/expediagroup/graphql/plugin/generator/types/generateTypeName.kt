@@ -37,7 +37,10 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
             Scalars.GraphQLInt.name -> INT
             Scalars.GraphQLFloat.name -> FLOAT
             Scalars.GraphQLBoolean.name -> BOOLEAN
-            Scalars.GraphQLID.name -> ClassName(context.packageName, "ID")
+            Scalars.GraphQLID.name -> {
+                context.idTypeAliasNeeded = true
+                ClassName(context.packageName, "ID")
+            }
             else -> generateCustomClassName(context, graphQLType, selectionSet)
         }
         is ListType -> LIST.parameterizedBy(generateTypeName(context, graphQLType.type, selectionSet))

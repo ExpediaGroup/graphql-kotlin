@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
@@ -81,6 +82,10 @@ class GraphQLClientGenerator(
                 .addModifiers(KModifier.CONST)
                 .initializer("%S", queryConst).build())
             fileSpec.addType(operationTypeSpec.build())
+
+            if (context.idTypeAliasNeeded) {
+                fileSpec.addTypeAlias(TypeAliasSpec.builder("ID", String::class).build())
+            }
         }
 
         return fileSpec.build()
