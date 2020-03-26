@@ -11,6 +11,10 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import graphql.Scalars
 import graphql.language.EnumTypeDefinition
+import graphql.language.Field
+import graphql.language.FragmentDefinition
+import graphql.language.FragmentSpread
+import graphql.language.InlineFragment
 import graphql.language.InputObjectTypeDefinition
 import graphql.language.InterfaceTypeDefinition
 import graphql.language.ListType
@@ -43,8 +47,8 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
 
 internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, graphQLType: NamedNode<*>, selectionSet: SelectionSet? = null): ClassName {
     val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getType(graphQLType.name).get()
-    val typeNameCacheKey = graphQLTypeDefinition.name
-    val cachedTypeName = context.classNameCache[typeNameCacheKey]
+    val graphQLTypeName = graphQLTypeDefinition.name
+    val cachedTypeName = context.classNameCache[graphQLTypeName]
     return if (cachedTypeName == null) {
         val typeSpec = when (graphQLTypeDefinition) {
             is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
@@ -57,10 +61,52 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
         }
 
         val className = ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
-        context.classNameCache[typeNameCacheKey] = className
+        context.classNameCache[graphQLTypeName] = className
         className
     } else {
-        // TODO validate same selection set was used - fail on mismatch
+        validateCachedGraphQLType(context, graphQLTypeName, graphQLTypeDefinition, selectionSet)
         cachedTypeName
     }
+}
+
+private fun validateCachedGraphQLType(context: GraphQLClientGeneratorContext, graphQLTypeName: String, graphQLTypeDefinition: TypeDefinition<*>, selectionSet: SelectionSet?) {
+    if (selectionSet != null) {
+        // only need to verify objects and interfaces
+        // unions don't have any common fields
+        val selectedFields = when (graphQLTypeDefinition) {
+            is ObjectTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet)
+            is InterfaceTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet)
+            else -> emptySet()
+        }
+
+        val typeSpec = context.typeSpecs[graphQLTypeName]
+        val properties = typeSpec?.propertySpecs?.map { it.name }?.toSet() ?: emptySet()
+
+        if (selectedFields.size != properties.size || selectedFields.minus(properties).isNotEmpty()) {
+            throw RuntimeException("multiple selections of $graphQLTypeName GraphQL type with different selection sets")
+        }
+    }
+}
+
+private fun calculateSelectedFields(context: GraphQLClientGeneratorContext, targetType: String, selectionSet: SelectionSet): Set<String> {
+    val result = mutableSetOf<String>()
+    selectionSet.selections.forEach { selection ->
+        when (selection) {
+            is Field -> if ("__typename" != selection.name) {
+                result.add(selection.name)
+            }
+            is InlineFragment -> if (selection.typeCondition.name == targetType) {
+                result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet))
+            }
+            is FragmentSpread -> {
+                val fragmentDefinition = context.queryDocument
+                    .getDefinitionsOfType(FragmentDefinition::class.java)
+                    .find { it.name == selection.name } ?: throw RuntimeException("fragment not found")
+                if (fragmentDefinition.typeCondition.name == targetType) {
+                    result.addAll(calculateSelectedFields(context, targetType, fragmentDefinition.selectionSet))
+                }
+            }
+        }
+    }
+    return result
 }

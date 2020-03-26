@@ -25,8 +25,6 @@ class GraphQLClientGenerator(
     private val documentParser: Parser = Parser()
 
     fun generate(queryFile: File): FileSpec {
-        // TODO validate query document
-        //      fail if __typename is not included for polymorphic types
         val queryConst = queryFile.readText()
         val queryDocument = documentParser.parseDocument(queryConst)
 

@@ -89,6 +89,9 @@ internal fun generateInterfaceTypeSpec(
     // generate implementations with final selection set
     val jsonSubTypesCodeBlock = CodeBlock.builder()
     implementationSelections.forEach { implementationName, (typeCondition, selections) ->
+        if (!verifyTypeNameIsSelected(selections)) {
+            throw RuntimeException("invalid selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
+        }
         generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(selections).build())
         val implementationTypeSpec = context.typeSpecs[implementationName]!!
         if (commonProperties.isNotEmpty()) {
@@ -114,6 +117,8 @@ internal fun generateInterfaceTypeSpec(
 
     return interfaceTypeSpec.build()
 }
+
+private fun verifyTypeNameIsSelected(selections: List<Selection<*>>) = selections.filterIsInstance(Field::class.java).any { it.name == "__typename" }
 
 private fun updateImplementationTypeSpecWithSuperInformation(context: GraphQLClientGeneratorContext, interfaceName: String, implementationTypeSpec: TypeSpec, commonProperties: List<PropertySpec>) {
     val commonPropertyNames = commonProperties.map { it.name }
