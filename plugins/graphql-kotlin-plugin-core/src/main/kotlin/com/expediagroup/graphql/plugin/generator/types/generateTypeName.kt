@@ -53,17 +53,21 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
     val graphQLTypeName = graphQLTypeDefinition.name
     val cachedTypeName = context.classNameCache[graphQLTypeName]
     return if (cachedTypeName == null) {
-        val typeSpec = when (graphQLTypeDefinition) {
-            is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
-            is InputObjectTypeDefinition -> generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
-            is EnumTypeDefinition -> generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
-            is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
-            is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
-            is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition)
-            else -> throw RuntimeException("Not supported")
+        val className = if (graphQLTypeDefinition is ScalarTypeDefinition && context.scalarTypeToConverterMapping[graphQLTypeName] == null) {
+            val typeAlias = generateGraphQLCustomScalarTypeAlias(context, graphQLTypeDefinition)
+            ClassName(context.packageName, typeAlias.name)
+        } else {
+            val typeSpec = when (graphQLTypeDefinition) {
+                is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                is InputObjectTypeDefinition -> generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
+                is EnumTypeDefinition -> generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
+                is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition, context.scalarTypeToConverterMapping[graphQLTypeName]!!)
+                else -> throw RuntimeException("Not supported")
+            }
+            ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
         }
-
-        val className = ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
         context.classNameCache[graphQLTypeName] = className
         className
     } else {
