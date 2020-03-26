@@ -5,6 +5,7 @@ val kotlinPoetVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
+    api(project(path = ":graphql-kotlin-client"))
     api("com.squareup:kotlinpoet:$kotlinPoetVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-json:$ktorVersion")

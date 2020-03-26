@@ -42,7 +42,8 @@ class GraphQLClientGenerator(
                 graphQLSchema = graphQLSchema,
                 rootType = operationTypeName,
                 queryDocument = queryDocument,
-                allowDeprecated = config.allowDeprecated
+                allowDeprecated = config.allowDeprecated,
+                scalarTypeToConverterMapping = config.scalarTypeToConverterMapping
             )
 
             val variableType: TypeSpec? = generateVariableTypeSpec(context, operationDefinition.variableDefinitions)
