@@ -111,7 +111,7 @@ type FirstInterfaceImplementation implements BasicInterface {
   "Name of the first implementation"
   name: String!
   "Custom field integer value"
-  value: Int!
+  intValue: Int!
 }
 
 "Example interface implementation where value is a float"
@@ -121,7 +121,7 @@ type SecondInterfaceImplementation implements BasicInterface {
   "Name of the second implementation"
   name: String!
   "Custom field float value"
-  value: Float!
+  floatValue: Float!
 }
 
 "Very basic union of BasicObject and ComplexObject"

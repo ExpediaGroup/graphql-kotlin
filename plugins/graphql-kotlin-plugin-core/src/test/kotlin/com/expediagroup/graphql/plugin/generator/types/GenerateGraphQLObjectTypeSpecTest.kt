@@ -1,15 +1,10 @@
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.mockContext
-import com.squareup.kotlinpoet.TypeSpec
-import graphql.language.ObjectTypeDefinition
-import graphql.language.OperationDefinition
+import com.expediagroup.graphql.plugin.generator.verifyTypeSpecGeneration
 import graphql.language.SelectionSet
-import graphql.parser.Parser
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 
 class GenerateGraphQLObjectTypeSpecTest {
     private val expectedJunitTestQueryResult = """
@@ -82,7 +77,7 @@ class GenerateGraphQLObjectTypeSpecTest {
               }
             }
         """.trimIndent()
-        verifyObject(query, expectedJunitTestQueryResult)
+        verifyTypeSpecGeneration(query, expectedJunitTestQueryResult)
     }
 
     @Test
@@ -109,7 +104,7 @@ class GenerateGraphQLObjectTypeSpecTest {
               value
             }
         """.trimIndent()
-        verifyObject(queryWithNamedFragment, expectedJunitTestQueryResult)
+        verifyTypeSpecGeneration(queryWithNamedFragment, expectedJunitTestQueryResult)
     }
 
     @Test
@@ -122,22 +117,8 @@ class GenerateGraphQLObjectTypeSpecTest {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyObject(invalidQuery, "object won't be generated as it will throw exception")
+            verifyTypeSpecGeneration(invalidQuery, "will throw exception")
         }
-    }
-
-    private fun verifyObject(query: String, expected: String) {
-        val queryDocument = Parser().parseDocument(query)
-        val context = mockContext(queryDocument = queryDocument)
-
-        val parsedQuery = queryDocument.getDefinitionsOfType(OperationDefinition::class.java).first()
-        val root = context.graphQLSchema.getType("Query").get() as ObjectTypeDefinition
-        generateGraphQLObjectTypeSpec(context, root, parsedQuery.selectionSet, "JunitTestQueryResult")
-
-        val result = TypeSpec.Companion.classBuilder("JunitTestQueryResult")
-        context.typeSpecs.forEach { result.addType(it.value) }
-
-        assertEquals(expected, result.build().toString().trim())
     }
 
     @Test

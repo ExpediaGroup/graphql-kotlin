@@ -33,7 +33,7 @@ internal fun generateInterfaceTypeSpec(
 
     val namedFragments = selectionSet.getSelectionsOfType(FragmentSpread::class.java).map { fragment ->
         context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java).find { it.name == fragment.name } ?: throw RuntimeException("fragment ${fragment.name} not found")
-    }.associateBy { it.name }
+    }.associateBy { it.typeCondition.name }
 
     // find super selection set that contains
     // - directly selected fields
@@ -56,7 +56,8 @@ internal fun generateInterfaceTypeSpec(
             context = context,
             objectName = interfaceName,
             selectionSet = superSelectionSet,
-            fieldDefinitions = fields
+            fieldDefinitions = fields,
+            abstract = true
         )
     } else {
         emptyList()
@@ -89,10 +90,11 @@ internal fun generateInterfaceTypeSpec(
     // generate implementations with final selection set
     val jsonSubTypesCodeBlock = CodeBlock.builder()
     implementationSelections.forEach { implementationName, (typeCondition, selections) ->
-        if (!verifyTypeNameIsSelected(selections)) {
+        val distinctSelections = selections.filterIsInstance(Field::class.java).distinctBy { if (it.alias != null) it.alias else it.name }
+        if (!verifyTypeNameIsSelected(distinctSelections)) {
             throw RuntimeException("invalid selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
         }
-        generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(selections).build())
+        generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
         val implementationTypeSpec = context.typeSpecs[implementationName]!!
         if (commonProperties.isNotEmpty()) {
             updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationTypeSpec, commonProperties)
