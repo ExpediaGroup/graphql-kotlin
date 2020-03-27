@@ -59,7 +59,7 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                 is EnumTypeDefinition -> generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
                 is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
-                is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition, context.scalarTypeToConverterMapping[graphQLTypeName]!!)
+                is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition)
                 else -> throw RuntimeException("Not supported")
             }
             ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")

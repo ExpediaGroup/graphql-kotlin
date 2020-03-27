@@ -1,6 +1,5 @@
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.CustomScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
@@ -10,8 +9,11 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.jvm.jvmStatic
 import graphql.language.ScalarTypeDefinition
 
-internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition, converterMapping: CustomScalarConverterMapping): TypeSpec {
+internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition): TypeSpec {
     val customScalarName = scalarTypeDefinition.name
+    // its not possible to enter this method if converter is not available
+    val converterMapping = context.scalarTypeToConverterMapping[customScalarName]!!
+
     val scalarTypeSpec = TypeSpec.classBuilder(customScalarName)
     scalarTypeDefinition.description?.content?.let { kdoc ->
         scalarTypeSpec.addKdoc(kdoc)

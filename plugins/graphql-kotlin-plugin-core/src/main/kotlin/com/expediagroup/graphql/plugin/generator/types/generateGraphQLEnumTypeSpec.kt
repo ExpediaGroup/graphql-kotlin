@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.EnumTypeDefinition
+import graphql.language.StringValue
 
 internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDefinition: EnumTypeDefinition): TypeSpec {
     val enumTypeSpecBuilder = TypeSpec.enumBuilder(enumDefinition.name)
@@ -18,8 +19,10 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
             enumValueTypeSpecBuilder.addKdoc(kdoc)
         }
         enumValueDefinition.getDirective(DEPRECATED_DIRECTIVE_NAME)?.let { deprecatedDirective ->
+            val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
+            val reason = deprecatedReason?.value ?: "no longer supported"
             enumValueTypeSpecBuilder.addAnnotation(AnnotationSpec.Companion.builder(Deprecated::class)
-                .addMember("message = %S", deprecatedDirective.getArgument("reason"))
+                .addMember("message = %S", reason)
                 .build())
         }
         enumTypeSpecBuilder.addEnumConstant(enumValueDefinition.name, enumValueTypeSpecBuilder.build())

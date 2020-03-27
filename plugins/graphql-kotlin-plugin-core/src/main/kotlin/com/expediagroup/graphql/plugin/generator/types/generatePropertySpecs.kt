@@ -8,6 +8,7 @@ import graphql.language.Field
 import graphql.language.FieldDefinition
 import graphql.language.NonNullType
 import graphql.language.SelectionSet
+import graphql.language.StringValue
 
 internal fun generatePropertySpecs(
     context: GraphQLClientGeneratorContext,
@@ -30,8 +31,10 @@ internal fun generatePropertySpecs(
             if (!context.allowDeprecated) {
                 throw RuntimeException("query specifies deprecated field - ${selectedField.name} in $objectName, update your query or update your configuration to allow usage of deprecated fields")
             } else {
+                val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
+                val reason = deprecatedReason?.value ?: "no longer supported"
                 propertySpecBuilder.addAnnotation(AnnotationSpec.builder(Deprecated::class)
-                    .addMember("message = %S", deprecatedDirective.getArgument("reason"))
+                    .addMember("message = %S", reason)
                     .build())
             }
         }

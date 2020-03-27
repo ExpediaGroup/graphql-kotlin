@@ -1,52 +1,35 @@
 package com.expediagroup.graphql.plugin.generator
 
+import com.expediagroup.graphql.client.converters.CustomScalarConverter
+import graphql.language.Document
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
+import io.mockk.mockk
+import java.util.UUID
 
-private val testSchemaSDL = """
-    type Query {
-      enumTestQuery: MyCustomEnum
-      objectTestQuery: MyCustomObject
-      inputObjectTestQuery(criteria: TestCriteriaInput): Boolean
+internal fun mockContext(
+    packageName: String = "com.expediagroup.graphql.plugin.generator.types.test",
+    graphQLSchema: TypeDefinitionRegistry = testSchema(),
+    rootType: String = "JunitTestQueryResult",
+    queryDocument: Document = mockk(),
+    allowDeprecated: Boolean = false,
+    scalarTypeToConverterMapping: Map<String, CustomScalarConverterMapping> = emptyMap()
+): GraphQLClientGeneratorContext = GraphQLClientGeneratorContext(
+    packageName = packageName,
+    graphQLSchema = graphQLSchema,
+    rootType = rootType,
+    queryDocument = queryDocument,
+    allowDeprecated = allowDeprecated,
+    scalarTypeToConverterMapping = scalarTypeToConverterMapping)
+
+internal fun testSchema(): TypeDefinitionRegistry {
+    val schemaFileStream = ClassLoader.getSystemClassLoader().getResourceAsStream("testSchema.graphql") ?: throw RuntimeException("unable to locate test schema")
+    return schemaFileStream.use {
+        SchemaParser().parse(schemaFileStream)
     }
+}
 
-    "Custom enum description"
-    enum MyCustomEnum {
-      "First enum value"
-      ONE,
-      "Second enum value"
-      TWO
-    }
-
-    "Custom type description"
-    type MyCustomObject {
-      "Some unique identifier"
-      id: Int!,
-      "Some object name"
-      name: String!,
-      "Optional value"
-      optional: String,
-      "Some additional details"
-      details: MyDetailsObject
-    }
-
-    "Inner type object description"
-    type MyDetailsObject {
-      "Unique identifier"
-      id: Int!,
-      "Boolean flag"
-      flag: Boolean!,
-      "Actual detail value"
-      value: String!
-    }
-
-    "Test input object"
-    input TestCriteriaInput {
-      "Minimum value for test criteria"
-      min: Float,
-      "Maximum value for test criteria"
-      max: Float
-    }
-""".trimIndent()
-
-internal val testSchema: TypeDefinitionRegistry = SchemaParser().parse(testSchemaSDL)
+internal class UUIDConverter : CustomScalarConverter<UUID> {
+    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
+    override fun toJson(value: UUID): String = value.toString()
+}

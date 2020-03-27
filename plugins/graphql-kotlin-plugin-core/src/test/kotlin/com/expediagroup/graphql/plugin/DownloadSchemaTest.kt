@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -22,6 +23,7 @@ class DownloadSchemaTest {
     }
 
     @Test
+    @KtorExperimentalAPI
     fun `verify can download SDL`() {
         val expectedSchema = """
             schema {
@@ -67,6 +69,7 @@ class DownloadSchemaTest {
     }
 
     @Test
+    @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if URL is not valid`() {
         assertThrows<RuntimeException> {
             runBlocking {
@@ -76,6 +79,7 @@ class DownloadSchemaTest {
     }
 
     @Test
+    @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if downloaded SDL is not valid schema`() {
         stubFor(get("whatever")
             .willReturn(aResponse()
@@ -90,6 +94,7 @@ class DownloadSchemaTest {
     }
 
     @Test
+    @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if unable to download schema`() {
         stubFor(get("sdl")
             .willReturn(aResponse()

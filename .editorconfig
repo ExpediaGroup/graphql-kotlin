@@ -15,6 +15,10 @@ trim_trailing_whitespace = true
 [*.{json,yml}]
 indent_size = 2
 
+# space indentation for GraphQL
+[*.graphql]
+indent_size = 2
+
 # space indentation for Kotlin
 [*.{kt,kts}]
 indent_size = 4
