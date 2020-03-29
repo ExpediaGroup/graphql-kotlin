@@ -60,7 +60,7 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                 is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition)
-                else -> throw RuntimeException("Not supported")
+                else -> throw RuntimeException("should never happen")
             }
             ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
         }

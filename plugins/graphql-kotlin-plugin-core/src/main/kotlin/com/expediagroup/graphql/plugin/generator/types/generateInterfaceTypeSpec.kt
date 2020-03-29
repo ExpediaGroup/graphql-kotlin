@@ -38,17 +38,13 @@ internal fun generateInterfaceTypeSpec(
     // find super selection set that contains
     // - directly selected fields
     // - fields referenced in named fragments referencing given interface
-    val superSelectionSet = if (fields != null) {
-        val selections: MutableList<Selection<*>> = selectionSet.getSelectionsOfType(Field::class.java).toMutableList()
+    val selections: MutableList<Selection<*>> = selectionSet.getSelectionsOfType(Field::class.java).toMutableList()
 
-        // interface fields
-        namedFragments[interfaceName]?.let {
-            selections.addAll(it.selectionSet.selections)
-        }
-        SelectionSet.newSelectionSet(selections).build()
-    } else {
-        SelectionSet.newSelectionSet().build()
+    // interface fields
+    namedFragments[interfaceName]?.let {
+        selections.addAll(it.selectionSet.selections)
     }
+    val superSelectionSet = SelectionSet.newSelectionSet(selections).build()
 
     // create interface with super fields
     val commonProperties = if (fields != null) {

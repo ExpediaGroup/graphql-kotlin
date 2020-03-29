@@ -74,6 +74,9 @@ class GraphQLClientGenerator(
                 .initializer("graphQLClient").build())
             operationTypeSpec.addFunction(funSpec.build())
 
+            context.typeAliases.forEach { (_, alias) ->
+                fileSpec.addTypeAlias(alias)
+            }
             context.typeSpecs.forEach {
                 operationTypeSpec.addType(it.value)
             }
@@ -81,10 +84,6 @@ class GraphQLClientGenerator(
                 .addModifiers(KModifier.CONST)
                 .initializer("%S", queryConst).build())
             fileSpec.addType(operationTypeSpec.build())
-
-            context.typeAliases.forEach { (_, alias) ->
-                fileSpec.addTypeAlias(alias)
-            }
         }
 
         return fileSpec.build()

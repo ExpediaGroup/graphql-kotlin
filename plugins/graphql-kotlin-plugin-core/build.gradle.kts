@@ -12,3 +12,22 @@ dependencies {
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.26.2")
 }
+
+tasks {
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    counter = "INSTRUCTION"
+                    value = "COVEREDRATIO"
+                    minimum = "0.8".toBigDecimal()
+                }
+                limit {
+                    counter = "BRANCH"
+                    value = "COVEREDRATIO"
+                    minimum = "0.65".toBigDecimal()
+                }
+            }
+        }
+    }
+}
