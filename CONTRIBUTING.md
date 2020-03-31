@@ -63,7 +63,7 @@ Further instructions on how to add documentation content are in `website/README.
 All source files must contain the following license header. If you are using an IDE please add this as a copyright template for this project so that it will be added automatically.
 
 ```
-Copyright $today.year Expedia, Inc
+Copyright 2020 Expedia, Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
