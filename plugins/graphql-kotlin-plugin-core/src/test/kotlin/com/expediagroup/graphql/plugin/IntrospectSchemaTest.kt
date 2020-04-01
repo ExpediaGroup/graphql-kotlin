@@ -84,7 +84,7 @@ class IntrospectSchemaTest {
                 .withBody(introspectionResult)))
 
         runBlocking {
-            val sdl = runIntrospectionQuery("${wireMockServer.baseUrl()}/graphql")
+            val sdl = introspectSchema("${wireMockServer.baseUrl()}/graphql")
             assertEquals(expectedSchema, sdl.trim())
         }
     }
@@ -97,7 +97,7 @@ class IntrospectSchemaTest {
                 .withStatus(404)))
         assertThrows<RuntimeException> {
             runBlocking {
-                runIntrospectionQuery("${wireMockServer.baseUrl()}/graphql")
+                introspectSchema("${wireMockServer.baseUrl()}/graphql")
             }
         }
     }

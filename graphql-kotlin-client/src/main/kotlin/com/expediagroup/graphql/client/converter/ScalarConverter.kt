@@ -19,7 +19,7 @@ package com.expediagroup.graphql.client.converter
 /**
  * Custom GraphQL scalar JSON converter that is used to convert between raw JSON String representation and typesafe scalar value.
  */
-interface CustomScalarConverter<T> {
+interface ScalarConverter<T> {
 
     /**
      * Deserialize raw JSON String value to a typesafe value.

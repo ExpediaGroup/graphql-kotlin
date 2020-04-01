@@ -1,6 +1,6 @@
 package com.expediagroup.graphql.plugin.maven
 
-import com.expediagroup.graphql.plugin.runIntrospectionQuery
+import com.expediagroup.graphql.plugin.introspectSchema
 import kotlinx.coroutines.runBlocking
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Mojo
@@ -29,7 +29,7 @@ class IntrospectSchemaMojo : AbstractMojo() {
 
         val schemaFile = File("${outputDirectory.absolutePath}/$outputFileName")
         runBlocking {
-            val schema = runIntrospectionQuery(endpoint = endpoint)
+            val schema = introspectSchema(endpoint = endpoint)
             schemaFile.writeText(schema)
         }
     }

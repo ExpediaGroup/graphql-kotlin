@@ -28,7 +28,7 @@ import graphql.language.ScalarTypeDefinition
 
 /**
  * Generate [TypeSpec] data class with single typed value for the target custom scalar. In order to simplify the serialization/deserialization we are using single value wrapper class that uses
- * Jackson [JsonValue] and [JsonCreator] annotations [com.expediagroup.graphql.client.converter.CustomScalarConverter] to convert between raw JSON String representation and Kotlin type safe value.
+ * Jackson [JsonValue] and [JsonCreator] annotations [com.expediagroup.graphql.client.converter.ScalarConverter] to convert between raw JSON String representation and Kotlin type safe value.
  *
  * @see generateGraphQLCustomScalarTypeAlias for default handling of scalars
  */

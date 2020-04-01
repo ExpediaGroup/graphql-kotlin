@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.downloadSchema
@@ -13,6 +29,9 @@ import org.gradle.api.tasks.options.Option
 
 internal const val DOWNLOAD_SDL_TASK: String = "downloadSDL"
 
+/**
+ * Task that attempts to download GraphQL schema in SDL format from the specified endpoint and save it locally.
+ */
 @Suppress("UnstableApiUsage")
 open class DownloadSDLTask : DefaultTask() {
 
@@ -21,7 +40,7 @@ open class DownloadSDLTask : DefaultTask() {
     val endpoint: Property<String> = project.objects.property(String::class.java)
 
     @Input
-    @Option(option = "outputFileName", description = "target schema file name")
+    @Option(option = "outputFileName", description = "target schema file name, defaults to schema.graphql created under build directory")
     val outputFileName: Property<String> = project.objects.property(String::class.java)
 
     @OutputFile
@@ -34,9 +53,12 @@ open class DownloadSDLTask : DefaultTask() {
         outputFileName.convention("schema.graphql")
     }
 
+    /**
+     * Download schema in SDL format from the specified endpoint and sve it locally in the target output file.
+     */
     @Suppress("EXPERIMENTAL_API_USAGE")
     @TaskAction
-    fun downloadSDL() {
+    fun downloadSDLAction() {
         logger.debug("starting download SDL task against ${endpoint.get()}")
         runBlocking {
             val schema = downloadSchema(endpoint = endpoint.get())

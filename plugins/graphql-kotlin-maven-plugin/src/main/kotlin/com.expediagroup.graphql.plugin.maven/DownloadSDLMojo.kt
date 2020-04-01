@@ -26,7 +26,6 @@ class DownloadSDLMojo : AbstractMojo() {
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun execute() {
         log.debug("executing downloadSDL MOJO against $endpoint")
-
         val schemaFile = File("${outputDirectory.absolutePath}/$outputFileName")
         runBlocking {
             val schema = downloadSchema(endpoint = endpoint)

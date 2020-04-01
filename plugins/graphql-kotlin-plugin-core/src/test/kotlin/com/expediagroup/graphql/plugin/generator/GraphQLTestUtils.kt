@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator
 
-import com.expediagroup.graphql.client.converter.CustomScalarConverter
+import com.expediagroup.graphql.client.converter.ScalarConverter
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import java.util.UUID
@@ -29,7 +29,7 @@ internal fun testSchema(): TypeDefinitionRegistry {
     }
 }
 
-internal class UUIDConverter : CustomScalarConverter<UUID> {
+internal class UUIDConverter : ScalarConverter<UUID> {
     override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
     override fun toJson(value: UUID): String = value.toString()
 }

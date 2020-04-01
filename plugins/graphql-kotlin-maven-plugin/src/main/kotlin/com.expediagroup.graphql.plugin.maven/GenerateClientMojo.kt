@@ -20,6 +20,9 @@ class GenerateClientMojo : AbstractMojo() {
     @Parameter(name = "packageName", required = true)
     private lateinit var packageName: String
 
+    @Parameter(name = "converters")
+    private lateinit var scalarConverters: Map<String, ScalarConverter>
+
     @Parameter(name = "queryFileDirectory", defaultValue = "\${project.basedir}/src/main/resources")
     private lateinit var queryFileDirectory: File
 
@@ -57,3 +60,5 @@ class GenerateClientMojo : AbstractMojo() {
         }
     }
 }
+
+class ScalarConverter(type: String, converter: String)

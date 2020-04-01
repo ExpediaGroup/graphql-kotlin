@@ -33,7 +33,7 @@ import io.ktor.util.KtorExperimentalAPI
  * Runs introspection query against specified GraphQL endpoint and returns underlying schema.
  */
 @KtorExperimentalAPI
-suspend fun runIntrospectionQuery(endpoint: String): String = HttpClient(engineFactory = CIO) {
+suspend fun introspectSchema(endpoint: String): String = HttpClient(engineFactory = CIO) {
     install(feature = JsonFeature)
 }.use { client ->
     val introspectionResult = try {
