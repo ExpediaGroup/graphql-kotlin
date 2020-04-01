@@ -2,14 +2,14 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-client%22)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client)
 
-A lightweight typesafe GraphQL HTTP client.
+A lightweight, typesafe GraphQL HTTP client.
 
 NOTE: While you can use the GraphQL client directly by manually creating your corresponding data model, the most common
-mode of operation should be through usage of Gradle or Maven plugin and the resulting auto-generated code.
+mode of operation should be using a Gradle or Maven plugin and running the resulting auto-generated code.
 
-## Installation
+## Install it
 
-Using a JVM dependency manager, simply link graphql-kotlin-client to your project.
+Using a JVM dependency manager, link `graphql-kotlin-client` to your project.
 
 With Maven:
 
@@ -27,20 +27,20 @@ With Gradle (example using kts):
 compile("com.expediagroup:graphql-kotlin-client$latestVersion")
 ```
 
-## Usage
+## Use it
 
-### Downloading Schema
+### Download Schema
 
 Before we can auto-generate the data model for our GraphQL queries we first need to obtain a copy of a corresponding
-GraphQL schema. Simplest way to do it is by running one of the tasks supplied by GraphQL Kotlin Gradle plugin through
-CLI
+GraphQL schema. Do this by running one of the tasks supplied by the GraphQL Kotlin Gradle plugin through your
+CLI:
 
 ```bash
 ./gradlew introspectSchema --endpoint="http://localhost:8080/sdl"
 ```
 
-This will run introspection query against target GraphQL server and save the resulting schema in `schema.graphql` file
-under build directory. GraphQL schemas might be evolving over time so we highly recommend to configure this task to run
+This runs an introspection query against the target GraphQL server and saves the resulting schema in the `schema.graphql` file
+under the build directory. GraphQL schemas can change over time so you should configure this task to run
 as part of your build/release process.
 
 ```kotlin
@@ -49,21 +49,21 @@ val introspectSchema by tasks.getting(IntrospectSchemaTask::class) {
 }
 ```
 
-### Writing Queries
+### Write Queries
 
-When creating your GraphQL queries make sure to always specify operation name and name the files accordingly. Each one
-of your query files will result in a generation of a Kotlin file with a class matching your operation name that contains
-all your data classes, e.g. given `MyAwesomeGraphQLQuery.graphql` with `myAwesomeQuery` operation name, GraphQL Kotlin
-plugins will generate corresponding `MyAwesomeGraphQLQuery.kt` file with `MyAwesomeQuery` class under configured package.
+When creating your GraphQL queries make sure to always specify an operation name, and name the files accordingly. Each one
+of your query files will result in generation of a Kotlin file with a class matching your operation name that contains
+all your data classes. For example, given `MyAwesomeGraphQLQuery.graphql` with `myAwesomeQuery` as the operation name, GraphQL Kotlin
+plugins will generate a corresponding `MyAwesomeGraphQLQuery.kt` file with a `MyAwesomeQuery` class under the configured package.
 
 Please refer to our [documentation](https://expediagroup.github.io/graphql-kotlin) for additional details and considerations
 while writing your GraphQL queries.
 
-### Generating Client
+### Generate Client
 
 GraphQL Kotlin build plugins will auto-generate your data classes based on your queries and the underlying GraphQL schema.
-In order to generate your client you will need to specify target package name, schema file and queries. If queries parameter
-is omitted it will default to look for `*.graphql` files under your resources directory.
+In order to generate your client you will need to specify the target package name, schema file, and queries. If the queries parameter
+is omitted it will default to using `*.graphql` files under your resources directory.
 
 ```kotlin
 val generateClient by tasks.getting(GenerateClientTask::class) {
@@ -75,13 +75,13 @@ val generateClient by tasks.getting(GenerateClientTask::class) {
 }
 ```
 
-Additional information about Gradle and Maven plugins as well as their respective tasks/mojos can be found in our
+Additional information about Gradle and Maven plugins as well as their respective tasks/monos can be found in our
 [documentation](https://expediagroup.github.io/graphql-kotlin).
 
-### Executing Queries
+### Execute Queries
 
-Your auto generated classes accept an instance of `GraphQLClient` which requires target URL to be specified. `GraphQLClient`
-uses Ktor HTTP client to execute the underlying queries and you can specify different engines (defaults to CIO) and
+Your auto generated classes accept an instance of `GraphQLClient` which requires the target URL to be specified. `GraphQLClient`
+uses the Ktor HTTP client to execute the underlying queries and you can specify different engines (defaults to CIO) and
 HTTP client features. Please refer to [Ktor HTTP client documentation](https://ktor.io/clients/index.html) for additional
 details.
 
@@ -91,27 +91,26 @@ val query = MyAwesomeQuery(client)
 val result = query.myAwesomeQuery()
 ```
 
-Result of your query is a type safe object that corresponds to your GraphQL query.
+The result of your query is a type safe object that corresponds to your GraphQL query.
 
-Additional information about Gradle and Maven plugins as well as their respective tasks/mojos can be found in our
+Additional information about Gradle and Maven plugins as well as their respective tasks/monos can be found in our
 [documentation](https://expediagroup.github.io/graphql-kotlin).
 
 ## Limitations
 
-* Currently only Ktor Http Client is supported, additional clients (e.g. Spring WebClient) might be supported in the future.
+* Currently only the Ktor Http Client is supported. Additional clients (e.g. Spring WebClient) might be supported in the future. If you have a suggestion, open an issue.
 * Due to the custom logic required for deserialization of polymorphic types and default enum values only Jackson is currently supported.
-* Only single operation per query file is supported.
+* Only a single operation per query file is supported.
 * Subscriptions are currently not supported.
-* Within single GraphQL query you cannot make multiple selections to the same GraphQL object with different fields but it
-is perfectly fine to have different selection sets across different GraphQL queries.
-* Anonymous operations are supported but will result in generic `AnonymousQuery` (for query operation) class. Plugins
+* You cannot make multiple selections to the same GraphQL object in a single GraphQL query. However, you can have different selection sets across different GraphQL queries.
+* Anonymous operations are supported but will result in a generic `AnonymousQuery` (for query operation) class. Plugins
 do not keep track of state across different query generations so if you have multiple anonymous operations in a single
 package your compilation will fail due to the generic class name collisions.
 
 ## Documentation
 
 Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin) and the
-[javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client) of all published versions.
+[Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client) of all published versions.
 
-If you have a question about something you can not find in our documentation or javadocs, feel free to
+If you have a question about something you can not find in our documentation or Javadocs, feel free to
 [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
