@@ -29,7 +29,8 @@ class IntrospectSchemaMojo : AbstractMojo() {
 
         val schemaFile = File("${outputDirectory.absolutePath}/$outputFileName")
         runBlocking {
-            runIntrospectionQuery(endpoint = endpoint, outputFile = schemaFile)
+            val schema = runIntrospectionQuery(endpoint = endpoint)
+            schemaFile.writeText(schema)
         }
     }
 }

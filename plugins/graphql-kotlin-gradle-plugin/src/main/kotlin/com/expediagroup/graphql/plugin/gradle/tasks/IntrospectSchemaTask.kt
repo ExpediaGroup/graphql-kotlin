@@ -39,7 +39,8 @@ open class IntrospectSchemaTask : DefaultTask() {
     fun introspectSchema() {
         logger.debug("starting introspection task against ${endpoint.get()}")
         runBlocking {
-            runIntrospectionQuery(endpoint = endpoint.get(), outputFile = outputFile.get().asFile)
+            val schema = runIntrospectionQuery(endpoint = endpoint.get())
+            outputFile.get().asFile.writeText(schema)
         }
     }
 }

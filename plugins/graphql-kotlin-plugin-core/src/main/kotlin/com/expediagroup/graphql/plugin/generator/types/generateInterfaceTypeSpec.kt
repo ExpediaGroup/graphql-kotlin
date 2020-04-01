@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
@@ -18,11 +34,22 @@ import graphql.language.InlineFragment
 import graphql.language.Selection
 import graphql.language.SelectionSet
 
+/**
+ * Generate interface [TypeSpec] based on the available field definitions and selection set. Generates all implementing classes as well.
+ *
+ * In order to generate interface:
+ * - all implementing types have to specified in the query
+ * - __typename has to be explicitly specified in the query
+ * - all polymorphic types need to have consistent selection set within the query (i.e. you cannot select same polymorphic type with different selection sets in single query).
+ *
+ * @see generateInterfaceTypeSpec
+ * @see generateGraphQLUnionTypeSpec
+ */
 internal fun generateInterfaceTypeSpec(
     context: GraphQLClientGeneratorContext,
     interfaceName: String,
     kdoc: String?,
-    fields: List<FieldDefinition>?,
+    fields: List<FieldDefinition> = emptyList(),
     selectionSet: SelectionSet,
     implementations: List<String>
 ): TypeSpec {
@@ -47,7 +74,7 @@ internal fun generateInterfaceTypeSpec(
     val superSelectionSet = SelectionSet.newSelectionSet(selections).build()
 
     // create interface with super fields
-    val commonProperties = if (fields != null) {
+    val commonProperties = if (fields.isNotEmpty()) {
         generatePropertySpecs(
             context = context,
             objectName = interfaceName,
@@ -66,9 +93,9 @@ internal fun generateInterfaceTypeSpec(
     // - inline fragment selections
     val implementationSelections = namedFragments.filterKeys { it != interfaceName }
         .mapValues { (_, namedFragment) ->
-            val selections = superSelectionSet.selections.toMutableList()
-            selections.addAll(namedFragment.selectionSet.selections)
-            namedFragment.typeCondition to selections
+            val fragmentSelections = superSelectionSet.selections.toMutableList()
+            fragmentSelections.addAll(namedFragment.selectionSet.selections)
+            namedFragment.typeCondition to fragmentSelections
         }.toMutableMap()
     selectionSet.getSelectionsOfType(InlineFragment::class.java).forEach { fragment ->
         val existing = implementationSelections.computeIfAbsent(fragment.typeCondition.name) {

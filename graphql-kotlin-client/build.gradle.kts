@@ -1,4 +1,4 @@
-description = "GraphQL Client"
+description = "A lightweight typesafe GraphQL HTTP Client"
 
 val ktorVersion: String by project
 val kotlinCoroutinesVersion: String by project

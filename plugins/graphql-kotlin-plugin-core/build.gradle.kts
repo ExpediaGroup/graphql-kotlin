@@ -2,6 +2,7 @@ description = "GraphQL Kotlin common plugin utilities library."
 
 val ktorVersion: String by project
 val kotlinPoetVersion: String by project
+val wireMockVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
@@ -10,7 +11,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-json:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.26.2")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
 }
 
 tasks {
@@ -20,7 +21,7 @@ tasks {
                 limit {
                     counter = "INSTRUCTION"
                     value = "COVEREDRATIO"
-                    minimum = "0.8".toBigDecimal()
+                    minimum = "0.85".toBigDecimal()
                 }
                 limit {
                     counter = "BRANCH"

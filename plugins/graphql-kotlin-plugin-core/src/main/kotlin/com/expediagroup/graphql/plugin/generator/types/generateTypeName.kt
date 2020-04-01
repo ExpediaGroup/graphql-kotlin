@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
@@ -27,6 +43,9 @@ import graphql.language.Type
 import graphql.language.TypeDefinition
 import graphql.language.UnionTypeDefinition
 
+/**
+ * Generate [TypeName] reference to a Kotlin class representation of an underlying GraphQL type.
+ */
 internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLType: Type<*>, selectionSet: SelectionSet? = null): TypeName {
     val nullable = graphQLType !is NonNullType
 
@@ -44,6 +63,11 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
     }.copy(nullable = nullable)
 }
 
+/**
+ * Generate custom [ClassName] reference to a Kotlin class representing GraphQL complex type (object, input object, enum, interface, union or custom scalar). If class name was not yet generated, this
+ * method will generate the underlying type spec definition as well. If class name was retrieved from the cache we re-validate interface and object types to ensure they were generated with the same
+ * selection set.
+ */
 internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, graphQLType: NamedNode<*>, selectionSet: SelectionSet? = null): ClassName {
     val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getType(graphQLType.name).get()
     val graphQLTypeName = graphQLTypeDefinition.name

@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generateClient
+import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
@@ -50,7 +51,8 @@ class GenerateClientMojo : AbstractMojo() {
         if (!targetDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
-        generateClient(packageName, graphQLSchema, targetQueryFiles).forEach {
+        val config = GraphQLClientGeneratorConfig(packageName = packageName)
+        generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(targetDirectory)
         }
     }

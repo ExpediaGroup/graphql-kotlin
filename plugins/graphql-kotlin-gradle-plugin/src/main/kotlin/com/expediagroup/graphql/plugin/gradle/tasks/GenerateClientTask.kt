@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.generateClient
+import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
@@ -76,7 +77,8 @@ open class GenerateClientTask : DefaultTask() {
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
-        generateClient(targetPackage, graphQLSchema, targetQueryFiles).forEach {
+        val config = GraphQLClientGeneratorConfig(packageName = targetPackage)
+        generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(targetDirectory)
         }
     }
