@@ -128,7 +128,7 @@ subprojects {
         }
         publishing {
             publications {
-                create<MavenPublication>("mavenJava") {
+                withType<MavenPublication> {
                     pom {
                         name.set("${currentProject.group}:${currentProject.name}")
                         url.set("https://github.com/ExpediaGroup/graphql-kotlin")
@@ -162,9 +162,15 @@ subprojects {
                             mavenPom.description.set(currentProject.description)
                         }
                     }
-                    from(jarComponent)
                     artifact(sourcesJar.get())
                     artifact(javadocJar.get())
+                }
+
+                // workaround for java-gradle-plugin creating separate hardcoded pluginMaven publication
+                if (currentProject.name != "graphql-kotlin-gradle-plugin") {
+                    create<MavenPublication>("mavenJava") {
+                        from(jarComponent)
+                    }
                 }
             }
         }
@@ -175,7 +181,7 @@ subprojects {
             val signingKey: String? = System.getenv("GPG_SECRET")
             val signingPassword: String? = System.getenv("GPG_PASSPHRASE")
             useInMemoryPgpKeys(signingKey, signingPassword)
-            sign(publishing.publications["mavenJava"])
+            sign(publishing.publications)
         }
     }
 
