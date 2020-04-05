@@ -4,6 +4,7 @@ pluginManagement {
     val kotlinVersion: String by settings
     val ktlintPluginVersion: String by settings
     val nexusPublishPluginVersion: String by settings
+    val pluginPublishPluginVersion: String by settings
     val springBootVersion: String by settings
     val stagingPluginVersion: String by settings
 
@@ -17,6 +18,7 @@ pluginManagement {
         id("org.springframework.boot") version springBootVersion
         id("io.codearte.nexus-staging") version stagingPluginVersion
         id("de.marcphilipp.nexus-publish") version nexusPublishPluginVersion
+        id("com.gradle.plugin-publish") version pluginPublishPluginVersion
     }
 }
 

@@ -23,6 +23,23 @@ tasks {
             }
         }
     }
+
+    /*
+    Maven plugins require plugin.xml descriptor which can be automatically generated using maven-plugin-plugin.
+
+    This is a workaround to generate descriptor automatically:
+    1) copy graphql-kotlin libraries to build directory so they can be referenced by maven build
+    2) run maven wrapper to execute maven-plugin-plugin descriptor MOJO
+    3) add generated descriptor XMLs to the generated JAR
+     */
+    val copyDependencies by register<Copy>("copyDependencies") {
+        from(configurations.runtimeClasspath) {
+            // we only need to explicitly copy graphql-kotlin libraries as they won't be available in m2 repository at this point
+            // we could copy other direct dependencies as well but it looks like it might not work for maven-plugin-plugin as it relies on some transitive dependencies to run
+            include("graphql-kotlin*")
+        }
+        into("${project.buildDir}/dependencies")
+    }
     val mavenPluginDescriptor by register("mavenPluginDescriptor") {
         dependsOn("copyDependencies")
         timeout.set(Duration.ofSeconds(60))
@@ -41,14 +58,6 @@ tasks {
                 commandLine("${project.projectDir}/mvnw", "plugin:descriptor")
             }
         }
-    }
-    val copyDependencies by register<Copy>("copyDependencies") {
-        from(configurations.runtimeClasspath) {
-            // we only need to explicitly copy graphql-kotlin libraries as they won't be available in m2 repository at this point
-            // we could copy other direct dependencies as well but it looks like it might not work for maven-plugin-plugin as it relies on some transitive dependencies to run
-            include("graphql-kotlin*")
-        }
-        into("${project.buildDir}/dependencies")
     }
     jar {
         // explicitly copy generated plugin descriptors
