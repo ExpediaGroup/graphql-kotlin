@@ -26,6 +26,7 @@ jobs:
           NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
           echo "New version: ${NEW_VERSION}"
           ./gradlew publish closeAndReleaseRepository -Pversion=${NEW_VERSION}
+        # ./gradlew publishPlugins -Pversion=${NEW_VERSION} -Pgradle.publish.key=<key> -Pgradle.publish.secret=<secret>
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

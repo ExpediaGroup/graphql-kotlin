@@ -31,6 +31,8 @@ tasks {
     1) copy graphql-kotlin libraries to build directory so they can be referenced by maven build
     2) run maven wrapper to execute maven-plugin-plugin descriptor MOJO
     3) add generated descriptor XMLs to the generated JAR
+
+    // TODO check whether we can use https://github.com/britter/maven-plugin-development instead (once it is published)
      */
     val copyDependencies by register<Copy>("copyDependencies") {
         from(configurations.runtimeClasspath) {

@@ -176,7 +176,7 @@ subprojects {
         }
         signing {
             setRequired {
-                (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
+                (rootProject.extra["isReleaseVersion"] as Boolean) && (gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishPlugins"))
             }
             val signingKey: String? = System.getenv("GPG_SECRET")
             val signingPassword: String? = System.getenv("GPG_PASSPHRASE")

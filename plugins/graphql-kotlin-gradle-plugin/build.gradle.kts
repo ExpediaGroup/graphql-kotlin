@@ -5,8 +5,11 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
+val wireMockVersion: String by project
+
 dependencies {
     api(project(path = ":plugins:graphql-kotlin-plugin-core"))
+    testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
 }
 
 gradlePlugin {
