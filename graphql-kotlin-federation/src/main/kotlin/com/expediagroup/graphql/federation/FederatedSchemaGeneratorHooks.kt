@@ -17,19 +17,17 @@
 package com.expediagroup.graphql.federation
 
 import com.apollographql.federation.graphqljava.Federation
-import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.execution.EntityResolver
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.federation.extensions.getObjectName
 import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.federation.validation.FederatedSchemaValidator
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import kotlin.reflect.KType
-import kotlin.reflect.full.findAnnotation
 
 /**
  * Hooks for generating federated GraphQL schema.
@@ -61,10 +59,4 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
 
     // skip validation for empty query type - federation will add _service query
     override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = type
-}
-
-private fun TypeResolutionEnvironment.getObjectName(): String? {
-    val kClass = this.getObject<Any>().javaClass.kotlin
-    return kClass.findAnnotation<GraphQLName>()?.value
-        ?: kClass.simpleName
 }
