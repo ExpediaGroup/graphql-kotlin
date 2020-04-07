@@ -35,7 +35,6 @@ import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -52,7 +51,6 @@ const val DEFAULT_INSTRUMENTATION_ORDER = 0
  */
 @Configuration
 @Import(SimpleSchemaAutoConfiguration::class, FederatedSchemaAutoConfiguration::class)
-@EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class GraphQLAutoConfiguration {
 
     @Bean

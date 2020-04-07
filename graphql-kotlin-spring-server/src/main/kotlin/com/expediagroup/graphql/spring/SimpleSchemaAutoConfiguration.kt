@@ -31,7 +31,6 @@ import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -43,7 +42,6 @@ import java.util.Optional
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "false", matchIfMissing = true)
 @Configuration
 @Import(SchemaAutoConfiguration::class)
-@EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class SimpleSchemaAutoConfiguration {
 
     private val logger = LoggerFactory.getLogger(SimpleSchemaAutoConfiguration::class.java)
