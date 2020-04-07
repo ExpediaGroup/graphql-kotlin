@@ -34,7 +34,7 @@ class GenerateVariableTypeSpecIT {
             import kotlin.String
 
             const val TEST_QUERY_WITH_VARIABLES: String =
-                "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
+                "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
 
             class TestQueryWithVariables(
               private val graphQLClient: GraphQLClient
@@ -44,13 +44,17 @@ class GenerateVariableTypeSpecIT {
                   graphQLClient.executeOperation(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables)
 
               data class Variables(
-                val criteria: TestQueryWithVariables.SimpleInput?
+                val criteria: TestQueryWithVariables.SimpleArgumentInput?
               )
 
               /**
                * Test input object
                */
-              data class SimpleInput(
+              data class SimpleArgumentInput(
+                /**
+                 * New value to be set
+                 */
+                val newName: String?,
                 /**
                  * Minimum value for test criteria
                  */
@@ -70,7 +74,7 @@ class GenerateVariableTypeSpecIT {
             }
         """.trimIndent()
         val query = """
-            query TestQueryWithVariables(${'$'}criteria: SimpleInput) {
+            query TestQueryWithVariables(${'$'}criteria: SimpleArgumentInput) {
               inputObjectQuery(criteria: ${'$'}criteria)
             }
         """.trimIndent()

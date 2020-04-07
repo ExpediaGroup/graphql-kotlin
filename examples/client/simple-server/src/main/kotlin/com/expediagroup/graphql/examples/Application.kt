@@ -17,7 +17,7 @@ class Application {
     private val graphqlUUIDType = GraphQLScalarType.newScalar()
         .name("UUID")
         .description("Custom scalar representing UUID")
-        .coercing(object: Coercing<UUID, String> {
+        .coercing(object : Coercing<UUID, String> {
             override fun parseValue(input: Any?): UUID = UUID.fromString(
                 serialize(input)
             )
@@ -32,7 +32,7 @@ class Application {
         .build()
 
     @Bean
-    fun customHooks(): SchemaGeneratorHooks = object: SchemaGeneratorHooks {
+    fun customHooks(): SchemaGeneratorHooks = object : SchemaGeneratorHooks {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
             UUID::class -> graphqlUUIDType
             else -> null

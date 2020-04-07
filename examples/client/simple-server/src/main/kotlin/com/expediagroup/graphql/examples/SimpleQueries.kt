@@ -34,7 +34,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 @Component
-class SimpleQueries: Query {
+class SimpleQueries : Query {
     private val random = Random
 
     @GraphQLDescription("Query that returns enum value")

@@ -57,7 +57,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
         val outputDirectory = generateClientTask.get().outputDirectory.get().asFile
         outputDirectory.mkdirs()
 
-        val sourceSetContainer = project.findProject("sourceSets") as? SourceSetContainer
+        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
         sourceSetContainer?.findByName("main")?.java?.srcDir(outputDirectory.path)
     }
 }

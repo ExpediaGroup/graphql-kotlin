@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.generator.types
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -42,8 +43,8 @@ internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGenerator
     scalarTypeDefinition.description?.content?.let { kdoc ->
         scalarTypeSpec.addKdoc(kdoc)
     }
-    val scalarType = Class.forName(converterMapping.type).kotlin
-    val scalarValue = PropertySpec.builder("value", scalarType)
+
+    val scalarValue = PropertySpec.builder("value", converterMapping.type.toClassName())
         .initializer("value")
         .build()
     scalarTypeSpec.addProperty(scalarValue)
@@ -53,9 +54,9 @@ internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGenerator
         .build()
     scalarTypeSpec.primaryConstructor(constructor)
 
-    val converterType = Class.forName(converterMapping.converter).kotlin
-    val converter = PropertySpec.builder("converter", converterType)
-        .initializer("%T()", converterType)
+    val converterClassName = converterMapping.converter.toClassName()
+    val converter = PropertySpec.builder("converter", converterClassName)
+        .initializer("%T()", converterClassName)
         .build()
     scalarTypeSpec.addFunction(FunSpec.builder("rawValue")
         .addAnnotation(JsonValue::class.java)
@@ -75,3 +76,13 @@ internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGenerator
     context.typeSpecs[scalarTypeDefinition.name] = scalar
     return scalar
 }
+
+private fun String.toClassName(): ClassName {
+    val index = this.lastIndexOf('.')
+    return if (index < 0) {
+        ClassName("", this)
+    } else {
+        ClassName(this.substring(0, index), this.substring(index + 1))
+    }
+}
+

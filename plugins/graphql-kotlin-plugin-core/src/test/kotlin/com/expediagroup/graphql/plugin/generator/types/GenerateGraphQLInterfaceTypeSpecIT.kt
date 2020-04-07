@@ -33,6 +33,8 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             import com.expediagroup.graphql.client.GraphQLResult
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
             import kotlin.Float
             import kotlin.Int
             import kotlin.String
@@ -88,8 +90,8 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                * Very basic interface
                */
               @JsonTypeInfo(
-                use = JsonTypeInfo.Id,
-                include = JsonTypeInfo.As,
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
                 property = "__typename"
               )
               @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
@@ -145,6 +147,8 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             import com.expediagroup.graphql.client.GraphQLResult
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
             import kotlin.Float
             import kotlin.Int
             import kotlin.String
@@ -200,8 +204,8 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                * Very basic interface
                */
               @JsonTypeInfo(
-                use = JsonTypeInfo.Id,
-                include = JsonTypeInfo.As,
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
                 property = "__typename"
               )
               @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =

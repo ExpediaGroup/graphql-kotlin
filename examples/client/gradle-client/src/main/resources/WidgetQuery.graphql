@@ -1,7 +1,0 @@
-query WidgetQuery{
-    widget {
-        id
-        name
-        type
-    }
-}

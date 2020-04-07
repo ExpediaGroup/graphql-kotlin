@@ -1,3 +1,5 @@
+import com.expediagroup.graphql.plugin.generator.CustomScalarConverterMapping
+import com.expediagroup.graphql.plugin.gradle.graphql
 import com.expediagroup.graphql.plugin.gradle.tasks.GenerateClientTask
 
 plugins {
@@ -15,6 +17,7 @@ val generateClient by tasks.getting(GenerateClientTask::class) {
     packageName.set("com.expediagroup.graphql.generated")
     schemaFile.set(File(project.projectDir, "schema.graphql"))
 
+    scalarConverters.put("UUID", CustomScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter"))
 //    schemaFile.set(downloadSDL.outputFile)
 //    dependsOn("downloadSDL")
 }

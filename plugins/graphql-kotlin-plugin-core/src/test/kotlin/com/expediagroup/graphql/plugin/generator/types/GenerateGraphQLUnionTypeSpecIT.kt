@@ -33,6 +33,8 @@ class GenerateGraphQLUnionTypeSpecIT {
             import com.expediagroup.graphql.client.GraphQLResult
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
             import kotlin.Int
             import kotlin.String
 
@@ -83,8 +85,8 @@ class GenerateGraphQLUnionTypeSpecIT {
                * Very basic union of BasicObject and ComplexObject
                */
               @JsonTypeInfo(
-                use = JsonTypeInfo.Id,
-                include = JsonTypeInfo.As,
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
                 property = "__typename"
               )
               @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
@@ -129,6 +131,8 @@ class GenerateGraphQLUnionTypeSpecIT {
             import com.expediagroup.graphql.client.GraphQLResult
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
             import kotlin.Int
             import kotlin.String
 
@@ -179,8 +183,8 @@ class GenerateGraphQLUnionTypeSpecIT {
                * Very basic union of BasicObject and ComplexObject
                */
               @JsonTypeInfo(
-                use = JsonTypeInfo.Id,
-                include = JsonTypeInfo.As,
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
                 property = "__typename"
               )
               @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =

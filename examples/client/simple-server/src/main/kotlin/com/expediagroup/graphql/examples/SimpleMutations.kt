@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component
 import kotlin.random.Random
 
 @Component
-class SimpleMutations: Mutation {
+class SimpleMutations : Mutation {
     private val random = Random
 
     @GraphQLDescription("Example of a muation")

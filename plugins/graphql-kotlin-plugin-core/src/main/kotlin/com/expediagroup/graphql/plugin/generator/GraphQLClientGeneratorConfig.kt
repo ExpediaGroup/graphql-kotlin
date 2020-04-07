@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.generator
 
+import java.io.Serializable
+
 /**
  * GraphQL client generator configuration.
  */
@@ -31,9 +33,9 @@ data class GraphQLClientGeneratorConfig(
 /**
  * Custom scalar to converter mapping.
  */
-data class CustomScalarConverterMapping(
+data class CustomScalarConverterMapping (
     /** Fully qualified class name of a custom scalar type, e.g. java.util.UUID */
     val type: String,
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     val converter: String
-)
+): Serializable

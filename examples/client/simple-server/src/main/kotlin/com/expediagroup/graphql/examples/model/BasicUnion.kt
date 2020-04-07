@@ -22,7 +22,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 interface BasicUnion
 
 @GraphQLDescription("Some basic description")
-data class BasicObject(val id: Int, @GraphQLDescription("Object name") val name: String): BasicUnion
+data class BasicObject(val id: Int, @GraphQLDescription("Object name") val name: String) : BasicUnion
 
 @GraphQLDescription("""Multi line description of a complex type.
 This is a second line of the paragraph.
@@ -37,7 +37,7 @@ Second line of the description""")
     val optional: String? = null,
     @GraphQLDescription("Some additional details")
     val details: DetailsObject
-): BasicUnion
+) : BasicUnion
 
 @GraphQLDescription("Inner type object description")
 data class DetailsObject(

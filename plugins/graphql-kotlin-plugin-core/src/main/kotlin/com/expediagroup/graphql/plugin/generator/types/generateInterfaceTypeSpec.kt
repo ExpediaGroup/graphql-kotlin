@@ -24,6 +24,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.Field
@@ -131,9 +132,11 @@ internal fun generateInterfaceTypeSpec(
     }
 
     // add jackson annotations to handle deserialization
+    val jsonTypeInfoIdName = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.Id.NAME")
+    val jsonTypeInfoAsProperty = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.As.PROPERTY")
     interfaceTypeSpec.addAnnotation(AnnotationSpec.builder(JsonTypeInfo::class.java)
-        .addMember("use = %T", JsonTypeInfo.Id.NAME::class.java)
-        .addMember("include = %T", JsonTypeInfo.As.PROPERTY::class.java)
+        .addMember("use = %M", jsonTypeInfoIdName)
+        .addMember("include = %M", jsonTypeInfoAsProperty)
         .addMember("property = %S", "__typename")
         .build())
     interfaceTypeSpec.addAnnotation(AnnotationSpec.builder(JsonSubTypes::class.java)

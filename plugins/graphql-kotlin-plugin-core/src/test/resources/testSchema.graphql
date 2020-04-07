@@ -14,14 +14,14 @@ type Query {
   "Query returning union"
   unionQuery: BasicUnion
   "Query that accepts some input arguments"
-  inputObjectQuery(criteria: SimpleInput): Boolean
+  inputObjectQuery(criteria: SimpleArgumentInput): Boolean
   "Deprecated query that should not be used anymore"
   deprecatedQuery: String @deprecated(reason: "old query should not be used")
 }
 
 type Mutation {
   "Example of a mutation"
-  simpleMutation(update: MutationInput): BasicObject
+  simpleMutation(update: SimpleArgumentInput): BasicObject
 }
 
 "Custom enum description"
@@ -128,15 +128,11 @@ type SecondInterfaceImplementation implements BasicInterface {
 union BasicUnion = BasicObject | ComplexObject
 
 "Test input object"
-input SimpleInput {
+input SimpleArgumentInput {
+  "New value to be set"
+  newName: String
   "Minimum value for test criteria"
   min: Float,
   "Maximum value for test criteria"
   max: Float
-}
-
-"Very basic mutation input type"
-input MutationInput {
-  "New value to be set"
-  newName: String
 }

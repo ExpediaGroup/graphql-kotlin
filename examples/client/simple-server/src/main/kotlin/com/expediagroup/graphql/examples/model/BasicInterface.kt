@@ -34,7 +34,7 @@ data class FirstInterfaceImplementation(
     override val name: String,
     @GraphQLDescription("Custom field integer value")
     val intValue: Int
-): BasicInterface
+) : BasicInterface
 
 @GraphQLDescription("Example interface implementation where value is a float")
 data class SecondInterfaceImplementation(
@@ -44,4 +44,4 @@ data class SecondInterfaceImplementation(
     override val name: String,
     @GraphQLDescription("Custom field float value")
     val floatValue: Float
-): BasicInterface
+) : BasicInterface
