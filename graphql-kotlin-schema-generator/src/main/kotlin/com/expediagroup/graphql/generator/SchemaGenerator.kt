@@ -24,7 +24,6 @@ import com.expediagroup.graphql.generator.types.generateGraphQLType
 import com.expediagroup.graphql.generator.types.generateMutations
 import com.expediagroup.graphql.generator.types.generateQueries
 import com.expediagroup.graphql.generator.types.generateSubscriptions
-import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
@@ -45,7 +44,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
     internal val additionalTypes: MutableSet<KType> = mutableSetOf()
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
-    internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     /**
@@ -65,7 +63,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         builder.subscription(generateSubscriptions(this, subscriptions))
         builder.additionalTypes(generateAdditionalTypes())
         builder.additionalDirectives(directives.values.toSet())
-        builder.codeRegistry(codeRegistry.build())
+        builder.codeRegistry(config.codeRegistry.build())
 
         return config.hooks.willBuildSchema(builder).build()
     }

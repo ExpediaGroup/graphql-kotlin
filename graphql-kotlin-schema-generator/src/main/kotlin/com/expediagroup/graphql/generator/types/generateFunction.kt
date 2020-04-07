@@ -56,8 +56,8 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
 
     if (!abstract) {
         val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
-        generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
+        generator.config.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
     }
 
-    return generator.config.hooks.onRewireGraphQLType(graphQLType, coordinates, generator.codeRegistry).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(graphQLType, coordinates, generator.config.codeRegistry).safeCast()
 }

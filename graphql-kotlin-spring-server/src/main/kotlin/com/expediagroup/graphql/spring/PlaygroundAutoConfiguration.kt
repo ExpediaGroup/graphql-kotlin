@@ -18,11 +18,10 @@ package com.expediagroup.graphql.spring
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
-import org.springframework.web.reactive.function.server.RouterFunction
-import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
@@ -32,22 +31,22 @@ import org.springframework.web.reactive.function.server.html
  */
 @ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing = true)
 @Configuration
+@EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class PlaygroundAutoConfiguration(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
 ) {
 
+    private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
+        reader.readText()
+            .replace("\${graphQLEndpoint}", config.endpoint)
+            .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
+    }
+
     @Bean
-    fun playgroundRoute(): RouterFunction<ServerResponse> {
-        val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
-            reader.readText()
-                .replace("\${graphQLEndpoint}", config.endpoint)
-                .replace("\${subscriptionsEndpoint}", config.subscriptions.endpoint)
-        }
-        return coRouter {
-            GET(config.playground.endpoint) {
-                ok().html().bodyValueAndAwait(body)
-            }
+    fun playgroundRoute() = coRouter {
+        GET(config.playground.endpoint) {
+            ok().html().bodyValueAndAwait(body)
         }
     }
 }

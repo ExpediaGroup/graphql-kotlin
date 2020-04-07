@@ -24,8 +24,10 @@ import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import graphql.schema.GraphQLSchema
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -44,6 +46,8 @@ internal val graphQLMediaType = MediaType("application", "graphql")
  * Default route configuration for GraphQL service and SDL service endpoints.
  */
 @Configuration
+@Import(GraphQLAutoConfiguration::class)
+@EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class RoutesConfiguration(
     private val config: GraphQLConfigurationProperties,
     private val schema: GraphQLSchema,

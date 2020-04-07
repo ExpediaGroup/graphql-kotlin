@@ -44,7 +44,7 @@ import kotlin.test.assertNotNull
 class SubscriptionConfigurationTest {
 
     private val contextRunner: ReactiveWebApplicationContextRunner = ReactiveWebApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(GraphQLAutoConfiguration::class.java))
+        .withConfiguration(AutoConfigurations.of(SpringAutoConfiguration::class.java))
 
     @Test
     fun `verify subscription auto configuration`() {

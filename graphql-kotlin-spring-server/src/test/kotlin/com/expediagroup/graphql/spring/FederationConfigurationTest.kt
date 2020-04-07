@@ -46,7 +46,7 @@ import kotlin.test.assertNotNull
 class FederationConfigurationTest {
 
     private val contextRunner: ReactiveWebApplicationContextRunner = ReactiveWebApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(GraphQLAutoConfiguration::class.java))
+        .withConfiguration(AutoConfigurations.of(SpringAutoConfiguration::class.java))
 
     @Test
     fun `verify federated schema auto configuration`() {

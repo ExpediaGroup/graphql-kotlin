@@ -20,13 +20,17 @@ import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
+import graphql.schema.GraphQLCodeRegistry
 
 /**
  * Settings for generating the federated schema.
+ *
+ * This provided extra behaviour through the [FederatedSchemaGeneratorHooks].
  */
 class FederatedSchemaGeneratorConfig(
     override val supportedPackages: List<String>,
     override val topLevelNames: TopLevelNames = TopLevelNames(),
     override val hooks: FederatedSchemaGeneratorHooks,
-    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
-) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider)
+    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider(),
+    override val codeRegistry: GraphQLCodeRegistry.Builder = GraphQLCodeRegistry.newCodeRegistry()
+) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider, codeRegistry)

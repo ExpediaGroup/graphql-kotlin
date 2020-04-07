@@ -23,15 +23,19 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
+import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import java.util.Optional
 
 /**
@@ -39,9 +43,11 @@ import java.util.Optional
  */
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
-class FederationAutoConfiguration {
+@Import(CommonSchemaConfiguration::class)
+@EnableConfigurationProperties(GraphQLConfigurationProperties::class)
+class FederatedSchemaAutoConfiguration {
 
-    private val logger = LoggerFactory.getLogger(FederationAutoConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
 
     @Bean
     @ConditionalOnMissingBean
@@ -57,12 +63,14 @@ class FederationAutoConfiguration {
         config: GraphQLConfigurationProperties,
         hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
-        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
+        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider,
+        codeRegistry: GraphQLCodeRegistry.Builder
     ): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
         supportedPackages = config.packages,
         topLevelNames = topLevelNames.orElse(TopLevelNames()),
         hooks = hooks,
-        dataFetcherFactoryProvider = dataFetcherFactoryProvider
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider,
+        codeRegistry = codeRegistry
     )
 
     @Bean

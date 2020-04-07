@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.spring.exception.KotlinDataFetcherExceptionHandler
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
@@ -26,7 +24,6 @@ import com.expediagroup.graphql.spring.execution.EmptyDataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.execution.SimpleQueryHandler
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -54,20 +51,9 @@ const val DEFAULT_INSTRUMENTATION_ORDER = 0
  * SpringBoot auto-configuration that creates all beans required to start up reactive GraphQL web app.
  */
 @Configuration
-@Import(
-    RoutesConfiguration::class,
-    SchemaAutoConfiguration::class,
-    FederationAutoConfiguration::class,
-    SubscriptionAutoConfiguration::class,
-    PlaygroundAutoConfiguration::class
-)
+@Import(SchemaAutoConfiguration::class, FederatedSchemaAutoConfiguration::class)
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class GraphQLAutoConfiguration {
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun dataFetcherFactoryProvider(objectMapper: ObjectMapper): KotlinDataFetcherFactoryProvider =
-        SimpleKotlinDataFetcherFactoryProvider(objectMapper)
 
     @Bean
     @ConditionalOnMissingBean
