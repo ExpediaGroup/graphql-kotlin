@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.directives
 
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import graphql.introspection.Introspection
 
@@ -55,10 +56,8 @@ import graphql.introspection.Introspection
  * @see ExternalDirective
  */
 @GraphQLDirective(
-    name = KEY_DIRECTIVE_NAME,
+    name = FederationDirectives.keyName,
     description = "Space separated list of primary keys needed to access federated object",
     locations = [Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE]
 )
 annotation class KeyDirective(val fields: FieldSet)
-
-internal const val KEY_DIRECTIVE_NAME = "key"

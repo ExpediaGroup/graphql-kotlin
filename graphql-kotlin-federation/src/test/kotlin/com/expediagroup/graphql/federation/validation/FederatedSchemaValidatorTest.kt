@@ -16,9 +16,7 @@
 
 package com.expediagroup.graphql.federation.validation
 
-import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.federation.directives.extendsDirectiveType
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.externalDirective
@@ -111,7 +109,7 @@ class FederatedSchemaValidatorTest {
     @Test
     fun `validate federated GraphQLObjectType with empty key directive`() {
         val keyDirectiveType = GraphQLDirective.newDirective()
-            .name(KEY_DIRECTIVE_NAME)
+            .name(FederationDirectives.keyName)
 
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
@@ -149,7 +147,7 @@ class FederatedSchemaValidatorTest {
             .type(GraphQLString)
             .withDirective(externalDirective)
 
-        val directive = GraphQLDirective.newDirective().name(PROVIDES_DIRECTIVE_NAME)
+        val directive = GraphQLDirective.newDirective().name(FederationDirectives.providesName)
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .withDirective(directive)
@@ -189,7 +187,7 @@ class FederatedSchemaValidatorTest {
             .type(GraphQLString)
             .withDirective(externalDirective)
 
-        val directive = GraphQLDirective.newDirective().name(REQUIRES_DIRECTIVE_NAME)
+        val directive = GraphQLDirective.newDirective().name(FederationDirectives.requiresName)
         val field = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .withDirective(directive)

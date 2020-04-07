@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.federation.validation
 
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.extensions.unwrapType
-import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.extensions.isExtendedType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
@@ -39,7 +39,7 @@ internal fun validateProvidesDirective(federatedType: String, field: GraphQLFiel
             // @provides is applicable on both base and federated types and always references @external fields
             validateDirective(
                 "$federatedType.${field.name}",
-                PROVIDES_DIRECTIVE_NAME,
+                FederationDirectives.providesName,
                 field.directivesByName,
                 returnTypeFields,
                 true)

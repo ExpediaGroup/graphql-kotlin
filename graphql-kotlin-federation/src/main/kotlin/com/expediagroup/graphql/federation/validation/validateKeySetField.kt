@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.federation.validation
 
-import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_NAME
+import com.apollographql.federation.graphqljava.FederationDirectives
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
@@ -25,7 +25,7 @@ import graphql.schema.GraphQLUnionType
 
 internal fun validateKeySetField(targetField: GraphQLFieldDefinition?, extendedType: Boolean, errors: MutableList<String>, validatedDirective: String) {
     if (null != targetField) {
-        val externalField = targetField.getDirective(EXTERNAL_DIRECTIVE_NAME) != null
+        val externalField = targetField.getDirective(FederationDirectives.externalName) != null
         if (extendedType && !externalField) {
             errors.add("$validatedDirective specifies invalid field set - extended type incorrectly references local field=${targetField.name}")
         } else if (!extendedType && externalField) {

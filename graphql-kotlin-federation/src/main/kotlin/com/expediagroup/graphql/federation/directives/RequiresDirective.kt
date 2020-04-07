@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.directives
 
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import graphql.introspection.Introspection
 
@@ -73,10 +74,8 @@ import graphql.introspection.Introspection
  * @see kotlin.properties.Delegates.notNull
  */
 @GraphQLDirective(
-    name = REQUIRES_DIRECTIVE_NAME,
+    name = FederationDirectives.requiresName,
     description = "Specifies required input field set from the base type for a resolver",
     locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class RequiresDirective(val fields: FieldSet)
-
-internal const val REQUIRES_DIRECTIVE_NAME = "requires"

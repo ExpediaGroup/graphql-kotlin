@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.federation
 
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
-import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -86,8 +86,7 @@ type CustomScalar {
   value: String!
 }
 
-type Query @extends {
-  "Union of all types that use the @key directive, including both types native to the schema and extended types"
+type Query {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service
 }
@@ -108,7 +107,6 @@ type _Service {
   sdl: String!
 }
 
-"Federation scalar type used to represent any external entities passed to _entities query."
 scalar _Any
 
 "Federation type representing set of fields"
@@ -127,7 +125,7 @@ class FederatedSchemaGeneratorTest {
         assertEquals(FEDERATED_SDL, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
-        assertNotNull(productType.getDirective(KEY_DIRECTIVE_NAME))
+        assertNotNull(productType.getDirective(FederationDirectives.keyName))
 
         val entityUnion = schema.getType("_Entity") as? GraphQLUnionType
         assertNotNull(entityUnion)

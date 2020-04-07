@@ -16,11 +16,7 @@
 
 package com.expediagroup.graphql.federation.validation
 
-import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.extensions.isFederatedType
 import graphql.schema.GraphQLDirective
@@ -57,7 +53,7 @@ internal class FederatedSchemaValidator {
     private fun validate(federatedType: String, fields: List<GraphQLFieldDefinition>, directives: Map<String, GraphQLDirective>) {
         val errors = mutableListOf<String>()
         val fieldMap = fields.associateBy { it.name }
-        val extendedType = directives.containsKey(EXTENDS_DIRECTIVE_NAME)
+        val extendedType = directives.containsKey(FederationDirectives.extendsName)
 
         // [OK]    @key directive is specified
         // [OK]    @key references valid existing fields
@@ -65,21 +61,21 @@ internal class FederatedSchemaValidator {
         // [ERROR] @key references fields resulting in list
         // [ERROR] @key references fields resulting in union
         // [ERROR] @key references fields resulting in interface
-        errors.addAll(validateDirective(federatedType, KEY_DIRECTIVE_NAME, directives, fieldMap, extendedType))
+        errors.addAll(validateDirective(federatedType, FederationDirectives.keyName, directives, fieldMap, extendedType))
 
         for (field in fields) {
-            if (field.getDirective(REQUIRES_DIRECTIVE_NAME) != null) {
+            if (field.getDirective(FederationDirectives.requiresName) != null) {
                 errors.addAll(validateRequiresDirective(federatedType, field, fieldMap, extendedType))
             }
 
-            if (field.getDirective(PROVIDES_DIRECTIVE_NAME) != null) {
+            if (field.getDirective(FederationDirectives.providesName) != null) {
                 errors.addAll(validateProvidesDirective(federatedType, field))
             }
         }
 
         // [ERROR] federated base type references @external fields
         if (!extendedType) {
-            val externalFields = fields.filter { it.getDirective(EXTERNAL_DIRECTIVE_NAME) != null }.map { it.name }
+            val externalFields = fields.filter { it.getDirective(FederationDirectives.externalName) != null }.map { it.name }
             if (externalFields.isNotEmpty()) {
                 errors.add("base $federatedType type has fields marked with @external directive, fields=$externalFields")
             }

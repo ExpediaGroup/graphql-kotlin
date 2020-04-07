@@ -38,6 +38,12 @@ import kotlin.test.assertNotNull
 
 // SDL is returned without _entity and _service queries
 const val FEDERATED_SERVICE_SDL = """
+schema {
+  query: Query
+}
+
+directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
 interface Product @extends @key(fields : "id") {
   id: String! @external
   reviews: [Review!]!
@@ -51,8 +57,10 @@ type Book implements Product @extends @key(fields : "id") {
   weight: Float! @external
 }
 
+type Query
+
 type Review {
-  body: String!
+  body: String! @custom
   content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   customScalar: CustomScalar!
   id: String!
@@ -68,9 +76,14 @@ This is a multi-line comment on a custom scalar.
 This should still work multiline and double quotes (") in the description.
 Line 3.
 ""${'"'}
-scalar CustomScalar"""
+scalar CustomScalar
+"""
 
 const val BASE_SERVICE_SDL = """
+schema {
+  query: Query
+}
+
 type Query {
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!
@@ -136,7 +149,7 @@ class ServiceQueryResolverTest {
         assertNotNull(result["data"] as? Map<*, *>) { data ->
             assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
                 val sdl = queryResult["sdl"] as? String
-                assertEquals(FEDERATED_SERVICE_SDL.trim(), sdl)
+                assertEquals(FEDERATED_SERVICE_SDL.trim(), sdl?.trim())
             }
         }
     }
@@ -165,7 +178,7 @@ class ServiceQueryResolverTest {
         assertNotNull(result["data"] as? Map<*, *>) { data ->
             assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
                 val sdl = queryResult["sdl"] as? String
-                assertEquals(BASE_SERVICE_SDL.trim(), sdl)
+                assertEquals(BASE_SERVICE_SDL.trim(), sdl?.trim())
             }
         }
     }

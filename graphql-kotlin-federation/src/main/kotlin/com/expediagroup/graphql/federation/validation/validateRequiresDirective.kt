@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.federation.validation
 
-import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
+import com.apollographql.federation.graphqljava.FederationDirectives
 import graphql.schema.GraphQLFieldDefinition
 
 // [OK]    @requires references valid fields marked @external
@@ -25,7 +25,7 @@ import graphql.schema.GraphQLFieldDefinition
 internal fun validateRequiresDirective(validatedType: String, validatedField: GraphQLFieldDefinition, fieldMap: Map<String, GraphQLFieldDefinition>, extendedType: Boolean): List<String> {
     val errors = mutableListOf<String>()
     if (extendedType) {
-        errors.addAll(validateDirective("$validatedType.${validatedField.name}", REQUIRES_DIRECTIVE_NAME, validatedField.directivesByName, fieldMap, extendedType))
+        errors.addAll(validateDirective("$validatedType.${validatedField.name}", FederationDirectives.requiresName, validatedField.directivesByName, fieldMap, extendedType))
     } else {
         errors.add("base $validatedType type has fields marked with @requires directive, validatedField=${validatedField.name}")
     }

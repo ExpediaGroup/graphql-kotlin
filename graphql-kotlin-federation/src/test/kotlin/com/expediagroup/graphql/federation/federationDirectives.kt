@@ -16,16 +16,14 @@
 
 package com.expediagroup.graphql.federation
 
-import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_NAME
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.federation.directives.FieldSet
-import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
 import graphql.schema.GraphQLDirective
 import io.mockk.every
 import io.mockk.mockk
 
 internal fun getKeyDirective(diretiveValue: String): GraphQLDirective = mockk {
-    every { name } returns KEY_DIRECTIVE_NAME
+    every { name } returns FederationDirectives.keyName
     every { getArgument(eq("fields")) } returns mockk {
         every { value } returns mockk<FieldSet> {
             every { value } returns diretiveValue
@@ -34,7 +32,7 @@ internal fun getKeyDirective(diretiveValue: String): GraphQLDirective = mockk {
 }
 
 internal fun getRequiresDirective(directiveValue: String): GraphQLDirective = mockk {
-    every { name } returns REQUIRES_DIRECTIVE_NAME
+    every { name } returns FederationDirectives.requiresName
     every { getArgument(eq("fields")) } returns mockk {
         every { value } returns mockk<FieldSet> {
             every { value } returns directiveValue
@@ -42,4 +40,4 @@ internal fun getRequiresDirective(directiveValue: String): GraphQLDirective = mo
     }
 }
 
-internal val externalDirective = GraphQLDirective.newDirective().name(EXTERNAL_DIRECTIVE_NAME)
+internal val externalDirective = GraphQLDirective.newDirective().name(FederationDirectives.externalName)

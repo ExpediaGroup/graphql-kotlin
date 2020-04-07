@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.directives
 
+import com.apollographql.federation.graphqljava.FederationDirectives
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import graphql.introspection.Introspection
 
@@ -53,14 +54,14 @@ private const val DESCRIPTION = "Marks target object as extending part of the fe
  * @see KeyDirective
  */
 @GraphQLDirective(
-    name = EXTENDS_DIRECTIVE_NAME,
+    name = FederationDirectives.extendsName,
     description = DESCRIPTION,
     locations = [Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE]
 )
 annotation class ExtendsDirective
 
 internal val extendsDirectiveType: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
-    .name(EXTENDS_DIRECTIVE_NAME)
+    .name(FederationDirectives.extendsName)
     .description(DESCRIPTION)
     .validLocations(Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE)
     .build()
