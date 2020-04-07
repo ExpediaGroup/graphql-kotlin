@@ -28,5 +28,6 @@ open class SchemaGeneratorConfig(
     open val supportedPackages: List<String>,
     open val topLevelNames: TopLevelNames = TopLevelNames(),
     open val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks,
-    open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
+    open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider(),
+    open val introspectionEnabled: Boolean = true
 )

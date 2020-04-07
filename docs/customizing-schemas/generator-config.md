@@ -19,6 +19,7 @@ schema.
   `Subscription`
 * `hooks` _[Optional]_ - Set custom behaviors for generating the schema, see below for details.
 * `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
+* `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
 
 ## Schema generator hooks
 

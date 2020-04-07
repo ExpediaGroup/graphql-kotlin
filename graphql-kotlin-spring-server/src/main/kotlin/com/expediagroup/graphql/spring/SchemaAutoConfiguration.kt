@@ -59,7 +59,8 @@ class SchemaAutoConfiguration {
             supportedPackages = config.packages,
             topLevelNames = topLevelNames.orElse(TopLevelNames()),
             hooks = generatorHooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider
+            dataFetcherFactoryProvider = dataFetcherFactoryProvider,
+            introspectionEnabled = config.introspection.enabled
         )
     }
 

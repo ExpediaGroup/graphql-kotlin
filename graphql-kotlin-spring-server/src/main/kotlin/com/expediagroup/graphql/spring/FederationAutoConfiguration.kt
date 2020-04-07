@@ -62,7 +62,8 @@ class FederationAutoConfiguration {
         supportedPackages = config.packages,
         topLevelNames = topLevelNames.orElse(TopLevelNames()),
         hooks = hooks,
-        dataFetcherFactoryProvider = dataFetcherFactoryProvider
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider,
+        introspectionEnabled = config.introspection.enabled
     )
 
     @Bean
