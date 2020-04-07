@@ -48,10 +48,10 @@ import java.util.Optional
 const val DEFAULT_INSTRUMENTATION_ORDER = 0
 
 /**
- * SpringBoot auto-configuration that creates all beans required to start up reactive GraphQL web app.
+ * SpringBoot auto-configuration that creates all beans required to start a GraphQL executor.
  */
 @Configuration
-@Import(SchemaAutoConfiguration::class, FederatedSchemaAutoConfiguration::class)
+@Import(SimpleSchemaAutoConfiguration::class, FederatedSchemaAutoConfiguration::class)
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 class GraphQLAutoConfiguration {
 
@@ -87,12 +87,15 @@ class GraphQLAutoConfiguration {
                 graphQL.instrumentation(ChainedInstrumentation(sorted))
             }
         }
+
         executionIdProvider.ifPresent {
             graphQL.executionIdProvider(it)
         }
+
         preparsedDocumentProvider.ifPresent {
             graphQL.preparsedDocumentProvider(it)
         }
+
         return graphQL.build()
     }
 

@@ -16,17 +16,17 @@
 
 package com.expediagroup.graphql.spring
 
+import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
-import com.expediagroup.graphql.federation.toFederatedSchema
+import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
+import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -38,37 +38,32 @@ import org.springframework.context.annotation.Import
 import java.util.Optional
 
 /**
- * SpringBoot autoconfiguration for generating Federated GraphQL schema.
+ * SpringBoot autoconfiguration for generating a non-federated GraphQL schema.
  */
-@ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
+@ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "false", matchIfMissing = true)
 @Configuration
 @Import(SchemaAutoConfiguration::class)
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)
-class FederatedSchemaAutoConfiguration {
+class SimpleSchemaAutoConfiguration {
 
-    private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun federatedTypeRegistry(): FederatedTypeRegistry = FederatedTypeRegistry(emptyMap())
+    private val logger = LoggerFactory.getLogger(SimpleSchemaAutoConfiguration::class.java)
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedSchemaGeneratorHooks(registry: FederatedTypeRegistry): FederatedSchemaGeneratorHooks = FederatedSchemaGeneratorHooks(registry)
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun federatedSchemaConfig(
+    fun schemaConfig(
         config: GraphQLConfigurationProperties,
-        hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
+        hooks: Optional<SchemaGeneratorHooks>,
         dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
-    ): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
-        supportedPackages = config.packages,
-        topLevelNames = topLevelNames.orElse(TopLevelNames()),
-        hooks = hooks,
-        dataFetcherFactoryProvider = dataFetcherFactoryProvider
-    )
+    ): SchemaGeneratorConfig {
+        val generatorHooks = hooks.orElse(NoopSchemaGeneratorHooks)
+        return SchemaGeneratorConfig(
+            supportedPackages = config.packages,
+            topLevelNames = topLevelNames.orElse(TopLevelNames()),
+            hooks = generatorHooks,
+            dataFetcherFactoryProvider = dataFetcherFactoryProvider
+        )
+    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -76,9 +71,9 @@ class FederatedSchemaAutoConfiguration {
         queries: Optional<List<Query>>,
         mutations: Optional<List<Mutation>>,
         subscriptions: Optional<List<Subscription>>,
-        schemaConfig: FederatedSchemaGeneratorConfig
+        schemaConfig: SchemaGeneratorConfig
     ): GraphQLSchema {
-        val schema = toFederatedSchema(
+        val schema = toSchema(
             config = schemaConfig,
             queries = queries.orElse(emptyList()).toTopLevelObjects(),
             mutations = mutations.orElse(emptyList()).toTopLevelObjects(),

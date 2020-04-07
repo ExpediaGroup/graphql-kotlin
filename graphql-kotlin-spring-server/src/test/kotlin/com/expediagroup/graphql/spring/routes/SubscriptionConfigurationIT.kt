@@ -49,7 +49,7 @@ import java.net.URI
     ]
 )
 @EnableAutoConfiguration
-class SubscriptionRoutesConfigurationIT(
+class SubscriptionConfigurationIT(
     @Autowired private val testClient: WebTestClient,
     @LocalServerPort private var port: Int
 ) {

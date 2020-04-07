@@ -41,10 +41,10 @@ import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class SubscriptionConfigurationTest {
+class SubscriptionAutoConfigurationTest {
 
     private val contextRunner: ReactiveWebApplicationContextRunner = ReactiveWebApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(SpringAutoConfiguration::class.java))
+        .withConfiguration(AutoConfigurations.of(GraphQLSpringAutoConfiguration::class.java))
 
     @Test
     fun `verify subscription auto configuration`() {

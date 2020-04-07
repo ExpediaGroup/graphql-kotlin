@@ -45,10 +45,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class SchemaConfigurationTest {
+class SimpleSchemaAutoConfigurationTest {
 
     private val contextRunner: ReactiveWebApplicationContextRunner = ReactiveWebApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(SpringAutoConfiguration::class.java))
+        .withConfiguration(AutoConfigurations.of(GraphQLSpringAutoConfiguration::class.java))
 
     @Test
     fun `verify schema auto configuration`() {

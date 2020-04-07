@@ -47,6 +47,6 @@ internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): Graph
         }
 
     val unionType = builder.build()
-    generator.config.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
+    generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(unionType).safeCast()
 }

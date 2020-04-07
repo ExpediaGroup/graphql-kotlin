@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.expediagroup.graphql.spring.SpringAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.expediagroup.graphql.spring.GraphQLSpringAutoConfiguration

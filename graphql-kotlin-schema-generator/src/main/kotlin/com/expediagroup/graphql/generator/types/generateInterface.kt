@@ -56,6 +56,6 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .forEach { generator.additionalTypes.add(it.createType()) }
 
     val interfaceType = builder.build()
-    generator.config.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
+    generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(interfaceType).safeCast()
 }

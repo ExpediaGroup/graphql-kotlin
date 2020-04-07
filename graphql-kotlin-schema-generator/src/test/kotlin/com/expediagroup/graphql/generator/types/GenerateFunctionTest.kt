@@ -177,7 +177,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         assertEquals(expected = 1, actual = result.arguments.size)
-        assertTrue(generator.config.codeRegistry.getDataFetcher(FieldCoordinates.coordinates("Query", kFunction.name), result) is FunctionDataFetcher)
+        assertTrue(generator.codeRegistry.getDataFetcher(FieldCoordinates.coordinates("Query", kFunction.name), result) is FunctionDataFetcher)
     }
 
     @Test

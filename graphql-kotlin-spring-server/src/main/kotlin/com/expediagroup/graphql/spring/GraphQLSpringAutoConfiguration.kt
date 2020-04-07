@@ -19,7 +19,7 @@ package com.expediagroup.graphql.spring
 import org.springframework.context.annotation.Import
 
 /**
- * Top level class to import all the beans into the application context.
+ * Top level class to import all the beans of graphql-kotlin-spring-server into the application context.
  * This is set in the spring.factories as the enabled auto configuration class.
  */
 @Import(
@@ -27,4 +27,4 @@ import org.springframework.context.annotation.Import
     PlaygroundAutoConfiguration::class,
     SubscriptionAutoConfiguration::class
 )
-class SpringAutoConfiguration
+class GraphQLSpringAutoConfiguration

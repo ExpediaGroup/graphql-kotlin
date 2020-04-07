@@ -53,7 +53,7 @@ internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, pa
     val parentType = parentClass.getSimpleName()
     val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
     val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
-    generator.config.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
+    generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
 
-    return generator.config.hooks.onRewireGraphQLType(field, coordinates, generator.config.codeRegistry).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(field, coordinates, generator.codeRegistry).safeCast()
 }

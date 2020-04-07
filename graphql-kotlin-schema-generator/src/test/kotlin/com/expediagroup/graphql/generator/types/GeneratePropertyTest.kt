@@ -173,7 +173,7 @@ internal class GeneratePropertyTest : TypeTestHelper() {
 
         val parentType = ClassWithProperties::class.getSimpleName()
         val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
-        val targetDataFetcher = generator.config.codeRegistry.getDataFetcher(coordinates, result)
+        val targetDataFetcher = generator.codeRegistry.getDataFetcher(coordinates, result)
         assertTrue(targetDataFetcher is PropertyDataFetcher)
     }
 
@@ -204,7 +204,7 @@ internal class GeneratePropertyTest : TypeTestHelper() {
 
         val parentType = ClassWithProperties::class.getSimpleName()
         val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
-        val targetDataFetcher = localGenerator.config.codeRegistry.getDataFetcher(coordinates, result)
+        val targetDataFetcher = localGenerator.codeRegistry.getDataFetcher(coordinates, result)
         assertFalse(targetDataFetcher is PropertyDataFetcher)
         assertEquals(expected = mockDataFetcher, actual = targetDataFetcher)
         localGenerator.close()

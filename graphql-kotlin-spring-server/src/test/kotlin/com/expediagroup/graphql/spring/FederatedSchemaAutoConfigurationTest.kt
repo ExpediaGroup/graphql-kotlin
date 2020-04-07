@@ -43,10 +43,10 @@ import org.springframework.context.annotation.Configuration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class FederationConfigurationTest {
+class FederatedSchemaAutoConfigurationTest {
 
     private val contextRunner: ReactiveWebApplicationContextRunner = ReactiveWebApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(SpringAutoConfiguration::class.java))
+        .withConfiguration(AutoConfigurations.of(GraphQLSpringAutoConfiguration::class.java))
 
     @Test
     fun `verify federated schema auto configuration`() {
