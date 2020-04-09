@@ -25,6 +25,7 @@ import com.expediagroup.graphql.plugin.gradle.tasks.IntrospectSchemaTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
 
 private const val PLUGIN_EXTENSION_NAME = "graphql"
 
@@ -36,28 +37,74 @@ class GraphQLGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(PLUGIN_EXTENSION_NAME, GraphQLPluginExtension::class.java, project)
 
-        project.tasks.register(INTROSPECT_SCHEMA_TASK, IntrospectSchemaTask::class.java) {
-            it.endpoint.set(extension.endpoint)
-            it.outputFileName.set(extension.schemaFileName)
+        val introspectSchemaTask = project.tasks.register(INTROSPECT_SCHEMA_TASK, IntrospectSchemaTask::class.java)
+        configureIntrospectSchemaTask(project, introspectSchemaTask, extension)
+
+        val downloadSDLTask = project.tasks.register(DOWNLOAD_SDL_TASK, DownloadSDLTask::class.java)
+        configureDownloadSDLTask(project, downloadSDLTask, extension)
+
+        val generateClientTask = project.tasks.register(GENERATE_CLIENT_TASK, GenerateClientTask::class.java)
+        configureGenerateClientTask(project, generateClientTask, extension)
+    }
+
+    private fun configureIntrospectSchemaTask(project: Project, introspectSchemaTask: TaskProvider<IntrospectSchemaTask>, extension: GraphQLPluginExtension) {
+        if (extension.endpoint != null) {
+            introspectSchemaTask.configure { task ->
+                task.endpoint.set(project.provider { extension.endpoint })
+            }
         }
-        project.tasks.register(DOWNLOAD_SDL_TASK, DownloadSDLTask::class.java) {
-            it.endpoint.set(extension.sdlEndpoint)
-            it.outputFileName.set(extension.schemaFileName)
+    }
+
+    private fun configureDownloadSDLTask(project: Project, downloadSDLTask: TaskProvider<DownloadSDLTask>, extension: GraphQLPluginExtension) {
+        if (extension.sdlEndpoint != null) {
+            downloadSDLTask.configure {
+                it.endpoint.set(project.provider { extension.sdlEndpoint })
+            }
         }
-        val generateClientTask = project.tasks.register(GENERATE_CLIENT_TASK, GenerateClientTask::class.java) { task ->
-            task.schemaFileName.set(extension.schemaFileName)
-            task.schemaFile.set(extension.schemaFile)
-            task.packageName.set(extension.packageName)
-            task.queryFileDirectory.set(extension.queryFileDirectory)
+    }
+
+    private fun configureGenerateClientTask(
+        project: Project,
+        generateClientTask: TaskProvider<GenerateClientTask>,
+        extension: GraphQLPluginExtension
+    ) {
+        if (extension.endpoint != null) {
+            project.tasks.withType(IntrospectSchemaTask::class.java) { introspectTask ->
+                generateClientTask.configure {
+                    it.dependsOn(introspectTask.path)
+                    it.schemaFile.set(introspectTask.outputFile)
+                }
+            }
         }
 
-        project.tasks.findByPath("compileKotlin")?.dependsOn(GENERATE_CLIENT_TASK)
+        if (extension.sdlEndpoint != null) {
+            project.tasks.withType(DownloadSDLTask::class.java) { downloadSDLTask ->
+                generateClientTask.configure {
+                    it.dependsOn(downloadSDLTask.path)
+                    it.schemaFile.set(downloadSDLTask.outputFile)
+                }
+            }
+        }
 
-        // configure generated directory source sets
-        val outputDirectory = generateClientTask.get().outputDirectory.get().asFile
-        outputDirectory.mkdirs()
+        if (extension.packageName != null) {
+            generateClientTask.configure {
+                it.packageName.set(project.provider { extension.packageName })
+            }
+        }
 
-        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
-        sourceSetContainer?.findByName("main")?.java?.srcDir(outputDirectory.path)
+        generateClientTask.configure { task ->
+            task.allowDeprecatedFields.set(project.provider { extension.allowDeprecatedFields })
+            task.scalarConverters.set(extension.scalarConverters)
+            task.queryFiles.setFrom(extension.queryFiles.from)
+
+            project.tasks.findByPath("compileKotlin")?.dependsOn(task.path)
+
+            // configure generated directory source sets
+            val outputDirectory = task.outputDirectory.get().asFile
+            outputDirectory.mkdirs()
+
+            val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
+            sourceSetContainer?.findByName("main")?.java?.srcDir(outputDirectory.path)
+        }
     }
 }

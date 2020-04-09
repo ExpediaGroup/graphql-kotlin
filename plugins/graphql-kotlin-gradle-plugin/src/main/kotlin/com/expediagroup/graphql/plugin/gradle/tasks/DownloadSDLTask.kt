@@ -23,6 +23,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -39,18 +40,12 @@ open class DownloadSDLTask : DefaultTask() {
     @Option(option = "endpoint", description = "target SDL endpoint")
     val endpoint: Property<String> = project.objects.property(String::class.java)
 
-    @Input
-    @Option(option = "outputFileName", description = "target schema file name, defaults to schema.graphql created under build directory")
-    val outputFileName: Property<String> = project.objects.property(String::class.java)
-
     @OutputFile
-    val outputFile: Provider<RegularFile> = outputFileName.flatMap { name -> project.layout.buildDirectory.file(name) }
+    val outputFile: Provider<RegularFile> = project.layout.buildDirectory.file("schema.graphql")
 
     init {
         group = "GraphQL"
         description = "Download schema in SDL format from target endpoint."
-
-        outputFileName.convention("schema.graphql")
     }
 
     /**
@@ -65,5 +60,6 @@ open class DownloadSDLTask : DefaultTask() {
             val outputFile = outputFile.get().asFile
             outputFile.writeText(schema)
         }
+        logger.debug("successfully downloaded SDL")
     }
 }
