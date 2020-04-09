@@ -57,7 +57,7 @@ const val DEFAULT_INSTRUMENTATION_ORDER = 0
 @Import(
     RoutesConfiguration::class,
     SchemaAutoConfiguration::class,
-    FederationAutoConfiguration::class,
+    FederatedSchemaAutoConfiguration::class,
     SubscriptionAutoConfiguration::class,
     PlaygroundAutoConfiguration::class
 )

@@ -18,19 +18,17 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelNames
-import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
-import org.springframework.aop.framework.Advised
-import org.springframework.aop.support.AopUtils
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -83,13 +81,4 @@ class SchemaAutoConfiguration {
 
         return schema
     }
-}
-
-internal fun List<Any>.toTopLevelObjects() = this.map {
-    val klazz = if (AopUtils.isAopProxy(it) && it is Advised) {
-        it.targetSource.target!!::class
-    } else {
-        it::class
-    }
-    TopLevelObject(it, klazz)
 }

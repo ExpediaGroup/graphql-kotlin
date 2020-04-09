@@ -23,6 +23,7 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
+import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
@@ -39,9 +40,9 @@ import java.util.Optional
  */
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
-class FederationAutoConfiguration {
+class FederatedSchemaAutoConfiguration {
 
-    private val logger = LoggerFactory.getLogger(FederationAutoConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
 
     @Bean
     @ConditionalOnMissingBean
