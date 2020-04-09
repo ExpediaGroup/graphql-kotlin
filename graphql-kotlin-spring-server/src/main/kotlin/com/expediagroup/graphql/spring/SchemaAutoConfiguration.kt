@@ -23,6 +23,7 @@ import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
@@ -83,13 +84,4 @@ class SchemaAutoConfiguration {
 
         return schema
     }
-}
-
-internal fun List<Any>.toTopLevelObjects() = this.map {
-    val klazz = if (AopUtils.isAopProxy(it) && it is Advised) {
-        it.targetSource.target!!::class
-    } else {
-        it::class
-    }
-    TopLevelObject(it, klazz)
 }
