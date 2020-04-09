@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import graphql.ExecutionResult
 import graphql.GraphQLError
-import java.lang.Exception
 
 @JsonInclude(Include.NON_NULL)
 data class GraphQLResponse(
