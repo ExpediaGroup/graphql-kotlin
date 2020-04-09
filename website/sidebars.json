@@ -43,7 +43,8 @@
           "execution/exceptions",
           "execution/data-fetching-environment",
           "execution/contextual-data",
-          "execution/subscriptions"
+          "execution/subscriptions",
+          "execution/introspection"
         ]
       }
     ],

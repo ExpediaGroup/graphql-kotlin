@@ -28,5 +28,6 @@ class FederatedSchemaGeneratorConfig(
     override val supportedPackages: List<String>,
     override val topLevelNames: TopLevelNames = TopLevelNames(),
     override val hooks: FederatedSchemaGeneratorHooks,
-    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
-) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider)
+    override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider(),
+    override val introspectionEnabled: Boolean = true
+) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider, introspectionEnabled)

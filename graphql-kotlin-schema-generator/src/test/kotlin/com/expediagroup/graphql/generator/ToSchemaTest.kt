@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator
 
+import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLID
@@ -32,6 +33,7 @@ import graphql.GraphQL
 import graphql.Scalars
 import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionPath
+import graphql.introspection.IntrospectionQuery
 import graphql.language.SourceLocation
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
@@ -40,6 +42,7 @@ import java.net.CookieManager
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -347,6 +350,19 @@ class ToSchemaTest {
 
         assertNotNull(errors)
         assertEquals(expected = 1, actual = errors.size)
+    }
+
+    @Test
+    fun `SchemaGenerator disables introspection query`() {
+        val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"), introspectionEnabled = false)
+        val generator = SchemaGenerator(config)
+        val schema = generator.generateSchema(listOf(TopLevelObject(QueryObject())))
+
+        val graphql = GraphQL.newGraphQL(schema)
+            .build()
+        val result = graphql.execute(IntrospectionQuery.INTROSPECTION_QUERY)
+        assertFalse(result.isDataPresent)
+        assertTrue(result.errors?.isEmpty() == false)
     }
 
     class QueryObject {

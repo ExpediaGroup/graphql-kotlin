@@ -28,6 +28,7 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
@@ -65,6 +66,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         builder.subscription(generateSubscriptions(this, subscriptions))
         builder.additionalTypes(generateAdditionalTypes())
         builder.additionalDirectives(directives.values.toSet())
+
+        if (!config.introspectionEnabled) {
+            codeRegistry.fieldVisibility(NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY)
+        }
         builder.codeRegistry(codeRegistry.build())
 
         return config.hooks.willBuildSchema(builder).build()

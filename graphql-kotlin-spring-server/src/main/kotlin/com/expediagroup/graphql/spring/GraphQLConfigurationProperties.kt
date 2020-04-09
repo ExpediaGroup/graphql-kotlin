@@ -32,7 +32,8 @@ data class GraphQLConfigurationProperties(
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
-    val sdl: SDLConfigurationProperties = SDLConfigurationProperties()
+    val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
+    val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties()
 ) {
     /**
      * Apollo Federation configuration properties.
@@ -70,5 +71,13 @@ data class GraphQLConfigurationProperties(
         val enabled: Boolean = true,
         /** GraphQL SDL endpoint */
         val endpoint: String = "sdl"
+    )
+
+    /**
+     * Introspection configuration properties.
+     */
+    data class IntrospectionConfigurationProperties(
+        /** Boolean flag indicating whether introspection queries are enabled. */
+        val enabled: Boolean = true
     )
 }

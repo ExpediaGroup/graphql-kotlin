@@ -80,7 +80,8 @@ class GraphQLAutoConfiguration {
         dataFetcherExceptionHandler: DataFetcherExceptionHandler,
         instrumentations: Optional<List<Instrumentation>>,
         executionIdProvider: Optional<ExecutionIdProvider>,
-        preparsedDocumentProvider: Optional<PreparsedDocumentProvider>
+        preparsedDocumentProvider: Optional<PreparsedDocumentProvider>,
+        config: GraphQLConfigurationProperties
     ): GraphQL {
         val graphQL = GraphQL.newGraphQL(schema)
             .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
