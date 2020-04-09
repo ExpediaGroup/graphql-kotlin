@@ -55,12 +55,11 @@ class IntrospectionIT(@Autowired private val testClient: WebTestClient) {
 
     @Configuration
     class TestConfiguration {
-
         @Bean
         fun query(): Query = RandomQuery()
     }
 
-    class RandomQuery: Query {
+    class RandomQuery : Query {
         fun randomBoolean(): Boolean = Random.nextBoolean()
     }
 }
