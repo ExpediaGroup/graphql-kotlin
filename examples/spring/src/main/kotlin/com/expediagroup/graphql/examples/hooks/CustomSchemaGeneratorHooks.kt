@@ -22,9 +22,12 @@ import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import org.springframework.beans.factory.BeanFactoryAware
 import reactor.core.publisher.Mono
 import java.util.UUID
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Schema generator hook that adds additional scalar types.
@@ -46,6 +49,16 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
         Mono::class -> type.arguments.firstOrNull()?.type
         else -> type
     } ?: type
+
+    /**
+     * Exclude the Spring bean factory interface
+     */
+    override fun isValidSuperclass(kClass: KClass<*>): Boolean {
+        return when {
+            kClass.isSubclassOf(BeanFactoryAware::class) -> false
+            else -> super.isValidSuperclass(kClass)
+        }
+    }
 }
 
 internal val graphqlUUIDType = GraphQLScalarType.newScalar()
