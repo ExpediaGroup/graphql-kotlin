@@ -23,18 +23,17 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
-internal const val DOWNLOAD_SDL_TASK: String = "downloadSDL"
+internal const val DOWNLOAD_SDL_TASK_NAME: String = "graphqlDownloadSDL"
 
 /**
  * Task that attempts to download GraphQL schema in SDL format from the specified endpoint and save it locally.
  */
 @Suppress("UnstableApiUsage")
-open class DownloadSDLTask : DefaultTask() {
+open class GraphQLDownloadSDLTask : DefaultTask() {
 
     @Input
     @Option(option = "endpoint", description = "target SDL endpoint")

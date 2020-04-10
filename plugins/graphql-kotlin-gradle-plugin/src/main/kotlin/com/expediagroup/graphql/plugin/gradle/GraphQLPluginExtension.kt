@@ -16,12 +16,10 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.generator.CustomScalarConverterMapping
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
-import kotlin.properties.Delegates
 
 /**
  * GraphQL Kotlin Gradle Plugin extension.
@@ -37,7 +35,7 @@ open class GraphQLPluginExtension(project: Project) {
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
     /** Custom GraphQL scalar to converter information. */
-    val scalarConverters: MapProperty<String, CustomScalarConverterMapping> = project.objects.mapProperty(String::class.java, CustomScalarConverterMapping::class.java)
+    val scalarConverters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
     /** List of query files to be processed. */
     var queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 }

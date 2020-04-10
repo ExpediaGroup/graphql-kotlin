@@ -27,15 +27,15 @@ data class GraphQLClientGeneratorConfig(
     /** Boolean flag indicating whether to allow selection of deprecated fields. Defaults to false. */
     val allowDeprecated: Boolean = false,
     /** Custom scalar type to converter mapping. */
-    val scalarTypeToConverterMapping: Map<String, CustomScalarConverterMapping> = emptyMap()
+    val scalarTypeToConverterMapping: Map<String, ScalarConverterMapping> = emptyMap()
 )
 
 /**
  * Custom scalar to converter mapping.
  */
-data class CustomScalarConverterMapping (
+data class ScalarConverterMapping(
     /** Fully qualified class name of a custom scalar type, e.g. java.util.UUID */
     val type: String,
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     val converter: String
-): Serializable
+) : Serializable

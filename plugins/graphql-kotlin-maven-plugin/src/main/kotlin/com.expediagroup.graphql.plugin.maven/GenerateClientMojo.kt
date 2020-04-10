@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generateClient
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Mojo
@@ -21,7 +22,7 @@ class GenerateClientMojo : AbstractMojo() {
     private lateinit var packageName: String
 
     @Parameter(name = "converters")
-    private lateinit var scalarConverters: Map<String, ScalarConverter>
+    private lateinit var scalarConverters: Map<String, ScalarConverterMapping>
 
     @Parameter(name = "queryFileDirectory", defaultValue = "\${project.basedir}/src/main/resources")
     private lateinit var queryFileDirectory: File
@@ -60,5 +61,3 @@ class GenerateClientMojo : AbstractMojo() {
         }
     }
 }
-
-class ScalarConverter(type: String, converter: String)

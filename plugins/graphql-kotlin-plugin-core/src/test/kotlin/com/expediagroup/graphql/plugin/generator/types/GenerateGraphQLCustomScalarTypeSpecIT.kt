@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.CustomScalarConverterMapping
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
 import org.junit.jupiter.api.Test
@@ -96,7 +96,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             expected,
             GraphQLClientGeneratorConfig(
                 packageName = "com.expediagroup.graphql.plugin.generator.integration",
-                scalarTypeToConverterMapping = mapOf("UUID" to CustomScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.plugin.generator.UUIDConverter"))
+                scalarTypeToConverterMapping = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.plugin.generator.UUIDConverter"))
             )
         )
     }

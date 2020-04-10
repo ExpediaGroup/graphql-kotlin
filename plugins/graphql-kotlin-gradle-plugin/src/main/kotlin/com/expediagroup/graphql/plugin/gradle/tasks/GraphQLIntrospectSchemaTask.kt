@@ -23,18 +23,17 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
-internal const val INTROSPECT_SCHEMA_TASK: String = "introspectSchema"
+internal const val INTROSPECT_SCHEMA_TASK_NAME: String = "graphqlIntrospectSchema"
 
 /**
  * Task that executes GraphQL introspection query against specified endpoint and saves the underlying schema file.
  */
 @Suppress("UnstableApiUsage")
-open class IntrospectSchemaTask : DefaultTask() {
+open class GraphQLIntrospectSchemaTask : DefaultTask() {
 
     @Input
     @Option(option = "endpoint", description = "target GraphQL endpoint")

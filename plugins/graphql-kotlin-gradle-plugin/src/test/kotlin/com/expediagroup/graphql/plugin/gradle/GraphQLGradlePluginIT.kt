@@ -16,6 +16,9 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
@@ -62,77 +65,78 @@ class GraphQLGradlePluginIT {
     @Test
     fun `apply the gradle plugin and execute downloadSDL task`(@TempDir tempDir: Path) {
         val buildFileContents = """
-            import com.expediagroup.graphql.plugin.gradle.tasks.DownloadSDLTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 
             plugins {
               id("com.expediagroup.graphql")
             }
 
-            val downloadSDL by tasks.getting(DownloadSDLTask::class) {
+            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/sdl")
             }
         """.trimIndent()
 
-        File(tempDir.toFile(),"build.gradle.kts")
+        File(tempDir.toFile(), "build.gradle.kts")
             .writeText(buildFileContents)
 
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("downloadSDL")
+            .withArguments(DOWNLOAD_SDL_TASK_NAME)
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":downloadSDL")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
         assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
     }
 
     @Test
     fun `apply the gradle plugin and execute introspectSchema task`(@TempDir tempDir: Path) {
         val buildFileContents = """
-            import com.expediagroup.graphql.plugin.gradle.tasks.IntrospectSchemaTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
             plugins {
               id("com.expediagroup.graphql")
             }
 
-            val introspectSchema by tasks.getting(IntrospectSchemaTask::class) {
+            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/graphql")
             }
         """.trimIndent()
 
-        File(tempDir.toFile(),"build.gradle.kts")
+        File(tempDir.toFile(), "build.gradle.kts")
             .writeText(buildFileContents)
 
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("introspectSchema")
+            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":introspectSchema")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
         assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
     }
 
     @Test
     fun `apply the gradle plugin and execute generateClient task`(@TempDir tempDir: Path) {
         val buildFileContents = """
-            import com.expediagroup.graphql.plugin.gradle.tasks.GenerateClientTask
-            import com.expediagroup.graphql.plugin.gradle.tasks.IntrospectSchemaTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
             plugins {
+              id("org.jetbrains.kotlin.jvm") version "1.3.71"
               id("com.expediagroup.graphql")
             }
 
-            val introspectSchema by tasks.getting(IntrospectSchemaTask::class) {
+            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/graphql")
             }
-            val generateClient by tasks.getting(GenerateClientTask::class) {
+            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
               packageName.set("com.expediagroup.graphql.generated")
               schemaFile.set(introspectSchema.outputFile)
               dependsOn("introspectSchema")
             }
         """.trimIndent()
-        File(tempDir.toFile(),"build.gradle.kts")
+        File(tempDir.toFile(), "build.gradle.kts")
             .writeText(buildFileContents)
 
         val resourcesDir = File(tempDir.toFile(), "src/main/resources")
@@ -144,11 +148,11 @@ class GraphQLGradlePluginIT {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("generateClient")
+            .withArguments(GENERATE_CLIENT_TASK_NAME)
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":introspectSchema")?.outcome)
-        assertEquals(TaskOutcome.SUCCESS, result.task(":generateClient")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
         assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
         assertTrue(File(tempDir.toFile(), "build/generated/source/graphql/com/expediagroup/graphql/generated/JUnitQuery.kt").exists())
     }

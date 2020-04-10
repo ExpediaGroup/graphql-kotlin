@@ -85,4 +85,3 @@ private fun String.toClassName(): ClassName {
         ClassName(this.substring(0, index), this.substring(index + 1))
     }
 }
-

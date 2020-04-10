@@ -33,7 +33,7 @@ data class GraphQLClientGeneratorContext(
     val rootType: String,
     val queryDocument: Document,
     val allowDeprecated: Boolean = false,
-    val scalarTypeToConverterMapping: Map<String, CustomScalarConverterMapping> = emptyMap()
+    val scalarTypeToConverterMapping: Map<String, ScalarConverterMapping> = emptyMap()
 ) {
     val classNameCache: MutableMap<String, ClassName> = mutableMapOf()
     val typeSpecs: MutableMap<String, TypeSpec> = mutableMapOf()

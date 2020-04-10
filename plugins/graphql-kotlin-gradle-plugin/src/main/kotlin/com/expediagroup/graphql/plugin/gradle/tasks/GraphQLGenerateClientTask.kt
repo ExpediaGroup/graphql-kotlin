@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.generateClient
-import com.expediagroup.graphql.plugin.generator.CustomScalarConverterMapping
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -35,17 +35,17 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
 
-internal const val GENERATE_CLIENT_TASK: String = "generateClient"
+internal const val GENERATE_CLIENT_TASK_NAME: String = "graphqlGenerateClient"
 
 /**
- * Generate GraphQL Kotlin client and corresponding data classes based on the specified GraphQL queries.
+ * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
  */
 @Suppress("UnstableApiUsage")
-open class GenerateClientTask : DefaultTask() {
+open class GraphQLGenerateClientTask : DefaultTask() {
 
     @Input
     @Optional
-    @Option(option = "schemaFileName", description = "target GraphQL schema file that will be used to generate the client code")
+    @Option(option = "schemaFileName", description = "path to GraphQL schema file that will be used to generate the client code")
     val schemaFileName: Property<String> = project.objects.property(String::class.java)
 
     @InputFile
@@ -63,7 +63,7 @@ open class GenerateClientTask : DefaultTask() {
 
     @Input
     @Optional
-    val scalarConverters: MapProperty<String, CustomScalarConverterMapping> = project.objects.mapProperty(String::class.java, CustomScalarConverterMapping::class.java)
+    val scalarConverters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
 
     @Input
     @Optional
@@ -79,9 +79,11 @@ open class GenerateClientTask : DefaultTask() {
 
     init {
         group = "GraphQL"
-        description = "Generate HTTP client from the specified GraphQL queries.\nExamples:"
+        description = "Generate HTTP client from the specified GraphQL queries."
 
         queryFileDirectory.convention("${project.projectDir}/src/main/resources")
+        allowDeprecatedFields.convention(false)
+        scalarConverters.convention(emptyMap())
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -115,8 +117,8 @@ open class GenerateClientTask : DefaultTask() {
         }
         val config = GraphQLClientGeneratorConfig(
             packageName = targetPackage,
-            allowDeprecated = allowDeprecatedFields.getOrElse(false),
-            scalarTypeToConverterMapping = scalarConverters.getOrElse(emptyMap()))
+            allowDeprecated = allowDeprecatedFields.get(),
+            scalarTypeToConverterMapping = scalarConverters.get())
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(targetDirectory)
         }
