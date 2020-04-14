@@ -1,6 +1,6 @@
 ---
-id: nested-arguments
-title: Nested Arguments
+id: nested-fields
+title: Nested Fields
 ---
 
 There are a few ways in which you can access data in a query from different levels of arguments. Say we have the following schema:
