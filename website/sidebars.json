@@ -17,7 +17,7 @@
           "writing-schemas/lists",
           "writing-schemas/interfaces",
           "writing-schemas/unions",
-          "writing-schemas/nested-queries",
+          "writing-schemas/nested-fields",
           "writing-schemas/annotations"
         ]
       },
