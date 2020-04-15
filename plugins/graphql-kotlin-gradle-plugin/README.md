@@ -23,7 +23,7 @@ dependencies {
 }
 ```
 
-## Extension
+## Plugin Extension
 
 The simplest way to generate GraphQL client is to configure the `graphql` project extension with target `packageName`
 for the generated classes and GraphQL server `endpoint` that will be used to run introspection query to obtain the schema.
@@ -85,3 +85,11 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     schemaFile.set(File("path/to/schema.graphql"))
 }
 ```
+
+## Documentation
+
+Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin) and the
+[Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-gradle-plugin) of all published versions.
+
+If you have a question about something you can not find in our documentation or Javadocs, feel free to
+[create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.

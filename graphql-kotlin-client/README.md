@@ -7,6 +7,13 @@ A lightweight, typesafe GraphQL HTTP client.
 NOTE: While you can use the GraphQL client directly by manually creating your corresponding data model, the most common
 mode of operation should be using a Gradle or Maven plugin and running the resulting auto-generated code.
 
+## Features
+
+* Automatic generation of type-safe Kotlin models
+* Supports queries and mutations
+* Custom scalar support
+* Native support for coroutines
+
 ## Install it
 
 Using a JVM dependency manager, link `graphql-kotlin-client` to your project.
@@ -24,7 +31,7 @@ With Maven:
 With Gradle (example using kts):
 
 ```kotlin
-compile("com.expediagroup:graphql-kotlin-client$latestVersion")
+compile("com.expediagroup:graphql-kotlin-client:$latestVersion")
 ```
 
 ## Use it

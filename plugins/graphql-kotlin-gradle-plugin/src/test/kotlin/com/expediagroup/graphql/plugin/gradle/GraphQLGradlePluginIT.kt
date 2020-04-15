@@ -132,8 +132,8 @@ class GraphQLGradlePluginIT {
             }
             val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
               packageName.set("com.expediagroup.graphql.generated")
-              schemaFile.set(introspectSchema.outputFile)
-              dependsOn("introspectSchema")
+              schemaFile.set(graphqlIntrospectSchema.outputFile)
+              dependsOn("graphqlIntrospectSchema")
             }
         """.trimIndent()
         File(tempDir.toFile(), "build.gradle.kts")

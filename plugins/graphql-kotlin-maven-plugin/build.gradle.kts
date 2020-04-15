@@ -6,12 +6,14 @@ val mavenPluginApiVersion: String = "3.6.3"
 val mavenPluginAnnotationVersion: String = "3.4"
 val mavenProjectVersion: String = "2.2.1"
 val mavenPluginVersion: String = "3.6.0"
+val mavenPluginTestingHarnessVersion: String = "3.3.0"
 
 dependencies {
     api(project(path = ":plugins:graphql-kotlin-plugin-core"))
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
+    testImplementation("org.apache.maven.plugin-testing:maven-plugin-testing-harness:$mavenPluginTestingHarnessVersion")
 }
 
 tasks {

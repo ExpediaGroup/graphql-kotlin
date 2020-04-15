@@ -1,4 +1,3 @@
-
 import de.marcphilipp.gradle.nexus.NexusPublishExtension
 import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.dokka.gradle.DokkaTask
@@ -69,14 +68,14 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-        }
-    }
-
     tasks {
+        withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "1.8"
+                freeCompilerArgs = listOf("-Xjsr305=strict")
+            }
+        }
+
         idea {
             module {
                 isDownloadSources = true
@@ -124,7 +123,7 @@ subprojects {
         val javadocJar by registering(Jar::class) {
             archiveClassifier.set("javadoc")
             from("$buildDir/javadoc")
-            dependsOn(dokka.path)
+//            dependsOn(dokka.path)
         }
         publishing {
             publications {
