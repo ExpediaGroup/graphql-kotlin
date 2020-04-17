@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.directives.DEPRECATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.PropertySpec
+import graphql.Directives.DeprecatedDirective
 import graphql.language.Field
 import graphql.language.FieldDefinition
 import graphql.language.NonNullType
@@ -49,7 +49,7 @@ internal fun generatePropertySpecs(
         if (!abstract) {
             propertySpecBuilder.initializer(fieldName)
         }
-        fieldDefinition.getDirective(DEPRECATED_DIRECTIVE_NAME)?.let { deprecatedDirective ->
+        fieldDefinition.getDirective(DeprecatedDirective.name)?.let { deprecatedDirective ->
             if (!context.allowDeprecated) {
                 throw RuntimeException("query specifies deprecated field - ${selectedField.name} in $objectName, update your query or update your configuration to allow usage of deprecated fields")
             } else {

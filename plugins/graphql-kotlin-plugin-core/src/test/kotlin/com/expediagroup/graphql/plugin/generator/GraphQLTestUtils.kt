@@ -16,10 +16,8 @@
 
 package com.expediagroup.graphql.plugin.generator
 
-import com.expediagroup.graphql.client.converter.ScalarConverter
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
-import java.util.UUID
 import kotlin.test.assertEquals
 
 internal fun testSchema(): TypeDefinitionRegistry {
@@ -27,11 +25,6 @@ internal fun testSchema(): TypeDefinitionRegistry {
     return schemaFileStream.use {
         SchemaParser().parse(schemaFileStream)
     }
-}
-
-internal class UUIDConverter : ScalarConverter<UUID> {
-    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
-    override fun toJson(value: UUID): String = value.toString()
 }
 
 internal fun verifyGraphQLClientGeneration(

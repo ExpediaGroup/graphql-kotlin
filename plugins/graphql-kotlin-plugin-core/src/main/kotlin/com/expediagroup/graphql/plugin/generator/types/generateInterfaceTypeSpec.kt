@@ -120,9 +120,7 @@ internal fun generateInterfaceTypeSpec(
         }
         generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
         val implementationTypeSpec = context.typeSpecs[implementationName]!!
-        if (commonProperties.isNotEmpty()) {
-            updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationTypeSpec, commonProperties)
-        }
+        updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationTypeSpec, commonProperties)
 
         if (jsonSubTypesCodeBlock.isNotEmpty()) {
             jsonSubTypesCodeBlock.add(",")
@@ -159,17 +157,19 @@ private fun updateImplementationTypeSpecWithSuperInformation(context: GraphQLCli
     //  - cannot use typeNameCache as it was not populated yet
     builder.addSuperinterface(ClassName(context.packageName, "${context.rootType}.$interfaceName"))
 
-    val constructor = FunSpec.constructorBuilder()
-    implementationTypeSpec.propertySpecs.forEach { property ->
-        val updatedProperty = if (commonPropertyNames.contains(property.name)) {
-            property.toBuilder().addModifiers(KModifier.OVERRIDE).build()
-        } else {
-            property
+    if (implementationTypeSpec.propertySpecs.isNotEmpty()) {
+        val constructor = FunSpec.constructorBuilder()
+        implementationTypeSpec.propertySpecs.forEach { property ->
+            val updatedProperty = if (commonPropertyNames.contains(property.name)) {
+                property.toBuilder().addModifiers(KModifier.OVERRIDE).build()
+            } else {
+                property
+            }
+            builder.addProperty(updatedProperty)
+            constructor.addParameter(updatedProperty.name, updatedProperty.type)
         }
-        builder.addProperty(updatedProperty)
-        constructor.addParameter(updatedProperty.name, updatedProperty.type)
+        builder.primaryConstructor(constructor.build())
     }
-    builder.primaryConstructor(constructor.build())
 
     val updatedType = builder.build()
     context.typeSpecs[implementationTypeSpec.name!!] = updatedType

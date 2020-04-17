@@ -42,6 +42,10 @@ class IntrospectSchemaMojo : AbstractMojo() {
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun execute() {
         log.debug("executing introspectSchema MOJO against $endpoint")
+        if (!outputDirectory.isDirectory) {
+            outputDirectory.mkdirs()
+        }
+
         val schemaFile = File("${outputDirectory.absolutePath}/schema.graphql")
         runBlocking {
             val schema = introspectSchema(endpoint = endpoint)

@@ -42,6 +42,9 @@ class DownloadSDLMojo : AbstractMojo() {
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun execute() {
         log.debug("executing downloadSDL MOJO against $endpoint")
+        if (!outputDirectory.isDirectory) {
+            outputDirectory.mkdirs()
+        }
         val schemaFile = File("${outputDirectory.absolutePath}/schema.graphql")
         runBlocking {
             val schema = downloadSchema(endpoint = endpoint)

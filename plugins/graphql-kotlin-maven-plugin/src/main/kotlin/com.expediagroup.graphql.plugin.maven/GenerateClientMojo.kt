@@ -17,12 +17,13 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generateClient
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
+import org.apache.maven.project.MavenProject
 import java.io.File
 
 /**
@@ -30,6 +31,12 @@ import java.io.File
  */
 @Mojo(name = "generateClient", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 class GenerateClientMojo : AbstractMojo() {
+
+    /**
+     * The current Maven project.
+     */
+    @Parameter(property = "project", required = true, readonly = true)
+    private lateinit var project: MavenProject
 
     /**
      * GraphQL schema file that will be used to generate client code.
@@ -53,7 +60,7 @@ class GenerateClientMojo : AbstractMojo() {
      * Custom scalar converter mapping.
      */
     @Parameter(name = "converters")
-    private lateinit var scalarConverters: Map<String, ScalarConverter>
+    private var scalarConverters: Map<String, ScalarConverter> = emptyMap()
 
     @Parameter(name = "queryFileDirectory", defaultValue = "\${project.basedir}/src/main/resources")
     private lateinit var queryFileDirectory: File
@@ -94,6 +101,8 @@ class GenerateClientMojo : AbstractMojo() {
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)
         }
+
+        project.addCompileSourceRoot(outputDirectory.path)
         log.debug("successfully generated GraphQL HTTP client")
     }
 }

@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/sdl"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "testSchema.graphql",
+    "headers": {
+      "Content-Type": "text/plain"
+    }
+  }
+}

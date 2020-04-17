@@ -1,0 +1,138 @@
+type Query {
+  "Query that returns enum value"
+  enumQuery: CustomEnum
+  "Query that returns wrapper object with all supported scalar types"
+  scalarQuery: ScalarWrapper
+  "Query returning list of simple objects"
+  listQuery: [BasicObject!]!
+  "Query returning an object that references another object"
+  complexObjectQuery: ComplexObject
+  "Query returning object referencing itself"
+  nestedObjectQuery: NestedObject
+  "Query returning an interface"
+  interfaceQuery: BasicInterface
+  "Query returning union"
+  unionQuery: BasicUnion
+  "Query that accepts some input arguments"
+  inputObjectQuery(criteria: SimpleArgumentInput): Boolean
+  "Deprecated query that should not be used anymore"
+  deprecatedQuery: String @deprecated(reason: "old query should not be used")
+}
+
+type Mutation {
+  "Example of a mutation"
+  simpleMutation(update: SimpleArgumentInput): BasicObject
+}
+
+"Custom enum description"
+enum CustomEnum {
+  "First enum value"
+  ONE,
+  "Second enum value"
+  TWO,
+  "Third enum value"
+  THREE @deprecated(reason: "only goes up to two")
+}
+
+"Custom scalar representing UUID"
+scalar UUID
+
+"Wrapper that holds all supported scalar types"
+type ScalarWrapper {
+  "ID reperesents unique identifier that is not intended to be human readable"
+  id: ID!
+  "UTF-8 character sequence"
+  name: String!
+  "Either true or false"
+  valid: Boolean!
+  "A signed 32-bit nullable integer value"
+  count: Int
+  "A nullable signed double-precision floating-point value"
+  rating: Float
+  "Custom scalar"
+  custom: UUID
+}
+
+"Some basic description"
+type BasicObject {
+  id: Int!
+  "Object name"
+  name: String!
+}
+
+"""Multi line description of a complex type.
+This is a second line of the paragraph.
+This is final line of the description.
+"""
+type ComplexObject {
+  "Some unique identifier"
+  id: Int!,
+  "Some object name"
+  name: String!,
+  """Optional value
+  Second line of the description."""
+  optional: String,
+  "Some additional details"
+  details: DetailsObject!
+}
+
+"Inner type object description"
+type DetailsObject {
+  "Unique identifier"
+  id: Int!,
+  "Boolean flag"
+  flag: Boolean!,
+  "Actual detail value"
+  value: String!
+}
+
+"Example of an object self-referencing itself"
+type NestedObject {
+  "Unique identifier"
+  id: Int!
+  "Name of the object"
+  name: String!
+  "Children elements"
+  children: [NestedObject!]!
+}
+
+"Very basic interface"
+interface BasicInterface {
+  "Unique identifier of an interface"
+  id: Int!
+  "Name field"
+  name: String!
+}
+
+"Example interface implementation where value is an integer"
+type FirstInterfaceImplementation implements BasicInterface {
+  "Unique identifier of the first implementation"
+  id: Int!
+  "Name of the first implementation"
+  name: String!
+  "Custom field integer value"
+  intValue: Int!
+}
+
+"Example interface implementation where value is a float"
+type SecondInterfaceImplementation implements BasicInterface {
+  "Unique identifier of the second implementation"
+  id: Int!
+  "Name of the second implementation"
+  name: String!
+  "Custom field float value"
+  floatValue: Float!
+}
+
+"Very basic union of BasicObject and ComplexObject"
+union BasicUnion = BasicObject | ComplexObject
+
+"Test input object"
+input SimpleArgumentInput {
+  "New value to be set"
+  newName: String
+  "Minimum value for test criteria"
+  min: Float,
+  "Maximum value for test criteria"
+  max: Float
+}

@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.directives.DEPRECATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.TypeSpec
+import graphql.Directives.DeprecatedDirective
 import graphql.language.EnumTypeDefinition
 import graphql.language.StringValue
 
@@ -37,7 +37,7 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
         enumValueDefinition.description?.content?.let { kdoc ->
             enumValueTypeSpecBuilder.addKdoc(kdoc)
         }
-        enumValueDefinition.getDirective(DEPRECATED_DIRECTIVE_NAME)?.let { deprecatedDirective ->
+        enumValueDefinition.getDirective(DeprecatedDirective.name)?.let { deprecatedDirective ->
             val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
             val reason = deprecatedReason?.value ?: "no longer supported"
             enumValueTypeSpecBuilder.addAnnotation(AnnotationSpec.Companion.builder(Deprecated::class)

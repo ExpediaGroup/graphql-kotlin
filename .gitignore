@@ -1,6 +1,7 @@
 *.iml
 .idea/
 .DS_Store
+# maven ignore
 target/
 pom.xml.versionsBackup
 

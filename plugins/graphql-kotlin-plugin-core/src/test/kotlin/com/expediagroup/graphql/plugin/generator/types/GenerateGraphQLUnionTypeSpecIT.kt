@@ -58,7 +58,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                  * Object name
                  */
                 val name: String
-              )
+              ) : UnionQueryWithInlineFragments.BasicUnion
 
               /**
                * Multi line description of a complex type.
@@ -79,7 +79,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                  * Second line of the description.
                  */
                 val optional: String?
-              )
+              ) : UnionQueryWithInlineFragments.BasicUnion
 
               /**
                * Very basic union of BasicObject and ComplexObject
@@ -156,7 +156,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                  * Object name
                  */
                 val name: String
-              )
+              ) : UnionQueryWithNamedFragments.BasicUnion
 
               /**
                * Multi line description of a complex type.
@@ -177,7 +177,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                  * Second line of the description.
                  */
                 val optional: String?
-              )
+              ) : UnionQueryWithNamedFragments.BasicUnion
 
               /**
                * Very basic union of BasicObject and ComplexObject

@@ -187,8 +187,7 @@ subprojects {
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
-        testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-        testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+        testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
         testImplementation("io.mockk:mockk:$mockkVersion")
     }
 }

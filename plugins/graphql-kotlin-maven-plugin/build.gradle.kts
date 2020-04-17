@@ -1,19 +1,39 @@
 import java.time.Duration
+import kotlin.arrayOf
+import kotlin.collections.listOf
+import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
 
-description = "GraphQL Kotlin Maven plugin."
+description = "GraphQL Kotlin Maven plugin"
 
+val graphQLJavaVersion: String by project
+val junitVersion: String by project
+val kotlinVersion: String by project
+val kotlinCoroutinesVersion: String by project
+val kotlinPoetVersion: String by project
+val ktorVersion: String by project
 val mavenPluginApiVersion: String = "3.6.3"
-val mavenPluginAnnotationVersion: String = "3.4"
+val mavenPluginAnnotationVersion: String = "3.6.0"
 val mavenProjectVersion: String = "2.2.1"
-val mavenPluginVersion: String = "3.6.0"
-val mavenPluginTestingHarnessVersion: String = "3.3.0"
+
+buildscript {
+    // cannot access project at this time
+    val wireMockVersion: String = "2.26.2"
+    dependencies {
+        classpath("com.github.tomakehurst:wiremock-jre8-standalone:$wireMockVersion")
+    }
+}
+
+plugins {
+    id("de.benediktritter.maven-plugin-development") version "0.2.0"
+}
 
 dependencies {
     api(project(path = ":plugins:graphql-kotlin-plugin-core"))
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
-    testImplementation("org.apache.maven.plugin-testing:maven-plugin-testing-harness:$mavenPluginTestingHarnessVersion")
+    testImplementation(project(path = ":graphql-kotlin-client"))
 }
 
 tasks {
@@ -27,49 +47,107 @@ tasks {
     }
 
     /*
-    Maven plugins require plugin.xml descriptor which can be automatically generated using maven-plugin-plugin.
+    Integration tests are run through maven-invoker-plugin which will execute tests under src/integration/<scenario>
 
-    This is a workaround to generate descriptor automatically:
-    1) copy graphql-kotlin libraries to build directory so they can be referenced by maven build
-    2) run maven wrapper to execute maven-plugin-plugin descriptor MOJO
-    3) add generated descriptor XMLs to the generated JAR
+    Steps:
+    1) copy dependent graphql-kotlin libraries to a local folder
+    2) install all required graphql-kotlin libraries to a local m2 repo
+      - we need to explicitly install libs as otherwise they won't be available to maven build at this point of time
+      - alternative approach: make integration test dependent on publishToMavenLocal task from the dependent libs, con: publish task is dependent on dokka which
+       only runs on Java 8 so we would need to have custom logic to handle that
+    3) run integration tests using test project that executes maven-invoker-plugin
+      - library versions are passed to the maven build which are then set by the maven-invoker-plugin when it is filtering the resources
 
-    // TODO check whether we can use https://github.com/britter/maven-plugin-development instead (once it is published)
+    TODO update this to not be dependent on Maven
      */
-    val copyDependencies by register<Copy>("copyDependencies") {
+    val copyIntegrationTestDependencies by register<Copy>("copyIntegrationTestDependencies") {
+        // we only need to explicitly copy graphql-kotlin libraries as they won't be available in m2 repository at this point
         from(configurations.runtimeClasspath) {
-            // we only need to explicitly copy graphql-kotlin libraries as they won't be available in m2 repository at this point
-            // we could copy other direct dependencies as well but it looks like it might not work for maven-plugin-plugin as it relies on some transitive dependencies to run
+            include("graphql-kotlin*")
+        }
+        from(configurations.testRuntimeClasspath) {
             include("graphql-kotlin*")
         }
         into("${project.buildDir}/dependencies")
     }
-    val mavenPluginDescriptor by register("mavenPluginDescriptor") {
-        dependsOn("copyDependencies")
-        timeout.set(Duration.ofSeconds(60))
+    val jar by getting(Jar::class)
+    val mavenEnvironmentVariables = mapOf(
+        "graphqlKotlinVersion" to project.version,
+        "graphqlJavaVersion" to graphQLJavaVersion,
+        "kotlinVersion" to kotlinVersion,
+        "kotlinCoroutinesVersion" to kotlinCoroutinesVersion,
+        "kotlinPoetVersion" to kotlinPoetVersion,
+        "ktorVersion" to ktorVersion,
+        "junitVersion" to junitVersion
+    )
+    val installIntegrationTestDependencies by register("installIntegrationTestDependencies") {
+        dependsOn(copyIntegrationTestDependencies.path, jar.path)
         doLast {
+            for (dependentJar in listOf("graphql-kotlin-plugin-core", "graphql-kotlin-client")) {
+                exec {
+                    val graphqlKotlinLibJar = "${project.buildDir}/dependencies/$dependentJar-${project.version}.jar"
+                    environment(mavenEnvironmentVariables)
+                    commandLine("${project.projectDir}/mvnw",
+                        "install:install-file",
+                        "-Dfile=$graphqlKotlinLibJar",
+                        "-DgroupId=${project.group}",
+                        "-DartifactId=$dependentJar",
+                        "-Dversion=${project.version}",
+                        "-Dpackaging=jar")
+                }
+            }
             exec {
-                val kotlinVersion: String by project
-                val kotlinCoroutinesVersion: String by project
-                environment("graphql-kotlin.version", project.version)
-                environment("kotlin.version", kotlinVersion)
-                environment("kotlin-coroutines.version", kotlinCoroutinesVersion)
-                environment("maven-project.version", mavenProjectVersion)
-                environment("maven-plugin-api.version", mavenPluginApiVersion)
-                environment("maven-plugin-annotations.version", mavenPluginAnnotationVersion)
-                environment("maven-plugin-plugin.version", mavenPluginVersion)
-
-                commandLine("${project.projectDir}/mvnw", "plugin:descriptor")
+                val pluginJar = jar.archiveFile.get().asFile.absolutePath
+                environment(mavenEnvironmentVariables)
+                commandLine("${project.projectDir}/mvnw",
+                    "install:install-file",
+                    "-Dfile=$pluginJar",
+                    "-DgroupId=${project.group}",
+                    "-DartifactId=${project.name}",
+                    "-Dversion=${project.version}",
+                    "-Dpackaging=maven-plugin")
             }
         }
     }
-    jar {
-        // explicitly copy generated plugin descriptors
-        // there is a bug in maven-plugin-plugin that ignores custom output directory for one of the generated descriptors
-        // see https://issues.apache.org/jira/browse/MPLUGIN-360
-        dependsOn(mavenPluginDescriptor.path)
-        from("${project.buildDir}/META-INF") {
-            into("META-INF")
+
+    var wireMockServer: WireMockServerRunner? = null
+    var wireMockServerPort: Int? = null
+    val startWireMock by register("startWireMock") {
+        doLast {
+            val wireMockConfig = arrayOf(
+                "--root-dir=${project.projectDir}/src/integration/wiremock",
+                "--port=0")
+            wireMockServer = WireMockServerRunner()
+            wireMockServer?.run(*wireMockConfig)
+            wireMockServerPort = wireMockServer?.port()
+            logger.info("wiremock started at port $wireMockServerPort")
         }
+        finalizedBy("stopWireMock")
+    }
+    val stopWireMock by register("stopWireMock") {
+        doLast {
+            val server = wireMockServer
+            if (server?.isRunning == true) {
+                logger.info("attempting to stop wiremock server")
+                server.stop()
+                logger.info("wiremock server stopped")
+            }
+        }
+        mustRunAfter("startWireMock")
+    }
+    val integrationTest by register("integrationTest") {
+        dependsOn(installIntegrationTestDependencies.path, startWireMock.path)
+        finalizedBy(stopWireMock.path)
+        timeout.set(Duration.ofSeconds(500))
+        doLast {
+            exec {
+                environment(mavenEnvironmentVariables)
+                environment("graphqlEndpoint", "http://localhost:$wireMockServerPort")
+                commandLine("${project.projectDir}/mvnw", "invoker:install", "invoker:run")
+            }
+        }
+    }
+    check {
+        dependsOn(integrationTest.path)
     }
 }
