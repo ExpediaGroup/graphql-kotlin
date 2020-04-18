@@ -7,7 +7,7 @@ title: Subscriptions
 To see more details of how to implement subscriptions in your schema, see [executing subscriptions](../execution/subscriptions).
 
 ## `graphql-ws` subprotocol
-###Overview
+### Overview
 We have implemented subscriptions in Spring WebSockets following the [`graphql-ws` subprotocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) defined by Apollo. This requires that your client send and parse messages in a specific format.
 
 You can see more details in the file [ApolloSubscriptionProtocolHandler](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ApolloSubscriptionProtocolHandler.kt).
