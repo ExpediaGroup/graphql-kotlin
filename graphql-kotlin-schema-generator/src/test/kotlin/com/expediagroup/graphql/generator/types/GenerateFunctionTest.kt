@@ -18,12 +18,14 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.execution.FunctionDataFetcher
 import com.expediagroup.graphql.execution.GraphQLContext
 import graphql.ExceptionWhileDataFetching
+import graphql.Scalars
 import graphql.Scalars.GraphQLInt
 import graphql.Scalars.GraphQLString
 import graphql.execution.DataFetcherResult
@@ -104,6 +106,9 @@ internal class GenerateFunctionTest : TypeTestHelper() {
             val dataFetcherResult = DataFetcherResult.newResult<String>().data("Hello").build()
             return CompletableFuture.completedFuture(dataFetcherResult)
         }
+
+        @GraphQLID
+        fun randomId(): String = UUID.randomUUID().toString()
     }
 
     @Test
@@ -291,5 +296,15 @@ internal class GenerateFunctionTest : TypeTestHelper() {
 
         assertTrue(implResult.type is GraphQLNonNull)
         assertEquals(kInterfaceResult.type, implResult.type)
+    }
+
+    @Test
+    fun `function can return GraphQL ID scalar`() {
+        val kFunction = Happy::randomId
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
+
+        assertEquals("randomId", result.name)
+        val returnType = GraphQLTypeUtil.unwrapAll(result.type)
+        assertEquals(Scalars.GraphQLID, returnType)
     }
 }

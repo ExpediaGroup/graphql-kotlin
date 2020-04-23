@@ -36,7 +36,10 @@ data class Person(
   val name: String
 )
 
-fun createPerson(@GraphQLID id: String) = Person(id, "Jane Doe")
+fun locatePerson(@GraphQLID id: String) = Person(id, "Jane Doe")
+
+@GraphQLID
+fun generateRandomId() = UUID.randomUUID().toString()
 ```
 
 This would produce the following schema:
@@ -46,8 +49,10 @@ schema {
   query: Query
 }
 
+
 type Query {
-  createPerson(id: ID!): Person!
+  locatePerson(id: ID!): Person!
+  generateRandomId: ID!
 }
 
 type Person {
