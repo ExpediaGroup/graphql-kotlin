@@ -3,7 +3,7 @@ name: Maven CI
 on:
   pull_request:
     branches:
-      - master
+      - 1.x.x
 
 jobs:
   build:
