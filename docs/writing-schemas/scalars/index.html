@@ -89,15 +89,20 @@ serialized as a String. To mark given field as an ID field you have to annotate 
   <span class="hljs-keyword">val</span> name: String
 )
 
-<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">createPerson</span><span class="hljs-params">(<span class="hljs-meta">@GraphQLID</span> id: <span class="hljs-type">String</span>)</span></span> = Person(id, <span class="hljs-string">"Jane Doe"</span>)
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">locatePerson</span><span class="hljs-params">(<span class="hljs-meta">@GraphQLID</span> id: <span class="hljs-type">String</span>)</span></span> = Person(id, <span class="hljs-string">"Jane Doe"</span>)
+
+<span class="hljs-meta">@GraphQLID</span>
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">generateRandomId</span><span class="hljs-params">()</span></span> = UUID.randomUUID().toString()
 </code></pre>
 <p>This would produce the following schema:</p>
 <pre><code class="hljs css language-graphql">schema {
   query: Query
 }
+
 <span class="hljs-built_in">
 type </span>Query {
-  createPerson(id: ID!): Person!
+  locatePerson(id: ID!): Person!
+  generateRandomId: ID!
 }
 <span class="hljs-built_in">
 type </span>Person {
