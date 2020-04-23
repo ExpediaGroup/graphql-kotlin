@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.annotations.GraphQLContext
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.TypeNotSupportedException
@@ -107,6 +108,9 @@ internal class FunctionBuilderTest : TypeTestHelper() {
             val dataFetcherResult = DataFetcherResult.newResult<String>().data("Hello").build()
             return CompletableFuture.completedFuture(dataFetcherResult)
         }
+
+        @GraphQLID
+        fun randomId() = UUID.randomUUID().toString()
     }
 
     @Test
@@ -294,5 +298,15 @@ internal class FunctionBuilderTest : TypeTestHelper() {
 
         assertTrue(implResult.type is GraphQLNonNull)
         assertEquals(kInterfaceResult.type, implResult.type)
+    }
+
+    @Test
+    fun `function can return GraphQL ID scalar`() {
+        val kFunction = Happy::randomId
+        val result = builder.function(kFunction, "Query", target = null, abstract = false)
+
+        assertEquals("randomId", result.name)
+        val returnType = GraphQLTypeUtil.unwrapAll(result.type)
+        assertEquals(Scalars.GraphQLID, returnType)
     }
 }
