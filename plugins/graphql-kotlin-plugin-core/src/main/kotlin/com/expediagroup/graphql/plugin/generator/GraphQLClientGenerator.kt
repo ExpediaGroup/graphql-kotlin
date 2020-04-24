@@ -87,7 +87,7 @@ class GraphQLClientGenerator(
             }
 
             val queryConstName = operationName.toUpperUnderscore()
-            funSpec.addStatement("return graphQLClient.executeOperation($queryConstName, \"$operationTypeName\", $variableCode)")
+            funSpec.addStatement("return graphQLClient.execute($queryConstName, \"$operationTypeName\", $variableCode)")
 
             operationTypeSpec.primaryConstructor(FunSpec.constructorBuilder()
                 .addParameter("graphQLClient", ClassName(LIBRARY_PACKAGE, "GraphQLClient"))

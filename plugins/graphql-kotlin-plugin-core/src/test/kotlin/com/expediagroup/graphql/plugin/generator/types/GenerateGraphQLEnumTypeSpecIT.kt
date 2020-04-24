@@ -38,7 +38,7 @@ class GenerateGraphQLEnumTypeSpecIT {
               private val graphQLClient: GraphQLClient
             ) {
               suspend fun enumTestQuery(): GraphQLResult<EnumTestQuery.EnumTestQueryResult> =
-                  graphQLClient.executeOperation(ENUM_TEST_QUERY, "EnumTestQuery", null)
+                  graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
 
               /**
                * Custom enum description

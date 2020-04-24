@@ -44,7 +44,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             ) {
               suspend fun complexObjectTestQuery():
                   GraphQLResult<ComplexObjectTestQuery.ComplexObjectTestQueryResult> =
-                  graphQLClient.executeOperation(COMPLEX_OBJECT_TEST_QUERY, "ComplexObjectTestQuery", null)
+                  graphQLClient.execute(COMPLEX_OBJECT_TEST_QUERY, "ComplexObjectTestQuery", null)
 
               /**
                * Inner type object description
@@ -132,7 +132,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             ) {
               suspend fun complexObjectQueryWithNamedFragment():
                   GraphQLResult<ComplexObjectQueryWithNamedFragment.ComplexObjectQueryWithNamedFragmentResult> =
-                  graphQLClient.executeOperation(COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT,
+                  graphQLClient.execute(COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT,
                   "ComplexObjectQueryWithNamedFragment", null)
 
               /**
@@ -251,7 +251,7 @@ class GenerateGraphQLObjectTypeSpecIT {
               private val graphQLClient: GraphQLClient
             ) {
               suspend fun jUnitTestQuery(): GraphQLResult<JUnitTestQuery.JUnitTestQueryResult> =
-                  graphQLClient.executeOperation(J_UNIT_TEST_QUERY, "JUnitTestQuery", null)
+                  graphQLClient.execute(J_UNIT_TEST_QUERY, "JUnitTestQuery", null)
 
               /**
                * Some basic description
@@ -312,7 +312,7 @@ class GenerateGraphQLObjectTypeSpecIT {
               private val graphQLClient: GraphQLClient
             ) {
               suspend fun deprecatedFieldQuery(): GraphQLResult<DeprecatedFieldQuery.DeprecatedFieldQueryResult>
-                  = graphQLClient.executeOperation(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
+                  = graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
 
               data class DeprecatedFieldQueryResult(
                 /**

@@ -17,6 +17,9 @@
 package com.expediagroup.graphql.client
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.cio.CIO
@@ -34,7 +37,16 @@ import java.net.URL
  * A lightweight typesafe GraphQL HTTP client.
  */
 @KtorExperimentalAPI
-class GraphQLClient(private val url: URL, engine: HttpClientEngineFactory<*> = CIO, vararg features: HttpClientFeature<*, *>) {
+class GraphQLClient(
+    private val url: URL,
+    private val mapper: ObjectMapper = jacksonObjectMapper(),
+    engine: HttpClientEngineFactory<*> = CIO,
+    vararg features: HttpClientFeature<*, *>
+) {
+    private val typeCache = mutableMapOf<Class<*>, JavaType>()
+    init {
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+    }
 
     private val client = HttpClient(engineFactory = engine) {
         for (feature in features) {
@@ -42,16 +54,14 @@ class GraphQLClient(private val url: URL, engine: HttpClientEngineFactory<*> = C
         }
         // install default serializer
         install(JsonFeature) {
-            serializer = JacksonSerializer {
-                this.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-            }
+            serializer = JacksonSerializer(mapper)
         }
     }
 
     /**
      * Executes specified GraphQL query or mutation.
      */
-    suspend fun <T> executeOperation(query: String, operationName: String? = null, variables: Any? = null): GraphQLResult<T> {
+    suspend fun <T> executeOperation(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>): GraphQLResult<T> {
         // variables are data classes
         // by using map instead of typed object we can eliminate the need to convert variables to map
         val graphQLRequest = mapOf(
@@ -60,10 +70,23 @@ class GraphQLClient(private val url: URL, engine: HttpClientEngineFactory<*> = C
             "variables" to variables
         )
 
-        return client.post(url) {
+        val rawResult = client.post<String>(url) {
             accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
             body = graphQLRequest
+        }
+
+        @Suppress("BlockingMethodInNonBlockingContext")
+        return mapper.readValue(rawResult, parameterizedType(resultType))
+    }
+
+    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any): GraphQLResult<T> {
+        return executeOperation(query, operationName, variables, T::class.java)
+    }
+
+    private fun <T> parameterizedType(resultType: Class<T>): JavaType {
+        return typeCache.computeIfAbsent(resultType) {
+            mapper.typeFactory.constructParametricType(GraphQLResult::class.java, resultType)
         }
     }
 }

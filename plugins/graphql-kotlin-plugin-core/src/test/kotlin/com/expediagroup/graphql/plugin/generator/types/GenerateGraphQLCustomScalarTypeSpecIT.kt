@@ -44,7 +44,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             ) {
               suspend fun customScalarTestQuery():
                   GraphQLResult<CustomScalarTestQuery.CustomScalarTestQueryResult> =
-                  graphQLClient.executeOperation(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
+                  graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
 
               /**
                * Custom scalar representing UUID

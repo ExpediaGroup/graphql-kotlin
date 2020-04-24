@@ -93,6 +93,9 @@
                 <groupId>com.expediagroup</groupId>
                 <artifactId>graphql-kotlin-maven-plugin</artifactId>
                 <version>@graphql-kotlin.version@</version>
+                <configuration>
+                    <jvmTarget>@kotlin.jvmTarget@</jvmTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <id>introspect-schema</id>

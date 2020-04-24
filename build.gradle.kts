@@ -48,6 +48,7 @@ allprojects {
 }
 
 subprojects {
+    val kotlinJvmVersion: String by project
     val kotlinVersion: String by project
     val junitVersion: String by project
     val mockkVersion: String by project
@@ -71,7 +72,7 @@ subprojects {
     tasks {
         withType<KotlinCompile> {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = kotlinJvmVersion
                 freeCompilerArgs = listOf("-Xjsr305=strict")
             }
         }

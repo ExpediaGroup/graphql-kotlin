@@ -18,6 +18,7 @@
         <graphql-java.version>${graphqlJavaVersion}</graphql-java.version>
         <junit.version>${junitVersion}</junit.version>
         <kotlin.version>${kotlinVersion}</kotlin.version>
+        <kotlin.jvmTarget>${kotlinJvmTarget}</kotlin.jvmTarget>
         <kotlin-coroutines.version>${kotlinCoroutinesVersion}</kotlin-coroutines.version>
         <kotlinpoet.version>${kotlinPoetVersion}</kotlinpoet.version>
         <ktor.version>${ktorVersion}</ktor.version>
@@ -85,6 +86,9 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>${kotlin.jvmTarget}</jvmTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -113,6 +117,7 @@
                         <graphql.endpoint>${graphql.endpoint}</graphql.endpoint>
                         <graphql-java.version>${graphql-java.version}</graphql-java.version>
                         <junit.version>${junit.version}</junit.version>
+                        <kotlin.jvmTarget>${kotlin.jvmTarget}</kotlin.jvmTarget>
                         <kotlin.version>${kotlin.version}</kotlin.version>
                         <kotlin-coroutines.version>${kotlin-coroutines.version}</kotlin-coroutines.version>
                         <kotlin-poet.version>${kotlinpoet.version}</kotlin-poet.version>

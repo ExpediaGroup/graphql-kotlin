@@ -46,8 +46,8 @@ class GenerateGraphQLUnionTypeSpecIT {
             ) {
               suspend fun unionQueryWithInlineFragments():
                   GraphQLResult<UnionQueryWithInlineFragments.UnionQueryWithInlineFragmentsResult> =
-                  graphQLClient.executeOperation(UNION_QUERY_WITH_INLINE_FRAGMENTS,
-                  "UnionQueryWithInlineFragments", null)
+                  graphQLClient.execute(UNION_QUERY_WITH_INLINE_FRAGMENTS, "UnionQueryWithInlineFragments",
+                  null)
 
               /**
                * Some basic description
@@ -144,8 +144,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             ) {
               suspend fun unionQueryWithNamedFragments():
                   GraphQLResult<UnionQueryWithNamedFragments.UnionQueryWithNamedFragmentsResult> =
-                  graphQLClient.executeOperation(UNION_QUERY_WITH_NAMED_FRAGMENTS,
-                  "UnionQueryWithNamedFragments", null)
+                  graphQLClient.execute(UNION_QUERY_WITH_NAMED_FRAGMENTS, "UnionQueryWithNamedFragments", null)
 
               /**
                * Some basic description

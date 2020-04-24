@@ -57,6 +57,9 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>@kotlin.version@</version>
+                <configuration>
+                    <jvmTarget>@kotlin.jvmTarget@</jvmTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>

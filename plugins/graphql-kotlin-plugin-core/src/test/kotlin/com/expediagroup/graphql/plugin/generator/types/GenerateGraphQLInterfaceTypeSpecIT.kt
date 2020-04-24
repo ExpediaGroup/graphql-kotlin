@@ -47,7 +47,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             ) {
               suspend fun interfaceWithInlineFragmentsTestQuery():
                   GraphQLResult<InterfaceWithInlineFragmentsTestQuery.InterfaceWithInlineFragmentsTestQueryResult>
-                  = graphQLClient.executeOperation(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
+                  = graphQLClient.execute(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithInlineFragmentsTestQuery", null)
 
               /**
@@ -161,7 +161,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             ) {
               suspend fun interfaceWithNamedFragmentsTestQuery():
                   GraphQLResult<InterfaceWithNamedFragmentsTestQuery.InterfaceWithNamedFragmentsTestQueryResult>
-                  = graphQLClient.executeOperation(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
+                  = graphQLClient.execute(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithNamedFragmentsTestQuery", null)
 
               /**

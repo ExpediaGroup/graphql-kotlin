@@ -7,6 +7,7 @@ description = "GraphQL Kotlin Maven plugin"
 
 val graphQLJavaVersion: String by project
 val junitVersion: String by project
+val kotlinJvmVersion: String by project
 val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val kotlinPoetVersion: String by project
@@ -74,6 +75,7 @@ tasks {
     val mavenEnvironmentVariables = mapOf(
         "graphqlKotlinVersion" to project.version,
         "graphqlJavaVersion" to graphQLJavaVersion,
+        "kotlinJvmTarget" to kotlinJvmVersion,
         "kotlinVersion" to kotlinVersion,
         "kotlinCoroutinesVersion" to kotlinCoroutinesVersion,
         "kotlinPoetVersion" to kotlinPoetVersion,
