@@ -1,6 +1,5 @@
 import java.time.Duration
 import kotlin.arrayOf
-import kotlin.collections.listOf
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
 
 description = "GraphQL Kotlin Maven plugin"
@@ -49,29 +48,7 @@ tasks {
 
     /*
     Integration tests are run through maven-invoker-plugin which will execute tests under src/integration/<scenario>
-
-    Steps:
-    1) copy dependent graphql-kotlin libraries to a local folder
-    2) install all required graphql-kotlin libraries to a local m2 repo
-      - we need to explicitly install libs as otherwise they won't be available to maven build at this point of time
-      - alternative approach: make integration test dependent on publishToMavenLocal task from the dependent libs, con: publish task is dependent on dokka which
-       only runs on Java 8 so we would need to have custom logic to handle that
-    3) run integration tests using test project that executes maven-invoker-plugin
-      - library versions are passed to the maven build which are then set by the maven-invoker-plugin when it is filtering the resources
-
-    TODO update this to not be dependent on Maven
      */
-    val copyIntegrationTestDependencies by register<Copy>("copyIntegrationTestDependencies") {
-        // we only need to explicitly copy graphql-kotlin libraries as they won't be available in m2 repository at this point
-        from(configurations.runtimeClasspath) {
-            include("graphql-kotlin*")
-        }
-        from(configurations.testRuntimeClasspath) {
-            include("graphql-kotlin*")
-        }
-        into("${project.buildDir}/dependencies")
-    }
-    val jar by getting(Jar::class)
     val mavenEnvironmentVariables = mapOf(
         "graphqlKotlinVersion" to project.version,
         "graphqlJavaVersion" to graphQLJavaVersion,
@@ -82,36 +59,6 @@ tasks {
         "ktorVersion" to ktorVersion,
         "junitVersion" to junitVersion
     )
-    val installIntegrationTestDependencies by register("installIntegrationTestDependencies") {
-        dependsOn(copyIntegrationTestDependencies.path, jar.path)
-        doLast {
-            for (dependentJar in listOf("graphql-kotlin-plugin-core", "graphql-kotlin-client")) {
-                exec {
-                    val graphqlKotlinLibJar = "${project.buildDir}/dependencies/$dependentJar-${project.version}.jar"
-                    environment(mavenEnvironmentVariables)
-                    commandLine("${project.projectDir}/mvnw",
-                        "install:install-file",
-                        "-Dfile=$graphqlKotlinLibJar",
-                        "-DgroupId=${project.group}",
-                        "-DartifactId=$dependentJar",
-                        "-Dversion=${project.version}",
-                        "-Dpackaging=jar")
-                }
-            }
-            exec {
-                val pluginJar = jar.archiveFile.get().asFile.absolutePath
-                environment(mavenEnvironmentVariables)
-                commandLine("${project.projectDir}/mvnw",
-                    "install:install-file",
-                    "-Dfile=$pluginJar",
-                    "-DgroupId=${project.group}",
-                    "-DartifactId=${project.name}",
-                    "-Dversion=${project.version}",
-                    "-Dpackaging=maven-plugin")
-            }
-        }
-    }
-
     var wireMockServer: WireMockServerRunner? = null
     var wireMockServerPort: Int? = null
     val startWireMock by register("startWireMock") {
@@ -138,7 +85,7 @@ tasks {
         mustRunAfter("startWireMock")
     }
     val integrationTest by register("integrationTest") {
-        dependsOn(installIntegrationTestDependencies.path, startWireMock.path)
+        dependsOn(startWireMock.path)
         finalizedBy(stopWireMock.path)
         timeout.set(Duration.ofSeconds(500))
         doLast {

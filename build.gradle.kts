@@ -105,6 +105,8 @@ subprojects {
                 attributes["Implementation-Title"] = currentProject.name
                 attributes["Implementation-Version"] = project.version
             }
+            // in order to run gradle and maven plugin we need to have our build artifacts available in local repo
+            finalizedBy("publishToMavenLocal")
         }
         test {
             useJUnitPlatform()
@@ -124,7 +126,7 @@ subprojects {
         val javadocJar by registering(Jar::class) {
             archiveClassifier.set("javadoc")
             from("$buildDir/javadoc")
-//            dependsOn(dokka.path)
+            dependsOn(dokka.path)
         }
         publishing {
             publications {
@@ -162,8 +164,11 @@ subprojects {
                             mavenPom.description.set(currentProject.description)
                         }
                     }
-                    artifact(sourcesJar.get())
-                    artifact(javadocJar.get())
+                    // no need to publish sources or javadocs for SNAPSHOT builds
+                    if (rootProject.extra["isReleaseVersion"] as Boolean) {
+                        artifact(sourcesJar.get())
+                        artifact(javadocJar.get())
+                    }
                 }
 
                 // workaround for java-gradle-plugin creating separate hardcoded pluginMaven publication

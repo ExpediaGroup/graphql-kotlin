@@ -1,4 +1,4 @@
-query JUnitQuery($simpleCriteria: SimpleArgumentInput) {
+query JUnitQuery($simpleCriteria: SimpleArgumentInput!) {
   enumQuery
   scalarQuery {
     count
@@ -9,10 +9,12 @@ query JUnitQuery($simpleCriteria: SimpleArgumentInput) {
     valid
   }
   listQuery {
+    __typename
     id
     name
   }
   complexObjectQuery {
+    __typename
     id
     name
     optional
