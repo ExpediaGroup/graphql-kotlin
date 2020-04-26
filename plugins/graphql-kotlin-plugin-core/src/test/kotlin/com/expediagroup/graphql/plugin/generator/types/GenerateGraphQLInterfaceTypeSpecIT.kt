@@ -115,7 +115,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 /**
                  * Query returning an interface
                  */
-                val interfaceQuery: InterfaceWithInlineFragmentsTestQuery.BasicInterface?
+                val interfaceQuery: InterfaceWithInlineFragmentsTestQuery.BasicInterface
               )
             }
         """.trimIndent()
@@ -229,7 +229,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 /**
                  * Query returning an interface
                  */
-                val interfaceQuery: InterfaceWithNamedFragmentsTestQuery.BasicInterface?
+                val interfaceQuery: InterfaceWithNamedFragmentsTestQuery.BasicInterface
               )
             }
         """.trimIndent()

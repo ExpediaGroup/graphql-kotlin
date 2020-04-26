@@ -51,14 +51,14 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
                 /**
                  * Custom scalar
                  */
-                val custom: UUID?
+                val custom: UUID
               )
 
               data class ScalarAliasTestQueryResult(
                 /**
                  * Query that returns wrapper object with all supported scalar types
                  */
-                val scalarQuery: ScalarAliasTestQuery.ScalarWrapper?
+                val scalarQuery: ScalarAliasTestQuery.ScalarWrapper
               )
             }
         """.trimIndent()

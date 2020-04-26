@@ -127,6 +127,7 @@ internal fun generateInterfaceTypeSpec(
         }
         val implementationClassName = context.classNameCache[implementationName]
         jsonSubTypesCodeBlock.add("com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = %T::class, name=%S)", implementationClassName, implementationName)
+        context.objectsWithTypeNameSelection.add(implementationName)
     }
 
     // add jackson annotations to handle deserialization

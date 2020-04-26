@@ -50,15 +50,15 @@ class GenerateGraphQLEnumTypeSpecIT {
                 ONE,
 
                 /**
-                 * Second enum value
-                 */
-                TWO,
-
-                /**
                  * Third enum value
                  */
                 @Deprecated(message = "only goes up to two")
                 THREE,
+
+                /**
+                 * Second enum value
+                 */
+                TWO,
 
                 /**
                  * This is a default enum value that will be used when attempting to deserialize unknown value.
@@ -71,7 +71,7 @@ class GenerateGraphQLEnumTypeSpecIT {
                 /**
                  * Query that returns enum value
                  */
-                val enumQuery: EnumTestQuery.CustomEnum?
+                val enumQuery: EnumTestQuery.CustomEnum
               )
             }
         """.trimIndent()

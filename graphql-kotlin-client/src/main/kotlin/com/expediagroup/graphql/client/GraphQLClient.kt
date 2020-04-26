@@ -80,7 +80,7 @@ class GraphQLClient(
         return mapper.readValue(rawResult, parameterizedType(resultType))
     }
 
-    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any): GraphQLResult<T> {
+    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null): GraphQLResult<T> {
         return executeOperation(query, operationName, variables, T::class.java)
     }
 

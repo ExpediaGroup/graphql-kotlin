@@ -44,7 +44,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 /**
                  * Query that accepts some input arguments
                  */
-                val inputObjectQuery: Boolean?
+                val inputObjectQuery: Boolean
               )
             }
         """.trimIndent()
@@ -80,11 +80,11 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 /**
                  * Query that accepts some input arguments
                  */
-                val first: Boolean?,
+                val first: Boolean,
                 /**
                  * Query that accepts some input arguments
                  */
-                val second: Boolean?
+                val second: Boolean
               )
             }
         """.trimIndent()

@@ -80,7 +80,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 val name: String,
                 /**
                  * Optional value
-                 * Second line of the description.
+                 * Second line of the description
                  */
                 val optional: String?,
                 /**
@@ -93,7 +93,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 /**
                  * Query returning an object that references another object
                  */
-                val complexObjectQuery: ComplexObjectTestQuery.ComplexObject?
+                val complexObjectQuery: ComplexObjectTestQuery.ComplexObject
               )
             }
         """.trimIndent()
@@ -169,7 +169,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 /**
                  * Query returning an object that references another object
                  */
-                val complexObjectQuery: ComplexObjectQueryWithNamedFragment.ComplexObject?
+                val complexObjectQuery: ComplexObjectQueryWithNamedFragment.ComplexObject
               )
             }
         """.trimIndent()
@@ -319,7 +319,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                  * Deprecated query that should not be used anymore
                  */
                 @Deprecated(message = "old query should not be used")
-                val deprecatedQuery: String?
+                val deprecatedQuery: String
               )
             }
         """.trimIndent()
@@ -336,5 +336,66 @@ class GenerateGraphQLObjectTypeSpecIT {
                 packageName = "com.expediagroup.graphql.plugin.generator.integration",
                 allowDeprecated = true
             ))
+    }
+
+    @Test
+    fun `verify we can generate nested objects`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.client.GraphQLResult
+            import kotlin.Int
+            import kotlin.String
+            import kotlin.collections.List
+
+            const val NESTED_QUERY: String =
+                "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      id\n      name\n    }\n  }\n}"
+
+            class NestedQuery(
+              private val graphQLClient: GraphQLClient
+            ) {
+              suspend fun nestedQuery(): GraphQLResult<NestedQuery.NestedQueryResult> =
+                  graphQLClient.execute(NESTED_QUERY, "NestedQuery", null)
+
+              /**
+               * Example of an object self-referencing itself
+               */
+              data class NestedObject(
+                /**
+                 * Unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Name of the object
+                 */
+                val name: String,
+                /**
+                 * Children elements
+                 */
+                val children: List<NestedQuery.NestedObject>
+              )
+
+              data class NestedQueryResult(
+                /**
+                 * Query returning object referencing itself
+                 */
+                val nestedObjectQuery: NestedQuery.NestedObject
+              )
+            }
+        """.trimIndent()
+        val nestedQuery = """
+            query NestedQuery {
+              nestedObjectQuery {
+                id
+                name
+                children {
+                  id
+                  name
+                }
+              }
+            }
+        """.trimIndent()
+        verifyGraphQLClientGeneration(nestedQuery, expected)
     }
 }

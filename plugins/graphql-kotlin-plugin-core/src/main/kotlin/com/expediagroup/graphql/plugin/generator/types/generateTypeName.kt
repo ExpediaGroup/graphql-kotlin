@@ -102,7 +102,7 @@ private fun validateCachedGraphQLType(context: GraphQLClientGeneratorContext, gr
         // unions don't have any common fields
         val selectedFields = when (graphQLTypeDefinition) {
             is ObjectTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet)
-            is InterfaceTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet)
+            is InterfaceTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet, true)
             else -> emptySet()
         }
 
@@ -115,11 +115,19 @@ private fun validateCachedGraphQLType(context: GraphQLClientGeneratorContext, gr
     }
 }
 
-private fun calculateSelectedFields(context: GraphQLClientGeneratorContext, targetType: String, selectionSet: SelectionSet): Set<String> {
+private fun calculateSelectedFields(
+    context: GraphQLClientGeneratorContext,
+    targetType: String,
+    selectionSet: SelectionSet,
+    isInterface: Boolean = false
+): Set<String> {
     val result = mutableSetOf<String>()
+    var typeNameSelected: Boolean = false
     selectionSet.selections.forEach { selection ->
         when (selection) {
-            is Field -> if ("__typename" != selection.name) {
+            is Field -> if ("__typename" == selection.name) {
+                typeNameSelected = true
+            } else {
                 result.add(selection.name)
             }
             is InlineFragment -> if (selection.typeCondition.name == targetType) {
@@ -135,5 +143,10 @@ private fun calculateSelectedFields(context: GraphQLClientGeneratorContext, targ
             }
         }
     }
+
+    if (!isInterface && (context.objectsWithTypeNameSelection.contains(targetType) xor typeNameSelected)) {
+        throw RuntimeException("multiple selections of $targetType GraphQL type with different selection sets - missing __typename")
+    }
+
     return result
 }

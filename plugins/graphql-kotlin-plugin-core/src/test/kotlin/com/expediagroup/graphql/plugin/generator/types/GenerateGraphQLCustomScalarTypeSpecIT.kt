@@ -71,14 +71,14 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 /**
                  * Custom scalar
                  */
-                val custom: CustomScalarTestQuery.UUID?
+                val custom: CustomScalarTestQuery.UUID
               )
 
               data class CustomScalarTestQueryResult(
                 /**
                  * Query that returns wrapper object with all supported scalar types
                  */
-                val scalarQuery: CustomScalarTestQuery.ScalarWrapper?
+                val scalarQuery: CustomScalarTestQuery.ScalarWrapper
               )
             }
         """.trimIndent()

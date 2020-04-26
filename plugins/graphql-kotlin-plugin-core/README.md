@@ -8,7 +8,7 @@ consumed directly and instead you should rely on the provided build plugins.**
 ## Current functionality
 * Download SDL from a target endpoint.
 * Run introspection query against target endpoint and return underlying schema.
-* Generate GraphQL Kotlin client code from the specified queries to be run against target GraphQL schema. 
+* Generate GraphQL Kotlin client code from the specified queries to be run against target GraphQL schema.
   Code is generated using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
 
 ## Code Generation Limitations
@@ -17,8 +17,11 @@ consumed directly and instead you should rely on the provided build plugins.**
 * Due to the custom logic required for deserialization of polymorphic types and default enum values only Jackson is currently supported.
 * Only a single operation per query file is supported.
 * Subscriptions are currently not supported.
-* You cannot make multiple selections to the same GraphQL object with different fields within a single GraphQL query. 
+* You cannot make multiple selections to the same GraphQL object with different fields within a single GraphQL query.
   But you can have different selection sets across different GraphQL queries.
 * Anonymous operations are supported but will result in generic `AnonymousQuery` (for query operation) class. Plugins
   do not keep track of state across different query generations so if you have multiple anonymous operations in a single
   package your compilation will fail due to the generic class name collisions.
+* Nested queries have limited support as same object will be used for ALL nested results. This means that you have to
+  explicitly ask for data from ALL nested levels + the NULL child following it (that may skip recursive field selection
+  as it will be NULL).

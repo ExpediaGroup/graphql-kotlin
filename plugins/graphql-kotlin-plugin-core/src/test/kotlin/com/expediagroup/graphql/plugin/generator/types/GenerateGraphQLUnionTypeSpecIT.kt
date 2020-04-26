@@ -21,6 +21,7 @@ import graphql.language.SelectionSet
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 
 class GenerateGraphQLUnionTypeSpecIT {
 
@@ -76,7 +77,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                 val name: String,
                 /**
                  * Optional value
-                 * Second line of the description.
+                 * Second line of the description
                  */
                 val optional: String?
               ) : UnionQueryWithInlineFragments.BasicUnion
@@ -99,7 +100,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                 /**
                  * Query returning union
                  */
-                val unionQuery: UnionQueryWithInlineFragments.BasicUnion?
+                val unionQuery: UnionQueryWithInlineFragments.BasicUnion
               )
             }
         """.trimIndent()
@@ -173,7 +174,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                 val name: String,
                 /**
                  * Optional value
-                 * Second line of the description.
+                 * Second line of the description
                  */
                 val optional: String?
               ) : UnionQueryWithNamedFragments.BasicUnion
@@ -196,7 +197,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                 /**
                  * Query returning union
                  */
-                val unionQuery: UnionQueryWithNamedFragments.BasicUnion?
+                val unionQuery: UnionQueryWithNamedFragments.BasicUnion
               )
             }
         """.trimIndent()
@@ -298,5 +299,34 @@ class GenerateGraphQLUnionTypeSpecIT {
         assertThrows<RuntimeException> {
             verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
         }
+    }
+
+    @Test
+    fun `verify graphql client generation will throw exception if we select union type and same concrete type without __typename`() {
+        val invalidQuery = """
+            query InvalidQuerySelectingSameObjectWithDifferentFields {
+              complexObjectQuery {
+                id
+                name
+                optional
+              }
+              unionQuery {
+                __typename
+                ... on BasicObject {
+                  id
+                  name
+                }
+                ... on ComplexObject {
+                  id
+                  name
+                  optional
+                }
+              }
+            }
+        """.trimIndent()
+        val exception = assertThrows<RuntimeException> {
+            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+        }
+        assertEquals("multiple selections of ComplexObject GraphQL type with different selection sets - missing __typename", exception.message)
     }
 }

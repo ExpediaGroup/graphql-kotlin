@@ -52,24 +52,24 @@ class GenerateVariableTypeSpecIT {
                */
               data class SimpleArgumentInput(
                 /**
-                 * New value to be set
+                 * Maximum value for test criteria
                  */
-                val newName: String?,
+                val max: Float?,
                 /**
                  * Minimum value for test criteria
                  */
                 val min: Float?,
                 /**
-                 * Maximum value for test criteria
+                 * New value to be set
                  */
-                val max: Float?
+                val newName: String?
               )
 
               data class TestQueryWithVariablesResult(
                 /**
                  * Query that accepts some input arguments
                  */
-                val inputObjectQuery: Boolean?
+                val inputObjectQuery: Boolean
               )
             }
         """.trimIndent()
