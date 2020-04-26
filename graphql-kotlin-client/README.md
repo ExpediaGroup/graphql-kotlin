@@ -23,7 +23,7 @@ With Maven:
 ```xml
 <dependency>
   <groupId>com.expediagroup</groupId>
-  <artifactId>graphql-kotlin-federation</artifactId>
+  <artifactId>graphql-kotlin-client</artifactId>
   <version>${latestVersion}</version>
 </dependency>
 ```
