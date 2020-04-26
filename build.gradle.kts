@@ -9,6 +9,7 @@ description = "Libraries for running a GraphQL server in Kotlin"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
 plugins {
+    idea
     kotlin("jvm")
     id("org.jetbrains.dokka") apply false
     id("org.jlleitschuh.gradle.ktlint")
@@ -48,8 +49,9 @@ allprojects {
 }
 
 subprojects {
-    val kotlinVersion: String by project
     val kotlinCoroutinesVersion: String by project
+    val kotlinJvmVersion: String by project
+    val kotlinVersion: String by project
     val junitVersion: String by project
     val mockkVersion: String by project
 
@@ -59,6 +61,7 @@ subprojects {
 
     val currentProject = this
 
+    apply(plugin = "idea")
     apply(plugin = "kotlin")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -68,14 +71,20 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-        }
-    }
-
     tasks {
+        withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = kotlinJvmVersion
+                freeCompilerArgs = listOf("-Xjsr305=strict")
+            }
+        }
+
+        idea {
+            module {
+                isDownloadSources = true
+                isDownloadJavadoc = true
+            }
+        }
         check {
             dependsOn(jacocoTestCoverageVerification)
         }
@@ -98,6 +107,9 @@ subprojects {
                 attributes["Implementation-Title"] = currentProject.name
                 attributes["Implementation-Version"] = project.version
             }
+
+            // NOTE: in order to run gradle and maven plugin integration tests we need to have our build artifacts available in local repo
+            finalizedBy("publishToMavenLocal")
         }
         test {
             useJUnitPlatform()
@@ -121,7 +133,7 @@ subprojects {
         }
         publishing {
             publications {
-                create<MavenPublication>("mavenJava") {
+                withType<MavenPublication> {
                     pom {
                         name.set("${currentProject.group}:${currentProject.name}")
                         url.set("https://github.com/ExpediaGroup/graphql-kotlin")
@@ -155,20 +167,29 @@ subprojects {
                             mavenPom.description.set(currentProject.description)
                         }
                     }
-                    from(jarComponent)
-                    artifact(sourcesJar.get())
-                    artifact(javadocJar.get())
+                    // no need to publish sources or javadocs for SNAPSHOT builds
+                    if (rootProject.extra["isReleaseVersion"] as Boolean) {
+                        artifact(sourcesJar.get())
+                        artifact(javadocJar.get())
+                    }
+                }
+
+                // workaround for java-gradle-plugin creating separate hardcoded pluginMaven publication
+                if (currentProject.name != "graphql-kotlin-gradle-plugin") {
+                    create<MavenPublication>("mavenJava") {
+                        from(jarComponent)
+                    }
                 }
             }
         }
         signing {
             setRequired {
-                (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
+                (rootProject.extra["isReleaseVersion"] as Boolean) && (gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishPlugins"))
             }
             val signingKey: String? = System.getenv("GPG_SECRET")
             val signingPassword: String? = System.getenv("GPG_PASSPHRASE")
             useInMemoryPgpKeys(signingKey, signingPassword)
-            sign(publishing.publications["mavenJava"])
+            sign(publishing.publications)
         }
     }
 

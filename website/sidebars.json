@@ -61,6 +61,9 @@
       "spring-server/spring-graphql-context",
       "spring-server/subscriptions"
     ],
+    "Build Plugins": [
+      "plugins/gradle-plugin"
+    ],
     "Contributors": [
       "contributors/release-proc"
     ],
