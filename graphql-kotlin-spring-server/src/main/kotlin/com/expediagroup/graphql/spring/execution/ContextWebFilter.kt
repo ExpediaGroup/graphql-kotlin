@@ -39,7 +39,7 @@ const val GRAPHQL_CONTEXT_FILTER_ODER = 0
 open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<T>) : WebFilter, Ordered {
     private val graphQLRoute = enforceAbsolutePath(config.endpoint)
     private val subscriptionsRoute = enforceAbsolutePath(config.subscriptions.endpoint)
-    private val parser = getParser()
+    private val parser = getPathPatternParser()
     private val graphQLRoutePattern = parser.parse(graphQLRoute)
     private val subscriptionsRoutePattern = parser.parse(subscriptionsRoute)
 
@@ -64,9 +64,10 @@ open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfiguration
 
     private fun enforceAbsolutePath(path: String) = if (path.startsWith("/")) { path } else { "/$path" }
 
-    private fun getParser(): PathPatternParser {
+    private fun getPathPatternParser(): PathPatternParser {
         val parser = PathPatternParser()
         parser.isCaseSensitive = false
+        parser.isMatchOptionalTrailingSeparator = true
         return parser
     }
 }
