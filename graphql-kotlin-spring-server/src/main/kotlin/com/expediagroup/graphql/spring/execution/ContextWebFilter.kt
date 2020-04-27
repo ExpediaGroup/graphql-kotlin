@@ -20,9 +20,11 @@ import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
 import kotlinx.coroutines.reactor.mono
 import org.springframework.core.Ordered
+import org.springframework.http.server.PathContainer
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
+import org.springframework.web.util.pattern.PathPatternParser
 import reactor.core.publisher.Mono
 
 /**
@@ -37,6 +39,9 @@ const val GRAPHQL_CONTEXT_FILTER_ODER = 0
 open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<T>) : WebFilter, Ordered {
     private val graphQLRoute = enforceAbsolutePath(config.endpoint)
     private val subscriptionsRoute = enforceAbsolutePath(config.subscriptions.endpoint)
+    private val parser = getParser()
+    private val graphQLRoutePattern = parser.parse(graphQLRoute)
+    private val subscriptionsRoutePattern = parser.parse(subscriptionsRoute)
 
     @Suppress("ForbiddenVoid")
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
@@ -52,8 +57,16 @@ open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfiguration
 
     override fun getOrder(): Int = GRAPHQL_CONTEXT_FILTER_ODER
 
-    open fun isApplicable(path: String): Boolean =
-        graphQLRoute.equals(path, ignoreCase = true) || subscriptionsRoute.equals(path, ignoreCase = true)
+    open fun isApplicable(path: String): Boolean {
+        val parsedPath = PathContainer.parsePath(path)
+        return graphQLRoutePattern.matches(parsedPath) || subscriptionsRoutePattern.matches(parsedPath)
+    }
 
     private fun enforceAbsolutePath(path: String) = if (path.startsWith("/")) { path } else { "/$path" }
+
+    private fun getParser(): PathPatternParser {
+        val parser = PathPatternParser()
+        parser.isCaseSensitive = false
+        return parser
+    }
 }

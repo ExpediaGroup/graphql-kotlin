@@ -111,6 +111,14 @@ class ContextWebFilterTest {
     }
 
     @Test
+    fun `verify context web filter is applicable on routes with different cases and trailing slashes`() {
+        val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
+        for (path in listOf("/GrAphQl", "/graphql/", "/sUbscRiptions", "/subscriptions/")) {
+            assertTrue(contextFilter.isApplicable(path), "$path was invalid")
+        }
+    }
+
+    @Test
     fun `verify context web filter is applicable on non-default graphql routes`() {
         val graphQLRoute = "myGraphQL"
         val subscriptionRoute = "mySubscription"
