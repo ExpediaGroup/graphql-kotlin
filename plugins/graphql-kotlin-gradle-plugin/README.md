@@ -6,7 +6,7 @@
 
 GraphQL gradle plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.
 
-## Applying Plugin
+## Usage
 
 `graphql-kotlin-gradle-plugin` is published on Gradle [Plugin Portal](https://plugins.gradle.org/plugin/com.expediagroup.graphql).
 In order to execute any of the provided tasks you need to first apply the plugin on your project.
@@ -18,6 +18,10 @@ plugins {
 }
 ```
 
+GraphQL Kotlin Gradle Plugin uses an extension on the project named `graphql` of type
+[GraphQLPluginExtension`](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt).
+This extension can be used to configure global options instead of explicitly configuring individual tasks.
+
 ## Tasks
 
 All `graphql-kotlin-gradle-plugin` tasks are grouped together under `GraphQL` task group and their names are prefixed with
@@ -26,24 +30,9 @@ All `graphql-kotlin-gradle-plugin` tasks are grouped together under `GraphQL` ta
 
 ### graphqlIntrospectSchema
 
-Task that executes GraphQL introspection query against specified endpoint and saves the underlying schema file as
+Task that executes GraphQL introspection query against specified `endpoint` and saves the underlying schema file as
 `schema.graphql` under build directory. In general, this task provides limited functionality by itself and instead
 should be used to generate input for the subsequent `graphqlGenerateClient` task.
-
-```shell script
-$ gradle graphqlIntrospectSchema --endpoint="http://localhost:8080/graphql"
-```
-
-Or by explicitly configuring it in your Gradle build file
-
-```kotlin
-// build.gradle.kts
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
-
-val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
-    endpoint.set("http://localhost:8080/graphql")
-}
-```
 
 ## Documentation
 
