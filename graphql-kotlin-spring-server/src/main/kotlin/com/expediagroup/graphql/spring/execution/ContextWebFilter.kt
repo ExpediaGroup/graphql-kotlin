@@ -24,6 +24,7 @@ import org.springframework.http.server.PathContainer
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
+import org.springframework.web.util.pattern.PathPattern
 import org.springframework.web.util.pattern.PathPatternParser
 import reactor.core.publisher.Mono
 
@@ -37,11 +38,16 @@ const val GRAPHQL_CONTEXT_FILTER_ODER = 0
  * Default web filter that populates GraphQL context in the reactor subscriber context.
  */
 open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfigurationProperties, private val contextFactory: GraphQLContextFactory<T>) : WebFilter, Ordered {
-    private val graphQLRoute = enforceAbsolutePath(config.endpoint)
-    private val subscriptionsRoute = enforceAbsolutePath(config.subscriptions.endpoint)
-    private val parser = getPathPatternParser()
-    private val graphQLRoutePattern = parser.parse(graphQLRoute)
-    private val subscriptionsRoutePattern = parser.parse(subscriptionsRoute)
+    private val graphQLRoutePattern: PathPattern
+    private val subscriptionsRoutePattern: PathPattern
+
+    init {
+        val graphQLRoute = enforceAbsolutePath(config.endpoint)
+        val subscriptionsRoute = enforceAbsolutePath(config.subscriptions.endpoint)
+        val parser = getPathPatternParser()
+        graphQLRoutePattern = parser.parse(graphQLRoute)
+        subscriptionsRoutePattern = parser.parse(subscriptionsRoute)
+    }
 
     @Suppress("ForbiddenVoid")
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
