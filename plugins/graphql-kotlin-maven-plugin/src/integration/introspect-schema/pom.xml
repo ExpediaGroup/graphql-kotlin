@@ -12,11 +12,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-client</artifactId>
-            <version>@graphql-kotlin.version@</version>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>@kotlin.version@</version>
