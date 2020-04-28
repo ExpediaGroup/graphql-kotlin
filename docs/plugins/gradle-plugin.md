@@ -1,6 +1,6 @@
 ---
 id: gradle-plugin
-title: GraphQL Kotlin Gradle Plugin
+title: Gradle Plugin
 ---
 
 GraphQL Kotlin Gradle Plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.

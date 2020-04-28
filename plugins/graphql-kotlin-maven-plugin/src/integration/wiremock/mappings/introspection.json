@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/graphql",
+    "bodyPatterns": [{
+      "contains": "IntrospectionQuery"
+    }]
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "introspectionResult.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

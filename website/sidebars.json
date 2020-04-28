@@ -62,7 +62,8 @@
       "spring-server/subscriptions"
     ],
     "Build Plugins": [
-      "plugins/gradle-plugin"
+      "plugins/gradle-plugin",
+      "plugins/maven-plugin"
     ],
     "Contributors": [
       "contributors/release-proc"
