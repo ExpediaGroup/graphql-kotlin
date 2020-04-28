@@ -31,6 +31,8 @@ include(":graphql-kotlin-federation")
 include(":graphql-kotlin-spring-server")
 include(":plugins:graphql-kotlin-plugin-core")
 include(":plugins:graphql-kotlin-gradle-plugin")
+include(":plugins:graphql-kotlin-maven-plugin")
 
 project(":plugins:graphql-kotlin-plugin-core").projectDir = file("plugins/graphql-kotlin-plugin-core")
 project(":plugins:graphql-kotlin-gradle-plugin").projectDir = file("plugins/graphql-kotlin-gradle-plugin")
+project(":plugins:graphql-kotlin-maven-plugin").projectDir = file("plugins/graphql-kotlin-maven-plugin")
