@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.plugin.gradle
+package com.expediagroup.grpahql.plugin.maven
 
-import org.gradle.api.Project
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import java.io.File
 
-/**
- * GraphQL Kotlin Gradle Plugin extension.
- */
-@Suppress("UnstableApiUsage")
-open class GraphQLPluginExtension(project: Project) {
-    /** GraphQL server endpoint that will be used to for running introspection queries. */
-    var endpoint: String? = null
-    /** GraphQL server SDL endpoint that will be used to download schema. */
-    var sdlEndpoint: String? = null
+class DownloadSDLMojoTest {
+
+    @Test
+    fun `verify SDL file was downloaded`() {
+        val buildDirectory = System.getProperty("buildDirectory")
+        val schemaFile = File(buildDirectory, "schema.graphql")
+        assertTrue(schemaFile.exists(), "schema file was downloaded")
+    }
 }

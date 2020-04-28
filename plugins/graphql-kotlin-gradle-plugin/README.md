@@ -34,6 +34,13 @@ Task that executes GraphQL introspection query against specified `endpoint` and 
 `schema.graphql` under build directory. In general, this task provides limited functionality by itself and instead
 should be used to generate input for the subsequent `graphqlGenerateClient` task.
 
+### graphqlDownloadSDL
+
+Task that attempts to download GraphQL schema in SDL format from the specified `endpoint` and saves the underlying
+schema file as `schema.graphql` under build directory. In general, this task provides limited functionality by itself
+and could be used as an alternative to `graphqlIntrospectSchema` to generate input for the subsequent
+`graphqlGenerateClient` task.
+
 ## Documentation
 
 Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin)
