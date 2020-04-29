@@ -7,6 +7,14 @@ consumed directly and instead you should rely on the provided build plugins.**
 
 ## Common Functionality
 
+* downloadSDL
+
+GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
+Since GraphQL schema is needed to generate type safe clients, as alternative GraphQL servers might expose private
+endpoints (e.g. accessible only from within network, etc) that could be used to download schema in Schema Definition
+Language (SDL) directly. This function will attempt to download schema SDL from the specified endpoint, verify it is a
+valid SDL and return it to the client.
+
 * introspectSchema
 
 Executes introspection query against GraphQL endpoint, constructs GraphQL schema from the results and returns pretty

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -36,6 +37,9 @@ import kotlin.test.assertTrue
 
 class GraphQLGradlePluginIT {
 
+    private val expectedSchema = ClassLoader.getSystemClassLoader().getResourceAsStream("testSchema.graphql")?.use {
+        BufferedReader(it.reader()).readText()
+    }
     private val introspectionResult = ClassLoader.getSystemClassLoader().getResourceAsStream("introspectionResult.json")?.use {
         BufferedReader(it.reader()).readText()
     } ?: throw RuntimeException("failure setting up test environment - unable to load introspectionResult.json")
@@ -43,12 +47,44 @@ class GraphQLGradlePluginIT {
     @BeforeEach
     fun setUp() {
         WireMock.reset()
+        WireMock.stubFor(WireMock.get("/sdl")
+            .willReturn(WireMock.aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "text/plain")
+                .withBody(expectedSchema)))
         WireMock.stubFor(WireMock.post("/graphql")
             .withRequestBody(ContainsPattern("IntrospectionQuery"))
             .willReturn(WireMock.aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
                 .withBody(introspectionResult)))
+    }
+
+    @Test
+    fun `apply the gradle plugin and execute downloadSDL task`(@TempDir tempDir: Path) {
+        val buildFileContents = """
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+
+            plugins {
+              id("com.expediagroup.graphql")
+            }
+
+            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+              endpoint.set("${wireMockServer.baseUrl()}/sdl")
+            }
+        """.trimIndent()
+
+        File(tempDir.toFile(), "build.gradle.kts")
+            .writeText(buildFileContents)
+
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments(DOWNLOAD_SDL_TASK_NAME)
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
+        assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
     }
 
     @Test

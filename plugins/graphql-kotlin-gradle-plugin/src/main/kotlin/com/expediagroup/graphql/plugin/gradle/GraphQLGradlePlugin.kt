@@ -16,6 +16,8 @@
 @file:Suppress("UnstableApiUsage")
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import org.gradle.api.Plugin
@@ -31,11 +33,17 @@ class GraphQLGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(PLUGIN_EXTENSION_NAME, GraphQLPluginExtension::class.java, project)
         project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
+        project.tasks.register(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java)
 
         project.afterEvaluate {
             if (extension.endpoint != null) {
                 val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
                 introspectSchemaTask.endpoint.convention(project.provider { extension.endpoint })
+            }
+
+            if (extension.sdlEndpoint != null) {
+                val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
+                downloadSDLTask.endpoint.convention(project.provider { extension.endpoint })
             }
         }
     }

@@ -30,6 +30,21 @@ Plugin should be configured as part of your `pom.xml` build file.
 
 ## Goals
 
+### downloadSDL
+
+This Mojo attempts to download schema from the specified `graphql.endpoint`, validates the
+result whether it is a valid schema and saves it locally as `schema.graphql` under build directory. In general, this
+goal provides limited functionality by itself and instead should be used to generate input for the subsequent
+`generateClient` goal.
+
+**Default Lifecycle Phase**: `generate-sources`
+
+**Parameters**
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| `endpoint` | String | Target GraphQL server SDL endpoint that will be used to download schema. **User property is**: `graphql.endpoint`. |
+
 ### introspectSchema
 
 Executes GraphQL introspection query against specified `graphql.endpoint` and saves the underlying schema file as
