@@ -51,5 +51,7 @@ fun GraphQLSchema.print(
             .includeDirectives(includeDirectivesFilter)
     )
 
+    // escape special characters to preserve them in the SDL
     return schemaPrinter.print(this)
+        .replace("\\", "\\\\")
 }

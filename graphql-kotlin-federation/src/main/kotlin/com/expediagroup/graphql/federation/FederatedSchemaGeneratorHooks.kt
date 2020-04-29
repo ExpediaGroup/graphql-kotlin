@@ -88,9 +88,6 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
          * - new federated scalars
          */
         val sdl = originalSchema.print(includeDefaultSchemaDefinition = false, includeDirectivesFilter = customDirectivePredicate)
-            /**
-             * TODO: this can be simplified once this is solved: https://github.com/apollographql/apollo-server/issues/3334
-             */
             .replace(directiveDefinitionRegex, "")
             .replace(scalarDefinitionRegex, "")
             .replace(emptyQueryRegex, "")
