@@ -56,6 +56,24 @@
             });
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/plugins/maven-plugin.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Maven Plugin</h1></header><article><div><span><p>GraphQL Kotlin Maven Plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.</p>
 <h2><a class="anchor" aria-hidden="true" id="goals"></a><a href="#goals" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Goals</h2>
+<h3><a class="anchor" aria-hidden="true" id="downloadsdl"></a><a href="#downloadsdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>downloadSDL</h3>
+<p>GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
+Since GraphQL schema is needed to generate type safe clients, as alternative GraphQL servers might expose private
+endpoints (e.g. accessible only from within network, etc) that could be used to download schema in Schema Definition
+Language (SDL) directly. This Mojo attempts to download schema from the specified <code>graphql.endpoint</code>, validates the
+result whether it is a valid schema and saves it locally as <code>schema.graphql</code> under build directory. In general, this
+goal provides limited functionality by itself and instead should be used to generate input for the subsequent
+<code>generateClient</code> goal.</p>
+<p><strong>Default Lifecycle Phase</strong>: <code>generate-sources</code></p>
+<p><strong>Parameters</strong></p>
+<table>
+<thead>
+<tr><th>Property</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>endpoint</code></td><td>String</td><td>Target GraphQL server SDL endpoint that will be used to download schema. <strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
+</tbody>
+</table>
 <h3><a class="anchor" aria-hidden="true" id="introspectschema"></a><a href="#introspectschema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>introspectSchema</h3>
 <p>Executes GraphQL introspection query against specified <code>graphql.endpoint</code> and saves the underlying schema file as
 <code>schema.graphql</code> under build directory. In general, this goal provides limited functionality by itself and instead
@@ -70,6 +88,30 @@ should be used to generate input for the subsequent <code>generateClient</code> 
 <tr><td><code>endpoint</code></td><td>String</td><td>Target GraphQL server endpoint that will be used to execute introspection queries. <strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 </tbody>
 </table>
+<h2><a class="anchor" aria-hidden="true" id="downloading-schema-sdl"></a><a href="#downloading-schema-sdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Downloading Schema SDL</h2>
+<p>DownloadSDL Mojo requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
+command line by explicitly specifying <code>graphql.endpoint</code> property</p>
+<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:downloadSDL -Dgraphql.endpoint=<span class="hljs-string">"http://localhost:8080/graphql"</span></span>
+</code></pre>
+<p>Mojo can also be configured in your Maven build file</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>download-sdl<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>downloadSDL<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/sdl<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
+</code></pre>
+<p>By default, <code>downloadSDL</code> goal will be executed as part of the <code>generate-sources</code> <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">build lifecycle phase</a>.</p>
 <h2><a class="anchor" aria-hidden="true" id="introspecting-schema"></a><a href="#introspecting-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Introspecting Schema</h2>
 <p>Introspection Mojo requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
 command line by explicitly specifying <code>graphql.endpoint</code> property</p>
@@ -93,8 +135,8 @@ command line by explicitly specifying <code>graphql.endpoint</code> property</p>
     <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
 </code></pre>
-<p>By default, <code>introspectSchema</code> goal will be executed as part of the <code>generate-sources</code> <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">build lifecycle phase</a></p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span class="arrow-prev">← </span><span>Gradle Plugin</span></a><a class="docs-next button" href="/graphql-kotlin/docs/contributors/release-proc"><span>Releasing a new version</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#goals">Goals</a><ul class="toc-headings"><li><a href="#introspectschema">introspectSchema</a></li></ul></li><li><a href="#introspecting-schema">Introspecting Schema</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<p>By default, <code>introspectSchema</code> goal will be executed as part of the <code>generate-sources</code> <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">build lifecycle phase</a>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span class="arrow-prev">← </span><span>Gradle Plugin</span></a><a class="docs-next button" href="/graphql-kotlin/docs/contributors/release-proc"><span>Releasing a new version</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#goals">Goals</a><ul class="toc-headings"><li><a href="#downloadsdl">downloadSDL</a></li><li><a href="#introspectschema">introspectSchema</a></li></ul></li><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
