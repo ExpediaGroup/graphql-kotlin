@@ -32,7 +32,7 @@ internal class SimpleKotlinGraphQLErrorTest {
     fun `Verify default values on contstructor`() {
         val error = SimpleKotlinGraphQLError(Throwable())
         assertNotNull(error.message)
-        assertTrue(error.locations.isEmpty())
+        assertNull(error.locations)
         assertNull(error.path)
         assertEquals(expected = ErrorType.DataFetchingException, actual = error.errorType)
     }
