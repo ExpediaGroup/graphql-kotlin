@@ -21,7 +21,7 @@ Start the server:
 * Alternatively you can also use the spring boot plugin from the command line in the root examples directory.
 
 ```shell script
-./gradlew ::federation-example:base-app:bootRun
+./gradlew :federation-example:base-app:bootRun
 ```
 
 
