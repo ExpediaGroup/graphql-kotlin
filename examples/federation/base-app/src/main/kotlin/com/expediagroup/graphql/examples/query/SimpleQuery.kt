@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.query
 
+import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Query
 import org.springframework.stereotype.Component
 
@@ -26,4 +27,7 @@ class SimpleQuery : Query {
 
     @Deprecated(message = "old deprecated query", replaceWith = ReplaceWith("dataFromBaseApp"))
     fun deprecatedBaseAppQuery() = "this is deprecated"
+
+    @GraphQLDescription("Comment with pattern: `^\\+[1-9]\\d{7,14}$")
+    fun commentsWithEscapeCharacters() = "escaping \\"
 }

@@ -186,6 +186,12 @@ class GraphQLSchemaExtensionsTest {
     class DocumentedQuery {
         @GraphQLDescription("documented query")
         fun documented(@GraphQLDescription("documented argument") id: Int) = DocumentedType(id)
+
+        @GraphQLDescription("escaped pattern: `^\\+[1-9]\\d{7,14}$`")
+        fun documentedWithEscapeCharacters() = "escaped \\"
+
+        @GraphQLDescription("""raw pattern: `^\+[1-9]\d{7,14}$`""")
+        fun documentedWithRawEscapeCharacters() = """escaped raw \"""
     }
 
     @GraphQLDescription("documented type")
@@ -212,6 +218,10 @@ class GraphQLSchemaExtensionsTest {
                 "documented argument"
                 id: Int!
               ): DocumentedType!
+              "escaped pattern: `^\\+[1-9]\\d{7,14}${'$'}`"
+              documentedWithEscapeCharacters: String!
+              "raw pattern: `^\\+[1-9]\\d{7,14}${'$'}`"
+              documentedWithRawEscapeCharacters: String!
             }
         """.trimIndent()
         assertEquals(expected, sdl)
