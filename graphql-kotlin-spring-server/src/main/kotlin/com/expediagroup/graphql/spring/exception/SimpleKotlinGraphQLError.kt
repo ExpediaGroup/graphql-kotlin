@@ -26,7 +26,7 @@ import graphql.language.SourceLocation
  */
 open class SimpleKotlinGraphQLError(
     private val exception: Throwable,
-    private val locations: List<SourceLocation>? = null,
+    private val locations: List<SourceLocation> = emptyList(),
     private val path: List<Any>? = null,
     private val errorType: ErrorClassification = ErrorType.DataFetchingException
 ) : GraphQLError {
@@ -39,7 +39,7 @@ open class SimpleKotlinGraphQLError(
             emptyMap()
         }
 
-    override fun getLocations(): List<SourceLocation>? = locations
+    override fun getLocations(): List<SourceLocation> = locations
 
     override fun getMessage(): String = "Exception while fetching data (${path?.joinToString("/").orEmpty()}) : ${exception.message}"
 
