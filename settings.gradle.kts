@@ -29,6 +29,7 @@ rootProject.name = "graphql-kotlin"
 include(":graphql-kotlin-schema-generator")
 include(":graphql-kotlin-federation")
 include(":graphql-kotlin-spring-server")
+include(":graphql-kotlin-client")
 include(":plugins:graphql-kotlin-plugin-core")
 include(":plugins:graphql-kotlin-gradle-plugin")
 include(":plugins:graphql-kotlin-maven-plugin")

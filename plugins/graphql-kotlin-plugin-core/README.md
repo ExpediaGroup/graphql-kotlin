@@ -19,3 +19,23 @@ valid SDL and return it to the client.
 
 Executes introspection query against GraphQL endpoint, constructs GraphQL schema from the results and returns pretty
 print representation of the resulting schema.
+
+* generateClient
+
+Generate GraphQL Kotlin client code from the specified queries to be run against target GraphQL schema. Code is generated
+using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
+
+## Code Generation Limitations
+
+* Currently only Ktor Http Client is supported. Additional clients (e.g. Spring WebClient) might be supported in the future.
+* Due to the custom logic required for deserialization of polymorphic types and default enum values only Jackson is currently supported.
+* Only a single operation per GraphQL query file is supported.
+* Subscriptions are currently NOT supported.
+* You cannot make multiple selections to the same GraphQL object with different fields within a single GraphQL query.
+  But you can have different selection sets across different GraphQL queries, e.g.
+* Anonymous operations are supported but will result in generic `AnonymousQuery` (for query operation) class. Plugins
+  do not keep track of state across different query generations so if you have multiple anonymous operations in a single
+  package your compilation will fail due to the generic class name collisions.
+* Nested queries have limited support as same object will be used for ALL nested results. This means that you have to
+  explicitly ask for data from ALL nested levels + the NULL/empty child following it (that may skip recursive field selection
+  as it will be NULL)
