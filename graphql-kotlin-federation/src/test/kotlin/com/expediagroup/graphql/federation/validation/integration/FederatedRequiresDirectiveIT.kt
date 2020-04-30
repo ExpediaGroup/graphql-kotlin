@@ -71,4 +71,19 @@ class FederatedRequiresDirectiveIT {
         assertEquals("Invalid federated schema:\n" +
             " - base RequiresOnLocalType type has fields marked with @requires directive, validatedField=shippingCost", exception.message)
     }
+
+    @Test
+    fun `verifies @requires directive with multiple selection fields`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._2"))
+            val validatedType = schema.getObjectType("Basket")
+            assertNotNull(validatedType.getDirective("key"))
+            val externalField = validatedType.getFieldDefinition("items")
+            assertNotNull(externalField)
+            assertNotNull(externalField.getDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("image")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.getDirective("requires"))
+        }
+    }
 }

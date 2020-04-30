@@ -26,11 +26,17 @@ import kotlin.test.assertTrue
 
 class ValidateFieldSelectionKtTest {
 
+    private val mockDirectiveInfo = DirectiveInfo(
+        directiveName = "foo",
+        fieldSet = "id",
+        typeName = "Bar"
+    )
+
     @Test
     fun `empty list returns no errors`() {
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "",
+            validatedDirective = mockDirectiveInfo,
             iterator = emptyList<String>().iterator(),
             fields = emptyMap(),
             extendedType = false,
@@ -65,7 +71,7 @@ class ValidateFieldSelectionKtTest {
             .build()
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "taco",
+            validatedDirective = mockDirectiveInfo,
             iterator = listOf("foo", "{", "bar", "}").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
@@ -73,7 +79,7 @@ class ValidateFieldSelectionKtTest {
         )
 
         assertEquals(expected = 1, actual = errors.size)
-        assertEquals(expected = "taco specifies invalid field set - field set references GraphQLInterfaceType, field=foo", actual = errors.first())
+        assertEquals(expected = "@foo(fields = id) directive on Bar specifies invalid field set - field set references GraphQLInterfaceType, field=foo", actual = errors.first())
     }
 
     /**
@@ -101,7 +107,7 @@ class ValidateFieldSelectionKtTest {
             .build()
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "taco",
+            validatedDirective = mockDirectiveInfo,
             iterator = listOf("foo", "{", "bar", "}").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
@@ -124,7 +130,7 @@ class ValidateFieldSelectionKtTest {
             .build()
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "taco",
+            validatedDirective = mockDirectiveInfo,
             iterator = listOf("foo").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
@@ -148,7 +154,7 @@ class ValidateFieldSelectionKtTest {
 
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = "",
+            validatedDirective = mockDirectiveInfo,
             iterator = listOf("bar", "{", "foo", "}").iterator(),
             fields = mapOf("foo" to fieldDefinition),
             extendedType = false,
