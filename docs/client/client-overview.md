@@ -131,7 +131,7 @@ Plugins will generate following client code
 package com.example.generated
 
 import com.expediagroup.graphql.client.GraphQLClient
-import com.expediagroup.graphql.client.GraphQLResult
+import com.expediagroup.graphql.types.GraphQLResponse
 import kotlin.String
 
 const val HELLO_WORLD_QUERY: String = "query HelloWorldQuery {\n    helloWorld\n}"
@@ -139,7 +139,7 @@ const val HELLO_WORLD_QUERY: String = "query HelloWorldQuery {\n    helloWorld\n
 class HelloWorldQuery(
   private val graphQLClient: GraphQLClient
 ) {
-  suspend fun execute(): GraphQLResult<HelloWorldQuery.Result> =
+  suspend fun execute(): GraphQLResponse<HelloWorldQuery.Result> =
       graphQLClient.execute(HELLO_WORLD_QUERY, "HelloWorldQuery", null)
 
   data class Result(

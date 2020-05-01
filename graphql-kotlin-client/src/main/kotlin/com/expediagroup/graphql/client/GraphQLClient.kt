@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.client
 
+import com.expediagroup.graphql.types.GraphQLResponse
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -48,6 +49,7 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
 ) : Closeable {
 
     private val typeCache = mutableMapOf<Class<*>, JavaType>()
+
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
     }
@@ -68,9 +70,9 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
      * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
      * manually deserialize using passed in result type Class information.
      */
-    suspend fun <T> executeOperation(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>): GraphQLResult<T> {
-        // variables are simple data classes which will be serialized as map
-        // by using map instead of typed object we can eliminate the need to explicitly convert variables to a map
+    suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>): GraphQLResponse<T> {
+        // Variables are simple data classes which will be serialized as map.
+        // By using map instead of typed object we can eliminate the need to explicitly convert variables to a map
         val graphQLRequest = mapOf(
             "query" to query,
             "operationName" to operationName,
@@ -90,13 +92,13 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
     /**
      * Executes specified GraphQL query or mutation operation.
      */
-    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null): GraphQLResult<T> {
-        return executeOperation(query, operationName, variables, T::class.java)
+    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null): GraphQLResponse<T> {
+        return execute(query, operationName, variables, T::class.java)
     }
 
     private fun <T> parameterizedType(resultType: Class<T>): JavaType {
         return typeCache.computeIfAbsent(resultType) {
-            mapper.typeFactory.constructParametricType(GraphQLResult::class.java, resultType)
+            mapper.typeFactory.constructParametricType(GraphQLResponse::class.java, resultType)
         }
     }
 

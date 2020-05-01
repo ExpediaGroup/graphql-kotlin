@@ -138,4 +138,16 @@ class ContextWebFilterTest {
         val contextFilter = ContextWebFilter(GraphQLConfigurationProperties(packages = listOf("com.expediagroup.graphql")), mockk<GraphQLContextFactory<*>>())
         assertFalse(contextFilter.isApplicable("/whatever"))
     }
+
+    @Test
+    fun `verify context web filter is still works with starting slash`() {
+        val contextFilter = ContextWebFilter(
+            config = GraphQLConfigurationProperties(
+                endpoint = "/graphql",
+                packages = listOf("com.expediagroup.graphql")
+            ),
+            contextFactory = mockk<GraphQLContextFactory<*>>()
+        )
+        assertTrue(contextFilter.isApplicable("/graphql"))
+    }
 }

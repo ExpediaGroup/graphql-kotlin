@@ -28,7 +28,7 @@ class GenerateVariableTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Boolean
             import kotlin.Float
             import kotlin.String
@@ -40,7 +40,7 @@ class GenerateVariableTypeSpecIT {
               private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute(variables: TestQueryWithVariables.Variables):
-                  GraphQLResult<TestQueryWithVariables.Result> =
+                  GraphQLResponse<TestQueryWithVariables.Result> =
                   graphQLClient.execute(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables)
 
               data class Variables(

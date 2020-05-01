@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.query
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
 import com.expediagroup.graphql.examples.model.ContextualResponse
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 import org.springframework.stereotype.Component
 
 /**

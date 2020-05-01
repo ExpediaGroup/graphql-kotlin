@@ -16,24 +16,25 @@
 
 package com.expediagroup.graphql.spring.exception
 
+import graphql.execution.AbortExecutionException
 import graphql.execution.DataFetcherExceptionHandlerParameters
+import graphql.execution.ExecutionPath
+import graphql.language.SourceLocation
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class KotlinDataFetcherExceptionHandlerTest {
 
     @Test
-    fun `test exception handler`() {
-
+    fun `test exception handler does not modify existing GraphQLErrors`() {
         val parameters: DataFetcherExceptionHandlerParameters = mockk {
-            every { exception } returns Throwable()
-            every { sourceLocation } returns mockk()
-            every { path } returns mockk {
-                every { toList() } returns listOf("foo")
-            }
+            every { exception } returns AbortExecutionException("my exception")
+            every { sourceLocation } returns SourceLocation(1, 1)
+            every { path } returns ExecutionPath.parse("/foo")
         }
 
         val handler = KotlinDataFetcherExceptionHandler()
@@ -41,5 +42,26 @@ class KotlinDataFetcherExceptionHandlerTest {
 
         assertNotNull(result.errors)
         assertEquals(expected = 1, actual = result.errors.size)
+        val error = result.errors.first()
+        assertTrue(error is SimpleKotlinGraphQLError)
+        assertEquals("Exception while fetching data (foo) : my exception", error.message)
+    }
+
+    @Test
+    fun `test exception handler wraps generic exceptions`() {
+        val parameters: DataFetcherExceptionHandlerParameters = mockk {
+            every { exception } returns Throwable("generic exception")
+            every { sourceLocation } returns SourceLocation(1, 1)
+            every { path } returns ExecutionPath.parse("/foo")
+        }
+
+        val handler = KotlinDataFetcherExceptionHandler()
+        val result = handler.onException(parameters)
+
+        assertNotNull(result.errors)
+        assertEquals(expected = 1, actual = result.errors.size)
+        val error = result.errors.first()
+        assertTrue(error is SimpleKotlinGraphQLError)
+        assertEquals("Exception while fetching data (foo) : generic exception", error.message)
     }
 }

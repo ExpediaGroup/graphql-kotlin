@@ -25,8 +25,8 @@ import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.test.utils.SimpleDirective
 import com.expediagroup.graphql.scalars.ID
+import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.DataFetcher

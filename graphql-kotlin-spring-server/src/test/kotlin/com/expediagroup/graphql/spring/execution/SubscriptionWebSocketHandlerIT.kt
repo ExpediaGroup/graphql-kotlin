@@ -17,12 +17,12 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
-import com.expediagroup.graphql.spring.operations.Query
-import com.expediagroup.graphql.spring.operations.Subscription
+import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.types.operations.Subscription
+import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule

@@ -34,6 +34,7 @@ import graphql.schema.idl.TypeDefinitionRegistry
 import java.io.File
 
 private const val LIBRARY_PACKAGE = "com.expediagroup.graphql.client"
+private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.types"
 
 /**
  * GraphQL client code generator that uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate Kotlin classes based on the specified GraphQL queries.
@@ -57,6 +58,7 @@ class GraphQLClientGenerator(
         }
 
         val fileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
+
         operationDefinitions.forEach { operationDefinition ->
             val operationName = operationDefinition.name ?: "anonymous${operationDefinition.operation.name.toLowerCase().capitalize()}"
             val operationTypeName = operationName.capitalize()
@@ -72,12 +74,12 @@ class GraphQLClientGenerator(
             val variableType: TypeSpec? = generateVariableTypeSpec(context, operationDefinition.variableDefinitions)
 
             val rootType = findRootType(operationDefinition)
-            val graphQLResultTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
-            val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResultTypeSpec.name}")
+            val graphQLResponseTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
+            val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResponseTypeSpec.name}")
 
             val operationTypeSpec = TypeSpec.classBuilder(operationTypeName)
             val funSpec = FunSpec.builder("execute")
-                .returns(ClassName(LIBRARY_PACKAGE, "GraphQLResult").parameterizedBy(kotlinResultTypeName))
+                .returns(ClassName(CORE_TYPES_PACKAGE, "GraphQLResponse").parameterizedBy(kotlinResultTypeName))
                 .addModifiers(KModifier.SUSPEND)
             val variableCode = if (variableType != null) {
                 funSpec.addParameter("variables", ClassName(config.packageName, "$operationTypeName.Variables"))

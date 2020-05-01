@@ -17,10 +17,11 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
-import com.expediagroup.graphql.spring.model.GraphQLRequest
-import com.expediagroup.graphql.spring.model.GraphQLResponse
-import com.expediagroup.graphql.spring.model.toExecutionInput
-import com.expediagroup.graphql.spring.model.toGraphQLResponse
+import com.expediagroup.graphql.spring.extensions.toExecutionInput
+import com.expediagroup.graphql.spring.extensions.toGraphQLKotlinType
+import com.expediagroup.graphql.spring.extensions.toGraphQLResponse
+import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.types.GraphQLResponse
 import graphql.GraphQL
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.future.await
@@ -35,7 +36,7 @@ interface QueryHandler {
     /**
      * Execute GraphQL query in a non-blocking fashion.
      */
-    suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse
+    suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse<*>
 }
 
 /**
@@ -45,7 +46,7 @@ open class SimpleQueryHandler(private val graphql: GraphQL, private val dataLoad
 
     @Suppress("TooGenericExceptionCaught")
     @ExperimentalCoroutinesApi
-    override suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse {
+    override suspend fun executeQuery(request: GraphQLRequest): GraphQLResponse<*> {
         val reactorContext = coroutineContext[ReactorContext]
         val graphQLContext = reactorContext?.context?.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
         val input = request.toExecutionInput(graphQLContext, dataLoaderRegistryFactory?.generate())
@@ -54,9 +55,9 @@ open class SimpleQueryHandler(private val graphql: GraphQL, private val dataLoad
             graphql.executeAsync(input)
                 .await()
                 .toGraphQLResponse()
-        } catch (e: Exception) {
-            val graphQLError = SimpleKotlinGraphQLError(e)
-            GraphQLResponse(errors = listOf(graphQLError))
+        } catch (exception: Exception) {
+            val graphKotlinQLError = SimpleKotlinGraphQLError(exception)
+            GraphQLResponse<Any?>(errors = listOf(graphKotlinQLError.toGraphQLKotlinType()))
         }
     }
 }

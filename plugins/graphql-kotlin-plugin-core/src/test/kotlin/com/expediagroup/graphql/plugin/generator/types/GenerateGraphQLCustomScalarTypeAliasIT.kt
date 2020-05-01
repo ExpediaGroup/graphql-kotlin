@@ -27,7 +27,7 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.String
 
             /**
@@ -41,7 +41,7 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
             class ScalarAliasTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<ScalarAliasTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<ScalarAliasTestQuery.Result> =
                   graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY, "ScalarAliasTestQuery", null)
 
               /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.operations
+package com.expediagroup.graphql.types
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 /**
- * Marker interface to easily autowire all GraphQL queries.
+ * Location describing which part of GraphQL document caused an exception.
+ *
+ * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
  */
-interface Query
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SourceLocation(
+    val line: Int,
+    val column: Int
+)

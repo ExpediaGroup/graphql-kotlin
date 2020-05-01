@@ -27,7 +27,7 @@ class GenerateGraphQLEnumTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
             import kotlin.Deprecated
             import kotlin.String
@@ -37,7 +37,7 @@ class GenerateGraphQLEnumTypeSpecIT {
             class EnumTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<EnumTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<EnumTestQuery.Result> =
                   graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
 
               /**
