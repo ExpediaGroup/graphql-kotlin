@@ -35,6 +35,9 @@ internal const val INTROSPECT_SCHEMA_TASK_NAME: String = "graphqlIntrospectSchem
 @Suppress("UnstableApiUsage")
 open class GraphQLIntrospectSchemaTask : DefaultTask() {
 
+    /**
+     * Target GraphQL server endpoint that will be used to execute introspection queries.
+     */
     @Input
     @Option(option = "endpoint", description = "target GraphQL endpoint")
     val endpoint: Property<String> = project.objects.property(String::class.java)

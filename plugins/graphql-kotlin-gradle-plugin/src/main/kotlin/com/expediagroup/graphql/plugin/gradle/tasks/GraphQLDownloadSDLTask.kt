@@ -35,6 +35,9 @@ internal const val DOWNLOAD_SDL_TASK_NAME: String = "graphqlDownloadSDL"
 @Suppress("UnstableApiUsage")
 open class GraphQLDownloadSDLTask : DefaultTask() {
 
+    /**
+     * Target GraphQL server SDL endpoint that will be used to download schema.
+     */
     @Input
     @Option(option = "endpoint", description = "target SDL endpoint")
     val endpoint: Property<String> = project.objects.property(String::class.java)
