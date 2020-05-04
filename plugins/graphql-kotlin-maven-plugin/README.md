@@ -32,18 +32,58 @@ Plugin should be configured as part of your `pom.xml` build file.
 
 ### downloadSDL
 
-This Mojo attempts to download schema from the specified `graphql.endpoint`, validates the
-result whether it is a valid schema and saves it locally as `schema.graphql` under build directory. In general, this
-goal provides limited functionality by itself and instead should be used to generate input for the subsequent
-`generateClient` goal.
+This Mojo attempts to download schema from the specified `graphql.endpoint`, validates the result whether it is a valid
+schema and saves it locally as `schema.graphql` under build directory. In general, this goal provides limited functionality
+by itself and instead should be used to generate input for the subsequent `generateClient` goal.
 
-**Default Lifecycle Phase**: `generate-sources`
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-sources`
 
 **Parameters**
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `endpoint` | String | Target GraphQL server SDL endpoint that will be used to download schema. **User property is**: `graphql.endpoint`. |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
+
+### generateClient
+
+Generate GraphQL client code based on the provided GraphQL schema and target queries. Generated classes are automatically
+added to the compile sources.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-sources`
+* *Requires Maven Project*
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated/sources/graphql` |
+| `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
+| `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
+| `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
+| `schemaFile` | String | yes | GraphQL schema file that will be used to generate client code.<br/>**User property is**: `graphql.schemaFile`. |
+
+**Parameter Details**
+
+  * *converters* - Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+
+    ```xml
+    <converters>
+      <!-- custom scalar type -->
+      <UUID>
+        <!-- fully qualified Java class name of a custom scalar type -->
+        <type>java.util.UUID</type>
+        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+             used to convert to/from raw JSON and scalar type -->
+        <converter>com.example.UUIDScalarConverter</converter>
+      </UUID>
+    </converters>
+    ```
 
 ### introspectSchema
 
@@ -51,13 +91,15 @@ Executes GraphQL introspection query against specified `graphql.endpoint` and sa
 `schema.graphql` under build directory. In general, this goal provides limited functionality by itself and instead
 should be used to generate input for the subsequent `generateClient` goal.
 
-**Default Lifecycle Phase**: `generate-sources`
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-sources`
 
 **Parameters**
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `endpoint` | String | Target GraphQL server endpoint that will be used to execute introspection queries. **User property is**: `graphql.endpoint`. |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
 
 ## Documentation
 

@@ -7,6 +7,8 @@ GraphQL Kotlin Maven Plugin provides functionality to introspect GraphQL schemas
 
 ## Goals
 
+You can find detailed information about `graphql-kotlin-maven-plugin` and all its goals by running `mvn help:describe -Dplugin=com.expediagroup:graphql-kotlin-maven-plugin -Ddetail`.
+
 ### downloadSDL
 
 GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
@@ -17,13 +19,54 @@ result whether it is a valid schema and saves it locally as `schema.graphql` und
 goal provides limited functionality by itself and instead should be used to generate input for the subsequent
 `generateClient` goal.
 
-**Default Lifecycle Phase**: `generate-sources`
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-sources`
 
 **Parameters**
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `endpoint` | String | Target GraphQL server SDL endpoint that will be used to download schema. **User property is**: `graphql.endpoint`. |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
+
+### generateClient
+
+Generate GraphQL client code based on the provided GraphQL schema and target queries.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-sources`
+* *Requires Maven Project*
+* Generated classes are automatically added to the list of compiled sources.
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated/sources/graphql` |
+| `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
+| `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
+| `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
+| `schemaFile` | String | yes | GraphQL schema file that will be used to generate client code.<br/>**User property is**: `graphql.schemaFile`. |
+
+**Parameter Details**
+
+  * *converters* - Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+
+    ```xml
+    <converters>
+      <!-- custom scalar type -->
+      <UUID>
+        <!-- fully qualified Java class name of a custom scalar type -->
+        <type>java.util.UUID</type>
+        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+             used to convert to/from raw JSON and scalar type -->
+        <converter>com.example.UUIDScalarConverter</converter>
+      </UUID>
+    </converters>
+    ```
 
 ### introspectSchema
 
@@ -31,21 +74,25 @@ Executes GraphQL introspection query against specified `graphql.endpoint` and sa
 `schema.graphql` under build directory. In general, this goal provides limited functionality by itself and instead
 should be used to generate input for the subsequent `generateClient` goal.
 
-**Default Lifecycle Phase**: `generate-sources`
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-sources`
 
 **Parameters**
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `endpoint` | String | Target GraphQL server endpoint that will be used to execute introspection queries. **User property is**: `graphql.endpoint`. |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
 
-## Downloading Schema SDL
+## Examples
+
+### Downloading Schema SDL
 
 DownloadSDL Mojo requires target GraphQL server `endpoint` to be specified. Task can be executed directly from the
-command line by explicitly specifying `graphql.endpoint` property
+command line by explicitly specifying `graphql.endpoint` property.
 
 ```shell script
-$ mvn com.expediagroup:graphql-kotlin-maven-plugin:downloadSDL -Dgraphql.endpoint="http://localhost:8080/graphql"
+$ mvn com.expediagroup:graphql-kotlin-maven-plugin:downloadSDL -Dgraphql.endpoint="http://localhost:8080/sdl"
 ```
 
 Mojo can also be configured in your Maven build file
@@ -71,7 +118,7 @@ Mojo can also be configured in your Maven build file
 
 By default, `downloadSDL` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
 
-## Introspecting Schema
+### Introspecting Schema
 
 Introspection Mojo requires target GraphQL server `endpoint` to be specified. Task can be executed directly from the
 command line by explicitly specifying `graphql.endpoint` property
@@ -102,3 +149,134 @@ Mojo can also be configured in your Maven build file
 ```
 
 By default, `introspectSchema` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
+
+### Generating Client
+
+This Mojo generates GraphQL client code based on the provided queries using target GraphQL `schemaFile`. Classes are
+generated under specified `packageName`. When using default configuration and storing GraphQL queries under `src/main/resources`
+directories, task can be executed directly from the command line by explicitly providing required properties.
+
+```shell script
+$ mvn com.expediagroup:graphql-kotlin-maven-plugin:generateClient -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
+```
+
+Mojo can also be configured in your Maven build file and it provides additional configuration options
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <id>generate-client</id>
+            <goals>
+                <goal>generateClient</goal>
+            </goals>
+            <configuration>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>mySchema.graphql</schemaFile>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin clients.
+Generated classes will be automatically added to the project compile sources.
+
+### Generating Client with Custom Scalars
+
+By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
+custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt).
+
+For example given following custom scalar in our GraphQL schema
+
+```graphql
+scalar UUID
+```
+
+We can create a custom converter to automatically convert this custom scalar to `java.util.UUID`
+
+```kotlin
+package com.example
+
+import com.expediagroup.graphql.client.converter.ScalarConverter
+import java.util.UUID
+
+class UUIDScalarConverter : ScalarConverter<UUID> {
+    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
+    override fun toJson(value: UUID): String = value.toString()
+}
+```
+
+Afterwards we need to configure our plugin to use this custom converter
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <id>generate-client</id>
+            <goals>
+                <goal>generateClient</goal>
+            </goals>
+            <configuration>
+                <allowDeprecatedFields>false</allowDeprecatedFields>
+                <converters>
+                    <!-- custom scalar UUID type -->
+                    <UUID>
+                        <!-- fully qualified Java class name of a custom scalar type -->
+                        <type>java.util.UUID</type>
+                        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                           used to convert to/from raw JSON and scalar type -->
+                        <converter>com.example.UUIDScalarConverter</converter>
+                    </UUID>
+                </converters>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>mySchema.graphql</schemaFile>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### Complete Configuration Example
+
+Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a corresponding schema.
+This generated schema is subsequently used to generate GraphQL client code based on the queries provided under `src/main/resources` directory.
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <id>introspect-schema</id>
+            <goals>
+                <goal>introspectSchema</goal>
+            </goals>
+            <configuration>
+                <endpoint>http://localhost:8080/graphql</endpoint>
+            </configuration>
+        </execution>
+        <execution>
+            <id>generate-client</id>
+            <goals>
+                <goal>generateClient</goal>
+            </goals>
+            <configuration>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+NOTE: Both `introspectSchema` and `generateClient` goals are bound to the same `generate-sources` Maven lifecycle phase.
+As opposed to Gradle, Maven does not support explicit dependencies between different goals and they will be executed in
+the order they are defined in your `pom.xml` build file.

@@ -19,8 +19,12 @@ plugins {
 ```
 
 GraphQL Kotlin Gradle Plugin uses an extension on the project named `graphql` of type
-[GraphQLPluginExtension`](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt).
+[GraphQLPluginExtension](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt).
 This extension can be used to configure global options instead of explicitly configuring individual tasks.
+
+```kotlin
+
+```
 
 ## Tasks
 
@@ -28,18 +32,48 @@ All `graphql-kotlin-gradle-plugin` tasks are grouped together under `GraphQL` ta
 `graphql`. Additional information on the available tasks and their available configuration options can be found on our
 [documentation pages](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin).
 
-### graphqlIntrospectSchema
-
-Task that executes GraphQL introspection query against specified `endpoint` and saves the underlying schema file as
-`schema.graphql` under build directory. In general, this task provides limited functionality by itself and instead
-should be used to generate input for the subsequent `graphqlGenerateClient` task.
-
 ### graphqlDownloadSDL
 
 Task that attempts to download GraphQL schema in SDL format from the specified `endpoint` and saves the underlying
 schema file as `schema.graphql` under build directory. In general, this task provides limited functionality by itself
 and could be used as an alternative to `graphqlIntrospectSchema` to generate input for the subsequent
 `graphqlGenerateClient` task.
+
+**Properties**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**Command line property is**: `endpoint`. |
+
+### graphqlGenerateClient
+
+Task that generates GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries that are
+evaluated against target Graphql schema. Individual clients with their specific data models are generated for each query
+file and are placed under specified `packageName`.
+
+**Properties**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
+| `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
+| `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
+| `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `scalarConverters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
+| `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
+
+### graphqlIntrospectSchema
+
+Task that executes GraphQL introspection query against specified `endpoint` and saves the underlying schema file as
+`schema.graphql` under build directory. In general, this task provides limited functionality by itself and instead
+should be used to generate input for the subsequent `graphqlGenerateClient` task.
+
+**Properties**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
 
 ## Documentation
 

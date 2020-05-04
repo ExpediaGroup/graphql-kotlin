@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -39,10 +40,16 @@ class GraphQLGradlePluginIT {
 
     private val expectedSchema = ClassLoader.getSystemClassLoader().getResourceAsStream("testSchema.graphql")?.use {
         BufferedReader(it.reader()).readText()
-    }
+    } ?: throw RuntimeException("failure setting up test environment - unable to load testSchema.graphql")
     private val introspectionResult = ClassLoader.getSystemClassLoader().getResourceAsStream("introspectionResult.json")?.use {
         BufferedReader(it.reader()).readText()
     } ?: throw RuntimeException("failure setting up test environment - unable to load introspectionResult.json")
+    private val testQuery = ClassLoader.getSystemClassLoader().getResourceAsStream("testQuery.graphql")?.use {
+        BufferedReader(it.reader()).readText()
+    } ?: throw RuntimeException("failure setting up test environment - unable to load testQuery.graphql")
+    private val testResponse = ClassLoader.getSystemClassLoader().getResourceAsStream("testResponse.json")?.use {
+        BufferedReader(it.reader()).readText()
+    } ?: throw RuntimeException("failure setting up test environment - unable to load testResponse.json")
 
     @BeforeEach
     fun setUp() {
@@ -58,6 +65,12 @@ class GraphQLGradlePluginIT {
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
                 .withBody(introspectionResult)))
+        WireMock.stubFor(WireMock.post("/graphql")
+            .withRequestBody(ContainsPattern("JUnitQuery"))
+            .willReturn(WireMock.aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody(testResponse)))
     }
 
     @Test
@@ -112,6 +125,109 @@ class GraphQLGradlePluginIT {
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
         assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
+    }
+
+    @Test
+    fun `apply the gradle plugin and execute generateClient task`(@TempDir tempDir: Path) {
+        // unsure if there is a better way - correct values are set from Gradle build
+        // when running directly from IDE you will need to manually update those to correct values
+
+        val gqlKotlinVersion = System.getProperty("graphQLKotlinVersion") ?: "2.0.0-SNAPSHOT"
+        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.71"
+        val buildFileContents = """
+            import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
+
+            plugins {
+              id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
+              id("com.expediagroup.graphql")
+              application
+            }
+
+            repositories {
+                mavenCentral()
+                mavenLocal()
+            }
+
+            application {
+                mainClassName = "com.example.ApplicationKt"
+            }
+
+            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+              endpoint.set("${wireMockServer.baseUrl()}/graphql")
+            }
+            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+              packageName.set("com.expediagroup.graphql.generated")
+              schemaFile.set(graphqlIntrospectSchema.outputFile)
+              dependsOn("graphqlIntrospectSchema")
+            }
+
+            tasks.withType<KotlinCompile> {
+                kotlinOptions {
+                    jvmTarget = "1.8"
+                }
+            }
+
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+                implementation("com.expediagroup:graphql-kotlin-client:$gqlKotlinVersion")
+            }
+        """.trimIndent()
+        File(tempDir.toFile(), "build.gradle.kts")
+            .writeText(buildFileContents)
+
+        val resourcesDir = File(tempDir.toFile(), "src/main/resources")
+        resourcesDir.mkdirs()
+        File(resourcesDir, "JUnitQuery.graphql")
+            .writeText(testQuery)
+
+        val srcDir = File(tempDir.toFile(), "src/main/kotlin/com/example")
+        srcDir.mkdirs()
+        File(srcDir, "Application.kt")
+            .writeText("""
+                package com.example
+
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.generated.JUnitQuery
+                import kotlinx.coroutines.runBlocking
+                import java.net.URL
+
+                fun main() {
+                    val client = GraphQLClient(URL("${wireMockServer.baseUrl()}/graphql"))
+                    val query = JUnitQuery(client)
+
+                    val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
+                    runBlocking {
+                        val result = query.jUnitQuery(variables)
+                        val data = result.data
+                        assert(data != null)
+                        assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
+                        assert(data?.interfaceQuery is JUnitQuery.SecondInterfaceImplementation)
+                        assert(data?.unionQuery is JUnitQuery.BasicObject)
+                        assert(result.errors == null)
+                        assert(result.extensions == null)
+                    }
+                }
+            """.trimIndent())
+
+        val codeGenerationResult = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments(GENERATE_CLIENT_TASK_NAME)
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
+        assertTrue(File(tempDir.toFile(), "build/generated/source/graphql/com/expediagroup/graphql/generated/JUnitQuery.kt").exists())
+
+        val integrationTestResult = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("run")
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, integrationTestResult.task(":run")?.outcome)
     }
 
     companion object {
