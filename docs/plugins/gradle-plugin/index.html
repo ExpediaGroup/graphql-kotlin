@@ -63,9 +63,29 @@ plugins {
     id(<span class="hljs-string">"com.expediagroup.graphql"</span>) version $graphQLKotlinVersion
 }
 </code></pre>
+<h2><a class="anchor" aria-hidden="true" id="extension"></a><a href="#extension" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Extension</h2>
 <p>GraphQL Kotlin Gradle Plugin uses an extension on the project named <code>graphql</code> of type
-<a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt">GraphQLPluginExtension`</a>.
-This extension can be used to configure global options instead of explicitly configuring individual tasks.</p>
+<a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt">GraphQLPluginExtension</a>.
+This extension can be used to configure global options instead of explicitly configuring individual tasks. Once extension
+is configured, it will automatically download SDL/run introspection to generate GraphQL schema and subsequently generate
+all GraphQL clients. GraphQL Extension should be used by default, except for cases where you need to only run individual
+tasks.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
+
+graphql {
+  <span class="hljs-comment">// GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.</span>
+  endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
+  <span class="hljs-comment">// GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.</span>
+  sdlEndpoint = <span class="hljs-string">"http://localhost:8080/sdl"</span>
+  <span class="hljs-comment">// Target package name to be used for generated classes.</span>
+  packageName = <span class="hljs-string">"com.example.generated"</span>
+  <span class="hljs-comment">// Boolean flag indicating whether or not selection of deprecated fields is allowed.</span>
+  allowDeprecatedFields = <span class="hljs-literal">false</span>
+  <span class="hljs-comment">// Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</span>
+  scalarConverters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
+}
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="tasks"></a><a href="#tasks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tasks</h2>
 <p>All <code>graphql-kotlin-gradle-plugin</code> tasks are grouped together under <code>GraphQL</code> task group and their names are prefixed with
 <code>graphql</code>. You can find detailed information about GraphQL kotlin tasks by running Gradle <code>help --task &lt;taskName&gt;</code> task.</p>
@@ -74,11 +94,49 @@ This extension can be used to configure global options instead of explicitly con
 schema file as <code>schema.graphql</code> under build directory. In general, this task provides limited functionality by itself
 and could be used as an alternative to <code>graphqlIntrospectSchema</code> to generate input for the subsequent
 <code>graphqlGenerateClient</code> task.</p>
+<p><strong>Properties</strong></p>
+<table>
+<thead>
+<tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server SDL endpoint that will be used to download schema.<br/><strong>Command line property is</strong>: <code>endpoint</code>.</td></tr>
+</tbody>
+</table>
+<h3><a class="anchor" aria-hidden="true" id="graphqlgenerateclient"></a><a href="#graphqlgenerateclient" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>graphqlGenerateClient</h3>
+<p>Task that generates GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries that are
+evaluated against target Graphql schema. Individual clients with their specific data models are generated for each query
+file and are placed under specified <code>packageName</code>.</p>
+<p><strong>Properties</strong></p>
+<table>
+<thead>
+<tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>allowDeprecatedFields</code></td><td>Boolean</td><td></td><td>Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/><strong>Default value is:</strong> <code>false</code>.<br/><strong>Command line property is</strong>: <code>allowDeprecatedFields</code>.</td></tr>
+<tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>Command line property is</strong>: <code>packageName</code>.</td></tr>
+<tr><td><code>queryFiles</code></td><td>FileCollection</td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can specify <code>queryFileDirectory</code> directory instead. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
+<tr><td><code>queryFileDirectory</code></td><td>String</td><td></td><td>Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using <code>queryFiles</code> property instead.<br/><strong>Default value is:</strong> <code>src/main/resources</code>.<br/><strong>Command line property is</strong>: <code>queryFileDirectory</code>.</td></tr>
+<tr><td><code>scalarConverters</code></td><td>Map&lt;String, ScalarConverter&gt;</td><td></td><td>Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</td></tr>
+<tr><td><code>schemaFile</code></td><td>File</td><td><code>schemaFileName</code> or <code>schemaFile</code> has to be provided</td><td>GraphQL schema file that will be used to generate client code.</td></tr>
+<tr><td><code>schemaFileName</code></td><td>String</td><td><code>schemaFileName</code> or <code>schemaFile</code> has to be provided</td><td>Path to GraphQL schema file that will be used to generate client code.<br/><strong>Command line property is</strong>: <code>schemaFileName</code>.</td></tr>
+</tbody>
+</table>
 <h3><a class="anchor" aria-hidden="true" id="graphqlintrospectschema"></a><a href="#graphqlintrospectschema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>graphqlIntrospectSchema</h3>
-<p>Executes GraphQL introspection query against specified endpoint and saves the underlying schema file as
+<p>Task that executes GraphQL introspection query against specified <code>endpoint</code> and saves the underlying schema file as
 <code>schema.graphql</code> under build directory. In general, this task provides limited functionality by itself and instead
 should be used to generate input for the subsequent <code>graphqlGenerateClient</code> task.</p>
-<h2><a class="anchor" aria-hidden="true" id="downloading-schema-sdl"></a><a href="#downloading-schema-sdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Downloading Schema SDL</h2>
+<p><strong>Properties</strong></p>
+<table>
+<thead>
+<tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server endpoint that will be used to execute introspection queries.<br/><strong>Command line property is</strong>: <code>endpoint</code>.</td></tr>
+</tbody>
+</table>
+<h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<h3><a class="anchor" aria-hidden="true" id="downloading-schema-sdl"></a><a href="#downloading-schema-sdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Downloading Schema SDL</h3>
 <p>GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
 Since GraphQL schema is needed to generate type safe clients, as alternative GraphQL servers might expose private
 endpoints (e.g. accessible only from within network, etc) that could be used to download schema in Schema Definition
@@ -86,38 +144,22 @@ Language (SDL) directly. <code>graphqlDownloadSDL</code> task requires target Gr
 be executed directly from the command line by explicitly passing <code>endpoint</code> parameter</p>
 <pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> gradle graphqlDownloadSDL --endpoint=<span class="hljs-string">"http://localhost:8080/sdl"</span></span>
 </code></pre>
-<p>Task can also be configured in your Gradle build file using global extension</p>
-<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
-<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
-
-graphql {
-  sdlEndpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
-}
-</code></pre>
-<p>Or by explicitly configuring the task</p>
+<p>Task can also be explicitly configured in your Gradle build file</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 
 <span class="hljs-keyword">val</span> graphqlIntrospectSchema <span class="hljs-keyword">by</span> tasks.getting(GraphQLDownloadSDLTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
-    graphqlDownloadSDL.<span class="hljs-keyword">set</span>(<span class="hljs-string">"http://localhost:8080/graphql"</span>)
+    graphqlDownloadSDL.<span class="hljs-keyword">set</span>(<span class="hljs-string">"http://localhost:8080/sdl"</span>)
 }
 </code></pre>
 <p>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 invoke it OR configure it as a dependency of some other task.</p>
-<h2><a class="anchor" aria-hidden="true" id="introspecting-schema"></a><a href="#introspecting-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Introspecting Schema</h2>
+<h3><a class="anchor" aria-hidden="true" id="introspecting-schema"></a><a href="#introspecting-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Introspecting Schema</h3>
 <p>Introspection task requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
 command line by explicitly passing endpoint parameter</p>
 <pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> gradle graphqlIntrospectSchema --endpoint=<span class="hljs-string">"http://localhost:8080/graphql"</span></span>
 </code></pre>
-<p>Task can also be configured in your Gradle build file using global extension</p>
-<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
-<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
-
-graphql {
-  endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
-}
-</code></pre>
-<p>Or by explicitly configuring the task</p>
+<p>Task can also be explicitly configured in your Gradle build file</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
@@ -127,9 +169,78 @@ graphql {
 </code></pre>
 <p>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 invoke it OR configure it as a dependency of some other task.</p>
-<h2><a class="anchor" aria-hidden="true" id="complete-example"></a><a href="#complete-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Example</h2>
-<p>// TODO complete once all tasks are merged</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/spring-server/subscriptions"><span class="arrow-prev">← </span><span>Subscriptions</span></a><a class="docs-next button" href="/graphql-kotlin/docs/plugins/maven-plugin"><span>Maven Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#tasks">Tasks</a><ul class="toc-headings"><li><a href="#graphqldownloadsdl">graphqlDownloadSDL</a></li><li><a href="#graphqlintrospectschema">graphqlIntrospectSchema</a></li></ul></li><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#complete-example">Complete Example</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<h3><a class="anchor" aria-hidden="true" id="generating-client"></a><a href="#generating-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Client</h3>
+<p>GraphQL client code is generated based on the provided queries that will be executed against target GraphQL <code>schemaFile</code>.
+Separate class is generated for each provided GraphQL query and are saved under specified <code>packageName</code>. When using default
+configuration and storing GraphQL queries under <code>src/main/resources</code> directories, task can be executed directly from the
+command line by explicitly providing required properties.</p>
+<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> gradle graphqlGenerateClient --schemaFileName<span class="hljs-string">"mySchema.graphql"</span> --packageName=<span class="hljs-string">"com.example.generated"</span></span>
+</code></pre>
+<p>Task can also be explicitly configured in your Gradle build file</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+<span class="hljs-keyword">val</span> graphqlGenerateClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
+  packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)
+  schemaFileName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"mySchema.graphql"</span>)
+}
+</code></pre>
+<p>This will process all GraphQL queries located under <code>src/main/resources</code> and generate corresponding GraphQL Kotlin clients.
+Generated classes will be automatically added to the project compile sources.</p>
+<h3><a class="anchor" aria-hidden="true" id="generating-client-with-custom-scalars"></a><a href="#generating-client-with-custom-scalars" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating client with Custom Scalars</h3>
+<p>By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
+custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt">scalar converter</a>.</p>
+<p>For example given following custom scalar in our GraphQL schema</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">scalar UUID</span>
+</code></pre>
+<p>We can create a custom converter to automatically convert this custom scalar to <code>java.util.UUID</code></p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">package</span> com.example
+
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.client.converter.ScalarConverter
+<span class="hljs-keyword">import</span> java.util.UUID
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UUIDScalarConverter</span> : <span class="hljs-type">ScalarConverter</span>&lt;<span class="hljs-type">UUID</span>&gt; </span>{
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">toScalar</span><span class="hljs-params">(rawValue: <span class="hljs-type">String</span>)</span></span>: UUID = UUID.fromString(rawValue)
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">toJson</span><span class="hljs-params">(value: <span class="hljs-type">UUID</span>)</span></span>: String = value.toString()
+}
+</code></pre>
+<p>Afterwards we need to configure our plugin to use this custom converter</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+<span class="hljs-keyword">val</span> graphqlGenerateClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
+  packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)
+  schemaFileName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"mySchema.graphql"</span>)
+  scalarConverters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="complete-configuration-example"></a><a href="#complete-configuration-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Configuration Example</h3>
+<p>Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a
+corresponding schema. This generated schema is subsequently used to generate GraphQL client code based on the queries
+provided under <code>src/main/resources</code> directory.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
+
+graphql {
+    endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
+    packageName = <span class="hljs-string">"com.example.generated"</span>
+}
+</code></pre>
+<p>Above configuration is equivalent to the following</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
+
+<span class="hljs-keyword">val</span> graphqlIntrospectSchema <span class="hljs-keyword">by</span> tasks.getting(GraphQLIntrospectSchemaTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
+  endpoint.<span class="hljs-keyword">set</span>(<span class="hljs-string">"http://localhost:8080/graphql"</span>)
+}
+<span class="hljs-keyword">val</span> graphqlGenerateClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
+  packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)
+  schemaFile.<span class="hljs-keyword">set</span>(graphqlIntrospectSchema.outputFile)
+  dependsOn(<span class="hljs-string">"graphqlIntrospectSchema"</span>)
+}
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/spring-server/subscriptions"><span class="arrow-prev">← </span><span>Subscriptions</span></a><a class="docs-next button" href="/graphql-kotlin/docs/plugins/maven-plugin"><span>Maven Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#extension">Extension</a></li><li><a href="#tasks">Tasks</a><ul class="toc-headings"><li><a href="#graphqldownloadsdl">graphqlDownloadSDL</a></li><li><a href="#graphqlgenerateclient">graphqlGenerateClient</a></li><li><a href="#graphqlintrospectschema">graphqlIntrospectSchema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating client with Custom Scalars</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

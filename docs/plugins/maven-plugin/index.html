@@ -56,6 +56,7 @@
             });
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/plugins/maven-plugin.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Maven Plugin</h1></header><article><div><span><p>GraphQL Kotlin Maven Plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.</p>
 <h2><a class="anchor" aria-hidden="true" id="goals"></a><a href="#goals" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Goals</h2>
+<p>You can find detailed information about <code>graphql-kotlin-maven-plugin</code> and all its goals by running <code>mvn help:describe -Dplugin=com.expediagroup:graphql-kotlin-maven-plugin -Ddetail</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="downloadsdl"></a><a href="#downloadsdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>downloadSDL</h3>
 <p>GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
 Since GraphQL schema is needed to generate type safe clients, as alternative GraphQL servers might expose private
@@ -64,34 +65,79 @@ Language (SDL) directly. This Mojo attempts to download schema from the specifie
 result whether it is a valid schema and saves it locally as <code>schema.graphql</code> under build directory. In general, this
 goal provides limited functionality by itself and instead should be used to generate input for the subsequent
 <code>generateClient</code> goal.</p>
-<p><strong>Default Lifecycle Phase</strong>: <code>generate-sources</code></p>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><em>Default Lifecycle Phase</em>: <code>generate-sources</code></li>
+</ul>
 <p><strong>Parameters</strong></p>
 <table>
 <thead>
-<tr><th>Property</th><th>Type</th><th>Description</th></tr>
+<tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>endpoint</code></td><td>String</td><td>Target GraphQL server SDL endpoint that will be used to download schema. <strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
+<tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server SDL endpoint that will be used to download schema.<br/><strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 </tbody>
 </table>
+<h3><a class="anchor" aria-hidden="true" id="generateclient"></a><a href="#generateclient" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>generateClient</h3>
+<p>Generate GraphQL client code based on the provided GraphQL schema and target queries.</p>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><em>Default Lifecycle Phase</em>: <code>generate-sources</code></li>
+<li><em>Requires Maven Project</em></li>
+<li>Generated classes are automatically added to the list of compiled sources.</li>
+</ul>
+<p><strong>Parameters</strong></p>
+<table>
+<thead>
+<tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>allowDeprecatedFields</code></td><td>Boolean</td><td></td><td>Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/><strong>Default value is:</strong> <code>false</code>.<br/><strong>User property is</strong>: <code>graphql.allowDeprecatedFields</code>.</td></tr>
+<tr><td><code>converters</code></td><td>Map&lt;String, ScalarConverter&gt;</td><td></td><td>Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</td></tr>
+<tr><td><code>outputDirectory</code></td><td>File</td><td></td><td>Target directory where to store generated files.<br/><strong>Default value is</strong>: <code>${project.build.directory}/generated/sources/graphql</code></td></tr>
+<tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>User property is</strong>: <code>graphql.packageName</code>.</td></tr>
+<tr><td><code>queryFileDirectory</code></td><td>File</td><td></td><td>Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using <code>queryFiles</code> property instead.<br/><strong>Default value is:</strong> <code>src/main/resources</code>.</td></tr>
+<tr><td><code>queryFiles</code></td><td>List<File></td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can also specify <code>queryFileDirectory</code> directory containing all the files. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
+<tr><td><code>schemaFile</code></td><td>String</td><td>yes</td><td>GraphQL schema file that will be used to generate client code.<br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
+</tbody>
+</table>
+<p><strong>Parameter Details</strong></p>
+<ul>
+<li><p><em>converters</em> - Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">converters</span>&gt;</span>
+  <span class="hljs-comment">&lt;!-- custom scalar type --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">UUID</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom scalar type --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>java.util.UUID<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+         used to convert to/from raw JSON and scalar type --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">converter</span>&gt;</span>com.example.UUIDScalarConverter<span class="hljs-tag">&lt;/<span class="hljs-name">converter</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">UUID</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">converters</span>&gt;</span>
+</code></pre></li>
+</ul>
 <h3><a class="anchor" aria-hidden="true" id="introspectschema"></a><a href="#introspectschema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>introspectSchema</h3>
 <p>Executes GraphQL introspection query against specified <code>graphql.endpoint</code> and saves the underlying schema file as
 <code>schema.graphql</code> under build directory. In general, this goal provides limited functionality by itself and instead
 should be used to generate input for the subsequent <code>generateClient</code> goal.</p>
-<p><strong>Default Lifecycle Phase</strong>: <code>generate-sources</code></p>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><em>Default Lifecycle Phase</em>: <code>generate-sources</code></li>
+</ul>
 <p><strong>Parameters</strong></p>
 <table>
 <thead>
-<tr><th>Property</th><th>Type</th><th>Description</th></tr>
+<tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>endpoint</code></td><td>String</td><td>Target GraphQL server endpoint that will be used to execute introspection queries. <strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
+<tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server endpoint that will be used to execute introspection queries.<br/><strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 </tbody>
 </table>
-<h2><a class="anchor" aria-hidden="true" id="downloading-schema-sdl"></a><a href="#downloading-schema-sdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Downloading Schema SDL</h2>
+<h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<h3><a class="anchor" aria-hidden="true" id="downloading-schema-sdl"></a><a href="#downloading-schema-sdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Downloading Schema SDL</h3>
 <p>DownloadSDL Mojo requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
-command line by explicitly specifying <code>graphql.endpoint</code> property</p>
-<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:downloadSDL -Dgraphql.endpoint=<span class="hljs-string">"http://localhost:8080/graphql"</span></span>
+command line by explicitly specifying <code>graphql.endpoint</code> property.</p>
+<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:downloadSDL -Dgraphql.endpoint=<span class="hljs-string">"http://localhost:8080/sdl"</span></span>
 </code></pre>
 <p>Mojo can also be configured in your Maven build file</p>
 <pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
@@ -112,7 +158,7 @@ command line by explicitly specifying <code>graphql.endpoint</code> property</p>
 <span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
 </code></pre>
 <p>By default, <code>downloadSDL</code> goal will be executed as part of the <code>generate-sources</code> <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">build lifecycle phase</a>.</p>
-<h2><a class="anchor" aria-hidden="true" id="introspecting-schema"></a><a href="#introspecting-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Introspecting Schema</h2>
+<h3><a class="anchor" aria-hidden="true" id="introspecting-schema"></a><a href="#introspecting-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Introspecting Schema</h3>
 <p>Introspection Mojo requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
 command line by explicitly specifying <code>graphql.endpoint</code> property</p>
 <pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:introspectSchema -Dgraphql.endpoint=<span class="hljs-string">"http://localhost:8080/graphql"</span></span>
@@ -136,7 +182,114 @@ command line by explicitly specifying <code>graphql.endpoint</code> property</p>
 <span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
 </code></pre>
 <p>By default, <code>introspectSchema</code> goal will be executed as part of the <code>generate-sources</code> <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">build lifecycle phase</a>.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span class="arrow-prev">← </span><span>Gradle Plugin</span></a><a class="docs-next button" href="/graphql-kotlin/docs/contributors/release-proc"><span>Releasing a new version</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#goals">Goals</a><ul class="toc-headings"><li><a href="#downloadsdl">downloadSDL</a></li><li><a href="#introspectschema">introspectSchema</a></li></ul></li><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<h3><a class="anchor" aria-hidden="true" id="generating-client"></a><a href="#generating-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Client</h3>
+<p>This Mojo generates GraphQL client code based on the provided queries using target GraphQL <code>schemaFile</code>. Classes are
+generated under specified <code>packageName</code>. When using default configuration and storing GraphQL queries under <code>src/main/resources</code>
+directories, task can be executed directly from the command line by explicitly providing required properties.</p>
+<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:generateClient -Dgraphql.schemaFile=<span class="hljs-string">"mySchema.graphql"</span> -Dgraphql.packageName=<span class="hljs-string">"com.example.generated"</span></span>
+</code></pre>
+<p>Mojo can also be configured in your Maven build file and it provides additional configuration options</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>generate-client<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>generateClient<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>mySchema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
+</code></pre>
+<p>This will process all GraphQL queries located under <code>src/main/resources</code> and generate corresponding GraphQL Kotlin clients.
+Generated classes will be automatically added to the project compile sources.</p>
+<h3><a class="anchor" aria-hidden="true" id="generating-client-with-custom-scalars"></a><a href="#generating-client-with-custom-scalars" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Client with Custom Scalars</h3>
+<p>By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
+custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt">scalar converter</a>.</p>
+<p>For example given following custom scalar in our GraphQL schema</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">scalar UUID</span>
+</code></pre>
+<p>We can create a custom converter to automatically convert this custom scalar to <code>java.util.UUID</code></p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">package</span> com.example
+
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.client.converter.ScalarConverter
+<span class="hljs-keyword">import</span> java.util.UUID
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UUIDScalarConverter</span> : <span class="hljs-type">ScalarConverter</span>&lt;<span class="hljs-type">UUID</span>&gt; </span>{
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">toScalar</span><span class="hljs-params">(rawValue: <span class="hljs-type">String</span>)</span></span>: UUID = UUID.fromString(rawValue)
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">toJson</span><span class="hljs-params">(value: <span class="hljs-type">UUID</span>)</span></span>: String = value.toString()
+}
+</code></pre>
+<p>Afterwards we need to configure our plugin to use this custom converter</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>generate-client<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>generateClient<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>false<span class="hljs-tag">&lt;/<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">converters</span>&gt;</span>
+                    <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">UUID</span>&gt;</span>
+                        <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom scalar type --&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>java.util.UUID<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span>
+                        <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                           used to convert to/from raw JSON and scalar type --&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">converter</span>&gt;</span>com.example.UUIDScalarConverter<span class="hljs-tag">&lt;/<span class="hljs-name">converter</span>&gt;</span>
+                    <span class="hljs-tag">&lt;/<span class="hljs-name">UUID</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">converters</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>mySchema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="complete-configuration-example"></a><a href="#complete-configuration-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Configuration Example</h3>
+<p>Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a corresponding schema.
+This generated schema is subsequently used to generate GraphQL client code based on the queries provided under <code>src/main/resources</code> directory.</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>introspect-schema<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>introspectSchema<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/graphql<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>generate-client<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>generateClient<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/schema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
+</code></pre>
+<p>NOTE: Both <code>introspectSchema</code> and <code>generateClient</code> goals are bound to the same <code>generate-sources</code> Maven lifecycle phase.
+As opposed to Gradle, Maven does not support explicit dependencies between different goals and they will be executed in
+the order they are defined in your <code>pom.xml</code> build file.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span class="arrow-prev">← </span><span>Gradle Plugin</span></a><a class="docs-next button" href="/graphql-kotlin/docs/contributors/release-proc"><span>Releasing a new version</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#goals">Goals</a><ul class="toc-headings"><li><a href="#downloadsdl">downloadSDL</a></li><li><a href="#generateclient">generateClient</a></li><li><a href="#introspectschema">introspectSchema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating Client with Custom Scalars</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
