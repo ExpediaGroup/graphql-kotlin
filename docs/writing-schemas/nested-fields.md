@@ -50,7 +50,7 @@ class User {
 }
 ```
 
-## Exluding from the Schema
+## Excluding from the Schema
 You can construct the child objects by passing down arguments as non-public fields or annotate the argument with [@GraphQLIgnore](../customizing-schemas/excluding-fields)
 
 ```kotlin
