@@ -71,4 +71,49 @@ class FederatedRequiresDirectiveIT {
         assertEquals("Invalid federated schema:\n" +
             " - base RequiresOnLocalType type has fields marked with @requires directive, validatedField=shippingCost", exception.message)
     }
+
+    @Test
+    fun `verifies @requires directive on list does not throw`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._2"))
+            val validatedType = schema.getObjectType("User")
+            assertNotNull(validatedType.getDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.getDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("reviews")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.getDirective("requires"))
+        }
+    }
+
+    @Test
+    fun `verifies @requires directive on interface does not throw`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._3"))
+            val validatedType = schema.getObjectType("User")
+            assertNotNull(validatedType.getDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.getDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("reviews")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.getDirective("requires"))
+        }
+    }
+
+    @Test
+    fun `verifies @requires directive on union does not throw`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._4"))
+            val validatedType = schema.getObjectType("User")
+            assertNotNull(validatedType.getDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.getDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("reviews")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.getDirective("requires"))
+        }
+    }
 }

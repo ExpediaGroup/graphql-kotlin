@@ -22,7 +22,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeUtil
 
 internal fun validateFieldSelection(
-    validatedDirective: String,
+    validatedDirective: DirectiveInfo,
     iterator: Iterator<String>,
     fields: Map<String, GraphQLFieldDefinition>,
     extendedType: Boolean,
@@ -34,14 +34,15 @@ internal fun validateFieldSelection(
         when (currentField) {
             "{" -> {
                 val targetField = fields[previousField]?.type
+                val errorMessage = validatedDirective.getErrorString()
                 when (val unwrappedType = GraphQLTypeUtil.unwrapAll(targetField)) {
                     is GraphQLInterfaceType -> validateFieldSelection(validatedDirective, iterator, unwrappedType.fieldDefinitions.associateBy { it.name }, extendedType, errors)
                     is GraphQLObjectType -> validateFieldSelection(validatedDirective, iterator, unwrappedType.fieldDefinitions.associateBy { it.name }, extendedType, errors)
-                    else -> errors.add("$validatedDirective specifies invalid field set - field set defines nested selection set on unsupported type")
+                    else -> errors.add("$errorMessage specifies invalid field set - field set defines nested selection set on unsupported type")
                 }
             }
             "}" -> return
-            else -> validateKeySetField(fields[currentField], extendedType, errors, validatedDirective)
+            else -> validateFieldSet(fields[currentField], extendedType, errors, validatedDirective)
         }
         previousField = currentField
     }

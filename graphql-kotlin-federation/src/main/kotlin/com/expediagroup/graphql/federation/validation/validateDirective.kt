@@ -38,9 +38,13 @@ internal fun validateDirective(
         if (fieldSet.isEmpty()) {
             validationErrors.add("@$targetDirective directive on $validatedType is missing field information")
         } else {
-            // validate key field set
-            val validatedDirectiveInfo = "@$targetDirective(fields = $fieldSetValue) directive on $validatedType"
-            validateFieldSelection(validatedDirectiveInfo, fieldSet.iterator(), fieldMap, extendedType, validationErrors)
+            // validate directive field set selection
+            val directiveInfo = DirectiveInfo(
+                directiveName = targetDirective,
+                fieldSet = fieldSet.joinToString(" "),
+                typeName = validatedType
+            )
+            validateFieldSelection(directiveInfo, fieldSet.iterator(), fieldMap, extendedType, validationErrors)
         }
     }
     return validationErrors

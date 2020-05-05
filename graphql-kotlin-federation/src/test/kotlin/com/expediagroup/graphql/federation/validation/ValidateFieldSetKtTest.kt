@@ -21,24 +21,45 @@ import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNonNull
+import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class ValidateKeySetFieldKtTest {
+class ValidateFieldSetKtTest {
+
+    private val mockKeyDirectiveInfo = DirectiveInfo(
+        directiveName = "key",
+        fieldSet = "foo",
+        typeName = "Parent"
+    )
+
+    private val mockProvidesDirectiveInfo = DirectiveInfo(
+        directiveName = "provides",
+        fieldSet = "foo",
+        typeName = "Any"
+    )
+
+    private val mockRequiresDirectiveInfo = DirectiveInfo(
+        directiveName = "requires",
+        fieldSet = "foo",
+        typeName = "Any"
+    )
 
     @Test
-    fun `returns an error on null targetField`() {
+    fun `@key returns an error on null targetField`() {
         val errors = mutableListOf<String>()
-        validateKeySetField(
+        validateFieldSet(
             targetField = null,
             extendedType = false,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockKeyDirectiveInfo
+        )
 
         assertEquals(1, errors.size)
-        assertEquals("foo specifies invalid field set - field set specifies fields that do not exist", errors.first())
+        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - field set specifies fields that do not exist", errors.first())
     }
 
     /**
@@ -47,21 +68,22 @@ class ValidateKeySetFieldKtTest {
      * }
      */
     @Test
-    fun `returns an error on extended type without external directive`() {
+    fun `@key returns an error on extended type without external directive`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
             .type(GraphQLString)
             .build()
 
-        validateKeySetField(
+        validateFieldSet(
             targetField = target,
             extendedType = true,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockKeyDirectiveInfo
+        )
 
         assertEquals(1, errors.size)
-        assertEquals("foo specifies invalid field set - extended type incorrectly references local field=foo", errors.first())
+        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - extended type incorrectly references local field=foo", errors.first())
     }
 
     /**
@@ -70,7 +92,7 @@ class ValidateKeySetFieldKtTest {
      * }
      */
     @Test
-    fun `returns an error on a local type with external directive`() {
+    fun `@key returns an error on a local type with external directive`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
@@ -78,23 +100,25 @@ class ValidateKeySetFieldKtTest {
             .withDirective(externalDirective)
             .build()
 
-        validateKeySetField(
+        validateFieldSet(
             targetField = target,
             extendedType = false,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockKeyDirectiveInfo
+        )
 
         assertEquals(1, errors.size)
-        assertEquals("foo specifies invalid field set - type incorrectly references external field=foo", errors.first())
+        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - type incorrectly references external field=foo", errors.first())
     }
 
     /**
      * type Parent @key(fields: "foo") @extends {
-     *   foo: [String] @external
+     *   foo: ID @external
+     *   bar: [String] @requires("foo")
      * }
      */
     @Test
-    fun `returns an error when the field type is a list`() {
+    fun `@requries returns no errors when the field type is a list`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
@@ -102,14 +126,76 @@ class ValidateKeySetFieldKtTest {
             .withDirective(externalDirective)
             .build()
 
-        validateKeySetField(
+        validateFieldSet(
             targetField = target,
             extendedType = true,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockRequiresDirectiveInfo
+        )
 
-        assertEquals(1, errors.size)
-        assertEquals("foo specifies invalid field set - field set references GraphQLList, field=foo", errors.first())
+        assertEquals(0, errors.size)
+    }
+
+    /**
+     * type Parent @key(fields: "foo") @extends {
+     *   foo: FooObject @external
+     * }
+     *
+     * type FooObject {
+     *   bar: String
+     * }
+     */
+    @Test
+    fun `@key returns no errors when the field type is an object`() {
+        val errors = mutableListOf<String>()
+        val stringField = GraphQLFieldDefinition.newFieldDefinition()
+            .name("bar")
+            .type(GraphQLString)
+            .build()
+
+        val target = GraphQLFieldDefinition.newFieldDefinition()
+            .name("foo")
+            .type(GraphQLObjectType.newObject()
+                .name("FooObject")
+                .field(stringField)
+                .build()
+            )
+            .withDirective(externalDirective)
+            .build()
+
+        validateFieldSet(
+            targetField = target,
+            extendedType = true,
+            errors = errors,
+            validatedDirective = mockKeyDirectiveInfo
+        )
+
+        assertEquals(0, errors.size)
+    }
+
+    /**
+     * type Parent @key(fields: "foo") @extends {
+     *   foo: ID @external
+     *   bar: [String!]! @requires("foo")
+     * }
+     */
+    @Test
+    fun `@requries returns no errors when the field type is a non-nullable list of non-nulls`() {
+        val errors = mutableListOf<String>()
+        val target = GraphQLFieldDefinition.newFieldDefinition()
+            .name("bar")
+            .type(GraphQLNonNull.nonNull(GraphQLList.list(GraphQLNonNull.nonNull(GraphQLString))))
+            .withDirective(externalDirective)
+            .build()
+
+        validateFieldSet(
+            targetField = target,
+            extendedType = true,
+            errors = errors,
+            validatedDirective = mockRequiresDirectiveInfo
+        )
+
+        assertEquals(0, errors.size)
     }
 
     /**
@@ -121,7 +207,7 @@ class ValidateKeySetFieldKtTest {
      * }
      */
     @Test
-    fun `returns an error when the field type is a interface`() {
+    fun `@key returns an error when the field type is a interface`() {
         val errors = mutableListOf<String>()
         val interfaceType = GraphQLInterfaceType.newInterface()
             .name("MyInterface")
@@ -133,14 +219,15 @@ class ValidateKeySetFieldKtTest {
             .withDirective(externalDirective)
             .build()
 
-        validateKeySetField(
+        validateFieldSet(
             targetField = target,
             extendedType = true,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockKeyDirectiveInfo
+        )
 
         assertEquals(1, errors.size)
-        assertEquals("foo specifies invalid field set - field set references GraphQLInterfaceType, field=foo", errors.first())
+        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - field set references GraphQLInterfaceType, field=foo", errors.first())
     }
 
     /**
@@ -151,7 +238,7 @@ class ValidateKeySetFieldKtTest {
      * }
      */
     @Test
-    fun `returns an error when the field type is a union`() {
+    fun `@key returns an error when the field type is a union`() {
         val errors = mutableListOf<String>()
         val unionType = GraphQLUnionType.newUnionType()
             .name("MyUnion")
@@ -163,14 +250,15 @@ class ValidateKeySetFieldKtTest {
             .withDirective(externalDirective)
             .build()
 
-        validateKeySetField(
+        validateFieldSet(
             targetField = target,
             extendedType = true,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockKeyDirectiveInfo
+        )
 
         assertEquals(1, errors.size)
-        assertEquals("foo specifies invalid field set - field set references GraphQLUnionType, field=foo", errors.first())
+        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - field set references GraphQLUnionType, field=foo", errors.first())
     }
 
     /**
@@ -179,7 +267,7 @@ class ValidateKeySetFieldKtTest {
      * }
      */
     @Test
-    fun `returns no errors when there is extended type with external directive`() {
+    fun `@key returns no errors when there is extended type with external directive`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
@@ -187,11 +275,12 @@ class ValidateKeySetFieldKtTest {
             .withDirective(externalDirective)
             .build()
 
-        validateKeySetField(
+        validateFieldSet(
             targetField = target,
             extendedType = true,
             errors = errors,
-            validatedDirective = "foo")
+            validatedDirective = mockKeyDirectiveInfo
+        )
 
         assertEquals(0, errors.size)
     }
