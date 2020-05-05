@@ -73,15 +73,45 @@ class FederatedRequiresDirectiveIT {
     }
 
     @Test
-    fun `verifies @requires directive with multiple selection fields`() {
+    fun `verifies @requires directive on list does not throw`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._2"))
-            val validatedType = schema.getObjectType("Basket")
+            val validatedType = schema.getObjectType("User")
             assertNotNull(validatedType.getDirective("key"))
-            val externalField = validatedType.getFieldDefinition("items")
+            val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
             assertNotNull(externalField.getDirective("external"))
-            val requiresField = validatedType.getFieldDefinition("image")
+            val requiresField = validatedType.getFieldDefinition("reviews")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.getDirective("requires"))
+        }
+    }
+
+    @Test
+    fun `verifies @requires directive on interface does not throw`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._3"))
+            val validatedType = schema.getObjectType("User")
+            assertNotNull(validatedType.getDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.getDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("reviews")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.getDirective("requires"))
+        }
+    }
+
+    @Test
+    fun `verifies @requires directive on union does not throw`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.success._4"))
+            val validatedType = schema.getObjectType("User")
+            assertNotNull(validatedType.getDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.getDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("reviews")
             assertNotNull(requiresField)
             assertNotNull(requiresField.getDirective("requires"))
         }
