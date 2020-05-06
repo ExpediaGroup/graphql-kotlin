@@ -31,3 +31,5 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_SECRET: ${{ secrets.GPG_SECRET }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          PLUGIN_PORTAL_KEY: ${{ secrets.PLUGIN_PORTAL_KEY }}
+          PLUGIN_PORTAL_SECRET: ${{ secrets.PLUGIN_PORTAL_SECRET }}
