@@ -39,6 +39,15 @@ pluginBundle {
 }
 
 tasks {
+    publishPlugins {
+        doFirst {
+            System.setProperty("gradle.publish.key", System.getenv("PLUGIN_PORTAL_KEY"))
+            System.setProperty("gradle.publish.secret", System.getenv("PLUGIN_PORTAL_SECRET"))
+        }
+    }
+    publish {
+        dependsOn(":plugins:graphql-kotlin-gradle-plugin:publishPlugins")
+    }
     test {
         systemProperty("graphQLKotlinVersion", project.version)
         systemProperty("kotlinVersion", kotlinVersion)

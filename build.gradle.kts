@@ -208,6 +208,7 @@ tasks {
         delayBetweenRetriesInMillis = 5000
     }
 
-    val publish by getting
-    publish.dependsOn(":initializeSonatypeStagingRepository")
+    publish {
+        dependsOn(":initializeSonatypeStagingRepository")
+    }
 }
