@@ -19,12 +19,16 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.annotations.GraphQLTypeRestriction
+import com.expediagroup.graphql.annotations.GraphQLTypeRestriction.GraphQLType
+import com.expediagroup.graphql.exceptions.TypeRestrictionException
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 class GenerateObjectTest : TypeTestHelper() {
@@ -44,6 +48,16 @@ class GenerateObjectTest : TypeTestHelper() {
     }
 
     class ClassWithInterface(override val foo: String) : MyInterface
+
+    @GraphQLTypeRestriction(GraphQLType.INPUT)
+    private class InputOnly {
+        val myField: String = "car"
+    }
+
+    @GraphQLTypeRestriction(GraphQLType.OUTPUT)
+    private class OutputOnly {
+        val myField: String = "car"
+    }
 
     @Test
     fun `Test naming`() {
@@ -89,5 +103,15 @@ class GenerateObjectTest : TypeTestHelper() {
         assertNotNull(result)
         assertEquals(1, result.interfaces.size)
         assertEquals(1, result.fieldDefinitions.size)
+    }
+
+    @Test
+    fun `Test type restrictions for output classes`() {
+        val result = generateObject(generator, OutputOnly::class)
+        assertNotNull(result)
+
+        assertFailsWith(TypeRestrictionException::class) {
+            generateObject(generator, InputOnly::class)
+        }
     }
 }

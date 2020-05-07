@@ -13,3 +13,4 @@ for things that can't be directly derived from Kotlin reflection.
 * [@GraphQLIgnore](../customizing-schemas/excluding-fields) - Exclude field from the GraphQL schema
 * [@GraphQLName](../customizing-schemas/renaming-fields) - Override the name used for the type
 * Kotlin built in [@Deprecated](../customizing-schemas/deprecating-schema) - Apply the GraphQL `@deprecated` directive on the field
+* [@GraphQLTypeRestriction](../customizing-schemas/restricting-types) - Restrict Kotlin classes to certain GraphQL types

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.annotations.GraphQLTypeRestriction
 import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
@@ -24,6 +25,7 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.types.utils.throwIfInvalidRestrictionType
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
@@ -31,8 +33,10 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLObjectType {
-    val builder = GraphQLObjectType.newObject()
 
+    throwIfInvalidRestrictionType(kClass, GraphQLTypeRestriction.GraphQLType.OUTPUT)
+
+    val builder = GraphQLObjectType.newObject()
     val name = kClass.getSimpleName()
     builder.name(name)
     builder.description(kClass.getGraphQLDescription())

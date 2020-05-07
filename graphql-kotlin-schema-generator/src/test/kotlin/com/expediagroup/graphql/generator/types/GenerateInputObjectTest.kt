@@ -18,13 +18,18 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.annotations.GraphQLTypeRestriction
+import com.expediagroup.graphql.annotations.GraphQLTypeRestriction.GraphQLType
+import com.expediagroup.graphql.exceptions.TypeRestrictionException
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 
-internal class GenerateInputObjectTest : TypeTestHelper() {
+@Suppress("Detekt.UnusedPrivateClass")
+class GenerateInputObjectTest : TypeTestHelper() {
 
-    @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
     @SimpleDirective
     private class InputClass {
@@ -32,10 +37,19 @@ internal class GenerateInputObjectTest : TypeTestHelper() {
         val myField: String = "car"
     }
 
-    @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLName("InputClassRenamed")
     private class InputClassCustomName {
         @GraphQLName("myFieldRenamed")
+        val myField: String = "car"
+    }
+
+    @GraphQLTypeRestriction(GraphQLType.INPUT)
+    private class InputOnly {
+        val myField: String = "car"
+    }
+
+    @GraphQLTypeRestriction(GraphQLType.OUTPUT)
+    private class OutputOnly {
         val myField: String = "car"
     }
 
@@ -76,5 +90,15 @@ internal class GenerateInputObjectTest : TypeTestHelper() {
         val result = generateInputObject(generator, InputClass::class)
         assertEquals(1, result.fields.first().directives.size)
         assertEquals("simpleDirective", result.fields.first().directives.first().name)
+    }
+
+    @Test
+    fun `Test type restrictions`() {
+        val result = generateInputObject(generator, InputOnly::class)
+        assertNotNull(result)
+
+        assertFailsWith(TypeRestrictionException::class) {
+            generateInputObject(generator, OutputOnly::class)
+        }
     }
 }
