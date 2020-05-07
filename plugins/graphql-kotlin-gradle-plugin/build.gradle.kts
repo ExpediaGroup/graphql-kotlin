@@ -10,7 +10,7 @@ val kotlinCoroutinesVersion: String by project
 val wireMockVersion: String by project
 
 dependencies {
-    api(project(path = ":plugins:graphql-kotlin-plugin-core"))
+    api(project(path = ":graphql-kotlin-plugin-core"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     testImplementation(project(path = ":graphql-kotlin-client"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
@@ -46,7 +46,7 @@ tasks {
         }
     }
     publish {
-        dependsOn(":plugins:graphql-kotlin-gradle-plugin:publishPlugins")
+        dependsOn(":graphql-kotlin-gradle-plugin:publishPlugins")
     }
     test {
         systemProperty("graphQLKotlinVersion", project.version)
