@@ -48,6 +48,10 @@ tasks {
     publish {
         dependsOn(":graphql-kotlin-gradle-plugin:publishPlugins")
     }
+    withType<PublishToMavenRepository> {
+        // explicitly disable maven-publish tasks
+        enabled = false
+    }
     test {
         systemProperty("graphQLKotlinVersion", project.version)
         systemProperty("kotlinVersion", kotlinVersion)
