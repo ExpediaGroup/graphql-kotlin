@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.exceptions.InvalidIdTypeException
+import com.expediagroup.graphql.types.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-internal class GenerateScalarTest : TypeTestHelper() {
+class GenerateScalarTest : TypeTestHelper() {
 
     internal class Ids {
         internal val stringID: String = "abc"
@@ -36,6 +37,7 @@ internal class GenerateScalarTest : TypeTestHelper() {
         internal val longID: Long = 2
         internal val uuid: UUID = UUID.randomUUID()
         internal val invalidID: Double = 3.0
+        internal val idClass: ID = ID("123")
     }
 
     @Test
@@ -56,6 +58,7 @@ internal class GenerateScalarTest : TypeTestHelper() {
     @Test
     fun id() {
         verify(Ids::stringID.returnType, Scalars.GraphQLID, true)
+        verify(Ids::idClass.returnType, Scalars.GraphQLID, false)
 
         assertFailsWith(InvalidIdTypeException::class) {
             verify(Ids::intID.returnType, Scalars.GraphQLID, true)

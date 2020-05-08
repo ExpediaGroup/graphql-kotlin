@@ -20,6 +20,7 @@ import com.expediagroup.graphql.exceptions.InvalidIdTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.types.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
@@ -32,6 +33,7 @@ internal fun generateScalar(generator: SchemaGenerator, type: KType, annotatedAs
     val kClass = type.getKClass()
     val scalar = when {
         annotatedAsID -> getId(kClass)
+        kClass.isSubclassOf(ID::class) -> getId(kClass)
         else -> defaultScalarsMap[kClass]
     }
 
@@ -42,7 +44,7 @@ internal fun generateScalar(generator: SchemaGenerator, type: KType, annotatedAs
 
 @Throws(InvalidIdTypeException::class)
 private fun getId(kClass: KClass<*>): GraphQLScalarType? {
-    return if (kClass.isSubclassOf(String::class)) {
+    return if (kClass.isSubclassOf(String::class) || kClass.isSubclassOf(ID::class)) {
         Scalars.GraphQLID
     } else {
         throw InvalidIdTypeException(kClass)

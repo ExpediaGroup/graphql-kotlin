@@ -19,6 +19,7 @@ package com.expediagroup.graphql.test.integration
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.types.ID
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import org.junit.jupiter.api.Test
@@ -49,7 +50,7 @@ class NodeGraphTest {
  * similar to a tree node structure.
  */
 data class Node(
-    val id: Int,
+    val id: ID,
     val value: String,
     val parent: Node? = null,
     val children: MutableList<Node> = mutableListOf()
@@ -57,10 +58,10 @@ data class Node(
 
 class NodeQuery {
 
-    private val root = Node(id = 0, value = "root")
-    private val nodeA = Node(id = 1, value = "A", parent = root)
-    private val nodeB = Node(id = 2, value = "B", parent = root)
-    private val nodeC = Node(id = 3, value = "C", parent = nodeB)
+    private val root = Node(id = ID("0"), value = "root")
+    private val nodeA = Node(id = ID("1"), value = "A", parent = root)
+    private val nodeB = Node(id = ID("2"), value = "B", parent = root)
+    private val nodeC = Node(id = ID("3"), value = "C", parent = nodeB)
 
     init {
         root.children.add(nodeA)

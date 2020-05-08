@@ -20,6 +20,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.types.ID
 import org.springframework.stereotype.Component
 import java.util.UUID
 
@@ -35,7 +36,9 @@ class ScalarQuery : Query {
     @GraphQLDescription("Prints a string with a custom scalar as input")
     fun printUuids(uuids: List<UUID>) = "You sent $uuids"
 
-    fun findPersonById(@GraphQLID id: String) = Person(id, "Nelson")
+    fun findPersonById(id: ID) = Person(id, "Nelson")
+
+    fun findPersonByIdString(@GraphQLID id: String) = Person(ID(id), "Ann")
 
     @GraphQLDescription("generates random GraphQL ID")
     @GraphQLID
@@ -48,7 +51,6 @@ class ScalarMutation : Mutation {
 }
 
 data class Person(
-    @GraphQLID
-    val id: String,
+    val id: ID,
     val name: String
 )
