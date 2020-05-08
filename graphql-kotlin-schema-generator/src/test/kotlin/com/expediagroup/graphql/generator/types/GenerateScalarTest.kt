@@ -16,29 +16,17 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.exceptions.InvalidIdTypeException
 import com.expediagroup.graphql.types.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.UUID
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class GenerateScalarTest : TypeTestHelper() {
-
-    internal class Ids {
-        internal val stringID: String = "abc"
-        internal val intID: Int = 1
-        internal val longID: Long = 2
-        internal val uuid: UUID = UUID.randomUUID()
-        internal val invalidID: Double = 3.0
-        internal val idClass: ID = ID("123")
-    }
 
     @Test
     fun `test all types`() {
@@ -52,37 +40,12 @@ class GenerateScalarTest : TypeTestHelper() {
         verify(Char::class.createType(), Scalars.GraphQLChar)
         verify(String::class.createType(), Scalars.GraphQLString)
         verify(Boolean::class.createType(), Scalars.GraphQLBoolean)
+        verify(ID::class.createType(), Scalars.GraphQLID)
         verify(IntArray::class.createType(), null)
     }
 
-    @Test
-    fun id() {
-        verify(Ids::stringID.returnType, Scalars.GraphQLID, true)
-        verify(Ids::idClass.returnType, Scalars.GraphQLID, false)
-
-        assertFailsWith(InvalidIdTypeException::class) {
-            verify(Ids::intID.returnType, Scalars.GraphQLID, true)
-        }
-
-        assertFailsWith(InvalidIdTypeException::class) {
-            verify(Ids::longID.returnType, Scalars.GraphQLID, true)
-        }
-
-        assertFailsWith(InvalidIdTypeException::class) {
-            verify(Ids::uuid.returnType, Scalars.GraphQLID, true)
-        }
-
-        assertFailsWith(InvalidIdTypeException::class) {
-            verify(Ids::invalidID.returnType, Scalars.GraphQLID, true)
-        }
-
-        assertFailsWith(InvalidIdTypeException::class) {
-            verify(Ids::invalidID.returnType, Scalars.GraphQLID, true)
-        }
-    }
-
-    private fun verify(kType: KType, expected: GraphQLScalarType?, annotatedAsID: Boolean = false) {
-        val actual = generateScalar(generator, kType, annotatedAsID)
+    private fun verify(kType: KType, expected: GraphQLScalarType?) {
+        val actual = generateScalar(generator, kType)
         assertEquals(expected = expected, actual = actual)
     }
 }

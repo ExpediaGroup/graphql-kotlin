@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import kotlin.reflect.KAnnotatedElement
@@ -30,8 +29,6 @@ internal fun KAnnotatedElement.getGraphQLName(): String? = this.findAnnotation<G
 internal fun KAnnotatedElement.getDeprecationReason(): String? = this.findAnnotation<Deprecated>()?.getReason()
 
 internal fun KAnnotatedElement.isGraphQLIgnored(): Boolean = this.findAnnotation<GraphQLIgnore>() != null
-
-internal fun KAnnotatedElement.isGraphQLID(): Boolean = this.findAnnotation<GraphQLID>() != null
 
 internal fun Deprecated.getReason(): String? {
     val builder = StringBuilder()

@@ -19,12 +19,12 @@ package com.expediagroup.graphql.extensions
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.types.ID
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLSchema
 import org.junit.jupiter.api.Test
@@ -123,12 +123,11 @@ class GraphQLSchemaExtensionsTest {
     }
 
     class QueryWithId {
-        fun queryById(@GraphQLID id: String) = TypeWithId(id, "junit")
+        fun queryById(id: ID) = TypeWithId(id, "junit")
     }
 
     class TypeWithId(
-        @GraphQLID
-        val id: String,
+        val id: ID,
         val name: String
     )
 

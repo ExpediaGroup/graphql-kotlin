@@ -19,15 +19,14 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.ConflictingTypesException
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
-import com.expediagroup.graphql.exceptions.InvalidIdTypeException
 import com.expediagroup.graphql.extensions.deepName
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.types.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
 import graphql.Scalars
@@ -320,13 +319,6 @@ class ToSchemaTest {
     }
 
     @Test
-    fun `SchemaGenerator throws an exception for invalid GraphQLID`() {
-        assertFailsWith(InvalidIdTypeException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithInvalidId())), config = testSchemaConfig)
-        }
-    }
-
-    @Test
     fun `SchemaGenerator supports Scalar GraphQLID for input types`() {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), mutations = listOf(TopLevelObject(MutationWithId())), config = testSchemaConfig)
 
@@ -498,16 +490,10 @@ class ToSchemaTest {
 
     data class Person(val name: String, val children: List<Person>? = null)
 
-    data class PlaceOfIds(@GraphQLID val id: String)
-
-    data class InvalidIds(@GraphQLID val person: Person)
+    data class PlaceOfIds(val id: ID)
 
     class QueryWithId {
-        fun query(): PlaceOfIds = PlaceOfIds(UUID.randomUUID().toString())
-    }
-
-    class QueryWithInvalidId {
-        fun query(): InvalidIds = InvalidIds(Person("person id not a valid type id"))
+        fun query(): PlaceOfIds = PlaceOfIds(ID(UUID.randomUUID().toString()))
     }
 
     data class SomeObjectWithDefaultName(val title: String)
@@ -555,7 +541,7 @@ class ToSchemaTest {
     }
 
     data class Furniture(
-        @GraphQLID val serial: String,
+        val serial: ID,
         val type: String
     )
 

@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import org.junit.jupiter.api.Test
@@ -25,7 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-internal class KPropertyExtensionsKtTest {
+class KPropertyExtensionsKtTest {
 
     /**
      * Annotations can be on the property or on the contructor argument
@@ -33,27 +32,18 @@ internal class KPropertyExtensionsKtTest {
     internal data class MyDataClass(
         @property:Deprecated("property deprecated")
         @property:GraphQLDescription("property description")
-        @property:GraphQLID
         @property:GraphQLIgnore
         @property:GraphQLName("nameOnProperty")
         val propertyAnnotation: String,
 
         @Deprecated("constructor deprecated")
         @GraphQLDescription("constructor description")
-        @GraphQLID
         @GraphQLIgnore
         @GraphQLName("nameOnConstructor")
         val constructorAnnotation: String,
 
         val noAnnotations: String
     )
-
-    @Test
-    fun isPropertyGraphQLID() {
-        assertTrue(MyDataClass::propertyAnnotation.isPropertyGraphQLID(MyDataClass::class))
-        assertTrue(MyDataClass::constructorAnnotation.isPropertyGraphQLID(MyDataClass::class))
-        assertFalse(MyDataClass::noAnnotations.isPropertyGraphQLID(MyDataClass::class))
-    }
 
     @Test
     fun isPropertyGraphQLIgnored() {

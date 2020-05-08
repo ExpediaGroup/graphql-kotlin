@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
@@ -45,8 +44,6 @@ class GenerateArgumentTest : TypeTestHelper() {
         fun directive(@SimpleDirective input: String) = input
 
         fun changeName(@GraphQLName("newName") input: String) = input
-
-        fun id(@GraphQLID idArg: String) = "Your id is $idArg"
 
         fun idClass(idArg: ID) = "Your id is ${idArg.value}"
 
@@ -88,16 +85,6 @@ class GenerateArgumentTest : TypeTestHelper() {
 
         assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals("newName", result.name)
-    }
-
-    @Test
-    fun `ID argument type is valid`() {
-        val kParameter = ArgumentTestClass::id.findParameterByName("idArg")
-        assertNotNull(kParameter)
-        val result = generateArgument(generator, kParameter)
-
-        assertEquals(expected = "idArg", actual = result.name)
-        assertEquals(Scalars.GraphQLID, (result.type as? GraphQLNonNull)?.wrappedType)
     }
 
     @Test

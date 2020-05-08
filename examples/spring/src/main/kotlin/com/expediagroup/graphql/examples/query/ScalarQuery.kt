@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.types.ID
@@ -38,11 +37,8 @@ class ScalarQuery : Query {
 
     fun findPersonById(id: ID) = Person(id, "Nelson")
 
-    fun findPersonByIdString(@GraphQLID id: String) = Person(ID(id), "Ann")
-
     @GraphQLDescription("generates random GraphQL ID")
-    @GraphQLID
-    fun generateRandomId() = UUID.randomUUID().toString()
+    fun generateRandomId() = ID(UUID.randomUUID().toString())
 }
 
 @Component
