@@ -149,4 +149,40 @@ class TypesCacheTest {
         assertFalse(cache.doesNotContainGraphQLType(graphQLType))
         assertTrue(cache.doesNotContainGraphQLType(secondGraphQLType))
     }
+
+    @Test
+    fun `buildIfNotUnderConstruction returns the cache type if already set`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql"))
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, false)
+        val cacheValue = KGraphQLType(MyType::class, graphQLType)
+
+        assertNull(cache.get(cacheKey))
+        cache.put(cacheKey, cacheValue)
+
+        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false) {
+            assertTrue(false, "Should never reach here")
+            cacheValue.graphQLType
+        }
+        assertNotNull(cacheHit)
+        assertEquals(expected = cacheValue.graphQLType, actual = cacheHit)
+    }
+
+    @Test
+    fun `buildIfNotUnderConstruction only runs once`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql"))
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, false)
+        val cacheValue = KGraphQLType(MyType::class, graphQLType)
+        assertNull(cache.get(cacheKey))
+
+        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false) {
+            cache.buildIfNotUnderConstruction(MyType::class, false) {
+                assertTrue(false, "Should never reach here")
+                cacheValue.graphQLType
+            }
+            cacheValue.graphQLType
+        }
+
+        assertNotNull(cacheHit)
+        assertEquals(expected = cacheValue.graphQLType, actual = cacheHit)
+    }
 }
