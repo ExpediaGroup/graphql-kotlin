@@ -36,7 +36,7 @@ data class Person(
     val name: String
 )
 
-fun locatePersonWithId(id: ID) = Person(id, "John Smith")
+fun findPersonById(id: ID) = Person(id, "John Smith")
 
 fun generateRandomId(): ID = ID(UUID.randomUUID().toString())
 ```
@@ -50,7 +50,7 @@ schema {
 
 
 type Query {
-    locatePersonWithId(id: ID!): Person!
+    findPersonById(id: ID!): Person!
     generateRandomId: ID!
 }
 
