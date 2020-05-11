@@ -18,12 +18,12 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.execution.FunctionDataFetcher
 import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.types.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
 import graphql.Scalars.GraphQLInt
@@ -47,7 +47,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class GenerateFunctionTest : TypeTestHelper() {
+class GenerateFunctionTest : TypeTestHelper() {
 
     internal interface MyInterface {
         fun printMessage(message: String): String
@@ -107,8 +107,7 @@ internal class GenerateFunctionTest : TypeTestHelper() {
             return CompletableFuture.completedFuture(dataFetcherResult)
         }
 
-        @GraphQLID
-        fun randomId(): String = UUID.randomUUID().toString()
+        fun randomId(): ID = ID(UUID.randomUUID().toString())
     }
 
     @Test

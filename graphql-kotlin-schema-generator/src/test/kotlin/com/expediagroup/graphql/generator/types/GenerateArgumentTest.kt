@@ -17,10 +17,10 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
+import com.expediagroup.graphql.types.ID
 import graphql.Scalars
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLList
@@ -32,7 +32,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
-internal class GenerateArgumentTest : TypeTestHelper() {
+class GenerateArgumentTest : TypeTestHelper() {
 
     internal interface MyInterface {
         val id: String
@@ -45,7 +45,7 @@ internal class GenerateArgumentTest : TypeTestHelper() {
 
         fun changeName(@GraphQLName("newName") input: String) = input
 
-        fun id(@GraphQLID idArg: String) = "Your id is $idArg"
+        fun idClass(idArg: ID) = "Your id is ${idArg.value}"
 
         fun interfaceArg(input: MyInterface) = input.id
 
@@ -88,8 +88,8 @@ internal class GenerateArgumentTest : TypeTestHelper() {
     }
 
     @Test
-    fun `ID argument type is valid`() {
-        val kParameter = ArgumentTestClass::id.findParameterByName("idArg")
+    fun `Wrapper ID class argument type is valid`() {
+        val kParameter = ArgumentTestClass::idClass.findParameterByName("idArg")
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 

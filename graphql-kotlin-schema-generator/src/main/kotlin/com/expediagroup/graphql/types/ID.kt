@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.exceptions
+package com.expediagroup.graphql.types
 
-import kotlin.reflect.KClass
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonValue
 
 /**
- * Throws when the KClass is not one of the supported types for a GraphQLID
+ * Used to represent a GraphQL ID scalar type
+ * which must serialize/deserialize to a string value
  */
-class InvalidIdTypeException(kClass: KClass<*>) :
-    GraphQLKotlinException("${kClass.simpleName} is not a valid ID type, only Strings are accepted")
+data class ID(@get:JsonIgnore val value: String) {
+    @JsonValue
+    override fun toString() = value
+}

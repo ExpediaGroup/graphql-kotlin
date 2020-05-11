@@ -24,12 +24,6 @@ import kotlin.reflect.KProperty
  * For properties we need to check both the property for annotations and the constructor argument
  */
 
-internal fun KProperty<*>.isPropertyGraphQLID(parentClass: KClass<*>): Boolean = when {
-    this.isGraphQLID() -> true
-    getConstructorParameter(parentClass)?.isGraphQLID().isTrue() -> true
-    else -> false
-}
-
 internal fun KProperty<*>.isPropertyGraphQLIgnored(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLIgnored() -> true
     getConstructorParameter(parentClass)?.isGraphQLIgnored().isTrue() -> true

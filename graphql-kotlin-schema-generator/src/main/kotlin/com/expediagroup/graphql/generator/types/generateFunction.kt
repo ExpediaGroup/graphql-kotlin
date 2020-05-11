@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getFunctionName
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getValidArguments
-import com.expediagroup.graphql.generator.extensions.isGraphQLID
 import com.expediagroup.graphql.generator.extensions.safeCast
 import com.expediagroup.graphql.generator.types.utils.getWrappedReturnType
 import graphql.schema.FieldCoordinates
@@ -51,7 +50,7 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
 
     val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
     val returnType = getWrappedReturnType(typeFromHooks)
-    val graphQLOutputType = generateGraphQLType(generator, returnType, annotatedAsID = fn.isGraphQLID()).safeCast<GraphQLOutputType>()
+    val graphQLOutputType = generateGraphQLType(generator = generator, type = returnType).safeCast<GraphQLOutputType>()
     val graphQLType = builder.type(graphQLOutputType).build()
     val coordinates = FieldCoordinates.coordinates(parentName, functionName)
 

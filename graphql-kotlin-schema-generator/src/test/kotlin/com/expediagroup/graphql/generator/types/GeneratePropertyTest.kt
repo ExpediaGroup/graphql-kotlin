@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
@@ -27,6 +26,7 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
+import com.expediagroup.graphql.types.ID
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.DataFetcher
@@ -46,7 +46,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class GeneratePropertyTest : TypeTestHelper() {
+class GeneratePropertyTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class PropertyDirective(val arg: String)
@@ -69,8 +69,7 @@ internal class GeneratePropertyTest : TypeTestHelper() {
         @GraphQLDescription("A great description")
         val fooBar: String,
 
-        @GraphQLID
-        val myId: String,
+        val myId: ID,
 
         @SimpleDirective
         val directiveWithNoPrefix: String,

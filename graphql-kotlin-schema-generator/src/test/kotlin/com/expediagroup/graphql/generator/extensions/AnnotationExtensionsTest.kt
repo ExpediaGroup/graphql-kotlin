@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLID
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.annotations.GraphQLName
 import org.junit.jupiter.api.Test
@@ -29,7 +28,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
-internal class AnnotationExtensionsTest {
+class AnnotationExtensionsTest {
 
     @GraphQLName("WithAnnotationsCustomName")
     @GraphQLDescription("class description")
@@ -38,7 +37,6 @@ internal class AnnotationExtensionsTest {
     private data class WithAnnotations(
         @property:Deprecated("property deprecated")
         @property:GraphQLDescription("property description")
-        @property:GraphQLID
         @property:GraphQLName("newName")
         val id: String
     )
@@ -79,14 +77,6 @@ internal class AnnotationExtensionsTest {
     fun `verify @GraphQLIgnore`() {
         assertTrue(WithAnnotations::class.isGraphQLIgnored())
         assertFalse(NoAnnotations::class.isGraphQLIgnored())
-    }
-
-    @Test
-    fun `verify @GraphQLID`() {
-        val id = WithAnnotations::class.findMemberProperty("id")
-        val notId = NoAnnotations::class.findMemberProperty("id")
-        assertTrue { id?.isGraphQLID().isTrue() }
-        assertFalse { notId?.isGraphQLID().isTrue() }
     }
 
     private fun KClass<*>.findMemberProperty(name: String) = this.declaredMemberProperties.find { it.name == name }

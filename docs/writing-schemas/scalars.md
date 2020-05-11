@@ -24,40 +24,39 @@ extended scalar types provided by `graphql-java`.
 
 ## ID
 
-GraphQL supports a the scalar type ID, a unique identifier that is not intended to be human readable. ID's are
-serialized as a String. To mark given field as an ID field you have to annotate it with `@GraphQLID` annotation.
+GraphQL supports the scalar type `ID`, a unique identifier that is not intended to be human readable. IDs are
+serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.types.ID` class, which wraps the underlying `String` value.
+
 
 > NOTE: `graphql-java` supports additional types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues](https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings. You can still use a type like UUID internally just as long as you convert or parse the value yourself and handle the errors.
 
 ```kotlin
 data class Person(
-  @GraphQLID
-  val id: String,
-  val name: String
+    val id: ID,
+    val name: String
 )
 
-fun locatePerson(@GraphQLID id: String) = Person(id, "Jane Doe")
+fun findPersonById(id: ID) = Person(id, "John Smith")
 
-@GraphQLID
-fun generateRandomId() = UUID.randomUUID().toString()
+fun generateRandomId(): ID = ID(UUID.randomUUID().toString())
 ```
 
 This would produce the following schema:
 
 ```graphql
 schema {
-  query: Query
+    query: Query
 }
 
 
 type Query {
-  locatePerson(id: ID!): Person!
-  generateRandomId: ID!
+    findPersonById(id: ID!): Person!
+    generateRandomId: ID!
 }
 
 type Person {
-  id: ID!
-  name: String!
+    id: ID!
+    name: String!
 }
 ```
 

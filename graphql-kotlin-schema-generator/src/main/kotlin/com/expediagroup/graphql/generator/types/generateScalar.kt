@@ -16,36 +16,23 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.exceptions.InvalidIdTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.types.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubclassOf
 
-internal fun generateScalar(generator: SchemaGenerator, type: KType, annotatedAsID: Boolean): GraphQLScalarType? {
-    val kClass = type.getKClass()
-    val scalar = when {
-        annotatedAsID -> getId(kClass)
-        else -> defaultScalarsMap[kClass]
-    }
+internal fun generateScalar(generator: SchemaGenerator, type: KType): GraphQLScalarType? {
+    val kClass: KClass<*> = type.getKClass()
+    val scalar: GraphQLScalarType? = defaultScalarsMap[kClass]
 
     return scalar?.let {
         generator.config.hooks.onRewireGraphQLType(it).safeCast()
-    }
-}
-
-@Throws(InvalidIdTypeException::class)
-private fun getId(kClass: KClass<*>): GraphQLScalarType? {
-    return if (kClass.isSubclassOf(String::class)) {
-        Scalars.GraphQLID
-    } else {
-        throw InvalidIdTypeException(kClass)
     }
 }
 
@@ -59,5 +46,6 @@ private val defaultScalarsMap = mapOf(
     BigInteger::class to Scalars.GraphQLBigInteger,
     Char::class to Scalars.GraphQLChar,
     String::class to Scalars.GraphQLString,
-    Boolean::class to Scalars.GraphQLBoolean
+    Boolean::class to Scalars.GraphQLBoolean,
+    ID::class to Scalars.GraphQLID
 )
