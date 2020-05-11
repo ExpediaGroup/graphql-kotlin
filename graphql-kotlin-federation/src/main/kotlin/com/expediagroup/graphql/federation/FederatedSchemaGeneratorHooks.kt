@@ -72,12 +72,16 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
-
         val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
-        val federatedSchema = GraphQLSchema.newSchema(originalSchema)
+        val federatedSchemaBuilder = GraphQLSchema.newSchema(originalSchema)
         val federatedQuery = GraphQLObjectType.newObject(originalQuery)
             .field(SERVICE_FIELD_DEFINITION)
             .withDirective(extendsDirectiveType)
+
+        // Add the @extends directive definition if it is not defined as we are using it on the Query object
+        if (originalSchema.getDirective(EXTENDS_DIRECTIVE_NAME) == null) {
+            federatedSchemaBuilder.additionalDirective(extendsDirectiveType)
+        }
 
         /**
          * SDL returned by _service query should NOT contain
@@ -108,10 +112,10 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
 
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(federatedTypeRegistry))
             federatedCodeRegistry.typeResolver("_Entity") { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
-            federatedSchema.additionalType(ANY_SCALAR_TYPE)
+            federatedSchemaBuilder.additionalType(ANY_SCALAR_TYPE)
         }
 
-        return federatedSchema.query(federatedQuery.build())
+        return federatedSchemaBuilder.query(federatedQuery.build())
             .codeRegistry(federatedCodeRegistry.build())
     }
 
