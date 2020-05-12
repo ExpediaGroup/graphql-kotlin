@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - '*.x.x'
     paths-ignore:
       - 'docs/**'
       - 'website/**'
