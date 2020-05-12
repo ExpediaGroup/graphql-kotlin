@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.federation.validation
 
+import com.expediagroup.graphql.federation.directives.FIELD_SET_ARGUMENT_NAME
 import com.expediagroup.graphql.federation.directives.FieldSet
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -33,7 +34,7 @@ internal fun validateDirective(
     if (directive == null) {
         validationErrors.add("@$targetDirective directive is missing on federated $validatedType type")
     } else {
-        val fieldSetValue = (directive.getArgument("fields")?.value as? FieldSet)?.value
+        val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.value as? FieldSet)?.value
         val fieldSet = fieldSetValue?.split(" ")?.filter { it.isNotEmpty() }.orEmpty()
         if (fieldSet.isEmpty()) {
             validationErrors.add("@$targetDirective directive on $validatedType is missing field information")

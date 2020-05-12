@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-internal class ServiceTest {
+class ServiceTest {
 
     @Test
     fun `service object should have the correct naming`() {

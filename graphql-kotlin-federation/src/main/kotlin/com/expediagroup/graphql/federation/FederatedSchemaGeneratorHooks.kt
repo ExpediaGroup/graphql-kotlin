@@ -19,15 +19,16 @@ package com.expediagroup.graphql.federation
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.directives.DEPRECATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_TYPE
+import com.expediagroup.graphql.federation.directives.EXTERNAL_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.extendsDirectiveType
+import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_TYPE
+import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_TYPE
+import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.execution.EntityResolver
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.federation.extensions.addDirectivesIfNotPresent
 import com.expediagroup.graphql.federation.types.ANY_SCALAR_TYPE
 import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.federation.types.SERVICE_FIELD_DEFINITION
@@ -56,7 +57,8 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
     private val emptyQueryRegex = "^type Query \\{$\\s+^\\}$\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
-    private val directivesToInclude = listOf(EXTENDS_DIRECTIVE_NAME, EXTERNAL_DIRECTIVE_NAME, KEY_DIRECTIVE_NAME, PROVIDES_DIRECTIVE_NAME, REQUIRES_DIRECTIVE_NAME, DEPRECATED_DIRECTIVE_NAME)
+    private val federatedDirectiveTypes: List<GraphQLDirective> = listOf(EXTERNAL_DIRECTIVE_TYPE, REQUIRES_DIRECTIVE_TYPE, PROVIDES_DIRECTIVE_TYPE, KEY_DIRECTIVE_TYPE, EXTENDS_DIRECTIVE_TYPE)
+    private val directivesToInclude: List<String> = federatedDirectiveTypes.map { it.name }.plus(DEPRECATED_DIRECTIVE_NAME)
     private val customDirectivePredicate: Predicate<GraphQLDirective> = Predicate { directivesToInclude.contains(it.name) }
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
@@ -72,20 +74,25 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
-
         val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
-        val federatedSchema = GraphQLSchema.newSchema(originalSchema)
+
+        // Add all the federation directives if they are not present
+        val federatedSchemaBuilder = originalSchema.addDirectivesIfNotPresent(federatedDirectiveTypes)
+
+        // Modify the query type to have the service field and extends directive
         val federatedQuery = GraphQLObjectType.newObject(originalQuery)
             .field(SERVICE_FIELD_DEFINITION)
-            .withDirective(extendsDirectiveType)
+            .withDirective(EXTENDS_DIRECTIVE_TYPE)
 
         /**
-         * SDL returned by _service query should NOT contain
-         * - default schema definition
-         * - empty Query type
-         * - any directive definitions
-         * - any custom directives
-         * - new federated scalars
+         * Register the data fetcher for the SDL returned by _service field.
+         *
+         * It should NOT contain:
+         *   - default schema definition
+         *   - empty Query type
+         *   - any directive definitions
+         *   - any custom directives
+         *   - new federated scalars
          */
         val sdl = originalSchema.print(includeDefaultSchemaDefinition = false, includeDirectivesFilter = customDirectivePredicate)
             .replace(directiveDefinitionRegex, "")
@@ -101,17 +108,17 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             .map { it.name }
             .toSet()
 
-        // register new federated queries
+        // Add the _entities field to the query
         if (entityTypeNames.isNotEmpty()) {
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(federatedTypeRegistry))
             federatedCodeRegistry.typeResolver("_Entity") { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
-            federatedSchema.additionalType(ANY_SCALAR_TYPE)
+            federatedSchemaBuilder.additionalType(ANY_SCALAR_TYPE)
         }
 
-        return federatedSchema.query(federatedQuery.build())
+        return federatedSchemaBuilder.query(federatedQuery.build())
             .codeRegistry(federatedCodeRegistry.build())
     }
 

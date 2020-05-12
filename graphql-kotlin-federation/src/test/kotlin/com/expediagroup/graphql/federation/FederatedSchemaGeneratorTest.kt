@@ -141,7 +141,40 @@ class FederatedSchemaGeneratorTest {
               query: Query
             }
 
-            type Query {
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Marks the field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String! = "No longer supported"
+              ) on FIELD_DEFINITION | ENUM_VALUE
+
+            "Marks target field as external meaning it will be resolved by federated schema"
+            directive @external on FIELD_DEFINITION
+
+            "Specifies required input field set from the base type for a resolver"
+            directive @requires(fields: _FieldSet) on FIELD_DEFINITION
+
+            "Specifies the base type field set that will be selectable by the gateway"
+            directive @provides(fields: _FieldSet) on FIELD_DEFINITION
+
+            "Space separated list of primary keys needed to access federated object"
+            directive @key(fields: _FieldSet) on OBJECT | INTERFACE
+
+            "Marks target object as extending part of the federated schema"
+            directive @extends on OBJECT | INTERFACE
+
+            type Query @extends {
               _service: _Service
               hello(name: String!): String!
             }
@@ -149,6 +182,9 @@ class FederatedSchemaGeneratorTest {
             type _Service {
               sdl: String!
             }
+
+            "Federation type representing set of fields"
+            scalar _FieldSet
         """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
@@ -157,7 +193,7 @@ class FederatedSchemaGeneratorTest {
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(SimpleQuery())))
-        assertEquals(expectedSchema, schema.print(includeDirectives = false).trim())
+        assertEquals(expectedSchema, schema.print().trim())
     }
 
     @Test
@@ -181,6 +217,9 @@ class FederatedSchemaGeneratorTest {
             type _Service {
               sdl: String!
             }
+
+            "Federation type representing set of fields"
+            scalar _FieldSet
         """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(

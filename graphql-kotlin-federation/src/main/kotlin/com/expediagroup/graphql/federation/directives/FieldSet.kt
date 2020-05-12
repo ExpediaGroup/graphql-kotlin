@@ -16,6 +16,9 @@
 
 package com.expediagroup.graphql.federation.directives
 
+import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
+import graphql.schema.GraphQLArgument
+
 /**
  * Annotation representing _FieldSet scalar type that is used to represent a set of fields.
  *
@@ -29,3 +32,10 @@ package com.expediagroup.graphql.federation.directives
  * @see com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
  */
 annotation class FieldSet(val value: String)
+
+internal const val FIELD_SET_ARGUMENT_NAME = "fields"
+
+internal val FIELD_SET_ARGUMENT = GraphQLArgument.newArgument()
+    .name(FIELD_SET_ARGUMENT_NAME)
+    .type(FIELD_SET_SCALAR_TYPE)
+    .build()

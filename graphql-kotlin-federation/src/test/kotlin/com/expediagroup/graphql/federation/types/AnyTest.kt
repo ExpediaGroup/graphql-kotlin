@@ -35,7 +35,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
-internal class AnyTest {
+class AnyTest {
 
     @Test
     fun `_Any scalar should allow all types`() {

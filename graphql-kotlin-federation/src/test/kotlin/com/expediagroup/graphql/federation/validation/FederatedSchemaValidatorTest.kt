@@ -19,7 +19,7 @@ package com.expediagroup.graphql.federation.validation
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.extendsDirectiveType
+import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.externalDirective
 import com.expediagroup.graphql.federation.getKeyDirective
@@ -73,7 +73,7 @@ class FederatedSchemaValidatorTest {
     fun `validate federated GraphQLObjectType with no fields`() {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
-            .withDirective(extendsDirectiveType)
+            .withDirective(EXTENDS_DIRECTIVE_TYPE)
             .build()
 
         assertFailsWith<InvalidFederatedSchema> {
@@ -95,7 +95,7 @@ class FederatedSchemaValidatorTest {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
             .field(field)
-            .withDirective(extendsDirectiveType)
+            .withDirective(EXTENDS_DIRECTIVE_TYPE)
             .build()
 
         assertFailsWith<InvalidFederatedSchema> {
@@ -160,7 +160,7 @@ class FederatedSchemaValidatorTest {
             .field(field)
             .field(id)
             .withDirective(keyDirective)
-            .withDirective(extendsDirectiveType)
+            .withDirective(EXTENDS_DIRECTIVE_TYPE)
             .build()
 
         val result = kotlin.runCatching {
@@ -200,7 +200,7 @@ class FederatedSchemaValidatorTest {
             .field(field)
             .field(id)
             .withDirective(keyDirective)
-            .withDirective(extendsDirectiveType)
+            .withDirective(EXTENDS_DIRECTIVE_TYPE)
             .build()
 
         val result = kotlin.runCatching {

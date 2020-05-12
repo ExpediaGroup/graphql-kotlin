@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.federation.directives
 
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import graphql.introspection.Introspection
+import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
@@ -74,9 +74,17 @@ import graphql.introspection.Introspection
  */
 @GraphQLDirective(
     name = REQUIRES_DIRECTIVE_NAME,
-    description = "Specifies required input field set from the base type for a resolver",
-    locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
+    description = REQUIRES_DIRECTIVE_DESCRIPTION,
+    locations = [DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class RequiresDirective(val fields: FieldSet)
 
 internal const val REQUIRES_DIRECTIVE_NAME = "requires"
+private const val REQUIRES_DIRECTIVE_DESCRIPTION = "Specifies required input field set from the base type for a resolver"
+
+internal val REQUIRES_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(REQUIRES_DIRECTIVE_NAME)
+    .description(REQUIRES_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .argument(FIELD_SET_ARGUMENT)
+    .build()
