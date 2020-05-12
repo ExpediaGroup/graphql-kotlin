@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.federation.directives
 
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import graphql.introspection.Introspection
+import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
@@ -53,9 +53,16 @@ import graphql.introspection.Introspection
  */
 @GraphQLDirective(
     name = EXTERNAL_DIRECTIVE_NAME,
-    description = "Marks target field as external meaning it will be resolved by federated schema",
-    locations = [Introspection.DirectiveLocation.FIELD_DEFINITION]
+    description = EXTERNAL_DIRECTIVE_DESCRIPTION,
+    locations = [DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class ExternalDirective
 
 internal const val EXTERNAL_DIRECTIVE_NAME = "external"
+private const val EXTERNAL_DIRECTIVE_DESCRIPTION = "Marks target field as external meaning it will be resolved by federated schema"
+
+internal val EXTERNAL_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(EXTERNAL_DIRECTIVE_NAME)
+    .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .build()

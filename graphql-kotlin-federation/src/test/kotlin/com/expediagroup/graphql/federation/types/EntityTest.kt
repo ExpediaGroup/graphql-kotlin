@@ -24,7 +24,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 
-internal class EntityTest {
+class EntityTest {
 
     @Test
     fun `generateEntityFieldDefinition should fail on empty set`() {

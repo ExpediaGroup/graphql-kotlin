@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-internal class FieldSetTest {
+class FieldSetTest {
     private val coercing: Coercing<Any, Any> = FIELD_SET_SCALAR_TYPE.coercing
 
     @Test

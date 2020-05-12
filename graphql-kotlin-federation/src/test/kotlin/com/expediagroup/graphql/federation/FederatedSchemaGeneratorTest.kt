@@ -159,6 +159,18 @@ class FederatedSchemaGeneratorTest {
                 reason: String! = "No longer supported"
               ) on FIELD_DEFINITION | ENUM_VALUE
 
+            "Marks target field as external meaning it will be resolved by federated schema"
+            directive @external on FIELD_DEFINITION
+
+            "Specifies required input field set from the base type for a resolver"
+            directive @requires(fields: _FieldSet) on FIELD_DEFINITION
+
+            "Specifies the base type field set that will be selectable by the gateway"
+            directive @provides(fields: _FieldSet) on FIELD_DEFINITION
+
+            "Space separated list of primary keys needed to access federated object"
+            directive @key(fields: _FieldSet) on OBJECT | INTERFACE
+
             "Marks target object as extending part of the federated schema"
             directive @extends on OBJECT | INTERFACE
 
@@ -170,6 +182,9 @@ class FederatedSchemaGeneratorTest {
             type _Service {
               sdl: String!
             }
+
+            "Federation type representing set of fields"
+            scalar _FieldSet
         """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
@@ -202,6 +217,9 @@ class FederatedSchemaGeneratorTest {
             type _Service {
               sdl: String!
             }
+
+            "Federation type representing set of fields"
+            scalar _FieldSet
         """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(

@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.federation.directives
 
 import com.expediagroup.graphql.annotations.GraphQLDirective
-import graphql.introspection.Introspection
+import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
@@ -56,9 +56,17 @@ import graphql.introspection.Introspection
  */
 @GraphQLDirective(
     name = KEY_DIRECTIVE_NAME,
-    description = "Space separated list of primary keys needed to access federated object",
-    locations = [Introspection.DirectiveLocation.OBJECT, Introspection.DirectiveLocation.INTERFACE]
+    description = KEY_DIRECTIVE_DESCRIPTION,
+    locations = [DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE]
 )
 annotation class KeyDirective(val fields: FieldSet)
 
 internal const val KEY_DIRECTIVE_NAME = "key"
+private const val KEY_DIRECTIVE_DESCRIPTION = "Space separated list of primary keys needed to access federated object"
+
+internal val KEY_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(KEY_DIRECTIVE_NAME)
+    .description(KEY_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE)
+    .argument(FIELD_SET_ARGUMENT)
+    .build()

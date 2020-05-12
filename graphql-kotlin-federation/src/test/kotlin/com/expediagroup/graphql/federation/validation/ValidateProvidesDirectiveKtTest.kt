@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.federation.validation
 
-import com.expediagroup.graphql.federation.directives.extendsDirectiveType
+import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
@@ -102,7 +102,7 @@ class ValidateProvidesDirectiveKtTest {
         val objectType = GraphQLObjectType.newObject()
             .name("MyObject")
             .field(GraphQLFieldDefinition.newFieldDefinition().name("bar").type(GraphQLString))
-            .withDirective(extendsDirectiveType)
+            .withDirective(EXTENDS_DIRECTIVE_TYPE)
             .build()
 
         val federatedType = GraphQLFieldDefinition.newFieldDefinition()
