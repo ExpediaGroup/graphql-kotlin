@@ -45,7 +45,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             class InterfaceWithInlineFragmentsTestQuery(
               private val graphQLClient: GraphQLClient
             ) {
-              suspend fun interfaceWithInlineFragmentsTestQuery():
+              suspend fun execute():
                   GraphQLResult<InterfaceWithInlineFragmentsTestQuery.InterfaceWithInlineFragmentsTestQueryResult>
                   = graphQLClient.execute(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithInlineFragmentsTestQuery", null)
@@ -159,7 +159,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             class InterfaceWithNamedFragmentsTestQuery(
               private val graphQLClient: GraphQLClient
             ) {
-              suspend fun interfaceWithNamedFragmentsTestQuery():
+              suspend fun execute():
                   GraphQLResult<InterfaceWithNamedFragmentsTestQuery.InterfaceWithNamedFragmentsTestQueryResult>
                   = graphQLClient.execute(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithNamedFragmentsTestQuery", null)

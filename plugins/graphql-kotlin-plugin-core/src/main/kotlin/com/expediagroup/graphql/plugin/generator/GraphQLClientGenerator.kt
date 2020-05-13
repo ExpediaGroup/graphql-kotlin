@@ -75,7 +75,7 @@ class GraphQLClientGenerator(
             val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResultTypeSpec.name}")
 
             val operationTypeSpec = TypeSpec.classBuilder(operationTypeName)
-            val funSpec = FunSpec.builder(operationName.decapitalize())
+            val funSpec = FunSpec.builder("execute")
                 .returns(ClassName(LIBRARY_PACKAGE, "GraphQLResult").parameterizedBy(kotlinResultTypeName))
                 .addModifiers(KModifier.SUSPEND)
             val variableCode = if (variableType != null) {
