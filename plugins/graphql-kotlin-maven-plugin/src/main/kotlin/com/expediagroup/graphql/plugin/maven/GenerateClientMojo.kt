@@ -74,7 +74,7 @@ class GenerateClientMojo : AbstractMojo() {
      * ```
      */
     @Parameter(name = "converters")
-    private var scalarConverters: Map<String, ScalarConverter> = emptyMap()
+    private var converters: Map<String, ScalarConverter> = emptyMap()
 
     /**
      * Directory file containing GraphQL queries, defaults to `src/main/resources`. Instead of specifying a directory you can
@@ -121,7 +121,7 @@ class GenerateClientMojo : AbstractMojo() {
         val config = GraphQLClientGeneratorConfig(
             packageName = packageName,
             allowDeprecated = allowDeprecatedFields,
-            scalarTypeToConverterMapping = scalarConverters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap()
+            scalarTypeToConverterMapping = converters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap()
         )
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)

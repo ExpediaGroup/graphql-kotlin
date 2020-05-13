@@ -31,6 +31,7 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
+import java.io.Closeable
 import java.net.URL
 
 /**
@@ -42,7 +43,7 @@ class GraphQLClient(
     private val mapper: ObjectMapper = jacksonObjectMapper(),
     engine: HttpClientEngineFactory<*> = CIO,
     vararg features: HttpClientFeature<*, *>
-) {
+) : Closeable {
     private val typeCache = mutableMapOf<Class<*>, JavaType>()
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -95,5 +96,9 @@ class GraphQLClient(
         return typeCache.computeIfAbsent(resultType) {
             mapper.typeFactory.constructParametricType(GraphQLResult::class.java, resultType)
         }
+    }
+
+    override fun close() {
+        client.close()
     }
 }
