@@ -207,8 +207,4 @@ tasks {
         numberOfRetries = 60
         delayBetweenRetriesInMillis = 5000
     }
-
-    publish {
-        dependsOn(":initializeSonatypeStagingRepository")
-    }
 }
