@@ -74,7 +74,7 @@ class GenerateClientMojo : AbstractMojo() {
      * ```
      */
     @Parameter(name = "converters")
-    private var converters: Map<String, ScalarConverter> = emptyMap()
+    private var converters: Map<String, ScalarConverter> = mutableMapOf()
 
     /**
      * Directory file containing GraphQL queries, defaults to `src/main/resources`. Instead of specifying a directory you can
@@ -107,9 +107,7 @@ class GenerateClientMojo : AbstractMojo() {
 
         val targetQueryFiles: List<File> = when {
             ::queryFiles.isInitialized -> queryFiles
-            else -> queryFileDirectory
-                .listFiles { file -> file.extension == "graphql" }
-                ?.toList() ?: throw RuntimeException("exception while looking up the query files")
+            else -> queryFileDirectory.listFiles { file -> file.extension == "graphql" }?.toList() ?: throw RuntimeException("exception while looking up the query files")
         }
         if (targetQueryFiles.isEmpty()) {
             throw RuntimeException("no query files specified")
@@ -118,6 +116,8 @@ class GenerateClientMojo : AbstractMojo() {
         if (!outputDirectory.isDirectory && !outputDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
+
+        logConfiguration(targetQueryFiles)
         val config = GraphQLClientGeneratorConfig(
             packageName = packageName,
             allowDeprecated = allowDeprecatedFields,
@@ -130,6 +130,25 @@ class GenerateClientMojo : AbstractMojo() {
         project.addCompileSourceRoot(outputDirectory.path)
         log.debug("successfully generated GraphQL HTTP client")
     }
+
+    private fun logConfiguration(queryFiles: List<File>) {
+        log.debug("GraphQL Client generator configuration:")
+        log.debug("  schema file = ${schemaFile.path}")
+        log.debug("  queries")
+        queryFiles.forEach {
+            log.debug("    - ${it.name}")
+        }
+        log.debug("  packageName = $packageName")
+        log.debug("  allowDeprecatedFields = $allowDeprecatedFields")
+        log.debug("  converters")
+        converters.entries.forEach { (customScalar, converterInfo) ->
+            log.debug("    - custom scalar = $customScalar")
+            log.debug("      |- type = ${converterInfo.type}")
+            log.debug("      |- converter = ${converterInfo.converter}")
+        }
+        log.debug("")
+        log.debug("-- end GraphQL Client generator configuration --")
+    }
 }
 
 /**
@@ -140,9 +159,12 @@ class GenerateClientMojo : AbstractMojo() {
  *
  * @see [Guide to Configuring Plug-ins](https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Mapping_Complex_Objects)
  */
-data class ScalarConverter(
+class ScalarConverter {
     /** Fully qualified class name of a custom scalar type, e.g. java.util.UUID */
-    val type: String,
+    @Parameter
+    lateinit var type: String
+
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
-    val converter: String
-)
+    @Parameter
+    lateinit var converter: String
+}

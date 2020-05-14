@@ -136,6 +136,7 @@ class GraphQLGradlePluginIT {
         val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.71"
         val buildFileContents = """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+            import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
@@ -160,6 +161,7 @@ class GraphQLGradlePluginIT {
             val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
               packageName.set("com.expediagroup.graphql.generated")
               schemaFile.set(graphqlIntrospectSchema.outputFile)
+              converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
               dependsOn("graphqlIntrospectSchema")
             }
 
@@ -189,9 +191,11 @@ class GraphQLGradlePluginIT {
                 package com.example
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.converter.ScalarConverter
                 import com.expediagroup.graphql.generated.JUnitQuery
                 import kotlinx.coroutines.runBlocking
                 import java.net.URL
+                import java.util.UUID
 
                 fun main() {
                     val client = GraphQLClient(URL("${wireMockServer.baseUrl()}/graphql"))
@@ -199,15 +203,27 @@ class GraphQLGradlePluginIT {
 
                     val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
                     runBlocking {
-                        val result = query.execute(variables)
-                        val data = result.data
+                        val response = query.execute(variables = variables)
+                        val data = response.data
                         assert(data != null)
+                        val scalarResult = data?.scalarQuery
+                        assert(scalarResult is JUnitQuery.ScalarWrapper)
+                        assert(scalarResult != null)
+                        assert(scalarResult?.count is Int)
+                        assert(scalarResult?.custom is JUnitQuery.UUID)
                         assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
-                        assert(data?.interfaceQuery is JUnitQuery.SecondInterfaceImplementation)
-                        assert(data?.unionQuery is JUnitQuery.BasicObject)
-                        assert(result.errors == null)
-                        assert(result.extensions == null)
+                        val interfaceResult = data?.interfaceQuery
+                        assert(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
+                        val unionResult = data?.unionQuery
+                        assert(unionResult is JUnitQuery.BasicObject)
+                        assert(response.errors == null)
+                        assert(response.extensions == null)
                     }
+                }
+
+                class UUIDScalarConverter : ScalarConverter<UUID> {
+                    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
+                    override fun toJson(value: UUID): String = value.toString()
                 }
             """.trimIndent())
 
