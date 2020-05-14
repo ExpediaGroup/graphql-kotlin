@@ -53,7 +53,7 @@ class GraphQLMavenPluginTest {
         val variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(newName = "whatever", min = null, max = null))
         assertDoesNotThrow {
             runBlocking {
-                val response = query.exampleQuery(variables = variables)
+                val response = query.execute(variables = variables)
                 assertTrue(response.errors == null)
                 val data = response.data
                 assertNotNull(data)

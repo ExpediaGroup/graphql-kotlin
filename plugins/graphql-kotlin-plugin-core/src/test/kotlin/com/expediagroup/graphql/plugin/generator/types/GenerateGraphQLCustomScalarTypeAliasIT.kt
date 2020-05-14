@@ -41,8 +41,8 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
             class ScalarAliasTestQuery(
               private val graphQLClient: GraphQLClient
             ) {
-              suspend fun scalarAliasTestQuery(): GraphQLResult<ScalarAliasTestQuery.ScalarAliasTestQueryResult>
-                  = graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY, "ScalarAliasTestQuery", null)
+              suspend fun execute(): GraphQLResult<ScalarAliasTestQuery.ScalarAliasTestQueryResult> =
+                  graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY, "ScalarAliasTestQuery", null)
 
               /**
                * Wrapper that holds all supported scalar types

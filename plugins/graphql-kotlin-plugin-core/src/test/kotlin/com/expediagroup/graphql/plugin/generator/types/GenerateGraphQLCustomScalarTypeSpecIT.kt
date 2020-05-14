@@ -42,8 +42,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             class CustomScalarTestQuery(
               private val graphQLClient: GraphQLClient
             ) {
-              suspend fun customScalarTestQuery():
-                  GraphQLResult<CustomScalarTestQuery.CustomScalarTestQueryResult> =
+              suspend fun execute(): GraphQLResult<CustomScalarTestQuery.CustomScalarTestQueryResult> =
                   graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
 
               /**

@@ -132,7 +132,7 @@ class GraphQLGradlePluginIT {
         // unsure if there is a better way - correct values are set from Gradle build
         // when running directly from IDE you will need to manually update those to correct values
 
-        val gqlKotlinVersion = System.getProperty("graphQLKotlinVersion") ?: "2.0.0-SNAPSHOT"
+        val gqlKotlinVersion = System.getProperty("graphQLKotlinVersion") ?: "3.0.0-SNAPSHOT"
         val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.71"
         val buildFileContents = """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -199,7 +199,7 @@ class GraphQLGradlePluginIT {
 
                     val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
                     runBlocking {
-                        val result = query.jUnitQuery(variables)
+                        val result = query.execute(variables)
                         val data = result.data
                         assert(data != null)
                         assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
