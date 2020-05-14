@@ -89,12 +89,12 @@ open class GraphQLGenerateClientTask : DefaultTask() {
      * serialize/deserialize values.
      *
      * ```kotlin
-     * scalarConverters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter"))
+     * converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter"))
      * ```
      */
     @Input
     @Optional
-    val scalarConverters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
+    val converters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
 
     /**
      * Directory containing GraphQL queries, defaults to `src/main/resources`.
@@ -123,12 +123,14 @@ open class GraphQLGenerateClientTask : DefaultTask() {
 
         queryFileDirectory.convention("${project.projectDir}/src/main/resources")
         allowDeprecatedFields.convention(false)
-        scalarConverters.convention(emptyMap())
+        converters.convention(emptyMap())
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     @TaskAction
     fun generateGraphQLClientAction() {
+        logger.debug("generating GraphQL client")
+
         val graphQLSchema = when {
             schemaFile.isPresent -> schemaFile.get().asFile
             schemaFileName.isPresent -> File(schemaFileName.get())
@@ -155,12 +157,34 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
+
+        logConfiguration(graphQLSchema, targetQueryFiles)
         val config = GraphQLClientGeneratorConfig(
             packageName = targetPackage,
             allowDeprecated = allowDeprecatedFields.get(),
-            scalarTypeToConverterMapping = scalarConverters.get())
+            scalarTypeToConverterMapping = converters.get())
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(targetDirectory)
         }
+        logger.debug("successfully generated GraphQL HTTP client")
+    }
+
+    private fun logConfiguration(schema: File, queryFiles: List<File>) {
+        logger.debug("GraphQL Client generator configuration:")
+        logger.debug("  schema file = ${schema.path}")
+        logger.debug("  queries")
+        queryFiles.forEach {
+            logger.debug("    - ${it.name}")
+        }
+        logger.debug("  packageName = $packageName")
+        logger.debug("  allowDeprecatedFields = $allowDeprecatedFields")
+        logger.debug("  converters")
+        converters.get().entries.forEach { (customScalar, converterInfo) ->
+            logger.debug("    - custom scalar = $customScalar")
+            logger.debug("      |- type = ${converterInfo.type}")
+            logger.debug("      |- converter = ${converterInfo.converter}")
+        }
+        logger.debug("")
+        logger.debug("-- end GraphQL Client generator configuration --")
     }
 }

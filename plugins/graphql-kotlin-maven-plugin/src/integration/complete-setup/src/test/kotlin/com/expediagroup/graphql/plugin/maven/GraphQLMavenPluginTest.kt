@@ -57,6 +57,11 @@ class GraphQLMavenPluginTest {
                 assertTrue(response.errors == null)
                 val data = response.data
                 assertNotNull(data)
+                val scalarResult = data?.scalarQuery
+                assertTrue(scalarResult is ExampleQuery.ScalarWrapper)
+                assertNotNull(scalarResult)
+                assertTrue(scalarResult?.count is Int)
+                assertTrue(scalarResult?.custom is ExampleQuery.UUID)
                 assertEquals(ExampleQuery.CustomEnum.ONE, data?.enumQuery)
                 val interfaceResult = data?.interfaceQuery
                 assertTrue(interfaceResult is ExampleQuery.SecondInterfaceImplementation)
