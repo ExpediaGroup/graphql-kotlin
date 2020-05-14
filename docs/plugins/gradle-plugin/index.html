@@ -83,7 +83,7 @@ graphql {
   <span class="hljs-comment">// Boolean flag indicating whether or not selection of deprecated fields is allowed.</span>
   allowDeprecatedFields = <span class="hljs-literal">false</span>
   <span class="hljs-comment">// Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</span>
-  scalarConverters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
+  converters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
 }
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="tasks"></a><a href="#tasks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tasks</h2>
@@ -114,10 +114,10 @@ file and are placed under specified <code>packageName</code>.</p>
 </thead>
 <tbody>
 <tr><td><code>allowDeprecatedFields</code></td><td>Boolean</td><td></td><td>Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/><strong>Default value is:</strong> <code>false</code>.<br/><strong>Command line property is</strong>: <code>allowDeprecatedFields</code>.</td></tr>
+<tr><td><code>converters</code></td><td>Map&lt;String, ScalarConverter&gt;</td><td></td><td>Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</td></tr>
 <tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>Command line property is</strong>: <code>packageName</code>.</td></tr>
 <tr><td><code>queryFiles</code></td><td>FileCollection</td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can specify <code>queryFileDirectory</code> directory instead. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
 <tr><td><code>queryFileDirectory</code></td><td>String</td><td></td><td>Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using <code>queryFiles</code> property instead.<br/><strong>Default value is:</strong> <code>src/main/resources</code>.<br/><strong>Command line property is</strong>: <code>queryFileDirectory</code>.</td></tr>
-<tr><td><code>scalarConverters</code></td><td>Map&lt;String, ScalarConverter&gt;</td><td></td><td>Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</td></tr>
 <tr><td><code>schemaFile</code></td><td>File</td><td><code>schemaFileName</code> or <code>schemaFile</code> has to be provided</td><td>GraphQL schema file that will be used to generate client code.</td></tr>
 <tr><td><code>schemaFileName</code></td><td>String</td><td><code>schemaFileName</code> or <code>schemaFile</code> has to be provided</td><td>Path to GraphQL schema file that will be used to generate client code.<br/><strong>Command line property is</strong>: <code>schemaFileName</code>.</td></tr>
 </tbody>
@@ -211,7 +211,7 @@ custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graph
 <span class="hljs-keyword">val</span> graphqlGenerateClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
   packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)
   schemaFileName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"mySchema.graphql"</span>)
-  scalarConverters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
+  converters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
 }
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="complete-configuration-example"></a><a href="#complete-configuration-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Configuration Example</h3>
