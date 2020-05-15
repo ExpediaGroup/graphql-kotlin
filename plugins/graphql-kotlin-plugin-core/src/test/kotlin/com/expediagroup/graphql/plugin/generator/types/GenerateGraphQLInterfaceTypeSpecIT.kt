@@ -43,7 +43,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 "query InterfaceWithInlineFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
             class InterfaceWithInlineFragmentsTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute():
                   GraphQLResult<InterfaceWithInlineFragmentsTestQuery.InterfaceWithInlineFragmentsTestQueryResult>
@@ -157,7 +157,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 "query InterfaceWithNamedFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... firstInterfaceImplFields\n    ... secondInterfaceImplFields\n  }\n}\n\nfragment firstInterfaceImplFields on FirstInterfaceImplementation {\n  id\n  name\n  intValue\n}\nfragment secondInterfaceImplFields on SecondInterfaceImplementation {\n  id\n  name\n  floatValue\n}"
 
             class InterfaceWithNamedFragmentsTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute():
                   GraphQLResult<InterfaceWithNamedFragmentsTestQuery.InterfaceWithNamedFragmentsTestQueryResult>

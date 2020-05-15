@@ -37,7 +37,7 @@ class GenerateVariableTypeSpecIT {
                 "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
 
             class TestQueryWithVariables(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute(variables: TestQueryWithVariables.Variables):
                   GraphQLResult<TestQueryWithVariables.TestQueryWithVariablesResult> =

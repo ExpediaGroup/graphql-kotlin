@@ -43,7 +43,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                 "query UnionQueryWithInlineFragments {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n}"
 
             class UnionQueryWithInlineFragments(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute():
                   GraphQLResult<UnionQueryWithInlineFragments.UnionQueryWithInlineFragmentsResult> =
@@ -141,7 +141,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                 "query UnionQueryWithNamedFragments {\n  unionQuery {\n    ... basicObjectFields\n    ... complexObjectFields\n  }\n}\n\nfragment basicObjectFields on BasicObject {\n  __typename\n  id\n  name\n}\nfragment complexObjectFields on ComplexObject {\n  __typename\n  id\n  name\n  optional\n}"
 
             class UnionQueryWithNamedFragments(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute():
                   GraphQLResult<UnionQueryWithNamedFragments.UnionQueryWithNamedFragmentsResult> =

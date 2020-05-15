@@ -5,19 +5,27 @@ title: Client Customization
 
 ## Ktor HTTP Client Customization
 
-`GraphQLClient` uses the Ktor HTTP Client to execute the underlying queries. Client can be customized with different
-engines (defaults to Coroutine-based IO) and HTTP client features. 
+`GraphQLClient` uses the Ktor HTTP Client to execute the underlying queries. Clients can be customized with different
+engines (defaults to Coroutine-based IO) and HTTP client features. Custom configurations can be applied through Ktor DSL
+style builders.
 
 ```kotlin
-val okHttpEngine = OkHttp.create {
-    config {
-        connectTimeout(1, TimeUnit.SECONDS)
-        readTimeout(60, TimeUnit.SECONDS)
-        writeTimeout(60, TimeUnit.SECONDS)
+val client = GraphQLClient(
+        url = URL("http://localhost:8080/graphql"),
+        engineFactory = OkHttp
+) {
+    engine {
+        config {
+            connectTimeout(10, TimeUnit.SECONDS)
+            readTimeout(60, TimeUnit.SECONDS)
+            writeTimeout(60, TimeUnit.SECONDS)
+        }
     }
-    addInterceptor(myInterceptor)
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.HEADERS
+    }
 }
-val client = GraphQLClient(url = URL("http://localhost:8080/graphql"), engine = okHttpEngine)
 ```
 
 See [Ktor HTTP Client documentation](https://ktor.io/clients/index.html) for additional details.

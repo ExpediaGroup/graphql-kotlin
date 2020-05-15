@@ -35,7 +35,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 "query InputObjectTestQuery {\n  inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n}"
 
             class InputObjectTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute(): GraphQLResult<InputObjectTestQuery.InputObjectTestQueryResult> =
                   graphQLClient.execute(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", null)
@@ -71,7 +71,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
 
             class AliasTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute(): GraphQLResult<AliasTestQuery.AliasTestQueryResult> =
                   graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)

@@ -24,6 +24,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.ObjectTypeDefinition
@@ -89,10 +90,13 @@ class GraphQLClientGenerator(
             val queryConstName = operationName.toUpperUnderscore()
             funSpec.addStatement("return graphQLClient.execute($queryConstName, \"$operationTypeName\", $variableCode)")
 
+            val gqlCLientClassName = ClassName(LIBRARY_PACKAGE, "GraphQLClient").parameterizedBy(STAR)
             operationTypeSpec.primaryConstructor(FunSpec.constructorBuilder()
-                .addParameter("graphQLClient", ClassName(LIBRARY_PACKAGE, "GraphQLClient"))
+                .addParameter(
+                    "graphQLClient",
+                    gqlCLientClassName)
                 .build())
-            operationTypeSpec.addProperty(PropertySpec.builder("graphQLClient", ClassName(LIBRARY_PACKAGE, "GraphQLClient"), KModifier.PRIVATE)
+            operationTypeSpec.addProperty(PropertySpec.builder("graphQLClient", gqlCLientClassName, KModifier.PRIVATE)
                 .initializer("graphQLClient").build())
             operationTypeSpec.addFunction(funSpec.build())
 
