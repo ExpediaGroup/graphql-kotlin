@@ -45,9 +45,18 @@ tasks {
             System.setProperty("gradle.publish.secret", System.getenv("PLUGIN_PORTAL_SECRET"))
         }
     }
-    withType<PublishToMavenRepository> {
-        // explicitly disable maven-publish tasks - task will be listed but will be disabled
-        enabled = false
+    publishing {
+        publications {
+            afterEvaluate {
+                named<MavenPublication>("graphQLPluginPluginMarkerMaven") {
+                    // update auto-generated pom.xml for plugin marker with required information
+                    pom {
+                        name.set(artifactId)
+                        description.set("Plugin descriptor for GraphQL Kotlin Gradle plugin")
+                    }
+                }
+            }
+        }
     }
     test {
         systemProperty("graphQLKotlinVersion", project.version)
