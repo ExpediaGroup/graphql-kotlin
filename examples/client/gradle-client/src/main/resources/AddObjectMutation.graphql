@@ -1,0 +1,6 @@
+mutation AddObjectMutation($newObject: BasicObjectInput!) {
+    addBasicObject(newObject: $newObject) {
+        id
+        name
+    }
+}
