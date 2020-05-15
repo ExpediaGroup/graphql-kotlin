@@ -67,9 +67,9 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
 ```
 
 And then configure build plugin by specifying
-* custom GraphQL scalar name
-* target class name
-* converter that provides logic to map between GraphQL and Kotlin type
+* Custom GraphQL scalar name
+* Target class name
+* Converter that provides logic to map between GraphQL and Kotlin type
 
 ```kotlin
 graphql {
