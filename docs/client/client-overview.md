@@ -97,7 +97,7 @@ working examples of Gradle and Maven based projects.
 
 ## Generating GraphQL Client
 
-By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all query files located under
+By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all `*graphql` files located under
 `src/main/resources`. Queries are validated against target GraphQL schema which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
 See our documentation for more details on supported [Gradle tasks](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin#tasks)
