@@ -35,9 +35,9 @@ class GenerateGraphQLEnumTypeSpecIT {
             const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
 
             class EnumTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<EnumTestQuery.EnumTestQueryResult> =
+              suspend fun execute(): GraphQLResult<EnumTestQuery.Result> =
                   graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
 
               /**
@@ -67,7 +67,7 @@ class GenerateGraphQLEnumTypeSpecIT {
                 __UNKNOWN_VALUE
               }
 
-              data class EnumTestQueryResult(
+              data class Result(
                 /**
                  * Query that returns enum value
                  */

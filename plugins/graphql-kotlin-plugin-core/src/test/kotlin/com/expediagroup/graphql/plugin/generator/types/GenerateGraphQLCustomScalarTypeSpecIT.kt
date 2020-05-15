@@ -40,9 +40,9 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
 
             class CustomScalarTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<CustomScalarTestQuery.CustomScalarTestQueryResult> =
+              suspend fun execute(): GraphQLResult<CustomScalarTestQuery.Result> =
                   graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
 
               /**
@@ -73,7 +73,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 val custom: CustomScalarTestQuery.UUID
               )
 
-              data class CustomScalarTestQueryResult(
+              data class Result(
                 /**
                  * Query that returns wrapper object with all supported scalar types
                  */

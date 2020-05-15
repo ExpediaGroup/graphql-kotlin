@@ -61,6 +61,11 @@
       "spring-server/spring-graphql-context",
       "spring-server/subscriptions"
     ],
+    "HTTP Client": [
+      "client/client-overview",
+      "client/client-features",
+      "client/client-customization"
+    ],
     "Build Plugins": [
       "plugins/gradle-plugin",
       "plugins/maven-plugin"

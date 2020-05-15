@@ -21,7 +21,10 @@ GraphQL Kotlin Gradle Plugin uses an extension on the project named `graphql` of
 This extension can be used to configure global options instead of explicitly configuring individual tasks.
 
 ```kotlin
-
+graphql {
+    packageName = "com.expediagroup.graphql.generated"
+    endpoint = "http://localhost:8080/graphql"
+}
 ```
 
 ## Tasks

@@ -43,11 +43,10 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 "query InterfaceWithInlineFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
             class InterfaceWithInlineFragmentsTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute():
-                  GraphQLResult<InterfaceWithInlineFragmentsTestQuery.InterfaceWithInlineFragmentsTestQueryResult>
-                  = graphQLClient.execute(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
+              suspend fun execute(): GraphQLResult<InterfaceWithInlineFragmentsTestQuery.Result> =
+                  graphQLClient.execute(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithInlineFragmentsTestQuery", null)
 
               /**
@@ -111,7 +110,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 val name: String
               }
 
-              data class InterfaceWithInlineFragmentsTestQueryResult(
+              data class Result(
                 /**
                  * Query returning an interface
                  */
@@ -157,11 +156,10 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 "query InterfaceWithNamedFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... firstInterfaceImplFields\n    ... secondInterfaceImplFields\n  }\n}\n\nfragment firstInterfaceImplFields on FirstInterfaceImplementation {\n  id\n  name\n  intValue\n}\nfragment secondInterfaceImplFields on SecondInterfaceImplementation {\n  id\n  name\n  floatValue\n}"
 
             class InterfaceWithNamedFragmentsTestQuery(
-              private val graphQLClient: GraphQLClient
+              private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute():
-                  GraphQLResult<InterfaceWithNamedFragmentsTestQuery.InterfaceWithNamedFragmentsTestQueryResult>
-                  = graphQLClient.execute(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
+              suspend fun execute(): GraphQLResult<InterfaceWithNamedFragmentsTestQuery.Result> =
+                  graphQLClient.execute(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithNamedFragmentsTestQuery", null)
 
               /**
@@ -225,7 +223,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 val name: String
               }
 
-              data class InterfaceWithNamedFragmentsTestQueryResult(
+              data class Result(
                 /**
                  * Query returning an interface
                  */

@@ -21,9 +21,11 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngineConfig
 import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.features.HttpClientFeature
+import io.ktor.client.engine.cio.CIOEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.accept
@@ -38,22 +40,22 @@ import java.net.URL
  * A lightweight typesafe GraphQL HTTP client.
  */
 @KtorExperimentalAPI
-class GraphQLClient(
+class GraphQLClient<in T : HttpClientEngineConfig>(
     private val url: URL,
+    engineFactory: HttpClientEngineFactory<T>,
     private val mapper: ObjectMapper = jacksonObjectMapper(),
-    engine: HttpClientEngineFactory<*> = CIO,
-    vararg features: HttpClientFeature<*, *>
+    configuration: HttpClientConfig<T>.() -> Unit = {}
 ) : Closeable {
+
     private val typeCache = mutableMapOf<Class<*>, JavaType>()
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
     }
 
-    private val client = HttpClient(engineFactory = engine) {
-        for (feature in features) {
-            install(feature)
-        }
-        // install default serializer
+    private val client = HttpClient(engineFactory = engineFactory) {
+        apply(configuration)
+
+        // install default JSON serializer
         install(JsonFeature) {
             serializer = JacksonSerializer(mapper)
         }
@@ -100,5 +102,10 @@ class GraphQLClient(
 
     override fun close() {
         client.close()
+    }
+
+    companion object {
+        operator fun invoke(url: URL, mapper: ObjectMapper = jacksonObjectMapper(), config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {}) =
+            GraphQLClient(url = url, engineFactory = CIO, mapper = mapper, configuration = config)
     }
 }
