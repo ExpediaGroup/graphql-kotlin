@@ -45,8 +45,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             class UnionQueryWithInlineFragments(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute():
-                  GraphQLResult<UnionQueryWithInlineFragments.UnionQueryWithInlineFragmentsResult> =
+              suspend fun execute(): GraphQLResult<UnionQueryWithInlineFragments.Result> =
                   graphQLClient.execute(UNION_QUERY_WITH_INLINE_FRAGMENTS, "UnionQueryWithInlineFragments",
                   null)
 
@@ -96,7 +95,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                   UnionQueryWithInlineFragments.ComplexObject::class, name="ComplexObject")])
               interface BasicUnion
 
-              data class UnionQueryWithInlineFragmentsResult(
+              data class Result(
                 /**
                  * Query returning union
                  */
@@ -143,8 +142,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             class UnionQueryWithNamedFragments(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute():
-                  GraphQLResult<UnionQueryWithNamedFragments.UnionQueryWithNamedFragmentsResult> =
+              suspend fun execute(): GraphQLResult<UnionQueryWithNamedFragments.Result> =
                   graphQLClient.execute(UNION_QUERY_WITH_NAMED_FRAGMENTS, "UnionQueryWithNamedFragments", null)
 
               /**
@@ -193,7 +191,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                   UnionQueryWithNamedFragments.ComplexObject::class, name="ComplexObject")])
               interface BasicUnion
 
-              data class UnionQueryWithNamedFragmentsResult(
+              data class Result(
                 /**
                  * Query returning union
                  */

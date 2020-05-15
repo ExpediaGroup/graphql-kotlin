@@ -72,7 +72,7 @@ class GraphQLClientGenerator(
             val variableType: TypeSpec? = generateVariableTypeSpec(context, operationDefinition.variableDefinitions)
 
             val rootType = findRootType(operationDefinition)
-            val graphQLResultTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "${operationTypeName}Result")
+            val graphQLResultTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
             val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResultTypeSpec.name}")
 
             val operationTypeSpec = TypeSpec.classBuilder(operationTypeName)

@@ -37,10 +37,10 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             class InputObjectTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<InputObjectTestQuery.InputObjectTestQueryResult> =
+              suspend fun execute(): GraphQLResult<InputObjectTestQuery.Result> =
                   graphQLClient.execute(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", null)
 
-              data class InputObjectTestQueryResult(
+              data class Result(
                 /**
                  * Query that accepts some input arguments
                  */
@@ -73,10 +73,10 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             class AliasTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<AliasTestQuery.AliasTestQueryResult> =
+              suspend fun execute(): GraphQLResult<AliasTestQuery.Result> =
                   graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
 
-              data class AliasTestQueryResult(
+              data class Result(
                 /**
                  * Query that accepts some input arguments
                  */

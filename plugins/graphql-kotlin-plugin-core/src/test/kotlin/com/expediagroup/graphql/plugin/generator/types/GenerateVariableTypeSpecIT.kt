@@ -40,7 +40,7 @@ class GenerateVariableTypeSpecIT {
               private val graphQLClient: GraphQLClient<*>
             ) {
               suspend fun execute(variables: TestQueryWithVariables.Variables):
-                  GraphQLResult<TestQueryWithVariables.TestQueryWithVariablesResult> =
+                  GraphQLResult<TestQueryWithVariables.Result> =
                   graphQLClient.execute(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables)
 
               data class Variables(
@@ -65,7 +65,7 @@ class GenerateVariableTypeSpecIT {
                 val newName: String?
               )
 
-              data class TestQueryWithVariablesResult(
+              data class Result(
                 /**
                  * Query that accepts some input arguments
                  */

@@ -42,7 +42,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class ComplexObjectTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<ComplexObjectTestQuery.ComplexObjectTestQueryResult> =
+              suspend fun execute(): GraphQLResult<ComplexObjectTestQuery.Result> =
                   graphQLClient.execute(COMPLEX_OBJECT_TEST_QUERY, "ComplexObjectTestQuery", null)
 
               /**
@@ -88,7 +88,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 val details: ComplexObjectTestQuery.DetailsObject
               )
 
-              data class ComplexObjectTestQueryResult(
+              data class Result(
                 /**
                  * Query returning an object that references another object
                  */
@@ -129,8 +129,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class ComplexObjectQueryWithNamedFragment(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute():
-                  GraphQLResult<ComplexObjectQueryWithNamedFragment.ComplexObjectQueryWithNamedFragmentResult> =
+              suspend fun execute(): GraphQLResult<ComplexObjectQueryWithNamedFragment.Result> =
                   graphQLClient.execute(COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT,
                   "ComplexObjectQueryWithNamedFragment", null)
 
@@ -164,7 +163,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 val details: ComplexObjectQueryWithNamedFragment.DetailsObject
               )
 
-              data class ComplexObjectQueryWithNamedFragmentResult(
+              data class Result(
                 /**
                  * Query returning an object that references another object
                  */
@@ -249,7 +248,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class JUnitTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<JUnitTestQuery.JUnitTestQueryResult> =
+              suspend fun execute(): GraphQLResult<JUnitTestQuery.Result> =
                   graphQLClient.execute(J_UNIT_TEST_QUERY, "JUnitTestQuery", null)
 
               /**
@@ -263,7 +262,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 val name: String
               )
 
-              data class JUnitTestQueryResult(
+              data class Result(
                 /**
                  * Query returning list of simple objects
                  */
@@ -310,10 +309,10 @@ class GenerateGraphQLObjectTypeSpecIT {
             class DeprecatedFieldQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<DeprecatedFieldQuery.DeprecatedFieldQueryResult> =
+              suspend fun execute(): GraphQLResult<DeprecatedFieldQuery.Result> =
                   graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
 
-              data class DeprecatedFieldQueryResult(
+              data class Result(
                 /**
                  * Deprecated query that should not be used anymore
                  */
@@ -354,8 +353,8 @@ class GenerateGraphQLObjectTypeSpecIT {
             class NestedQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<NestedQuery.NestedQueryResult> =
-                  graphQLClient.execute(NESTED_QUERY, "NestedQuery", null)
+              suspend fun execute(): GraphQLResult<NestedQuery.Result> = graphQLClient.execute(NESTED_QUERY,
+                  "NestedQuery", null)
 
               /**
                * Example of an object self-referencing itself
@@ -375,7 +374,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                 val children: List<NestedQuery.NestedObject>
               )
 
-              data class NestedQueryResult(
+              data class Result(
                 /**
                  * Query returning object referencing itself
                  */
