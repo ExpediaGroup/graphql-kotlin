@@ -8,7 +8,7 @@ by the GraphQL Kotlin [Gradle](https://expediagroup.github.io/graphql-kotlin/doc
 [Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin) plugins.
 
 `GraphQLClient` is a thin wrapper on top of [Ktor HTTP Client](https://ktor.io/clients/index.html) and supports fully
-asynchronous non-blocking communication. Client is highly customizable and can be configured with any supported HTTP
+asynchronous non-blocking communication. It is highly customizable and can be configured with any supported Ktor HTTP
 [engine](https://ktor.io/clients/http-client/engines.html) and [features](https://ktor.io/clients/http-client/features.html).
 
 ## Project Configuration
