@@ -139,10 +139,10 @@ const val HELLO_WORLD_QUERY: String = "query HelloWorldQuery {\n    helloWorld\n
 class HelloWorldQuery(
   private val graphQLClient: GraphQLClient
 ) {
-  suspend fun execute(): GraphQLResult<HelloWorldQuery.HelloWorldQueryResult> =
+  suspend fun execute(): GraphQLResult<HelloWorldQuery.Result> =
       graphQLClient.execute(HELLO_WORLD_QUERY, "HelloWorldQuery", null)
 
-  data class HelloWorldQueryResult(
+  data class Result(
     val helloWorld: String
   )
 }
