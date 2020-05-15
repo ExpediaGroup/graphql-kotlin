@@ -148,7 +148,7 @@ class HelloWorldQuery(
 }
 ```
 
-Generated class requires an instance of `GraphQLClient` and exposes a single `execute` suspendable method that executes
+Generated classes requires an instance of `GraphQLClient` and exposes a single `execute` suspendable method that executes
 the underlying GraphQL operation using provided client.
 
 ## Executing Queries
