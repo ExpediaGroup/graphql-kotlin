@@ -24,6 +24,16 @@ Plugin should be configured as part of your `pom.xml` build file.
                 <endpoint>http://localhost:8080/graphql</endpoint>
             </configuration>
         </execution>
+        <execution>
+            <id>generate-client</id>
+            <goals>
+                <goal>generateClient</goal>
+            </goals>
+            <configuration>
+                <packageName>com.expediagroup.graphql.generated</packageName>
+                <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
+            </configuration>
+        </execution>
     </executions>
 </plugin>
 ```

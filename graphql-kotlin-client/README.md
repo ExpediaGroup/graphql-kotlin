@@ -16,6 +16,7 @@ together with one of the GraphQL Kotlin build plugins to auto-generate type safe
 * Supports default enum values to gracefully handle new/unknown server values
 * Native support for coroutines
 * Easily configurable Ktor HTTP Client
+* Documentation generated from the underlying GraphQL schema
 
 ## Install it
 
@@ -55,7 +56,7 @@ as part of your build/release process.
 
 ```kotlin
 // build.gradle.kts
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
 val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
     endpoint.set("http://localhost:8080/graphql")
@@ -70,8 +71,8 @@ Generated top level class will contain all your data classes. For example, given
 `myAwesomeQuery` as the operation name, GraphQL Kotlin plugins will generate a corresponding `MyAwesomeGraphQLQuery.kt`
 file with a `MyAwesomeQuery` class under the configured package.
 
-Refer to our [documentation](https://expediagroup.github.io/graphql-kotlin) for additional details and considerations
-while writing your GraphQL queries.
+Refer to our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview) for additional
+details and considerations while writing your GraphQL queries.
 
 ### Generate Client
 
@@ -102,7 +103,7 @@ details.
 ```kotlin
 val client = GraphQLClient(url = URL("http://localhost:8080/graphql"))
 val query = MyAwesomeQuery(client)
-val result = query.myAwesomeQuery()
+val result = query.execute()
 ```
 
 The result of your query is a type safe object that corresponds to your GraphQL query.
@@ -112,8 +113,8 @@ Additional information about Gradle and Maven plugins as well as their respectiv
 
 ## Documentation
 
-Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin) and the
-[Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client) of all published versions.
+Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client) of all published versions.
 
 If you have a question about something you can not find in our documentation or Javadocs, feel free to
 [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.

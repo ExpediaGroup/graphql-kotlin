@@ -35,7 +35,7 @@ open class GraphQLPluginExtension(project: Project) {
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
     /** Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
-    val scalarConverters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
+    val converters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
     /** List of query files to be processed. */
     var queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 }

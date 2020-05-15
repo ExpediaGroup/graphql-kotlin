@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.HttpClientFeature
@@ -41,7 +42,7 @@ import java.net.URL
 class GraphQLClient(
     private val url: URL,
     private val mapper: ObjectMapper = jacksonObjectMapper(),
-    engine: HttpClientEngineFactory<*> = CIO,
+    engine: HttpClientEngine = CIO.create(),
     vararg features: HttpClientFeature<*, *>
 ) : Closeable {
     private val typeCache = mutableMapOf<Class<*>, JavaType>()
@@ -49,7 +50,7 @@ class GraphQLClient(
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
     }
 
-    private val client = HttpClient(engineFactory = engine) {
+    private val client = HttpClient(engine = engine) {
         for (feature in features) {
             install(feature)
         }
