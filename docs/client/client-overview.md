@@ -104,7 +104,7 @@ See our documentation for more details on supported [Gradle tasks](https://exped
 and [Maven Mojos](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin#goals).
 
 When creating your GraphQL queries make sure to always specify an operation name and name the files accordingly. Each
-one of your query files will result in a generation of a corresponding Kotlin file with a class matching your operation
+one of your query files will generate a corresponding Kotlin file with a class matching your operation
 name that will act as a wrapper for all corresponding data classes. For example, given `HelloWorldQuery.graphql` with
 `HelloWorldQuery` as the operation name, GraphQL Kotlin plugins will generate a corresponding `HelloWorldQuery.kt` file
 with a `HelloWorldQuery` class under the configured package.
