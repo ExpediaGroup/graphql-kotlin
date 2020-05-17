@@ -91,7 +91,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.build.directory}/generated/sources/graphql</source>
+                                <source>${project.build.directory}/generated-sources/graphql</source>
                             </sources>
                         </configuration>
                     </execution>
