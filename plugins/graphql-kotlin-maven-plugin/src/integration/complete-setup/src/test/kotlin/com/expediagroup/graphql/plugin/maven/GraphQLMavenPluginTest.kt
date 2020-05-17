@@ -40,7 +40,7 @@ class GraphQLMavenPluginTest {
     @Test
     fun `verify client code was generated`() {
         val buildDirectory = System.getProperty("buildDirectory")
-        val path = Paths.get(buildDirectory, "generated-sources", "graphql", "main", "com", "expediagroup", "graphql", "plugin", "generated", "ExampleQuery.kt")
+        val path = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "ExampleQuery.kt")
         assertTrue(path.toFile().exists(), "graphql client was generated")
     }
 
