@@ -45,6 +45,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
 | `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `generateTestSources` | Boolean | | Boolean flag indicating whether generated GraphQL client should be added to main or test sources.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.generateTestSources`. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated/sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
@@ -185,6 +186,9 @@ Mojo can also be configured in your Maven build file and it provides additional 
 This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project compile sources.
 
+>NOTE: You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
+>[build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+
 ### Generating Client with Custom Scalars
 
 By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
@@ -277,6 +281,6 @@ This generated schema is subsequently used to generate GraphQL client code based
 </plugin>
 ```
 
-NOTE: Both `introspectSchema` and `generateClient` goals are bound to the same `generate-sources` Maven lifecycle phase.
-As opposed to Gradle, Maven does not support explicit dependencies between different goals and they will be executed in
-the order they are defined in your `pom.xml` build file.
+>NOTE: Both `introspectSchema` and `generateClient` goals are bound to the same `generate-sources` Maven lifecycle phase.
+>As opposed to Gradle, Maven does not support explicit ordering of goals. Maven Mojos will be executed in the order they
+>are defined in your `pom.xml` build file.

@@ -91,10 +91,29 @@ class GenerateClientMojo : AbstractMojo() {
     private lateinit var queryFiles: List<File>
 
     /**
-     * Target directory where to store generated files.
+     * Boolean flag indicating whether generated GraphQL client should be added to main or test sources.
      */
-    @Parameter(defaultValue = "\${project.build.directory}/generated/sources/graphql", name = "outputDirectory")
-    private lateinit var outputDirectory: File
+    @Parameter(defaultValue = "\${graphql.generateTestSources}", name = "generateTestSources")
+    private var generateTestSources: Boolean = false
+
+    /**
+     * Custom target directory that will be used to store generated files.
+     */
+    @Parameter(name = "outputDirectory")
+    private var outputDirectory: File? = null
+
+    private fun getOutputDirectory(): File {
+        val customDirectory = outputDirectory
+        if (customDirectory != null) {
+            return customDirectory
+        }
+
+        return if (generateTestSources) {
+            File("${project.build.directory}/test-generated-sources/graphql")
+        } else {
+            File("${project.build.directory}/generated-sources/graphql")
+        }
+    }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun execute() {
@@ -113,7 +132,8 @@ class GenerateClientMojo : AbstractMojo() {
             throw RuntimeException("no query files specified")
         }
 
-        if (!outputDirectory.isDirectory && !outputDirectory.mkdirs()) {
+        val targetDirectory = getOutputDirectory()
+        if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
 
@@ -124,10 +144,14 @@ class GenerateClientMojo : AbstractMojo() {
             scalarTypeToConverterMapping = converters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap()
         )
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
-            it.writeTo(outputDirectory)
+            it.writeTo(targetDirectory)
         }
 
-        project.addCompileSourceRoot(outputDirectory.path)
+        if (generateTestSources) {
+            project.addTestCompileSourceRoot(targetDirectory.path)
+        } else {
+            project.addCompileSourceRoot(targetDirectory.path)
+        }
         log.debug("successfully generated GraphQL HTTP client")
     }
 

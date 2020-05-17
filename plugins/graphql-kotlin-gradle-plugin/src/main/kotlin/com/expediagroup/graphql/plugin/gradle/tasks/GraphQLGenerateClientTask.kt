@@ -114,8 +114,17 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     @Optional
     val queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 
+    @Input
+    @Optional
+    @Option(option = "generateTestSources", description = "boolean flag indicating whether task should generate test sources, defaults to false")
+    val generateTestSources: Property<Boolean> = project.objects.property(Boolean::class.java)
+
     @OutputDirectory
-    val outputDirectory: Provider<Directory> = project.layout.buildDirectory.dir("generated/source/graphql")
+    val outputDirectory: Provider<Directory> = generateTestSources.flatMap { testResources -> if (testResources) {
+        project.layout.buildDirectory.dir("generated/source/graphql/test")
+    } else {
+        project.layout.buildDirectory.dir("generated/source/graphql/main")
+    } }
 
     init {
         group = "GraphQL"
@@ -124,6 +133,7 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         queryFileDirectory.convention("${project.projectDir}/src/main/resources")
         allowDeprecatedFields.convention(false)
         converters.convention(emptyMap())
+        generateTestSources.convention(false)
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")

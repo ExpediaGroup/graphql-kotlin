@@ -236,7 +236,7 @@ class GraphQLGradlePluginIT {
         assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
         assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
-        assertTrue(File(tempDir.toFile(), "build/generated/source/graphql/com/expediagroup/graphql/generated/JUnitQuery.kt").exists())
+        assertTrue(File(tempDir.toFile(), "build/generated/source/graphql/main/com/expediagroup/graphql/generated/JUnitQuery.kt").exists())
 
         val integrationTestResult = GradleRunner.create()
             .withProjectDir(tempDir.toFile())

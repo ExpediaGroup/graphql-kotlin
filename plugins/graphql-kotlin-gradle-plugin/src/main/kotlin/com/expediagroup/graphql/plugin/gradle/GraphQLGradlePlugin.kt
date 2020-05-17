@@ -45,13 +45,6 @@ class GraphQLGradlePlugin : Plugin<Project> {
             } else {
                 compileKotlinTask.dependsOn(generateClientTask.path)
             }
-
-            // configure generated directory source sets
-            val outputDirectory = generateClientTask.outputDirectory.get().asFile
-            outputDirectory.mkdirs()
-
-            val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
-            sourceSetContainer?.findByName("main")?.java?.srcDir(outputDirectory.path)
         }
 
         project.afterEvaluate {
@@ -61,6 +54,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                 generateClientTask.allowDeprecatedFields.convention(project.provider { extension.allowDeprecatedFields })
                 generateClientTask.converters.convention(extension.converters)
                 generateClientTask.queryFiles.setFrom(extension.queryFiles.from)
+                generateClientTask.generateTestSources.convention(extension.generateTestSources)
 
                 if (extension.endpoint != null) {
                     val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
@@ -73,6 +67,20 @@ class GraphQLGradlePlugin : Plugin<Project> {
                     downloadSDLTask.endpoint.convention(project.provider { extension.endpoint })
                     generateClientTask.dependsOn(downloadSDLTask.path)
                     generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
+                }
+            }
+
+            project.tasks.named(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { generateClientTask ->
+                // configure generated directory source sets
+                val outputDirectory = generateClientTask.outputDirectory.get().asFile
+                outputDirectory.mkdirs()
+
+                val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
+
+                if (generateClientTask.generateTestSources.get()) {
+                    sourceSetContainer?.findByName("test")?.java?.srcDir(outputDirectory.path)
+                } else {
+                    sourceSetContainer?.findByName("main")?.java?.srcDir(outputDirectory.path)
                 }
             }
         }
