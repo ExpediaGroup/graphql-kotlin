@@ -31,13 +31,13 @@ goal provides limited functionality by itself and instead should be used to gene
 
 ### generateClient
 
-Generate GraphQL client code based on the provided GraphQL schema and target queries. Generated classes are automatically
-added to the compile sources.
+Generate GraphQL client code based on the provided GraphQL schema and target queries.
 
 **Attributes**
 
 * *Default Lifecycle Phase*: `generate-sources`
 * *Requires Maven Project*
+* Generated classes are automatically added to the list of compiled sources.
 
 **Parameters**
 
@@ -70,13 +70,13 @@ added to the compile sources.
 
 ### generateTestClient
 
-Generate GraphQL test client code based on the provided GraphQL schema and target queries. Generated classes are automatically
-added to the test compile sources.
+Generate GraphQL test client code based on the provided GraphQL schema and target queries.
 
 **Attributes**
 
 * *Default Lifecycle Phase*: `generate-test-sources`
 * *Requires Maven Project*
+* Generated classes are automatically added to the list of test compiled sources.
 
 **Parameters**
 
