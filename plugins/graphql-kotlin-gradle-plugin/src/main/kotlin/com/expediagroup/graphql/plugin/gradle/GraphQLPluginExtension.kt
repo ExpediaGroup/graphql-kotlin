@@ -38,6 +38,4 @@ open class GraphQLPluginExtension(project: Project) {
     val converters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
     /** List of query files to be processed. */
     var queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
-    /** Boolean flag indicating whether generated GraphQL client should be added to main or test sources. */
-    var generateTestSources: Boolean = false
 }

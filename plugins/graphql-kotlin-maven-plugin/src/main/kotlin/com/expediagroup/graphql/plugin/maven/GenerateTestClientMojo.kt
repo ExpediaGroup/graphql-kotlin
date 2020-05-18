@@ -24,25 +24,25 @@ import java.io.File
 
 /**
  * Generate GraphQL Kotlin client data model based on the provided GraphQL schema and target queries. Upon successful client generation
- * project main sources will be updated with newly generated client code.
+ * project test sources will be updated with newly generated client code.
  */
-@Mojo(name = "generateClient", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-class GenerateClientMojo : GenerateClientAbstractMojo() {
+@Mojo(name = "generateTestClient", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
+class GenerateTestClientMojo : GenerateClientAbstractMojo() {
 
     /**
-     * Directory file containing GraphQL queries, defaults to `src/main/resources`. Instead of specifying a directory you can
+     * Directory file containing GraphQL queries, defaults to `src/test/resources`. Instead of specifying a directory you can
      * also specify list of query file by using [queryFiles] property instead.
      */
-    @Parameter(defaultValue = "\${project.basedir}/src/main/resources", name = "queryFileDirectory")
+    @Parameter(defaultValue = "\${project.basedir}/src/test/resources", name = "queryFileDirectory")
     override lateinit var queryFileDirectory: File
 
     /**
-     * Target directory where to store generated files, defaults to `target/generated-sources/graphql`.
+     * Target directory where to store generated files, defaults to `target/generated-test-sources/graphql`.
      */
-    @Parameter(defaultValue = "\${project.build.directory}/generated-sources/graphql", name = "outputDirectory")
+    @Parameter(defaultValue = "\${project.build.directory}/generated-test-sources/graphql", name = "outputDirectory")
     override lateinit var outputDirectory: File
 
     override fun configureProjectWithGeneratedSources(mavenProject: MavenProject, generatedSourcesDirectory: File) {
-        mavenProject.addCompileSourceRoot(generatedSourcesDirectory.path)
+        mavenProject.addTestCompileSourceRoot(generatedSourcesDirectory.path)
     }
 }

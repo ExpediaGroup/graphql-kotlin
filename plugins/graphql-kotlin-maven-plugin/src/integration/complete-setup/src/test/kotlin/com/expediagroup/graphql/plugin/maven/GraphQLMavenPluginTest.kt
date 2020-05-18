@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.grpahql.plugin.maven
+package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
 import com.expediagroup.graphql.client.GraphQLClient
