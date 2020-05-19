@@ -27,7 +27,7 @@ import java.io.File
 /**
  * Run introspection query against specified endpoint and save resulting GraphQL schema locally.
  */
-@Mojo(name = "introspectSchema", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "introspect-schema", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 class IntrospectSchemaMojo : AbstractMojo() {
 
     /**

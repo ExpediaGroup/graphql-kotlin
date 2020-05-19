@@ -77,9 +77,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>introspect-schema</id>
                         <goals>
-                            <goal>introspectSchema</goal>
+                            <goal>introspect-schema</goal>
                         </goals>
                         <configuration>
                             <endpoint>@graphql.endpoint@/graphql</endpoint>

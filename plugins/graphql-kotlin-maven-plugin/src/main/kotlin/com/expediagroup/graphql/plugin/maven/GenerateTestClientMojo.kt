@@ -26,7 +26,7 @@ import java.io.File
  * Generate GraphQL Kotlin client data model based on the provided GraphQL schema and target queries. Upon successful client generation
  * project test sources will be updated with newly generated client code.
  */
-@Mojo(name = "generateTestClient", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
+@Mojo(name = "generate-test-client", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
 class GenerateTestClientMojo : GenerateClientAbstractMojo() {
 
     /**

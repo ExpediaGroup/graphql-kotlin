@@ -82,9 +82,8 @@
                 <version>@graphql-kotlin.version@</version>
                 <executions>
                     <execution>
-                        <id>generate-client</id>
                         <goals>
-                            <goal>generateTestClient</goal>
+                            <goal>generate-test-client</goal>
                         </goals>
                         <configuration>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>

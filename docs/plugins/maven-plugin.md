@@ -9,7 +9,7 @@ GraphQL Kotlin Maven Plugin provides functionality to introspect GraphQL schemas
 
 You can find detailed information about `graphql-kotlin-maven-plugin` and all its goals by running `mvn help:describe -Dplugin=com.expediagroup:graphql-kotlin-maven-plugin -Ddetail`.
 
-### downloadSDL
+### download-sdl
 
 GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
 Since GraphQL schema is needed to generate type safe clients, as alternative GraphQL servers might expose private
@@ -17,7 +17,7 @@ endpoints (e.g. accessible only from within network, etc) that could be used to 
 Language (SDL) directly. This Mojo attempts to download schema from the specified `graphql.endpoint`, validates the
 result whether it is a valid schema and saves it locally as `schema.graphql` under build directory. In general, this
 goal provides limited functionality by itself and instead should be used to generate input for the subsequent
-`generateClient` goal.
+`generate-client` goal.
 
 **Attributes**
 
@@ -29,7 +29,7 @@ goal provides limited functionality by itself and instead should be used to gene
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
 
-### generateClient
+### generate-client
 
 Generate GraphQL client code based on the provided GraphQL schema and target queries.
 
@@ -68,7 +68,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
     </converters>
     ```
 
-### generateTestClient
+### generate-test-client
 
 Generate GraphQL test client code based on the provided GraphQL schema and target queries.
 
@@ -107,11 +107,11 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
     </converters>
     ```
 
-### introspectSchema
+### introspect-schema
 
 Executes GraphQL introspection query against specified `graphql.endpoint` and saves the underlying schema file as
 `schema.graphql` under build directory. In general, this goal provides limited functionality by itself and instead
-should be used to generate input for the subsequent `generateClient` goal.
+should be used to generate input for the subsequent `generate-client` goal.
 
 **Attributes**
 
@@ -127,11 +127,11 @@ should be used to generate input for the subsequent `generateClient` goal.
 
 ### Downloading Schema SDL
 
-DownloadSDL Mojo requires target GraphQL server `endpoint` to be specified. Task can be executed directly from the
+Download SDL Mojo requires target GraphQL server `endpoint` to be specified. Task can be executed directly from the
 command line by explicitly specifying `graphql.endpoint` property.
 
 ```shell script
-$ mvn com.expediagroup:graphql-kotlin-maven-plugin:downloadSDL -Dgraphql.endpoint="http://localhost:8080/sdl"
+$ mvn com.expediagroup:graphql-kotlin-maven-plugin:download-sdl -Dgraphql.endpoint="http://localhost:8080/sdl"
 ```
 
 Mojo can also be configured in your Maven build file
@@ -143,9 +143,8 @@ Mojo can also be configured in your Maven build file
     <version>${graphql-kotlin.version}</version>
     <executions>
         <execution>
-            <id>download-sdl</id>
             <goals>
-                <goal>downloadSDL</goal>
+                <goal>download-sdl</goal>
             </goals>
             <configuration>
                 <endpoint>http://localhost:8080/sdl</endpoint>
@@ -155,7 +154,7 @@ Mojo can also be configured in your Maven build file
 </plugin>
 ```
 
-By default, `downloadSDL` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
+By default, `download-sdl` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
 
 ### Introspecting Schema
 
@@ -163,7 +162,7 @@ Introspection Mojo requires target GraphQL server `endpoint` to be specified. Ta
 command line by explicitly specifying `graphql.endpoint` property
 
 ```shell script
-$ mvn com.expediagroup:graphql-kotlin-maven-plugin:introspectSchema -Dgraphql.endpoint="http://localhost:8080/graphql"
+$ mvn com.expediagroup:graphql-kotlin-maven-plugin:introspect-schema -Dgraphql.endpoint="http://localhost:8080/graphql"
 ```
 
 Mojo can also be configured in your Maven build file
@@ -175,9 +174,8 @@ Mojo can also be configured in your Maven build file
     <version>${graphql-kotlin.version}</version>
     <executions>
         <execution>
-            <id>introspect-schema</id>
             <goals>
-                <goal>introspectSchema</goal>
+                <goal>introspect-schema</goal>
             </goals>
             <configuration>
                 <endpoint>http://localhost:8080/graphql</endpoint>
@@ -187,7 +185,7 @@ Mojo can also be configured in your Maven build file
 </plugin>
 ```
 
-By default, `introspectSchema` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
+By default, `introspect-schema` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
 
 ### Generating Client
 
@@ -196,7 +194,7 @@ generated under specified `packageName`. When using default configuration and st
 directories, task can be executed directly from the command line by explicitly providing required properties.
 
 ```shell script
-$ mvn com.expediagroup:graphql-kotlin-maven-plugin:generateClient -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
+$ mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-client -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
 ```
 
 Mojo can also be configured in your Maven build file and it provides additional configuration options
@@ -208,9 +206,8 @@ Mojo can also be configured in your Maven build file and it provides additional 
     <version>${graphql-kotlin.version}</version>
     <executions>
         <execution>
-            <id>generate-client</id>
             <goals>
-                <goal>generateClient</goal>
+                <goal>generate-client</goal>
             </goals>
             <configuration>
                 <packageName>com.example.generated</packageName>
@@ -261,9 +258,8 @@ Afterwards we need to configure our plugin to use this custom converter
     <version>${graphql-kotlin.version}</version>
     <executions>
         <execution>
-            <id>generate-client</id>
             <goals>
-                <goal>generateClient</goal>
+                <goal>generate-client</goal>
             </goals>
             <configuration>
                 <allowDeprecatedFields>false</allowDeprecatedFields>
@@ -297,18 +293,16 @@ This generated schema is subsequently used to generate GraphQL client code based
     <version>${graphql-kotlin.version}</version>
     <executions>
         <execution>
-            <id>introspect-schema</id>
             <goals>
-                <goal>introspectSchema</goal>
+                <goal>introspect-schema</goal>
             </goals>
             <configuration>
                 <endpoint>http://localhost:8080/graphql</endpoint>
             </configuration>
         </execution>
         <execution>
-            <id>generate-client</id>
             <goals>
-                <goal>generateClient</goal>
+                <goal>generate-client</goal>
             </goals>
             <configuration>
                 <packageName>com.example.generated</packageName>
@@ -319,6 +313,6 @@ This generated schema is subsequently used to generate GraphQL client code based
 </plugin>
 ```
 
->NOTE: Both `introspectSchema` and `generateClient` goals are bound to the same `generate-sources` Maven lifecycle phase.
+>NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
 >As opposed to Gradle, Maven does not support explicit ordering of goals. Maven Mojos will be executed in the order they
 >are defined in your `pom.xml` build file.

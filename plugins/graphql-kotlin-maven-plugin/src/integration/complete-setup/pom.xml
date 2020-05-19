@@ -82,18 +82,16 @@
                 <version>@graphql-kotlin.version@</version>
                 <executions>
                     <execution>
-                        <id>introspect-schema</id>
                         <goals>
-                            <goal>introspectSchema</goal>
+                            <goal>introspect-schema</goal>
                         </goals>
                         <configuration>
                             <endpoint>@graphql.endpoint@/graphql</endpoint>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>generate-client</id>
                         <goals>
-                            <goal>generateClient</goal>
+                            <goal>generate-client</goal>
                         </goals>
                         <configuration>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>
