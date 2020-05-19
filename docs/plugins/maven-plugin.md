@@ -295,16 +295,10 @@ This generated schema is subsequently used to generate GraphQL client code based
         <execution>
             <goals>
                 <goal>introspect-schema</goal>
-            </goals>
-            <configuration>
-                <endpoint>http://localhost:8080/graphql</endpoint>
-            </configuration>
-        </execution>
-        <execution>
-            <goals>
                 <goal>generate-client</goal>
             </goals>
             <configuration>
+                <endpoint>http://localhost:8080/graphql</endpoint>
                 <packageName>com.example.generated</packageName>
                 <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
             </configuration>
@@ -315,4 +309,4 @@ This generated schema is subsequently used to generate GraphQL client code based
 
 >NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
 >As opposed to Gradle, Maven does not support explicit ordering of goals. Maven Mojos will be executed in the order they
->are defined in your `pom.xml` build file.
+>are defined in your `pom.xml` build file. 

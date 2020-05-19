@@ -18,16 +18,10 @@ Plugin should be configured as part of your `pom.xml` build file.
         <execution>
             <goals>
                 <goal>introspect-schema</goal>
-            </goals>
-            <configuration>
-                <endpoint>http://localhost:8080/graphql</endpoint>
-            </configuration>
-        </execution>
-        <execution>
-            <goals>
                 <goal>generate-client</goal>
             </goals>
             <configuration>
+                <endpoint>http://localhost:8080/graphql</endpoint>
                 <packageName>com.expediagroup.graphql.generated</packageName>
                 <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
             </configuration>
