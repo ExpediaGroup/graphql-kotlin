@@ -76,9 +76,8 @@
                 <version>@graphql-kotlin.version@</version>
                 <executions>
                     <execution>
-                        <id>download-sdl</id>
                         <goals>
-                            <goal>downloadSDL</goal>
+                            <goal>download-sdl</goal>
                         </goals>
                         <configuration>
                             <endpoint>@graphql.endpoint@/sdl</endpoint>

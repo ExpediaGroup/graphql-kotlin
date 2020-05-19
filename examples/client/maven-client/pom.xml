@@ -49,7 +49,7 @@
                     <execution>
                         <id>introspect-schema</id>
                         <goals>
-                            <goal>introspectSchema</goal>
+                            <goal>introspect-schema</goal>
                         </goals>
                         <configuration>
                             <endpoint>http://localhost:8080/graphql</endpoint>
@@ -58,7 +58,7 @@
                     <execution>
                         <id>generate-client</id>
                         <goals>
-                            <goal>generateClient</goal>
+                            <goal>generate-client</goal>
                         </goals>
                         <configuration>
                             <packageName>com.expediagroup.graphql.generated</packageName>

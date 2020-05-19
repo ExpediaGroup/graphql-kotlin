@@ -16,20 +16,12 @@ Plugin should be configured as part of your `pom.xml` build file.
     <version>${graphql-kotlin.version}</version>
     <executions>
         <execution>
-            <id>introspect-schema</id>
             <goals>
-                <goal>introspectSchema</goal>
+                <goal>introspect-schema</goal>
+                <goal>generate-client</goal>
             </goals>
             <configuration>
                 <endpoint>http://localhost:8080/graphql</endpoint>
-            </configuration>
-        </execution>
-        <execution>
-            <id>generate-client</id>
-            <goals>
-                <goal>generateClient</goal>
-            </goals>
-            <configuration>
                 <packageName>com.expediagroup.graphql.generated</packageName>
                 <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
             </configuration>
@@ -40,11 +32,11 @@ Plugin should be configured as part of your `pom.xml` build file.
 
 ## Goals
 
-### downloadSDL
+### download-sdl
 
 This Mojo attempts to download schema from the specified `graphql.endpoint`, validates the result whether it is a valid
 schema and saves it locally as `schema.graphql` under build directory. In general, this goal provides limited functionality
-by itself and instead should be used to generate input for the subsequent `generateClient` goal.
+by itself and instead should be used to generate input for the subsequent `generate-client` goal.
 
 **Attributes**
 
@@ -56,7 +48,7 @@ by itself and instead should be used to generate input for the subsequent `gener
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
 
-### generateClient
+### generate-client
 
 Generate GraphQL client code based on the provided GraphQL schema and target queries.
 
@@ -95,7 +87,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
     </converters>
     ```
 
-### generateTestClient
+### generate-test-client
 
 Generate GraphQL test client code based on the provided GraphQL schema and target queries.
 
@@ -134,11 +126,11 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
     </converters>
     ```
 
-### introspectSchema
+### introspect-schema
 
 Executes GraphQL introspection query against specified `graphql.endpoint` and saves the underlying schema file as
 `schema.graphql` under build directory. In general, this goal provides limited functionality by itself and instead
-should be used to generate input for the subsequent `generateClient` goal.
+should be used to generate input for the subsequent `generate-client` goal.
 
 **Attributes**
 

@@ -27,7 +27,7 @@ import java.io.File
 /**
  * Download GraphQL schema from a specified SDL endpoint.
  */
-@Mojo(name = "downloadSDL", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "download-sdl", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 class DownloadSDLMojo : AbstractMojo() {
 
     /**
