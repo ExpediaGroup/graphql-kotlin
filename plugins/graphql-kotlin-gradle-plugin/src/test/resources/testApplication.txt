@@ -1,0 +1,37 @@
+package com.example
+
+import com.example.generated.JUnitQuery
+import com.expediagroup.graphql.client.GraphQLClient
+import com.expediagroup.graphql.client.converter.ScalarConverter
+import kotlinx.coroutines.runBlocking
+import java.net.URL
+import java.util.UUID
+
+fun main() {
+    val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint")))
+    val query = JUnitQuery(client)
+
+    val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
+    runBlocking {
+        val response = query.execute(variables = variables)
+        val data = response.data
+        assert(data != null)
+        val scalarResult = data?.scalarQuery
+        assert(scalarResult is JUnitQuery.ScalarWrapper)
+        assert(scalarResult != null)
+        assert(scalarResult?.count is Int)
+        assert(scalarResult?.custom is JUnitQuery.UUID)
+        assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
+        val interfaceResult = data?.interfaceQuery
+        assert(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
+        val unionResult = data?.unionQuery
+        assert(unionResult is JUnitQuery.BasicObject)
+        assert(response.errors == null)
+        assert(response.extensions == null)
+    }
+}
+
+class UUIDScalarConverter : ScalarConverter<UUID> {
+    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
+    override fun toJson(value: UUID): String = value.toString()
+}

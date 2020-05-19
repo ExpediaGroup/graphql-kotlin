@@ -25,7 +25,6 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -36,6 +35,7 @@ import org.gradle.api.tasks.options.Option
 import java.io.File
 
 internal const val GENERATE_CLIENT_TASK_NAME: String = "graphqlGenerateClient"
+internal const val GENERATE_TEST_CLIENT_TASK_NAME: String = "graphqlGenerateTestClient"
 
 /**
  * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
@@ -97,13 +97,14 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     val converters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
 
     /**
-     * Directory containing GraphQL queries, defaults to `src/main/resources`.
+     * Directory containing GraphQL queries. Defaults to `src/main/resources` when generating main sources and `src/test/resources`
+     * when generating test client.
      *
      * Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.
      */
     @Input
     @Optional
-    @Option(option = "queryFileDirectory", description = "directory containing query files, defaults to src/main/resources")
+    @Option(option = "queryFileDirectory", description = "directory containing query files")
     val queryFileDirectory: Property<String> = project.objects.property(String::class.java)
 
     /**
@@ -115,13 +116,12 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     val queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 
     @OutputDirectory
-    val outputDirectory: Provider<Directory> = project.layout.buildDirectory.dir("generated/source/graphql")
+    val outputDirectory: Property<Directory> = project.objects.directoryProperty()
 
     init {
         group = "GraphQL"
         description = "Generate HTTP client from the specified GraphQL queries."
 
-        queryFileDirectory.convention("${project.projectDir}/src/main/resources")
         allowDeprecatedFields.convention(false)
         converters.convention(emptyMap())
     }

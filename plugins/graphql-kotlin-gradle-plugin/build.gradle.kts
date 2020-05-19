@@ -5,7 +5,6 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
-val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val wireMockVersion: String by project
 
@@ -59,7 +58,10 @@ tasks {
         }
     }
     test {
+        val kotlinVersion: String by project
+        val junitVersion: String by project
         systemProperty("graphQLKotlinVersion", project.version)
         systemProperty("kotlinVersion", kotlinVersion)
+        systemProperty("junitVersion", junitVersion)
     }
 }

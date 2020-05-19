@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.grpahql.plugin.maven
+package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
 import com.expediagroup.graphql.client.GraphQLClient
@@ -40,7 +40,7 @@ class GraphQLMavenPluginTest {
     @Test
     fun `verify client code was generated`() {
         val buildDirectory = System.getProperty("buildDirectory")
-        val path = Paths.get(buildDirectory, "generated", "sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "ExampleQuery.kt")
+        val path = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "ExampleQuery.kt")
         assertTrue(path.toFile().exists(), "graphql client was generated")
     }
 

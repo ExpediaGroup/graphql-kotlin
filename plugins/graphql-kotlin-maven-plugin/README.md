@@ -58,13 +58,13 @@ by itself and instead should be used to generate input for the subsequent `gener
 
 ### generateClient
 
-Generate GraphQL client code based on the provided GraphQL schema and target queries. Generated classes are automatically
-added to the compile sources.
+Generate GraphQL client code based on the provided GraphQL schema and target queries.
 
 **Attributes**
 
 * *Default Lifecycle Phase*: `generate-sources`
 * *Requires Maven Project*
+* Generated classes are automatically added to the list of compiled sources.
 
 **Parameters**
 
@@ -72,9 +72,48 @@ added to the compile sources.
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
 | `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
-| `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated/sources/graphql` |
+| `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
+| `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
+| `schemaFile` | String | yes | GraphQL schema file that will be used to generate client code.<br/>**User property is**: `graphql.schemaFile`. |
+
+**Parameter Details**
+
+  * *converters* - Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+
+    ```xml
+    <converters>
+      <!-- custom scalar type -->
+      <UUID>
+        <!-- fully qualified Java class name of a custom scalar type -->
+        <type>java.util.UUID</type>
+        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+             used to convert to/from raw JSON and scalar type -->
+        <converter>com.example.UUIDScalarConverter</converter>
+      </UUID>
+    </converters>
+    ```
+
+### generateTestClient
+
+Generate GraphQL test client code based on the provided GraphQL schema and target queries.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `generate-test-sources`
+* *Requires Maven Project*
+* Generated classes are automatically added to the list of test compiled sources.
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-test-sources/graphql` |
+| `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
+| `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
 | `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
 | `schemaFile` | String | yes | GraphQL schema file that will be used to generate client code.<br/>**User property is**: `graphql.schemaFile`. |
 

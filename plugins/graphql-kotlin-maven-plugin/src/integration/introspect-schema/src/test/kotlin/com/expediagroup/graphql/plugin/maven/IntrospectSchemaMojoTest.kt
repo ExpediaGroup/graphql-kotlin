@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.grpahql.plugin.maven
+package com.expediagroup.graphql.plugin.maven
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
