@@ -41,8 +41,6 @@ graphql {
   allowDeprecatedFields = false
   // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
   converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
-  // Boolean flag indicating whether generated GraphQL client should be added to main or test sources.
-  generateTestSources = false
 }
 ```
 
