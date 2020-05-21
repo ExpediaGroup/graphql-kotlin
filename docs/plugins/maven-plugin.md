@@ -197,7 +197,8 @@ directories, task can be executed directly from the command line by explicitly p
 $ mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-client -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
 ```
 
-Mojo can also be configured in your Maven build file and it provides additional configuration options
+Mojo can also be configured in your Maven build file to become part of your build lifecycle. Plugin also provides additional
+configuration options that are not available on command line.
 
 ```xml
 <plugin>
@@ -281,6 +282,44 @@ Afterwards we need to configure our plugin to use this custom converter
 </plugin>
 ```
 
+### Generating Test Client
+
+This Mojo generates GraphQL Kotlin test client code based on the provided queries using target GraphQL `schemaFile`. Classes
+are generated under specified `packageName`. When using default configuration and storing GraphQL queries under `src/test/resources`
+directories, task can be executed directly from the command line by explicitly providing required properties.
+
+```shell script
+$ mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-test-client -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
+```
+
+Mojo can also be configured in your Maven build file to become part of your build lifecycle. Plugin also provides additional
+configuration options that are not available on command line.
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>generate-test-client</goal>
+            </goals>
+            <configuration>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>mySchema.graphql</schemaFile>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin test clients.
+Generated classes will be automatically added to the project test compile sources.
+
+>NOTE: You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
+>See [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+
 ### Complete Configuration Example
 
 Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a corresponding schema.
@@ -308,5 +347,5 @@ This generated schema is subsequently used to generate GraphQL client code based
 ```
 
 >NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
->As opposed to Gradle, Maven does not support explicit ordering of goals. Maven Mojos will be executed in the order they
->are defined in your `pom.xml` build file. 
+>As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
+>Mojos will be executed in the order they are defined in your `pom.xml` build file.

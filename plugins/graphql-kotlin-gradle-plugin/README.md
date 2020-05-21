@@ -51,7 +51,9 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 
 Task that generates GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual clients with their specific data models are generated for each query
-file and are placed under specified `packageName`. Generated code is automatically added to the project main source set.
+file and are placed under specified `packageName`. When this task is added to the project, either through explicit configuration
+or through the `graphql` extension, it will automatically configure itself as a dependency of a `compileKotlin` task and
+resulting generated code will be automatically added to the project main source set.
 
 **Properties**
 
@@ -69,7 +71,9 @@ file and are placed under specified `packageName`. Generated code is automatical
 
 Task that generates GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual test clients with their specific data models are generated for each query
-file and are placed under specified `packageName`. Generated code is automatically added to the project test source set.
+file and are placed under specified `packageName`. When this task is added to the project it will automatically configure
+itself as a dependency of a `compileTestKotlin` task and resulting generated code will be automatically added to the project
+test source set.
 
 **Properties**
 

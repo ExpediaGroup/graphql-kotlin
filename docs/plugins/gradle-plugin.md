@@ -66,7 +66,9 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 
 Task that generates GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual clients with their specific data models are generated for each query
-file and are placed under specified `packageName`. Generated code is automatically added to the project main source set.
+file and are placed under specified `packageName`. When this task is added to the project, either through explicit configuration
+or through the `graphql` extension, it will automatically configure itself as a dependency of a `compileKotlin` task and
+resulting generated code will be automatically added to the project main source set.
 
 **Properties**
 
@@ -84,7 +86,9 @@ file and are placed under specified `packageName`. Generated code is automatical
 
 Task that generates GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual test clients with their specific data models are generated for each query
-file and are placed under specified `packageName`. Generated code is automatically added to the project test source set.
+file and are placed under specified `packageName`. When this task is added to the project it will automatically configure
+itself as a dependency of a `compileTestKotlin` task and resulting generated code will be automatically added to the project
+test source set.
 
 **Properties**
 
@@ -135,8 +139,8 @@ val graphqlIntrospectSchema by tasks.getting(GraphQLDownloadSDLTask::class) {
 }
 ```
 
-NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
-invoke it OR configure it as a dependency of some other task.
+>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+>invoke it OR configure it as a dependency of some other task.
 
 ### Introspecting Schema
 
@@ -158,12 +162,12 @@ val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class)
 }
 ```
 
-NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
-invoke it OR configure it as a dependency of some other task.
+>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+>invoke it OR configure it as a dependency of some other task.
 
 ### Generating Client
 
-GraphQL client code is generated based on the provided queries that will be executed against target GraphQL `schemaFile`.
+GraphQL Kotlin client code is generated based on the provided queries that will be executed against target GraphQL `schemaFile`.
 Separate class is generated for each provided GraphQL query and are saved under specified `packageName`. When using default
 configuration and storing GraphQL queries under `src/main/resources` directories, task can be executed directly from the
 command line by explicitly providing required properties.
@@ -224,6 +228,34 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
+
+### Generating Test Client
+
+GraphQL Kotlin test client code is generated based on the provided queries that will be executed against target GraphQL `schemaFile`.
+Separate class is generated for each provided GraphQL query and are saved under specified `packageName`. When using default
+configuration and storing GraphQL queries under `src/test/resources` directories, task can be executed directly from the
+command line by explicitly providing required properties.
+
+```shell script
+$ gradle graphqlGenerateTestClient --schemaFileName"mySchema.graphql" --packageName="com.example.generated"
+```
+
+Task can also be explicitly configured in your Gradle build file
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class) {
+  packageName.set("com.example.generated")
+  schemaFileName.set("mySchema.graphql")
+}
+```
+
+This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin clients.
+Generated classes will be automatically added to the project test compile sources.
+
+>NOTE: `graphqlGenerateTestClient` cannot be configured through the `graphql` extension and has to be explicitly configured.
 
 ### Complete Configuration Example
 
