@@ -224,7 +224,8 @@ generated under specified <code>packageName</code>. When using default configura
 directories, task can be executed directly from the command line by explicitly providing required properties.</p>
 <pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-client -Dgraphql.schemaFile=<span class="hljs-string">"mySchema.graphql"</span> -Dgraphql.packageName=<span class="hljs-string">"com.example.generated"</span></span>
 </code></pre>
-<p>Mojo can also be configured in your Maven build file and it provides additional configuration options</p>
+<p>Mojo can also be configured in your Maven build file to become part of your build lifecycle. Plugin also provides additional
+configuration options that are not available on command line.</p>
 <pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
@@ -294,6 +295,37 @@ custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graph
     <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
 </code></pre>
+<h3><a class="anchor" aria-hidden="true" id="generating-test-client"></a><a href="#generating-test-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Test Client</h3>
+<p>This Mojo generates GraphQL Kotlin test client code based on the provided queries using target GraphQL <code>schemaFile</code>. Classes
+are generated under specified <code>packageName</code>. When using default configuration and storing GraphQL queries under <code>src/test/resources</code>
+directories, task can be executed directly from the command line by explicitly providing required properties.</p>
+<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-test-client -Dgraphql.schemaFile=<span class="hljs-string">"mySchema.graphql"</span> -Dgraphql.packageName=<span class="hljs-string">"com.example.generated"</span></span>
+</code></pre>
+<p>Mojo can also be configured in your Maven build file to become part of your build lifecycle. Plugin also provides additional
+configuration options that are not available on command line.</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>generate-test-client<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>mySchema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span>
+</code></pre>
+<p>This will process all GraphQL queries located under <code>src/test/resources</code> and generate corresponding GraphQL Kotlin test clients.
+Generated classes will be automatically added to the project test compile sources.</p>
+<blockquote>
+<p>NOTE: You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
+See <a href="https://www.mojohaus.org/build-helper-maven-plugin/">build-helper-maven-plugin</a> for details.</p>
+</blockquote>
 <h3><a class="anchor" aria-hidden="true" id="complete-configuration-example"></a><a href="#complete-configuration-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Configuration Example</h3>
 <p>Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a corresponding schema.
 This generated schema is subsequently used to generate GraphQL client code based on the queries provided under <code>src/main/resources</code> directory.</p>
@@ -318,10 +350,10 @@ This generated schema is subsequently used to generate GraphQL client code based
 </code></pre>
 <blockquote>
 <p>NOTE: Both <code>introspect-schema</code> and <code>generate-client</code> goals are bound to the same <code>generate-sources</code> Maven lifecycle phase.
-As opposed to Gradle, Maven does not support explicit ordering of goals. Maven Mojos will be executed in the order they
-are defined in your <code>pom.xml</code> build file.</p>
+As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
+Mojos will be executed in the order they are defined in your <code>pom.xml</code> build file.</p>
 </blockquote>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span class="arrow-prev">← </span><span>Gradle Plugin</span></a><a class="docs-next button" href="/graphql-kotlin/docs/contributors/release-proc"><span>Releasing a new version</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#goals">Goals</a><ul class="toc-headings"><li><a href="#download-sdl">download-sdl</a></li><li><a href="#generate-client">generate-client</a></li><li><a href="#generate-test-client">generate-test-client</a></li><li><a href="#introspect-schema">introspect-schema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating Client with Custom Scalars</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span class="arrow-prev">← </span><span>Gradle Plugin</span></a><a class="docs-next button" href="/graphql-kotlin/docs/contributors/release-proc"><span>Releasing a new version</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#goals">Goals</a><ul class="toc-headings"><li><a href="#download-sdl">download-sdl</a></li><li><a href="#generate-client">generate-client</a></li><li><a href="#generate-test-client">generate-test-client</a></li><li><a href="#introspect-schema">introspect-schema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating Client with Custom Scalars</a></li><li><a href="#generating-test-client">Generating Test Client</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

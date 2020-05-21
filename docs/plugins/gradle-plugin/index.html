@@ -84,8 +84,6 @@ graphql {
   allowDeprecatedFields = <span class="hljs-literal">false</span>
   <span class="hljs-comment">// Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</span>
   converters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
-  <span class="hljs-comment">// Boolean flag indicating whether generated GraphQL client should be added to main or test sources.</span>
-  generateTestSources = <span class="hljs-literal">false</span>
 }
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="tasks"></a><a href="#tasks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tasks</h2>
@@ -108,7 +106,9 @@ and could be used as an alternative to <code>graphqlIntrospectSchema</code> to g
 <h3><a class="anchor" aria-hidden="true" id="graphqlgenerateclient"></a><a href="#graphqlgenerateclient" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>graphqlGenerateClient</h3>
 <p>Task that generates GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual clients with their specific data models are generated for each query
-file and are placed under specified <code>packageName</code>. Generated code is automatically added to the project main source set.</p>
+file and are placed under specified <code>packageName</code>. When this task is added to the project, either through explicit configuration
+or through the <code>graphql</code> extension, it will automatically configure itself as a dependency of a <code>compileKotlin</code> task and
+resulting generated code will be automatically added to the project main source set.</p>
 <p><strong>Properties</strong></p>
 <table>
 <thead>
@@ -127,7 +127,9 @@ file and are placed under specified <code>packageName</code>. Generated code is 
 <h3><a class="anchor" aria-hidden="true" id="graphqlgeneratetestclient"></a><a href="#graphqlgeneratetestclient" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>graphqlGenerateTestClient</h3>
 <p>Task that generates GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual test clients with their specific data models are generated for each query
-file and are placed under specified <code>packageName</code>. Generated code is automatically added to the project test source set.</p>
+file and are placed under specified <code>packageName</code>. When this task is added to the project it will automatically configure
+itself as a dependency of a <code>compileTestKotlin</code> task and resulting generated code will be automatically added to the project
+test source set.</p>
 <p><strong>Properties</strong></p>
 <table>
 <thead>
@@ -173,8 +175,10 @@ be executed directly from the command line by explicitly passing <code>endpoint<
     graphqlDownloadSDL.<span class="hljs-keyword">set</span>(<span class="hljs-string">"http://localhost:8080/sdl"</span>)
 }
 </code></pre>
+<blockquote>
 <p>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 invoke it OR configure it as a dependency of some other task.</p>
+</blockquote>
 <h3><a class="anchor" aria-hidden="true" id="introspecting-schema"></a><a href="#introspecting-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Introspecting Schema</h3>
 <p>Introspection task requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
 command line by explicitly passing endpoint parameter</p>
@@ -188,10 +192,12 @@ command line by explicitly passing endpoint parameter</p>
     endpoint.<span class="hljs-keyword">set</span>(<span class="hljs-string">"http://localhost:8080/graphql"</span>)
 }
 </code></pre>
+<blockquote>
 <p>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 invoke it OR configure it as a dependency of some other task.</p>
+</blockquote>
 <h3><a class="anchor" aria-hidden="true" id="generating-client"></a><a href="#generating-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Client</h3>
-<p>GraphQL client code is generated based on the provided queries that will be executed against target GraphQL <code>schemaFile</code>.
+<p>GraphQL Kotlin client code is generated based on the provided queries that will be executed against target GraphQL <code>schemaFile</code>.
 Separate class is generated for each provided GraphQL query and are saved under specified <code>packageName</code>. When using default
 configuration and storing GraphQL queries under <code>src/main/resources</code> directories, task can be executed directly from the
 command line by explicitly providing required properties.</p>
@@ -235,6 +241,27 @@ custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graph
   converters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
 }
 </code></pre>
+<h3><a class="anchor" aria-hidden="true" id="generating-test-client"></a><a href="#generating-test-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Test Client</h3>
+<p>GraphQL Kotlin test client code is generated based on the provided queries that will be executed against target GraphQL <code>schemaFile</code>.
+Separate class is generated for each provided GraphQL query and are saved under specified <code>packageName</code>. When using default
+configuration and storing GraphQL queries under <code>src/test/resources</code> directories, task can be executed directly from the
+command line by explicitly providing required properties.</p>
+<pre><code class="hljs css language-shell script"><span class="hljs-meta">$</span><span class="bash"> gradle graphqlGenerateTestClient --schemaFileName<span class="hljs-string">"mySchema.graphql"</span> --packageName=<span class="hljs-string">"com.example.generated"</span></span>
+</code></pre>
+<p>Task can also be explicitly configured in your Gradle build file</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+<span class="hljs-keyword">val</span> graphqlGenerateTestClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
+  packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)
+  schemaFileName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"mySchema.graphql"</span>)
+}
+</code></pre>
+<p>This will process all GraphQL queries located under <code>src/test/resources</code> and generate corresponding GraphQL Kotlin clients.
+Generated classes will be automatically added to the project test compile sources.</p>
+<blockquote>
+<p>NOTE: <code>graphqlGenerateTestClient</code> cannot be configured through the <code>graphql</code> extension and has to be explicitly configured.</p>
+</blockquote>
 <h3><a class="anchor" aria-hidden="true" id="complete-configuration-example"></a><a href="#complete-configuration-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Configuration Example</h3>
 <p>Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a
 corresponding schema. This generated schema is subsequently used to generate GraphQL client code based on the queries
@@ -261,7 +288,7 @@ graphql {
   dependsOn(<span class="hljs-string">"graphqlIntrospectSchema"</span>)
 }
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/client/client-customization"><span class="arrow-prev">← </span><span>Client Customization</span></a><a class="docs-next button" href="/graphql-kotlin/docs/plugins/maven-plugin"><span>Maven Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#extension">Extension</a></li><li><a href="#tasks">Tasks</a><ul class="toc-headings"><li><a href="#graphqldownloadsdl">graphqlDownloadSDL</a></li><li><a href="#graphqlgenerateclient">graphqlGenerateClient</a></li><li><a href="#graphqlgeneratetestclient">graphqlGenerateTestClient</a></li><li><a href="#graphqlintrospectschema">graphqlIntrospectSchema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating client with Custom Scalars</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/client/client-customization"><span class="arrow-prev">← </span><span>Client Customization</span></a><a class="docs-next button" href="/graphql-kotlin/docs/plugins/maven-plugin"><span>Maven Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#extension">Extension</a></li><li><a href="#tasks">Tasks</a><ul class="toc-headings"><li><a href="#graphqldownloadsdl">graphqlDownloadSDL</a></li><li><a href="#graphqlgenerateclient">graphqlGenerateClient</a></li><li><a href="#graphqlgeneratetestclient">graphqlGenerateTestClient</a></li><li><a href="#graphqlintrospectschema">graphqlIntrospectSchema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating client with Custom Scalars</a></li><li><a href="#generating-test-client">Generating Test Client</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
