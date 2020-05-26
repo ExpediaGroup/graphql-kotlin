@@ -26,7 +26,7 @@ import com.expediagroup.graphql.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.extensions.deepName
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
 import graphql.Scalars

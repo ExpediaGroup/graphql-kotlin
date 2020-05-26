@@ -25,7 +25,7 @@ extended scalar types provided by `graphql-java`.
 ## ID
 
 GraphQL supports the scalar type `ID`, a unique identifier that is not intended to be human readable. IDs are
-serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.types.ID` class, which wraps the underlying `String` value.
+serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.scalars.ID` class, which wraps the underlying `String` value.
 
 
 > NOTE: `graphql-java` supports additional types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues](https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings. You can still use a type like UUID internally just as long as you convert or parse the value yourself and handle the errors.
@@ -73,15 +73,27 @@ Example usage
 class CustomSchemaGeneratorHooks : SchemaGeneratorHooks {
 
   override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
-    URL::class -> graphqlURLType
+    UUID::class -> graphqlUUIDType
     else -> null
   }
 }
 
-val graphqlURLType = GraphQLScalarType("URL",
-    "A type representing a formatted java.net.URL",
-    object: Coercing<URL, String> { ... }
-)
+val graphqlUUIDType = GraphQLScalarType.newScalar()
+    .name("UUID")
+    .description("A type representing a formatted java.util.UUID")
+    .coercing(UUIDCoercing)
+    .build()
+
+object UUIDCoercing : Coercing<UUID, String> {
+    override fun parseValue(input: Any?): UUID = UUID.fromString(serialize(input))
+
+    override fun parseLiteral(input: Any?): UUID? {
+        val uuidString = (input as? StringValue)?.value
+        return UUID.fromString(uuidString)
+    }
+
+    override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+}
 ```
 
 Once the scalars are registered you can use them anywhere in the schema as regular objects.

@@ -20,7 +20,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.test.utils.SimpleDirective
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import graphql.Scalars
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLList
