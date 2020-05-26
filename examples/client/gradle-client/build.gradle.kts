@@ -36,13 +36,15 @@ application {
 }
 
 graphql {
-    packageName = "com.expediagroup.graphql.generated"
-    // you can also use direct sdlEndpoint instead
-    endpoint = "http://localhost:8080/graphql"
+    client {
+        packageName = "com.expediagroup.graphql.generated"
+        // you can also use direct sdlEndpoint instead
+        endpoint = "http://localhost:8080/graphql"
+        allowDeprecatedFields = true
+        // optional
+        converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter")
+    }
 
-    // optional
-    allowDeprecatedFields = true
-    converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter"))
 }
 
 tasks {

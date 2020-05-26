@@ -17,15 +17,29 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
-import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.provider.MapProperty
+import java.io.File
 
 /**
  * GraphQL Kotlin Gradle Plugin extension.
  */
 @Suppress("UnstableApiUsage")
-open class GraphQLPluginExtension(project: Project) {
+open class GraphQLPluginExtension {
+
+    private var clientExtensionConfigured: Boolean = false
+    internal val clientExtension: GraphQLPluginClientExtension by lazy {
+        clientExtensionConfigured = true
+        GraphQLPluginClientExtension()
+    }
+
+    /** Plugin configuration for generating GraphQL client. */
+    fun client(config: GraphQLPluginClientExtension.() -> Unit = {}) {
+        clientExtension.apply(config)
+    }
+
+    internal fun isClientConfigurationAvailable(): Boolean = clientExtensionConfigured
+}
+
+open class GraphQLPluginClientExtension {
     /** GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from [sdlEndpoint]. */
     var endpoint: String? = null
     /** GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against [endpoint]. */
@@ -35,7 +49,7 @@ open class GraphQLPluginExtension(project: Project) {
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
     /** Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
-    val converters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
+    var converters: MutableMap<String, ScalarConverterMapping> = mutableMapOf()
     /** List of query files to be processed. */
-    var queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
+    var queryFiles: MutableList<File> = mutableListOf()
 }

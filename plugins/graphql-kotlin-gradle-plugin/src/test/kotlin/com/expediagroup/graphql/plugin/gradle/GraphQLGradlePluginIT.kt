@@ -39,9 +39,11 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             }
 
             graphql {
-              endpoint = "${wireMockServer.baseUrl()}/graphql"
-              packageName = "com.example.generated"
-              converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+              client {
+                endpoint = "${wireMockServer.baseUrl()}/graphql"
+                packageName = "com.example.generated"
+                converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+              }
             }
         """.trimIndent()
         generateDefaultBuildFile(testDirectory).appendText(buildFileContents)
