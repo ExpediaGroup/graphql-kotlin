@@ -41,7 +41,7 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          yml: ./codecov.yml
+          file: ./codecov.yml
 
   release-notes:
     runs-on: ubuntu-latest
