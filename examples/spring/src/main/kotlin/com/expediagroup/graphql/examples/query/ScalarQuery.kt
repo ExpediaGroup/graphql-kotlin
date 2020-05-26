@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.query
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import org.springframework.stereotype.Component
 import java.util.UUID
 

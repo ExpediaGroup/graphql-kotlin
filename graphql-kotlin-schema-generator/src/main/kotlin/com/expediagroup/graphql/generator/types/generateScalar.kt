@@ -19,7 +19,7 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.safeCast
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal

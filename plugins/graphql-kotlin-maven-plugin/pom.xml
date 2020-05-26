@@ -7,7 +7,7 @@
     <!-- this pom is only used to run integration tests -->
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin-integration-test</artifactId>
-    <version>${graphql-kotlin.version}</version>
+    <version>${graphqlKotlinVersion}</version>
     <description>Project for running integration tests verifying graphql-kotlin-maven-plugin</description>
 
     <properties>

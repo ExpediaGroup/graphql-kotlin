@@ -14,7 +14,7 @@ import com.expediagroup.graphql.examples.model.SecondInterfaceImplementation
 import com.expediagroup.graphql.examples.model.SimpleArgument
 import com.expediagroup.graphql.examples.repository.BasicObjectRepository
 import com.expediagroup.graphql.spring.operations.Query
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import org.springframework.stereotype.Component
 import java.util.UUID
 import kotlin.random.Random

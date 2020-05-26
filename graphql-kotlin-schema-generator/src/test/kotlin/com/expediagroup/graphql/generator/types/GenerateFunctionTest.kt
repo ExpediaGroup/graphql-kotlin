@@ -23,7 +23,7 @@ import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.execution.FunctionDataFetcher
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
 import graphql.Scalars.GraphQLInt

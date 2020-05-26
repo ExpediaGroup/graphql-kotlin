@@ -24,7 +24,7 @@ import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
-import com.expediagroup.graphql.types.ID
+import com.expediagroup.graphql.scalars.ID
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLSchema
 import org.junit.jupiter.api.Test
