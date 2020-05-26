@@ -36,7 +36,7 @@ private const val PLUGIN_EXTENSION_NAME = "graphql"
 class GraphQLGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create(PLUGIN_EXTENSION_NAME, GraphQLPluginExtension::class.java, project)
+        val extension = project.extensions.create(PLUGIN_EXTENSION_NAME, GraphQLPluginExtension::class.java)
 
         project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
         project.tasks.register(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java)
@@ -55,24 +55,27 @@ class GraphQLGradlePlugin : Plugin<Project> {
         }
 
         project.afterEvaluate {
-            if (extension.packageName != null) {
-                val generateClientTask = project.tasks.named(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java).get()
-                generateClientTask.packageName.convention(project.provider { extension.packageName })
-                generateClientTask.allowDeprecatedFields.convention(project.provider { extension.allowDeprecatedFields })
-                generateClientTask.converters.convention(extension.converters)
-                generateClientTask.queryFiles.setFrom(extension.queryFiles.from)
+            if (extension.isClientConfigurationAvailable()) {
+                if (extension.clientExtension.packageName != null) {
+                    val generateClientTask = project.tasks.named(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java).get()
+                    generateClientTask.packageName.convention(project.provider { extension.clientExtension.packageName })
+                    generateClientTask.allowDeprecatedFields.convention(project.provider { extension.clientExtension.allowDeprecatedFields })
+                    generateClientTask.converters.convention(extension.clientExtension.converters)
+                    generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
 
-                if (extension.endpoint != null) {
-                    val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
-                    introspectSchemaTask.endpoint.convention(project.provider { extension.endpoint })
-                    generateClientTask.dependsOn(introspectSchemaTask.path)
-                    generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile)
-                }
-                if (extension.sdlEndpoint != null) {
-                    val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
-                    downloadSDLTask.endpoint.convention(project.provider { extension.endpoint })
-                    generateClientTask.dependsOn(downloadSDLTask.path)
-                    generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
+                    if (extension.clientExtension.endpoint != null) {
+                        val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
+                        introspectSchemaTask.endpoint.convention(project.provider { extension.clientExtension.endpoint })
+                        generateClientTask.dependsOn(introspectSchemaTask.path)
+                        generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile)
+                    } else if (extension.clientExtension.sdlEndpoint != null) {
+                        val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
+                        downloadSDLTask.endpoint.convention(project.provider { extension.clientExtension.endpoint })
+                        generateClientTask.dependsOn(downloadSDLTask.path)
+                        generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
+                    } else {
+                        throw RuntimeException("Invalid GraphQL client extension configuration - missing required endpoint/sdlEndpoint property")
+                    }
                 }
             }
 

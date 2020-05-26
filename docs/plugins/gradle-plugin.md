@@ -31,16 +31,18 @@ tasks.
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
-  // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
-  endpoint = "http://localhost:8080/graphql"
-  // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
-  sdlEndpoint = "http://localhost:8080/sdl"
-  // Target package name to be used for generated classes.
-  packageName = "com.example.generated"
-  // Boolean flag indicating whether or not selection of deprecated fields is allowed.
-  allowDeprecatedFields = false
-  // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
-  converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+  client {
+    // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
+    endpoint = "http://localhost:8080/graphql"
+    // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
+    sdlEndpoint = "http://localhost:8080/sdl"
+    // Target package name to be used for generated classes.
+    packageName = "com.example.generated"
+    // Boolean flag indicating whether or not selection of deprecated fields is allowed.
+    allowDeprecatedFields = false
+    // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+    converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+  }
 }
 ```
 
@@ -268,8 +270,10 @@ provided under `src/main/resources` directory.
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
+  client {
     endpoint = "http://localhost:8080/graphql"
     packageName = "com.example.generated"
+  }
 }
 ```
 
