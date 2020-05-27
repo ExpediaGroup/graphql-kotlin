@@ -1,5 +1,7 @@
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.gradle.graphql
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 plugins {
     application
@@ -40,11 +42,13 @@ graphql {
         packageName = "com.expediagroup.graphql.generated"
         // you can also use direct sdlEndpoint instead
         endpoint = "http://localhost:8080/graphql"
-        allowDeprecatedFields = true
-        // optional
-        converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter")
-    }
 
+        // optional
+        allowDeprecatedFields = true
+        headers["X-Custom-Header"] = "My-Custom-Header"
+        converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter")
+//        queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    }
 }
 
 tasks {

@@ -23,6 +23,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.accept
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
@@ -33,7 +34,7 @@ import io.ktor.util.KtorExperimentalAPI
  * Runs introspection query against specified GraphQL endpoint and returns underlying schema.
  */
 @KtorExperimentalAPI
-suspend fun introspectSchema(endpoint: String): String = HttpClient(engineFactory = CIO) {
+suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = emptyMap()): String = HttpClient(engineFactory = CIO) {
     install(feature = JsonFeature)
 }.use { client ->
     val introspectionResult = try {
@@ -41,6 +42,9 @@ suspend fun introspectSchema(endpoint: String): String = HttpClient(engineFactor
             url(endpoint)
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
+            httpHeaders.forEach { (name, value) ->
+                header(name, value)
+            }
             body = mapOf(
                 "query" to IntrospectionQuery.INTROSPECTION_QUERY,
                 "operationName" to "IntrospectionQuery"

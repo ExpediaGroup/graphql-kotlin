@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
@@ -30,15 +32,42 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
     fun `apply the gradle plugin and execute downloadSDL task`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
         val buildFileContents = """
             val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/sdl")
             }
         """.trimIndent()
-        generateDefaultBuildFile(tempDir.toFile()).appendText(buildFileContents)
+        testProjectDirectory.generateBuildFile(buildFileContents)
 
         val result = GradleRunner.create()
-            .withProjectDir(tempDir.toFile())
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(DOWNLOAD_SDL_TASK_NAME)
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
+        assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
+    }
+
+    @Test
+    fun `apply the gradle plugin and execute downloadSDL task with headers`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val customHeaderName = "X-Custom-Header"
+        val customHeaderValue = "My-Custom-Header-Value"
+        WireMock.reset()
+        WireMock.stubFor(stubSdlEndpoint().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
+
+        val buildFileContents = """
+            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+              endpoint.set("${wireMockServer.baseUrl()}/sdl")
+              headers.put("$customHeaderName", "$customHeaderValue")
+            }
+        """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(DOWNLOAD_SDL_TASK_NAME)
             .build()

@@ -38,6 +38,12 @@ class GraphQLMavenPluginTest {
                 assertTrue(scalarResult is JUnitQuery.ScalarWrapper)
                 assertNotNull(scalarResult)
                 assertTrue(scalarResult?.count is Int)
+                {{#customScalarsEnabled}}
+                    assertTrue(scalarResult?.custom is JUnitQuery.UUID)
+                {{/customScalarsEnabled}}
+                {{^customScalarsEnabled}}
+                    assertTrue(scalarResult?.custom is String)
+                {{/customScalarsEnabled}}
                 assertEquals(JUnitQuery.CustomEnum.ONE, data?.enumQuery)
                 val interfaceResult = data?.interfaceQuery
                 assertTrue(interfaceResult is JUnitQuery.SecondInterfaceImplementation)

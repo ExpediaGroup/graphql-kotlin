@@ -36,6 +36,12 @@ class IntrospectSchemaMojo : AbstractMojo() {
     @Parameter(defaultValue = "\${graphql.endpoint}", name = "endpoint", required = true)
     private lateinit var endpoint: String
 
+    /**
+     * Optional HTTP headers to be specified on an introspection query.
+     */
+    @Parameter(name = "headers")
+    private var headers: Map<String, Any> = mutableMapOf()
+
     @Parameter(defaultValue = "\${project.build.directory}", readonly = true)
     private lateinit var outputDirectory: File
 
@@ -48,7 +54,7 @@ class IntrospectSchemaMojo : AbstractMojo() {
 
         val schemaFile = File("${outputDirectory.absolutePath}/schema.graphql")
         runBlocking {
-            val schema = introspectSchema(endpoint = endpoint)
+            val schema = introspectSchema(endpoint = endpoint, httpHeaders = headers)
             schemaFile.writeText(schema)
         }
         log.debug("successfully generated schema from introspection results")

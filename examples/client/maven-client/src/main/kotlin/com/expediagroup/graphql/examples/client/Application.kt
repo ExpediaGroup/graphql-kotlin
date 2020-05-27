@@ -6,24 +6,34 @@ import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.engine.okhttp.OkHttpEngine
+import io.ktor.client.features.logging.DEFAULT
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logger
+import io.ktor.client.features.logging.Logging
 import kotlinx.coroutines.runBlocking
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    val okHttpEngine = OkHttp.create {
-        config {
-            connectTimeout(1, TimeUnit.SECONDS)
-            readTimeout(60, TimeUnit.SECONDS)
-            writeTimeout(60, TimeUnit.SECONDS)
+    val jackson = jacksonObjectMapper()
+    val client = GraphQLClient(
+        url = URL("http://localhost:8080/graphql"),
+        engineFactory = OkHttp,
+        mapper = jackson
+    ) {
+        engine {
+            config {
+                connectTimeout(10, TimeUnit.SECONDS)
+                readTimeout(60, TimeUnit.SECONDS)
+                writeTimeout(60, TimeUnit.SECONDS)
+            }
         }
-//        addInterceptor(myInterceptor)
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.HEADERS
+        }
     }
-    val customObjectMapper = jacksonObjectMapper()
-    val client = GraphQLClient(url = URL("http://localhost:8080/graphql"), mapper = customObjectMapper)
     val helloWorldQuery = HelloWorldQuery(client)
     println("HelloWorld examples")
     runBlocking {

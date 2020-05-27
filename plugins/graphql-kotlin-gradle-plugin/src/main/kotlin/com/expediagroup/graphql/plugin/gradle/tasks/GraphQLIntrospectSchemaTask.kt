@@ -20,6 +20,7 @@ import com.expediagroup.graphql.plugin.introspectSchema
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -42,12 +43,20 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
     @Option(option = "endpoint", description = "target GraphQL endpoint")
     val endpoint: Property<String> = project.objects.property(String::class.java)
 
+    /**
+     * Optional HTTP headers to be specified on an introspection query.
+     */
+    @Input
+    val headers: MapProperty<String, Any> = project.objects.mapProperty(String::class.java, Any::class.java)
+
     @OutputFile
     val outputFile: Provider<RegularFile> = project.layout.buildDirectory.file("schema.graphql")
 
     init {
         group = "GraphQL"
         description = "Run introspection query against target GraphQL endpoint and save schema locally."
+
+        headers.convention(emptyMap())
     }
 
     /**
@@ -58,7 +67,7 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
     fun introspectSchemaAction() {
         logger.debug("starting introspection task against ${endpoint.get()}")
         runBlocking {
-            val schema = introspectSchema(endpoint = endpoint.get())
+            val schema = introspectSchema(endpoint = endpoint.get(), httpHeaders = headers.get())
             outputFile.get().asFile.writeText(schema)
         }
         logger.debug("successfully created GraphQL schema from introspection result")

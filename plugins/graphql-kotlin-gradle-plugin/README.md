@@ -46,6 +46,7 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**Command line property is**: `endpoint`. |
+| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request. |
 
 ### graphqlGenerateClient
 
@@ -98,6 +99,7 @@ should be used to generate input for the subsequent `graphqlGenerateClient` task
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
+| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
 
 ## Documentation
 

@@ -28,6 +28,7 @@ goal provides limited functionality by itself and instead should be used to gene
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
+| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request.
 
 ### generate-client
 
@@ -122,6 +123,7 @@ should be used to generate input for the subsequent `generate-client` goal.
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
+| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
 
 ## Examples
 
@@ -320,7 +322,7 @@ Generated classes will be automatically added to the project test compile source
 >NOTE: You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
 >See [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
 
-### Complete Configuration Example
+### Complete Minimal Configuration Example
 
 Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a corresponding schema.
 This generated schema is subsequently used to generate GraphQL client code based on the queries provided under `src/main/resources` directory.
@@ -349,3 +351,47 @@ This generated schema is subsequently used to generate GraphQL client code based
 >NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
 >As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
 >Mojos will be executed in the order they are defined in your `pom.xml` build file.
+
+### Complete Configuration Example
+
+Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
+the GraphQL client code based on the provided query.
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>download-sdl</goal>
+                <goal>generate-client</goal>
+            </goals>
+            <configuration>
+                <endpoint>http://localhost:8080/sdl</endpoint>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
+                <!-- optional configuration below -->
+                <allowDeprecatedFields>true</allowDeprecatedFields>
+                <headers>
+                    <X-Custom-Header>My-Custom-Header</X-Custom-Header>
+                </headers>
+                <converters>
+                    <!-- custom scalar UUID type -->
+                    <UUID>
+                        <!-- fully qualified Java class name of a custom scalar type -->
+                        <type>java.util.UUID</type>
+                        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                           used to convert to/from raw JSON and scalar type -->
+                        <converter>com.example.UUIDScalarConverter</converter>
+                    </UUID>
+                </converters>
+                <queryFiles>
+                    <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
+                </queryFiles>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```

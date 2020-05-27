@@ -6,7 +6,7 @@
 
     <!-- this pom is only used to test maven plugin and won't be published -->
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-maven-plugin-test</artifactId>
+    <artifactId>graphql-kotlin-maven-basic-plugin-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -83,32 +83,13 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>download-sdl</goal>
+                            <goal>introspect-schema</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
-                            <endpoint>@graphql.endpoint@/sdlWithHeaders</endpoint>
+                            <endpoint>@graphql.endpoint@/graphql</endpoint>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>
                             <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
-                            <!-- optional configuration below -->
-                            <allowDeprecatedFields>true</allowDeprecatedFields>
-                            <headers>
-                                <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
-                            </headers>
-                            <converters>
-                                <!-- custom scalar UUID type -->
-                                <UUID>
-                                    <!-- fully qualified Java class name of a custom scalar type -->
-                                    <type>java.util.UUID</type>
-                                    <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-                                       used to convert to/from raw JSON and scalar type -->
-                                    <converter>com.example.UUIDScalarConverter</converter>
-                                </UUID>
-                            </converters>
-                            <queryFiles>
-                                <queryFile>${project.basedir}/src/main/resources/ExampleQuery.graphql</queryFile>
-                                <queryFile>${project.basedir}/src/main/resources/DeprecatedQuery.graphql</queryFile>
-                            </queryFiles>
                         </configuration>
                     </execution>
                 </executions>
