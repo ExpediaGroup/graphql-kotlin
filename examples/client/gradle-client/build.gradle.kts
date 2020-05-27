@@ -47,7 +47,6 @@ graphql {
         allowDeprecatedFields = true
         headers["X-Custom-Header"] = "My-Custom-Header"
         converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter")
-//        queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     }
 }
 

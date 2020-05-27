@@ -80,9 +80,6 @@
                                     <converter>com.expediagroup.graphql.examples.client.UUIDScalarConverter</converter>
                                 </UUID>
                             </converters>
-<!--                            <queryFiles>-->
-<!--                                <queryFile>${project.basedir}/src/main/resources/HelloWorldQuery.graphql</queryFile>-->
-<!--                            </queryFiles>-->
                         </configuration>
                     </execution>
                 </executions>
