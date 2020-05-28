@@ -46,6 +46,8 @@ open class GraphQLPluginClientExtension {
     var sdlEndpoint: String? = null
     /** Target package name to be used for generated classes. */
     var packageName: String? = null
+    /** Optional HTTP headers to be specified on an introspection query or SDL request. */
+    var headers: MutableMap<String, Any> = mutableMapOf()
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
     /** Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */

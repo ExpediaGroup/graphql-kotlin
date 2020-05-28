@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
@@ -25,6 +26,10 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import java.io.BufferedReader
 import java.io.File
+import com.github.mustachejava.DefaultMustacheFactory
+
+import com.github.mustachejava.MustacheFactory
+import java.io.StringWriter
 
 abstract class GraphQLGradlePluginAbstractIT {
 
@@ -34,37 +39,45 @@ abstract class GraphQLGradlePluginAbstractIT {
     private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.71"
     private val junitVersion = System.getProperty("junitVersion") ?: "5.6.0"
 
-    val testSchema = loadResource("testSchema.graphql")
-    private val introspectionResult = loadResource("introspectionResult.json")
-    private val testResponse = loadResource("testResponse.json")
+    val testSchema = loadResource("mocks/schema.graphql")
+    val introspectionResult = loadResource("mocks/IntrospectionResult.json")
+    val testQuery = loadResource("mocks/JUnitQuery.graphql")
+    val testResponse = loadResource("mocks/JUnitQueryResponse.json")
 
     @BeforeEach
     fun setUp() {
         WireMock.reset()
-        WireMock.stubFor(WireMock.get("/sdl")
-            .willReturn(WireMock.aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "text/plain")
-                .withBody(testSchema)))
-        WireMock.stubFor(WireMock.post("/graphql")
-            .withRequestBody(ContainsPattern("IntrospectionQuery"))
-            .willReturn(WireMock.aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(introspectionResult)))
-        WireMock.stubFor(WireMock.post("/graphql")
-            .withRequestBody(ContainsPattern("JUnitQuery"))
-            .willReturn(WireMock.aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(testResponse)))
+        WireMock.stubFor(stubSdlEndpoint())
+        WireMock.stubFor(stubIntrospectionResult())
+        WireMock.stubFor(stubGraphQLResponse())
     }
+
+    fun stubSdlEndpoint(): MappingBuilder = WireMock.get("/sdl")
+        .withResponse(content = testSchema, contentType = "text/plain")
+
+    fun stubIntrospectionResult(): MappingBuilder = WireMock.post("/graphql")
+        .withRequestBody(ContainsPattern("IntrospectionQuery"))
+        .withResponse(content = introspectionResult)
+
+    fun stubGraphQLResponse(): MappingBuilder = WireMock.post("/graphql")
+        .withRequestBody(ContainsPattern("JUnitQuery"))
+        .withResponse(content = testResponse)
+
+    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json") = this.willReturn(WireMock.aResponse()
+        .withStatus(200)
+        .withHeader("Content-Type", contentType)
+        .withBody(content))
 
     fun loadResource(resourceName: String) = ClassLoader.getSystemClassLoader().getResourceAsStream(resourceName)?.use {
         BufferedReader(it.reader()).readText()
     } ?: throw RuntimeException("unable to load $resourceName")
 
-    fun generateDefaultBuildFile(tempDir: File): File {
+    fun loadTemplate(templateName: String, configuration: Map<String, Any>): String {
+        val testApplicationMustache = mustacheFactory.compile("templates/$templateName.mustache")
+        return testApplicationMustache.execute(StringWriter(), configuration).toString()
+    }
+
+    internal fun File.generateBuildFile(contents: String) {
         val buildFileContents = """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
             import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
@@ -97,15 +110,26 @@ abstract class GraphQLGradlePluginAbstractIT {
                 testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
             }
 
+            $contents
         """.trimIndent()
 
-        val buildFile = File(tempDir, "build.gradle.kts")
+        val buildFile = File(this, "build.gradle.kts")
         buildFile.writeText(buildFileContents)
-        return buildFile
+    }
+
+    internal fun File.createTestFile(fileName: String, subDirectory: String? = null): File {
+        val targetDirectory = if (subDirectory != null) {
+            File(this, subDirectory)
+        } else {
+            this
+        }
+        targetDirectory.mkdirs()
+        return File(targetDirectory, fileName)
     }
 
     companion object {
         internal val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
+        internal val mustacheFactory: MustacheFactory = DefaultMustacheFactory()
 
         @BeforeAll
         @JvmStatic

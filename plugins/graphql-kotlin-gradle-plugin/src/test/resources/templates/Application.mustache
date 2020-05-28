@@ -2,10 +2,8 @@ package com.example
 
 import com.example.generated.JUnitQuery
 import com.expediagroup.graphql.client.GraphQLClient
-import com.expediagroup.graphql.client.converter.ScalarConverter
 import kotlinx.coroutines.runBlocking
 import java.net.URL
-import java.util.UUID
 
 fun main() {
     val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint")))
@@ -20,7 +18,12 @@ fun main() {
         assert(scalarResult is JUnitQuery.ScalarWrapper)
         assert(scalarResult != null)
         assert(scalarResult?.count is Int)
-        assert(scalarResult?.custom is JUnitQuery.UUID)
+        {{#customScalarsEnabled}}
+            assert(scalarResult?.custom is JUnitQuery.UUID)
+        {{/customScalarsEnabled}}
+        {{^customScalarsEnabled}}
+            assert(scalarResult?.custom is String)
+        {{/customScalarsEnabled}}
         assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
         val interfaceResult = data?.interfaceQuery
         assert(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
@@ -29,9 +32,4 @@ fun main() {
         assert(response.errors == null)
         assert(response.extensions == null)
     }
-}
-
-class UUIDScalarConverter : ScalarConverter<UUID> {
-    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
-    override fun toJson(value: UUID): String = value.toString()
 }

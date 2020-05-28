@@ -20,6 +20,7 @@ import com.expediagroup.graphql.plugin.downloadSchema
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -42,12 +43,20 @@ open class GraphQLDownloadSDLTask : DefaultTask() {
     @Option(option = "endpoint", description = "target SDL endpoint")
     val endpoint: Property<String> = project.objects.property(String::class.java)
 
+    /**
+     * Optional HTTP headers to be specified on a SDL request.
+     */
+    @Input
+    val headers: MapProperty<String, Any> = project.objects.mapProperty(String::class.java, Any::class.java)
+
     @OutputFile
     val outputFile: Provider<RegularFile> = project.layout.buildDirectory.file("schema.graphql")
 
     init {
         group = "GraphQL"
         description = "Download schema in SDL format from target endpoint."
+
+        headers.convention(emptyMap())
     }
 
     /**
@@ -58,7 +67,7 @@ open class GraphQLDownloadSDLTask : DefaultTask() {
     fun downloadSDLAction() {
         logger.debug("starting download SDL task against ${endpoint.get()}")
         runBlocking {
-            val schema = downloadSchema(endpoint = endpoint.get())
+            val schema = downloadSchema(endpoint = endpoint.get(), httpHeaders = headers.get())
             val outputFile = outputFile.get().asFile
             outputFile.writeText(schema)
         }

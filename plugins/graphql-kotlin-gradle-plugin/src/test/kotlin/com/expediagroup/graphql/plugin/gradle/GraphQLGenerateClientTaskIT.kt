@@ -25,14 +25,26 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
-    private val testQuery = loadResource("testQuery.graphql")
 
     @Test
-    fun `apply the gradle plugin and execute generateClient task`(@TempDir tempDir: Path) {
-        val testDirectory = tempDir.toFile()
+    fun `apply the gradle plugin and execute generateClient task with defaults`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        /*
+        project setup
+        ----
+        build.gradle.kts
+        schema.graphql
+        src
+        |- main
+          |- kotlin
+            |- com.example.Application.kt
+          |- resources
+            |- JUnitQuery.graphql
+         */
         val buildFileContents = """
             application {
               applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
@@ -42,43 +54,129 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
               packageName.set("com.example.generated")
               schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-              converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
             }
         """.trimIndent()
-        generateDefaultBuildFile(testDirectory).appendText(buildFileContents)
-
-        // project setup
-        File(testDirectory, "schema.graphql").writeText(testSchema)
-
-        val resourcesDir = File(testDirectory, "src/main/resources")
-        resourcesDir.mkdirs()
-        File(resourcesDir, "JUnitQuery.graphql").writeText(testQuery)
-
-        val srcDir = File(testDirectory, "src/main/kotlin/com/example")
-        srcDir.mkdirs()
-        File(srcDir, "Application.kt").writeText(loadResource("testApplication.txt"))
+        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.createTestFile("schema.graphql")
+            .writeText(testSchema)
+        testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
+            .writeText(testQuery)
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to false)))
         // end project setup
 
-        val codeGenerationResult = GradleRunner.create()
-            .withProjectDir(testDirectory)
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(GENERATE_CLIENT_TASK_NAME, "run")
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
+    }
+
+    @Test
+    fun `generateClient task should fail on deprecated queries`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents = """
+            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+              packageName.set("com.example.generated")
+              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            }
+        """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.createTestFile("schema.graphql")
+            .writeText(testSchema)
+        testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
+            .writeText(loadResource("mocks/DeprecatedQuery.graphql"))
+        // end project setup
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(GENERATE_CLIENT_TASK_NAME)
-            .build()
+            .buildAndFail()
 
-        assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
-        assertTrue(File(testDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertEquals(TaskOutcome.FAILED, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertFalse(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+    }
 
-        val integrationTestResult = GradleRunner.create()
-            .withProjectDir(testDirectory)
+    @Test
+    fun `apply the gradle plugin and execute generateClient task`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        /*
+        project setup
+        ----
+        build.gradle.kts
+        src
+        |- main
+          |- kotlin
+            |- com.example.Application.kt
+            |- com.example.UUIDScalarConverter.kt
+          |- resources
+            |- JUnitQuery.graphql
+            |- DeprecatedQuery.graphql
+         */
+        val buildFileContents = """
+            application {
+              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+              mainClassName = "com.example.ApplicationKt"
+            }
+
+            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+              packageName.set("com.example.generated")
+              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+              // optional config
+              converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+              allowDeprecatedFields.set(true)
+              queryFiles.from(
+                "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
+                "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"
+              )
+            }
+        """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.createTestFile("schema.graphql")
+            .writeText(testSchema)
+        testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
+            .writeText(testQuery)
+        testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
+            .writeText(loadResource("mocks/DeprecatedQuery.graphql"))
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to true)))
+        testProjectDirectory.createTestFile("UUIDScalarConverter.kt", "src/main/kotlin/com/example")
+            .writeText(loadResource("mocks/UUIDScalarConverter.kt"))
+        // end project setup
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments("run")
+            .withArguments(GENERATE_CLIENT_TASK_NAME, "run")
             .build()
-        assertEquals(TaskOutcome.SUCCESS, integrationTestResult.task(":run")?.outcome)
+
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
     }
 
     @Test
     fun `apply the gradle plugin and execute generateTestClient task`(@TempDir tempDir: Path) {
-        val testDirectory = tempDir.toFile()
+        val testProjectDirectory = tempDir.toFile()
+
+        /*
+        project setup
+        ----
+        build.gradle.kts
+        schema.graphql
+        src
+        |- test
+          |- kotlin
+            |- com.example.GenerateClientTest.kt
+          |- resources
+            |- JUnitQuery.graphql
+         */
         val buildFileContents = """
             val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class) {
               packageName.set("com.example.generated")
@@ -91,33 +189,23 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               }
             }
         """.trimIndent()
-        generateDefaultBuildFile(testDirectory).appendText(buildFileContents)
-
-        // project setup
-        File(testDirectory, "schema.graphql").writeText(testSchema)
-        val testResourcesDir = File(testDirectory, "src/test/resources")
-        testResourcesDir.mkdirs()
-        File(testResourcesDir, "JUnitQuery.graphql").writeText(testQuery)
-
-        val srcDir = File(testDirectory, "src/test/kotlin/com/example")
-        srcDir.mkdirs()
-        File(srcDir, "GenerateClientTest.kt").writeText(loadResource("testJunit.txt"))
+        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.createTestFile("schema.graphql")
+            .writeText(testSchema)
+        testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/test/resources")
+            .writeText(testQuery)
+        testProjectDirectory.createTestFile("GenerateClientTest.kt", "src/test/kotlin/com/example")
+            .writeText(loadTemplate("JUnit", mapOf("customScalarsEnabled" to false)))
         // end project setup
 
-        val codeGenerationResult = GradleRunner.create()
-            .withProjectDir(testDirectory)
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_TEST_CLIENT_TASK_NAME)
+            .withArguments(GENERATE_TEST_CLIENT_TASK_NAME, "test")
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, codeGenerationResult.task(":$GENERATE_TEST_CLIENT_TASK_NAME")?.outcome)
-        assertTrue(File(testDirectory, "build/generated/source/graphql/test/com/example/generated/JUnitQuery.kt").exists())
-
-        val integrationTestResult = GradleRunner.create()
-            .withProjectDir(testDirectory)
-            .withPluginClasspath()
-            .withArguments("test")
-            .build()
-        assertEquals(TaskOutcome.SUCCESS, integrationTestResult.task(":test")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_TEST_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/test/com/example/generated/JUnitQuery.kt").exists())
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":test")?.outcome)
     }
 }

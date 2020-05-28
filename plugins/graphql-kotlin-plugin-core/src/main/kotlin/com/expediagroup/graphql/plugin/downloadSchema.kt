@@ -20,15 +20,20 @@ import graphql.schema.idl.SchemaParser
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.util.KtorExperimentalAPI
 
 /**
  * Downloads GraphQL SDL from the specified endpoint and verifies whether the result is a valid GraphQL schema.
  */
 @KtorExperimentalAPI
-suspend fun downloadSchema(endpoint: String): String = HttpClient(CIO).use { client ->
+suspend fun downloadSchema(endpoint: String, httpHeaders: Map<String, Any> = emptyMap()): String = HttpClient(CIO).use { client ->
     val sdl = try {
-        client.get<String>(urlString = endpoint)
+        client.get<String>(urlString = endpoint) {
+            httpHeaders.forEach { (name, value) ->
+                header(name, value)
+            }
+        }
     } catch (e: Throwable) {
         throw RuntimeException("Unable to download SDL from specified endpoint=$endpoint", e)
     }

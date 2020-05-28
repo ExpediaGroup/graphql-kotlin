@@ -22,8 +22,25 @@ Plugin should be configured as part of your `pom.xml` build file.
             </goals>
             <configuration>
                 <endpoint>http://localhost:8080/graphql</endpoint>
-                <packageName>com.expediagroup.graphql.generated</packageName>
+                <packageName>com.example.generated</packageName>
                 <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
+                <allowDeprecatedFields>true</allowDeprecatedFields>
+                <headers>
+                    <X-Custom-Header>My-Custom-Header</X-Custom-Header>
+                </headers>
+                <converters>
+                    <!-- custom scalar UUID type -->
+                    <UUID>
+                        <!-- fully qualified Java class name of a custom scalar type -->
+                        <type>java.util.UUID</type>
+                        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                           used to convert to/from raw JSON and scalar type -->
+                        <converter>com.example.UUIDScalarConverter</converter>
+                    </UUID>
+                </converters>
+                <queryFiles>
+                    <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
+                </queryFiles>
             </configuration>
         </execution>
     </executions>
@@ -47,6 +64,7 @@ by itself and instead should be used to generate input for the subsequent `gener
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
+| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request.
 
 ### generate-client
 
@@ -141,6 +159,7 @@ should be used to generate input for the subsequent `generate-client` goal.
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
+| `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
 
 ## Documentation
 
