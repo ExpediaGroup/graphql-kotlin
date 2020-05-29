@@ -18,7 +18,7 @@ package com.expediagroup.graphql.examples.subscriptions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
-import com.expediagroup.graphql.types.operations.Subscription
+import com.expediagroup.graphql.spring.operations.Subscription
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher
 import org.reactivestreams.Publisher

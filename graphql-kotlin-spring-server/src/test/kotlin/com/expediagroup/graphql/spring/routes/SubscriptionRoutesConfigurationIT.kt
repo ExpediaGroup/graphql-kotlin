@@ -18,8 +18,8 @@ package com.expediagroup.graphql.spring.routes
 
 import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
-import com.expediagroup.graphql.types.operations.Query
-import com.expediagroup.graphql.types.operations.Subscription
+import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.spring.operations.Subscription
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

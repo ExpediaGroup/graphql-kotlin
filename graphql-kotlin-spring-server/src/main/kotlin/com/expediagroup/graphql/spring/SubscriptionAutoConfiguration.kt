@@ -22,7 +22,7 @@ import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHandler
 import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHooks
 import com.expediagroup.graphql.spring.execution.SubscriptionHandler
 import com.expediagroup.graphql.spring.execution.SubscriptionWebSocketHandler
-import com.expediagroup.graphql.types.operations.Subscription
+import com.expediagroup.graphql.spring.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
