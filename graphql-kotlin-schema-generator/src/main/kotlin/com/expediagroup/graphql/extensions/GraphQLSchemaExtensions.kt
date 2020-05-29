@@ -26,8 +26,6 @@ import java.util.function.Predicate
  *
  * @param includeIntrospectionTypes boolean flag indicating whether SDL should include introspection types
  * @param includeScalarTypes boolean flag indicating whether SDL should include custom schema scalars
- * @param includeExtendedScalarTypes boolean flag indicating whether SDL should include extended scalars (e.g. Long)
- *   supported by graphql-java, if set will automatically also set the includeScalarTypes flag
  * @param includeDefaultSchemaDefinition boolean flag indicating whether SDL should include schema definition if using
  *   default root type names
  * @param includeDirectives boolean flag indicating whether SDL should include directive information
@@ -36,7 +34,6 @@ import java.util.function.Predicate
 fun GraphQLSchema.print(
     includeIntrospectionTypes: Boolean = false,
     includeScalarTypes: Boolean = true,
-    includeExtendedScalarTypes: Boolean = true,
     includeDefaultSchemaDefinition: Boolean = true,
     includeDirectives: Boolean = true,
     includeDirectivesFilter: Predicate<GraphQLDirective> = Predicate { includeDirectives }
@@ -44,14 +41,10 @@ fun GraphQLSchema.print(
     val schemaPrinter = SchemaPrinter(
         SchemaPrinter.Options.defaultOptions()
             .includeIntrospectionTypes(includeIntrospectionTypes)
-            .includeScalarTypes(includeScalarTypes || includeExtendedScalarTypes)
-            .includeExtendedScalarTypes(includeExtendedScalarTypes)
+            .includeScalarTypes(includeScalarTypes)
             .includeSchemaDefinition(includeDefaultSchemaDefinition)
             .includeDirectives(includeDirectives)
             .includeDirectives(includeDirectivesFilter)
     )
-
-    // escape special characters to preserve them in the SDL
     return schemaPrinter.print(this)
-        .replace("\\", "\\\\")
 }

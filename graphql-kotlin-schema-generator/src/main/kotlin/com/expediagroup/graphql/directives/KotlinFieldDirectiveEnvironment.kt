@@ -35,7 +35,7 @@ class KotlinFieldDirectiveEnvironment(
     /**
      * Retrieve current data fetcher associated with the target element.
      */
-    fun getDataFetcher(): DataFetcher<Any> = codeRegistry.getDataFetcher(coordinates, element)
+    fun getDataFetcher(): DataFetcher<*> = codeRegistry.getDataFetcher(coordinates, element)
 
     /**
      * Update target element data fetcher.

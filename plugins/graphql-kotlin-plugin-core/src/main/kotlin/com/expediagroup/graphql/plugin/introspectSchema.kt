@@ -58,7 +58,6 @@ suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = e
     val graphQLDocument = IntrospectionResultToSchema().createSchemaDefinition(introspectionResult["data"] as? Map<String, Any?>)
     val options = SchemaPrinter.Options.defaultOptions()
         .includeScalarTypes(true)
-        .includeExtendedScalarTypes(true)
         .includeSchemaDefinition(true)
         .includeDirectives(true)
     SchemaPrinter(options).print(graphQLDocument)

@@ -62,6 +62,12 @@ class IntrospectSchemaTest {
                 reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ENUM_VALUE
 
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
+
             type Query {
               widget: Widget!
             }
