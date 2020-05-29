@@ -28,7 +28,7 @@ class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
     override fun onField(environment: KotlinFieldDirectiveEnvironment): GraphQLFieldDefinition {
         val field = environment.element
-        val originalDataFetcher: DataFetcher<Any> = environment.getDataFetcher()
+        val originalDataFetcher: DataFetcher<*> = environment.getDataFetcher()
 
         val lowerCaseFetcher = DataFetcherFactories.wrapDataFetcher(
             originalDataFetcher,

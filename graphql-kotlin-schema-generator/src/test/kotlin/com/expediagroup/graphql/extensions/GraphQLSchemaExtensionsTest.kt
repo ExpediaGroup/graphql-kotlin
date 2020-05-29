@@ -59,28 +59,10 @@ class GraphQLSchemaExtensionsTest {
     }
 
     @Test
-    fun `verify print result of a simple schema with extended scalars`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
-
-        val sdl = schema.print(includeDirectives = false, includeScalarTypes = false, includeExtendedScalarTypes = true).trim()
-        val expected = """
-            schema {
-              query: Query
-            }
-
-            type Query {
-              basic(msg: String!): String!
-              nullable(msg: String): String
-            }
-        """.trimIndent()
-        assertEquals(expected, sdl)
-    }
-
-    @Test
     fun `verify print result of a simple schema with no scalars`() {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
 
-        val sdl = schema.print(includeDirectives = false, includeScalarTypes = false, includeExtendedScalarTypes = false).trim()
+        val sdl = schema.print(includeDirectives = false, includeScalarTypes = false).trim()
         val expected = """
             schema {
               query: Query
@@ -283,8 +265,14 @@ class GraphQLSchemaExtensionsTest {
             "Marks the field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
-                reason: String! = "No longer supported"
+                reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ENUM_VALUE
+
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
 
             type ClassWithDirective {
               msg: String! @customDirective

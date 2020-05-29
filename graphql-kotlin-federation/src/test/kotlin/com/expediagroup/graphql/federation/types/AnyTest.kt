@@ -41,7 +41,7 @@ class AnyTest {
     fun `_Any scalar should allow all types`() {
         val coercing = ANY_SCALAR_TYPE.coercing
 
-        assertNull(coercing.parseLiteral(NullValue.Null))
+        assertNull(coercing.parseLiteral(NullValue.newNullValue().build()))
         assertEquals(expected = BigDecimal.ONE, actual = coercing.parseLiteral(FloatValue(BigDecimal.ONE)))
         assertEquals(expected = "hello", actual = coercing.parseLiteral(StringValue("hello")))
         assertEquals(expected = BigInteger.ONE, actual = coercing.parseLiteral(IntValue(BigInteger.ONE)))

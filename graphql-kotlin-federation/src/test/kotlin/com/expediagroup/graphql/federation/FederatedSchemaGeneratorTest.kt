@@ -64,8 +64,14 @@ directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 "Marks the field or enum value as deprecated"
 directive @deprecated(
     "The reason for the deprecation"
-    reason: String! = "No longer supported"
+    reason: String = "No longer supported"
   ) on FIELD_DEFINITION | ENUM_VALUE
+
+"Exposes a URL that specifies the behaviour of this scalar."
+directive @specifiedBy(
+    "The URL that specifies the behaviour of this scalar."
+    url: String!
+  ) on SCALAR
 
 interface Product @extends @key(fields : "id") {
   id: String! @external
@@ -156,8 +162,14 @@ class FederatedSchemaGeneratorTest {
             "Marks the field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
-                reason: String! = "No longer supported"
+                reason: String = "No longer supported"
               ) on FIELD_DEFINITION | ENUM_VALUE
+
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
 
             "Marks target field as external meaning it will be resolved by federated schema"
             directive @external on FIELD_DEFINITION
