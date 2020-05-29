@@ -54,7 +54,7 @@ internal class GenerateInterfaceTest : TypeTestHelper() {
     }
 
     @Test
-    fun `absctract classes generate interfaces`() {
+    fun `abstract classes generate interfaces`() {
         assertEquals(0, generator.additionalTypes.size)
         val result = generateInterface(generator, Shape::class) as? GraphQLInterfaceType
         assertEquals("Shape", result?.name)
