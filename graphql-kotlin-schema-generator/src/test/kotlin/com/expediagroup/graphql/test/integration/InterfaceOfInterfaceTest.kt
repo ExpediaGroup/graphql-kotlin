@@ -17,21 +17,36 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.exceptions.InvalidInterfaceException
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class InterfaceOfInterfaceTest {
 
     @Test
     fun `interface of interface`() {
         val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
+        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        assertEquals(expected = 1, actual = schema.queryType.fieldDefinitions.size)
 
-        assertFailsWith(InvalidInterfaceException::class) {
-            toSchema(queries = queries, config = testSchemaConfig)
-        }
+        val implementation = schema.getObjectType("MyClass")
+        assertNotNull(implementation)
+        val interfaces = implementation.interfaces
+        assertEquals(2, interfaces.size)
+        assertNotNull(interfaces.firstOrNull { it.name == "FirstLevel" })
+        assertNotNull(interfaces.firstOrNull { it.name == "SecondLevel" })
+
+        val secondLevelInterface = schema.getType("SecondLevel") as? GraphQLInterfaceType
+        assertNotNull(secondLevelInterface)
+        val interfaceOfInterface = secondLevelInterface.interfaces
+        assertEquals(1, interfaceOfInterface.size)
+        assertNotNull(interfaceOfInterface.firstOrNull { it.name == "FirstLevel" })
+
+        val firstLevelInterface = schema.getType("FirstLevel") as? GraphQLInterfaceType
+        assertNotNull(firstLevelInterface)
     }
 
     interface FirstLevel {
