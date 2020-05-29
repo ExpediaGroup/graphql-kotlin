@@ -26,7 +26,7 @@ class SpecificValueOnlySchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
     @Throws(RuntimeException::class)
     override fun onField(environment: KotlinFieldDirectiveEnvironment): GraphQLFieldDefinition {
         val field = environment.element
-        val originalDataFetcher: DataFetcher<Any> = environment.getDataFetcher()
+        val originalDataFetcher: DataFetcher<*> = environment.getDataFetcher()
 
         val supportedValue = environment.directive.getArgument("value")?.value?.toString() ?: ""
 
