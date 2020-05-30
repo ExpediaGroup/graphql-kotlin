@@ -1,4 +1,3 @@
-
 import de.marcphilipp.gradle.nexus.NexusPublishExtension
 import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.dokka.gradle.DokkaTask
@@ -160,7 +159,8 @@ subprojects {
                         }
                     }
                     // no need to publish sources or javadocs for SNAPSHOT builds
-                    if (rootProject.extra["isReleaseVersion"] as Boolean) {
+                    // do not attach sources/javadoc to the Gradle plugin marker
+                    if (rootProject.extra["isReleaseVersion"] as Boolean && name != "graphQLPluginPluginMarkerMaven") {
                         artifact(sourcesJar.get())
                         artifact(javadocJar.get())
                     }
