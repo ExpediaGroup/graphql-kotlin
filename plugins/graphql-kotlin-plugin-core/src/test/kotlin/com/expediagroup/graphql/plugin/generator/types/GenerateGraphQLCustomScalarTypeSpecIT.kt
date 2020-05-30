@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
 import org.junit.jupiter.api.Test
 
@@ -29,8 +29,8 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
             import com.expediagroup.graphql.plugin.generator.UUIDConverter
+            import com.expediagroup.graphql.types.GraphQLResponse
             import com.fasterxml.jackson.annotation.JsonCreator
             import com.fasterxml.jackson.annotation.JsonValue
             import kotlin.String
@@ -42,7 +42,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             class CustomScalarTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<CustomScalarTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<CustomScalarTestQuery.Result> =
                   graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
 
               /**

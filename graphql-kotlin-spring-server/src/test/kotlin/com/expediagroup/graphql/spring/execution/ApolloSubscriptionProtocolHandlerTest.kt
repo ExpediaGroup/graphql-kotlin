@@ -17,9 +17,6 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
-import com.expediagroup.graphql.spring.model.GraphQLRequest
-import com.expediagroup.graphql.spring.model.GraphQLResponse
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
@@ -29,6 +26,9 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Server
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ERROR
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_DATA
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
+import com.expediagroup.graphql.types.GraphQLError
+import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
@@ -310,7 +310,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         val flux = handler.handle(operationMessage, session)
         StepVerifier.create(flux)
             .expectNextMatches {
-                val payload = it.payload as? GraphQLResponse
+                val payload = it.payload as? GraphQLResponse<*>
                 it.type == GQL_DATA.type &&
                     it.id == "abc" &&
                     payload?.data == "myData"
@@ -385,9 +385,9 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { close() } returns mockk()
             every { id } returns "123"
         }
-        val errors = listOf(SimpleKotlinGraphQLError(Throwable("My GraphQL Error")))
+        val errors = listOf(GraphQLError("My GraphQL Error"))
         val subscriptionHandler: SubscriptionHandler = mockk {
-            every { executeSubscription(eq(graphQLRequest)) } returns Flux.just(GraphQLResponse(errors = errors))
+            every { executeSubscription(eq(graphQLRequest)) } returns Flux.just(GraphQLResponse<Any>(errors = errors))
         }
 
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
@@ -395,7 +395,7 @@ class ApolloSubscriptionProtocolHandlerTest {
 
         StepVerifier.create(flux)
             .expectNextMatches {
-                val payload = it.payload as? GraphQLResponse
+                val payload = it.payload as? GraphQLResponse<*>
                 it.type == GQL_ERROR.type &&
                     it.id == "abc" &&
                     payload?.errors?.isNotEmpty() == true

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,6 @@
 package com.expediagroup.graphql.spring.operations
 
 /**
- * Marker interface to easily autowire all GraphQL queries.
+ * Marker interface to indicate what classes should be used for GraphQL queries.
  */
 interface Query

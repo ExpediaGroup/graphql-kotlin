@@ -14,45 +14,30 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client
+package com.expediagroup.graphql.types
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
- * GraphQL operation result representation.
- *
- * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Response-Format) for additional details
- */
-data class GraphQLResult<T>(
-    /**
-     * Field that represents all fields selected in the given operation or NULL if error was encountered before execution (or during execution if it prevents valid response).
-     */
-    val data: T? = null,
-    /**
-     * Optional field that contains a list of [GraphQLError] that were encountered during query execution
-     */
-    val errors: List<GraphQLError>? = null,
-    /**
-     * Optional field that contains arbitrary map of additional data that was populated during query execution (e.g. tracing or metrics information).
-     */
-    val extensions: Map<String, Any>? = null
-)
-
-/**
- * GraphQL error representation.
+ * GraphQL error representation that is spec complaint with serialization and deserialization,
+ * but still implements the graphql-java interface.
  *
  * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class GraphQLError(
     /**
      * Description of the error.
      */
     val message: String,
+
     /**
      * List of locations within the GraphQL document at which the exception occurred.
      */
-    val locations: List<SourceLocation> = emptyList(),
+    val locations: List<SourceLocation>? = null,
+
     /**
      * Path of the the response field that encountered the error.
      *
@@ -60,17 +45,9 @@ data class GraphQLError(
      * error should use the aliased name, since it represents a path in the response, not in the query.
      */
     val path: List<Any>? = null,
+
     /**
      * Additional information about the error.
      */
     val extensions: Map<String, Any?>? = null
-)
-
-/**
- * Location describing which part of GraphQL document caused an exception.
- */
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class SourceLocation(
-    val line: Int,
-    val column: Int
 )

@@ -31,7 +31,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
             import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
@@ -45,7 +45,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             class UnionQueryWithInlineFragments(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<UnionQueryWithInlineFragments.Result> =
+              suspend fun execute(): GraphQLResponse<UnionQueryWithInlineFragments.Result> =
                   graphQLClient.execute(UNION_QUERY_WITH_INLINE_FRAGMENTS, "UnionQueryWithInlineFragments",
                   null)
 
@@ -128,7 +128,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
             import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
@@ -142,7 +142,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             class UnionQueryWithNamedFragments(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<UnionQueryWithNamedFragments.Result> =
+              suspend fun execute(): GraphQLResponse<UnionQueryWithNamedFragments.Result> =
                   graphQLClient.execute(UNION_QUERY_WITH_NAMED_FRAGMENTS, "UnionQueryWithNamedFragments", null)
 
               /**

@@ -26,6 +26,7 @@ pluginManagement {
 
 rootProject.name = "graphql-kotlin"
 
+include(":graphql-kotlin-types")
 include(":graphql-kotlin-schema-generator")
 include(":graphql-kotlin-federation")
 include(":graphql-kotlin-spring-server")

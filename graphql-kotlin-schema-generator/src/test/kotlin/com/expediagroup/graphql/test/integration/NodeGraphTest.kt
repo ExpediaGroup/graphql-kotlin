@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.scalars.ID
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
-import com.expediagroup.graphql.scalars.ID
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import org.junit.jupiter.api.Test

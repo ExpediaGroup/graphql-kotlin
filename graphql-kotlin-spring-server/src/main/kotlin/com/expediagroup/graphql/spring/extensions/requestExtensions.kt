@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.model
+package com.expediagroup.graphql.spring.extensions
 
+import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.ExecutionInput
 import graphql.GraphQLContext
 import org.dataloader.DataLoaderRegistry
 
-data class GraphQLRequest(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Map<String, Any>? = null
-)
-
+/**
+ * Convert the common [GraphQLRequest] to the execution input used by graphql-java
+ */
 fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)

@@ -18,14 +18,12 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
-import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.toSchema
-import graphql.ErrorType
+import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.ExecutionInput
 import graphql.GraphQL
+import graphql.execution.AbortExecutionException
 import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
@@ -38,7 +36,6 @@ import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class QueryHandlerTest {
 
@@ -107,7 +104,6 @@ class QueryHandlerTest {
             assertEquals(1, errors.size)
             val error = errors.first()
             assertEquals("Exception while fetching data (/alwaysThrows) : JUNIT Failure", error.message)
-            assertEquals(ErrorType.DataFetchingException, error.errorType)
         }
         assertNull(response.extensions)
     }
@@ -139,9 +135,24 @@ class QueryHandlerTest {
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
             val error = errors.first()
-            assertTrue(error is SimpleKotlinGraphQLError)
-            assertEquals(ErrorType.DataFetchingException, error.errorType)
             assertEquals("Exception while fetching data () : Uncaught JUNIT", error.message)
+        }
+        assertNull(response.extensions)
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
+    fun `execute graphQL query throwing uncaught graphql exception`() = runBlockingTest {
+        val mockGraphQL: GraphQL = mockk {
+            every { executeAsync(any<ExecutionInput>()) } throws AbortExecutionException("Uncaught abort exception")
+        }
+        val mockQueryHandler = SimpleQueryHandler(mockGraphQL)
+        val response = mockQueryHandler.executeQuery(GraphQLRequest(query = "query { whatever }"))
+        assertNull(response.data)
+        assertNotNull(response.errors) { errors ->
+            assertEquals(1, errors.size)
+            val error = errors.first()
+            assertEquals("Exception while fetching data () : Uncaught abort exception", error.message)
         }
         assertNull(response.extensions)
     }
@@ -151,7 +162,7 @@ class QueryHandlerTest {
 
         fun hello(name: String): String = "Hello $name!"
 
-        fun alwaysThrows(): String = throw GraphQLKotlinException("JUNIT Failure")
+        fun alwaysThrows(): String = throw Exception("JUNIT Failure")
 
         fun contextualValue(context: MyContext): String = context.value ?: "default"
     }

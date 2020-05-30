@@ -31,7 +31,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Boolean
             import kotlin.Int
             import kotlin.String
@@ -42,7 +42,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class ComplexObjectTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<ComplexObjectTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<ComplexObjectTestQuery.Result> =
                   graphQLClient.execute(COMPLEX_OBJECT_TEST_QUERY, "ComplexObjectTestQuery", null)
 
               /**
@@ -119,7 +119,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Int
             import kotlin.String
 
@@ -129,7 +129,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class ComplexObjectQueryWithNamedFragment(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<ComplexObjectQueryWithNamedFragment.Result> =
+              suspend fun execute(): GraphQLResponse<ComplexObjectQueryWithNamedFragment.Result> =
                   graphQLClient.execute(COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT,
                   "ComplexObjectQueryWithNamedFragment", null)
 
@@ -237,7 +237,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Int
             import kotlin.String
             import kotlin.collections.List
@@ -248,7 +248,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class JUnitTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<JUnitTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<JUnitTestQuery.Result> =
                   graphQLClient.execute(J_UNIT_TEST_QUERY, "JUnitTestQuery", null)
 
               /**
@@ -300,7 +300,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Deprecated
             import kotlin.String
 
@@ -309,7 +309,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class DeprecatedFieldQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<DeprecatedFieldQuery.Result> =
+              suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
                   graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
 
               data class Result(
@@ -342,7 +342,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Int
             import kotlin.String
             import kotlin.collections.List
@@ -353,7 +353,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             class NestedQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<NestedQuery.Result> = graphQLClient.execute(NESTED_QUERY,
+              suspend fun execute(): GraphQLResponse<NestedQuery.Result> = graphQLClient.execute(NESTED_QUERY,
                   "NestedQuery", null)
 
               /**

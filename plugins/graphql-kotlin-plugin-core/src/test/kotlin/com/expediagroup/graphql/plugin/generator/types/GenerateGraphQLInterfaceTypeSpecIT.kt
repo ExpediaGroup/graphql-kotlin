@@ -30,7 +30,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
             import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
@@ -45,7 +45,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             class InterfaceWithInlineFragmentsTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<InterfaceWithInlineFragmentsTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<InterfaceWithInlineFragmentsTestQuery.Result> =
                   graphQLClient.execute(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithInlineFragmentsTestQuery", null)
 
@@ -143,7 +143,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import com.fasterxml.jackson.annotation.JsonSubTypes
             import com.fasterxml.jackson.annotation.JsonTypeInfo
             import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
@@ -158,7 +158,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             class InterfaceWithNamedFragmentsTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<InterfaceWithNamedFragmentsTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<InterfaceWithNamedFragmentsTestQuery.Result> =
                   graphQLClient.execute(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
                   "InterfaceWithNamedFragmentsTestQuery", null)
 

@@ -20,9 +20,8 @@ import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.toSchema
-import graphql.ErrorType
+import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema
 import org.junit.jupiter.api.Test
@@ -97,7 +96,6 @@ class SubscriptionHandlerTest {
                     assertEquals(1, errors.size)
                     val error = errors.first()
                     assertEquals("Exception while fetching data () : JUNIT subscription failure", error.message)
-                    assertEquals(ErrorType.DataFetchingException, error.errorType)
                 }
                 assertNull(response.extensions)
             }

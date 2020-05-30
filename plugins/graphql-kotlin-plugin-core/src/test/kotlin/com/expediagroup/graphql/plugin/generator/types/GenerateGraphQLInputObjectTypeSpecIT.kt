@@ -27,7 +27,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Boolean
             import kotlin.String
 
@@ -37,7 +37,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             class InputObjectTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<InputObjectTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<InputObjectTestQuery.Result> =
                   graphQLClient.execute(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", null)
 
               data class Result(
@@ -63,7 +63,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.client.GraphQLResult
+            import com.expediagroup.graphql.types.GraphQLResponse
             import kotlin.Boolean
             import kotlin.String
 
@@ -73,7 +73,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             class AliasTestQuery(
               private val graphQLClient: GraphQLClient<*>
             ) {
-              suspend fun execute(): GraphQLResult<AliasTestQuery.Result> =
+              suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
                   graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
 
               data class Result(

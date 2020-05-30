@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.model
+package com.expediagroup.graphql.spring.extensions
 
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import graphql.ExecutionResult
-import graphql.execution.ExecutionPath
-import graphql.execution.NonNullableValueCoercedAsNullException
-import graphql.language.SourceLocation
-import graphql.language.VariableDefinition
-import graphql.schema.GraphQLTypeReference
+import graphql.execution.AbortExecutionException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -30,7 +25,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class GraphQLResponseKtTest {
+class ResponseExtensionsKtTest {
 
     @Test
     fun `null data, errors, and extensions can still be mapped`() {
@@ -81,7 +76,7 @@ class GraphQLResponseKtTest {
     fun `if errors or extensions is set, the values are copied`() {
         val executionResult: ExecutionResult = mockk {
             every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(mockk {
+            every { errors } returns listOf(mockk(relaxed = true) {
                 every { message } returns "hello"
             })
             every { extensions } returns mapOf("foo" to "bar")
@@ -99,43 +94,10 @@ class GraphQLResponseKtTest {
     }
 
     @Test
-    fun `SimpleKotlinGraphQLError is mapped as expected`() {
-        val executionResult: ExecutionResult = mockk {
-            every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(SimpleKotlinGraphQLError(
-                Exception(),
-                listOf(SourceLocation(1, 1)),
-                ExecutionPath.rootPath().toList()
-            ))
-            every { extensions } returns mapOf("foo" to "bar")
-        }
-
-        val result = executionResult.toGraphQLResponse()
-
-        assertNotNull(result.data)
-        val errors = result.errors
-        assertNotNull(errors)
-        assertEquals(1, errors.size)
-        assert(errors.first() is SimpleKotlinGraphQLError)
-        val extensions = result.extensions
-        assertNotNull(extensions)
-        assertEquals(expected = "bar", actual = extensions["foo"])
-    }
-
-    @Test
     fun `error due to an Exception is mapped as expected`() {
         val executionResult: ExecutionResult = mockk {
             every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(NonNullableValueCoercedAsNullException(
-                VariableDefinition(
-                    "name",
-                    mockk()
-                ),
-                "name",
-                GraphQLTypeReference(
-                    "name"
-                )
-            ))
+            every { errors } returns listOf(AbortExecutionException())
             every { extensions } returns mapOf("foo" to "bar")
         }
 
@@ -145,7 +107,6 @@ class GraphQLResponseKtTest {
         val errors = result.errors
         assertNotNull(errors)
         assertEquals(1, errors.size)
-        assert(errors.first() is SimpleKotlinGraphQLError)
         val extensions = result.extensions
         assertNotNull(extensions)
         assertEquals(expected = "bar", actual = extensions["foo"])

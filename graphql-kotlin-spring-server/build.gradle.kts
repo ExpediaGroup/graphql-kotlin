@@ -11,6 +11,7 @@ val reactorVersion: String by project
 val reactorExtensionsVersion: String by project
 
 dependencies {
+    api(project(path = ":graphql-kotlin-types"))
     api(project(path = ":graphql-kotlin-federation"))
     api("org.springframework.boot:spring-boot-starter-webflux:$springBootVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
@@ -34,7 +35,7 @@ tasks {
                 limit {
                     counter = "BRANCH"
                     value = "COVEREDRATIO"
-                    minimum = "0.91".toBigDecimal()
+                    minimum = "0.89".toBigDecimal()
                 }
             }
         }

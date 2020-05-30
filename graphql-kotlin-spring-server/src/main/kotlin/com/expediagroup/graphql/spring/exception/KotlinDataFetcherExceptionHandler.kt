@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.spring.exception
 
-import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
@@ -24,19 +23,21 @@ import graphql.execution.DataFetcherExceptionHandlerResult
 import org.slf4j.LoggerFactory
 
 /**
- * Default [DataFetcherExceptionHandler] used by all GraphQL execution strategies. All exceptions thrown during GraphQL execution are logged and then returned as wrapped
- * [ExceptionWhileDataFetching] error.
+ * Default DataFetcherExceptionHandler used by all GraphQL execution strategies. All exceptions thrown during GraphQL execution are logged and then returned as wrapped
+ * ExceptionWhileDataFetching error if they are not a valid GraphQLError
  */
 class KotlinDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     private val logger = LoggerFactory.getLogger(KotlinDataFetcherExceptionHandler::class.java)
 
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
-        val exception = handlerParameters.exception
+        val exception: Throwable = handlerParameters.exception
         val sourceLocation = handlerParameters.sourceLocation
         val path = handlerParameters.path
 
         val error: GraphQLError = SimpleKotlinGraphQLError(exception = exception, locations = listOf(sourceLocation), path = path.toList())
+
         logger.warn(error.message, exception)
+
         return DataFetcherExceptionHandlerResult.newResult(error).build()
     }
 }

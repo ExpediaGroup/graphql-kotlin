@@ -17,10 +17,11 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
-import com.expediagroup.graphql.spring.model.GraphQLRequest
-import com.expediagroup.graphql.spring.model.GraphQLResponse
-import com.expediagroup.graphql.spring.model.toExecutionInput
-import com.expediagroup.graphql.spring.model.toGraphQLResponse
+import com.expediagroup.graphql.spring.extensions.toExecutionInput
+import com.expediagroup.graphql.spring.extensions.toGraphQLKotlinType
+import com.expediagroup.graphql.spring.extensions.toGraphQLResponse
+import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.types.GraphQLResponse
 import graphql.ExecutionResult
 import graphql.GraphQL
 import org.reactivestreams.Publisher
@@ -36,7 +37,7 @@ interface SubscriptionHandler {
     /**
      * Execute GraphQL subscription request and return a Reactor Flux Publisher that emits 0 to N [GraphQLResponse]s.
      */
-    fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse>
+    fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse<*>>
 }
 
 /**
@@ -44,13 +45,16 @@ interface SubscriptionHandler {
  */
 open class SimpleSubscriptionHandler(private val graphQL: GraphQL) : SubscriptionHandler {
 
-    override fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse> = Mono.subscriberContext()
+    override fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse<*>> = Mono.subscriberContext()
         .flatMapMany { reactorContext ->
             val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
             graphQL.execute(graphQLRequest.toExecutionInput(graphQLContext))
                 .getData<Publisher<ExecutionResult>>()
                 .toFlux()
                 .map { result -> result.toGraphQLResponse() }
-                .onErrorResume { error -> Flux.just(GraphQLResponse(errors = listOf(SimpleKotlinGraphQLError(error)))) }
+                .onErrorResume { throwable ->
+                    val error = SimpleKotlinGraphQLError(throwable).toGraphQLKotlinType()
+                    Flux.just(GraphQLResponse<Any>(errors = listOf(error)))
+                }
         }
 }

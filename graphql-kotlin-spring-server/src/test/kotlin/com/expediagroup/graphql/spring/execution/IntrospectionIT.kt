@@ -15,10 +15,9 @@
  */
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.spring.model.GraphQLRequest
 import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.introspection.IntrospectionQuery
-import graphql.validation.ValidationErrorType
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -49,8 +48,7 @@ class IntrospectionIT(@Autowired private val testClient: WebTestClient) {
             .expectBody()
             .jsonPath("$.data").doesNotExist()
             .jsonPath("$.errors").isArray
-            .jsonPath("$.errors[0].description").isEqualTo("""Field 'queryType' in type '__Schema' is undefined""")
-            .jsonPath("$.errors[0].validationErrorType").isEqualTo(ValidationErrorType.FieldUndefined.name)
+            .jsonPath("$.errors[0].message").isEqualTo("Validation error of type FieldUndefined: Field 'queryType' in type '__Schema' is undefined @ '__schema/queryType'")
     }
 
     @Configuration

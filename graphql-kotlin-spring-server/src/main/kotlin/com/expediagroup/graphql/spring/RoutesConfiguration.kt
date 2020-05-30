@@ -18,7 +18,7 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.spring.execution.QueryHandler
-import com.expediagroup.graphql.spring.model.GraphQLRequest
+import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
@@ -66,8 +66,8 @@ class RoutesConfiguration(
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
             if (graphQLRequest != null) {
-                val graphQLResult = queryHandler.executeQuery(graphQLRequest)
-                ok().json().bodyValueAndAwait(graphQLResult)
+                val graphQLResponse = queryHandler.executeQuery(graphQLRequest)
+                ok().json().bodyValueAndAwait(graphQLResponse)
             } else {
                 badRequest().buildAndAwait()
             }
