@@ -124,7 +124,7 @@ subprojects {
         }
         publishing {
             publications {
-                create<MavenPublication>("mavenJava") {
+                withType<MavenPublication> {
                     pom {
                         name.set("${currentProject.group}:${currentProject.name}")
                         url.set("https://github.com/ExpediaGroup/graphql-kotlin")
@@ -158,7 +158,8 @@ subprojects {
                             mavenPom.description.set(currentProject.description)
                         }
                     }
-
+                }
+                create<MavenPublication>("mavenJava") {
                     from(jarComponent)
                     // no need to publish sources or javadocs for SNAPSHOT builds
                     if (rootProject.extra["isReleaseVersion"] as Boolean) {
