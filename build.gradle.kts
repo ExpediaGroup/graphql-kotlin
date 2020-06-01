@@ -124,7 +124,7 @@ subprojects {
         }
         publishing {
             publications {
-                withType<MavenPublication> {
+                create<MavenPublication>("mavenJava") {
                     pom {
                         name.set("${currentProject.group}:${currentProject.name}")
                         url.set("https://github.com/ExpediaGroup/graphql-kotlin")
@@ -158,18 +158,12 @@ subprojects {
                             mavenPom.description.set(currentProject.description)
                         }
                     }
+
+                    from(jarComponent)
                     // no need to publish sources or javadocs for SNAPSHOT builds
-                    // do not attach sources/javadoc to the Gradle plugin marker
-                    if (rootProject.extra["isReleaseVersion"] as Boolean && name != "graphQLPluginPluginMarkerMaven") {
+                    if (rootProject.extra["isReleaseVersion"] as Boolean) {
                         artifact(sourcesJar.get())
                         artifact(javadocJar.get())
-                    }
-                }
-
-                // workaround for java-gradle-plugin creating separate hardcoded pluginMaven publication
-                if (currentProject.name != "graphql-kotlin-gradle-plugin") {
-                    create<MavenPublication>("mavenJava") {
-                        from(jarComponent)
                     }
                 }
             }
