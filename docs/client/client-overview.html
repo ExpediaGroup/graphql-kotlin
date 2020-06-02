@@ -76,8 +76,10 @@ dependencies {
 }
 
 graphql {
-    endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
-    packageName = <span class="hljs-string">"com.example.generated"</span>
+    client {
+        endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
+        packageName = <span class="hljs-string">"com.example.generated"</span>
+    }
 }
 </code></pre>
 <p>Equivalent <code>pom.xml</code> Maven configuration</p>
@@ -109,20 +111,13 @@ graphql {
                 <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span>
                     <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
-                        <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>introspect-schema<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>generate-graphql-client<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
                         <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
                             <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>introspectSchema<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
-                        <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
-                        <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
-                            <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/graphql<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span>
-                        <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
-                    <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
-                    <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span>
-                        <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>generate-client<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
-                        <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span>
                             <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>generateClient<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span>
                         <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
                         <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+                            <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/graphql<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span>
                             <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
                             <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/schema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
                         <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
@@ -136,7 +131,7 @@ graphql {
 <p>See <a href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client">graphql-kotlin-client-example</a> project for complete
 working examples of Gradle and Maven based projects.</p>
 <h2><a class="anchor" aria-hidden="true" id="generating-graphql-client"></a><a href="#generating-graphql-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating GraphQL Client</h2>
-<p>By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all <code>*graphql</code> files located under
+<p>By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all <code>*.graphql</code> files located under
 <code>src/main/resources</code>. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
 See our documentation for more details on supported <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin#tasks">Gradle tasks</a>
