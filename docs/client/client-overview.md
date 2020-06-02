@@ -31,8 +31,10 @@ dependencies {
 }
 
 graphql {
-    endpoint = "http://localhost:8080/graphql"
-    packageName = "com.example.generated"
+    client {
+        endpoint = "http://localhost:8080/graphql"
+        packageName = "com.example.generated"
+    }
 }
 ```
 
@@ -67,20 +69,13 @@ Equivalent `pom.xml` Maven configuration
                 <version>${graphql-kotlin.version}</version>
                 <executions>
                     <execution>
-                        <id>introspect-schema</id>
+                        <id>generate-graphql-client</id>
                         <goals>
                             <goal>introspectSchema</goal>
-                        </goals>
-                        <configuration>
-                            <endpoint>http://localhost:8080/graphql</endpoint>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>generate-client</id>
-                        <goals>
                             <goal>generateClient</goal>
                         </goals>
                         <configuration>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
                             <packageName>com.example.generated</packageName>
                             <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                         </configuration>
@@ -97,7 +92,7 @@ working examples of Gradle and Maven based projects.
 
 ## Generating GraphQL Client
 
-By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all `*graphql` files located under
+By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all `*.graphql` files located under
 `src/main/resources`. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
 See our documentation for more details on supported [Gradle tasks](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin#tasks)
