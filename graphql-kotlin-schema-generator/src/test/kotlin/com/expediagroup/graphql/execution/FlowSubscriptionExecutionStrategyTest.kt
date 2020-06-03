@@ -23,9 +23,13 @@ import com.expediagroup.graphql.hooks.FlowSubscriptionSchemaGeneratorHooks
 import com.expediagroup.graphql.toSchema
 import graphql.ExecutionInput
 import graphql.ExecutionResult
+import graphql.ExecutionResultImpl
 import graphql.GraphQL
 import graphql.GraphQLError
 import graphql.GraphqlErrorBuilder
+import graphql.execution.DataFetcherResult
+import graphql.execution.instrumentation.SimpleInstrumentation
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -38,6 +42,7 @@ import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -47,14 +52,17 @@ class FlowSubscriptionExecutionStrategyTest {
 
     private val testSchema: GraphQLSchema = toSchema(
         config = SchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.spring.execution"),
+            supportedPackages = listOf("com.expediagroup.graphql.execution"),
             hooks = FlowSubscriptionSchemaGeneratorHooks()
         ),
         queries = listOf(TopLevelObject(BasicQuery())),
         mutations = listOf(TopLevelObject(BasicQuery())),
         subscriptions = listOf(TopLevelObject(FlowSubscription()))
     )
-    private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy()).build()
+    private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema)
+        .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy())
+        .instrumentation(TestInstrumentation())
+        .build()
 
     @Test
     fun `verify subscription to flow`() = runBlocking {
@@ -64,6 +72,24 @@ class FlowSubscriptionExecutionStrategyTest {
         val list = mutableListOf<Int>()
         flow.collect {
             list.add(it.getData<Map<String, Int>>().getValue("ticker"))
+            assertEquals(it.extensions["testKey"], "testValue")
+        }
+        assertEquals(5, list.size)
+        for (i in list.indices) {
+            assertEquals(i + 1, list[i])
+        }
+    }
+
+    @Test
+    fun `verify subscription to datafetcher flow`() = runBlocking {
+        val request = ExecutionInput.newExecutionInput().query("subscription { datafetcher }").build()
+        val response = testGraphQL.execute(request)
+        val flow = response.getData<Flow<ExecutionResult>>()
+        val list = mutableListOf<Int>()
+        flow.collect {
+            val intVal = it.getData<Map<String, Int>>().getValue("datafetcher")
+            list.add(intVal)
+            assertEquals(it.extensions["testKey"], "testValue")
         }
         assertEquals(5, list.size)
         for (i in list.indices) {
@@ -163,12 +189,35 @@ class FlowSubscriptionExecutionStrategyTest {
         fun query(): String = "hello"
     }
 
+    class TestInstrumentation : SimpleInstrumentation() {
+        override fun instrumentExecutionResult(
+            executionResult: ExecutionResult,
+            parameters: InstrumentationExecutionParameters?
+        ): CompletableFuture<ExecutionResult> {
+            return CompletableFuture.completedFuture(
+                ExecutionResultImpl.newExecutionResult()
+                    .from(executionResult)
+                    .addExtension("testKey", "testValue")
+                    .build()
+            )
+        }
+    }
+
     class FlowSubscription {
         fun ticker(): Flow<Int> {
             return flow {
                 for (i in 1..5) {
                     delay(100)
                     emit(i)
+                }
+            }
+        }
+
+        fun datafetcher(): Flow<DataFetcherResult<Int>> {
+            return flow {
+                for (i in 1..5) {
+                    delay(100)
+                    emit(DataFetcherResult(i, listOf()))
                 }
             }
         }
