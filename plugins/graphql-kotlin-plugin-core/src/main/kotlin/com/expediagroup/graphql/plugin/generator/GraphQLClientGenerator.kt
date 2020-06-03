@@ -123,8 +123,8 @@ class GraphQLClientGenerator(
         } else {
             mapOf(
                 OperationDefinition.Operation.QUERY.name to "Query",
-                OperationDefinition.Operation.MUTATION to "Mutation",
-                OperationDefinition.Operation.SUBSCRIPTION to "Subscription"
+                OperationDefinition.Operation.MUTATION.name to "Mutation",
+                OperationDefinition.Operation.SUBSCRIPTION.name to "Subscription"
             )
         }
         val rootType = operationNames[operationDefinition.operation.name]
