@@ -142,8 +142,8 @@ Task can also be explicitly configured in your Gradle build file
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 
-val graphqlIntrospectSchema by tasks.getting(GraphQLDownloadSDLTask::class) {
-    graphqlDownloadSDL.set("http://localhost:8080/sdl")
+val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+    endpoint.set("http://localhost:8080/sdl")
 }
 ```
 
