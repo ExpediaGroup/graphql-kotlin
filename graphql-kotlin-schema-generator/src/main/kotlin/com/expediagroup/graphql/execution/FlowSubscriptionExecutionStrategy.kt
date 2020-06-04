@@ -18,14 +18,22 @@ package com.expediagroup.graphql.execution
 
 import graphql.ExecutionResult
 import graphql.ExecutionResultImpl
+import graphql.GraphQLError
+import graphql.execution.AbsoluteGraphQLError
 import graphql.execution.DataFetcherExceptionHandler
+import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionContext
+import graphql.execution.ExecutionStepInfo
 import graphql.execution.ExecutionStrategy
 import graphql.execution.ExecutionStrategyParameters
 import graphql.execution.FetchedValue
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
+import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters
 import graphql.execution.reactive.CompletionStageMappingPublisher
+import graphql.schema.GraphQLObjectType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
@@ -33,6 +41,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.reactivestreams.Publisher
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 
 /**
  * [SubscriptionExecutionStrategy] replacement that returns an [ExecutionResult]
@@ -54,11 +63,15 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         parameters: ExecutionStrategyParameters
     ): CompletableFuture<ExecutionResult> {
 
+        val instrumentation = executionContext.instrumentation
+        val instrumentationParameters = InstrumentationExecutionStrategyParameters(executionContext, parameters)
+        val executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters)
+
         val sourceEventStream = createSourceEventStream(executionContext, parameters)
 
         //
         // when the upstream source event stream completes, subscribe to it and wire in our adapter
-        return sourceEventStream.thenApply { sourceFlow ->
+        val overallResult: CompletableFuture<ExecutionResult> = sourceEventStream.thenApply { sourceFlow ->
             if (sourceFlow == null) {
                 ExecutionResultImpl(null, executionContext.errors)
             } else {
@@ -68,6 +81,12 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
                 ExecutionResultImpl(returnFlow, executionContext.errors)
             }
         }
+
+        // dispatched the subscription query
+        executionStrategyCtx.onDispatched(overallResult)
+        overallResult.whenComplete(executionStrategyCtx::onCompleted)
+
+        return overallResult
     }
 
     /*
@@ -118,15 +137,37 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         parameters: ExecutionStrategyParameters,
         eventPayload: Any?
     ): CompletableFuture<ExecutionResult> {
-        val newExecutionContext = executionContext.transform { builder -> builder.root(eventPayload) }
+        val instrumentation = executionContext.instrumentation
 
+        val newExecutionContext = executionContext.transform { builder ->
+            builder
+                .root(eventPayload)
+                .resetErrors()
+        }
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
-        val fetchedValue = FetchedValue.newFetchedValue().fetchedValue(eventPayload)
-            .rawFetchedValue(eventPayload)
-            .localContext(parameters.localContext)
-            .build()
-        return completeField(newExecutionContext, newParameters, fetchedValue).fieldValue
+        val subscribedFieldStepInfo = createSubscribedFieldStepInfo(executionContext, newParameters)
+
+        val i13nFieldParameters = InstrumentationFieldParameters(executionContext, subscribedFieldStepInfo.fieldDefinition, subscribedFieldStepInfo)
+        val subscribedFieldCtx = instrumentation.beginSubscribedFieldEvent(i13nFieldParameters)
+
+        val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, parameters, eventPayload)
+
+        val fieldValueInfo = completeField(newExecutionContext, newParameters, fetchedValue)
+        val overallResult = fieldValueInfo
+            .fieldValue
             .thenApply { executionResult -> wrapWithRootFieldName(newParameters, executionResult) }
+
+        // dispatch instrumentation so they can know about each subscription event
+        subscribedFieldCtx.onDispatched(overallResult)
+        overallResult.whenComplete(subscribedFieldCtx::onCompleted)
+
+        // allow them to instrument each ER should they want to
+        val i13ExecutionParameters = InstrumentationExecutionParameters(
+            executionContext.executionInput, executionContext.graphQLSchema, executionContext.instrumentationState)
+
+        return overallResult.thenCompose { executionResult ->
+            instrumentation.instrumentExecutionResult(executionResult, i13ExecutionParameters)
+        }
     }
 
     private fun wrapWithRootFieldName(
@@ -153,5 +194,51 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         val fieldPath = parameters.path.segment(ExecutionStrategy.mkNameForPath(firstField.singleField))
         return parameters.transform { builder -> builder.field(firstField).path(fieldPath) }
+    }
+
+    private fun createSubscribedFieldStepInfo(
+        executionContext: ExecutionContext,
+        parameters: ExecutionStrategyParameters
+    ): ExecutionStepInfo {
+        val field = parameters.field.singleField
+        val parentType = parameters.executionStepInfo.unwrappedNonNullType as GraphQLObjectType
+        val fieldDef = getFieldDef(executionContext.graphQLSchema, parentType, field)
+        return createExecutionStepInfo(executionContext, parameters, fieldDef, parentType)
+    }
+
+    /**
+     * java->kotlin copy of [ExecutionStrategy.unboxPossibleDataFetcherResult] where it's package-private
+     */
+    private fun unboxPossibleDataFetcherResult(
+        executionContext: ExecutionContext,
+        parameters: ExecutionStrategyParameters,
+        result: Any?
+    ): FetchedValue {
+        return if (result is DataFetcherResult<*>) {
+            if (result.isMapRelativeErrors) {
+                result.errors.stream()
+                    .map { relError: GraphQLError? -> AbsoluteGraphQLError(parameters, relError) }
+                    .forEach { error: AbsoluteGraphQLError? -> executionContext.addError(error) }
+            } else {
+                result.errors.forEach(Consumer { error: GraphQLError? -> executionContext.addError(error) })
+            }
+            var localContext = result.localContext
+            if (localContext == null) {
+                // if the field returns nothing then they get the context of their parent field
+                localContext = parameters.localContext
+            }
+            FetchedValue.newFetchedValue()
+                .fetchedValue(executionContext.valueUnboxer.unbox(result.data))
+                .rawFetchedValue(result.data)
+                .errors(result.errors)
+                .localContext(localContext)
+                .build()
+        } else {
+            FetchedValue.newFetchedValue()
+                .fetchedValue(executionContext.valueUnboxer.unbox(result))
+                .rawFetchedValue(result)
+                .localContext(parameters.localContext)
+                .build()
+        }
     }
 }
