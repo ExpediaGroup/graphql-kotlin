@@ -30,13 +30,15 @@ import java.util.function.Predicate
  *   default root type names
  * @param includeDirectives boolean flag indicating whether SDL should include directive information
  * @param includeDirectivesFilter Predicate to filter out specifc directives. Defaults to filter all directives by the value of [includeDirectives]
+ * @param includeDirectiveDefinitions Include the definitions of directives at the top of the schema
  */
 fun GraphQLSchema.print(
     includeIntrospectionTypes: Boolean = false,
     includeScalarTypes: Boolean = true,
     includeDefaultSchemaDefinition: Boolean = true,
     includeDirectives: Boolean = true,
-    includeDirectivesFilter: Predicate<GraphQLDirective> = Predicate { includeDirectives }
+    includeDirectivesFilter: Predicate<GraphQLDirective> = Predicate { includeDirectives },
+    includeDirectiveDefinitions: Boolean = true
 ): String {
     val schemaPrinter = SchemaPrinter(
         SchemaPrinter.Options.defaultOptions()
@@ -45,6 +47,7 @@ fun GraphQLSchema.print(
             .includeSchemaDefinition(includeDefaultSchemaDefinition)
             .includeDirectives(includeDirectives)
             .includeDirectives(includeDirectivesFilter)
+            .includeDirectiveDefinitions(includeDirectiveDefinitions)
     )
     return schemaPrinter.print(this)
 }
