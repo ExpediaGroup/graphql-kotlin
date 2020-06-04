@@ -23,8 +23,10 @@ This extension can be used to configure global options instead of explicitly con
 
 ```kotlin
 graphql {
+  client {
     packageName = "com.expediagroup.graphql.generated"
     endpoint = "http://localhost:8080/graphql"
+  }
 }
 ```
 
