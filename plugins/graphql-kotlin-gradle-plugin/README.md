@@ -23,8 +23,22 @@ This extension can be used to configure global options instead of explicitly con
 
 ```kotlin
 graphql {
-    packageName = "com.expediagroup.graphql.generated"
+  client {
+    // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
     endpoint = "http://localhost:8080/graphql"
+    // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
+    sdlEndpoint = "http://localhost:8080/sdl"
+    // Target package name to be used for generated classes.
+    packageName = "com.example.generated"
+    // Optional HTTP headers to be specified on an introspection query or SDL request.
+    headers["X-Custom-Header"] = "Custom-Header-Value"
+    // Boolean flag indicating whether or not selection of deprecated fields is allowed.
+    allowDeprecatedFields = false
+    // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+    converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+    // List of query files to be processed.
+    queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+  }
 }
 ```
 
