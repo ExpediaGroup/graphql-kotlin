@@ -52,7 +52,6 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
-    private val directiveDefinitionRegex = "(^\".+\"$[\\r\\n])?^directive @\\w+\\(.+\\) on .+?\$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query(?!\\s*\\{)\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
@@ -94,9 +93,11 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
          *   - any custom directives
          *   - new federated scalars
          */
-        val sdl = originalSchema.print(includeDefaultSchemaDefinition = false, includeDirectivesFilter = customDirectivePredicate)
-            .replace(directiveDefinitionRegex, "")
-            .replace(scalarDefinitionRegex, "")
+        val sdl = originalSchema.print(
+            includeDefaultSchemaDefinition = false,
+            includeDirectiveDefinitions = false,
+            includeDirectivesFilter = customDirectivePredicate
+        ).replace(scalarDefinitionRegex, "")
             .replace(emptyQueryRegex, "")
             .trim()
         federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
