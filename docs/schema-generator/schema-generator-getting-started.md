@@ -55,7 +55,7 @@ Any `public` functions defined on a query, mutation, or subscription Kotlin clas
 type. `toSchema` will then recursively apply Kotlin reflection on the specified classes to generate all
 remaining object types, their properties, functions, and function arguments.
 
-The `GraphQLSchema` generated can then be used to expose a GraphQL API endpoint.
+The generated `GraphQLSchema` can then be used to expose a GraphQL API endpoint.
 
 ## `toSchema`
 
