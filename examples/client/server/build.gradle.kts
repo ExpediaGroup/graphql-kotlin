@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expediagroup:graphql-kotlin-spring-server:3.0.0-RC6")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:3.1.0")
 }
 
 tasks {
