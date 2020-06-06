@@ -8,7 +8,7 @@
 
     <properties>
         <!-- those properties are set by gradle -->
-        <graphql-kotlin.version>3.0.0-SNAPSHOT</graphql-kotlin.version>
+        <graphql-kotlin.version>3.1.0</graphql-kotlin.version>
         <!-- lib versions -->
         <kotlin.version>1.3.72</kotlin.version>
         <kotlin-coroutines.version>1.3.6</kotlin-coroutines.version>

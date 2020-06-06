@@ -1,12 +1,10 @@
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.gradle.graphql
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 plugins {
     application
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
-//    id("com.expediagroup.graphql") version "3.0.0-SNAPSHOT"
+    id("com.expediagroup.graphql") version "3.1.0"
 }
 
 repositories {
@@ -15,23 +13,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expediagroup:graphql-kotlin-client:3.0.0-SNAPSHOT")
+    implementation("com.expediagroup:graphql-kotlin-client:3.1.0")
     implementation("io.ktor:ktor-client-okhttp:1.3.1")
     implementation("io.ktor:ktor-client-logging-jvm:1.3.1")
 }
-
-// TODO remove this section after final release
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-
-    dependencies{
-        classpath("com.expediagroup:graphql-kotlin-gradle-plugin:3.0.0-SNAPSHOT")
-    }
-}
-
-apply(plugin = "com.expediagroup.graphql")
 
 application {
     mainClassName = "com.expediagroup.graphql.examples.client.ApplicationKt"
