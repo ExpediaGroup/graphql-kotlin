@@ -2,49 +2,50 @@
   "docs": {
     "Introduction": [
       "getting-started",
-      "examples"
+      "examples",
+      "blogs-and-videos"
     ],
     "Schema Generator": [
+      "schema-generator/schema-generator-getting-started",
       {
         "type": "subcategory",
         "label": "Writing schemas with Kotlin",
         "ids": [
-          "writing-schemas/basics",
-          "writing-schemas/nullability",
-          "writing-schemas/arguments",
-          "writing-schemas/scalars",
-          "writing-schemas/enums",
-          "writing-schemas/lists",
-          "writing-schemas/interfaces",
-          "writing-schemas/unions",
-          "writing-schemas/nested-fields",
-          "writing-schemas/annotations"
+          "schema-generator/writing-schemas/nullability",
+          "schema-generator/writing-schemas/arguments",
+          "schema-generator/writing-schemas/scalars",
+          "schema-generator/writing-schemas/enums",
+          "schema-generator/writing-schemas/lists",
+          "schema-generator/writing-schemas/interfaces",
+          "schema-generator/writing-schemas/unions",
+          "schema-generator/writing-schemas/nested-fields",
+          "schema-generator/writing-schemas/annotations"
         ]
       },
       {
         "type": "subcategory",
         "label": "Customizing Schema",
         "ids": [
-          "customizing-schemas/generator-config",
-          "customizing-schemas/documenting-fields",
-          "customizing-schemas/excluding-fields",
-          "customizing-schemas/renaming-fields",
-          "customizing-schemas/directives",
-          "customizing-schemas/deprecating-schema",
-          "customizing-schemas/advanced-features"
+          "schema-generator/customizing-schemas/generator-config",
+          "schema-generator/customizing-schemas/documenting-fields",
+          "schema-generator/customizing-schemas/excluding-fields",
+          "schema-generator/customizing-schemas/renaming-fields",
+          "schema-generator/customizing-schemas/directives",
+          "schema-generator/customizing-schemas/deprecating-schema",
+          "schema-generator/customizing-schemas/advanced-features"
         ]
       },
       {
         "type": "subcategory",
         "label": "Execution",
         "ids": [
-          "execution/fetching-data",
-          "execution/async-models",
-          "execution/exceptions",
-          "execution/data-fetching-environment",
-          "execution/contextual-data",
-          "execution/subscriptions",
-          "execution/introspection"
+          "schema-generator/execution/fetching-data",
+          "schema-generator/execution/async-models",
+          "schema-generator/execution/exceptions",
+          "schema-generator/execution/data-fetching-environment",
+          "schema-generator/execution/contextual-data",
+          "schema-generator/execution/subscriptions",
+          "schema-generator/execution/introspection"
         ]
       }
     ],
@@ -72,9 +73,6 @@
     ],
     "Contributors": [
       "contributors/release-proc"
-    ],
-    "Blogs & Videos": [
-      "blogs-and-videos"
     ]
   }
 }

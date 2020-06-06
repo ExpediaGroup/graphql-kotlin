@@ -3,10 +3,12 @@ id: getting-started
 title: Getting Started
 ---
 
-GraphQL Kotlin is a collection of libraries built on top of [graphql-java](https://www.graphql-java.com/) that aim to simplify running a GraphQL server in Kotlin
+GraphQL Kotlin is a collection of libraries, built on top of [graphql-java](https://www.graphql-java.com/), that aim to simplify running GraphQL in Kotlin
 
 ## Modules
 
+* [examples](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples)
+  &mdash; Example apps that use graphql-kotlin libraries to test and demonstrate usages
 * [graphql-kotlin-client](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-client) ([Javadoc](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client))
   &mdash; Lightweight GraphQL Kotlin HTTP client
 * [graphql-kotlin-schema-generator](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-schema-generator) ([Javadoc](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator))
@@ -14,9 +16,9 @@ GraphQL Kotlin is a collection of libraries built on top of [graphql-java](https
 * [graphql-kotlin-federation](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-federation) ([Javadoc](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-federation))
   &mdash; Schema generator extension to build federated GraphQL schemas
 * [graphql-kotlin-spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-spring-server) ([Javadoc](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server))
-  &mdash; Spring Boot auto-configuration library to create GraphQL web app
-* [examples](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples)
-  &mdash; Example apps that use graphql-kotlin libraries to test and demonstrate usages
+  &mdash; Spring Boot auto-configuration library to create GraphQL server
+* [graphql-kotlin-types](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-types) ([Javadoc](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-types))
+&mdash; Core types used by both client and server
 * [plugins](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/plugins)
   &mdash; GraphQL Kotlin Gradle and Maven plugins
 
@@ -30,16 +32,16 @@ Additional resources
 
 ## Installation
 
-Using a JVM dependency manager, simply link `graphql-kotlin-schema-generator` to your project. You can see the latest
+Using a JVM dependency manager, simply link any `graphql-kotlin-*` library to your project. You can see the latest
 version and other examples in [Sonatype Central
-Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-schema-generator)
+Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-spring-server)
 
 ### Maven
 
 ```xml
 <dependency>
   <groupId>com.expediagroup</groupId>
-  <artifactId>graphql-kotlin-schema-generator</artifactId>
+  <artifactId>graphql-kotlin-spring-server</artifactId>
   <version>${latestVersion}</version>
 </dependency>
 ```
@@ -47,79 +49,21 @@ Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-sc
 ### Gradle
 
 ```groovy
-compile(group: 'com.expediagroup', name: 'graphql-kotlin-schema-generator', version: "$latestVersion")
+compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version: "$latestVersion")
 ```
 
-## Generating a schema
+## Running a Server
+`graphql-kotlin-spring-server` is a combination schema generator and the server libraries. If you are looking to run a GraphQL server, this is the place to start.
 
-`graphql-kotlin-schema-generator` provides a single function, `toSchema`, to generate a schema from Kotlin objects.
+See the docs in [Spring Server Overview](./spring-server/spring-overview.md).
 
-```kotlin
-class Query {
-  fun getNumber() = 1
-}
+## Creating a Client
+`graphql-kotlin-plugins` can be used to generate a `graphql-kotlin-client` from an existing schema that is easy to use and type-safe.
 
-val config = SchemaGeneratorConfig(listOf("com.expediagroup"))
-val queries = listOf(TopLevelObject(Query()))
-val schema: GraphQLSchema = toSchema(config = config, queries = queries)
-```
+See the docs in [Client Overview](./client/client-overview.md).
 
-generates a `GraphQLSchema` with IDL that looks like this:
+## Generating a Schema
 
-```graphql
-schema {
-  query: Query
-}
+While we have included a server implementation, you can use `graphql-kotlin-schema-generator` and `graphql-kotlin-federation` to generate a schema from Kotlin code and expose it with any server library.
 
-type Query {
-  getNumber: Int!
-}
-```
-
-The `GraphQLSchema` generated can be used to expose a GraphQL API endpoint.
-
-### `toSchema`
-
-This function accepts four arguments: `config`, `queries`, `mutations` and `subscriptions`. The `queries`, `mutations`
-and `subscriptions` are a list of `TopLevelObject`s and will be used to generate corresponding GraphQL root types. See
-below on why we use this wrapper class. The `config` contains all the extra information you need to pass, including
-custom hooks, supported packages, and name overrides. See the full documentation: [Spring Server Overview](spring-server/spring-overview).
-
-You can see the definition for `toSchema` [in the
-source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/toSchema.kt)
-
-### Class `TopLevelObject`
-
-`toSchema` uses Kotlin reflection to build a GraphQL schema from given classes using `graphql-java`'s schema builder. We
-don't just pass a `KClass` though, we have to actually pass an object, because the functions on the object are
-transformed into the data fetchers. In most cases, a `TopLevelObject` can be constructed with just an object:
-
-```kotlin
-class Query {
-  fun getNumber() = 1
-}
-
-val topLevelObject = TopLevelObject(Query())
-
-toSchema(config = config, queries = listOf(topLevelObject))
-```
-
-In the above case, `toSchema` will use `topLevelObject::class` as the reflection target, and `Query` as the data fetcher
-target.
-
-In a lot of cases, such as with Spring AOP, the object (or bean) being used to generate a schema is a dynamic proxy. In
-this case, `topLevelObject::class` is not `Query`, but rather a generated class that will confuse the schema generator.
-To specify the `KClass` to use for reflection on a proxy, pass the class to `TopLevelObject`:
-
-```kotlin
-@Component
-class Query {
-  @Timed
-  fun getNumber() = 1
-}
-
-val query = getObjectFromBean()
-val customDef = TopLevelObject(query, Query::class)
-
-toSchema(config, listOf(customDef))
-```
+See the docs in [Schema Generator Getting Started](./schema-generator/schema-generator-getting-started.md).

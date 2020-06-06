@@ -40,7 +40,8 @@ graphql-kotlin/
   docs/
     doc-1.md
     doc-2.md
-    doc-3.md
+    sub-folder/
+        doc-3.md
   website/
     core/
     node_modules/

@@ -3,6 +3,8 @@ id: examples
 title: Examples
 ---
 
+A collection of example apps that use graphql-kotlin libraries to test and demonstrate usages can be found in the [examples module](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples).
+
 ## Spring Server Example
 
 One way to run a GraphQL server is with [Spring Boot](https://github.com/spring-projects/spring-boot). A sample Spring
