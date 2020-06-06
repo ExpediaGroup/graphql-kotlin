@@ -53,7 +53,7 @@ compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version
 ```
 
 ## Running a Server
-`graphql-kotlin-spring-server` is a combination schema generator and the server libraries. If you are looking to run a GraphQL server, this is the place to start.
+`graphql-kotlin-spring-server` is a combination of the schema generator and the server libraries. If you are looking to run a GraphQL server, this is the place to start.
 
 See the docs in [Spring Server Overview](./spring-server/spring-overview.md).
 
