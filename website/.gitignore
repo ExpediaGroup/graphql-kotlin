@@ -3,4 +3,3 @@ build/
 node_modules/
 i18n/*
 yarn.lock
-package-lock.json
