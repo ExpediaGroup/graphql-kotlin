@@ -25,7 +25,9 @@ class GenerateClientMojoTest {
     @Test
     fun `verify client code was generated`() {
         val buildDirectory = System.getProperty("buildDirectory")
-        val path = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "ExampleQuery.kt")
-        assertTrue(path.toFile().exists(), "graphql client was generated")
+        val queryFilePath = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "ExampleQuery.kt")
+        assertTrue(queryFilePath.toFile().exists(), "graphql client query file was generated")
+        val typeAliasesFilePath = Paths.get(buildDirectory, "generated-sources", "graphql", "com", "expediagroup", "graphql", "plugin", "generated", "GraphQLTypeAliases.kt")
+        assertTrue(queryFilePath.toFile().exists(), "graphql client type aliases were generated")
     }
 }

@@ -18,7 +18,7 @@ package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateGraphQLCustomScalarTypeSpecIT {
@@ -90,7 +90,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             }
         """.trimIndent()
 
-        verifyGraphQLClientGeneration(
+        verifyGeneratedFileSpecContents(
             query,
             expected,
             GraphQLClientGeneratorConfig(

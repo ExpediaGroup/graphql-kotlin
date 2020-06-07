@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator
 
+import com.squareup.kotlinpoet.FileSpec
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlin.test.assertEquals
@@ -27,17 +28,23 @@ internal fun testSchema(): TypeDefinitionRegistry {
     }
 }
 
-internal fun verifyGraphQLClientGeneration(
+internal fun generateTestFileSpec(
     query: String,
-    expected: String,
     graphQLConfig: GraphQLClientGeneratorConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.plugin.generator.integration")
-) {
+): List<FileSpec> {
     val queryFile = createTempFile(suffix = ".graphql")
     queryFile.deleteOnExit()
     queryFile.writeText(query)
 
     val generator = GraphQLClientGenerator(testSchema(), graphQLConfig)
-    val fileSpec = generator.generate(queryFile)
+    return generator.generate(listOf(queryFile))
+}
 
-    assertEquals(expected, fileSpec.toString().trim())
+internal fun verifyGeneratedFileSpecContents(
+    query: String,
+    expected: String,
+    graphQLConfig: GraphQLClientGeneratorConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.plugin.generator.integration")
+) {
+    val fileSpecs = generateTestFileSpec(query, graphQLConfig)
+    assertEquals(expected, fileSpecs.first().toString().trim())
 }

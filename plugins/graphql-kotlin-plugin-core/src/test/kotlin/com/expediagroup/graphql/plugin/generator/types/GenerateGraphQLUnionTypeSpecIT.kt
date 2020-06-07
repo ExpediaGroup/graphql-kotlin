@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -119,7 +119,7 @@ class GenerateGraphQLUnionTypeSpecIT {
               }
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(queryWithInlineFragments, expected)
+        verifyGeneratedFileSpecContents(queryWithInlineFragments, expected)
     }
 
     @Test
@@ -219,7 +219,7 @@ class GenerateGraphQLUnionTypeSpecIT {
               optional
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(queryWithNamedFragments, expected)
+        verifyGeneratedFileSpecContents(queryWithNamedFragments, expected)
     }
 
     @Test
@@ -236,7 +236,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "should throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "should throw exception")
         }
     }
 
@@ -258,7 +258,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "should throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "should throw exception")
         }
     }
 
@@ -295,7 +295,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 
@@ -323,7 +323,7 @@ class GenerateGraphQLUnionTypeSpecIT {
             }
         """.trimIndent()
         val exception = assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
         assertEquals("multiple selections of ComplexObject GraphQL type with different selection sets - missing __typename", exception.message)
     }

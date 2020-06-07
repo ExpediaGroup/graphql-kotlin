@@ -32,7 +32,5 @@ fun generateClient(
 ): List<FileSpec> {
     val graphQLSchema = SchemaParser().parse(schema)
     val generator = GraphQLClientGenerator(graphQLSchema, config)
-    return queries.map { queryFile ->
-        generator.generate(queryFile)
-    }
+    return generator.generate(queries)
 }
