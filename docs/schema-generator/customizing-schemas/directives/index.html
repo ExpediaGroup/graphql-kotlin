@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Directives · GraphQL Kotlin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="GraphQL directives can be used to transform the schema types, fields and arguments as well as modify the runtime"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Directives · GraphQL Kotlin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://expediagroup.github.io/graphql-kotlin/"/><meta property="og:description" content="GraphQL directives can be used to transform the schema types, fields and arguments as well as modify the runtime"/><meta property="og:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/graphql-kotlin/img/favicon.ico"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/graphql-kotlin/js/scrollSpy.js"></script><link rel="stylesheet" href="/graphql-kotlin/css/main.css"/><script src="/graphql-kotlin/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/graphql-kotlin/"><img class="logo" src="/graphql-kotlin/img/EG_Icon_White_on_Blue.png" alt="GraphQL Kotlin"/><h2 class="headerTitleWithLogo">GraphQL Kotlin</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class="siteNavGroupActive"><a href="/graphql-kotlin/docs/getting-started" target="_self">Docs</a></li><li class=""><a href="https://github.com/ExpediaGroup/graphql-kotlin" target="_self">GitHub</a></li><li class=""><a href=" https://github.com/ExpediaGroup/graphql-kotlin#-contact" target="_self">Contact</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Customizing Schema</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Introduction<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/getting-started">Getting Started</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/examples">Examples</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/blogs-and-videos">Blogs &amp; Videos</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Schema Generator<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/schema-generator-getting-started">Getting Started with the Schema Generator</a></li><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Writing schemas with Kotlin</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/nullability">Nullability</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/arguments">Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/scalars">Scalars</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/enums">Enums</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/lists">Lists</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/interfaces">Interfaces</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/unions">Unions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/nested-fields">Nested Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/writing-schemas/annotations">Annotations</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Customizing Schema</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/generator-config">Generator Configuration</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/documenting-fields">Documenting Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/excluding-fields">Excluding Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/renaming-fields">Renaming Fields</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/directives">Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/deprecating-schema">Deprecating Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/advanced-features">Advanced Features</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Execution</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/fetching-data">Fetching Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/async-models">Async Models</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/exceptions">Exceptions and Partial Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/data-fetching-environment">Data Fetching Environment</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/contextual-data">Contextual Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/subscriptions">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/schema-generator/execution/introspection">Introspection</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Federation<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/federated/apollo-federation">Apollo Federation</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/federated/federated-schemas">Federated Schemas</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/federated/federated-directives">Federated Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/federated/type-resolution">Federated Type Resolution</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Spring Server<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/spring-server/spring-overview">Spring Server Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/spring-server/spring-beans">Automatically Created Beans</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/spring-server/spring-properties">Configuration Properties</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/spring-server/spring-graphql-context">Generating GraphQL Context</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/spring-server/subscriptions">Subscriptions</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">HTTP Client<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/client/client-overview">Client Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/client/client-features">Client Features</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/client/client-customization">Client Customization</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Build Plugins<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/plugins/gradle-plugin">Gradle Plugin</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/plugins/maven-plugin">Maven Plugin</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Contributors<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/contributors/release-proc">Releasing a new version</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/schema-generator/customizing-schemas/directives.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Directives</h1></header><article><div><span><p>GraphQL directives can be used to transform the schema types, fields and arguments as well as modify the runtime
+behavior of the query (e.g. implement access control, etc). Common use cases involve limiting functionality based on the
+user authentication and authorization. While <a href="https://graphql.github.io/graphql-spec/draft/#sec-Type-System.Directives">GraphQL
+spec</a> specifies two types of directives -
+<code>executable</code> (aka query) and <code>type system</code> (aka schema) directives, only the latter one is supported by
+<code>graphql-kotlin-schema-generator</code>.</p>
+<h2><a class="anchor" aria-hidden="true" id="default-directives"></a><a href="#default-directives" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Default Directives</h2>
+<p><code>@deprecated</code> - schema directive used to represent deprecated portion of the schema.
+See <a href="customizing-schemas/deprecating-schema">@Deprecated</a> annotation documentation for more details</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Query</span> {
+  <span class="hljs-attribute">deprecatedQuery</span>: Boolean! <span class="hljs-variable">@deprecated</span>(<span class="hljs-attribute">reason</span>: <span class="hljs-string">"No longer supported"</span>)
+}
+</code></pre>
+<p><code>@skip</code> - query directive that allows for conditional exclusion of fields or fragments</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">query</span> myQuery(<span class="hljs-variable">$shouldSkip</span>: Boolean) {
+  <span class="hljs-attribute">myField</span> <span class="hljs-variable">@skip</span>(if: <span class="hljs-variable">$shouldSkip</span>)
+}
+</code></pre>
+<p><code>@include</code> - query directive that allows for conditional inclusion of fields or fragments</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">query</span> myQuery(<span class="hljs-variable">$shouldInclude</span>: Boolean) {
+  <span class="hljs-attribute">myField</span> <span class="hljs-variable">@include</span>(if: <span class="hljs-variable">$shouldInclude</span>)
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="custom-directives"></a><a href="#custom-directives" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom Directives</h2>
+<p>Custom directives can be added to the schema using custom annotations:</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@GraphQLDirective(
+        name = <span class="hljs-meta-string">"awesome"</span>,
+        description = <span class="hljs-meta-string">"This element is great"</span>,
+        locations = [FIELD_DEFINITION]
+)</span>
+<span class="hljs-keyword">annotation</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AwesomeDirective</span></span>(<span class="hljs-keyword">val</span> value: String)
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyQuery</span> </span>{
+    <span class="hljs-meta">@AwesomeDirective(<span class="hljs-meta-string">"cool stuff"</span>)</span>
+    <span class="hljs-keyword">val</span> somethingGreat: String = <span class="hljs-string">"Hello World"</span>
+}
+</code></pre>
+<p>The directive will then added to the schema as:</p>
+<pre><code class="hljs css language-graphql"># <span class="hljs-selector-tag">This</span> <span class="hljs-selector-tag">element</span> <span class="hljs-selector-tag">is</span> <span class="hljs-selector-tag">great</span>
+<span class="hljs-selector-tag">directive</span> @<span class="hljs-selector-tag">awesome</span>(<span class="hljs-attribute">value</span>: String) <span class="hljs-selector-tag">on</span> <span class="hljs-selector-tag">FIELD_DEFINITION</span>
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">MyQuery</span> {
+   <span class="hljs-attribute">somethingGreat</span>: String <span class="hljs-variable">@awesome</span>(<span class="hljs-string">"cool stuff"</span>)
+}
+</code></pre>
+<p>Directives can be added to various places in the schema. See the
+<a href="https://github.com/graphql-java/graphql-java/blob/v13.0/src/main/java/graphql/introspection/Introspection.java#L332">graphql.introspection.Introspection.DirectiveLocation</a>
+enum from <code>graphql-java</code> for a full list of valid locations.</p>
+<p><strong>Note that GraphQL directives are currently not available through introspection and you have to use SDL directly
+instead (you can use convenient <code>print</code> extension function of <code>GraphQLSchema</code>)</strong>. See <a href="https://github.com/facebook/graphql/issues/300">GraphQL
+issue</a> and corresponding <a href="https://github.com/graphql-java/graphql-java/issues/1017">graphql-java
+issue</a> for more details about the introspection issue.</p>
+<h3><a class="anchor" aria-hidden="true" id="naming-convention"></a><a href="#naming-convention" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Naming Convention</h3>
+<p>As described in the example above, the directive name in the schema will by default come from the
+<code>@GraphQLDirective.name</code> attribute which should follow <code>lowerCamelCase</code> format. If this value is not specified, the
+directive name will default to the normalized decapitalized name of the annotated annotation (eg: <code>awesomeDirective</code> in
+the example above).</p>
+<h3><a class="anchor" aria-hidden="true" id="customizing-behavior"></a><a href="#customizing-behavior" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Customizing Behavior</h3>
+<p>Directives allow you to customize the behavior of your schema based on some predefined conditions. Simplest way to
+modify the default behavior of your GraphQLTypes is by providing your custom <code>KotlinSchemaDirectiveWiring</code> through
+<code>KotlinDirectiveWiringFactory</code> factory used by your <code>SchemaGeneratorHooks</code>.</p>
+<p>Example of a directive that converts field to lowercase</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@GraphQLDirective(name = <span class="hljs-meta-string">"lowercase"</span>, description = <span class="hljs-meta-string">"Modifies the string field to lowercase"</span>)</span>
+<span class="hljs-keyword">annotation</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LowercaseDirective</span></span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LowercaseSchemaDirectiveWiring</span> : <span class="hljs-type">KotlinSchemaDirectiveWiring {</span></span>
+
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">onField</span><span class="hljs-params">(environment: <span class="hljs-type">KotlinFieldDirectiveEnvironment</span>)</span></span>: GraphQLFieldDefinition {
+        <span class="hljs-keyword">val</span> field = environment.element
+        <span class="hljs-keyword">val</span> originalDataFetcher: DataFetcher&lt;Any&gt; = environment.getDataFetcher()
+
+        <span class="hljs-keyword">val</span> lowerCaseFetcher = DataFetcherFactories.wrapDataFetcher(
+            originalDataFetcher,
+            BiFunction&lt;DataFetchingEnvironment, Any, Any&gt;{ _, value -&gt; value.toString().toLowerCase() }
+        )
+        environment.setDataFetcher(lowerCaseFetcher)
+        <span class="hljs-keyword">return</span> field
+    }
+}
+</code></pre>
+<p>While you can manually apply all the runtime wirings to the corresponding GraphQL types directly in
+<code>SchemaGeneratorHooks#onRewireGraphQLType</code>, we recommend the usage of our
+<a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/directives/KotlinDirectiveWiringFactory.kt">KotlinDirectiveWiringFactory</a>
+to simplify the integrations. <code>KotlinDirectiveWiringFactory</code> accepts a mapping of directives to corresponding wirings or
+could be extended to provide the wirings through <code>KotlinDirectiveWiringFactory#getSchemaDirectiveWiring</code> that accepts
+<code>KotlinSchemaDirectiveEnvironment</code>.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> queries = ...
+<span class="hljs-keyword">val</span> customWiringFactory = KotlinDirectiveWiringFactory(
+    manualWiring = mapOf&lt;String, KotlinSchemaDirectiveWiring&gt;(<span class="hljs-string">"lowercase"</span> to LowercaseSchemaDirectiveWiring()))
+<span class="hljs-keyword">val</span> customHooks = <span class="hljs-keyword">object</span> : SchemaGeneratorHooks {
+    <span class="hljs-keyword">override</span> <span class="hljs-keyword">val</span> wiringFactory: KotlinDirectiveWiringFactory
+        <span class="hljs-keyword">get</span>() = customWiringFactory
+}
+<span class="hljs-keyword">val</span> schemaGeneratorConfig = SchemaGeneratorConfig(hooks = customHooks)
+<span class="hljs-keyword">val</span> schema = toSchema(queries = queries, config = schemaGeneratorConfig)
+</code></pre>
+<p>While providing directives on different schema elements you will be able to modify the underlying GraphQL types. Keep in
+mind though that data fetchers are used to resolve the fields so only field directives (and by association their
+arguments directives) can modify runtime behavior based on the context and user input.</p>
+<p><strong>NOTE: <code>graphql-kotlin</code> prioritizes manual wiring mappings over the wirings provided by the
+<code>KotlinDirectiveWiringFactory#getSchemaDirectiveWiring</code>. This is a different behavior than <code>graphql-java</code> which will
+first attempt to use <code>WiringFactory</code> and then fallback to manual overrides.</strong></p>
+<p>For more details please refer to the example usage of directives in our <a href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring">example
+app</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="directive-chaining"></a><a href="#directive-chaining" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Directive Chaining</h2>
+<p>Directives are applied in the order annotations are declared on the given object. Given</p>
+<pre><code class="hljs css language-kotlin">  <span class="hljs-meta">@Directive1</span>
+  <span class="hljs-meta">@Directive2</span>
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span></span>: String {
+    <span class="hljs-comment">// does something</span>
+  }
+</code></pre>
+<p><code>Directive1</code> will be applied first followed by the <code>Directive2</code>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/renaming-fields"><span class="arrow-prev">← </span><span>Renaming Fields</span></a><a class="docs-next button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/deprecating-schema"><span>Deprecating Schema</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#default-directives">Default Directives</a></li><li><a href="#custom-directives">Custom Directives</a><ul class="toc-headings"><li><a href="#naming-convention">Naming Convention</a></li><li><a href="#customizing-behavior">Customizing Behavior</a></li></ul></li><li><a href="#directive-chaining">Directive Chaining</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: 'b23761059e66eefd46f5f665a2d4537a',
+                indexName: 'graphql-kotlin',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
