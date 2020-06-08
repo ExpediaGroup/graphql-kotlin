@@ -73,6 +73,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
 
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/GraphQLTypeAliases.kt").exists())
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
     }
 

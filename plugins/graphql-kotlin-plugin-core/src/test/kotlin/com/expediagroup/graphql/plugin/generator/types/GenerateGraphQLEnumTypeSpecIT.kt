@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateGraphQLEnumTypeSpecIT {
@@ -82,6 +82,6 @@ class GenerateGraphQLEnumTypeSpecIT {
             }
         """.trimIndent()
 
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 }

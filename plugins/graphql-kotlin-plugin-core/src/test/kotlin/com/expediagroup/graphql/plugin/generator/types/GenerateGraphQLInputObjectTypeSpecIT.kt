@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateGraphQLInputObjectTypeSpecIT {
@@ -54,7 +54,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
               inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 
     @Test
@@ -95,6 +95,6 @@ class GenerateGraphQLInputObjectTypeSpecIT {
               second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 }

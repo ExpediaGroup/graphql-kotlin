@@ -32,10 +32,7 @@ using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
 * Only a single operation per GraphQL query file is supported.
 * Subscriptions are currently NOT supported.
 * You cannot make multiple selections to the same GraphQL object with different fields within a single GraphQL query.
-  But you can have different selection sets across different GraphQL queries, e.g.
-* Anonymous operations are supported but will result in generic `AnonymousQuery` (for query operation) class. Plugins
-  do not keep track of state across different query generations so if you have multiple anonymous operations in a single
-  package your compilation will fail due to the generic class name collisions.
+  But you can have different selection sets across different GraphQL queries
 * Nested queries have limited support as same object will be used for ALL nested results. This means that you have to
   explicitly ask for data from ALL nested levels + the NULL/empty child following it (that may skip recursive field selection
   as it will be NULL)

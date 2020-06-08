@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -134,7 +134,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
               }
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 
     @Test
@@ -254,7 +254,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
               floatValue
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(queryWithNamedFragments, expected)
+        verifyGeneratedFileSpecContents(queryWithNamedFragments, expected)
     }
 
     @Test
@@ -281,7 +281,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 
@@ -300,7 +300,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 }

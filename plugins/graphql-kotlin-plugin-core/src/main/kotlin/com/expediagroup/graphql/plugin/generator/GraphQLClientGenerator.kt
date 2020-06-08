@@ -26,6 +26,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
@@ -44,11 +45,30 @@ class GraphQLClientGenerator(
     private val config: GraphQLClientGeneratorConfig
 ) {
     private val documentParser: Parser = Parser()
+    private val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
+
+    /**
+     * Generate GraphQL clients for the specified queries.
+     */
+    fun generate(queries: List<File>): List<FileSpec> {
+        val result = mutableListOf<FileSpec>()
+        for (query in queries) {
+            result.add(generate(query))
+        }
+        if (typeAliases.isNotEmpty()) {
+            val typeAliasSpec = FileSpec.builder(packageName = config.packageName, fileName = "GraphQLTypeAliases")
+            typeAliases.forEach { (_, alias) ->
+                typeAliasSpec.addTypeAlias(alias)
+            }
+            result.add(typeAliasSpec.build())
+        }
+        return result
+    }
 
     /**
      * Generate GraphQL client wrapper class and data classes that match the specified query.
      */
-    fun generate(queryFile: File): FileSpec {
+    internal fun generate(queryFile: File): FileSpec {
         val queryConst = queryFile.readText()
         val queryDocument = documentParser.parseDocument(queryConst)
 
@@ -60,7 +80,7 @@ class GraphQLClientGenerator(
         val fileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
 
         operationDefinitions.forEach { operationDefinition ->
-            val operationName = operationDefinition.name ?: "anonymous${operationDefinition.operation.name.toLowerCase().capitalize()}"
+            val operationName = operationDefinition.name ?: queryFile.nameWithoutExtension.capitalize()
             val operationTypeName = operationName.capitalize()
             val context = GraphQLClientGeneratorContext(
                 packageName = config.packageName,
@@ -102,9 +122,6 @@ class GraphQLClientGenerator(
                 .initializer("graphQLClient").build())
             operationTypeSpec.addFunction(funSpec.build())
 
-            context.typeAliases.forEach { (_, alias) ->
-                fileSpec.addTypeAlias(alias)
-            }
             context.typeSpecs.forEach {
                 operationTypeSpec.addType(it.value)
             }
@@ -112,8 +129,9 @@ class GraphQLClientGenerator(
                 .addModifiers(KModifier.CONST)
                 .initializer("%S", queryConst).build())
             fileSpec.addType(operationTypeSpec.build())
-        }
 
+            typeAliases.putAll(context.typeAliases)
+        }
         return fileSpec.build()
     }
 

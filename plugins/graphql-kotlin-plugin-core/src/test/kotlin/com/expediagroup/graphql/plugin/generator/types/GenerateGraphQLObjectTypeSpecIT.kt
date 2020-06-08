@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -110,7 +110,7 @@ class GenerateGraphQLObjectTypeSpecIT {
               }
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 
     @Test
@@ -191,7 +191,7 @@ class GenerateGraphQLObjectTypeSpecIT {
               value
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(queryWithNamedFragment, expected)
+        verifyGeneratedFileSpecContents(queryWithNamedFragment, expected)
     }
 
     @Test
@@ -204,7 +204,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 
@@ -227,7 +227,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 
@@ -279,7 +279,7 @@ class GenerateGraphQLObjectTypeSpecIT {
               }
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 
     @Test
@@ -290,7 +290,7 @@ class GenerateGraphQLObjectTypeSpecIT {
             }
         """.trimIndent()
         assertThrows<RuntimeException> {
-            verifyGraphQLClientGeneration(invalidQuery, "will throw exception")
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 
@@ -327,7 +327,7 @@ class GenerateGraphQLObjectTypeSpecIT {
               deprecatedQuery
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(
+        verifyGeneratedFileSpecContents(
             invalidQuery,
             expected,
             GraphQLClientGeneratorConfig(
@@ -394,6 +394,6 @@ class GenerateGraphQLObjectTypeSpecIT {
               }
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(nestedQuery, expected)
+        verifyGeneratedFileSpecContents(nestedQuery, expected)
     }
 }

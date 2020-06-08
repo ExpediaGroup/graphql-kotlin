@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.verifyGraphQLClientGeneration
+import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateVariableTypeSpecIT {
@@ -78,6 +78,6 @@ class GenerateVariableTypeSpecIT {
               inputObjectQuery(criteria: ${'$'}criteria)
             }
         """.trimIndent()
-        verifyGraphQLClientGeneration(query, expected)
+        verifyGeneratedFileSpecContents(query, expected)
     }
 }
