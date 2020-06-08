@@ -80,8 +80,7 @@ class GraphQLClientGenerator(
         val fileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
 
         operationDefinitions.forEach { operationDefinition ->
-            val operationName = operationDefinition.name ?: queryFile.nameWithoutExtension.capitalize()
-            val operationTypeName = operationName.capitalize()
+            val operationTypeName = operationDefinition.name?.capitalize() ?: queryFile.nameWithoutExtension.capitalize()
             val context = GraphQLClientGeneratorContext(
                 packageName = config.packageName,
                 graphQLSchema = graphQLSchema,
@@ -109,8 +108,13 @@ class GraphQLClientGenerator(
                 "null"
             }
 
-            val queryConstName = operationName.toUpperUnderscore()
-            funSpec.addStatement("return graphQLClient.execute($queryConstName, \"$operationTypeName\", $variableCode)")
+            val queryConstName = operationTypeName.toUpperUnderscore()
+            val operationName = if (operationDefinition.name != null) {
+                "\"${operationDefinition.name}\""
+            } else {
+                "null"
+            }
+            funSpec.addStatement("return graphQLClient.execute($queryConstName, $operationName, $variableCode)")
 
             val gqlCLientClassName = ClassName(LIBRARY_PACKAGE, "GraphQLClient").parameterizedBy(STAR)
             operationTypeSpec.primaryConstructor(FunSpec.constructorBuilder()
