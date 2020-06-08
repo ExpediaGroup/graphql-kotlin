@@ -85,7 +85,7 @@ See more info in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## 🛡️ Security
 
-For more info on how to contact the team for security issues or the supported versions that recieve security updates, see [SECURITY.md](./github/SECURITY.md).
+For more info on how to contact the team for security issues or the supported versions that recieve security updates, see [SECURITY.md](./.github/SECURITY.md).
 
 ## ⚖️ License
 This library is licensed under the [Apache License, Version 2.0](LICENSE)
