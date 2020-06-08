@@ -41,4 +41,4 @@ To effectively use this hook, you should also override the `willResolveMonad` ho
 
 The server that runs your GraphQL schema will have to support some method for subscriptions, like WebSockets.
 `graphql-kotlin-spring-server` provides a default WebSocket based implementation. See more details in the
-[server documentation](../spring-server/subscriptions).
+[server documentation](../../spring-server/subscriptions).

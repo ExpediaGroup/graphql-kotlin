@@ -16,6 +16,8 @@ Articles and videos specifically about `graphql-kotlin`
 * 📝 [Apollo Federation in a GraphQL Kotlin Server](https://medium.com/expedia-group-tech/apollo-federation-in-a-graphql-kotlin-server-115cea51607a)
 * 📝 [Creating a Reactive GraphQL Server with Spring Boot and Kotlin](https://medium.com/expedia-group-tech/creating-a-reactive-graphql-server-with-spring-boot-and-kotlin-54aca7316470)
 * 📺 [Bootiful GraphQL with Kotlin (Dariusz Kuc, Guillaume Scheibel)](https://www.youtube.com/watch?v=7YJyPXjLdug&amp;index=25) (en)
+* 📝 [🎉 Announcing graphql-kotlin 2.0!](https://medium.com/expedia-group-tech/graphql-kotlin-2-0-4006ea41f774)
+* 📝 [Introducing GraphQL Kotlin Client](https://medium.com/expedia-group-tech/introducing-graphql-kotlin-client-b32dc3061a6f)
 
 #### GraphQL
 Articles and videos about how Expedia Group is using GraphQL
