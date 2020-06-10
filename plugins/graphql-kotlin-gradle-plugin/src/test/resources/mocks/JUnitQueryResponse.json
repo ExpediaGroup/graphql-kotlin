@@ -11,13 +11,11 @@
     },
     "listQuery": [
       {
-        "__typename": "BasicObject",
         "id": 195555040,
         "name": "whatever"
       }
     ],
     "complexObjectQuery": {
-      "__typename": "ComplexObject",
       "id": 888961957,
       "name": "whatever",
       "optional": null,

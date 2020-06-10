@@ -56,45 +56,4 @@ class GenerateGraphQLInputObjectTypeSpecIT {
         """.trimIndent()
         verifyGeneratedFileSpecContents(query, expected)
     }
-
-    @Test
-    fun `verify we can generate objects using aliases`() {
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.integration
-
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Boolean
-            import kotlin.String
-
-            const val ALIAS_TEST_QUERY: String =
-                "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
-
-            class AliasTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
-                  graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
-
-              data class Result(
-                /**
-                 * Query that accepts some input arguments
-                 */
-                val first: Boolean,
-                /**
-                 * Query that accepts some input arguments
-                 */
-                val second: Boolean
-              )
-            }
-        """.trimIndent()
-
-        val query = """
-            query AliasTestQuery {
-              first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
-              second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )
-            }
-        """.trimIndent()
-        verifyGeneratedFileSpecContents(query, expected)
-    }
 }

@@ -303,4 +303,346 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
+
+    @Test
+    fun `verify graphql client generation supports different selection sets between interfaces`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import com.fasterxml.jackson.annotation.JsonSubTypes
+            import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+            import kotlin.Float
+            import kotlin.Int
+            import kotlin.String
+
+            const val DIFFERENT_SELECTION_SET_QUERY: String =
+                "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
+
+            class DifferentSelectionSetQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                  graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
+
+              /**
+               * Example interface implementation where value is an integer
+               */
+              data class FirstInterfaceImplementation(
+                /**
+                 * Unique identifier of the first implementation
+                 */
+                override val id: Int,
+                /**
+                 * Name of the first implementation
+                 */
+                override val name: String,
+                /**
+                 * Custom field integer value
+                 */
+                val intValue: Int
+              ) : DifferentSelectionSetQuery.BasicInterface
+
+              /**
+               * Example interface implementation where value is a float
+               */
+              data class SecondInterfaceImplementation(
+                /**
+                 * Unique identifier of the second implementation
+                 */
+                override val id: Int,
+                /**
+                 * Name of the second implementation
+                 */
+                override val name: String,
+                /**
+                 * Custom field float value
+                 */
+                val floatValue: Float
+              ) : DifferentSelectionSetQuery.BasicInterface
+
+              /**
+               * Very basic interface
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.FirstInterfaceImplementation::class,
+                  name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+                  = DifferentSelectionSetQuery.SecondInterfaceImplementation::class,
+                  name="SecondInterfaceImplementation")])
+              interface BasicInterface {
+                /**
+                 * Unique identifier of an interface
+                 */
+                val id: Int
+
+                /**
+                 * Name field
+                 */
+                val name: String
+              }
+
+              /**
+               * Example interface implementation where value is an integer
+               */
+              data class FirstInterfaceImplementation2(
+                /**
+                 * Name of the first implementation
+                 */
+                override val name: String,
+                /**
+                 * Custom field integer value
+                 */
+                val intValue: Int
+              ) : DifferentSelectionSetQuery.BasicInterface2
+
+              /**
+               * Example interface implementation where value is a float
+               */
+              data class SecondInterfaceImplementation2(
+                /**
+                 * Name of the second implementation
+                 */
+                override val name: String,
+                /**
+                 * Custom field float value
+                 */
+                val floatValue: Float
+              ) : DifferentSelectionSetQuery.BasicInterface2
+
+              /**
+               * Very basic interface
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.FirstInterfaceImplementation2::class,
+                  name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+                  = DifferentSelectionSetQuery.SecondInterfaceImplementation2::class,
+                  name="SecondInterfaceImplementation")])
+              interface BasicInterface2 {
+                /**
+                 * Name field
+                 */
+                val name: String
+              }
+
+              data class Result(
+                /**
+                 * Query returning an interface
+                 */
+                val first: DifferentSelectionSetQuery.BasicInterface,
+                /**
+                 * Query returning an interface
+                 */
+                val second: DifferentSelectionSetQuery.BasicInterface2
+              )
+            }
+        """.trimIndent()
+        val differentSelectionQuery = """
+            query DifferentSelectionSetQuery {
+              first: interfaceQuery {
+                __typename
+                id
+                name
+                ... on FirstInterfaceImplementation {
+                  intValue
+                }
+                ... on SecondInterfaceImplementation {
+                  floatValue
+                }
+              }
+              second: interfaceQuery {
+                __typename
+                name
+                ... on FirstInterfaceImplementation {
+                  intValue
+                }
+                ... on SecondInterfaceImplementation {
+                  floatValue
+                }
+              }
+            }
+        """.trimIndent()
+        verifyGeneratedFileSpecContents(differentSelectionQuery, expected)
+    }
+
+    @Test
+    fun `verify graphql client generation supports different selection sets between interface implementations`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import com.fasterxml.jackson.annotation.JsonSubTypes
+            import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+            import kotlin.Float
+            import kotlin.Int
+            import kotlin.String
+
+            const val DIFFERENT_SELECTION_SET_QUERY: String =
+                "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      name\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      name\n      floatValue\n    }\n  }\n}"
+
+            class DifferentSelectionSetQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                  graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
+
+              /**
+               * Example interface implementation where value is an integer
+               */
+              data class FirstInterfaceImplementation(
+                /**
+                 * Unique identifier of the first implementation
+                 */
+                override val id: Int,
+                /**
+                 * Custom field integer value
+                 */
+                val intValue: Int
+              ) : DifferentSelectionSetQuery.BasicInterface
+
+              /**
+               * Example interface implementation where value is a float
+               */
+              data class SecondInterfaceImplementation(
+                /**
+                 * Unique identifier of the second implementation
+                 */
+                override val id: Int,
+                /**
+                 * Custom field float value
+                 */
+                val floatValue: Float
+              ) : DifferentSelectionSetQuery.BasicInterface
+
+              /**
+               * Very basic interface
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.FirstInterfaceImplementation::class,
+                  name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+                  = DifferentSelectionSetQuery.SecondInterfaceImplementation::class,
+                  name="SecondInterfaceImplementation")])
+              interface BasicInterface {
+                /**
+                 * Unique identifier of an interface
+                 */
+                val id: Int
+              }
+
+              /**
+               * Example interface implementation where value is an integer
+               */
+              data class FirstInterfaceImplementation2(
+                /**
+                 * Unique identifier of the first implementation
+                 */
+                override val id: Int,
+                /**
+                 * Name of the first implementation
+                 */
+                val name: String,
+                /**
+                 * Custom field integer value
+                 */
+                val intValue: Int
+              ) : DifferentSelectionSetQuery.BasicInterface2
+
+              /**
+               * Example interface implementation where value is a float
+               */
+              data class SecondInterfaceImplementation2(
+                /**
+                 * Unique identifier of the second implementation
+                 */
+                override val id: Int,
+                /**
+                 * Name of the second implementation
+                 */
+                val name: String,
+                /**
+                 * Custom field float value
+                 */
+                val floatValue: Float
+              ) : DifferentSelectionSetQuery.BasicInterface2
+
+              /**
+               * Very basic interface
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.FirstInterfaceImplementation2::class,
+                  name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+                  = DifferentSelectionSetQuery.SecondInterfaceImplementation2::class,
+                  name="SecondInterfaceImplementation")])
+              interface BasicInterface2 {
+                /**
+                 * Unique identifier of an interface
+                 */
+                val id: Int
+              }
+
+              data class Result(
+                /**
+                 * Query returning an interface
+                 */
+                val first: DifferentSelectionSetQuery.BasicInterface,
+                /**
+                 * Query returning an interface
+                 */
+                val second: DifferentSelectionSetQuery.BasicInterface2
+              )
+            }
+        """.trimIndent()
+        val differentSelectionQuery = """
+            query DifferentSelectionSetQuery {
+              first: interfaceQuery {
+                __typename
+                id
+                ... on FirstInterfaceImplementation {
+                  intValue
+                }
+                ... on SecondInterfaceImplementation {
+                  floatValue
+                }
+              }
+              second: interfaceQuery {
+                __typename
+                id
+                ... on FirstInterfaceImplementation {
+                  name
+                  intValue
+                }
+                ... on SecondInterfaceImplementation {
+                  name
+                  floatValue
+                }
+              }
+            }
+        """.trimIndent()
+        verifyGeneratedFileSpecContents(differentSelectionQuery, expected)
+    }
 }

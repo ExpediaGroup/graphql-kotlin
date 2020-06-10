@@ -66,7 +66,7 @@ class GraphQLMavenPluginTest {
                 val interfaceResult = data?.interfaceQuery
                 assertTrue(interfaceResult is ExampleQuery.SecondInterfaceImplementation)
                 val unionResult = data?.unionQuery
-                assertTrue(unionResult is ExampleQuery.BasicObject)
+                assertTrue(unionResult is ExampleQuery.BasicObject2)
             }
         }
     }

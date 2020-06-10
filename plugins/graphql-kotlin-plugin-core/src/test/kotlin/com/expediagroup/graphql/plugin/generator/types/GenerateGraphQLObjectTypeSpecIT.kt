@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
-import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
 import io.mockk.mockk
@@ -283,60 +282,6 @@ class GenerateGraphQLObjectTypeSpecIT {
     }
 
     @Test
-    fun `verify exception is thrown when attempting to select deprecated field`() {
-        val invalidQuery = """
-            query DeprecatedFieldQuery {
-              deprecatedQuery
-            }
-        """.trimIndent()
-        assertThrows<RuntimeException> {
-            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
-        }
-    }
-
-    @Test
-    fun `verify object with deprecated fields is generated if explicitly configured`() {
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.integration
-
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Deprecated
-            import kotlin.String
-
-            const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
-
-            class DeprecatedFieldQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
-                  graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
-
-              data class Result(
-                /**
-                 * Deprecated query that should not be used anymore
-                 */
-                @Deprecated(message = "old query should not be used")
-                val deprecatedQuery: String
-              )
-            }
-        """.trimIndent()
-
-        val invalidQuery = """
-            query DeprecatedFieldQuery {
-              deprecatedQuery
-            }
-        """.trimIndent()
-        verifyGeneratedFileSpecContents(
-            invalidQuery,
-            expected,
-            GraphQLClientGeneratorConfig(
-                packageName = "com.expediagroup.graphql.plugin.generator.integration",
-                allowDeprecated = true
-            ))
-    }
-
-    @Test
     fun `verify we can generate nested objects`() {
         val expected = """
             package com.expediagroup.graphql.plugin.generator.integration
@@ -395,5 +340,233 @@ class GenerateGraphQLObjectTypeSpecIT {
             }
         """.trimIndent()
         verifyGeneratedFileSpecContents(nestedQuery, expected)
+    }
+
+    @Test
+    fun `verify we can generate objects with different selection sets`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import kotlin.Int
+            import kotlin.String
+
+            const val DIFFERENT_SELECTIONS_QUERY: String =
+                "query DifferentSelectionsQuery {\n  first: complexObjectQuery {\n    id\n    name\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
+
+            class DifferentSelectionsQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DifferentSelectionsQuery.Result> =
+                  graphQLClient.execute(DIFFERENT_SELECTIONS_QUERY, "DifferentSelectionsQuery", null)
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Some object name
+                 */
+                val name: String
+              )
+
+              /**
+               * Inner type object description
+               */
+              data class DetailsObject(
+                /**
+                 * Unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Actual detail value
+                 */
+                val value: String
+              )
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject2(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Some object name
+                 */
+                val name: String,
+                /**
+                 * Some additional details
+                 */
+                val details: DifferentSelectionsQuery.DetailsObject
+              )
+
+              data class Result(
+                /**
+                 * Query returning an object that references another object
+                 */
+                val first: DifferentSelectionsQuery.ComplexObject,
+                /**
+                 * Query returning an object that references another object
+                 */
+                val second: DifferentSelectionsQuery.ComplexObject2
+              )
+            }
+        """.trimIndent()
+        val differentSelectionsQuery = """
+            query DifferentSelectionsQuery {
+              first: complexObjectQuery {
+                id
+                name
+              }
+              second: complexObjectQuery {
+                id
+                name
+                details {
+                  id
+                  value
+                }
+              }
+            }
+        """.trimIndent()
+        verifyGeneratedFileSpecContents(differentSelectionsQuery, expected)
+    }
+
+    @Test
+    fun `verify we can generate objects that have different sub-selections`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import kotlin.Boolean
+            import kotlin.Int
+            import kotlin.String
+
+            const val DIFFERENT_SELECTIONS_QUERY: String =
+                "query DifferentSelectionsQuery {\n  first: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n      flag\n    }\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
+
+            class DifferentSelectionsQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DifferentSelectionsQuery.Result> =
+                  graphQLClient.execute(DIFFERENT_SELECTIONS_QUERY, "DifferentSelectionsQuery", null)
+
+              /**
+               * Inner type object description
+               */
+              data class DetailsObject(
+                /**
+                 * Unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Actual detail value
+                 */
+                val value: String,
+                /**
+                 * Boolean flag
+                 */
+                val flag: Boolean
+              )
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Some object name
+                 */
+                val name: String,
+                /**
+                 * Some additional details
+                 */
+                val details: DifferentSelectionsQuery.DetailsObject
+              )
+
+              /**
+               * Inner type object description
+               */
+              data class DetailsObject2(
+                /**
+                 * Unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Actual detail value
+                 */
+                val value: String
+              )
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject2(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Some object name
+                 */
+                val name: String,
+                /**
+                 * Some additional details
+                 */
+                val details: DifferentSelectionsQuery.DetailsObject2
+              )
+
+              data class Result(
+                /**
+                 * Query returning an object that references another object
+                 */
+                val first: DifferentSelectionsQuery.ComplexObject,
+                /**
+                 * Query returning an object that references another object
+                 */
+                val second: DifferentSelectionsQuery.ComplexObject2
+              )
+            }
+        """.trimIndent()
+        val differentSelectionsQuery = """
+            query DifferentSelectionsQuery {
+              first: complexObjectQuery {
+                id
+                name
+                details {
+                  id
+                  value
+                  flag
+                }
+              }
+              second: complexObjectQuery {
+                id
+                name
+                details {
+                  id
+                  value
+                }
+              }
+            }
+        """.trimIndent()
+        verifyGeneratedFileSpecContents(differentSelectionsQuery, expected)
     }
 }

@@ -31,8 +31,6 @@ using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
 * Due to the custom logic required for deserialization of polymorphic types and default enum values only Jackson is currently supported.
 * Only a single operation per GraphQL query file is supported.
 * Subscriptions are currently NOT supported.
-* You cannot make multiple selections to the same GraphQL object with different fields within a single GraphQL query.
-  But you can have different selection sets across different GraphQL queries
 * Nested queries have limited support as same object will be used for ALL nested results. This means that you have to
   explicitly ask for data from ALL nested levels + the NULL/empty child following it (that may skip recursive field selection
   as it will be NULL)

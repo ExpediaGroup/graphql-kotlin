@@ -28,7 +28,7 @@ fun main() {
         val interfaceResult = data?.interfaceQuery
         assert(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
         val unionResult = data?.unionQuery
-        assert(unionResult is JUnitQuery.BasicObject)
+        assert(unionResult is JUnitQuery.BasicObject2)
         assert(response.errors == null)
         assert(response.extensions == null)
     }

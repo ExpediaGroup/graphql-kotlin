@@ -28,7 +28,12 @@ import graphql.language.SelectionSet
 /**
  * Generate [TypeSpec] data class from the GraphQL object definition based on the selection set.
  */
-internal fun generateGraphQLObjectTypeSpec(context: GraphQLClientGeneratorContext, objectDefinition: ObjectTypeDefinition, selectionSet: SelectionSet?, objectNameOverride: String? = null): TypeSpec {
+internal fun generateGraphQLObjectTypeSpec(
+    context: GraphQLClientGeneratorContext,
+    objectDefinition: ObjectTypeDefinition,
+    selectionSet: SelectionSet?,
+    objectNameOverride: String? = null
+): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
         throw RuntimeException("cannot select empty objects")
     }
@@ -66,6 +71,7 @@ internal fun generateGraphQLObjectTypeSpec(context: GraphQLClientGeneratorContex
                 constructorBuilder.addParameter(propertySpec.name, propertySpec.type)
             }
         }
+
     objectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
     val objectTypeSpec = objectTypeSpecBuilder.build()

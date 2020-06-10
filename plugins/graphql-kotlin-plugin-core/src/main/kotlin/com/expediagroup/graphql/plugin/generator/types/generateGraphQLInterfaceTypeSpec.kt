@@ -27,21 +27,27 @@ import graphql.language.SelectionSet
  * @see generateGraphQLUnionTypeSpec
  * @see generateInterfaceTypeSpec
  */
-internal fun generateGraphQLInterfaceTypeSpec(context: GraphQLClientGeneratorContext, interfaceDefinition: InterfaceTypeDefinition, selectionSet: SelectionSet?): TypeSpec {
+internal fun generateGraphQLInterfaceTypeSpec(
+    context: GraphQLClientGeneratorContext,
+    interfaceDefinition: InterfaceTypeDefinition,
+    selectionSet: SelectionSet?,
+    interfaceNameOverride: String? = null
+): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
         throw RuntimeException("cannot select empty interface")
     }
 
+    val interfaceName = interfaceNameOverride ?: interfaceDefinition.name
     val implementations = context.graphQLSchema.getImplementationsOf(interfaceDefinition).map { it.name }
     val interfaceType = generateInterfaceTypeSpec(
         context = context,
-        interfaceName = interfaceDefinition.name,
+        interfaceName = interfaceName,
         kdoc = interfaceDefinition.description?.content,
         fields = interfaceDefinition.fieldDefinitions,
         selectionSet = selectionSet,
         implementations = implementations
     )
 
-    context.typeSpecs[interfaceDefinition.name] = interfaceType
+    context.typeSpecs[interfaceName] = interfaceType
     return interfaceType
 }
