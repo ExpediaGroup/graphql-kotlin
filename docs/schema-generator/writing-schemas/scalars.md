@@ -13,17 +13,13 @@ extended scalar types provided by `graphql-java`.
 | `kotlin.Float`      | `Float`      |
 | `kotlin.String`     | `String`     |
 | `kotlin.Boolean`    | `Boolean`    |
-| **Extended GraphQL Types** | **GraphQL Type** |
-| `kotlin.Long`       | `Long`       |
-| `kotlin.Short`      | `Short`      |
-| `kotlin.Double`     | `Float`      |
-| `kotlin.BigInteger` | `BigInteger` |
-| `kotlin.BigDecimal` | `BigDecimal` |
-| `kotlin.Char`       | `Char`       |
 
-> NOTE: Extended GraphQL scalar types provided by `graphql-java` are generated as custom scalar types. When using those custom scalar types your GraphQL clients will have to know how to correctly parse and serialize them. See `graphql-java` [documentation](https://www.graphql-java.com/documentation/v14/scalars/) for more details.
+> NOTE: Extended GraphQL scalar types provided by `graphql-java` were [deprecated in v15](https://github.com/graphql-java/graphql-java/releases/tag/v15.0).
+> This includes the following types: `Long`, `Short`, `Float`, `BigInteger`, `BigDecimal`, and `Char`.
+> If you are currently using these types, they will be removed in future `graphql-java` releases.
+> See the [graphql-java-extended-scalars](https://github.com/graphql-java/graphql-java-extended-scalars) project if you need continued support.
 
-## ID
+## GraphQL ID
 
 GraphQL supports the scalar type `ID`, a unique identifier that is not intended to be human readable. IDs are
 serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.scalars.ID` class, which wraps the underlying `String` value.
