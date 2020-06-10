@@ -3,6 +3,7 @@ id: scalars
 title: Scalars
 ---
 
+## Primitive Types
 `graphql-kotlin-schema-generator` can directly map most Kotlin "primitive" types to standard GraphQL scalar types or
 extended scalar types provided by `graphql-java`.
 
@@ -12,7 +13,7 @@ extended scalar types provided by `graphql-java`.
 | `kotlin.Float`      | `Float`      |
 | `kotlin.String`     | `String`     |
 | `kotlin.Boolean`    | `Boolean`    |
-| | **Extended GraphQL Types**       |
+| **Extended GraphQL Types** | **GraphQL Type** |
 | `kotlin.Long`       | `Long`       |
 | `kotlin.Short`      | `Short`      |
 | `kotlin.Double`     | `Float`      |
@@ -47,7 +48,6 @@ This would produce the following schema:
 schema {
     query: Query
 }
-
 
 type Query {
     findPersonById(id: ID!): Person!

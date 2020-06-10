@@ -1,17 +1,16 @@
 ---
-id: nested-fields
-title: Nested Fields
+id: nested-arguments
+title: Nested Arguments
 ---
 
 There are a few ways in which you can access data in a query from different levels of arguments. Say we have the following schema:
 
 ```graphql
 type Query {
-  findUser(name: String!): User
+  findUser(id: String!): User
 }
 
 type User {
-  id: ID!
   photos(numberOfPhotos: Int!): [Photo!]!
 }
 
@@ -25,27 +24,27 @@ arguments there are a couple ways we can access it:
 
 
 ## DataFetchingEnvironment
-You can add the `DataFetchingEnvironment` as an argument which will allow you to view the entire query sent to the
+You can add the `DataFetchingEnvironment` as an argument. This class will be ignored by the schema generator and will allow you to view the entire query sent to the
   server. See more in the [DataFetchingEnvironment documentation](../execution/data-fetching-environment)
 
 ```kotlin
 class User {
     fun photos(environment: DataFetchingEnvironment, numberOfPhotos: Int): List<Photo> {
-      val username = environment.executionStepInfo.parent.arguments["name"]
+      val username = environment.executionStepInfo.parent.arguments["id"]
       return getPhotosFromDataSource(username, numberOfPhotos)
     }
 }
 ```
 
 ## GraphQL Context
-You can add the `GraphQLContext` as an argument which will allow you to view the context object you set up in the
+You can add the `GraphQLContext` as an argument. This class will be ignored by the schema generator and will allow you to view the context object you set up in the
   data fetchers. See more in the [GraphQLContext documentation](../execution/contextual-data)
 
 ```kotlin
 class User {
     fun photos(context: MyContextObject, numberOfPhotos: Int): List<Photo> {
-      val username = context.getDataFromMyCustomFunction()
-      return getPhotosFromDataSource(username, numberOfPhotos)
+      val userId = context.getDataFromMyCustomFunction()
+      return getPhotosFromDataSource(userId, numberOfPhotos)
     }
 }
 ```
@@ -54,14 +53,14 @@ class User {
 You can construct the child objects by passing down arguments as non-public fields or annotate the argument with [@GraphQLIgnore](../customizing-schemas/excluding-fields)
 
 ```kotlin
-class User(private val username: String) {
+class User(private val userId: String) {
 
     fun photosProperty(numberOfPhotos: Int): List<Photo> {
-      return getPhotosFromDataSource(username, numberOfPhotos)
+      return getPhotosFromDataSource(userId, numberOfPhotos)
     }
 
-    fun photosIgnore(@GraphQLIgnore username: String, numberOfPhotos: Int): List<Photo> {
-      return getPhotosFromDataSource(username, numberOfPhotos)
+    fun photosIgnore(@GraphQLIgnore userId: String, numberOfPhotos: Int): List<Photo> {
+      return getPhotosFromDataSource(userId, numberOfPhotos)
     }
 }
 ```
@@ -80,17 +79,17 @@ class UsersQuery : Query, BeanFactoryAware {
         this.beanFactory = beanFactory
     }
 
-    fun findUser(name: String): SubQuery = beanFactory.getBean(User::class.java, name)
+    fun findUser(id: String): SubQuery = beanFactory.getBean(User::class.java, id)
 }
 
 @Component
 @Scope("prototype")
-class User @Autowired(required = false) constructor(internal val userName: String) {
+class User @Autowired(required = false) constructor(private val userId: String) {
 
     @Autowired
     private lateinit var service: PhotoService
 
-    fun photos(numberOfPhotos: Int): List<Photo> = service.findPhotos(userName, numberOfPhotos)
+    fun photos(numberOfPhotos: Int): List<Photo> = service.findPhotos(userId, numberOfPhotos)
 }
 ```
 

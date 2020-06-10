@@ -54,11 +54,11 @@ compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version
 
 ## Generating a Schema
 
-While we have included a server implementation, you can use `graphql-kotlin-schema-generator` to generate a schema from Kotlin code and expose it with any server library.
+You can use `graphql-kotlin-schema-generator` to generate a schema from Kotlin code and expose it with any server library.
 
 See the docs in [Schema Generator Getting Started](./schema-generator/schema-generator-getting-started.md).
 
-### Federation
+### Apollo Federation
 
 Using `graphql-kotlin-federation`, you can generate an [Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/) complaint schema.
 
@@ -73,3 +73,13 @@ See the docs in [Spring Server Overview](./spring-server/spring-overview.md).
 `graphql-kotlin-plugins` can be used to generate a `graphql-kotlin-client` from an existing schema that is easy to use and type-safe.
 
 See the docs in [Client Overview](./client/client-overview.md).
+
+## Examples
+
+The `examples` module is a collection of working code and examples on how to use all of the `graphql-kotlin` modules.
+
+See the [example docs](./examples.md) for more info.
+
+## Blogs and Videos
+
+You can find more posts and recorded conference talks on GraphQL and `graphql-kotlin` on our [Blogs and Videos](./blogs-and-videos.md) page.

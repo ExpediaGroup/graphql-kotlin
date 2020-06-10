@@ -18,7 +18,7 @@
           "schema-generator/writing-schemas/lists",
           "schema-generator/writing-schemas/interfaces",
           "schema-generator/writing-schemas/unions",
-          "schema-generator/writing-schemas/nested-fields",
+          "schema-generator/writing-schemas/nested-arguments",
           "schema-generator/writing-schemas/annotations"
         ]
       },

@@ -22,10 +22,6 @@ class SimpleQuery {
 The above query would produce the following GraphQL schema:
 
 ```graphql
-schema {
-  query: Query
-}
-
 type Query {
   doSomething(value: Int!): Boolean!
 }
