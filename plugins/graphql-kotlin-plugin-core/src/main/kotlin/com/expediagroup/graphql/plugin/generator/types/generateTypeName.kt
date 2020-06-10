@@ -71,8 +71,10 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
 internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, graphQLType: NamedNode<*>, selectionSet: SelectionSet? = null): ClassName {
     val graphQLTypeDefinition: TypeDefinition<*> = context.graphQLSchema.getType(graphQLType.name).get()
     val graphQLTypeName = graphQLTypeDefinition.name
-    val cachedTypeName = context.classNameCache[graphQLTypeName]
-    return if (cachedTypeName == null) {
+    val cachedTypeNames = context.classNameCache[graphQLTypeName]
+
+    return if (cachedTypeNames == null || cachedTypeNames.isEmpty()) {
+        // build new custom type
         val className = if (graphQLTypeDefinition is ScalarTypeDefinition && context.scalarTypeToConverterMapping[graphQLTypeName] == null) {
             val typeAlias = generateGraphQLCustomScalarTypeAlias(context, graphQLTypeDefinition)
             ClassName(context.packageName, typeAlias.name)
@@ -88,48 +90,79 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             }
             ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
         }
-        context.classNameCache[graphQLTypeName] = className
+        context.classNameCache[graphQLTypeName] = mutableListOf(className)
         className
+    } else if (selectionSet == null) {
+        cachedTypeNames.first()
     } else {
-        validateCachedGraphQLType(context, graphQLTypeName, graphQLTypeDefinition, selectionSet)
-        cachedTypeName
+        // verify we got same selection set for interface and/or objects (unions shouldn't have any fields)
+        for (cachedType in cachedTypeNames) {
+            if (isCachedTypeApplicable(context, cachedType.simpleName, graphQLTypeDefinition, selectionSet)) {
+                return cachedType
+            }
+        }
+
+        // if different selection set we need to generate custom type
+        val overriddenName = "$graphQLTypeName${cachedTypeNames.size + 1}"
+        val typeSpec = when (graphQLTypeDefinition) {
+            is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
+            is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
+            is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
+            else -> throw RuntimeException("should never happen")
+        }
+        val className = ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
+        context.classNameCache[overriddenName]?.add(className)
+        className
     }
 }
 
-private fun validateCachedGraphQLType(context: GraphQLClientGeneratorContext, graphQLTypeName: String, graphQLTypeDefinition: TypeDefinition<*>, selectionSet: SelectionSet?) {
-    if (selectionSet != null) {
-        // only need to verify objects and interfaces
-        // unions don't have any common fields
-        val selectedFields = when (graphQLTypeDefinition) {
-            is ObjectTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet)
-            is InterfaceTypeDefinition -> calculateSelectedFields(context, graphQLTypeName, selectionSet, true)
-            else -> emptySet()
+private fun isCachedTypeApplicable(context: GraphQLClientGeneratorContext, graphQLTypeName: String, graphQLTypeDefinition: TypeDefinition<*>, selectionSet: SelectionSet): Boolean =
+    when (graphQLTypeDefinition) {
+        is UnionTypeDefinition -> {
+            val unionImplementations = graphQLTypeDefinition.memberTypes.filterIsInstance(graphql.language.TypeName::class.java).map { it.name }
+            var result = true
+            for (unionImplementation in unionImplementations) {
+                result = result && verifySelectionSet(context, unionImplementation, selectionSet)
+                if (!result) {
+                    break
+                }
+            }
+            result
         }
-
-        val typeSpec = context.typeSpecs[graphQLTypeName]
-        val properties = typeSpec?.propertySpecs?.map { it.name }?.toSet() ?: emptySet()
-
-        if (selectedFields.size != properties.size || selectedFields.minus(properties).isNotEmpty()) {
-            throw RuntimeException("multiple selections of $graphQLTypeName GraphQL type with different selection sets")
+        is InterfaceTypeDefinition -> {
+            var result = verifySelectionSet(context, graphQLTypeName, selectionSet)
+            if (result) {
+                val implementations = context.graphQLSchema.getImplementationsOf(graphQLTypeDefinition).map { it.name }
+                for (implementation in implementations) {
+                    result = result && verifySelectionSet(context, implementation, selectionSet)
+                    if (!result) {
+                        break
+                    }
+                }
+            }
+            result
         }
+        is ObjectTypeDefinition -> verifySelectionSet(context, graphQLTypeName, selectionSet)
+        else -> true
     }
+
+private fun verifySelectionSet(context: GraphQLClientGeneratorContext, graphQLTypeName: String, selectionSet: SelectionSet): Boolean {
+    val selectedFields = calculateSelectedFields(context, graphQLTypeName, selectionSet)
+    val typeSpec = context.typeSpecs[graphQLTypeName]
+    val properties = typeSpec?.propertySpecs?.map { it.name }?.toSet() ?: emptySet()
+    return selectedFields == properties ||
+        (selectedFields.minus(properties).size == 1 && selectedFields.contains("__typename") && context.objectsWithTypeNameSelection.contains(graphQLTypeName))
 }
 
 private fun calculateSelectedFields(
     context: GraphQLClientGeneratorContext,
     targetType: String,
-    selectionSet: SelectionSet,
-    isInterface: Boolean = false
+    selectionSet: SelectionSet
 ): Set<String> {
     val result = mutableSetOf<String>()
-    var typeNameSelected: Boolean = false
     selectionSet.selections.forEach { selection ->
         when (selection) {
-            is Field -> if ("__typename" == selection.name) {
-                typeNameSelected = true
-            } else {
-                result.add(selection.name)
-            }
+            is Field -> result.add(selection.name)
             is InlineFragment -> if (selection.typeCondition.name == targetType) {
                 result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet))
             }
@@ -143,10 +176,5 @@ private fun calculateSelectedFields(
             }
         }
     }
-
-    if (!isInterface && (context.objectsWithTypeNameSelection.contains(targetType) xor typeNameSelected)) {
-        throw RuntimeException("multiple selections of $targetType GraphQL type with different selection sets - missing __typename")
-    }
-
     return result
 }

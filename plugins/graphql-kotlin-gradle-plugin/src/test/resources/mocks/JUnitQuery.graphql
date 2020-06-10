@@ -9,12 +9,10 @@ query JUnitQuery($simpleCriteria: SimpleArgumentInput!) {
     valid
   }
   listQuery {
-    __typename
     id
     name
   }
   complexObjectQuery {
-    __typename
     id
     name
     optional

@@ -48,7 +48,7 @@ class GraphQLMavenPluginTest {
                 val interfaceResult = data?.interfaceQuery
                 assertTrue(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
                 val unionResult = data?.unionQuery
-                assertTrue(unionResult is JUnitQuery.BasicObject)
+                assertTrue(unionResult is JUnitQuery.BasicObject2)
             }
         }
     }

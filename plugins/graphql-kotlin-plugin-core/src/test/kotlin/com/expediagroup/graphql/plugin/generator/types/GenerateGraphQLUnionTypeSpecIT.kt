@@ -21,7 +21,6 @@ import graphql.language.SelectionSet
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 
 class GenerateGraphQLUnionTypeSpecIT {
 
@@ -270,9 +269,118 @@ class GenerateGraphQLUnionTypeSpecIT {
     }
 
     @Test
-    fun `verify graphql client generation will throw exception if we select same type with different selection sets`() {
-        val invalidQuery = """
-            query InvalidQuerySelectingSameObjectWithDifferentFields {
+    fun `verify graphql client generation supports different selection sets between union type and concrete type`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import com.fasterxml.jackson.annotation.JsonSubTypes
+            import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+            import kotlin.Int
+            import kotlin.String
+
+            const val DIFFERENT_SELECTION_SET_QUERY: String =
+                "query DifferentSelectionSetQuery {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n  complexObjectQuery {\n    id\n    name\n    details {\n      value\n    }\n  }\n}"
+
+            class DifferentSelectionSetQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                  graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
+
+              /**
+               * Some basic description
+               */
+              data class BasicObject(
+                val id: Int,
+                /**
+                 * Object name
+                 */
+                val name: String
+              ) : DifferentSelectionSetQuery.BasicUnion
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Some object name
+                 */
+                val name: String,
+                /**
+                 * Optional value
+                 * Second line of the description
+                 */
+                val optional: String?
+              ) : DifferentSelectionSetQuery.BasicUnion
+
+              /**
+               * Very basic union of BasicObject and ComplexObject
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.BasicObject::class,
+                  name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.ComplexObject::class, name="ComplexObject")])
+              interface BasicUnion
+
+              /**
+               * Inner type object description
+               */
+              data class DetailsObject(
+                /**
+                 * Actual detail value
+                 */
+                val value: String
+              )
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject2(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int,
+                /**
+                 * Some object name
+                 */
+                val name: String,
+                /**
+                 * Some additional details
+                 */
+                val details: DifferentSelectionSetQuery.DetailsObject
+              )
+
+              data class Result(
+                /**
+                 * Query returning union
+                 */
+                val unionQuery: DifferentSelectionSetQuery.BasicUnion,
+                /**
+                 * Query returning an object that references another object
+                 */
+                val complexObjectQuery: DifferentSelectionSetQuery.ComplexObject2
+              )
+            }
+        """.trimIndent()
+        val differentSelectionQuery = """
+            query DifferentSelectionSetQuery {
               unionQuery {
                 __typename
                 ... on BasicObject {
@@ -294,37 +402,135 @@ class GenerateGraphQLUnionTypeSpecIT {
               }
             }
         """.trimIndent()
-        assertThrows<RuntimeException> {
-            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
-        }
+        verifyGeneratedFileSpecContents(differentSelectionQuery, expected)
     }
 
     @Test
-    fun `verify graphql client generation will throw exception if we select union type and same concrete type without __typename`() {
-        val invalidQuery = """
-            query InvalidQuerySelectingSameObjectWithDifferentFields {
-              complexObjectQuery {
-                id
-                name
-                optional
-              }
-              unionQuery {
+    fun `verify graphql client generation supports different selection sets between unions`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import com.fasterxml.jackson.annotation.JsonSubTypes
+            import com.fasterxml.jackson.annotation.JsonTypeInfo
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+            import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+            import kotlin.Int
+            import kotlin.String
+
+            const val DIFFERENT_SELECTION_SET_QUERY: String =
+                "query DifferentSelectionSetQuery {\n  first: unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n    }\n    ... on ComplexObject {\n      id\n    }\n  }\n  second: unionQuery {\n    __typename\n    ... on BasicObject {\n      name\n    }\n    ... on ComplexObject {\n      name\n    }\n  }\n}"
+
+            class DifferentSelectionSetQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                  graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
+
+              /**
+               * Some basic description
+               */
+              data class BasicObject(
+                val id: Int
+              ) : DifferentSelectionSetQuery.BasicUnion
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject(
+                /**
+                 * Some unique identifier
+                 */
+                val id: Int
+              ) : DifferentSelectionSetQuery.BasicUnion
+
+              /**
+               * Very basic union of BasicObject and ComplexObject
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.BasicObject::class,
+                  name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.ComplexObject::class, name="ComplexObject")])
+              interface BasicUnion
+
+              /**
+               * Some basic description
+               */
+              data class BasicObject2(
+                /**
+                 * Object name
+                 */
+                val name: String
+              ) : DifferentSelectionSetQuery.BasicUnion2
+
+              /**
+               * Multi line description of a complex type.
+               * This is a second line of the paragraph.
+               * This is final line of the description.
+               */
+              data class ComplexObject2(
+                /**
+                 * Some object name
+                 */
+                val name: String
+              ) : DifferentSelectionSetQuery.BasicUnion2
+
+              /**
+               * Very basic union of BasicObject and ComplexObject
+               */
+              @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "__typename"
+              )
+              @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.BasicObject2::class,
+                  name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                  DifferentSelectionSetQuery.ComplexObject2::class, name="ComplexObject")])
+              interface BasicUnion2
+
+              data class Result(
+                /**
+                 * Query returning union
+                 */
+                val first: DifferentSelectionSetQuery.BasicUnion,
+                /**
+                 * Query returning union
+                 */
+                val second: DifferentSelectionSetQuery.BasicUnion2
+              )
+            }
+        """.trimIndent()
+        val differentSelectionQuery = """
+            query DifferentSelectionSetQuery {
+              first: unionQuery {
                 __typename
                 ... on BasicObject {
                   id
-                  name
                 }
                 ... on ComplexObject {
                   id
+                }
+              }
+              second: unionQuery {
+                __typename
+                ... on BasicObject {
                   name
-                  optional
+                }
+                ... on ComplexObject {
+                  name
                 }
               }
             }
         """.trimIndent()
-        val exception = assertThrows<RuntimeException> {
-            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
-        }
-        assertEquals("multiple selections of ComplexObject GraphQL type with different selection sets - missing __typename", exception.message)
+        verifyGeneratedFileSpecContents(differentSelectionQuery, expected)
     }
 }

@@ -118,15 +118,19 @@ internal fun generateInterfaceTypeSpec(
         if (!verifyTypeNameIsSelected(distinctSelections)) {
             throw RuntimeException("invalid selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
         }
-        generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
-        val implementationTypeSpec = context.typeSpecs[implementationName]!!
+        val implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build()) as ClassName
+        val simpleName = implementationClassName.simpleName.substringAfter('.')
+        val implementationTypeSpec = context.typeSpecs[simpleName]!!
         updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationTypeSpec, commonProperties)
 
         if (jsonSubTypesCodeBlock.isNotEmpty()) {
             jsonSubTypesCodeBlock.add(",")
         }
-        val implementationClassName = context.classNameCache[implementationName]
-        jsonSubTypesCodeBlock.add("com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = %T::class, name=%S)", implementationClassName, implementationName)
+
+        // need unwrapped type name for the JsonSubTypes annotation, underlying field could be nullable
+        val unwrappedClassName = implementationClassName.copy(nullable = false)
+        // we point to original implementation name as that will be value from the __typename
+        jsonSubTypesCodeBlock.add("com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = %T::class, name=%S)", unwrappedClassName, implementationName)
         context.objectsWithTypeNameSelection.add(implementationName)
     }
 

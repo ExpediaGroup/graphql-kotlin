@@ -21,6 +21,7 @@ import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.generator.testSchema
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
@@ -126,5 +127,100 @@ class GenerateGraphQLClientIT {
         val fileSpecs = generator.generate(listOf(queryFile))
         assertEquals(1, fileSpecs.size)
         assertEquals(expectedQueryFileSpec, fileSpecs[0].toString().trim())
+    }
+
+    @Test
+    fun `verify we can generate objects using aliases`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import kotlin.Boolean
+            import kotlin.String
+
+            const val ALIAS_TEST_QUERY: String =
+                "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
+
+            class AliasTestQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
+                  graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
+
+              data class Result(
+                /**
+                 * Query that accepts some input arguments
+                 */
+                val first: Boolean,
+                /**
+                 * Query that accepts some input arguments
+                 */
+                val second: Boolean
+              )
+            }
+        """.trimIndent()
+
+        val query = """
+            query AliasTestQuery {
+              first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
+              second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )
+            }
+        """.trimIndent()
+        verifyGeneratedFileSpecContents(query, expected)
+    }
+
+    @Test
+    fun `verify exception is thrown when attempting to select deprecated field`() {
+        val invalidQuery = """
+            query DeprecatedFieldQuery {
+              deprecatedQuery
+            }
+        """.trimIndent()
+        assertThrows<RuntimeException> {
+            verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
+        }
+    }
+
+    @Test
+    fun `verify object with deprecated fields is generated if explicitly configured`() {
+        val expected = """
+            package com.expediagroup.graphql.plugin.generator.integration
+
+            import com.expediagroup.graphql.client.GraphQLClient
+            import com.expediagroup.graphql.types.GraphQLResponse
+            import kotlin.Deprecated
+            import kotlin.String
+
+            const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
+
+            class DeprecatedFieldQuery(
+              private val graphQLClient: GraphQLClient<*>
+            ) {
+              suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
+                  graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
+
+              data class Result(
+                /**
+                 * Deprecated query that should not be used anymore
+                 */
+                @Deprecated(message = "old query should not be used")
+                val deprecatedQuery: String
+              )
+            }
+        """.trimIndent()
+
+        val invalidQuery = """
+            query DeprecatedFieldQuery {
+              deprecatedQuery
+            }
+        """.trimIndent()
+        verifyGeneratedFileSpecContents(
+            invalidQuery,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                allowDeprecated = true
+            ))
     }
 }

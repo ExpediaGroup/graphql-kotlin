@@ -28,20 +28,26 @@ import graphql.language.UnionTypeDefinition
  * @see generateGraphQLInterfaceTypeSpec
  * @see generateInterfaceTypeSpec
  */
-internal fun generateGraphQLUnionTypeSpec(context: GraphQLClientGeneratorContext, unionDefinition: UnionTypeDefinition, selectionSet: SelectionSet?): TypeSpec {
+internal fun generateGraphQLUnionTypeSpec(
+    context: GraphQLClientGeneratorContext,
+    unionDefinition: UnionTypeDefinition,
+    selectionSet: SelectionSet?,
+    unionNameOverride: String? = null
+): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
         throw RuntimeException("cannot select empty union")
     }
 
+    val unionName = unionNameOverride ?: unionDefinition.name
     val unionImplementations = unionDefinition.memberTypes.filterIsInstance(TypeName::class.java).map { it.name }
     val unionType = generateInterfaceTypeSpec(
         context = context,
-        interfaceName = unionDefinition.name,
+        interfaceName = unionName,
         kdoc = unionDefinition.description?.content,
         selectionSet = selectionSet,
         implementations = unionImplementations
     )
 
-    context.typeSpecs[unionDefinition.name] = unionType
+    context.typeSpecs[unionName] = unionType
     return unionType
 }
