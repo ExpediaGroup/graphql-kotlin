@@ -57,7 +57,9 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
         }
 
         val directiveClass = directiveInfo.directive.annotationClass
-        directiveClass.getValidProperties(generator.config.hooks).forEach { prop ->
+        val directiveArguments = directiveClass.getValidProperties(generator.config.hooks)
+
+        directiveArguments.forEach { prop ->
             val propertyName = prop.name
             val value = prop.call(directiveInfo.directive)
             val type = generateGraphQLType(generator, prop.returnType)

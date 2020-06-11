@@ -153,3 +153,34 @@ Directives are applied in the order annotations are declared on the given object
 ```
 
 `Directive1` will be applied first followed by the `Directive2`.
+
+## Ignoring Directive Arguments
+
+Normally if you wanted to exclude a field or argument from the schema, you could use [@GraphQLIgnore](./excluding-fields.md).
+However, due to reflection limitations, the generator cannot cast annoations cannot back to the implementing classes to see what annotations are on the arguments.
+Therefore, the best way to exclude specific directive arugments is to use the `SchemaGeneratorHooks::isValidProperty`.
+
+```kotlin
+@GraphQLDirective
+annotation class DirectiveWithIgnoredArgs(
+    val string: String,
+    val ignoreMe: String
+)
+
+class MyCustomHooks : SchemaGeneratorHooks {
+    override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean {
+        if (kClass == DirectiveWithIgnoredArgs::class && property.name == "ignoreMe") {
+            return false
+        }
+        return super.isValidProperty(kClass, property)
+    }
+}
+```
+
+This will generate the following schema
+
+```graphql
+directive @directiveWithIgnoredArgs(
+  string: String!
+) on ...
+```

@@ -20,20 +20,29 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.isTrue
+import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class GenerateDirectiveTest {
+class GenerateDirectiveTest {
 
     @GraphQLDirective
-    internal annotation class DirectiveWithString(val string: String)
+    annotation class DirectiveWithString(val string: String)
 
-    internal enum class Type {
+    @GraphQLDirective
+    annotation class DirectiveWithIgnoredArgs(
+        val string: String,
+        val ignoreMe: String
+    )
+
+    enum class Type {
         @DirectiveWithString("my string")
         @DirectiveWithClass(SimpleDirective::class)
         ONE,
@@ -43,12 +52,12 @@ internal class GenerateDirectiveTest {
     }
 
     @GraphQLDirective
-    internal annotation class DirectiveWithEnum(val type: Type)
+    annotation class DirectiveWithEnum(val type: Type)
 
     @GraphQLDirective
-    internal annotation class DirectiveWithClass(val kclass: KClass<*>)
+    annotation class DirectiveWithClass(val kclass: KClass<*>)
 
-    internal class MyClass {
+    class MyClass {
 
         fun noAnnotation(string: String) = string
 
@@ -69,9 +78,12 @@ internal class GenerateDirectiveTest {
 
         @DirectiveWithClass(kclass = Type::class)
         fun directiveWithClass(string: String) = string
+
+        @DirectiveWithIgnoredArgs(string = "foo", ignoreMe = "bar")
+        fun directiveWithIgnoredArgs(string: String) = string
     }
 
-    internal data class MyClassWithConstructorArgs(
+    data class MyClassWithConstructorArgs(
         @SimpleDirective val noPrefix: String,
         @property:SimpleDirective val propertyPrefix: String,
         val noDirective: String
@@ -176,6 +188,22 @@ internal class GenerateDirectiveTest {
     fun `directives on constructor arguments only works with parent class`() {
         val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, null)
         assertEquals(expected = 0, actual = noPrefixResult.size)
+    }
+
+    @Test
+    fun `exlude directive arguments @GraphQLIgnore`() {
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(object : SchemaGeneratorHooks {
+            override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean {
+                if (kClass == DirectiveWithIgnoredArgs::class && property.name == "ignoreMe") {
+                    return false
+                }
+                return super.isValidProperty(kClass, property)
+            }
+        }))
+        val directives = generateDirectives(generator, MyClass::directiveWithIgnoredArgs)
+        assertEquals(expected = 1, actual = directives.size)
+        assertEquals(expected = 1, actual = directives.first().arguments.size)
+        assertEquals(expected = "string", actual = directives.first().arguments.first().name)
     }
 
     companion object {
