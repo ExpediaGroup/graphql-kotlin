@@ -191,7 +191,7 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `exlude directive arguments @GraphQLIgnore`() {
+    fun `exlude directive arguments with hooks`() {
         val generator = SchemaGenerator(getTestSchemaConfigWithHooks(object : SchemaGeneratorHooks {
             override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean {
                 if (kClass == DirectiveWithIgnoredArgs::class && property.name == "ignoreMe") {
