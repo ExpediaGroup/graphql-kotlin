@@ -157,7 +157,7 @@ Directives are applied in the order annotations are declared on the given object
 ## Ignoring Directive Arguments
 
 Normally if you wanted to exclude a field or argument from the schema, you could use [@GraphQLIgnore](./excluding-fields.md).
-However, due to reflection limitations, the generator cannot cast annoations cannot back to the implementing classes to see what annotations are on the arguments.
+However, due to reflection limitations, the generator cannot cast annotations back to the implementing classes to see what annotations are on the arguments.
 Therefore, the best way to exclude specific directive arugments is to use the `SchemaGeneratorHooks::isValidProperty`.
 
 ```kotlin
