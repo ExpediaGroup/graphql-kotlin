@@ -29,11 +29,6 @@ class Query {
 will produce the following schema
 
 ```graphql
-
-schema {
-  query: Query
-}
-
 type Query {
   getUser(id: String!): User
 }

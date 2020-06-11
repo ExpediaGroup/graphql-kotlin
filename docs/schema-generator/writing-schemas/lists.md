@@ -34,20 +34,25 @@ type Query {
 }
 ```
 
-### Primitive Arrays
+## Primitive Arrays
 
 `graphql-kotlin-schema-generator` supports the following primitive array types without autoboxing overhead. Similarly to
 the `kotlin.Array` of objects the underlying type is automatically mapped to GraphQL `List` type.
 
 | Kotlin Type           |
 |-----------------------|
-| `kotlin.IntArray`     | | `kotlin.LongArray`    | | `kotlin.ShortArray`   | | `kotlin.FloatArray`   | |
-`kotlin.DoubleArray`  | | `kotlin.CharArray`    | | `kotlin.BooleanArray` |
+| `kotlin.IntArray`     |
+| `kotlin.LongArray`    |
+| `kotlin.ShortArray`   |
+| `kotlin.FloatArray`   |
+| `kotlin.DoubleArray`  |
+| `kotlin.CharArray`    |
+| `kotlin.BooleanArray` |
 
 > NOTE: Underlying GraphQL types of primitive arrays will be corresponding to the built-in scalar types or extended
 > scalar types provided by `graphql-java`.
 
-### Unsupported Collection Types
+## Unsupported Collection Types
 
 Currently GraphQL spec only supports `Lists`. Therefore even though Java and Kotlin support number of other collection
 types, `graphql-kotlin-schema-generator` only explicitly supports `Lists` and primitive arrays. Other collection types

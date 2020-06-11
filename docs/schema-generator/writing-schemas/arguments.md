@@ -7,9 +7,7 @@ Method arguments are automatically exposed as part of the arguments to the corre
 
 ```kotlin
 class SimpleQuery{
-
-  @GraphQLDescription("performs some operation")
-  fun doSomething(@GraphQLDescription("super important value") value: Int): Boolean = true
+  fun doSomething(value: Int): Boolean = true
 }
 ```
 
@@ -17,11 +15,7 @@ The above Kotlin code will generate following GraphQL schema:
 
 ```graphql
 type Query {
-  """performs some operation"""
-  doSomething(
-    """super important value"""
-    value: Int!
-  ): Boolean!
+  doSomething(value: Int!): Boolean!
 }
 ```
 
@@ -38,9 +32,7 @@ For example, the following code:
 
 ```kotlin
 class WidgetMutation {
-
-    @GraphQLDescription("modifies passed in widget so it doesn't have null value")
-    fun processWidget(@GraphQLDescription("widget to be modified") widget: Widget): Widget {
+    fun processWidget(widget: Widget): Widget {
         if (null == widget.value) {
             widget.value = 42
         }
@@ -48,12 +40,7 @@ class WidgetMutation {
     }
 }
 
-@GraphQLDescription("A useful widget")
-data class Widget(
-    @GraphQLDescription("The widget's value that can be null")
-    var value: Int? = nul
-) {
-    @GraphQLDescription("returns original value multiplied by target OR null if original value was null")
+data class Widget(var value: Int? = nul) {
     fun multiplyValueBy(multiplier: Int) = value?.times(multiplier)
 }
 ```
@@ -62,32 +49,17 @@ Will generate the following schema:
 
 ```graphql
 type Mutation {
-  """modifies passed in widget so it doesn't have null value"""
-  processWidget(
-    """widget to be modified"""
-    widget: WidgetInput!
-  ): Widget!
+  processWidget(widget: WidgetInput!): Widget!
 }
 
-"""A useful widget"""
 type Widget {
-
-  """The widget's value that can be null"""
   value: Int
-
-  """
-  returns original value multiplied by target OR null if original value was null
-  """
   multiplyValueBy(multiplier: Int!): Int
 }
 
-"""A useful widget"""
 input WidgetInput {
-
-  """The widget's value that can be null"""
   value: Int
 }
-
 ```
 
 Please note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output
@@ -104,11 +76,7 @@ defaults (even if they are marked as nullable). Therefore in order for a GraphQL
 nullable and also specify a default Kotlin value.
 
 ```kotlin
-    @GraphQLDescription("query with optional input")
-    fun doSomethingWithOptionalInput(
-            @GraphQLDescription("this field is required") requiredValue: Int,
-            @GraphQLDescription("this field is optional") optionalValue: Int?)
-            = "required value=$requiredValue, optional value=$optionalValue"
+fun doSomethingWithOptionalInput(requiredValue: Int, optionalValue: Int?) = "required value=$requiredValue, optional value=$optionalValue"
 ```
 
 NOTE: Non nullable input fields will always require users to specify the value regardless of whether a default Kotlin value

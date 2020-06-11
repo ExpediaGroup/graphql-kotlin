@@ -77,7 +77,7 @@ type TopLevelQuery {
 
 ```
 
-### Abstract and Sealed Classes
+## Abstract and Sealed Classes
 [Abstract](https://kotlinlang.org/docs/reference/classes.html#abstract-classes) and [sealed](https://kotlinlang.org/docs/reference/sealed-classes.html) classes can also be used for interface types.
 
 ```kotlin

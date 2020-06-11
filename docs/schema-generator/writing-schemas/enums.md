@@ -7,7 +7,6 @@ Enums are automatically mapped to GraphQL enum type.
 
 ```kotlin
 enum class MyEnumType {
-  @GraphQLDescription("The value to use when you only want 1 item")
   ONE,
   TWO
 }
@@ -17,17 +16,16 @@ Above enum will be generated as following GraphQL object
 
 ```graphql
 enum MyEnumType {
-  """The value to use when you only want 1 item""""
   ONE
   TWO
 }
 ```
 
-## Converting a Java enum to a GraphQL Enum
+### Converting a Java enum to a GraphQL Enum
 
 If you want to use Java enums from another package, but you **don't** want
 include everything from that package using [`supportedPackages`][sp] or you want
-to customize the GraphQL type, you can use [schema generator hooks][hooks] to 
+to customize the GraphQL type, you can use [schema generator hooks][hooks] to
 associate the Java enum with a runtime [`GraphQLEnumType`][javadoc].
 
 [sp]:customizing-schemas/generator-config
@@ -54,7 +52,7 @@ val statusEnumType = GraphQLEnumType.newEnum()
     })
     .build()
  ```
- 
+
  Step 2: Add a schema generation hook
 
 ```kotlin

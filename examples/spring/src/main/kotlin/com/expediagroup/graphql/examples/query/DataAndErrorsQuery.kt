@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture
 @Component
 class DataAndErrorsQuery : Query {
 
-    fun returnDataAndErrors(): DataFetcherResult<String> {
+    fun returnDataAndErrors(): DataFetcherResult<String?> {
         val error = SimpleKotlinGraphQLError(RuntimeException("data and errors"), listOf(SourceLocation(1, 1)), ExecutionPath.rootPath().toList())
         return DataFetcherResult.newResult<String>()
             .data("Hello from data fetcher")
@@ -35,7 +35,7 @@ class DataAndErrorsQuery : Query {
             .build()
     }
 
-    fun completableFutureDataAndErrors(): CompletableFuture<DataFetcherResult<String>> {
+    fun completableFutureDataAndErrors(): CompletableFuture<DataFetcherResult<String?>> {
         val error = SimpleKotlinGraphQLError(RuntimeException("data and errors"), listOf(SourceLocation(1, 1)), ExecutionPath.rootPath().toList())
         val dataFetcherResult = DataFetcherResult.newResult<String>()
             .data("Hello from data fetcher")

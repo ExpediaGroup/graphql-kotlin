@@ -21,7 +21,7 @@ type MyCustomName {
 }
 ```
 
-### Known Issues
+## Known Issues
 > NOTE: Due to how we deserialize input classes, if you rename a field of an input class you must also annotate the field with the Jackson annotation @JsonProperty. See [issue 493](https://github.com/ExpediaGroup/graphql-kotlin/issues/493) for more info.
 
 ```kotlin
