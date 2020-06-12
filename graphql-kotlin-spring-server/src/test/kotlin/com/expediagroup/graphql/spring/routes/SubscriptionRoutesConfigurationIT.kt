@@ -115,9 +115,10 @@ class SubscriptionRoutesConfigurationIT(
 
         val sessionMono = client.execute(uri) { session ->
             session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
-                .thenMany(session.receive()
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                    .map { objectMapper.writeValueAsString(it.payload) }
+                .thenMany(
+                    session.receive()
+                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                        .map { objectMapper.writeValueAsString(it.payload) }
                 )
                 .subscribeWith(output)
                 .take(1)

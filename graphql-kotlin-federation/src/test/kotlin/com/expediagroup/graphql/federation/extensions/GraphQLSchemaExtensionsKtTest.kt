@@ -29,9 +29,10 @@ class GraphQLSchemaExtensionsKtTest {
 
     private val simplQuery = GraphQLObjectType.newObject()
         .name("Query")
-        .field(GraphQLFieldDefinition.newFieldDefinition()
-            .name("foo")
-            .type(GraphQLString)
+        .field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name("foo")
+                .type(GraphQLString)
         )
 
     @Test

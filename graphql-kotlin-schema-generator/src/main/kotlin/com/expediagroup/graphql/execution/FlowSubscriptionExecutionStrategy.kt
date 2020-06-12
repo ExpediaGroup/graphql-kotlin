@@ -163,7 +163,8 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         // allow them to instrument each ER should they want to
         val i13ExecutionParameters = InstrumentationExecutionParameters(
-            executionContext.executionInput, executionContext.graphQLSchema, executionContext.instrumentationState)
+            executionContext.executionInput, executionContext.graphQLSchema, executionContext.instrumentationState
+        )
 
         return overallResult.thenCompose { executionResult ->
             instrumentation.instrumentExecutionResult(executionResult, i13ExecutionParameters)

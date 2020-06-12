@@ -151,14 +151,13 @@ class ValidateFieldSetKtTest {
         val stringField = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(GraphQLString)
-            .build()
 
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
-            .type(GraphQLObjectType.newObject()
-                .name("FooObject")
-                .field(stringField)
-                .build()
+            .type(
+                GraphQLObjectType.newObject()
+                    .name("FooObject")
+                    .field(stringField)
             )
             .withDirective(externalDirective)
             .build()

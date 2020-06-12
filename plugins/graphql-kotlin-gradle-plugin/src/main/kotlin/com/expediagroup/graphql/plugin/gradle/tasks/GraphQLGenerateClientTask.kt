@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.generateClient
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
@@ -143,9 +143,10 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         val targetPackage = packageName.orNull ?: throw RuntimeException("package not specified")
         val targetQueryFiles: List<File> = when {
             queryFiles.files.isNotEmpty() -> queryFiles.files.toList()
-            queryFileDirectory.isPresent -> File(queryFileDirectory.get())
-                .listFiles { file -> file.extension == "graphql" }
-                ?.toList() ?: throw RuntimeException("exception while looking up the query files")
+            queryFileDirectory.isPresent ->
+                File(queryFileDirectory.get())
+                    .listFiles { file -> file.extension == "graphql" }
+                    ?.toList() ?: throw RuntimeException("exception while looking up the query files")
             else -> throw RuntimeException("no query files found")
         }
 
@@ -162,7 +163,8 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         val config = GraphQLClientGeneratorConfig(
             packageName = targetPackage,
             allowDeprecated = allowDeprecatedFields.get(),
-            scalarTypeToConverterMapping = converters.get())
+            scalarTypeToConverterMapping = converters.get()
+        )
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(targetDirectory)
         }

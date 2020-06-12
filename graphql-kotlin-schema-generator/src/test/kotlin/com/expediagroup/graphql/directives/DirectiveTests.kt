@@ -66,10 +66,12 @@ class DirectiveTests {
     @Test
     fun `Default directive names are normalized`() {
         val wiring = object : KotlinSchemaDirectiveWiring {}
-        val config = getTestSchemaConfigWithHooks(hooks = object : SchemaGeneratorHooks {
-            override val wiringFactory: KotlinDirectiveWiringFactory
-                get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
-        })
+        val config = getTestSchemaConfigWithHooks(
+            object : SchemaGeneratorHooks {
+                override val wiringFactory: KotlinDirectiveWiringFactory
+                    get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
+            }
+        )
         val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
 
         val query = schema.queryType.getFieldDefinition("query")
@@ -80,16 +82,16 @@ class DirectiveTests {
     @Test
     fun `Custom directive names are not modified`() {
         val wiring = object : KotlinSchemaDirectiveWiring {}
-        val config = getTestSchemaConfigWithHooks(hooks = object : SchemaGeneratorHooks {
-            override val wiringFactory: KotlinDirectiveWiringFactory
-                get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
-        })
+        val config = getTestSchemaConfigWithHooks(
+            object : SchemaGeneratorHooks {
+                override val wiringFactory: KotlinDirectiveWiringFactory
+                    get() = KotlinDirectiveWiringFactory(manualWiring = mapOf("dummyDirective" to wiring, "RightNameDirective" to wiring))
+            }
+        )
         val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
 
-        val directive = assertNotNull(
-                (schema.getType("Location") as? GraphQLObjectType)
-                        ?.getDirective("RightNameDirective")
-        )
+        val possibleDirective = (schema.getType("Location") as? GraphQLObjectType)?.getDirective("RightNameDirective")
+        val directive = assertNotNull(possibleDirective)
 
         assertEquals("arenaming", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)

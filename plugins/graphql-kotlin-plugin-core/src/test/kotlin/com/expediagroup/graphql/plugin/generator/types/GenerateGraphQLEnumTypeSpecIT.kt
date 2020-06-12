@@ -23,64 +23,66 @@ class GenerateGraphQLEnumTypeSpecIT {
 
     @Test
     fun `verify enum types are correctly generated`() {
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
-            import kotlin.Deprecated
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+                import kotlin.Deprecated
+                import kotlin.String
 
-            const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
+                const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
 
-            class EnumTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<EnumTestQuery.Result> =
-                  graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
+                class EnumTestQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(): GraphQLResponse<EnumTestQuery.Result> =
+                      graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
 
-              /**
-               * Custom enum description
-               */
-              enum class CustomEnum {
-                /**
-                 * First enum value
-                 */
-                ONE,
+                  /**
+                   * Custom enum description
+                   */
+                  enum class CustomEnum {
+                    /**
+                     * First enum value
+                     */
+                    ONE,
 
-                /**
-                 * Third enum value
-                 */
-                @Deprecated(message = "only goes up to two")
-                THREE,
+                    /**
+                     * Third enum value
+                     */
+                    @Deprecated(message = "only goes up to two")
+                    THREE,
 
-                /**
-                 * Second enum value
-                 */
-                TWO,
+                    /**
+                     * Second enum value
+                     */
+                    TWO,
 
-                /**
-                 * This is a default enum value that will be used when attempting to deserialize unknown value.
-                 */
-                @JsonEnumDefaultValue
-                __UNKNOWN_VALUE
-              }
+                    /**
+                     * This is a default enum value that will be used when attempting to deserialize unknown value.
+                     */
+                    @JsonEnumDefaultValue
+                    __UNKNOWN_VALUE
+                  }
 
-              data class Result(
-                /**
-                 * Query that returns enum value
-                 */
-                val enumQuery: EnumTestQuery.CustomEnum
-              )
-            }
-        """.trimIndent()
+                  data class Result(
+                    /**
+                     * Query that returns enum value
+                     */
+                    val enumQuery: EnumTestQuery.CustomEnum
+                  )
+                }
+            """.trimIndent()
 
-        val query = """
+        val query =
+            """
             query EnumTestQuery {
               enumQuery
             }
-        """.trimIndent()
+            """.trimIndent()
 
         verifyGeneratedFileSpecContents(query, expected)
     }

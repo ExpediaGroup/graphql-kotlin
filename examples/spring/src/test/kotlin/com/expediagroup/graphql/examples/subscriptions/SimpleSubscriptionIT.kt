@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.ReplayProcessor
 import reactor.test.StepVerifier
 import java.net.URI
+import java.time.Duration
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnableAutoConfiguration
@@ -98,7 +99,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
         val sessionMono = client.execute(uri) { session -> executeSubscription(session, message, output, take) }
-        return output.doOnSubscribe { sessionMono.subscribe() }
+        return output.doOnSubscribe { sessionMono.subscribe() }.timeout(Duration.ofSeconds(10))
     }
 
     private fun executeSubscription(
@@ -108,9 +109,10 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         take: Long
     ): Mono<Void> {
         return session.send(Mono.just(session.textMessage(message)))
-            .thenMany(session.receive()
-                .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                .map { objectMapper.writeValueAsString(it.payload) }
+            .thenMany(
+                session.receive()
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                    .map { objectMapper.writeValueAsString(it.payload) }
             )
             .subscribeWith(output)
             .take(take)

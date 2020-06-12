@@ -40,16 +40,21 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
         enumValueDefinition.getDirective(DeprecatedDirective.name)?.let { deprecatedDirective ->
             val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
             val reason = deprecatedReason?.value ?: "no longer supported"
-            enumValueTypeSpecBuilder.addAnnotation(AnnotationSpec.Companion.builder(Deprecated::class)
-                .addMember("message = %S", reason)
-                .build())
+            enumValueTypeSpecBuilder.addAnnotation(
+                AnnotationSpec.Companion.builder(Deprecated::class)
+                    .addMember("message = %S", reason)
+                    .build()
+            )
         }
         enumTypeSpecBuilder.addEnumConstant(enumValueDefinition.name, enumValueTypeSpecBuilder.build())
     }
-    enumTypeSpecBuilder.addEnumConstant("__UNKNOWN_VALUE", TypeSpec.anonymousClassBuilder()
+
+    val unkownTypeSpec = TypeSpec.anonymousClassBuilder()
         .addKdoc("This is a default enum value that will be used when attempting to deserialize unknown value.")
         .addAnnotation(JsonEnumDefaultValue::class)
-        .build())
+        .build()
+
+    enumTypeSpecBuilder.addEnumConstant("__UNKNOWN_VALUE", unkownTypeSpec)
 
     val enumTypeSpec = enumTypeSpecBuilder.build()
     context.typeSpecs[enumDefinition.name] = enumTypeSpec

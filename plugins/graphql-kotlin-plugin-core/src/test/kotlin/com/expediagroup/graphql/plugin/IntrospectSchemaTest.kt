@@ -39,55 +39,62 @@ class IntrospectSchemaTest {
     @Test
     @KtorExperimentalAPI
     fun `verify can run introspection query and generate valid schema`() {
-        val expectedSchema = """
-            schema {
-              query: Query
+        val expectedSchema =
+            """
+                schema {
+                  query: Query
+                }
+
+                "Directs the executor to include this field or fragment only when the `if` argument is true"
+                directive @include(
+                    "Included when true."
+                    if: Boolean!
+                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+                "Directs the executor to skip this field or fragment when the `if`'argument is true."
+                directive @skip(
+                    "Skipped when true."
+                    if: Boolean!
+                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+                "Marks the field or enum value as deprecated"
+                directive @deprecated(
+                    "The reason for the deprecation"
+                    reason: String = "No longer supported"
+                  ) on FIELD_DEFINITION | ENUM_VALUE
+
+                "Exposes a URL that specifies the behaviour of this scalar."
+                directive @specifiedBy(
+                    "The URL that specifies the behaviour of this scalar."
+                    url: String!
+                  ) on SCALAR
+
+                type Query {
+                  widget: Widget!
+                }
+
+                "Simple Widget"
+                type Widget {
+                  "Unique identifier"
+                  id: Int!
+                  "Name of the widget"
+                  name: String!
+                }
+            """.trimIndent()
+        val introspectionResult = ClassLoader.getSystemClassLoader()
+            .getResourceAsStream("introspectionResult.json")
+            ?.use {
+                BufferedReader(it.reader()).readText()
             }
-
-            "Directs the executor to include this field or fragment only when the `if` argument is true"
-            directive @include(
-                "Included when true."
-                if: Boolean!
-              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-            "Directs the executor to skip this field or fragment when the `if`'argument is true."
-            directive @skip(
-                "Skipped when true."
-                if: Boolean!
-              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-            "Marks the field or enum value as deprecated"
-            directive @deprecated(
-                "The reason for the deprecation"
-                reason: String = "No longer supported"
-              ) on FIELD_DEFINITION | ENUM_VALUE
-
-            "Exposes a URL that specifies the behaviour of this scalar."
-            directive @specifiedBy(
-                "The URL that specifies the behaviour of this scalar."
-                url: String!
-              ) on SCALAR
-
-            type Query {
-              widget: Widget!
-            }
-
-            "Simple Widget"
-            type Widget {
-              "Unique identifier"
-              id: Int!
-              "Name of the widget"
-              name: String!
-            }
-        """.trimIndent()
-        val introspectionResult = ClassLoader.getSystemClassLoader().getResourceAsStream("introspectionResult.json")?.use {
-            BufferedReader(it.reader()).readText()
-        }
-        WireMock.stubFor(WireMock.post("/graphql")
-            .willReturn(WireMock.aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(introspectionResult)))
+        WireMock.stubFor(
+            WireMock.post("/graphql")
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(introspectionResult)
+                )
+        )
 
         runBlocking {
             val sdl = introspectSchema("${wireMockServer.baseUrl()}/graphql")
@@ -98,9 +105,10 @@ class IntrospectSchemaTest {
     @Test
     @KtorExperimentalAPI
     fun `verify introspectSchema will throw exception if unable to run query`() {
-        WireMock.stubFor(WireMock.post("graphql")
-            .willReturn(WireMock.aResponse()
-                .withStatus(404)))
+        WireMock.stubFor(
+            WireMock.post("graphql")
+                .willReturn(WireMock.aResponse().withStatus(404))
+        )
         assertThrows<RuntimeException> {
             runBlocking {
                 introspectSchema("${wireMockServer.baseUrl()}/graphql")

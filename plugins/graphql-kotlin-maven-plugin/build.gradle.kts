@@ -67,7 +67,8 @@ tasks {
         doLast {
             val wireMockConfig = arrayOf(
                 "--root-dir=${project.projectDir}/src/integration/wiremock",
-                "--port=0")
+                "--port=0"
+            )
             wireMockServer = WireMockServerRunner()
             wireMockServer?.run(*wireMockConfig)
             wireMockServerPort = wireMockServer?.port()

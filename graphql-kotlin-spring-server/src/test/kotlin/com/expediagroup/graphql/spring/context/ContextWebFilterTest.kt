@@ -125,7 +125,8 @@ class ContextWebFilterTest {
         val props = GraphQLConfigurationProperties(
             endpoint = graphQLRoute,
             packages = listOf("com.expediagroup.graphql"),
-            subscriptions = GraphQLConfigurationProperties.SubscriptionConfigurationProperties(endpoint = subscriptionRoute))
+            subscriptions = GraphQLConfigurationProperties.SubscriptionConfigurationProperties(endpoint = subscriptionRoute)
+        )
 
         val contextFilter = ContextWebFilter(props, mockk<GraphQLContextFactory<*>>())
         for (path in listOf("/${graphQLRoute.toLowerCase()}", "/${subscriptionRoute.toLowerCase()}")) {

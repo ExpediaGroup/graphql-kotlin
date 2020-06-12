@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.federation.validation
 
+import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.externalDirective
 import com.expediagroup.graphql.federation.getKeyDirective
@@ -127,10 +127,11 @@ class FederatedSchemaValidatorTest {
             FederatedSchemaValidator().validateGraphQLType(typeToValidate)
         }
 
-        val expectedError = """
-            Invalid federated schema:
-             - @key directive on Foo is missing field information
-        """.trimIndent()
+        val expectedError =
+            """
+                Invalid federated schema:
+                 - @key directive on Foo is missing field information
+            """.trimIndent()
 
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
@@ -167,10 +168,11 @@ class FederatedSchemaValidatorTest {
             FederatedSchemaValidator().validateGraphQLType(typeToValidate)
         }
 
-        val expectedError = """
-            Invalid federated schema:
-             - @provides directive is specified on a Foo.bar field but it does not return an object type
-        """.trimIndent()
+        val expectedError =
+            """
+                Invalid federated schema:
+                 - @provides directive is specified on a Foo.bar field but it does not return an object type
+            """.trimIndent()
 
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
@@ -207,10 +209,11 @@ class FederatedSchemaValidatorTest {
             FederatedSchemaValidator().validateGraphQLType(typeToValidate)
         }
 
-        val expectedError = """
-            Invalid federated schema:
-             - @requires directive on Foo.bar is missing field information
-        """.trimIndent()
+        val expectedError =
+            """
+                Invalid federated schema:
+                 - @requires directive on Foo.bar is missing field information
+            """.trimIndent()
 
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
@@ -243,10 +246,11 @@ class FederatedSchemaValidatorTest {
             FederatedSchemaValidator().validateGraphQLType(typeToValidate)
         }
 
-        val expectedError = """
-            Invalid federated schema:
-             - base Foo type has fields marked with @external directive, fields=[bar]
-        """.trimIndent()
+        val expectedError =
+            """
+                Invalid federated schema:
+                 - base Foo type has fields marked with @external directive, fields=[bar]
+            """.trimIndent()
 
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }

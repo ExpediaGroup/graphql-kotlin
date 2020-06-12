@@ -15,5 +15,6 @@ class MyGraphQLContextFactory : GraphQLContextFactory<MyGraphQLContext> {
         myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext",
         request = request,
         response = response,
-        subscriptionValue = null)
+        subscriptionValue = null
+    )
 }

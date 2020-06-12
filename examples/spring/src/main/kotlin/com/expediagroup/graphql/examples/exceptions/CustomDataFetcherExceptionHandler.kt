@@ -53,9 +53,9 @@ class ValidationDataFetchingGraphQLError(
     exception: Throwable,
     sourceLocation: SourceLocation
 ) : ExceptionWhileDataFetching(
-        path,
-        exception,
-        sourceLocation
+    path,
+    exception,
+    sourceLocation
 ) {
     override fun getErrorType(): ErrorType = ValidationError
 }

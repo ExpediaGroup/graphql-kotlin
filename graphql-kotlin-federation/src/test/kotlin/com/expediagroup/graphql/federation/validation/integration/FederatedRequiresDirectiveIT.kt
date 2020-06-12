@@ -48,8 +48,12 @@ class FederatedRequiresDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.failure._1"))
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @requires(fields = weight) directive on RequiresLocalField.shippingCost specifies invalid field set - extended type incorrectly references local field=weight", exception.message)
+        val expected =
+            """
+                Invalid federated schema:
+                 - @requires(fields = weight) directive on RequiresLocalField.shippingCost specifies invalid field set - extended type incorrectly references local field=weight
+            """.trimIndent()
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -57,8 +61,12 @@ class FederatedRequiresDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.failure._2"))
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies fields that do not exist", exception.message)
+        val expected =
+            """
+                Invalid federated schema:
+                 - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies fields that do not exist
+            """.trimIndent()
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -66,10 +74,15 @@ class FederatedRequiresDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.requires.failure._3"),
-                queries = listOf(TopLevelObject(RequiresOnLocalTypeQuery())))
+                queries = listOf(TopLevelObject(RequiresOnLocalTypeQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - base RequiresOnLocalType type has fields marked with @requires directive, validatedField=shippingCost", exception.message)
+        val expectedMessage =
+            """
+                Invalid federated schema:
+                 - base RequiresOnLocalType type has fields marked with @requires directive, validatedField=shippingCost
+            """.trimIndent()
+        assertEquals(expectedMessage, exception.message)
     }
 
     @Test

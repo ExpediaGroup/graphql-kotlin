@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.MustacheFactory
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -26,9 +28,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import java.io.BufferedReader
 import java.io.File
-import com.github.mustachejava.DefaultMustacheFactory
-
-import com.github.mustachejava.MustacheFactory
 import java.io.StringWriter
 
 abstract class GraphQLGradlePluginAbstractIT {
@@ -63,10 +62,12 @@ abstract class GraphQLGradlePluginAbstractIT {
         .withRequestBody(ContainsPattern("JUnitQuery"))
         .withResponse(content = testResponse)
 
-    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json") = this.willReturn(WireMock.aResponse()
-        .withStatus(200)
-        .withHeader("Content-Type", contentType)
-        .withBody(content))
+    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json") = this.willReturn(
+        WireMock.aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", contentType)
+            .withBody(content)
+    )
 
     fun loadResource(resourceName: String) = ClassLoader.getSystemClassLoader().getResourceAsStream(resourceName)?.use {
         BufferedReader(it.reader()).readText()
@@ -78,7 +79,8 @@ abstract class GraphQLGradlePluginAbstractIT {
     }
 
     internal fun File.generateBuildFile(contents: String) {
-        val buildFileContents = """
+        val buildFileContents =
+            """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
             import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
             import com.expediagroup.graphql.plugin.gradle.graphql
@@ -111,7 +113,7 @@ abstract class GraphQLGradlePluginAbstractIT {
             }
 
             $contents
-        """.trimIndent()
+            """.trimIndent()
 
         val buildFile = File(this, "build.gradle.kts")
         buildFile.writeText(buildFileContents)

@@ -117,21 +117,28 @@ class GraphQLClientGenerator(
             funSpec.addStatement("return graphQLClient.execute($queryConstName, $operationName, $variableCode)")
 
             val gqlCLientClassName = ClassName(LIBRARY_PACKAGE, "GraphQLClient").parameterizedBy(STAR)
-            operationTypeSpec.primaryConstructor(FunSpec.constructorBuilder()
-                .addParameter(
-                    "graphQLClient",
-                    gqlCLientClassName)
-                .build())
-            operationTypeSpec.addProperty(PropertySpec.builder("graphQLClient", gqlCLientClassName, KModifier.PRIVATE)
-                .initializer("graphQLClient").build())
+            operationTypeSpec.primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter(
+                        "graphQLClient",
+                        gqlCLientClassName
+                    )
+                    .build()
+            )
+            operationTypeSpec.addProperty(
+                PropertySpec.builder("graphQLClient", gqlCLientClassName, KModifier.PRIVATE)
+                    .initializer("graphQLClient").build()
+            )
             operationTypeSpec.addFunction(funSpec.build())
 
             context.typeSpecs.forEach {
                 operationTypeSpec.addType(it.value)
             }
-            fileSpec.addProperty(PropertySpec.builder(queryConstName, STRING)
-                .addModifiers(KModifier.CONST)
-                .initializer("%S", queryConst).build())
+            fileSpec.addProperty(
+                PropertySpec.builder(queryConstName, STRING)
+                    .addModifiers(KModifier.CONST)
+                    .initializer("%S", queryConst).build()
+            )
             fileSpec.addType(operationTypeSpec.build())
 
             typeAliases.putAll(context.typeAliases)

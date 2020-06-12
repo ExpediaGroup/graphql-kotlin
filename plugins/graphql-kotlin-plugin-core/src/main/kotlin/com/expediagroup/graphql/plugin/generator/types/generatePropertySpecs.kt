@@ -61,9 +61,11 @@ internal fun generatePropertySpecs(
             } else {
                 val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
                 val reason = deprecatedReason?.value ?: "no longer supported"
-                propertySpecBuilder.addAnnotation(AnnotationSpec.builder(Deprecated::class)
-                    .addMember("message = %S", reason)
-                    .build())
+                propertySpecBuilder.addAnnotation(
+                    AnnotationSpec.builder(Deprecated::class)
+                        .addMember("message = %S", reason)
+                        .build()
+                )
             }
         }
         fieldDefinition.description?.content?.let { kdoc ->

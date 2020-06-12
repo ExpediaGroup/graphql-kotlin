@@ -42,7 +42,8 @@ class FederatedProvidesDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.success._1"),
-                queries = listOf(TopLevelObject(SimpleProvidesQuery())))
+                queries = listOf(TopLevelObject(SimpleProvidesQuery()))
+            )
             validateTypeWasCreatedWithProvidesDirective(schema, "SimpleProvides")
         }
     }
@@ -52,7 +53,8 @@ class FederatedProvidesDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.success._2"),
-                queries = listOf(TopLevelObject(ProvidesListQuery())))
+                queries = listOf(TopLevelObject(ProvidesListQuery()))
+            )
             validateTypeWasCreatedWithProvidesDirective(schema, "ProvidesList")
         }
     }
@@ -74,9 +76,11 @@ class FederatedProvidesDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.failure._1"),
-                queries = listOf(TopLevelObject(ProvidesLocalTypeQuery())))
+                queries = listOf(TopLevelObject(ProvidesLocalTypeQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n - @provides directive is specified on a ProvidesLocalType.providedLocal field references local object", exception.message)
+        val expected = "Invalid federated schema:\n - @provides directive is specified on a ProvidesLocalType.providedLocal field references local object"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -84,10 +88,12 @@ class FederatedProvidesDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.failure._2"),
-                queries = listOf(TopLevelObject(ProvidesLocalFieldQuery())))
+                queries = listOf(TopLevelObject(ProvidesLocalFieldQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @provides(fields = text) directive on ProvidesLocalField.provided specifies invalid field set - extended type incorrectly references local field=text", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @provides(fields = text) directive on ProvidesLocalField.provided specifies invalid field set - extended type incorrectly references local field=text"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -95,10 +101,12 @@ class FederatedProvidesDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.failure._3"),
-                queries = listOf(TopLevelObject(ProvidesInterfaceQuery())))
+                queries = listOf(TopLevelObject(ProvidesInterfaceQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @provides directive is specified on a ProvidesInterface.providedInterface field but it does not return an object type", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @provides directive is specified on a ProvidesInterface.providedInterface field but it does not return an object type"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -106,10 +114,12 @@ class FederatedProvidesDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.failure._4"),
-                queries = listOf(TopLevelObject(ProvidesListFieldQuery())))
+                queries = listOf(TopLevelObject(ProvidesListFieldQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @provides(fields = text) directive on ProvidesListField.provided specifies invalid field set - field set references GraphQLList, field=text", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @provides(fields = text) directive on ProvidesListField.provided specifies invalid field set - field set references GraphQLList, field=text"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -117,9 +127,11 @@ class FederatedProvidesDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.provides.failure._5"),
-                queries = listOf(TopLevelObject(ProvidesInterfaceFieldQuery())))
+                queries = listOf(TopLevelObject(ProvidesInterfaceFieldQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @provides(fields = data) directive on ProvidesInterfaceField.provided specifies invalid field set - field set references GraphQLInterfaceType, field=data", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @provides(fields = data) directive on ProvidesInterfaceField.provided specifies invalid field set - field set references GraphQLInterfaceType, field=data"
+        assertEquals(expected, exception.message)
     }
 }

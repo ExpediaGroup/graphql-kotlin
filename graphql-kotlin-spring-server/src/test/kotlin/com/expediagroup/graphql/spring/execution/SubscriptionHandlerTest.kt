@@ -118,8 +118,8 @@ class SubscriptionHandlerTest {
         fun alwaysThrows(): Flux<String> = Flux.error(GraphQLKotlinException("JUNIT subscription failure"))
 
         fun contextualTicker(context: SubscriptionContext): Flux<String> = Flux.range(1, 5)
-                .delayElements(Duration.ofMillis(100))
-                .map { "${context.value}:${Random.nextInt(100)}" }
+            .delayElements(Duration.ofMillis(100))
+            .map { "${context.value}:${Random.nextInt(100)}" }
     }
 
     data class SubscriptionContext(val value: String) : GraphQLContext

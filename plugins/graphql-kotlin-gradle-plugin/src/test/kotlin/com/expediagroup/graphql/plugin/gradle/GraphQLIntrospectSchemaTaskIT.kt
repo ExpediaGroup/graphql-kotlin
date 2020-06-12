@@ -33,11 +33,12 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
     @Test
     fun `apply the gradle plugin and execute introspectSchema task`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
-        val buildFileContents = """
+        val buildFileContents =
+            """
             val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/graphql")
             }
-        """.trimIndent()
+            """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
 
         val result = GradleRunner.create()
@@ -57,12 +58,13 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         val customHeaderValue = "My-Custom-Header-Value"
         WireMock.reset()
         WireMock.stubFor(stubIntrospectionResult().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
-        val buildFileContents = """
+        val buildFileContents =
+            """
             val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/graphql")
               headers.put("$customHeaderName", "$customHeaderValue")
             }
-        """.trimIndent()
+            """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
 
         val result = GradleRunner.create()

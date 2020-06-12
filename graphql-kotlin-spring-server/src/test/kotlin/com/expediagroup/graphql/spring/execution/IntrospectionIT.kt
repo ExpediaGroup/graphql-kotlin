@@ -30,8 +30,10 @@ import kotlin.random.Random
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["graphql.packages=com.expediagroup.graphql.spring.execution",
-        "graphql.introspection.enabled=false"]
+    properties = [
+        "graphql.packages=com.expediagroup.graphql.spring.execution",
+        "graphql.introspection.enabled=false"
+    ]
 )
 @EnableAutoConfiguration
 class IntrospectionIT(@Autowired private val testClient: WebTestClient) {

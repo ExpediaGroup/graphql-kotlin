@@ -137,14 +137,18 @@ internal fun generateInterfaceTypeSpec(
     // add jackson annotations to handle deserialization
     val jsonTypeInfoIdName = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.Id.NAME")
     val jsonTypeInfoAsProperty = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.As.PROPERTY")
-    interfaceTypeSpec.addAnnotation(AnnotationSpec.builder(JsonTypeInfo::class.java)
-        .addMember("use = %M", jsonTypeInfoIdName)
-        .addMember("include = %M", jsonTypeInfoAsProperty)
-        .addMember("property = %S", "__typename")
-        .build())
-    interfaceTypeSpec.addAnnotation(AnnotationSpec.builder(JsonSubTypes::class.java)
-        .addMember("value = [%L]", jsonSubTypesCodeBlock.build())
-        .build())
+    interfaceTypeSpec.addAnnotation(
+        AnnotationSpec.builder(JsonTypeInfo::class.java)
+            .addMember("use = %M", jsonTypeInfoIdName)
+            .addMember("include = %M", jsonTypeInfoAsProperty)
+            .addMember("property = %S", "__typename")
+            .build()
+    )
+    interfaceTypeSpec.addAnnotation(
+        AnnotationSpec.builder(JsonSubTypes::class.java)
+            .addMember("value = [%L]", jsonSubTypesCodeBlock.build())
+            .build()
+    )
 
     return interfaceTypeSpec.build()
 }

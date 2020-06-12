@@ -35,7 +35,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
     @Test
     fun `apply the plugin extension to generate client with defaults`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
-        val buildFileContents = """
+        val buildFileContents =
+            """
             application {
               applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
               mainClassName = "com.example.ApplicationKt"
@@ -47,7 +48,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                 packageName = "com.example.generated"
               }
             }
-        """.trimIndent()
+            """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
@@ -76,7 +77,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         WireMock.stubFor(stubSdlEndpoint().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
         WireMock.stubFor(stubGraphQLResponse())
 
-        val buildFileContents = """
+        val buildFileContents =
+            """
             application {
               applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
               mainClassName = "com.example.ApplicationKt"
@@ -95,7 +97,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                 queryFiles.add(file("${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"))
               }
             }
-        """.trimIndent()
+            """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)

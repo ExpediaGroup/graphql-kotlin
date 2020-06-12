@@ -44,8 +44,8 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
                 }
             }
             val newEnv = newDataFetchingEnvironment(dataEnv)
-                    .arguments(newArguments)
-                    .build()
+                .arguments(newArguments)
+                .build()
             originalDataFetcher.get(newEnv)
         }
         environment.setDataFetcher(defaultValueFetcher)

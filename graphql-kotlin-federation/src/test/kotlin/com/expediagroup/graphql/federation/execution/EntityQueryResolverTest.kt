@@ -154,9 +154,11 @@ class EntityQueryResolverTest {
         val result = resolver.get(env).get()
 
         verifyData(result.data, null, null)
-        verifyErrors(result.errors,
+        verifyErrors(
+            result.errors,
             "Federation batch request for User generated different number of results than requested, representations=2, results=1",
-            "Federation batch request for User generated different number of results than requested, representations=2, results=1")
+            "Federation batch request for User generated different number of results than requested, representations=2, results=1"
+        )
 
         coVerify {
             mockUserResolver.resolve(any(), listOf(user.toRepresentation(), user.toRepresentation()))

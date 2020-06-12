@@ -67,7 +67,7 @@ class Application {
 
             options("/graphql") { _, _ -> "ok" }
 
-            before("/graphql") { request, response ->
+            before("/graphql") { _, response ->
                 response.header("Access-Control-Allow-Origin", "*")
                 response.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
             }

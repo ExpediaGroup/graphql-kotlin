@@ -23,7 +23,8 @@ class GenerateGraphQLInputObjectTypeSpecIT {
 
     @Test
     fun `verify we can generate valid input object type spec`() {
-        val expected = """
+        val expected =
+            """
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
@@ -47,13 +48,14 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 val inputObjectQuery: Boolean
               )
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val query = """
+        val query =
+            """
             query InputObjectTestQuery {
               inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
             }
-        """.trimIndent()
+            """.trimIndent()
         verifyGeneratedFileSpecContents(query, expected)
     }
 }

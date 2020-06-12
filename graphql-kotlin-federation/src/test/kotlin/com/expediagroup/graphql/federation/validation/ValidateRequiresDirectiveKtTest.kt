@@ -48,7 +48,8 @@ class ValidateRequiresDirectiveKtTest {
             validatedType = "Foo",
             fieldMap = emptyMap(),
             validatedField = shippingCost,
-            extendedType = false)
+            extendedType = false
+        )
 
         assertEquals(1, errors.size)
         assertEquals("base Foo type has fields marked with @requires directive, validatedField=shippingCost", errors.first())
@@ -71,7 +72,8 @@ class ValidateRequiresDirectiveKtTest {
             validatedType = "Foo",
             fieldMap = emptyMap(),
             validatedField = shippingCost,
-            extendedType = false)
+            extendedType = false
+        )
 
         assertEquals(1, errors.size)
         assertEquals("base Foo type has fields marked with @requires directive, validatedField=shippingCost", errors.first())
@@ -101,7 +103,8 @@ class ValidateRequiresDirectiveKtTest {
             validatedType = validatedType.name,
             fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
             validatedField = shippingCost,
-            extendedType = true)
+            extendedType = true
+        )
 
         assertEquals(1, errors.size)
         assertEquals("@requires(fields = bar) directive on Foo.shippingCost specifies invalid field set - field set specifies fields that do not exist", errors.first())
@@ -131,7 +134,8 @@ class ValidateRequiresDirectiveKtTest {
             validatedType = validatedType.name,
             fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
             validatedField = shippingCost,
-            extendedType = true)
+            extendedType = true
+        )
 
         assertEquals(1, errors.size)
         assertEquals("@requires(fields = weight) directive on Foo.shippingCost specifies invalid field set - extended type incorrectly references local field=weight", errors.first())
@@ -164,7 +168,8 @@ class ValidateRequiresDirectiveKtTest {
             validatedType = validatedType.name,
             fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
             validatedField = shippingCost,
-            extendedType = true)
+            extendedType = true
+        )
 
         assertEquals(0, errors.size)
     }

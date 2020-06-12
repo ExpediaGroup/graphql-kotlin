@@ -117,11 +117,13 @@ data class User(
 )
 
 @GraphQLDirective(name = "custom")
-@GraphQLDescription("""
+@GraphQLDescription(
+    """
     This is a multi-line comment on a custom directive.
     This should still work multiline and double quotes (") in the description.
     Line 3.
-""")
+    """
+)
 annotation class CustomDirective
 
 class CustomScalar(val value: String)
