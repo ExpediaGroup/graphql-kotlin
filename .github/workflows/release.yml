@@ -7,6 +7,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
     steps:
       - uses: actions/checkout@v2
@@ -33,3 +34,39 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           PLUGIN_PORTAL_KEY: ${{ secrets.PLUGIN_PORTAL_KEY }}
           PLUGIN_PORTAL_SECRET: ${{ secrets.PLUGIN_PORTAL_SECRET }}
+
+  release-docs:
+    runs-on: ubuntu-latest
+    if: github.repository == 'ExpediaGroup/graphql-kotlin'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Build website
+        run: |
+          NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
+          echo "New version: ${NEW_VERSION}"
+          cd website
+          npm install
+          npm run version $NEW_VERSION
+          npm run build
+
+      - name: Deploy GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build/graphql-kotlin
+          user_name: eg-oss-ci
+          user_email: oss@expediagroup.com
