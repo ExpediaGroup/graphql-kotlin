@@ -35,7 +35,8 @@ class GraphQLResponseTest {
             data = MyQuery(1)
         )
 
-        val expectedJson = """{"data":{"foo":1}}"""
+        val expectedJson =
+            """{"data":{"foo":1}}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(response))
     }
@@ -48,14 +49,16 @@ class GraphQLResponseTest {
             extensions = mapOf<Any, Any>("bar" to 2)
         )
 
-        val expectedJson = """{"data":{"foo":1},"errors":[{"message":"my error"}],"extensions":{"bar":2}}"""
+        val expectedJson =
+            """{"data":{"foo":1},"errors":[{"message":"my error"}],"extensions":{"bar":2}}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
 
     @Test
     fun `verify simple deserialization`() {
-        val input = """{"data":{"foo":1}}"""
+        val input =
+            """{"data":{"foo":1}}"""
 
         val response: GraphQLResponse<MyQuery> = mapper.readValue(input)
 
@@ -66,7 +69,8 @@ class GraphQLResponseTest {
 
     @Test
     fun `verify complete deserialization`() {
-        val input = """{"data":{"foo":1},"errors":[{"message":"my error"}],"extensions":{"bar":2}}"""
+        val input =
+            """{"data":{"foo":1},"errors":[{"message":"my error"}],"extensions":{"bar":2}}"""
 
         val response: GraphQLResponse<MyQuery> = mapper.readValue(input)
 

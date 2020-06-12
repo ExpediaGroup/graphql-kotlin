@@ -125,18 +125,24 @@ class ToSchemaTest {
     fun `SchemaGenerator ignores fields and functions with @Ignore`() {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnored())), config = testSchemaConfig)
 
-        assertTrue(schema.queryType.fieldDefinitions.none {
-            it.name == "ignoredFunction"
-        })
+        assertTrue(
+            schema.queryType.fieldDefinitions.none {
+                it.name == "ignoredFunction"
+            }
+        )
 
         val resultType = schema.getObjectType("ResultWithIgnored")
-        assertTrue(resultType.fieldDefinitions.none {
-            it.name == "ignoredFunction"
-        })
+        assertTrue(
+            resultType.fieldDefinitions.none {
+                it.name == "ignoredFunction"
+            }
+        )
 
-        assertTrue(resultType.fieldDefinitions.none {
-            it.name == "ignoredProperty"
-        })
+        assertTrue(
+            resultType.fieldDefinitions.none {
+                it.name == "ignoredProperty"
+            }
+        )
     }
 
     @Test

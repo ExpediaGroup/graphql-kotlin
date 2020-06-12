@@ -65,44 +65,44 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
     data class CustomContext(val value: String) : GraphQLContext
 
+    val expectedSchema =
+        """
+        schema {
+          query: Query
+        }
+
+        "Directs the executor to include this field or fragment only when the `if` argument is true"
+        directive @include(
+            "Included when true."
+            if: Boolean!
+          ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+        "Directs the executor to skip this field or fragment when the `if`'argument is true."
+        directive @skip(
+            "Skipped when true."
+            if: Boolean!
+          ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+        "Marks the field or enum value as deprecated"
+        directive @deprecated(
+            "The reason for the deprecation"
+            reason: String = "No longer supported"
+          ) on FIELD_DEFINITION | ENUM_VALUE
+
+        "Exposes a URL that specifies the behaviour of this scalar."
+        directive @specifiedBy(
+            "The URL that specifies the behaviour of this scalar."
+            url: String!
+          ) on SCALAR
+
+        type Query {
+          context: String!
+          hello(name: String!): String!
+        }
+        """.trimIndent().plus("\n")
+
     @Test
     fun `verify SDL route`() {
-        val expectedSchema = """
-            schema {
-              query: Query
-            }
-
-            "Directs the executor to include this field or fragment only when the `if` argument is true"
-            directive @include(
-                "Included when true."
-                if: Boolean!
-              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-            "Directs the executor to skip this field or fragment when the `if`'argument is true."
-            directive @skip(
-                "Skipped when true."
-                if: Boolean!
-              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-            "Marks the field or enum value as deprecated"
-            directive @deprecated(
-                "The reason for the deprecation"
-                reason: String = "No longer supported"
-              ) on FIELD_DEFINITION | ENUM_VALUE
-
-            "Exposes a URL that specifies the behaviour of this scalar."
-            directive @specifiedBy(
-                "The URL that specifies the behaviour of this scalar."
-                url: String!
-              ) on SCALAR
-
-            type Query {
-              context: String!
-              hello(name: String!): String!
-            }
-
-            """.trimIndent()
-
         testClient.get().uri("/sdl")
             .accept(MediaType.TEXT_PLAIN)
             .exchange()

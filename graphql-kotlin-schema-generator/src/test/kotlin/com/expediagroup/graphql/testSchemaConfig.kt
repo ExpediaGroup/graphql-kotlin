@@ -27,9 +27,11 @@ val testSchemaConfig = SchemaGeneratorConfig(defaultSupportedPackages)
 
 fun getTestSchemaConfigWithHooks(hooks: SchemaGeneratorHooks) = SchemaGeneratorConfig(defaultSupportedPackages, hooks = hooks)
 
-fun getTestSchemaConfigWithMockedDirectives() = getTestSchemaConfigWithHooks(hooks = object : SchemaGeneratorHooks {
-    override val wiringFactory: KotlinDirectiveWiringFactory
-        get() = spyk(KotlinDirectiveWiringFactory()) {
-            every { getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
-        }
-})
+fun getTestSchemaConfigWithMockedDirectives() = getTestSchemaConfigWithHooks(
+    object : SchemaGeneratorHooks {
+        override val wiringFactory: KotlinDirectiveWiringFactory
+            get() = spyk(KotlinDirectiveWiringFactory()) {
+                every { getSchemaDirectiveWiring(any()) } returns object : KotlinSchemaDirectiveWiring {}
+            }
+    }
+)

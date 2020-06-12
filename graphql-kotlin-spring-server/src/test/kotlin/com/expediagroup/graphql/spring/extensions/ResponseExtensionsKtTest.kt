@@ -76,9 +76,11 @@ class ResponseExtensionsKtTest {
     fun `if errors or extensions is set, the values are copied`() {
         val executionResult: ExecutionResult = mockk {
             every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(mockk(relaxed = true) {
-                every { message } returns "hello"
-            })
+            every { errors } returns listOf(
+                mockk(relaxed = true) {
+                    every { message } returns "hello"
+                }
+            )
             every { extensions } returns mapOf("foo" to "bar")
         }
 

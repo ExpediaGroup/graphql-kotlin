@@ -43,7 +43,8 @@ class FederatedKeyDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.success._1"),
-                queries = listOf(TopLevelObject(SimpleKeyQuery())))
+                queries = listOf(TopLevelObject(SimpleKeyQuery()))
+            )
             validateTypeWasCreatedWithKeyDirective(schema, "SimpleKey")
         }
     }
@@ -61,7 +62,8 @@ class FederatedKeyDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.success._3"),
-                queries = listOf(TopLevelObject(KeyWithMultipleFieldsQuery())))
+                queries = listOf(TopLevelObject(KeyWithMultipleFieldsQuery()))
+            )
             validateTypeWasCreatedWithKeyDirective(schema, "KeyWithMultipleFields")
         }
     }
@@ -79,7 +81,8 @@ class FederatedKeyDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.success._5"),
-                queries = listOf(TopLevelObject(KeyWithNestedFieldsQuery())))
+                queries = listOf(TopLevelObject(KeyWithNestedFieldsQuery()))
+            )
             validateTypeWasCreatedWithKeyDirective(schema, "KeyWithNestedFields")
         }
     }
@@ -103,7 +106,8 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._1"))
         }
-        assertEquals("Invalid federated schema:\n - @key directive is missing on federated FederatedMissingKey type", exception.message)
+        val expected = "Invalid federated schema:\n - @key directive is missing on federated FederatedMissingKey type"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -111,9 +115,11 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._2"),
-                queries = listOf(TopLevelObject(KeyMissingFieldSelectionQuery())))
+                queries = listOf(TopLevelObject(KeyMissingFieldSelectionQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n - @key directive on KeyMissingFieldSelection is missing field information", exception.message)
+        val expected = "Invalid federated schema:\n - @key directive on KeyMissingFieldSelection is missing field information"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -121,9 +127,11 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._3"),
-                queries = listOf(TopLevelObject(InvalidKeyQuery())))
+                queries = listOf(TopLevelObject(InvalidKeyQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n - @key(fields = id) directive on InvalidKey specifies invalid field set - field set specifies fields that do not exist", exception.message)
+        val expected = "Invalid federated schema:\n - @key(fields = id) directive on InvalidKey specifies invalid field set - field set specifies fields that do not exist"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -131,11 +139,13 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._4"),
-                queries = listOf(TopLevelObject(BaseKeyReferencingExternalFieldsQuery())))
+                queries = listOf(TopLevelObject(BaseKeyReferencingExternalFieldsQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
+        val expected = "Invalid federated schema:\n" +
             " - @key(fields = id) directive on BaseKeyReferencingExternalFields specifies invalid field set - type incorrectly references external field=id\n" +
-            " - base BaseKeyReferencingExternalFields type has fields marked with @external directive, fields=[id]", exception.message)
+            " - base BaseKeyReferencingExternalFields type has fields marked with @external directive, fields=[id]"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -143,8 +153,9 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._5"))
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @key(fields = id) directive on ExternalKeyReferencingLocalField specifies invalid field set - extended type incorrectly references local field=id", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @key(fields = id) directive on ExternalKeyReferencingLocalField specifies invalid field set - extended type incorrectly references local field=id"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -152,10 +163,12 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._6"),
-                queries = listOf(TopLevelObject(KeyReferencingListQuery())))
+                queries = listOf(TopLevelObject(KeyReferencingListQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @key(fields = id) directive on KeyReferencingList specifies invalid field set - field set references GraphQLList, field=id", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @key(fields = id) directive on KeyReferencingList specifies invalid field set - field set references GraphQLList, field=id"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -163,10 +176,12 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._7"),
-                queries = listOf(TopLevelObject(KeyReferencingInterfaceQuery())))
+                queries = listOf(TopLevelObject(KeyReferencingInterfaceQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @key(fields = id) directive on KeyReferencingInterface specifies invalid field set - field set references GraphQLInterfaceType, field=id", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @key(fields = id) directive on KeyReferencingInterface specifies invalid field set - field set references GraphQLInterfaceType, field=id"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -174,10 +189,12 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._8"),
-                queries = listOf(TopLevelObject(KeyReferencingUnionQuery())))
+                queries = listOf(TopLevelObject(KeyReferencingUnionQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
-            " - @key(fields = id) directive on KeyReferencingUnion specifies invalid field set - field set references GraphQLUnionType, field=id", exception.message)
+        val expected = "Invalid federated schema:\n" +
+            " - @key(fields = id) directive on KeyReferencingUnion specifies invalid field set - field set references GraphQLUnionType, field=id"
+        assertEquals(expected, exception.message)
     }
 
     @Test
@@ -185,10 +202,12 @@ class FederatedKeyDirectiveIT {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.federation.data.integration.key.failure._9"),
-                queries = listOf(TopLevelObject(NestedKeyReferencingScalarQuery())))
+                queries = listOf(TopLevelObject(NestedKeyReferencingScalarQuery()))
+            )
         }
-        assertEquals("Invalid federated schema:\n" +
+        val expected = "Invalid federated schema:\n" +
             " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set defines nested selection set on unsupported type\n" +
-            " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set specifies fields that do not exist", exception.message)
+            " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set specifies fields that do not exist"
+        assertEquals(expected, exception.message)
     }
 }

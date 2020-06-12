@@ -33,7 +33,8 @@ class GraphQLErrorTest {
             message = "error thrown"
         )
 
-        val expectedJson = """{"message":"error thrown"}"""
+        val expectedJson =
+            """{"message":"error thrown"}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(error))
     }
@@ -46,7 +47,8 @@ class GraphQLErrorTest {
             path = listOf("path", 1, "field")
         )
 
-        val expectedJson = """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"]}"""
+        val expectedJson =
+            """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"]}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(error))
     }
@@ -58,7 +60,8 @@ class GraphQLErrorTest {
             extensions = mapOf("foo" to "bar")
         )
 
-        val expectedJson = """{"message":"error thrown","extensions":{"foo":"bar"}}"""
+        val expectedJson =
+            """{"message":"error thrown","extensions":{"foo":"bar"}}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(error))
     }
@@ -72,14 +75,16 @@ class GraphQLErrorTest {
             extensions = mapOf("foo" to "bar")
         )
 
-        val expectedJson = """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"],"extensions":{"foo":"bar"}}"""
+        val expectedJson =
+            """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"],"extensions":{"foo":"bar"}}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(error))
     }
 
     @Test
     fun `Simple spec compliant error works with deserialization`() {
-        val input = """{"message":"error thrown"}"""
+        val input =
+            """{"message":"error thrown"}"""
 
         val error: GraphQLError = mapper.readValue(input)
 
@@ -91,7 +96,8 @@ class GraphQLErrorTest {
 
     @Test
     fun `Full spec compliant error works with deserialization`() {
-        val input = """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"],"extensions":{"foo":"bar"}}"""
+        val input =
+            """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"],"extensions":{"foo":"bar"}}"""
 
         val error: GraphQLError = mapper.readValue(input)
 

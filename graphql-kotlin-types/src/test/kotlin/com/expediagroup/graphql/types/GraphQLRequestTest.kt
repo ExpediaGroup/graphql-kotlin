@@ -32,7 +32,8 @@ class GraphQLRequestTest {
             query = "{ foo }"
         )
 
-        val expectedJson = """{"query":"{ foo }"}"""
+        val expectedJson =
+            """{"query":"{ foo }"}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
@@ -45,14 +46,16 @@ class GraphQLRequestTest {
             variables = mapOf("input" to 1)
         )
 
-        val expectedJson = """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
+        val expectedJson =
+            """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
         assertEquals(expectedJson, mapper.writeValueAsString(request))
     }
 
     @Test
     fun `verify simple deserialization`() {
-        val input = """{"query":"{ foo }"}"""
+        val input =
+            """{"query":"{ foo }"}"""
 
         val request = mapper.readValue<GraphQLRequest>(input)
 
@@ -63,7 +66,8 @@ class GraphQLRequestTest {
 
     @Test
     fun `verify complete deserialization`() {
-        val input = """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
+        val input =
+            """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
         val request = mapper.readValue<GraphQLRequest>(input)
 

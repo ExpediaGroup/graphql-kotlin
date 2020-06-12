@@ -23,6 +23,6 @@ import kotlin.reflect.KFunction
 class InvalidSubscriptionTypeException(kClass: KClass<*>, kFunction: KFunction<*>? = null) :
     GraphQLKotlinException(
         "Schema requires all subscriptions to be public and return a valid type from the hooks. " +
-        "${kClass.simpleName} has ${kClass.visibility} visibility modifier. " +
-        if (kFunction != null) "The function return type is ${kFunction.returnType.getSimpleName()}" else ""
+            "${kClass.simpleName} has ${kClass.visibility} visibility modifier. " +
+            if (kFunction != null) "The function return type is ${kFunction.returnType.getSimpleName()}" else ""
     )

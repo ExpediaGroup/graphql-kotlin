@@ -32,26 +32,31 @@ internal fun generateEntityFieldDefinition(federatedTypes: Set<String>): GraphQL
         .map { GraphQLTypeReference(it) }
         .toTypedArray()
 
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_entities")
-        .description("Union of all types that use the @key directive, including both types native to the schema and extended types")
-        .argument(GraphQLArgument.newArgument()
-            .name("representations")
-            .type(GraphQLNonNull(
+    val graphQLArgument = GraphQLArgument.newArgument()
+        .name("representations")
+        .type(
+            GraphQLNonNull(
                 GraphQLList(
                     GraphQLNonNull(
                         GraphQLTypeReference(ANY_SCALAR_TYPE.name)
                     )
                 )
-            ))
-            .build())
-        .type(GraphQLNonNull(
-            GraphQLList(
-                GraphQLUnionType.newUnionType()
-                    .name("_Entity")
-                    .possibleTypes(*possibleTypes)
-                    .build()
             )
-        ))
+        )
+
+    val graphQLType = GraphQLNonNull(
+        GraphQLList(
+            GraphQLUnionType.newUnionType()
+                .name("_Entity")
+                .possibleTypes(*possibleTypes)
+                .build()
+        )
+    )
+
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_entities")
+        .description("Union of all types that use the @key directive, including both types native to the schema and extended types")
+        .argument(graphQLArgument)
+        .type(graphQLType)
         .build()
 }

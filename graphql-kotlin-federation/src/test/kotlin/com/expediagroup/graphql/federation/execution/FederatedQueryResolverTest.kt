@@ -27,7 +27,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-const val FEDERATED_QUERY = """
+const val FEDERATED_QUERY =
+"""
 query (${'$'}_representations: [_Any!]!) {
   _entities(representations: ${'$'}_representations) {
     ... on User {

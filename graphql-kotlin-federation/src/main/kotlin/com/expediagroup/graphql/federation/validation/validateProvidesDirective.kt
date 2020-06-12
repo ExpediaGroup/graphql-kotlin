@@ -42,7 +42,8 @@ internal fun validateProvidesDirective(federatedType: String, field: GraphQLFiel
                 PROVIDES_DIRECTIVE_NAME,
                 field.directivesByName,
                 returnTypeFields,
-                true)
+                true
+            )
         }
     }
     // skip validation for nested object types as they are still under construction

@@ -147,7 +147,8 @@ class SchemaGeneratorHooksTest {
         assertThrows<EmptyObjectTypeException> {
             toSchema(
                 queries = listOf(TopLevelObject(TestWithEmptyObjectQuery())),
-                config = testSchemaConfig)
+                config = testSchemaConfig
+            )
         }
     }
 
@@ -156,7 +157,8 @@ class SchemaGeneratorHooksTest {
         assertThrows<EmptyInputObjectTypeException> {
             toSchema(
                 queries = listOf(TopLevelObject(TestWithEmptyInputObjectQuery())),
-                config = testSchemaConfig)
+                config = testSchemaConfig
+            )
         }
     }
 
@@ -165,7 +167,8 @@ class SchemaGeneratorHooksTest {
         assertThrows<EmptyInterfaceTypeException> {
             toSchema(
                 queries = listOf(TopLevelObject(TestWithEmptyInterfaceQuery())),
-                config = testSchemaConfig)
+                config = testSchemaConfig
+            )
         }
     }
 

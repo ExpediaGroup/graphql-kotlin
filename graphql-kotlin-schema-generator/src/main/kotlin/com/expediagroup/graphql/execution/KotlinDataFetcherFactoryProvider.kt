@@ -60,7 +60,8 @@ open class SimpleKotlinDataFetcherFactoryProvider(
         FunctionDataFetcher(
             target = target,
             fn = kFunction,
-            objectMapper = objectMapper)
+            objectMapper = objectMapper
+        )
     }
 
     override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>) = DataFetcherFactory<Any?> {

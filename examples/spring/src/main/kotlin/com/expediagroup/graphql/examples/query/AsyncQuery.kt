@@ -31,9 +31,11 @@ import java.util.concurrent.CompletableFuture
 @Component
 class AsyncQuery : Query {
 
-    @GraphQLDescription("Delays for given amount of time using CompletableFuture and then echoes the string back." +
+    @GraphQLDescription(
+        "Delays for given amount of time using CompletableFuture and then echoes the string back." +
             " The default async executor will work with CompletableFuture." +
-            " To use other rx frameworks you'll need to install a custom one to handle the types correctly.")
+            " To use other rx frameworks you'll need to install a custom one to handle the types correctly."
+    )
     fun delayedEchoUsingCompletableFuture(msg: String, delayMilliseconds: Int): CompletableFuture<String> {
         val future = CompletableFuture<String>()
         Thread {

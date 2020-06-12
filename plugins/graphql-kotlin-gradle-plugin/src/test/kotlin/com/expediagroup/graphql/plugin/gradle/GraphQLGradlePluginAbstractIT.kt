@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.MustacheFactory
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -26,9 +28,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import java.io.BufferedReader
 import java.io.File
-import com.github.mustachejava.DefaultMustacheFactory
-
-import com.github.mustachejava.MustacheFactory
 import java.io.StringWriter
 
 abstract class GraphQLGradlePluginAbstractIT {
@@ -36,8 +35,8 @@ abstract class GraphQLGradlePluginAbstractIT {
     // unsure if there is a better way - correct values are set from Gradle build
     // when running directly from IDE you will need to manually update those to correct values
     private val gqlKotlinVersion = System.getProperty("graphQLKotlinVersion") ?: "3.0.0-SNAPSHOT"
-    private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.71"
-    private val junitVersion = System.getProperty("junitVersion") ?: "5.6.0"
+    private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.72"
+    private val junitVersion = System.getProperty("junitVersion") ?: "5.6.2"
 
     val testSchema = loadResource("mocks/schema.graphql")
     val introspectionResult = loadResource("mocks/IntrospectionResult.json")
@@ -63,10 +62,12 @@ abstract class GraphQLGradlePluginAbstractIT {
         .withRequestBody(ContainsPattern("JUnitQuery"))
         .withResponse(content = testResponse)
 
-    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json") = this.willReturn(WireMock.aResponse()
-        .withStatus(200)
-        .withHeader("Content-Type", contentType)
-        .withBody(content))
+    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json") = this.willReturn(
+        WireMock.aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", contentType)
+            .withBody(content)
+    )
 
     fun loadResource(resourceName: String) = ClassLoader.getSystemClassLoader().getResourceAsStream(resourceName)?.use {
         BufferedReader(it.reader()).readText()
@@ -78,7 +79,8 @@ abstract class GraphQLGradlePluginAbstractIT {
     }
 
     internal fun File.generateBuildFile(contents: String) {
-        val buildFileContents = """
+        val buildFileContents =
+            """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
             import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
             import com.expediagroup.graphql.plugin.gradle.graphql
@@ -111,7 +113,7 @@ abstract class GraphQLGradlePluginAbstractIT {
             }
 
             $contents
-        """.trimIndent()
+            """.trimIndent()
 
         val buildFile = File(this, "build.gradle.kts")
         buildFile.writeText(buildFileContents)

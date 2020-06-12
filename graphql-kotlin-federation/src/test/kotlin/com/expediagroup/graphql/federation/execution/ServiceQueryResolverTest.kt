@@ -37,7 +37,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 // SDL is returned without _entity and _service queries
-const val FEDERATED_SERVICE_SDL = """
+const val FEDERATED_SERVICE_SDL =
+"""
 interface Product @extends @key(fields : "id") {
   id: String! @external
   reviews: [Review!]!
@@ -70,7 +71,8 @@ Line 3.
 ""${'"'}
 scalar CustomScalar"""
 
-const val BASE_SERVICE_SDL = """
+const val BASE_SERVICE_SDL =
+"""
 type Query {
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!
@@ -93,11 +95,13 @@ class ServiceQueryResolverTest {
 
         private val graphqlCustomScalar = GraphQLScalarType.newScalar()
             .name("CustomScalar")
-            .description("""
-                This is a multi-line comment on a custom scalar.
-                This should still work multiline and double quotes (") in the description.
-                Line 3.
-                """.trimIndent())
+            .description(
+                """
+                    This is a multi-line comment on a custom scalar.
+                    This should still work multiline and double quotes (") in the description.
+                    Line 3.
+                """.trimIndent()
+            )
             .coercing(CustomScalarCoercing()).build()
 
         private class CustomScalarCoercing : Coercing<CustomScalar, String> {
@@ -120,13 +124,14 @@ class ServiceQueryResolverTest {
         )
 
         val schema = toFederatedSchema(config = config)
-        val query = """
-            query sdlQuery {
-              _service {
-                sdl
-              }
-            }
-        """.trimIndent()
+        val query =
+            """
+                query sdlQuery {
+                  _service {
+                    sdl
+                  }
+                }
+            """.trimIndent()
         val executionInput = ExecutionInput.newExecutionInput()
             .query(query)
             .build()
@@ -149,13 +154,14 @@ class ServiceQueryResolverTest {
         )
 
         val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery()), TopLevelObject(NestedQuery())))
-        val query = """
-            query sdlQuery {
-              _service {
-                sdl
-              }
-            }
-        """.trimIndent()
+        val query =
+            """
+                query sdlQuery {
+                  _service {
+                    sdl
+                  }
+                }
+            """.trimIndent()
         val executionInput = ExecutionInput.newExecutionInput()
             .query(query)
             .build()

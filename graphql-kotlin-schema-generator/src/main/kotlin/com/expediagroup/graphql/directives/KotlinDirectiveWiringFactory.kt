@@ -60,16 +60,19 @@ open class KotlinDirectiveWiringFactory(
                     field = modifiedObject,
                     fieldDirective = directive,
                     coordinates = coordinates ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to missing field coordinates"),
-                    codeRegistry = codeRegistry ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to a missing code registry"))
+                    codeRegistry = codeRegistry ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to a missing code registry")
+                )
             } else {
                 KotlinSchemaDirectiveEnvironment(
                     element = modifiedObject,
-                    directive = directive)
+                    directive = directive
+                )
             }
 
             if (!env.isValid()) {
                 throw InvalidSchemaDirectiveWiringException(
-                    "Directive ${directive.name} not applicable on specified ${element.name} GraphQLType, valid directive locations ${directive.validLocations()}")
+                    "Directive ${directive.name} not applicable on specified ${element.name} GraphQLType, valid directive locations ${directive.validLocations()}"
+                )
             }
 
             val directiveWiring = discoverWiringProvider(directive.name, env)

@@ -33,11 +33,12 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
     @Test
     fun `apply the gradle plugin and execute downloadSDL task`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
-        val buildFileContents = """
+        val buildFileContents =
+            """
             val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/sdl")
             }
-        """.trimIndent()
+            """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
 
         val result = GradleRunner.create()
@@ -58,12 +59,13 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         WireMock.reset()
         WireMock.stubFor(stubSdlEndpoint().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
 
-        val buildFileContents = """
+        val buildFileContents =
+            """
             val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/sdl")
               headers.put("$customHeaderName", "$customHeaderValue")
             }
-        """.trimIndent()
+            """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
 
         val result = GradleRunner.create()

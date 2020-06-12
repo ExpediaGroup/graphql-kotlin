@@ -68,7 +68,8 @@ class KotlinDirectiveWiringFactoryTest {
         .validLocations(
             Introspection.DirectiveLocation.ARGUMENT_DEFINITION,
             Introspection.DirectiveLocation.ENUM,
-            Introspection.DirectiveLocation.FIELD_DEFINITION)
+            Introspection.DirectiveLocation.FIELD_DEFINITION
+        )
         .build()
     private val graphQLLowercaseDirective = GraphQLDirective.newDirective()
         .name("lowercase")

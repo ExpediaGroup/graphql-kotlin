@@ -31,93 +31,97 @@ class GenerateGraphQLClientIT {
 
     @Test
     fun `verify generated client does not change the operation name`() {
-        val expectedQueryFileSpec = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expectedQueryFileSpec =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.String
 
-            const val MI_XE_DCA_SE_QUERY: String = "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
+                const val MI_XE_DCA_SE_QUERY: String = "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
 
-            class MiXEDcaSEQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<MiXEDcaSEQuery.Result> =
-                  graphQLClient.execute(MI_XE_DCA_SE_QUERY, "miXEDcaSEQuery", null)
+                class MiXEDcaSEQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(): GraphQLResponse<MiXEDcaSEQuery.Result> =
+                      graphQLClient.execute(MI_XE_DCA_SE_QUERY, "miXEDcaSEQuery", null)
 
-              /**
-               * Wrapper that holds all supported scalar types
-               */
-              data class ScalarWrapper(
-                /**
-                 * UTF-8 character sequence
-                 */
-                val name: String
-              )
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * UTF-8 character sequence
+                     */
+                    val name: String
+                  )
 
-              data class Result(
-                /**
-                 * Query that returns wrapper object with all supported scalar types
-                 */
-                val scalarQuery: MiXEDcaSEQuery.ScalarWrapper
-              )
-            }
-        """.trimIndent()
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: MiXEDcaSEQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
 
-        val query = """
-            query miXEDcaSEQuery {
-              scalarQuery {
-                name
-              }
-            }
-        """.trimIndent()
+        val query =
+            """
+                query miXEDcaSEQuery {
+                  scalarQuery {
+                    name
+                  }
+                }
+            """.trimIndent()
         verifyGeneratedFileSpecContents(query, expectedQueryFileSpec)
     }
 
     @Test
     fun `verify generated client does not require operation name`(@TempDir tempDir: Path) {
-        val expectedQueryFileSpec = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expectedQueryFileSpec =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.String
 
-            const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
+                const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
-            class AnonymousTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<AnonymousTestQuery.Result> =
-                  graphQLClient.execute(ANONYMOUS_TEST_QUERY, null, null)
+                class AnonymousTestQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(): GraphQLResponse<AnonymousTestQuery.Result> =
+                      graphQLClient.execute(ANONYMOUS_TEST_QUERY, null, null)
 
-              /**
-               * Wrapper that holds all supported scalar types
-               */
-              data class ScalarWrapper(
-                /**
-                 * UTF-8 character sequence
-                 */
-                val name: String
-              )
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * UTF-8 character sequence
+                     */
+                    val name: String
+                  )
 
-              data class Result(
-                /**
-                 * Query that returns wrapper object with all supported scalar types
-                 */
-                val scalarQuery: AnonymousTestQuery.ScalarWrapper
-              )
-            }
-        """.trimIndent()
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: AnonymousTestQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
 
-        val query = """
-            query {
-              scalarQuery {
-                name
-              }
-            }
-        """.trimIndent()
+        val query =
+            """
+                query {
+                  scalarQuery {
+                    name
+                  }
+                }
+            """.trimIndent()
         val testDirectory = tempDir.toFile()
         val queryFile = File(testDirectory, "anonymousTestQuery.graphql")
         queryFile.deleteOnExit()
@@ -131,52 +135,55 @@ class GenerateGraphQLClientIT {
 
     @Test
     fun `verify we can generate objects using aliases`() {
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Boolean
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.Boolean
+                import kotlin.String
 
-            const val ALIAS_TEST_QUERY: String =
-                "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
+                const val ALIAS_TEST_QUERY: String =
+                    "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
 
-            class AliasTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
-                  graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
+                class AliasTestQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
+                      graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
 
-              data class Result(
-                /**
-                 * Query that accepts some input arguments
-                 */
-                val first: Boolean,
-                /**
-                 * Query that accepts some input arguments
-                 */
-                val second: Boolean
-              )
-            }
-        """.trimIndent()
+                  data class Result(
+                    /**
+                     * Query that accepts some input arguments
+                     */
+                    val first: Boolean,
+                    /**
+                     * Query that accepts some input arguments
+                     */
+                    val second: Boolean
+                  )
+                }
+            """.trimIndent()
 
-        val query = """
-            query AliasTestQuery {
-              first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
-              second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )
-            }
-        """.trimIndent()
+        val query =
+            """
+                query AliasTestQuery {
+                  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
+                  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )
+                }
+            """.trimIndent()
         verifyGeneratedFileSpecContents(query, expected)
     }
 
     @Test
     fun `verify exception is thrown when attempting to select deprecated field`() {
-        val invalidQuery = """
-            query DeprecatedFieldQuery {
-              deprecatedQuery
-            }
-        """.trimIndent()
+        val invalidQuery =
+            """
+                query DeprecatedFieldQuery {
+                  deprecatedQuery
+                }
+            """.trimIndent()
         assertThrows<RuntimeException> {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
@@ -184,43 +191,46 @@ class GenerateGraphQLClientIT {
 
     @Test
     fun `verify object with deprecated fields is generated if explicitly configured`() {
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Deprecated
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.Deprecated
+                import kotlin.String
 
-            const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
+                const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
 
-            class DeprecatedFieldQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
-                  graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
+                class DeprecatedFieldQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
+                      graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
 
-              data class Result(
-                /**
-                 * Deprecated query that should not be used anymore
-                 */
-                @Deprecated(message = "old query should not be used")
-                val deprecatedQuery: String
-              )
-            }
-        """.trimIndent()
+                  data class Result(
+                    /**
+                     * Deprecated query that should not be used anymore
+                     */
+                    @Deprecated(message = "old query should not be used")
+                    val deprecatedQuery: String
+                  )
+                }
+            """.trimIndent()
 
-        val invalidQuery = """
-            query DeprecatedFieldQuery {
-              deprecatedQuery
-            }
-        """.trimIndent()
+        val invalidQuery =
+            """
+                query DeprecatedFieldQuery {
+                  deprecatedQuery
+                }
+            """.trimIndent()
         verifyGeneratedFileSpecContents(
             invalidQuery,
             expected,
             GraphQLClientGeneratorConfig(
                 packageName = "com.expediagroup.graphql.plugin.generator.integration",
                 allowDeprecated = true
-            ))
+            )
+        )
     }
 }

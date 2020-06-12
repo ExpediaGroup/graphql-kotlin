@@ -23,12 +23,10 @@ import graphql.language.EnumValue
 import graphql.language.FloatValue
 import graphql.language.IntValue
 import graphql.language.NullValue
-import graphql.language.ObjectField
 import graphql.language.ObjectValue
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
-import java.util.stream.Collectors
 
 /**
  * The _Any scalar is used to pass representations of entities from external services into the root _entities field for execution.
@@ -55,13 +53,8 @@ private object AnyCoercing : Coercing<Any, Any> {
             is IntValue -> input.value
             is BooleanValue -> input.isValue
             is EnumValue -> input.name
-            is ArrayValue -> input.values
-                .stream()
-                .map { parseLiteral(it) }
-                .collect(Collectors.toList())
-            is ObjectValue -> input.objectFields
-                .stream()
-                .collect(Collectors.toMap(ObjectField::getName) { parseLiteral(it.value) })
+            is ArrayValue -> input.values.map { parseLiteral(it) }
+            is ObjectValue -> input.objectFields.associateBy({ it.name }, { parseLiteral(it.value) })
             else -> Assert.assertShouldNeverHappen()
         }
 }

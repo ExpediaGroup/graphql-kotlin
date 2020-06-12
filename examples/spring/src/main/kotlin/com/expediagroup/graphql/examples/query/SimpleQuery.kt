@@ -75,5 +75,5 @@ class SimpleQuery : Query {
         @GraphQLDescription("this field is required") requiredValue: Int,
         @GraphQLDescription("this field is optional") optionalValue: Int? = null
     ) =
-            "required value=$requiredValue, optional value=$optionalValue"
+        "required value=$requiredValue, optional value=$optionalValue"
 }

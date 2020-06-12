@@ -25,7 +25,8 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
 
     @Test
     fun `verify can generate custom scalar with converter mapping`() {
-        val expected = """
+        val expected =
+            """
             package com.expediagroup.graphql.plugin.generator.integration
 
             import com.expediagroup.graphql.client.GraphQLClient
@@ -80,15 +81,16 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 val scalarQuery: CustomScalarTestQuery.ScalarWrapper
               )
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val query = """
+        val query =
+            """
             query CustomScalarTestQuery {
               scalarQuery {
                 custom
               }
             }
-        """.trimIndent()
+            """.trimIndent()
 
         verifyGeneratedFileSpecContents(
             query,

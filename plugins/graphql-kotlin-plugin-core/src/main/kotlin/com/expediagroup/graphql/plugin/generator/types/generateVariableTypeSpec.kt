@@ -35,8 +35,11 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
         val kotlinTypeName = generateTypeName(context, variableDef.type)
 
         constructorSpec.addParameter(variableDef.name, kotlinTypeName)
-        variableTypeSpec.addProperty(PropertySpec.builder(variableDef.name, kotlinTypeName)
-            .initializer(variableDef.name).build())
+        variableTypeSpec.addProperty(
+            PropertySpec.builder(variableDef.name, kotlinTypeName)
+                .initializer(variableDef.name)
+                .build()
+        )
     }
 
     variableTypeSpec.primaryConstructor(constructorSpec.build())

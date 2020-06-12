@@ -24,65 +24,68 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
 
     @Test
     fun `verify can generate type aliases for GraphQL ID and custom scalars`() {
-        val expectedGraphQLAliasTypeSpec = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expectedGraphQLAliasTypeSpec =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import kotlin.String
+                import kotlin.String
 
-            typealias ID = String
+                typealias ID = String
 
-            /**
-             * Custom scalar representing UUID
-             */
-            typealias UUID = String
-        """.trimIndent()
-        val expectedQueryFileSpec = """
-            package com.expediagroup.graphql.plugin.generator.integration
-
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.String
-
-            const val SCALAR_ALIAS_TEST_QUERY: String =
-                "query ScalarAliasTestQuery {\n  scalarQuery {\n    id\n    custom\n  }\n}"
-
-            class ScalarAliasTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<ScalarAliasTestQuery.Result> =
-                  graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY, "ScalarAliasTestQuery", null)
-
-              /**
-               * Wrapper that holds all supported scalar types
-               */
-              data class ScalarWrapper(
                 /**
-                 * ID represents unique identifier that is not intended to be human readable
+                 * Custom scalar representing UUID
                  */
-                val id: ID,
-                /**
-                 * Custom scalar
-                 */
-                val custom: UUID
-              )
+                typealias UUID = String
+            """.trimIndent()
+        val expectedQueryFileSpec =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-              data class Result(
-                /**
-                 * Query that returns wrapper object with all supported scalar types
-                 */
-                val scalarQuery: ScalarAliasTestQuery.ScalarWrapper
-              )
-            }
-        """.trimIndent()
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.String
 
-        val query = """
-            query ScalarAliasTestQuery {
-              scalarQuery {
-                id
-                custom
-              }
-            }
-        """.trimIndent()
+                const val SCALAR_ALIAS_TEST_QUERY: String =
+                    "query ScalarAliasTestQuery {\n  scalarQuery {\n    id\n    custom\n  }\n}"
+
+                class ScalarAliasTestQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(): GraphQLResponse<ScalarAliasTestQuery.Result> =
+                      graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY, "ScalarAliasTestQuery", null)
+
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * ID represents unique identifier that is not intended to be human readable
+                     */
+                    val id: ID,
+                    /**
+                     * Custom scalar
+                     */
+                    val custom: UUID
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: ScalarAliasTestQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+                query ScalarAliasTestQuery {
+                  scalarQuery {
+                    id
+                    custom
+                  }
+                }
+            """.trimIndent()
         val fileSpecs = generateTestFileSpec(query)
         assertEquals(2, fileSpecs.size)
         assertEquals(expectedQueryFileSpec, fileSpecs[0].toString().trim())

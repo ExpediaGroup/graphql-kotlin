@@ -24,60 +24,62 @@ class GenerateVariableTypeSpecIT {
     @Test
     fun `verify query with variables is correctly generated`() {
         // KT-2425 workaround to escape $ in string templates - we need to escape the escaped $
-        val expected = """
-            package com.expediagroup.graphql.plugin.generator.integration
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Boolean
-            import kotlin.Float
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.Boolean
+                import kotlin.Float
+                import kotlin.String
 
-            const val TEST_QUERY_WITH_VARIABLES: String =
-                "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
+                const val TEST_QUERY_WITH_VARIABLES: String =
+                    "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
 
-            class TestQueryWithVariables(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(variables: TestQueryWithVariables.Variables):
-                  GraphQLResponse<TestQueryWithVariables.Result> =
-                  graphQLClient.execute(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables)
+                class TestQueryWithVariables(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(variables: TestQueryWithVariables.Variables):
+                      GraphQLResponse<TestQueryWithVariables.Result> =
+                      graphQLClient.execute(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables)
 
-              data class Variables(
-                val criteria: TestQueryWithVariables.SimpleArgumentInput?
-              )
+                  data class Variables(
+                    val criteria: TestQueryWithVariables.SimpleArgumentInput?
+                  )
 
-              /**
-               * Test input object
-               */
-              data class SimpleArgumentInput(
-                /**
-                 * Maximum value for test criteria
-                 */
-                val max: Float?,
-                /**
-                 * Minimum value for test criteria
-                 */
-                val min: Float?,
-                /**
-                 * New value to be set
-                 */
-                val newName: String?
-              )
+                  /**
+                   * Test input object
+                   */
+                  data class SimpleArgumentInput(
+                    /**
+                     * Maximum value for test criteria
+                     */
+                    val max: Float?,
+                    /**
+                     * Minimum value for test criteria
+                     */
+                    val min: Float?,
+                    /**
+                     * New value to be set
+                     */
+                    val newName: String?
+                  )
 
-              data class Result(
-                /**
-                 * Query that accepts some input arguments
-                 */
-                val inputObjectQuery: Boolean
-              )
-            }
-        """.trimIndent()
-        val query = """
-            query TestQueryWithVariables(${'$'}criteria: SimpleArgumentInput) {
-              inputObjectQuery(criteria: ${'$'}criteria)
-            }
-        """.trimIndent()
+                  data class Result(
+                    /**
+                     * Query that accepts some input arguments
+                     */
+                    val inputObjectQuery: Boolean
+                  )
+                }
+            """.trimIndent()
+        val query =
+            """
+                query TestQueryWithVariables(${'$'}criteria: SimpleArgumentInput) {
+                  inputObjectQuery(criteria: ${'$'}criteria)
+                }
+            """.trimIndent()
         verifyGeneratedFileSpecContents(query, expected)
     }
 }

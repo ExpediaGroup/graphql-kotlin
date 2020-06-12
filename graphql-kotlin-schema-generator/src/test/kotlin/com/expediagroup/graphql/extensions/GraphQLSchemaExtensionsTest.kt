@@ -45,16 +45,17 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDirectives = false).trim()
-        val expected = """
-            schema {
-              query: Query
-            }
+        val expected =
+            """
+                schema {
+                  query: Query
+                }
 
-            type Query {
-              basic(msg: String!): String!
-              nullable(msg: String): String
-            }
-        """.trimIndent()
+                type Query {
+                  basic(msg: String!): String!
+                  nullable(msg: String): String
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 
@@ -63,16 +64,17 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDirectives = false, includeScalarTypes = false).trim()
-        val expected = """
-            schema {
-              query: Query
-            }
+        val expected =
+            """
+                schema {
+                  query: Query
+                }
 
-            type Query {
-              basic(msg: String!): String!
-              nullable(msg: String): String
-            }
-        """.trimIndent()
+                type Query {
+                  basic(msg: String!): String!
+                  nullable(msg: String): String
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 
@@ -92,15 +94,16 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(RenamedQuery())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
-        val expected = """
-            type Query {
-              renamedFunction(id: Int!): RenamedType!
-            }
+        val expected =
+            """
+                type Query {
+                  renamedFunction(id: Int!): RenamedType!
+                }
 
-            type RenamedType {
-              renamedProperty: Int!
-            }
-        """.trimIndent()
+                type RenamedType {
+                  renamedProperty: Int!
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 
@@ -118,16 +121,17 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
-        val expected = """
-            type Query {
-              queryById(id: ID!): TypeWithId!
-            }
+        val expected =
+            """
+                type Query {
+                  queryById(id: ID!): TypeWithId!
+                }
 
-            type TypeWithId {
-              id: ID!
-              name: String!
-            }
-        """.trimIndent()
+                type TypeWithId {
+                  id: ID!
+                  name: String!
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 
@@ -152,15 +156,16 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithExcludedFields())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
-        val expected = """
-            type Query {
-              visible(id: Int!): TypeWithExcludedFields!
-            }
+        val expected =
+            """
+                type Query {
+                  visible(id: Int!): TypeWithExcludedFields!
+                }
 
-            type TypeWithExcludedFields {
-              id: Int!
-            }
-        """.trimIndent()
+                type TypeWithExcludedFields {
+                  id: Int!
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 
@@ -172,7 +177,8 @@ class GraphQLSchemaExtensionsTest {
         fun documentedWithEscapeCharacters() = "escaped \\"
 
         @GraphQLDescription("""raw pattern: `^\+[1-9]\d{7,14}$`""")
-        fun documentedWithRawEscapeCharacters() = """escaped raw \"""
+        fun documentedWithRawEscapeCharacters() =
+            """escaped raw \"""
     }
 
     @GraphQLDescription("documented type")
@@ -186,25 +192,26 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(DocumentedQuery())), config = testSchemaConfig)
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
-        val expected = """
-            "documented type"
-            type DocumentedType {
-              "documented property"
-              id: Int!
-            }
+        val expected =
+            """
+                "documented type"
+                type DocumentedType {
+                  "documented property"
+                  id: Int!
+                }
 
-            type Query {
-              "documented query"
-              documented(
-                "documented argument"
-                id: Int!
-              ): DocumentedType!
-              "escaped pattern: `^\\+[1-9]\\d{7,14}${'$'}`"
-              documentedWithEscapeCharacters: String!
-              "raw pattern: `^\\+[1-9]\\d{7,14}${'$'}`"
-              documentedWithRawEscapeCharacters: String!
-            }
-        """.trimIndent()
+                type Query {
+                  "documented query"
+                  documented(
+                    "documented argument"
+                    id: Int!
+                  ): DocumentedType!
+                  "escaped pattern: `^\\+[1-9]\\d{7,14}${'$'}`"
+                  documentedWithEscapeCharacters: String!
+                  "raw pattern: `^\\+[1-9]\\d{7,14}${'$'}`"
+                  documentedWithRawEscapeCharacters: String!
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 
@@ -247,53 +254,54 @@ class GraphQLSchemaExtensionsTest {
         val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithDirectives())), config = getTestSchemaConfigWithMockedDirectives())
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false).trim()
-        val expected = """
-            "Directs the executor to include this field or fragment only when the `if` argument is true"
-            directive @include(
-                "Included when true."
-                if: Boolean!
-              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+        val expected =
+            """
+                "Directs the executor to include this field or fragment only when the `if` argument is true"
+                directive @include(
+                    "Included when true."
+                    if: Boolean!
+                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            "Directs the executor to skip this field or fragment when the `if`'argument is true."
-            directive @skip(
-                "Skipped when true."
-                if: Boolean!
-              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+                "Directs the executor to skip this field or fragment when the `if`'argument is true."
+                directive @skip(
+                    "Skipped when true."
+                    if: Boolean!
+                  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            directive @customDirective on FIELD_DEFINITION
+                directive @customDirective on FIELD_DEFINITION
 
-            "Marks the field or enum value as deprecated"
-            directive @deprecated(
-                "The reason for the deprecation"
-                reason: String = "No longer supported"
-              ) on FIELD_DEFINITION | ENUM_VALUE
+                "Marks the field or enum value as deprecated"
+                directive @deprecated(
+                    "The reason for the deprecation"
+                    reason: String = "No longer supported"
+                  ) on FIELD_DEFINITION | ENUM_VALUE
 
-            "Exposes a URL that specifies the behaviour of this scalar."
-            directive @specifiedBy(
-                "The URL that specifies the behaviour of this scalar."
-                url: String!
-              ) on SCALAR
+                "Exposes a URL that specifies the behaviour of this scalar."
+                directive @specifiedBy(
+                    "The URL that specifies the behaviour of this scalar."
+                    url: String!
+                  ) on SCALAR
 
-            type ClassWithDirective {
-              msg: String! @customDirective
-            }
+                type ClassWithDirective {
+                  msg: String! @customDirective
+                }
 
-            type Query {
-              classWithDirective(msg: String!): ClassWithDirective!
-              deprecatedEcho(msg: String!): String! @deprecated(reason : "unsupported message")
-              deprecatedEchoWithReplacement(msg: String!): String! @deprecated(reason : "unsupported message, replace with echo()")
-              deprecatedWithDirective: String! @customDirective @deprecated(reason : "deprecated with directive")
-              echo(msg: String!): String!
-              simpleEnum: SimpleEnum!
-              withDirective: String! @customDirective
-            }
+                type Query {
+                  classWithDirective(msg: String!): ClassWithDirective!
+                  deprecatedEcho(msg: String!): String! @deprecated(reason : "unsupported message")
+                  deprecatedEchoWithReplacement(msg: String!): String! @deprecated(reason : "unsupported message, replace with echo()")
+                  deprecatedWithDirective: String! @customDirective @deprecated(reason : "deprecated with directive")
+                  echo(msg: String!): String!
+                  simpleEnum: SimpleEnum!
+                  withDirective: String! @customDirective
+                }
 
-            enum SimpleEnum {
-              ONE
-              THREE @deprecated(reason : "deprecated enum value, replace with ONE")
-              TWO @deprecated(reason : "deprecated enum value")
-            }
-        """.trimIndent()
+                enum SimpleEnum {
+                  ONE
+                  THREE @deprecated(reason : "deprecated enum value, replace with ONE")
+                  TWO @deprecated(reason : "deprecated enum value")
+                }
+            """.trimIndent()
         assertEquals(expected, sdl)
     }
 }
