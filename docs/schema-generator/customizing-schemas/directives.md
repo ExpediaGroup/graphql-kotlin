@@ -153,3 +153,29 @@ Directives are applied in the order annotations are declared on the given object
 ```
 
 `Directive1` will be applied first followed by the `Directive2`.
+
+## Ignoring Directive Arguments
+
+Normally if you wanted to exclude a field or argument from the schema, you could use [@GraphQLIgnore](./excluding-fields.md).
+However, due to reflection and kotlin limitations, the generated JVM code for interface arguments can only have annotations on getters.
+
+This is easily fixable though using the [`@get:` target prefix](https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets)
+See [graphql-kotlin#763](https://github.com/ExpediaGroup/graphql-kotlin/pull/763) for more details.
+
+```kotlin
+@GraphQLDirective
+annotation class DirectiveWithIgnoredArgs(
+    val string: String,
+
+    @get:GraphQLIgnore
+    val ignoreMe: String
+)
+```
+
+This will generate the following schema
+
+```graphql
+directive @directiveWithIgnoredArgs(
+  string: String!
+) on ...
+```

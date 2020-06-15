@@ -56,20 +56,14 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
             builder.validLocation(it)
         }
 
-        val directiveClass = directiveInfo.directive.annotationClass
-        directiveClass.getValidProperties(generator.config.hooks).forEach { prop ->
-            val propertyName = prop.name
-            val value = prop.call(directiveInfo.directive)
-            val type = generateGraphQLType(generator, prop.returnType)
+        val directiveClass: KClass<out Annotation> = directiveInfo.directive.annotationClass
+        val directiveArguments: List<KProperty<*>> = directiveClass.getValidProperties(generator.config.hooks)
 
-            val argument = GraphQLArgument.newArgument()
-                .name(propertyName)
-                .value(value)
-                .type(type.safeCast())
-                .build()
-
+        directiveArguments.forEach { prop ->
+            val argument = generateDirectiveArgument(prop, directiveInfo, generator)
             builder.argument(argument)
         }
+
         builder.build()
     }
 
@@ -88,6 +82,18 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
     } else {
         directive
     }
+}
+
+private fun generateDirectiveArgument(prop: KProperty<*>, directiveInfo: DirectiveInfo, generator: SchemaGenerator): GraphQLArgument {
+    val propertyName = prop.name
+    val value = prop.call(directiveInfo.directive)
+    val type = generateGraphQLType(generator, prop.returnType)
+
+    return GraphQLArgument.newArgument()
+        .name(propertyName)
+        .value(value)
+        .type(type.safeCast())
+        .build()
 }
 
 private fun String.normalizeDirectiveName() = this.decapitalize()

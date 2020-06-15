@@ -29,7 +29,7 @@ class KPropertyExtensionsKtTest {
     /**
      * Annotations can be on the property or on the contructor argument
      */
-    internal data class MyDataClass(
+    data class MyDataClass(
         @property:Deprecated("property deprecated")
         @property:GraphQLDescription("property description")
         @property:GraphQLIgnore
@@ -42,6 +42,9 @@ class KPropertyExtensionsKtTest {
         @GraphQLName("nameOnConstructor")
         val constructorAnnotation: String,
 
+        @get:GraphQLIgnore
+        val getterAnnotation: String,
+
         val noAnnotations: String
     )
 
@@ -49,6 +52,7 @@ class KPropertyExtensionsKtTest {
     fun isPropertyGraphQLIgnored() {
         assertTrue(MyDataClass::propertyAnnotation.isPropertyGraphQLIgnored(MyDataClass::class))
         assertTrue(MyDataClass::constructorAnnotation.isPropertyGraphQLIgnored(MyDataClass::class))
+        assertTrue(MyDataClass::getterAnnotation.isPropertyGraphQLIgnored(MyDataClass::class))
         assertFalse(MyDataClass::noAnnotations.isPropertyGraphQLIgnored(MyDataClass::class))
     }
 

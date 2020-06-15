@@ -27,6 +27,7 @@ import kotlin.reflect.KProperty
 internal fun KProperty<*>.isPropertyGraphQLIgnored(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLIgnored() -> true
     getConstructorParameter(parentClass)?.isGraphQLIgnored().isTrue() -> true
+    this.getter.isGraphQLIgnored() -> true
     else -> false
 }
 
