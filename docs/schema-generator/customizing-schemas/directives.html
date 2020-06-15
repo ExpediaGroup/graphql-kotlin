@@ -167,7 +167,25 @@ app</a>.</p>
   }
 </code></pre>
 <p><code>Directive1</code> will be applied first followed by the <code>Directive2</code>.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/renaming-fields"><span class="arrow-prev">← </span><span>Renaming Fields</span></a><a class="docs-next button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/deprecating-schema"><span>Deprecating Schema</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#default-directives">Default Directives</a></li><li><a href="#custom-directives">Custom Directives</a><ul class="toc-headings"><li><a href="#naming-convention">Naming Convention</a></li><li><a href="#customizing-behavior">Customizing Behavior</a></li></ul></li><li><a href="#directive-chaining">Directive Chaining</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<h2><a class="anchor" aria-hidden="true" id="ignoring-directive-arguments"></a><a href="#ignoring-directive-arguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Ignoring Directive Arguments</h2>
+<p>Normally if you wanted to exclude a field or argument from the schema, you could use <a href="/graphql-kotlin/docs/schema-generator/customizing-schemas/excluding-fields">@GraphQLIgnore</a>.
+However, due to reflection and kotlin limitations, the generated JVM code for interface arguments can only have annotations on getters.</p>
+<p>This is easily fixable though using the <a href="https://kotlinlang.org/docs/reference/annotations.html#annotation-use-site-targets"><code>@get:</code> target prefix</a>
+See <a href="https://github.com/ExpediaGroup/graphql-kotlin/pull/763">graphql-kotlin#763</a> for more details.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@GraphQLDirective</span>
+<span class="hljs-keyword">annotation</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DirectiveWithIgnoredArgs</span></span>(
+    <span class="hljs-keyword">val</span> string: String,
+
+    <span class="hljs-meta">@get:GraphQLIgnore</span>
+    <span class="hljs-keyword">val</span> ignoreMe: String
+)
+</code></pre>
+<p>This will generate the following schema</p>
+<pre><code class="hljs css language-graphql">directive @directiveWithIgnoredArgs(
+  <span class="hljs-built_in">string</span>: <span class="hljs-built_in">String</span>!
+) <span class="hljs-keyword">on</span> <span class="hljs-params">...</span>
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/renaming-fields"><span class="arrow-prev">← </span><span>Renaming Fields</span></a><a class="docs-next button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/deprecating-schema"><span>Deprecating Schema</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#default-directives">Default Directives</a></li><li><a href="#custom-directives">Custom Directives</a><ul class="toc-headings"><li><a href="#naming-convention">Naming Convention</a></li><li><a href="#customizing-behavior">Customizing Behavior</a></li></ul></li><li><a href="#directive-chaining">Directive Chaining</a></li><li><a href="#ignoring-directive-arguments">Ignoring Directive Arguments</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
