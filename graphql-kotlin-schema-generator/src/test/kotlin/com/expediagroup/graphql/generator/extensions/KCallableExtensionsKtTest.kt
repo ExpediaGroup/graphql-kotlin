@@ -23,10 +23,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-internal class KCallableExtensionsKtTest {
+class KCallableExtensionsKtTest {
 
     @Suppress("Detekt.FunctionOnlyReturningConstant", "Detekt.UnusedPrivateMember")
-    internal open class MyTestClass {
+    open class MyTestClass {
         fun public() = 1
 
         protected fun protected() = 2
