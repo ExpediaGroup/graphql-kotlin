@@ -18,16 +18,14 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.isTrue
-import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -39,6 +37,7 @@ class GenerateDirectiveTest {
     @GraphQLDirective
     annotation class DirectiveWithIgnoredArgs(
         val string: String,
+        @get:GraphQLIgnore
         val ignoreMe: String
     )
 
@@ -191,16 +190,8 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `exlude directive arguments with hooks`() {
-        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(object : SchemaGeneratorHooks {
-            override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean {
-                if (kClass == DirectiveWithIgnoredArgs::class && property.name == "ignoreMe") {
-                    return false
-                }
-                return super.isValidProperty(kClass, property)
-            }
-        }))
-        val directives = generateDirectives(generator, MyClass::directiveWithIgnoredArgs)
+    fun `exlude directive arguments @GraphQLIgnore`() {
+        val directives = generateDirectives(basicGenerator, MyClass::directiveWithIgnoredArgs)
         assertEquals(expected = 1, actual = directives.size)
         assertEquals(expected = 1, actual = directives.first().arguments.size)
         assertEquals(expected = "string", actual = directives.first().arguments.first().name)

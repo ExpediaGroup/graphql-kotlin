@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.extensions
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.javaGetter
 
 /**
  * KProperty Extensions:
@@ -27,6 +28,7 @@ import kotlin.reflect.KProperty
 internal fun KProperty<*>.isPropertyGraphQLIgnored(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLIgnored() -> true
     getConstructorParameter(parentClass)?.isGraphQLIgnored().isTrue() -> true
+    this.javaGetter?.isGraphQLIgnored().isTrue() -> true
     else -> false
 }
 
