@@ -25,6 +25,7 @@ internal class KGraphQLTypeTest {
 
     @Suppress("Detekt.UnusedPrivateClass")
     private data class MyType(val id: Int = 0)
+
     private val graphQLType: GraphQLNamedType = mockk()
 
     @Test

@@ -25,7 +25,7 @@ class SimpleQueries(private val repository: BasicObjectRepository) : Query {
 
     @GraphQLDescription("Basic `HelloWorld` Query")
     fun helloWorld(@GraphQLDescription("optional name, defaults to `World` if not specified") name: String?) =
-            "Hello ${name ?: "World"}"
+        "Hello ${name ?: "World"}"
 
     @GraphQLDescription("Query that returns enum value")
     fun enumQuery() = CustomEnum.values().random()

@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.examples.extend.widgetResolver
+import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean

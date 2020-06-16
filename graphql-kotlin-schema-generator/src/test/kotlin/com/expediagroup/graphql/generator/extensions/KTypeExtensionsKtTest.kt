@@ -130,6 +130,6 @@ internal class KTypeExtensionsKtTest {
     @Test
     fun qualifiedName() {
         assertEquals("com.expediagroup.graphql.generator.extensions.KTypeExtensionsKtTest.MyClass", MyClass::class.starProjectedType.qualifiedName)
-        assertEquals("", object { }::class.starProjectedType.qualifiedName)
+        assertEquals("", object {}::class.starProjectedType.qualifiedName)
     }
 }

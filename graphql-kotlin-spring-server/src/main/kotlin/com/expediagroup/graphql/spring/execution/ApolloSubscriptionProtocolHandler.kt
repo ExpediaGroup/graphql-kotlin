@@ -77,6 +77,7 @@ class ApolloSubscriptionProtocolHandler(
             }
         }
     }
+
     @Suppress("Detekt.TooGenericExceptionCaught")
     private fun convertToMessageOrNull(payload: String): SubscriptionOperationMessage? {
         return try {
@@ -86,6 +87,7 @@ class ApolloSubscriptionProtocolHandler(
             null
         }
     }
+
     /**
      * If the keep alive configuration is set, send a message back to client at every interval until the session is terminated.
      * Otherwise just return empty flux to append to the acknowledge message.

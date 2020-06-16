@@ -68,7 +68,11 @@ open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfiguration
         return graphQLRoutePattern.matches(parsedPath) || subscriptionsRoutePattern.matches(parsedPath)
     }
 
-    private fun enforceAbsolutePath(path: String) = if (path.startsWith("/")) { path } else { "/$path" }
+    private fun enforceAbsolutePath(path: String) = if (path.startsWith("/")) {
+        path
+    } else {
+        "/$path"
+    }
 
     private fun getPathPatternParser(): PathPatternParser {
         val parser = PathPatternParser()

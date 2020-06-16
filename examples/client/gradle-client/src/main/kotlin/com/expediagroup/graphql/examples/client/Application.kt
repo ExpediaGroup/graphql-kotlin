@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit
 fun main() {
     val jackson = jacksonObjectMapper()
     val client = GraphQLClient(
-            url = URL("http://localhost:8080/graphql"),
-            engineFactory = OkHttp,
-            mapper = jackson
+        url = URL("http://localhost:8080/graphql"),
+        engineFactory = OkHttp,
+        mapper = jackson
     ) {
         engine {
             config {

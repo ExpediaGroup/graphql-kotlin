@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:Suppress("UnstableApiUsage")
+
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME

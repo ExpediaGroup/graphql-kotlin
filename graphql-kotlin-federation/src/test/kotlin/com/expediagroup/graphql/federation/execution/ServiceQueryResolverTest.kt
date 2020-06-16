@@ -38,7 +38,7 @@ import kotlin.test.assertNotNull
 
 // SDL is returned without _entity and _service queries
 const val FEDERATED_SERVICE_SDL =
-"""
+    """
 interface Product @extends @key(fields : "id") {
   id: String! @external
   reviews: [Review!]!
@@ -72,7 +72,7 @@ Line 3.
 scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
-"""
+    """
 type Query {
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!

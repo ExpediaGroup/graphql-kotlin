@@ -42,16 +42,22 @@ open class GraphQLPluginExtension {
 open class GraphQLPluginClientExtension {
     /** GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from [sdlEndpoint]. */
     var endpoint: String? = null
+
     /** GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against [endpoint]. */
     var sdlEndpoint: String? = null
+
     /** Target package name to be used for generated classes. */
     var packageName: String? = null
+
     /** Optional HTTP headers to be specified on an introspection query or SDL request. */
     var headers: MutableMap<String, Any> = mutableMapOf()
+
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
+
     /** Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
     var converters: MutableMap<String, ScalarConverterMapping> = mutableMapOf()
+
     /** List of query files to be processed. */
     var queryFiles: MutableList<File> = mutableListOf()
 }

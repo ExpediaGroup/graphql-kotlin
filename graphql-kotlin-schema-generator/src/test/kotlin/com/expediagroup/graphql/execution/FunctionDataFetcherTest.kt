@@ -50,7 +50,9 @@ internal class FunctionDataFetcherTest {
             string
         }
 
-        fun throwException() { throw GraphQLException("Test Exception") }
+        fun throwException() {
+            throw GraphQLException("Test Exception")
+        }
 
         suspend fun suspendThrow(): String = coroutineScope<String> {
             throw GraphQLException("Suspended Exception")

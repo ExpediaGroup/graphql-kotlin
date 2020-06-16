@@ -243,8 +243,10 @@ class GraphQLSchemaExtensionsTest {
 
     enum class SimpleEnum {
         ONE,
+
         @Deprecated("deprecated enum value")
         TWO,
+
         @Deprecated("deprecated enum value", replaceWith = ReplaceWith("ONE"))
         THREE
     }

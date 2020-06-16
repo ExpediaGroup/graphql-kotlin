@@ -6,8 +6,10 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 enum class CustomEnum {
     @GraphQLDescription("First enum value")
     ONE,
+
     @GraphQLDescription("Second enum value")
     TWO,
+
     @GraphQLDescription("Third enum value")
     @Deprecated(message = "only goes up to two")
     THREE

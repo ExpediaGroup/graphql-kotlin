@@ -36,7 +36,8 @@ interface Product @extends @key(fields : "id") {
 @KeyDirective(fields = FieldSet("id"))
 @ExtendsDirective
 interface Product {
-    @ExternalDirective val id: String
+    @ExternalDirective
+    val id: String
     fun reviews(): List<Review>
 }
 

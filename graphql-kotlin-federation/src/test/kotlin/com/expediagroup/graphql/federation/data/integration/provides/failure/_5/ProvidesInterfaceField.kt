@@ -60,6 +60,7 @@ data class ProvidedWithInterface(
 interface ProvidedInterface {
     @ExternalDirective
     val id: String
+
     @ExternalDirective
     val text: String
 }

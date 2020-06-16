@@ -6,6 +6,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 interface BasicInterface {
     @GraphQLDescription("Unique identifier of an interface")
     val id: Int
+
     @GraphQLDescription("Name field")
     val name: String
 }

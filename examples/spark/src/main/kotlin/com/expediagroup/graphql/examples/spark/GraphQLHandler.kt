@@ -120,7 +120,8 @@ class GraphQLHandler {
         try {
             // if data is null, get data will fail exceptionally
             result["data"] = executionResult.getData<Any>()
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+        }
 
         return result
     }

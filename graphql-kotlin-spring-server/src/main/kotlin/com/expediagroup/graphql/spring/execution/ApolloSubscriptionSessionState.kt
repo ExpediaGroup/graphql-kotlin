@@ -34,6 +34,7 @@ internal class ApolloSubscriptionSessionState {
 
     // OnConnect hooks are saved by web socket session id, then operation id
     internal val onConnectHooks = ConcurrentHashMap<String, Mono<Unit>>()
+
     /**
      * Save the onConnect mono for the session.
      * This will prevent the operation from starting prior to the OnConnect mono being resolved.
@@ -42,10 +43,12 @@ internal class ApolloSubscriptionSessionState {
     fun saveOnConnectHook(session: WebSocketSession, onConnect: Mono<Unit>) {
         onConnectHooks[session.id] = onConnect
     }
+
     /**
      * Return the onConnect mono so that the operation can wait to start until it has been resolved.
      */
     fun onConnect(session: WebSocketSession): Mono<Unit>? = onConnectHooks[session.id]
+
     /**
      * Save the session that is sending keep alive messages.
      * This will override values without cancelling the subscription so it is the responsibility of the consumer to cancel.

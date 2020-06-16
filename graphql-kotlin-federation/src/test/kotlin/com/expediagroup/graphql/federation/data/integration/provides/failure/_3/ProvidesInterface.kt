@@ -48,6 +48,7 @@ class ProvidesInterface(val id: String, val description: String) {
 interface ProvidedInterface {
     @ExternalDirective
     val id: String
+
     @ExternalDirective
     val text: String
 }

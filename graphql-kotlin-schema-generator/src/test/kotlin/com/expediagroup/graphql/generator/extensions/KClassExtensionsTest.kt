@@ -283,7 +283,7 @@ open class KClassExtensionsTest {
     fun `test class simple name`() {
         assertEquals("MyTestClass", MyTestClass::class.getSimpleName())
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
-            object { }::class.getSimpleName()
+            object {}::class.getSimpleName()
         }
     }
 
@@ -316,7 +316,7 @@ open class KClassExtensionsTest {
     @Test
     fun getQualifiedName() {
         assertEquals("com.expediagroup.graphql.generator.extensions.KClassExtensionsTest.MyTestClass", MyTestClass::class.getQualifiedName())
-        assertEquals("", object { }::class.getQualifiedName())
+        assertEquals("", object {}::class.getQualifiedName())
     }
 
     @Test
