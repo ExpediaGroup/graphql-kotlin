@@ -32,9 +32,11 @@ class GenerateGraphQLObjectTypeSpecIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Boolean
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val COMPLEX_OBJECT_TEST_QUERY: String =
                     "query ComplexObjectTestQuery {\n  complexObjectQuery {\n    id\n    name\n    optional\n    details {\n      id\n      flag\n      value\n    }\n  }\n}"
@@ -42,8 +44,10 @@ class GenerateGraphQLObjectTypeSpecIT {
                 class ComplexObjectTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<ComplexObjectTestQuery.Result> =
-                      graphQLClient.execute(COMPLEX_OBJECT_TEST_QUERY, "ComplexObjectTestQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<ComplexObjectTestQuery.Result> =
+                      graphQLClient.execute(COMPLEX_OBJECT_TEST_QUERY, "ComplexObjectTestQuery", null,
+                      requestBuilder)
 
                   /**
                    * Inner type object description
@@ -122,8 +126,10 @@ class GenerateGraphQLObjectTypeSpecIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT: String =
                     "query ComplexObjectQueryWithNamedFragment {\n  complexObjectQuery {\n    ...complexObjectFields\n  }\n}\n\nfragment complexObjectFields on ComplexObject {\n  id\n  name\n  details {\n    ...detailObjectFields\n  }\n}\n\nfragment detailObjectFields on DetailsObject {\n  value\n}"
@@ -131,9 +137,10 @@ class GenerateGraphQLObjectTypeSpecIT {
                 class ComplexObjectQueryWithNamedFragment(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<ComplexObjectQueryWithNamedFragment.Result> =
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<ComplexObjectQueryWithNamedFragment.Result> =
                       graphQLClient.execute(COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT,
-                      "ComplexObjectQueryWithNamedFragment", null)
+                      "ComplexObjectQueryWithNamedFragment", null, requestBuilder)
 
                   /**
                    * Inner type object description
@@ -244,8 +251,10 @@ class GenerateGraphQLObjectTypeSpecIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
                 import kotlin.collections.List
 
                 const val J_UNIT_TEST_QUERY: String =
@@ -254,8 +263,9 @@ class GenerateGraphQLObjectTypeSpecIT {
                 class JUnitTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<JUnitTestQuery.Result> =
-                      graphQLClient.execute(J_UNIT_TEST_QUERY, "JUnitTestQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<JUnitTestQuery.Result> = graphQLClient.execute(J_UNIT_TEST_QUERY,
+                      "JUnitTestQuery", null, requestBuilder)
 
                   /**
                    * Some basic description
@@ -293,48 +303,51 @@ class GenerateGraphQLObjectTypeSpecIT {
     fun `verify we can generate nested objects`() {
         val expected =
             """
-            package com.expediagroup.graphql.plugin.generator.integration
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Int
-            import kotlin.String
-            import kotlin.collections.List
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
+                import kotlin.Int
+                import kotlin.String
+                import kotlin.Unit
+                import kotlin.collections.List
 
-            const val NESTED_QUERY: String =
-                "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      id\n      name\n    }\n  }\n}"
+                const val NESTED_QUERY: String =
+                    "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      id\n      name\n    }\n  }\n}"
 
-            class NestedQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<NestedQuery.Result> = graphQLClient.execute(NESTED_QUERY,
-                  "NestedQuery", null)
+                class NestedQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<NestedQuery.Result> = graphQLClient.execute(NESTED_QUERY, "NestedQuery", null,
+                      requestBuilder)
 
-              /**
-               * Example of an object self-referencing itself
-               */
-              data class NestedObject(
-                /**
-                 * Unique identifier
-                 */
-                val id: Int,
-                /**
-                 * Name of the object
-                 */
-                val name: String,
-                /**
-                 * Children elements
-                 */
-                val children: List<NestedQuery.NestedObject>
-              )
+                  /**
+                   * Example of an object self-referencing itself
+                   */
+                  data class NestedObject(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Name of the object
+                     */
+                    val name: String,
+                    /**
+                     * Children elements
+                     */
+                    val children: List<NestedQuery.NestedObject>
+                  )
 
-              data class Result(
-                /**
-                 * Query returning object referencing itself
-                 */
-                val nestedObjectQuery: NestedQuery.NestedObject
-              )
-            }
+                  data class Result(
+                    /**
+                     * Query returning object referencing itself
+                     */
+                    val nestedObjectQuery: NestedQuery.NestedObject
+                  )
+                }
             """.trimIndent()
         val nestedQuery =
             """
@@ -360,8 +373,10 @@ class GenerateGraphQLObjectTypeSpecIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val DIFFERENT_SELECTIONS_QUERY: String =
                     "query DifferentSelectionsQuery {\n  first: complexObjectQuery {\n    id\n    name\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
@@ -369,8 +384,10 @@ class GenerateGraphQLObjectTypeSpecIT {
                 class DifferentSelectionsQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<DifferentSelectionsQuery.Result> =
-                      graphQLClient.execute(DIFFERENT_SELECTIONS_QUERY, "DifferentSelectionsQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<DifferentSelectionsQuery.Result> =
+                      graphQLClient.execute(DIFFERENT_SELECTIONS_QUERY, "DifferentSelectionsQuery", null,
+                      requestBuilder)
 
                   /**
                    * Multi line description of a complex type.
@@ -462,9 +479,11 @@ class GenerateGraphQLObjectTypeSpecIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Boolean
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val DIFFERENT_SELECTIONS_QUERY: String =
                     "query DifferentSelectionsQuery {\n  first: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n      flag\n    }\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
@@ -472,8 +491,10 @@ class GenerateGraphQLObjectTypeSpecIT {
                 class DifferentSelectionsQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<DifferentSelectionsQuery.Result> =
-                      graphQLClient.execute(DIFFERENT_SELECTIONS_QUERY, "DifferentSelectionsQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<DifferentSelectionsQuery.Result> =
+                      graphQLClient.execute(DIFFERENT_SELECTIONS_QUERY, "DifferentSelectionsQuery", null,
+                      requestBuilder)
 
                   /**
                    * Inner type object description

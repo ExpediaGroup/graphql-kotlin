@@ -19,19 +19,24 @@ package com.expediagroup.graphql.plugin.generator
 import com.expediagroup.graphql.plugin.generator.types.generateGraphQLObjectTypeSpec
 import com.expediagroup.graphql.plugin.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
 import graphql.schema.idl.TypeDefinitionRegistry
+import io.ktor.client.request.HttpRequestBuilder
 import java.io.File
 
 private const val LIBRARY_PACKAGE = "com.expediagroup.graphql.client"
@@ -108,13 +113,18 @@ class GraphQLClientGenerator(
                 "null"
             }
 
+            val httpHeaders: ParameterSpec = ParameterSpec.builder("requestBuilder", LambdaTypeName.get(HttpRequestBuilder::class.asTypeName(), emptyList(), Unit::class.asTypeName()))
+                .defaultValue(CodeBlock.of("{}"))
+                .build()
+            funSpec.addParameter(httpHeaders)
+
             val queryConstName = operationTypeName.toUpperUnderscore()
             val operationName = if (operationDefinition.name != null) {
                 "\"${operationDefinition.name}\""
             } else {
                 "null"
             }
-            funSpec.addStatement("return graphQLClient.execute($queryConstName, $operationName, $variableCode)")
+            funSpec.addStatement("return graphQLClient.execute($queryConstName, $operationName, $variableCode, requestBuilder)")
 
             val gqlCLientClassName = ClassName(LIBRARY_PACKAGE, "GraphQLClient").parameterizedBy(STAR)
             operationTypeSpec.primaryConstructor(

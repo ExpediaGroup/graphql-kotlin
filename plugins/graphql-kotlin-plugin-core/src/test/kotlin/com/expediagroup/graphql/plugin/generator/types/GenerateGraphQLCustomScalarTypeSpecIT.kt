@@ -27,60 +27,63 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
     fun `verify can generate custom scalar with converter mapping`() {
         val expected =
             """
-            package com.expediagroup.graphql.plugin.generator.integration
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.plugin.generator.UUIDConverter
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import com.fasterxml.jackson.annotation.JsonCreator
-            import com.fasterxml.jackson.annotation.JsonValue
-            import kotlin.String
-            import kotlin.jvm.JvmStatic
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.plugin.generator.UUIDConverter
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.fasterxml.jackson.annotation.JsonCreator
+                import com.fasterxml.jackson.annotation.JsonValue
+                import io.ktor.client.request.HttpRequestBuilder
+                import kotlin.String
+                import kotlin.Unit
+                import kotlin.jvm.JvmStatic
 
-            const val CUSTOM_SCALAR_TEST_QUERY: String =
-                "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
+                const val CUSTOM_SCALAR_TEST_QUERY: String =
+                    "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
 
-            class CustomScalarTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<CustomScalarTestQuery.Result> =
-                  graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
+                class CustomScalarTestQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<CustomScalarTestQuery.Result> =
+                      graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null, requestBuilder)
 
-              /**
-               * Custom scalar representing UUID
-               */
-              data class UUID(
-                val value: java.util.UUID
-              ) {
-                @JsonValue
-                fun rawValue() = converter.toJson(value)
+                  /**
+                   * Custom scalar representing UUID
+                   */
+                  data class UUID(
+                    val value: java.util.UUID
+                  ) {
+                    @JsonValue
+                    fun rawValue() = converter.toJson(value)
 
-                companion object {
-                  val converter: UUIDConverter = UUIDConverter()
+                    companion object {
+                      val converter: UUIDConverter = UUIDConverter()
 
-                  @JsonCreator
-                  @JvmStatic
-                  fun create(rawValue: String) = UUID(converter.toScalar(rawValue))
+                      @JsonCreator
+                      @JvmStatic
+                      fun create(rawValue: String) = UUID(converter.toScalar(rawValue))
+                    }
+                  }
+
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * Custom scalar
+                     */
+                    val custom: CustomScalarTestQuery.UUID
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: CustomScalarTestQuery.ScalarWrapper
+                  )
                 }
-              }
-
-              /**
-               * Wrapper that holds all supported scalar types
-               */
-              data class ScalarWrapper(
-                /**
-                 * Custom scalar
-                 */
-                val custom: CustomScalarTestQuery.UUID
-              )
-
-              data class Result(
-                /**
-                 * Query that returns wrapper object with all supported scalar types
-                 */
-                val scalarQuery: CustomScalarTestQuery.ScalarWrapper
-              )
-            }
             """.trimIndent()
 
         val query =

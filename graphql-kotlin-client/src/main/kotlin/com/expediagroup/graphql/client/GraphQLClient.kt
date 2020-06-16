@@ -29,6 +29,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.cio.CIOEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
@@ -70,7 +71,7 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
      * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
      * manually deserialize using passed in result type Class information.
      */
-    suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>): GraphQLResponse<T> {
+    suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<T> {
         // Variables are simple data classes which will be serialized as map.
         // By using map instead of typed object we can eliminate the need to explicitly convert variables to a map
         val graphQLRequest = mapOf(
@@ -80,6 +81,7 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
         )
 
         val rawResult = client.post<String>(url) {
+            apply(requestBuilder)
             accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
             body = graphQLRequest
@@ -92,8 +94,8 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
     /**
      * Executes specified GraphQL query or mutation operation.
      */
-    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null): GraphQLResponse<T> {
-        return execute(query, operationName, variables, T::class.java)
+    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null, noinline requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<T> {
+        return execute(query, operationName, variables, T::class.java, requestBuilder)
     }
 
     private fun <T> parameterizedType(resultType: Class<T>): JavaType {

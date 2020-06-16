@@ -43,7 +43,9 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
+                import kotlin.Unit
 
                 const val SCALAR_ALIAS_TEST_QUERY: String =
                     "query ScalarAliasTestQuery {\n  scalarQuery {\n    id\n    custom\n  }\n}"
@@ -51,8 +53,9 @@ class GenerateGraphQLCustomScalarTypeAliasIT {
                 class ScalarAliasTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<ScalarAliasTestQuery.Result> =
-                      graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY, "ScalarAliasTestQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<ScalarAliasTestQuery.Result> = graphQLClient.execute(SCALAR_ALIAS_TEST_QUERY,
+                      "ScalarAliasTestQuery", null, requestBuilder)
 
                   /**
                    * Wrapper that holds all supported scalar types
