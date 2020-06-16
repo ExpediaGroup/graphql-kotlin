@@ -73,7 +73,7 @@ abstract class GraphQLGradlePluginAbstractIT {
         BufferedReader(it.reader()).readText()
     } ?: throw RuntimeException("unable to load $resourceName")
 
-    fun loadTemplate(templateName: String, configuration: Map<String, Any>): String {
+    fun loadTemplate(templateName: String, configuration: Map<String, Any> = emptyMap()): String {
         val testApplicationMustache = mustacheFactory.compile("templates/$templateName.mustache")
         return testApplicationMustache.execute(StringWriter(), configuration).toString()
     }
