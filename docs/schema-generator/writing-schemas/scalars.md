@@ -93,3 +93,15 @@ object UUIDCoercing : Coercing<UUID, String> {
 ```
 
 Once the scalars are registered you can use them anywhere in the schema as regular objects.
+
+## Common Issues
+
+### Extended Scalars
+
+By default, `graphql-kotlin` only supports the primitive scalar types listed above. If you are looking to use common java types as scalars, you need to include the [graphql-java-extended-scalars](https://github.com/graphql-java/graphql-java-extended-scalars) library and set up the hooks (see above), or write the logic yourself for how to resolve these custom scalars.
+
+The most popular types that require extra configuration are: `LocalDate`, `DateTime`, `Instant`, `ZonedDateTime`, `URL`, `UUID`
+
+### `TypeNotSupportedException`
+
+If you see the following message `Cannot convert ** since it is not a valid GraphQL type or outside the supported packages ***`. This means that you need to update the [generator configuration](../customizing-schemas/generator-config.md) to include the package of your type or you did not properly set up the hooks to register the new type.
