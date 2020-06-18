@@ -36,9 +36,11 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY: String =
                     "query InterfaceWithInlineFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
@@ -46,9 +48,10 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 class InterfaceWithInlineFragmentsTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<InterfaceWithInlineFragmentsTestQuery.Result> =
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<InterfaceWithInlineFragmentsTestQuery.Result> =
                       graphQLClient.execute(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
-                      "InterfaceWithInlineFragmentsTestQuery", null)
+                      "InterfaceWithInlineFragmentsTestQuery", null, requestBuilder)
 
                   /**
                    * Example interface implementation where value is an integer
@@ -151,9 +154,11 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY: String =
                     "query InterfaceWithNamedFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... firstInterfaceImplFields\n    ... secondInterfaceImplFields\n  }\n}\n\nfragment firstInterfaceImplFields on FirstInterfaceImplementation {\n  id\n  name\n  intValue\n}\nfragment secondInterfaceImplFields on SecondInterfaceImplementation {\n  id\n  name\n  floatValue\n}"
@@ -161,9 +166,10 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 class InterfaceWithNamedFragmentsTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<InterfaceWithNamedFragmentsTestQuery.Result> =
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<InterfaceWithNamedFragmentsTestQuery.Result> =
                       graphQLClient.execute(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
-                      "InterfaceWithNamedFragmentsTestQuery", null)
+                      "InterfaceWithNamedFragmentsTestQuery", null, requestBuilder)
 
                   /**
                    * Example interface implementation where value is an integer
@@ -322,9 +328,11 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
@@ -332,8 +340,10 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 class DifferentSelectionSetQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
-                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null,
+                      requestBuilder)
 
                   /**
                    * Example interface implementation where value is an integer
@@ -497,9 +507,11 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.Unit
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      name\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      name\n      floatValue\n    }\n  }\n}"
@@ -507,8 +519,10 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 class DifferentSelectionSetQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
-                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null,
+                      requestBuilder)
 
                   /**
                    * Example interface implementation where value is an integer

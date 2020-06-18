@@ -2,16 +2,35 @@ package com.example
 
 import com.example.generated.JUnitQuery
 import com.expediagroup.graphql.client.GraphQLClient
+import io.ktor.client.features.defaultRequest
+import io.ktor.client.request.header
 import kotlinx.coroutines.runBlocking
 import java.net.URL
 
 fun main() {
-    val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint")))
+    {{^defaultHeader}}
+        val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint")))
+    {{/defaultHeader}}
+    {{#defaultHeader}}
+        val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint"))) {
+            defaultRequest {
+                header("{{name}}", "{{value}}")
+            }
+        }
+    {{/defaultHeader}}
     val query = JUnitQuery(client)
 
     val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
     runBlocking {
-        val response = query.execute(variables = variables)
+        {{^requestHeader}}
+            val response = query.execute(variables = variables)
+        {{/requestHeader}}
+        {{#requestHeader}}
+            val response = query.execute(variables = variables) {
+                header("{{name}}", "{{value}}")
+            }
+        {{/requestHeader}}
+
         val data = response.data
         assert(data != null)
         val scalarResult = data?.scalarQuery

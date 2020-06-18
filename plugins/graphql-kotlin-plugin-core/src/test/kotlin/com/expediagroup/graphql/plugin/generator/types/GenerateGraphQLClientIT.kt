@@ -37,15 +37,18 @@ class GenerateGraphQLClientIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
+                import kotlin.Unit
 
                 const val MI_XE_DCA_SE_QUERY: String = "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
 
                 class MiXEDcaSEQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<MiXEDcaSEQuery.Result> =
-                      graphQLClient.execute(MI_XE_DCA_SE_QUERY, "miXEDcaSEQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<MiXEDcaSEQuery.Result> = graphQLClient.execute(MI_XE_DCA_SE_QUERY,
+                      "miXEDcaSEQuery", null, requestBuilder)
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -85,15 +88,18 @@ class GenerateGraphQLClientIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
+                import kotlin.Unit
 
                 const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
                 class AnonymousTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<AnonymousTestQuery.Result> =
-                      graphQLClient.execute(ANONYMOUS_TEST_QUERY, null, null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<AnonymousTestQuery.Result> = graphQLClient.execute(ANONYMOUS_TEST_QUERY, null,
+                      null, requestBuilder)
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -141,8 +147,10 @@ class GenerateGraphQLClientIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Boolean
                 import kotlin.String
+                import kotlin.Unit
 
                 const val ALIAS_TEST_QUERY: String =
                     "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
@@ -150,8 +158,9 @@ class GenerateGraphQLClientIT {
                 class AliasTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
-                      graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<AliasTestQuery.Result> = graphQLClient.execute(ALIAS_TEST_QUERY,
+                      "AliasTestQuery", null, requestBuilder)
 
                   data class Result(
                     /**
@@ -197,16 +206,19 @@ class GenerateGraphQLClientIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Deprecated
                 import kotlin.String
+                import kotlin.Unit
 
                 const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
 
                 class DeprecatedFieldQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
-                      graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<DeprecatedFieldQuery.Result> = graphQLClient.execute(DEPRECATED_FIELD_QUERY,
+                      "DeprecatedFieldQuery", null, requestBuilder)
 
                   data class Result(
                     /**

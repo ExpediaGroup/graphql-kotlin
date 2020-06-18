@@ -30,16 +30,19 @@ class GenerateGraphQLEnumTypeSpecIT {
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Deprecated
                 import kotlin.String
+                import kotlin.Unit
 
                 const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
 
                 class EnumTestQuery(
                   private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(): GraphQLResponse<EnumTestQuery.Result> =
-                      graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<EnumTestQuery.Result> = graphQLClient.execute(ENUM_TEST_QUERY,
+                      "EnumTestQuery", null, requestBuilder)
 
                   /**
                    * Custom enum description

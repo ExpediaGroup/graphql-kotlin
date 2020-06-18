@@ -71,6 +71,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
     @Test
     fun `apply the plugin extension to generate client`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
+        // custom header to pass to SDL endpoint
         val customHeaderName = "X-Custom-Header"
         val customHeaderValue = "My-Custom-Header-Value"
         WireMock.reset()
@@ -119,6 +120,64 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
+    }
+
+    @Test
+    fun `apply the plugin extension to generate client and execute customized client`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        // default global header
+        val defaultHeaderName = "X-Default-Header"
+        val defaultHeaderValue = "default"
+        // custom header specified per request
+        val customHeaderName = "X-Custom-Header"
+        val customHeaderValue = "My-Custom-Header-Value"
+        WireMock.reset()
+        WireMock.stubFor(stubSdlEndpoint())
+        WireMock.stubFor(
+            stubGraphQLResponse()
+                .withHeader(defaultHeaderName, EqualToPattern(defaultHeaderValue))
+                .withHeader(customHeaderName, EqualToPattern(customHeaderValue))
+        )
+
+        val buildFileContents =
+            """
+            application {
+              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+              mainClassName = "com.example.ApplicationKt"
+            }
+
+            graphql {
+              client {
+                sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
+                packageName = "com.example.generated"
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
+            .writeText(testQuery)
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(
+                loadTemplate(
+                    "Application",
+                    mapOf(
+                        "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
+                        "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue)
+                    )
+                )
+            )
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments("build", "run")
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
     }
 }

@@ -25,29 +25,32 @@ class GenerateGraphQLInputObjectTypeSpecIT {
     fun `verify we can generate valid input object type spec`() {
         val expected =
             """
-            package com.expediagroup.graphql.plugin.generator.integration
+                package com.expediagroup.graphql.plugin.generator.integration
 
-            import com.expediagroup.graphql.client.GraphQLClient
-            import com.expediagroup.graphql.types.GraphQLResponse
-            import kotlin.Boolean
-            import kotlin.String
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
+                import kotlin.Boolean
+                import kotlin.String
+                import kotlin.Unit
 
-            const val INPUT_OBJECT_TEST_QUERY: String =
-                "query InputObjectTestQuery {\n  inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n}"
+                const val INPUT_OBJECT_TEST_QUERY: String =
+                    "query InputObjectTestQuery {\n  inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n}"
 
-            class InputObjectTestQuery(
-              private val graphQLClient: GraphQLClient<*>
-            ) {
-              suspend fun execute(): GraphQLResponse<InputObjectTestQuery.Result> =
-                  graphQLClient.execute(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", null)
+                class InputObjectTestQuery(
+                  private val graphQLClient: GraphQLClient<*>
+                ) {
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<InputObjectTestQuery.Result> = graphQLClient.execute(INPUT_OBJECT_TEST_QUERY,
+                      "InputObjectTestQuery", null, requestBuilder)
 
-              data class Result(
-                /**
-                 * Query that accepts some input arguments
-                 */
-                val inputObjectQuery: Boolean
-              )
-            }
+                  data class Result(
+                    /**
+                     * Query that accepts some input arguments
+                     */
+                    val inputObjectQuery: Boolean
+                  )
+                }
             """.trimIndent()
 
         val query =
