@@ -13,13 +13,13 @@ See [Ktor HTTP Client documentation](https://ktor.io/clients/index.html) for add
 
 ### Global Client Customization
 
-Single instance of `GraphQLClient` can be used to power many GraphQL queries. You can specify target engine factory and
-configure it through corresponding [HttpClientConfig](https://api.ktor.io/1.3.2/io.ktor.client/-http-client-config/index.html).
-Ktor HTTP client provides a number of [standard features](https://ktor.io/clients/http-client/features.html) as well as
+A single instance of `GraphQLClient` can be used to power many GraphQL operations. You can specify a target engine factory and
+configure it through the corresponding [HttpClientConfig](https://api.ktor.io/1.3.2/io.ktor.client/-http-client-config/index.html).
+Ktor also provides a number of [standard HTTP features](https://ktor.io/clients/http-client/features.html) and
 allows you to easily create custom ones that can be configured globally.
 
-Example below configures new `GraphQLClient` to use `OkHttp` engine with custom timeouts, adds default `X-MY-API-KEY`
-header to all requests as well enables basic logging of the requests.
+The below example configures a new `GraphQLClient` to use the `OkHttp` engine with custom timeouts, adds a default `X-MY-API-KEY`
+header to all requests, and enables basic logging of the requests.
 
 ```kotlin
 val client = GraphQLClient(
