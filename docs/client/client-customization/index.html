@@ -58,6 +58,14 @@
 <p><code>GraphQLClient</code> uses the Ktor HTTP Client to execute the underlying queries. Clients can be customized with different
 engines (defaults to Coroutine-based IO) and HTTP client features. Custom configurations can be applied through Ktor DSL
 style builders.</p>
+<p>See <a href="https://ktor.io/clients/index.html">Ktor HTTP Client documentation</a> for additional details.</p>
+<h3><a class="anchor" aria-hidden="true" id="global-client-customization"></a><a href="#global-client-customization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global Client Customization</h3>
+<p>A single instance of <code>GraphQLClient</code> can be used to power many GraphQL operations. You can specify a target engine factory and
+configure it through the corresponding <a href="https://api.ktor.io/1.3.2/io.ktor.client/-http-client-config/index.html">HttpClientConfig</a>.
+Ktor also provides a number of <a href="https://ktor.io/clients/http-client/features.html">standard HTTP features</a> and
+allows you to easily create custom ones that can be configured globally.</p>
+<p>The below example configures a new <code>GraphQLClient</code> to use the <code>OkHttp</code> engine with custom timeouts, adds a default <code>X-MY-API-KEY</code>
+header to all requests, and enables basic logging of the requests.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> client = GraphQLClient(
         url = URL(<span class="hljs-string">"http://localhost:8080/graphql"</span>),
         engineFactory = OkHttp
@@ -69,15 +77,27 @@ style builders.</p>
             writeTimeout(<span class="hljs-number">60</span>, TimeUnit.SECONDS)
         }
     }
+    defaultRequest {
+        header(<span class="hljs-string">"X-MY-API-KEY"</span>, <span class="hljs-string">"someSecretApiKey"</span>)
+    }
     install(Logging) {
         logger = Logger.DEFAULT
-        level = LogLevel.HEADERS
+        level = LogLevel.INFO
     }
 }
 </code></pre>
-<p>See <a href="https://ktor.io/clients/index.html">Ktor HTTP Client documentation</a> for additional details.</p>
+<h3><a class="anchor" aria-hidden="true" id="per-request-customization"></a><a href="#per-request-customization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Per Request Customization</h3>
+<p>Individual GraphQL requests can be customized through <a href="https://api.ktor.io/1.3.2/io.ktor.client.request/-http-request-builder/">HttpRequestBuilder</a>.
+You can use this mechanism to specify custom headers, update target url to include custom query parameters, configure
+attributes that can be accessed from the pipeline features as well specify timeouts per request.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> helloWorldQuery = HelloWorldQuery(client)
+<span class="hljs-keyword">val</span> result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = <span class="hljs-literal">null</span>)) {
+    header(<span class="hljs-string">"X-B3-TraceId"</span>, <span class="hljs-string">"0123456789abcdef"</span>)
+}
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="jackson-customization"></a><a href="#jackson-customization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Jackson Customization</h2>
-<p><code>GraphQLClient</code> relies on Jackson to handle polymorphic types and default enum values. Due to the necessary logic to
+<p><code>GraphQLClient</code> relies on Jackson to handle polymorphic types and default enum values. You can specify your own custom
+object mapper configured with some additional serialization/deserialization features but due to the necessary logic to
 handle the above, currently we don't support other JSON libraries.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> customObjectMapper = jacksonObjectMapper()
 <span class="hljs-keyword">val</span> client = GraphQLClient(url = URL(<span class="hljs-string">"http://localhost:8080/graphql"</span>), mapper = customObjectMapper)
@@ -116,7 +136,7 @@ our custom <code>ScalarConverter</code>.</p>
 <p>See <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin#generating-client-with-custom-scalars">Gradle</a>
 and <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin#generating-client-with-custom-scalars">Maven</a>
 plugin documentation for additional details.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/client/client-features"><span class="arrow-prev">← </span><span>Client Features</span></a><a class="docs-next button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span>Gradle Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#ktor-http-client-customization">Ktor HTTP Client Customization</a></li><li><a href="#jackson-customization">Jackson Customization</a></li><li><a href="#deprecated-field-usage">Deprecated Field Usage</a></li><li><a href="#custom-graphql-scalars">Custom GraphQL Scalars</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/client/client-features"><span class="arrow-prev">← </span><span>Client Features</span></a><a class="docs-next button" href="/graphql-kotlin/docs/plugins/gradle-plugin"><span>Gradle Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#ktor-http-client-customization">Ktor HTTP Client Customization</a><ul class="toc-headings"><li><a href="#global-client-customization">Global Client Customization</a></li><li><a href="#per-request-customization">Per Request Customization</a></li></ul></li><li><a href="#jackson-customization">Jackson Customization</a></li><li><a href="#deprecated-field-usage">Deprecated Field Usage</a></li><li><a href="#custom-graphql-scalars">Custom GraphQL Scalars</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
