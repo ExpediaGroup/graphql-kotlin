@@ -3,6 +3,27 @@ id: schema-generator-getting-started
 title: Getting Started with the Schema Generator
 ---
 
+## Install
+Using a JVM dependency manager, simply link `graphql-kotlin-schema-generator` to your project.
+
+With Maven:
+
+```xml
+<dependency>
+  <groupId>com.expediagroup</groupId>
+  <artifactId>graphql-kotlin-schema-generator</artifactId>
+  <version>${latestVersion}</version>
+</dependency>
+```
+
+With Gradle:
+
+```groovy
+compile(group: 'com.expediagroup', name: 'graphql-kotlin-schema-generator', version: "$latestVersion")
+```
+
+## Usage
+
 `graphql-kotlin-schema-generator` provides a single function, `toSchema`, to generate a schema from Kotlin objects.
 
 ```kotlin

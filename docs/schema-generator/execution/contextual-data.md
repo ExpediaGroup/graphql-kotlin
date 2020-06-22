@@ -52,5 +52,8 @@ type Query {
 
 Note that the argument that implements `GraphQLContext` is not reflected in the GraphQL schema.
 
+## Spring Server
+For more details on how to create the context while using `graphql-kotlin-spring-server` see the [spring graphql context page](../../spring-server/spring-graphql-context.md).
+
 ### Customization
 The context is injected into the execution through the `FunctionDataFetcher` class. If you want to customize the logic on how the context is determined, that is possible to override. See more details on the [Fetching Data documentation](./fetching-data)
