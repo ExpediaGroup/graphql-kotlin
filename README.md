@@ -11,13 +11,13 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 
 ## 📦 Modules
 
+* [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
 * [graphql-kotlin-client](/graphql-kotlin-client) - Lightweight GraphQL Kotlin HTTP client
-* [plugins](/plugins) - Gradle and Maven client plugins
-* [graphql-kotlin-spring-server](/graphql-kotlin-spring-server) - Spring Boot auto-configuration library to create a GraphQL server
 * [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build Apollo Federation GraphQL schemas
 * [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
+* [graphql-kotlin-spring-server](/graphql-kotlin-spring-server) - Spring Boot auto-configuration library to create a GraphQL server
 * [graphql-kotlin-types](/graphql-kotlin-types) - Core types used by both client and server
-* [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
+* [plugins](/plugins) - Gradle and Maven client plugins
 
 ## ⌨️ Usage
 

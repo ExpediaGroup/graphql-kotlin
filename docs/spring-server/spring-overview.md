@@ -33,8 +33,8 @@ With Maven:
 
 With Gradle:
 
-```groovy
-compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version: "$latestVersion")
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
 ```
 
 ## Configuration

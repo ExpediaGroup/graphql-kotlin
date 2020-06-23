@@ -24,8 +24,8 @@ With Maven:
 
 With Gradle:
 
-```groovy
-compile(group: 'com.expediagroup', name: 'graphql-kotlin-schema-generator', version: "$latestVersion")
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-schema-generator", latestVersion)
 ```
 
 ## Usage
@@ -40,7 +40,7 @@ class WidgetService {
   fun widgetById(id: Int): Widget? {
     // grabs widget from a data source, might return null
   }
-  
+
   @Deprecated("Use widgetById")
   fun widgetByValue(value: String): Widget? {
     // grabs widget from a deprecated data source, might return null
@@ -72,7 +72,7 @@ schema {
 
 type Query {
   widgetById(id: Int!): Widget
-  
+
   widgetByValue(vale: String!): Widget @deprecated(reason: "Use widgetById")
 }
 

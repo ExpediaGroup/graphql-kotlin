@@ -18,8 +18,8 @@ With Maven:
 
 With Gradle:
 
-```groovy
-compile(group: 'com.expediagroup', name: 'graphql-kotlin-schema-generator', version: "$latestVersion")
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-schema-generator", latestVersion)
 ```
 
 ## Usage
