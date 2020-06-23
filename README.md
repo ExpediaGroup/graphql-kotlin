@@ -17,7 +17,7 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 * [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
 * [graphql-kotlin-spring-server](/graphql-kotlin-spring-server) - Spring Boot auto-configuration library to create a GraphQL server
 * [graphql-kotlin-types](/graphql-kotlin-types) - Core types used by both client and server
-* [plugins](/plugins) - Gradle and Maven client plugins
+* [plugins](/plugins) - Gradle and Maven plugins
 
 ## ⌨️ Usage
 
