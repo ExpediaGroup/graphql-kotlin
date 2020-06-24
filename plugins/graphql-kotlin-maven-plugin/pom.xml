@@ -124,6 +124,7 @@
                         <ktor.version>${ktor.version}</ktor.version>
                     </filterProperties>
                     <localRepositoryPath>${project.build.outputDirectory}/local-repo</localRepositoryPath>
+                    <parallelThreads>4</parallelThreads>
                     <pomIncludes>
                         <pomInclude>*/pom.xml</pomInclude>
                     </pomIncludes>

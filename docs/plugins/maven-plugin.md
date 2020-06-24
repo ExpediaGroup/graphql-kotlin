@@ -29,6 +29,19 @@ goal provides limited functionality by itself and instead should be used to gene
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request.
+| `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default values are:** connect timeout = 5000, read timeout = 15000.<br/> |
+
+**Parameter Details**
+
+  * *timeoutConfiguration* - Timeout configuration that allows you to specify connect and read timeout values in milliseconds.
+
+    ```xml
+    <timeoutConfiguration>
+        <!-- timeout values in milliseconds -->
+        <connect>1000</connect>
+        <read>30000</read>
+    </timeoutConfiguration>
+    ```
 
 ### generate-client
 
@@ -124,6 +137,19 @@ should be used to generate input for the subsequent `generate-client` goal.
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
+| `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default values are:** connect timeout = 5000, read timeout = 15000.<br/> |
+
+**Parameter Details**
+
+  * *timeoutConfiguration* - Timeout configuration that allows you to specify connect and read timeout values in milliseconds.
+
+    ```xml
+    <timeoutConfiguration>
+        <!-- timeout values in milliseconds -->
+        <connect>1000</connect>
+        <read>30000</read>
+    </timeoutConfiguration>
+    ```
 
 ## Examples
 
@@ -374,9 +400,6 @@ the GraphQL client code based on the provided query.
                 <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                 <!-- optional configuration below -->
                 <allowDeprecatedFields>true</allowDeprecatedFields>
-                <headers>
-                    <X-Custom-Header>My-Custom-Header</X-Custom-Header>
-                </headers>
                 <converters>
                     <!-- custom scalar UUID type -->
                     <UUID>
@@ -387,6 +410,14 @@ the GraphQL client code based on the provided query.
                         <converter>com.example.UUIDScalarConverter</converter>
                     </UUID>
                 </converters>
+                <headers>
+                    <X-Custom-Header>My-Custom-Header</X-Custom-Header>
+                </headers>
+                <timeoutConfiguration>
+                    <!-- timeout values in milliseconds -->
+                    <connect>1000</connect>
+                    <read>30000</read>
+                </timeoutConfiguration>
                 <queryFiles>
                     <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
                 </queryFiles>

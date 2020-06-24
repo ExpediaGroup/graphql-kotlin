@@ -16,11 +16,14 @@
 
 package com.expediagroup.graphql.plugin
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import graphql.introspection.IntrospectionQuery
 import graphql.introspection.IntrospectionResultToSchema
 import graphql.schema.idl.SchemaPrinter
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.cio.endpoint
+import io.ktor.client.features.ClientRequestException
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
@@ -29,12 +32,19 @@ import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.TimeoutCancellationException
 
 /**
  * Runs introspection query against specified GraphQL endpoint and returns underlying schema.
  */
 @KtorExperimentalAPI
-suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = emptyMap()): String = HttpClient(engineFactory = CIO) {
+suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = emptyMap(), timeoutConfig: TimeoutConfig = TimeoutConfig()): String = HttpClient(engineFactory = CIO) {
+    engine {
+        requestTimeout = timeoutConfig.read
+        endpoint {
+            connectTimeout = timeoutConfig.connect
+        }
+    }
     install(feature = JsonFeature)
 }.use { client ->
     val introspectionResult = try {
@@ -50,8 +60,11 @@ suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = e
                 "operationName" to "IntrospectionQuery"
             )
         }
-    } catch (e: Error) {
-        throw RuntimeException("Unable to run introspection query against the specified endpoint=$endpoint")
+    } catch (e: Throwable) {
+        when (e) {
+            is ClientRequestException, is TimeoutCancellationException -> throw e
+            else -> throw RuntimeException("Unable to run introspection query against the specified endpoint=$endpoint", e)
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

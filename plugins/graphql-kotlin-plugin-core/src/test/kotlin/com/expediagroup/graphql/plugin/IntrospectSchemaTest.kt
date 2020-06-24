@@ -16,10 +16,13 @@
 
 package com.expediagroup.graphql.plugin
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import io.ktor.client.features.ClientRequestException
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -106,12 +109,30 @@ class IntrospectSchemaTest {
     @KtorExperimentalAPI
     fun `verify introspectSchema will throw exception if unable to run query`() {
         WireMock.stubFor(
-            WireMock.post("graphql")
+            WireMock.post("/graphql")
                 .willReturn(WireMock.aResponse().withStatus(404))
         )
-        assertThrows<RuntimeException> {
+        assertThrows<ClientRequestException> {
             runBlocking {
                 introspectSchema("${wireMockServer.baseUrl()}/graphql")
+            }
+        }
+    }
+
+    @Test
+    @KtorExperimentalAPI
+    fun `verify introspectSchema will respect timeout setting`() {
+        WireMock.stubFor(
+            WireMock.post("/graphql")
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withFixedDelay(1_000)
+                )
+        )
+        assertThrows<TimeoutCancellationException> {
+            runBlocking {
+                introspectSchema(endpoint = "${wireMockServer.baseUrl()}/graphql", timeoutConfig = TimeoutConfig(connect = 100, read = 100))
             }
         }
     }

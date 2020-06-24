@@ -16,20 +16,26 @@
 
 package com.expediagroup.graphql.plugin
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import graphql.schema.idl.errors.SchemaProblem
+import io.ktor.client.features.ClientRequestException
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.nio.channels.UnresolvedAddressException
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DownloadSchemaTest {
 
@@ -92,40 +98,59 @@ class DownloadSchemaTest {
     @Test
     @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if URL is not valid`() {
-        assertThrows<RuntimeException> {
+        val exception = assertThrows<RuntimeException> {
             runBlocking {
-                downloadSchema("http://non-existent-graphql-url.com")
+                downloadSchema("https://non-existent-graphql-url.com/should_404")
             }
         }
+        assertTrue(exception.cause is UnresolvedAddressException)
     }
 
     @Test
     @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if downloaded SDL is not valid schema`() {
         stubFor(
-            get("whatever").willReturn(
+            get("/whatever").willReturn(
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "text/plain")
                     .withBody("some random body")
             )
         )
-        assertThrows<RuntimeException> {
+        val exception = assertThrows<RuntimeException> {
             runBlocking {
                 downloadSchema(endpoint = "${wireMockServer.baseUrl()}/whatever")
             }
         }
+        assertTrue(exception is SchemaProblem)
     }
 
     @Test
     @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if unable to download schema`() {
         stubFor(
-            get("sdl").willReturn(aResponse().withStatus(404))
+            get("/sdl").willReturn(aResponse().withStatus(404))
         )
-        assertThrows<RuntimeException> {
+        assertThrows<ClientRequestException> {
             runBlocking {
                 downloadSchema("${wireMockServer.baseUrl()}/sdl")
+            }
+        }
+    }
+
+    @Test
+    @KtorExperimentalAPI
+    fun `verify downloadSchema will respect timeout setting`() {
+        stubFor(
+            get("/sdl").willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withFixedDelay(1_000)
+            )
+        )
+        assertThrows<TimeoutCancellationException> {
+            runBlocking {
+                downloadSchema(endpoint = "${wireMockServer.baseUrl()}/sdl", timeoutConfig = TimeoutConfig(connect = 100, read = 100))
             }
         }
     }
