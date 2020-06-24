@@ -7,7 +7,11 @@ title: Spring Server Overview
 is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive GraphQL
 web server.
 
-This library is built on a [Spring WebFlux (reactive)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) stack which is a non-blocking alternative to a traditional [Spring Web MVC (servlet)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) based stack. Since both frameworks utilize different threading models they cannot and should not be intermixed. When building a GraphQL server using `graphql-kotlin-spring-server` all your queries and mutations should follow one of the supported [asynchronous execution models](https://expediagroup.github.io/graphql-kotlin/docs/execution/async-models).
+## WebFlux vs WebMVC
+
+This library is built on a [Spring WebFlux (reactive)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) stack which is a non-blocking alternative to a traditional [Spring Web MVC (servlet)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) based stack.
+Since both frameworks utilize different threading models they cannot and should not be intermixed.
+When building a GraphQL server using `graphql-kotlin-spring-server` all your queries and mutations should follow one of the supported [asynchronous execution models](https://expediagroup.github.io/graphql-kotlin/docs/execution/async-models).
 
 ## Setup
 
@@ -29,8 +33,8 @@ With Maven:
 
 With Gradle:
 
-```groovy
-compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version: "$latestVersion")
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
 ```
 
 ## Configuration
@@ -104,4 +108,4 @@ Your newly created GraphQL server starts up with following preconfigured default
 * **/graphql** - GraphQL server endpoint used for processing queries and mutations
 * **/subscriptions** - GraphQL server endpoint used for processing subscriptions
 * **/sdl** - Convenience endpoint that returns current schema in Schema Definition Language format
-* **/playground** - Prisma Labs GraphQL Playground IDE endpoint
+* **/playground** - Prisma Labs [GraphQL Playground IDE](https://github.com/prisma-labs/graphql-playground) endpoint

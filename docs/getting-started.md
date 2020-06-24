@@ -48,8 +48,8 @@ Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-sp
 
 ### Gradle
 
-```groovy
-compile(group: 'com.expediagroup', name: 'graphql-kotlin-spring-server', version: "$latestVersion")
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
 ```
 
 ## Generating a Schema
