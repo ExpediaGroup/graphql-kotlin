@@ -82,7 +82,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
     fun `apply the gradle plugin and execute downloadSDL with timeout`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         WireMock.reset()
-        WireMock.stubFor(stubSdlEndpoint(delay = 1_000))
+        WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
 
         val buildFileContents =
             """

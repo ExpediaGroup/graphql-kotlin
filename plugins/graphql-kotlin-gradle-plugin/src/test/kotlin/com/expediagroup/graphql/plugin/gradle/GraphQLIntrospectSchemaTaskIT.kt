@@ -81,7 +81,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
     fun `apply the gradle plugin and execute introspectSchema with timeout`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         WireMock.reset()
-        WireMock.stubFor(stubIntrospectionResult(delay = 1_000))
+        WireMock.stubFor(stubIntrospectionResult(delay = 10_000))
 
         val buildFileContents =
             """
