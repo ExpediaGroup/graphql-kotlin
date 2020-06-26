@@ -39,6 +39,11 @@ If you have a question about something you can not find in our documentation, th
 
 If you would like to contribute to our documentation see the [website](/website) directory for more information.
 
+## 🗞 Blog Posts
+
+* [Introducing GraphQL Kotlin Client](https://medium.com/expedia-group-tech/introducing-graphql-kotlin-client-b32dc3061a6f)
+* [🎉 Announcing graphql-kotlin 2.0!](https://medium.com/expedia-group-tech/graphql-kotlin-2-0-4006ea41f774)
+
 ## 👥 Contact
 
 This project is part of Expedia Group Open Source but also maintained by a dedicated team
