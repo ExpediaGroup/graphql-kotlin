@@ -129,6 +129,7 @@
                     </pomIncludes>
                     <projectsDirectory>src/integration</projectsDirectory>
                     <settingsFile>src/integration/settings.xml</settingsFile>
+                    <streamLogs>true</streamLogs>
                 </configuration>
                 <executions>
                     <execution>
