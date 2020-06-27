@@ -6,7 +6,7 @@
 
     <!-- this pom is only used to test maven plugin and won't be published -->
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-generate-client-mojo-test</artifactId>
+    <artifactId>graphql-kotlin-generate-test-client-mojo-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 

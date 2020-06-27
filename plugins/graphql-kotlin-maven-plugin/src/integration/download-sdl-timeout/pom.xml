@@ -6,7 +6,7 @@
 
     <!-- this pom is only used to test maven plugin and won't be published -->
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-download-sdl-mojo-test</artifactId>
+    <artifactId>graphql-kotlin-download-sdl-mojo-timeout-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "url": "/graphql",
+    "url": "/graphqlTimeout",
     "bodyPatterns": [{
       "contains": "IntrospectionQuery"
     }],

@@ -6,7 +6,7 @@
 
     <!-- this pom is only used to test maven plugin and won't be published -->
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-introspect-schema-mojo-test</artifactId>
+    <artifactId>graphql-kotlin-introspect-schema-mojo-timeout-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -81,7 +81,7 @@
                             <goal>introspect-schema</goal>
                         </goals>
                         <configuration>
-                            <endpoint>@graphql.endpoint@/graphql</endpoint>
+                            <endpoint>@graphql.endpoint@/graphqlTimeout</endpoint>
                             <timeoutConfiguration>
                                 <connect>100</connect>
                                 <read>100</read>
