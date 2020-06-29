@@ -38,6 +38,12 @@ graphql {
     converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
     // List of query files to be processed.
     queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    timeout {
+        // Connect timeout in milliseconds
+        connect = 5_000
+        // Read timeout in milliseconds
+        read = 15_000
+    }
   }
 }
 ```
@@ -61,6 +67,7 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**Command line property is**: `endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request. |
+| `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:** connect timeout = 5_000, read timeout = 15_000.<br/>|
 
 ### graphqlGenerateClient
 
@@ -114,6 +121,7 @@ should be used to generate input for the subsequent `graphqlGenerateClient` task
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
+| `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default value are:** connect timeout = 5_000, read timeout = 15_000.<br/>|
 
 ## Documentation
 

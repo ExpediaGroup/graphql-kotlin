@@ -67,12 +67,14 @@ class GraphQLGradlePlugin : Plugin<Project> {
                         val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
                         introspectSchemaTask.endpoint.convention(project.provider { extension.clientExtension.endpoint })
                         introspectSchemaTask.headers.convention(project.provider { extension.clientExtension.headers })
+                        introspectSchemaTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
                         generateClientTask.dependsOn(introspectSchemaTask.path)
                         generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile)
                     } else if (extension.clientExtension.sdlEndpoint != null) {
                         val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
                         downloadSDLTask.endpoint.convention(project.provider { extension.clientExtension.sdlEndpoint })
                         downloadSDLTask.headers.convention(project.provider { extension.clientExtension.headers })
+                        downloadSDLTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
                         generateClientTask.dependsOn(downloadSDLTask.path)
                         generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
                     } else {

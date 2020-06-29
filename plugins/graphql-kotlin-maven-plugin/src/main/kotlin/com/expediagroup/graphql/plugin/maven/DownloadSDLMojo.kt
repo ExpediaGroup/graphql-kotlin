@@ -16,46 +16,18 @@
 
 package com.expediagroup.graphql.plugin.maven
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.expediagroup.graphql.plugin.downloadSchema
-import kotlinx.coroutines.runBlocking
-import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
-import org.apache.maven.plugins.annotations.Parameter
-import java.io.File
 
 /**
  * Download GraphQL schema from a specified SDL endpoint.
  */
 @Mojo(name = "download-sdl", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-class DownloadSDLMojo : AbstractMojo() {
-
-    /**
-     * Target GraphQL server SDL endpoint.
-     */
-    @Parameter(defaultValue = "\${graphql.endpoint}", name = "endpoint", required = true)
-    private lateinit var endpoint: String
-
-    /**
-     * Optional HTTP headers to be specified on a SDL request.
-     */
-    @Parameter(name = "headers")
-    private var headers: Map<String, Any> = mutableMapOf()
-
-    @Parameter(defaultValue = "\${project.build.directory}", readonly = true)
-    private lateinit var outputDirectory: File
+class DownloadSDLMojo : RetrieveSchemaAbstractMojo() {
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    override fun execute() {
-        log.debug("executing downloadSDL MOJO against $endpoint")
-        if (!outputDirectory.isDirectory) {
-            outputDirectory.mkdirs()
-        }
-        val schemaFile = File("${outputDirectory.absolutePath}/schema.graphql")
-        runBlocking {
-            val schema = downloadSchema(endpoint = endpoint, httpHeaders = headers)
-            schemaFile.writeText(schema)
-        }
-        log.debug("successfully downloaded SDL")
-    }
+    override suspend fun retrieveGraphQLSchema(endpoint: String, httpHeaders: Map<String, Any>, timeoutConfig: TimeoutConfig): String =
+        downloadSchema(endpoint = endpoint, httpHeaders = httpHeaders, timeoutConfig = timeoutConfig)
 }

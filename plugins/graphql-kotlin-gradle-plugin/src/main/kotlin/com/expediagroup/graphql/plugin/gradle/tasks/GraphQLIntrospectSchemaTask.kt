@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle.tasks
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.expediagroup.graphql.plugin.introspectSchema
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -49,6 +50,13 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
     @Input
     val headers: MapProperty<String, Any> = project.objects.mapProperty(String::class.java, Any::class.java)
 
+    /**
+     * Timeout configuration that specifies maximum amount of time (in milliseconds) to connect and execute introspection query before we cancel the request.
+     * Defaults to Ktor CIO engine defaults (5 seconds for connect timeout and 15 seconds for read timeout).
+     */
+    @Input
+    val timeoutConfig: Property<TimeoutConfig> = project.objects.property(TimeoutConfig::class.java)
+
     @OutputFile
     val outputFile: Provider<RegularFile> = project.layout.buildDirectory.file("schema.graphql")
 
@@ -57,6 +65,7 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
         description = "Run introspection query against target GraphQL endpoint and save schema locally."
 
         headers.convention(emptyMap())
+        timeoutConfig.convention(TimeoutConfig())
     }
 
     /**
@@ -67,7 +76,7 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
     fun introspectSchemaAction() {
         logger.debug("starting introspection task against ${endpoint.get()}")
         runBlocking {
-            val schema = introspectSchema(endpoint = endpoint.get(), httpHeaders = headers.get())
+            val schema = introspectSchema(endpoint = endpoint.get(), httpHeaders = headers.get(), timeoutConfig = timeoutConfig.get())
             outputFile.get().asFile.writeText(schema)
         }
         logger.debug("successfully created GraphQL schema from introspection result")

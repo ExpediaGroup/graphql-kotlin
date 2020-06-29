@@ -16,47 +16,18 @@
 
 package com.expediagroup.graphql.plugin.maven
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.expediagroup.graphql.plugin.introspectSchema
-import kotlinx.coroutines.runBlocking
-import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
-import org.apache.maven.plugins.annotations.Parameter
-import java.io.File
 
 /**
  * Run introspection query against specified endpoint and save resulting GraphQL schema locally.
  */
 @Mojo(name = "introspect-schema", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-class IntrospectSchemaMojo : AbstractMojo() {
-
-    /**
-     * Target GraphQL server endpoint.
-     */
-    @Parameter(defaultValue = "\${graphql.endpoint}", name = "endpoint", required = true)
-    private lateinit var endpoint: String
-
-    /**
-     * Optional HTTP headers to be specified on an introspection query.
-     */
-    @Parameter(name = "headers")
-    private var headers: Map<String, Any> = mutableMapOf()
-
-    @Parameter(defaultValue = "\${project.build.directory}", readonly = true)
-    private lateinit var outputDirectory: File
+class IntrospectSchemaMojo : RetrieveSchemaAbstractMojo() {
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    override fun execute() {
-        log.debug("executing introspectSchema MOJO against $endpoint")
-        if (!outputDirectory.isDirectory) {
-            outputDirectory.mkdirs()
-        }
-
-        val schemaFile = File("${outputDirectory.absolutePath}/schema.graphql")
-        runBlocking {
-            val schema = introspectSchema(endpoint = endpoint, httpHeaders = headers)
-            schemaFile.writeText(schema)
-        }
-        log.debug("successfully generated schema from introspection results")
-    }
+    override suspend fun retrieveGraphQLSchema(endpoint: String, httpHeaders: Map<String, Any>, timeoutConfig: TimeoutConfig): String =
+        introspectSchema(endpoint = endpoint, httpHeaders = httpHeaders, timeoutConfig = timeoutConfig)
 }

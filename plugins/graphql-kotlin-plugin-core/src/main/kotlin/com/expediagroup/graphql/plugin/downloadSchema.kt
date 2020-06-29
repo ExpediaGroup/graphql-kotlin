@@ -16,18 +16,29 @@
 
 package com.expediagroup.graphql.plugin
 
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import graphql.schema.idl.SchemaParser
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.cio.endpoint
+import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.TimeoutCancellationException
 
 /**
  * Downloads GraphQL SDL from the specified endpoint and verifies whether the result is a valid GraphQL schema.
  */
 @KtorExperimentalAPI
-suspend fun downloadSchema(endpoint: String, httpHeaders: Map<String, Any> = emptyMap()): String = HttpClient(CIO).use { client ->
+suspend fun downloadSchema(endpoint: String, httpHeaders: Map<String, Any> = emptyMap(), timeoutConfig: TimeoutConfig = TimeoutConfig()): String = HttpClient(engineFactory = CIO) {
+    engine {
+        requestTimeout = timeoutConfig.read
+        endpoint {
+            connectTimeout = timeoutConfig.connect
+        }
+    }
+}.use { client ->
     val sdl = try {
         client.get<String>(urlString = endpoint) {
             httpHeaders.forEach { (name, value) ->
@@ -35,7 +46,10 @@ suspend fun downloadSchema(endpoint: String, httpHeaders: Map<String, Any> = emp
             }
         }
     } catch (e: Throwable) {
-        throw RuntimeException("Unable to download SDL from specified endpoint=$endpoint", e)
+        when (e) {
+            is ClientRequestException, is TimeoutCancellationException -> throw e
+            else -> throw RuntimeException("Unable to download SDL from specified endpoint=$endpoint", e)
+        }
     }
     SchemaParser().parse(sdl)
     sdl

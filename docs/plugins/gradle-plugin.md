@@ -46,6 +46,13 @@ graphql {
     converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
     // List of query files to be processed.
     queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    // Timeout configuration
+    timeout {
+        // Connect timeout in milliseconds
+        connect = 5_000
+        // Read timeout in milliseconds
+        read = 15_000
+    }
   }
 }
 ```
@@ -68,6 +75,7 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**Command line property is**: `endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request. |
+| `timeoutConfig` | TimeoutConfig | | Timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:** connect timeout = 5_000, read timeout = 15_000.<br/>|
 
 ### graphqlGenerateClient
 
@@ -121,6 +129,7 @@ should be used to generate input for the subsequent `graphqlGenerateClient` task
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
+| `timeoutConfig` | TimeoutConfig | | Timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:** connect timeout = 5_000, read timeout = 15_000.<br/>|
 
 ## Examples
 
@@ -307,6 +316,8 @@ the GraphQL client code based on the provided query.
 
 ```kotlin
 // build.gradle.kts
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
@@ -318,6 +329,10 @@ graphql {
     headers["X-Custom-Header"] = "My-Custom-Header"
     converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
     queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    timeout {
+        connect = 10_000
+        read = 30_000
+    }
   }
 }
 ```
@@ -326,12 +341,15 @@ Above configuration is equivalent to the following
 
 ```kotlin
 // build.gradle.kts
+import com.expediagroup.graphql.plugin.config.TimeoutConfig
+import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
 val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
     endpoint.set("http://localhost:8080/sdl")
     headers.put("X-Custom-Header", "My-Custom-Header")
+    timeoutConfig.set(TimeoutConfig(connect = 10_000, read = 30_000))
 }
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     packageName.set("com.example.generated")

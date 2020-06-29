@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/sdlTimeout"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "testSchema.graphql",
+    "headers": {
+      "Content-Type": "text/plain"
+    },
+    "fixedDelayMilliseconds": 10000
+  }
+}

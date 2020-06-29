@@ -76,4 +76,29 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
         assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
     }
+
+    @Test
+    fun `apply the gradle plugin and execute introspectSchema with timeout`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        WireMock.reset()
+        WireMock.stubFor(stubIntrospectionResult(delay = 10_000))
+
+        val buildFileContents =
+            """
+            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+              endpoint.set("${wireMockServer.baseUrl()}/graphql")
+              timeoutConfig.set(TimeoutConfig(connect = 100, read = 100))
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
+            .buildAndFail()
+
+        assertEquals(TaskOutcome.FAILED, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
+        assertTrue(result.output.contains("Timed out waiting for 100 ms", ignoreCase = true))
+    }
 }

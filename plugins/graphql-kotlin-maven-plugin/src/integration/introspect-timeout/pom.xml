@@ -6,16 +6,11 @@
 
     <!-- this pom is only used to test maven plugin and won't be published -->
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-generate-test-client-mojo-test</artifactId>
+    <artifactId>graphql-kotlin-introspect-schema-mojo-timeout-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-client</artifactId>
-            <version>@graphql-kotlin.version@</version>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
@@ -57,9 +52,6 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>@kotlin.version@</version>
-                <configuration>
-                    <jvmTarget>@kotlin.jvmTarget@</jvmTarget>
-                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -80,14 +72,23 @@
                 <groupId>com.expediagroup</groupId>
                 <artifactId>graphql-kotlin-maven-plugin</artifactId>
                 <version>@graphql-kotlin.version@</version>
+                <configuration>
+                    <jvmTarget>@kotlin.jvmTarget@</jvmTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>generate-test-client</goal>
+                            <goal>introspect-schema</goal>
                         </goals>
                         <configuration>
-                            <packageName>com.expediagroup.graphql.plugin.generated</packageName>
-                            <schemaFile>schema.graphql</schemaFile>
+                            <endpoint>@graphql.endpoint@/graphqlTimeout</endpoint>
+                            <timeoutConfiguration>
+                                <connect>100</connect>
+                                <read>100</read>
+                            </timeoutConfiguration>
+                            <headers>
+                                <X-Delay-Header>true</X-Delay-Header>
+                            </headers>
                         </configuration>
                     </execution>
                 </executions>

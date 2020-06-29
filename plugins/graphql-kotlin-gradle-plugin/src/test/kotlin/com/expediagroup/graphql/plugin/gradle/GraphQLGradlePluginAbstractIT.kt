@@ -51,22 +51,23 @@ abstract class GraphQLGradlePluginAbstractIT {
         WireMock.stubFor(stubGraphQLResponse())
     }
 
-    fun stubSdlEndpoint(): MappingBuilder = WireMock.get("/sdl")
-        .withResponse(content = testSchema, contentType = "text/plain")
+    fun stubSdlEndpoint(delay: Int? = null): MappingBuilder = WireMock.get("/sdl")
+        .withResponse(content = testSchema, contentType = "text/plain", delay = delay)
 
-    fun stubIntrospectionResult(): MappingBuilder = WireMock.post("/graphql")
+    fun stubIntrospectionResult(delay: Int? = null): MappingBuilder = WireMock.post("/graphql")
         .withRequestBody(ContainsPattern("IntrospectionQuery"))
-        .withResponse(content = introspectionResult)
+        .withResponse(content = introspectionResult, delay = delay)
 
-    fun stubGraphQLResponse(): MappingBuilder = WireMock.post("/graphql")
+    fun stubGraphQLResponse(delay: Int? = null): MappingBuilder = WireMock.post("/graphql")
         .withRequestBody(ContainsPattern("JUnitQuery"))
-        .withResponse(content = testResponse)
+        .withResponse(content = testResponse, delay = delay)
 
-    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json") = this.willReturn(
+    private fun MappingBuilder.withResponse(content: String, contentType: String = "application/json", delay: Int? = null) = this.willReturn(
         WireMock.aResponse()
             .withStatus(200)
             .withHeader("Content-Type", contentType)
             .withBody(content)
+            .withFixedDelay(delay ?: 0)
     )
 
     fun loadResource(resourceName: String) = ClassLoader.getSystemClassLoader().getResourceAsStream(resourceName)?.use {
@@ -82,6 +83,7 @@ abstract class GraphQLGradlePluginAbstractIT {
         val buildFileContents =
             """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+            import com.expediagroup.graphql.plugin.config.TimeoutConfig
             import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
             import com.expediagroup.graphql.plugin.gradle.graphql
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask

@@ -77,4 +77,29 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
         assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
     }
+
+    @Test
+    fun `apply the gradle plugin and execute downloadSDL with timeout`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        WireMock.reset()
+        WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
+
+        val buildFileContents =
+            """
+            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+              endpoint.set("${wireMockServer.baseUrl()}/sdl")
+              timeoutConfig.set(TimeoutConfig(connect = 100, read = 100))
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(DOWNLOAD_SDL_TASK_NAME)
+            .buildAndFail()
+
+        assertEquals(TaskOutcome.FAILED, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
+        assertTrue(result.output.contains("Timed out waiting for 100 ms", ignoreCase = true))
+    }
 }

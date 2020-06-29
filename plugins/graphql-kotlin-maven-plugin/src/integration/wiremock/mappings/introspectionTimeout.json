@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/graphqlTimeout",
+    "bodyPatterns": [{
+      "contains": "IntrospectionQuery"
+    }],
+    "headers": {
+      "X-Delay-Header": {
+        "equalTo": "true"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "introspectionResult.json",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 10000
+  }
+}
