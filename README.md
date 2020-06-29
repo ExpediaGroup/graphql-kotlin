@@ -39,6 +39,10 @@ If you have a question about something you can not find in our documentation, th
 
 If you would like to contribute to our documentation see the [website](/website) directory for more information.
 
+## 🗞 Blog Posts and Videos
+
+The [Blogs & Videos page](https://expediagroup.github.io/graphql-kotlin/docs/blogs-and-videos) in the GraphQL Kotlin documentation links to blog posts, release announcements, conference talks about the library, and general talks about GraphQL at Expedia Group.
+
 ## 👥 Contact
 
 This project is part of Expedia Group Open Source but also maintained by a dedicated team
