@@ -89,6 +89,13 @@ graphql {
     converters[<span class="hljs-string">"UUID"</span>] = ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>)
     <span class="hljs-comment">// List of query files to be processed.</span>
     queryFiles.add(file(<span class="hljs-string">"<span class="hljs-subst">${project.projectDir}</span>/src/main/resources/queries/MyQuery.graphql"</span>))
+    <span class="hljs-comment">// Timeout configuration</span>
+    timeout {
+        <span class="hljs-comment">// Connect timeout in milliseconds</span>
+        connect = <span class="hljs-number">5_000</span>
+        <span class="hljs-comment">// Read timeout in milliseconds</span>
+        read = <span class="hljs-number">15_000</span>
+    }
   }
 }
 </code></pre>
@@ -108,6 +115,7 @@ and could be used as an alternative to <code>graphqlIntrospectSchema</code> to g
 <tbody>
 <tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server SDL endpoint that will be used to download schema.<br/><strong>Command line property is</strong>: <code>endpoint</code>.</td></tr>
 <tr><td><code>headers</code></td><td>Map&lt;String, Any&gt;</td><td></td><td>Optional HTTP headers to be specified on a SDL request.</td></tr>
+<tr><td><code>timeoutConfig</code></td><td>TimeoutConfig</td><td></td><td>Timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/><strong>Default value are:</strong> connect timeout = 5_000, read timeout = 15_000.<br/></td></tr>
 </tbody>
 </table>
 <h3><a class="anchor" aria-hidden="true" id="graphqlgenerateclient"></a><a href="#graphqlgenerateclient" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>graphqlGenerateClient</h3>
@@ -164,6 +172,7 @@ should be used to generate input for the subsequent <code>graphqlGenerateClient<
 <tbody>
 <tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server endpoint that will be used to execute introspection queries.<br/><strong>Command line property is</strong>: <code>endpoint</code>.</td></tr>
 <tr><td><code>headers</code></td><td>Map&lt;String, Any&gt;</td><td></td><td>Optional HTTP headers to be specified on an introspection query.</td></tr>
+<tr><td><code>timeoutConfig</code></td><td>TimeoutConfig</td><td></td><td>Timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/><strong>Default value are:</strong> connect timeout = 5_000, read timeout = 15_000.<br/></td></tr>
 </tbody>
 </table>
 <h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
@@ -302,6 +311,8 @@ graphql {
 <p>Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
 the GraphQL client code based on the provided query.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.config.TimeoutConfig
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
@@ -313,17 +324,24 @@ graphql {
     headers[<span class="hljs-string">"X-Custom-Header"</span>] = <span class="hljs-string">"My-Custom-Header"</span>
     converters[<span class="hljs-string">"UUID"</span>] = ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>)
     queryFiles.add(file(<span class="hljs-string">"<span class="hljs-subst">${project.projectDir}</span>/src/main/resources/queries/MyQuery.graphql"</span>))
+    timeout {
+        connect = <span class="hljs-number">10_000</span>
+        read = <span class="hljs-number">30_000</span>
+    }
   }
 }
 </code></pre>
 <p>Above configuration is equivalent to the following</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.config.TimeoutConfig
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
 <span class="hljs-keyword">val</span> graphqlDownloadSDL <span class="hljs-keyword">by</span> tasks.getting(GraphQLDownloadSDLTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
     endpoint.<span class="hljs-keyword">set</span>(<span class="hljs-string">"http://localhost:8080/sdl"</span>)
     headers.put(<span class="hljs-string">"X-Custom-Header"</span>, <span class="hljs-string">"My-Custom-Header"</span>)
+    timeoutConfig.<span class="hljs-keyword">set</span>(TimeoutConfig(connect = <span class="hljs-number">10_000</span>, read = <span class="hljs-number">30_000</span>))
 }
 <span class="hljs-keyword">val</span> graphqlGenerateClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
     packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)

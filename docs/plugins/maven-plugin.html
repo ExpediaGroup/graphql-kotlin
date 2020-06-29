@@ -77,8 +77,19 @@ goal provides limited functionality by itself and instead should be used to gene
 <tbody>
 <tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server SDL endpoint that will be used to download schema.<br/><strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 <tr><td><code>headers</code></td><td>Map&lt;String, Any&gt;</td><td></td><td>Optional HTTP headers to be specified on a SDL request.</td></tr>
+<tr><td><code>timeoutConfiguration</code></td><td>TimeoutConfiguration</td><td></td><td>Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/><strong>Default values are:</strong> connect timeout = 5000, read timeout = 15000.<br/></td></tr>
 </tbody>
 </table>
+<p><strong>Parameter Details</strong></p>
+<ul>
+<li><p><em>timeoutConfiguration</em> - Timeout configuration that allows you to specify connect and read timeout values in milliseconds.</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">timeoutConfiguration</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- timeout values in milliseconds --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">connect</span>&gt;</span>1000<span class="hljs-tag">&lt;/<span class="hljs-name">connect</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">read</span>&gt;</span>30000<span class="hljs-tag">&lt;/<span class="hljs-name">read</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">timeoutConfiguration</span>&gt;</span>
+</code></pre></li>
+</ul>
 <h3><a class="anchor" aria-hidden="true" id="generate-client"></a><a href="#generate-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>generate-client</h3>
 <p>Generate GraphQL client code based on the provided GraphQL schema and target queries.</p>
 <p><strong>Attributes</strong></p>
@@ -171,8 +182,19 @@ should be used to generate input for the subsequent <code>generate-client</code>
 <tbody>
 <tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server endpoint that will be used to execute introspection queries.<br/><strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 <tr><td><code>headers</code></td><td>Map&lt;String, Any&gt;</td><td></td><td>Optional HTTP headers to be specified on an introspection query.</td></tr>
+<tr><td><code>timeoutConfiguration</code></td><td>TimeoutConfiguration</td><td></td><td>Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/><strong>Default values are:</strong> connect timeout = 5000, read timeout = 15000.<br/></td></tr>
 </tbody>
 </table>
+<p><strong>Parameter Details</strong></p>
+<ul>
+<li><p><em>timeoutConfiguration</em> - Timeout configuration that allows you to specify connect and read timeout values in milliseconds.</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">timeoutConfiguration</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- timeout values in milliseconds --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">connect</span>&gt;</span>1000<span class="hljs-tag">&lt;/<span class="hljs-name">connect</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">read</span>&gt;</span>30000<span class="hljs-tag">&lt;/<span class="hljs-name">read</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">timeoutConfiguration</span>&gt;</span>
+</code></pre></li>
+</ul>
 <h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
 <h3><a class="anchor" aria-hidden="true" id="downloading-schema-sdl"></a><a href="#downloading-schema-sdl" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Downloading Schema SDL</h3>
 <p>Download SDL Mojo requires target GraphQL server <code>endpoint</code> to be specified. Task can be executed directly from the
@@ -374,9 +396,6 @@ the GraphQL client code based on the provided query.</p>
                 <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/schema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
                 <span class="hljs-comment">&lt;!-- optional configuration below --&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>
-                <span class="hljs-tag">&lt;<span class="hljs-name">headers</span>&gt;</span>
-                    <span class="hljs-tag">&lt;<span class="hljs-name">X-Custom-Header</span>&gt;</span>My-Custom-Header<span class="hljs-tag">&lt;/<span class="hljs-name">X-Custom-Header</span>&gt;</span>
-                <span class="hljs-tag">&lt;/<span class="hljs-name">headers</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">converters</span>&gt;</span>
                     <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
                     <span class="hljs-tag">&lt;<span class="hljs-name">UUID</span>&gt;</span>
@@ -387,6 +406,14 @@ the GraphQL client code based on the provided query.</p>
                         <span class="hljs-tag">&lt;<span class="hljs-name">converter</span>&gt;</span>com.example.UUIDScalarConverter<span class="hljs-tag">&lt;/<span class="hljs-name">converter</span>&gt;</span>
                     <span class="hljs-tag">&lt;/<span class="hljs-name">UUID</span>&gt;</span>
                 <span class="hljs-tag">&lt;/<span class="hljs-name">converters</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">headers</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">X-Custom-Header</span>&gt;</span>My-Custom-Header<span class="hljs-tag">&lt;/<span class="hljs-name">X-Custom-Header</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">headers</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">timeoutConfiguration</span>&gt;</span>
+                    <span class="hljs-comment">&lt;!-- timeout values in milliseconds --&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">connect</span>&gt;</span>1000<span class="hljs-tag">&lt;/<span class="hljs-name">connect</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">read</span>&gt;</span>30000<span class="hljs-tag">&lt;/<span class="hljs-name">read</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">timeoutConfiguration</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">queryFiles</span>&gt;</span>
                     <span class="hljs-tag">&lt;<span class="hljs-name">queryFile</span>&gt;</span>${project.basedir}/src/main/resources/queries/MyQuery.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">queryFile</span>&gt;</span>
                 <span class="hljs-tag">&lt;/<span class="hljs-name">queryFiles</span>&gt;</span>
