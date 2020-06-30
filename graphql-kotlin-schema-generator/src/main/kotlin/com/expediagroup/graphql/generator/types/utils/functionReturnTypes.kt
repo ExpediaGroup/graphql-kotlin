@@ -35,7 +35,7 @@ import kotlin.reflect.KType
  *      Valid type T
  *      DataFetcherResult<T>
  *      Publisher<T>
- *      Published<DataFetcherResult<T>>
+ *      Publisher<DataFetcherResult<T>>
  *      CompletableFuture<T>
  *      CompletableFuture<DataFetcherResult<T>>
  */
