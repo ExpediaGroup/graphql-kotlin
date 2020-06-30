@@ -33,24 +33,36 @@ import kotlin.reflect.KType
  *
  * We can return the following combination of types:
  *      Valid type T
- *      Publisher<T>
+ *      Optional<T>
  *      DataFetcherResult<T>
+ *      Publisher<T>
+ *      Published<DataFetcherResult<T>>
  *      CompletableFuture<T>
  *      CompletableFuture<DataFetcherResult<T>>
  */
 internal fun getWrappedReturnType(returnType: KType): KType {
     return when {
-        returnType.isSubclassOf(Publisher::class) -> returnType.getTypeOfFirstArgument()
         returnType.isSubclassOf(DataFetcherResult::class) -> returnType.getTypeOfFirstArgument()
-        returnType.isSubclassOf(CompletableFuture::class) -> {
-            val wrappedType = returnType.getTypeOfFirstArgument()
-
-            if (wrappedType.isSubclassOf(DataFetcherResult::class)) {
-                return wrappedType.getTypeOfFirstArgument()
-            }
-
-            wrappedType
-        }
+        returnType.isSubclassOf(Publisher::class) -> { checkTypeForDataFetcherResult(returnType) }
+        returnType.isSubclassOf(CompletableFuture::class) -> { checkTypeForDataFetcherResult(returnType) }
         else -> returnType
+    }
+}
+
+/**
+ * Both Publisher and CompletableFuture can be optional wrapped internally with DataFetcherResult.
+ *
+ *      Publisher<T>
+ *      Published<DataFetcherResult<T>>
+ *      CompletableFuture<T>
+ *      CompletableFuture<DataFetcherResult<T>>
+ */
+private fun checkTypeForDataFetcherResult(returnType: KType): KType {
+    val wrappedType = returnType.getTypeOfFirstArgument()
+
+    return if (wrappedType.isSubclassOf(DataFetcherResult::class)) {
+        wrappedType.getTypeOfFirstArgument()
+    } else {
+        wrappedType
     }
 }

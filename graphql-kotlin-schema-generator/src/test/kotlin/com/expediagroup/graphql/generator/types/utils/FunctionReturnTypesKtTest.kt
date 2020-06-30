@@ -23,38 +23,41 @@ import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 
-internal class FunctionReturnTypesKtTest {
+class FunctionReturnTypesKtTest {
 
-    internal class MyClass {
+    class MyClass {
+        // Valid Types
         val string = "my string"
-
+        val dataFetcherResult: DataFetcherResult<String> = DataFetcherResult.newResult<String>().data(string).build()
         val publisher: Publisher<String> = Flowable.just(string)
         val flowable: Flowable<String> = Flowable.just(string)
-        val dataFetcherResult: DataFetcherResult<String> = DataFetcherResult.newResult<String>().data(string).build()
+        val publisherDataFetcherResult: Publisher<DataFetcherResult<String>> = Flowable.just(dataFetcherResult)
         val completableFuture: CompletableFuture<String> = CompletableFuture.completedFuture(string)
+        val completableFutureDataFetcher: CompletableFuture<DataFetcherResult<String>> = CompletableFuture.completedFuture(dataFetcherResult)
 
-        val invalidPublisher: Publisher<DataFetcherResult<String>> = Flowable.just(dataFetcherResult)
-        val invalidDataFetcherResult: DataFetcherResult<CompletableFuture<String>> = DataFetcherResult.newResult<CompletableFuture<String>>().data(completableFuture).build()
-        val validCompletableFutureDataFetcher: CompletableFuture<DataFetcherResult<String>> = CompletableFuture.completedFuture(dataFetcherResult)
+        // Invalid types
+        val invalidDataFetcherResultCompletableFuture: DataFetcherResult<CompletableFuture<String>> = DataFetcherResult.newResult<CompletableFuture<String>>().data(completableFuture).build()
+        val invalidDataFetcherResultPublisher: DataFetcherResult<Publisher<String>> = DataFetcherResult.newResult<Publisher<String>>().data(publisher).build()
         val invalidCompletableFuture: CompletableFuture<Publisher<String>> = CompletableFuture.completedFuture(publisher)
     }
 
     @Test
     fun `getWrappedReturnType of Publisher`() {
         assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::publisher.returnType))
-        assertEquals(MyClass::dataFetcherResult.returnType, actual = getWrappedReturnType(MyClass::invalidPublisher.returnType))
+        assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::publisherDataFetcherResult.returnType))
     }
 
     @Test
     fun `getWrappedReturnType of DataFetcherResult`() {
         assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::dataFetcherResult.returnType))
-        assertEquals(MyClass::completableFuture.returnType, actual = getWrappedReturnType(MyClass::invalidDataFetcherResult.returnType))
+        assertEquals(MyClass::completableFuture.returnType, actual = getWrappedReturnType(MyClass::invalidDataFetcherResultCompletableFuture.returnType))
+        assertEquals(MyClass::publisher.returnType, actual = getWrappedReturnType(MyClass::invalidDataFetcherResultPublisher.returnType))
     }
 
     @Test
     fun `getWrappedReturnType of CompletableFuture`() {
         assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::completableFuture.returnType))
-        assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::validCompletableFutureDataFetcher.returnType))
+        assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::completableFutureDataFetcher.returnType))
         assertEquals(MyClass::publisher.returnType, actual = getWrappedReturnType(MyClass::invalidCompletableFuture.returnType))
     }
 
