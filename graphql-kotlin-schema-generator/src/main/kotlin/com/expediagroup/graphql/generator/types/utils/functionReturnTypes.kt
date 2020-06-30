@@ -33,7 +33,6 @@ import kotlin.reflect.KType
  *
  * We can return the following combination of types:
  *      Valid type T
- *      Optional<T>
  *      DataFetcherResult<T>
  *      Publisher<T>
  *      Published<DataFetcherResult<T>>

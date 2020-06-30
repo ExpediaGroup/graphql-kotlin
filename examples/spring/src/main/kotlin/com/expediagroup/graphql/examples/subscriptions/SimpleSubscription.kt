@@ -64,7 +64,7 @@ class SimpleSubscription : Subscription {
 
     @GraphQLDescription("Returns stream of errors")
     fun flowOfErrors(): Publisher<DataFetcherResult<String?>> {
-        val dfr: DataFetcherResult<String?> = DataFetcherResult.newResult<String>()
+        val dfr: DataFetcherResult<String?> = DataFetcherResult.newResult<String?>()
             .data(null)
             .error(SimpleKotlinGraphQLError(Exception("error thrown")))
             .build()
