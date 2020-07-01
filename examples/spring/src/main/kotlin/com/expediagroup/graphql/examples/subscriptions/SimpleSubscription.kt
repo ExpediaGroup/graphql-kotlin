@@ -18,7 +18,9 @@ package com.expediagroup.graphql.examples.subscriptions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
+import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import com.expediagroup.graphql.spring.operations.Subscription
+import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher
 import org.reactivestreams.Publisher
@@ -57,8 +59,18 @@ class SimpleSubscription : Subscription {
     fun singleValueThenError(): Flux<Int> = Flux.just(1, 2)
         .map { if (it == 2) throw Exception("Second value") else it }
 
-    @GraphQLDescription("Returns list of values")
+    @GraphQLDescription("Returns stream of values")
     fun flow(): Publisher<Int> = flowOf(1, 2, 4).asPublisher()
+
+    @GraphQLDescription("Returns stream of errors")
+    fun flowOfErrors(): Publisher<DataFetcherResult<String?>> {
+        val dfr: DataFetcherResult<String?> = DataFetcherResult.newResult<String?>()
+            .data(null)
+            .error(SimpleKotlinGraphQLError(Exception("error thrown")))
+            .build()
+
+        return flowOf(dfr, dfr).asPublisher()
+    }
 
     @GraphQLDescription("Returns a value from the subscription context")
     fun subscriptionContext(myGraphQLContext: MyGraphQLContext): Publisher<String> =
