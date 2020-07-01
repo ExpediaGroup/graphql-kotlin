@@ -78,8 +78,8 @@ types. Key fields specified in the directive field set should correspond to a va
 interface/object. Federated extended types should also instrument all the referenced key fields with `@external`
 directive.
 
-> NOTE: federation spec specifies that multiple @key directives can be applied on the field which is at odds with
-> graphql-spec and currently unsupported by graphql-kotlin.
+> NOTE: The Federation spec specifies that multiple @key directives can be applied on the field. The GraphQL spec has been recently changed to allow this behavior,
+> but we are currently blocked and are tracking progress in [this issue](https://github.com/ExpediaGroup/graphql-kotlin/issues/590).
 
 Example
 
