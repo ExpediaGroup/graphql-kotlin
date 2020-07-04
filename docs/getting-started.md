@@ -60,7 +60,7 @@ See the docs in [Schema Generator Getting Started](./schema-generator/schema-gen
 
 ### Apollo Federation
 
-Using `graphql-kotlin-federation`, you can generate an [Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/) complaint schema.
+Using `graphql-kotlin-federation`, you can generate an [Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/) compliant schema.
 
 See the docs in [Apollo Federation](./federated/apollo-federation.md).
 
