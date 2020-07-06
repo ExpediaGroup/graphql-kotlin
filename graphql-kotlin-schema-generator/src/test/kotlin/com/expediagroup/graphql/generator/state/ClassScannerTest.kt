@@ -20,46 +20,46 @@ import com.expediagroup.graphql.defaultSupportedPackages
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-@Suppress("Detekt.UnusedPrivateClass")
-internal class ClassScannerTest {
+class ClassScannerTest {
 
-    private interface NoSubTypesInterface
+    interface NoSubTypesInterface
 
-    private abstract class NoSubTypesClass
+    abstract class NoSubTypesClass
 
-    private interface MyInterface {
+    interface MyInterface {
         fun getValue(): Int
     }
 
-    private class FirstClass : MyInterface {
+    class FirstClass : MyInterface {
         override fun getValue() = 1
     }
 
-    private class SecondClass : MyInterface {
+    class SecondClass : MyInterface {
         override fun getValue() = 2
     }
 
     @Suppress("Detekt.UnnecessaryAbstractClass")
-    private abstract class MyAbstractClass {
+    abstract class MyAbstractClass {
         abstract fun someValue(): Int
     }
 
-    private class ThirdClass : MyAbstractClass() {
+    class ThirdClass : MyAbstractClass() {
         override fun someValue() = 3
     }
 
-    private abstract class FourthClass : MyAbstractClass() {
+    abstract class FourthClass : MyAbstractClass() {
         override fun someValue() = 3
 
         abstract fun getOtherValue(): Int
     }
 
-    private annotation class SimpleAnnotation
-    private annotation class OtherSimpleAnnotation
+    annotation class SimpleAnnotation
+    annotation class OtherSimpleAnnotation
 
     @SimpleAnnotation
-    private class MyClassWithAnnotaiton
+    class MyClassWithAnnotaiton
 
     private val basicClassScanner = ClassScanner(defaultSupportedPackages)
 
@@ -78,9 +78,11 @@ internal class ClassScannerTest {
     @Test
     fun `subtypes of non-supported packages`() {
         val classScannerOfOtherPackages = ClassScanner(listOf("com.example"))
-        val list = classScannerOfOtherPackages.getSubTypesOf(MyInterface::class)
-        assertEquals(expected = 0, actual = list.size)
-        classScannerOfOtherPackages.close()
+        classScannerOfOtherPackages.use {
+            assertTrue(classScannerOfOtherPackages.isEmptyScan())
+            val list = classScannerOfOtherPackages.getSubTypesOf(MyInterface::class)
+            assertEquals(expected = 0, actual = list.size)
+        }
     }
 
     @Test

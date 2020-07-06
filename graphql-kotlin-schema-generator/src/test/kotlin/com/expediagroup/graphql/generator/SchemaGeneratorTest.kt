@@ -17,10 +17,12 @@
 package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
+import com.expediagroup.graphql.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.extensions.deepName
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class SchemaGeneratorTest {
 
@@ -49,6 +51,14 @@ class SchemaGeneratorTest {
 
         assertEquals(1, result.size)
         assertEquals("SomeObjectWithAnnotation!", result.first().deepName)
+    }
+
+    @Test
+    fun invalidPackagesThrowsException() {
+        assertFailsWith(InvalidPackagesException::class) {
+            val config = SchemaGeneratorConfig(listOf("foo.bar"))
+            SchemaGenerator(config)
+        }
     }
 
     class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {

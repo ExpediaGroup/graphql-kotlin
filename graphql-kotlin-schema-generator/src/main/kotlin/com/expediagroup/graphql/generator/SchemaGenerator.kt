@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.generator.types.generateGraphQLType
@@ -40,7 +41,10 @@ import kotlin.reflect.full.createType
  *
  * This class maintains the state of the schema while generation is taking place. It is passed into the internal functions
  * so they can use the cache and add additional types and directives into the schema as they parse the Kotlin code.
- */
+ *
+ * This class should be used from a try-with-resouces block
+ * or another closable object as the internals can take up a lot of resources.
+*/
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
     internal val additionalTypes: MutableSet<KType> = mutableSetOf()
@@ -48,6 +52,15 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
+
+    /**
+     * Validate that the supported packages contain classes
+     */
+    init {
+        if (classScanner.isEmptyScan()) {
+            throw InvalidPackagesException(config.supportedPackages)
+        }
+    }
 
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
@@ -70,6 +83,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         if (!config.introspectionEnabled) {
             codeRegistry.fieldVisibility(NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY)
         }
+
         builder.codeRegistry(codeRegistry.build())
 
         return config.hooks.willBuildSchema(builder).build()
