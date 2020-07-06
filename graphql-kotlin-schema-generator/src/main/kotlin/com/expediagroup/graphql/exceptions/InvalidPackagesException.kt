@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 package com.expediagroup.graphql.exceptions
 
-import kotlin.reflect.KType
-
 /**
- * Thrown when the generator does not have a type to map to in GraphQL or in the hooks.
+ * Thrown when the scanned packages contain no classes
  */
-class TypeNotSupportedException(kType: KType, packageList: List<String>) :
-    GraphQLKotlinException("Cannot convert $kType since it is not a valid GraphQL type or outside the supported packages \"$packageList\"")
+class InvalidPackagesException(packages: List<String>) :
+    GraphQLKotlinException("The configured packages do not contain any valid classes: \"$packages\"")

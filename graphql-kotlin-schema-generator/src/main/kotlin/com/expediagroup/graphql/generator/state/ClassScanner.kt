@@ -23,6 +23,10 @@ import java.io.Closeable
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
+/**
+ * This class should be used from a try-with-resouces block
+ * or another closable object as the internal scan result can take up a lot of resources.
+ */
 internal class ClassScanner(supportedPackages: List<String>) : Closeable {
 
     @Suppress("Detekt.SpreadOperator")
@@ -31,6 +35,14 @@ internal class ClassScanner(supportedPackages: List<String>) : Closeable {
         .whitelistPackages(*supportedPackages.toTypedArray())
         .scan()
 
+    /**
+     * Return true if there are no valid packages scanned
+     */
+    fun isEmptyScan() = scanResult.packageInfo.isEmpty()
+
+    /**
+     * Get the sub-types/implementations of specific KClass
+     */
     fun getSubTypesOf(kclass: KClass<*>): List<KClass<*>> {
         val classInfo = scanResult.getClassInfo(kclass.jvmName) ?: return emptyList()
 
@@ -40,8 +52,14 @@ internal class ClassScanner(supportedPackages: List<String>) : Closeable {
             .filterNot { it.isAbstract }
     }
 
+    /**
+     * Find any class that has the specified annotation
+     */
     fun getClassesWithAnnotation(annotation: KClass<*>) = scanResult.getClassesWithAnnotation(annotation.jvmName).map { it.loadClass().kotlin }
 
+    /**
+     * Clean up the scan result resources
+     */
     override fun close() = scanResult.close()
 
     @Suppress("Detekt.SwallowedException")
