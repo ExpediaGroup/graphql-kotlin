@@ -26,6 +26,7 @@ import com.expediagroup.graphql.spring.execution.EmptyDataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.execution.SimpleQueryHandler
+import com.expediagroup.graphql.spring.execution.SpringDataFetcher
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
@@ -36,14 +37,17 @@ import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
+import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLSchema
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
 import java.util.Optional
+import kotlin.reflect.KFunction
 
 /**
  * Default order applied to Instrumentation beans.
@@ -66,8 +70,11 @@ class GraphQLAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataFetcherFactoryProvider(objectMapper: ObjectMapper): KotlinDataFetcherFactoryProvider =
-        SimpleKotlinDataFetcherFactoryProvider(objectMapper)
+    fun dataFetcherFactoryProvider(objectMapper: ObjectMapper, applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
+        object : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
+            override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any?> =
+                DataFetcherFactory { SpringDataFetcher(target, kFunction, objectMapper, applicationContext) }
+        }
 
     @Bean
     @ConditionalOnMissingBean
