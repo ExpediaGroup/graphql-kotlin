@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - '*.x.x'
     paths-ignore:
       - 'docs/**'
       - 'website/**'
@@ -18,11 +19,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: gradle/wrapper-validation-action@v1
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
       - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+
       - name: Set up Gradle cache
         uses: actions/cache@v1
         with:
@@ -30,7 +35,8 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.java }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.java }}-gradle-
-      # used by maven-plugin integration tests
+
+      # Used by maven-plugin integration tests
       - name: Set up Maven cache
         uses: actions/cache@v1
         with:
@@ -38,8 +44,10 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.java }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.java }}-maven-
+
       - name: Build library with Gradle
         run: ./gradlew clean build
+
       - name: Build examples with Gradle
         working-directory: examples
         run: ./gradlew clean build

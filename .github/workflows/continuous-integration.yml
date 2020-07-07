@@ -19,11 +19,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: gradle/wrapper-validation-action@v1
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
       - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+
       - name: Set up Gradle cache
         uses: actions/cache@v1
         with:
@@ -31,17 +35,17 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.java }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.java }}-gradle-
-      - name: Build library with Gradle
+
+      - name: Build libraries with Gradle
         run: ./gradlew clean build
+
       - name: Build examples with Gradle
         working-directory: examples
         run: ./gradlew clean build
+
       - name: Upload coverage to Codecov
         if: matrix.java == 8
         uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./codecov.yml
 
   release-notes:
     runs-on: ubuntu-latest
