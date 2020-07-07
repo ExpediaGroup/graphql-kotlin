@@ -106,6 +106,6 @@ graphql {
 }
 ```
 
-See [Gradle](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin#generating-client-with-custom-scalars)
-and [Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin#generating-client-with-custom-scalars)
+See [Gradle](../plugins/gradle-plugin.md)
+and [Maven](../plugins/maven-plugin.md)
 plugin documentation for additional details.
