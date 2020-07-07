@@ -4,8 +4,8 @@ title: Client Overview
 ---
 
 `graphql-kotlin-client` is a lightweight type-safe GraphQL HTTP client. Type-safe data models are generated at build time
-by the GraphQL Kotlin [Gradle](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin) and
-[Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin) plugins.
+by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin.md) and
+[Maven](../plugins/maven-plugin.md) plugins.
 
 `GraphQLClient` is a thin wrapper on top of [Ktor HTTP Client](https://ktor.io/clients/index.html) and supports fully
 asynchronous non-blocking communication. It is highly customizable and can be configured with any supported Ktor HTTP
@@ -95,8 +95,8 @@ working examples of Gradle and Maven based projects.
 By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all `*.graphql` files located under
 `src/main/resources`. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
-See our documentation for more details on supported [Gradle tasks](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin#tasks)
-and [Maven Mojos](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin#goals).
+See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin.md)
+and [Maven Mojos](../plugins/maven-plugin.md).
 
 When creating your GraphQL queries make sure to always specify an operation name and name the files accordingly. Each
 one of your query files will generate a corresponding Kotlin file with a class matching your operation
