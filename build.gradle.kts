@@ -92,7 +92,8 @@ subprojects {
         jacocoTestReport {
             reports {
                 xml.isEnabled = true
-                csv.isEnabled = false
+                csv.isEnabled = true
+                html.isEnabled = true
             }
         }
         jar {
