@@ -38,10 +38,8 @@ To run tests:
 ./gradlew check
 ```
 
-You can also view the code coverage reports published to Codecov. This validates that our coverage levels are maintained. Links are in the README.
-
 ### Linting
-We are also [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.github.io/detekt/) for code style checking and linting.
+We are using [ktlint](https://ktlint.github.io/) and [detekt](https://arturbosch.github.io/detekt/) for code style checking and linting.
 
 **Note**:
 These will be run as part of the `validate` phase of a full build but if you want to run them manually you will have to navigate to each module directory and run the command

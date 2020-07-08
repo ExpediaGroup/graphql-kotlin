@@ -43,10 +43,6 @@ jobs:
         working-directory: examples
         run: ./gradlew clean build
 
-      - name: Upload coverage to Codecov
-        if: matrix.java == 8
-        uses: codecov/codecov-action@v1
-
   release-notes:
     runs-on: ubuntu-latest
     steps:
