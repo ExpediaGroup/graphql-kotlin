@@ -59,7 +59,7 @@ class Application {
                 graphQLHandler.handle(request, response)
             }
 
-            internalServerError() { _, response ->
+            internalServerError { _, response ->
                 response.status(500)
                 response.type("application/text")
                 "Unable to process request"

@@ -19,7 +19,7 @@ import com.expediagroup.graphql.examples.spark.schema.models.User
 
 data class AuthPayload(val token: String? = null, val user: User? = null)
 
-class LoginMutationService() {
+class LoginMutationService {
     suspend fun login(email: String, password: String, aliasUUID: String?): AuthPayload {
         val token = "fake-token"
         val user = User(
