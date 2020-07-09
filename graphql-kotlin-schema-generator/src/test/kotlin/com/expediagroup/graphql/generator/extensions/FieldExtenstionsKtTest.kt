@@ -40,7 +40,7 @@ internal class FieldExtenstionsKtTest {
 
     @Test
     fun `verify @Deprecated on fields`() {
-        val propertyDeprecation = AnnotatedEnum::class.java.getField("ONE")?.getDeprecationReason()
+        val propertyDeprecation = AnnotatedEnum::class.java.getField("ONE").getDeprecationReason()
         assertEquals(expected = "do not use, replace with TWO", actual = propertyDeprecation)
     }
 }

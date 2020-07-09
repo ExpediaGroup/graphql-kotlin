@@ -34,11 +34,13 @@ import kotlin.test.assertNotNull
 
 class GenerateArgumentTest : TypeTestHelper() {
 
-    internal interface MyInterface {
+    interface MyInterface {
         val id: String
     }
 
-    internal class ArgumentTestClass {
+    interface MyUnion
+
+    class ArgumentTestClass {
         fun description(@GraphQLDescription("Argument description") input: String) = input
 
         fun directive(@SimpleDirective input: String) = input
@@ -53,7 +55,15 @@ class GenerateArgumentTest : TypeTestHelper() {
 
         fun arrayListArg(input: ArrayList<String>) = input
 
+        fun arrayListInterfaceArg(input: ArrayList<MyInterface>) = input
+
+        fun arrayListUnionArg(input: ArrayList<MyUnion>) = input
+
         fun listArg(input: List<String>) = input
+
+        fun listInterfaceArg(input: List<MyInterface>) = input
+
+        fun listUnionArg(input: List<MyUnion>) = input
     }
 
     @Test
@@ -128,6 +138,26 @@ class GenerateArgumentTest : TypeTestHelper() {
     }
 
     @Test
+    fun `ArrayList of interfaces as input is invalid`() {
+        val kParameter = ArgumentTestClass::arrayListInterfaceArg.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        assertFailsWith(InvalidInputFieldTypeException::class) {
+            generateArgument(generator, kParameter)
+        }
+    }
+
+    @Test
+    fun `ArrayList of unions as input is invalid`() {
+        val kParameter = ArgumentTestClass::arrayListUnionArg.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        assertFailsWith(InvalidInputFieldTypeException::class) {
+            generateArgument(generator, kParameter)
+        }
+    }
+
+    @Test
     fun `List argument type is valid`() {
         val kParameter = ArgumentTestClass::listArg.findParameterByName("input")
         assertNotNull(kParameter)
@@ -135,5 +165,25 @@ class GenerateArgumentTest : TypeTestHelper() {
 
         assertEquals(expected = "input", actual = result.name)
         assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
+    }
+
+    @Test
+    fun `List of interfaces as input is invalid`() {
+        val kParameter = ArgumentTestClass::listInterfaceArg.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        assertFailsWith(InvalidInputFieldTypeException::class) {
+            generateArgument(generator, kParameter)
+        }
+    }
+
+    @Test
+    fun `List of unions as input is invalid`() {
+        val kParameter = ArgumentTestClass::listUnionArg.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        assertFailsWith(InvalidInputFieldTypeException::class) {
+            generateArgument(generator, kParameter)
+        }
     }
 }

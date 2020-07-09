@@ -30,40 +30,42 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-internal class KParameterExtensionsKtTest {
+class KParameterExtensionsKtTest {
 
     @GraphQLDescription("class description")
-    internal data class MyClass(val foo: String)
+    data class MyClass(val foo: String)
 
-    internal interface MyInterface {
+    interface MyInterface {
         val value: String
     }
 
-    internal abstract class MyAbstractClass {
+    abstract class MyAbstractClass {
 
         abstract val implementMe: String
 
         val value: String = "test"
     }
 
-    internal class Container {
+    class Container {
 
-        internal fun interfaceInput(myInterface: MyInterface) = myInterface
+        fun interfaceInput(myInterface: MyInterface) = myInterface
 
-        internal fun absctractInput(myAbstractClass: MyAbstractClass) = myAbstractClass
+        fun absctractInput(myAbstractClass: MyAbstractClass) = myAbstractClass
 
-        internal fun listInput(myList: List<Int>) = myList
+        fun listInput(myList: List<Int>) = myList
 
-        internal fun arrayInput(myArray: IntArray) = myArray
+        fun arrayListInput(myList: ArrayList<Int>) = myList
 
-        internal fun noDescription(myClass: MyClass) = myClass
+        fun arrayInput(myArray: IntArray) = myArray
 
-        internal fun paramDescription(@GraphQLDescription("param description") myClass: MyClass) = myClass
+        fun noDescription(myClass: MyClass) = myClass
 
-        internal fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
+        fun paramDescription(@GraphQLDescription("param description") myClass: MyClass) = myClass
+
+        fun dataFetchingEnvironment(environment: DataFetchingEnvironment) = environment.field.name
     }
 
-    internal class MyKotlinClass {
+    class MyKotlinClass {
         fun stringFun(string: String) = "hello $string"
     }
 
@@ -130,5 +132,13 @@ internal class KParameterExtensionsKtTest {
         assertTrue(Container::listInput.findParameterByName("myList")?.isList() == true)
         assertTrue(Container::arrayInput.findParameterByName("myArray")?.isList() == false)
         assertTrue(Container::interfaceInput.findParameterByName("myInterface")?.isList() == false)
+    }
+
+    @Test
+    fun isListType() {
+        assertTrue(Container::listInput.findParameterByName("myList")?.isListType() == true)
+        assertTrue(Container::arrayListInput.findParameterByName("myList")?.isListType() == true)
+        assertTrue(Container::arrayInput.findParameterByName("myArray")?.isListType() == true)
+        assertTrue(Container::interfaceInput.findParameterByName("myInterface")?.isListType() == false)
     }
 }

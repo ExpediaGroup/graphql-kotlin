@@ -19,17 +19,25 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
+import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.getName
+import com.expediagroup.graphql.generator.extensions.getWrappedType
 import com.expediagroup.graphql.generator.extensions.isInterface
-import com.expediagroup.graphql.generator.extensions.isList
+import com.expediagroup.graphql.generator.extensions.isListType
+import com.expediagroup.graphql.generator.extensions.isUnion
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLArgument
+import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
 @Throws(InvalidInputFieldTypeException::class)
 internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter): GraphQLArgument {
 
-    if (parameter.isInterface() && parameter.isList().not()) {
+    // Validate that the input is not a polymorphic type
+    // This is not currently supported by the GraphQL spec
+    // https://github.com/graphql/graphql-spec/blob/master/rfcs/InputUnion.md
+    val unwrappedClass = getUnwrappedClass(parameter)
+    if (unwrappedClass.isInterface() || unwrappedClass.isUnion()) {
         throw InvalidInputFieldTypeException(parameter)
     }
 
@@ -47,3 +55,10 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
 
     return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
 }
+
+private fun getUnwrappedClass(parameter: KParameter): KClass<*> =
+    if (parameter.isListType()) {
+        parameter.type.getWrappedType().getKClass()
+    } else {
+        parameter.type.getKClass()
+    }
