@@ -26,7 +26,7 @@ internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
 
 internal fun KParameter.isList() = this.type.getKClass().isSubclassOf(List::class)
 
-internal fun KParameter.isListType() = this.isList() || this.javaClass.isArray
+internal fun KParameter.isListType() = this.isList() || this.type.getJavaClass().isArray
 
 internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class)
 
