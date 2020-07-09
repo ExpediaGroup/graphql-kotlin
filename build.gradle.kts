@@ -89,12 +89,6 @@ subprojects {
         jacoco {
             toolVersion = jacocoVersion
         }
-        jacocoTestReport {
-            reports {
-                xml.isEnabled = true
-                csv.isEnabled = false
-            }
-        }
         jar {
             manifest {
                 attributes["Built-By"] = "Expedia Group"
