@@ -69,7 +69,7 @@ will be renamed to <code>MyCustomName</code> GraphQL type and its fields will al
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="known-issues"></a><a href="#known-issues" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Known Issues</h2>
 <blockquote>
-<p>NOTE: Due to how we deserialize input classes, if you rename a field of an input class you must also annotate the field with the Jackson annotation @JsonProperty. See <a href="https://github.com/ExpediaGroup/graphql-kotlin/issues/493">issue 493</a> for more info.</p>
+<p>NOTE: Due to how we deserialize input classes, if you rename a field of an input class or an enum value you must also annotate it with the Jackson annotation @JsonProperty. See <a href="https://github.com/ExpediaGroup/graphql-kotlin/issues/493">issue 493</a> for more info.</p>
 </blockquote>
 <pre><code class="hljs css language-kotlin"><span class="hljs-keyword">data</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyInputClass</span></span>(
     <span class="hljs-meta">@JsonProperty(<span class="hljs-meta-string">"renamedField"</span>)</span>
@@ -77,17 +77,40 @@ will be renamed to <code>MyCustomName</code> GraphQL type and its fields will al
     <span class="hljs-keyword">val</span> field1: String
 )
 
+<span class="hljs-comment">// GraphQL enums should use UPPER_CASE naming if possible, but any case is supported</span>
+<span class="hljs-keyword">enum</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Selection</span> </span>{
+  
+  <span class="hljs-meta">@JsonProperty(<span class="hljs-meta-string">"first"</span>)</span>
+  <span class="hljs-meta">@GraphQLName(<span class="hljs-meta-string">"first"</span>)</span>
+  ONE,
+
+  <span class="hljs-meta">@JsonProperty(<span class="hljs-meta-string">"second"</span>)</span>
+  <span class="hljs-meta">@GraphQLName(<span class="hljs-meta-string">"second"</span>)</span>
+  TWO
+}
+
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">QueryClass</span> </span>{
   <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parseData</span><span class="hljs-params">(arg: <span class="hljs-type">MyInputClass</span>)</span></span> = <span class="hljs-string">"You sent <span class="hljs-subst">${arg.field1}</span>"</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">chooseValue</span><span class="hljs-params">(selection: <span class="hljs-type">Selection</span>)</span></span>: String = <span class="hljs-keyword">when</span> (selection) {
+    Selection.ONE -&gt; <span class="hljs-string">"You chose the first value"</span>
+    Selection.TWO -&gt; <span class="hljs-string">"You chose the second value"</span>
+  }
 }
 </code></pre>
 <pre><code class="hljs css language-graphql">input MyInputClassInput {
-  # This only works <span class="hljs-keyword">if</span> both @JsonProperty <span class="hljs-keyword">and</span> @GraphQLName are present
-  renamedField: String!
+  <span class="hljs-comment"># This only works if both @JsonProperty and @GraphQLName are present</span>
+  <span class="hljs-symbol">renamedField:</span> String!
 }
-<span class="hljs-built_in">
-type </span>Query {
-  parseData(arg: MyInputClass!): String!
+
+<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Selection</span> {</span>
+  first,
+  second
+}
+
+<span class="hljs-keyword">type</span> Query {
+  parseData(<span class="hljs-symbol">arg:</span> MyInputClass!): String!
+  chooseValue(<span class="hljs-symbol">selection:</span> Selection!): String!
 }
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/excluding-fields"><span class="arrow-prev">← </span><span>Excluding Fields</span></a><a class="docs-next button" href="/graphql-kotlin/docs/schema-generator/customizing-schemas/directives"><span>Directives</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#known-issues">Known Issues</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
