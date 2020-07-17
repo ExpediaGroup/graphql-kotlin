@@ -17,15 +17,17 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLName
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-internal class FieldExtenstionsKtTest {
+class FieldExtenstionsKtTest {
 
-    internal enum class AnnotatedEnum {
+    enum class AnnotatedEnum {
         @GraphQLDescription("field description")
         @Deprecated("do not use", ReplaceWith("TWO"))
+        @GraphQLName("customOne")
         ONE,
         TWO
     }
@@ -42,5 +44,14 @@ internal class FieldExtenstionsKtTest {
     fun `verify @Deprecated on fields`() {
         val propertyDeprecation = AnnotatedEnum::class.java.getField("ONE").getDeprecationReason()
         assertEquals(expected = "do not use, replace with TWO", actual = propertyDeprecation)
+    }
+
+    @Test
+    fun `verify @GraphQLName on fields`() {
+        val customNameField = AnnotatedEnum::class.java.getField("ONE")
+        assertEquals(expected = "customOne", actual = customNameField.getGraphQLName())
+
+        val basicNameField = AnnotatedEnum::class.java.getField("TWO")
+        assertEquals(expected = "TWO", actual = basicNameField.getGraphQLName())
     }
 }
