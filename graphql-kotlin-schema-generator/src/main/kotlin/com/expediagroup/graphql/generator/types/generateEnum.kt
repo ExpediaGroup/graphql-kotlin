@@ -20,6 +20,7 @@ import com.expediagroup.graphql.directives.deprecatedDirectiveWithReason
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
+import com.expediagroup.graphql.generator.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLEnumType
@@ -44,11 +45,11 @@ internal fun generateEnum(generator: SchemaGenerator, kClass: KClass<out Enum<*>
 
 private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
     val valueBuilder = GraphQLEnumValueDefinition.newEnumValueDefinition()
-
-    valueBuilder.name(enum.name)
-    valueBuilder.value(enum.name)
-
     val valueField = kClass.java.getField(enum.name)
+
+    val name = valueField.getGraphQLName()
+    valueBuilder.name(name)
+    valueBuilder.value(name)
 
     generateFieldDirectives(generator, valueField).forEach {
         valueBuilder.withDirective(it)

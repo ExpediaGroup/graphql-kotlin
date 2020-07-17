@@ -27,12 +27,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-internal class GenerateEnumTest : TypeTestHelper() {
+class GenerateEnumTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("MyTestEnum description")
     @SimpleDirective
-    private enum class MyTestEnum {
+    enum class MyTestEnum {
         @GraphQLDescription("enum 'ONE' description")
         @SimpleDirective
         ONE,
@@ -44,21 +44,25 @@ internal class GenerateEnumTest : TypeTestHelper() {
         @SimpleDirective
         @CustomDirective("foo bar")
         @Deprecated("THREE is out", replaceWith = ReplaceWith("TWO"))
-        THREE
+        THREE,
+
+        @GraphQLName("customFour")
+        FOUR
     }
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLName("MyTestEnumRenamed")
-    private enum class MyTestEnumCustomName
+    enum class MyTestEnumCustomName
 
     @Test
     fun enumType() {
         val actual = generateEnum(generator, MyTestEnum::class)
-        assertEquals(expected = 3, actual = actual.values.size)
+        assertEquals(expected = 4, actual = actual.values.size)
         assertEquals(expected = "MyTestEnum", actual = actual.name)
         assertEquals(expected = "ONE", actual = actual.values[0].value)
         assertEquals(expected = "TWO", actual = actual.values[1].value)
         assertEquals(expected = "THREE", actual = actual.values[2].value)
+        assertEquals(expected = "customFour", actual = actual.values[3].value)
     }
 
     @Test
@@ -105,7 +109,8 @@ internal class GenerateEnumTest : TypeTestHelper() {
     fun `Enum values can have directives`() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
 
-        val enumValuesDirectives = gqlEnum.values.last().directives
+        val enumValuesDirectives = gqlEnum.values.find { it.name == "THREE" }?.directives
+        assertNotNull(enumValuesDirectives)
         assertEquals(3, enumValuesDirectives.size)
         assertEquals("simpleDirective", enumValuesDirectives[0].name)
         assertEquals("customName", enumValuesDirectives[1].name)
@@ -117,5 +122,12 @@ internal class GenerateEnumTest : TypeTestHelper() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
         assertEquals(1, gqlEnum.values.first().directives.size)
         assertEquals("simpleDirective", gqlEnum.values.first().directives.first().name)
+    }
+
+    @Test
+    fun `Enum values can have a custom name`() {
+        val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
+
+        assertNotNull(gqlEnum.getValue("customFour"))
     }
 }

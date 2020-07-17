@@ -18,6 +18,7 @@ package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.examples.model.Selection
 import com.expediagroup.graphql.spring.operations.Query
 import org.springframework.stereotype.Component
 import java.util.Random
@@ -76,4 +77,10 @@ class SimpleQuery : Query {
         @GraphQLDescription("this field is optional") optionalValue: Int? = null
     ) =
         "required value=$requiredValue, optional value=$optionalValue"
+
+    @GraphQLDescription("Demonstrate the usage of custom enum input")
+    fun getAValue(selection: Selection): String = when (selection) {
+        Selection.ONE -> "You chose the first one"
+        Selection.TWO -> "You chose the second one"
+    }
 }

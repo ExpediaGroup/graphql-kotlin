@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.extensions
+package com.expediagroup.graphql.examples.model
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
-import java.lang.reflect.Field
+import com.fasterxml.jackson.annotation.JsonProperty
 
-internal fun Field.getGraphQLDescription(): String? = this.getAnnotation(GraphQLDescription::class.java)?.value
+@GraphQLDescription("Use to represent a selection when choosing a value")
+enum class Selection {
 
-internal fun Field.getDeprecationReason(): String? = this.getDeclaredAnnotation(Deprecated::class.java)?.getReason()
+    @GraphQLDescription("Use this when you want the first one")
+    ONE,
 
-internal fun Field.getGraphQLName(): String = this.getAnnotation(GraphQLName::class.java)?.value ?: this.name
+    // If we change the name, we need to update Jackson as well
+    @JsonProperty("second")
+    @GraphQLName("second")
+    @GraphQLDescription("Use this when you want the second one")
+    TWO
+}
