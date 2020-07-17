@@ -31,8 +31,9 @@ data class MyInputClass(
     val field1: String
 )
 
+// GraphQL enums should use UPPER_CASE naming if possible, but any case is supported
 enum class Selection {
-
+  
   @JsonProperty("first")
   @GraphQLName("first")
   ONE,
@@ -58,7 +59,6 @@ input MyInputClassInput {
   renamedField: String!
 }
 
-# You should keep UPPERCASE naming if possible in GraphQL enums, but any case is supported
 enum Selection {
   first,
   second
