@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.exceptions.InvalidInputFieldTypeException
+import com.expediagroup.graphql.execution.OptionalInput
 import com.expediagroup.graphql.scalars.ID
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.Scalars
-import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeUtil
@@ -64,6 +64,11 @@ class GenerateArgumentTest : TypeTestHelper() {
         fun listInterfaceArg(input: List<MyInterface>) = input
 
         fun listUnionArg(input: List<MyUnion>) = input
+
+        fun optionalArg(input: OptionalInput<String>): String? = when (input) {
+            is OptionalInput.Undefined -> null
+            is OptionalInput.Defined -> input.value
+        }
     }
 
     @Test
@@ -72,7 +77,7 @@ class GenerateArgumentTest : TypeTestHelper() {
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 
-        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals("Argument description", result.description)
     }
 
@@ -82,7 +87,7 @@ class GenerateArgumentTest : TypeTestHelper() {
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 
-        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.firstOrNull()?.name)
     }
@@ -93,7 +98,7 @@ class GenerateArgumentTest : TypeTestHelper() {
         assertNotNull(kParameter)
         val result = generateArgument(generator, kParameter)
 
-        assertEquals(GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
+        assertEquals(Scalars.GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
         assertEquals("newName", result.name)
     }
 
@@ -185,5 +190,16 @@ class GenerateArgumentTest : TypeTestHelper() {
         assertFailsWith(InvalidInputFieldTypeException::class) {
             generateArgument(generator, kParameter)
         }
+    }
+
+    @Test
+    fun `Input wrapped in optional is valid`() {
+        val kParameter = ArgumentTestClass::optionalArg.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        val result = generateArgument(generator, kParameter)
+
+        assertEquals(expected = "input", actual = result.name)
+        assertEquals(Scalars.GraphQLString, result.type)
     }
 }

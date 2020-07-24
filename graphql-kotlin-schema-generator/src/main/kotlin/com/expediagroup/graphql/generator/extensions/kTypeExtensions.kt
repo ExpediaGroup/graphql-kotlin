@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.exceptions.InvalidListTypeException
+import com.expediagroup.graphql.execution.OptionalInput
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.withNullability
 import kotlin.reflect.jvm.jvmErasure
 
 private val primitiveArrayTypes = mapOf(
@@ -38,6 +40,16 @@ internal fun KType.getKClass() = this.jvmErasure
 internal fun KType.getJavaClass(): Class<*> = this.getKClass().java
 
 internal fun KType.isSubclassOf(kClass: KClass<*>) = this.getKClass().isSubclassOf(kClass)
+
+internal fun KType.isListType() = this.isSubclassOf(List::class) || this.getJavaClass().isArray
+
+internal fun KType.isOptionalInputType() = this.isSubclassOf(OptionalInput::class)
+
+internal fun KType.unwrapOptionalInputType() = if (this.isOptionalInputType()) {
+    this.getWrappedType().withNullability(true)
+} else {
+    this
+}
 
 @Throws(InvalidListTypeException::class)
 internal fun KType.getTypeOfFirstArgument(): KType =

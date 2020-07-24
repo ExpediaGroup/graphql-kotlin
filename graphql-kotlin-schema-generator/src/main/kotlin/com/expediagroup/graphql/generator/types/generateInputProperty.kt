@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.extensions.unwrapOptionalInputType
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KClass
@@ -29,7 +30,9 @@ internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*
     val builder = GraphQLInputObjectField.newInputObjectField()
 
     // Verfiy that the unwrapped GraphQL type is a valid input type
-    val graphQLInputType = generateGraphQLType(generator = generator, type = prop.returnType, inputType = true).safeCast<GraphQLInputType>()
+    val inputTypeFromHooks = generator.config.hooks.willResolveInputMonad(prop.returnType)
+    val unwrappedType = inputTypeFromHooks.unwrapOptionalInputType()
+    val graphQLInputType = generateGraphQLType(generator = generator, type = unwrappedType, inputType = true).safeCast<GraphQLInputType>()
 
     builder.description(prop.getPropertyDescription(parentClass))
     builder.name(prop.getPropertyName(parentClass))

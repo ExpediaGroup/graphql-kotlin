@@ -74,6 +74,12 @@ interface SchemaGeneratorHooks {
     fun willResolveMonad(type: KType): KType = type
 
     /**
+     * Called before resolving a KType to the input GraphQL type.
+     * This allows resolvers for custom deserialization logic of wrapped input values, like in an Optional.
+     */
+    fun willResolveInputMonad(type: KType): KType = type
+
+    /**
      * Called when looking at the KClass superclasses to determine if it valid for adding to the generated schema.
      * If any filter returns false, it is rejected.
      */
