@@ -42,7 +42,7 @@ import java.net.URL
  * A lightweight typesafe GraphQL HTTP client.
  */
 @KtorExperimentalAPI
-class GraphQLClient<in T : HttpClientEngineConfig>(
+open class GraphQLClient<in T : HttpClientEngineConfig>(
     private val url: URL,
     engineFactory: HttpClientEngineFactory<T>,
     private val mapper: ObjectMapper = jacksonObjectMapper(),
@@ -71,7 +71,7 @@ class GraphQLClient<in T : HttpClientEngineConfig>(
      * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
      * manually deserialize using passed in result type Class information.
      */
-    suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<T> {
+    open suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<T> {
         // Variables are simple data classes which will be serialized as map.
         // By using map instead of typed object we can eliminate the need to explicitly convert variables to a map
         val graphQLRequest = mapOf(
