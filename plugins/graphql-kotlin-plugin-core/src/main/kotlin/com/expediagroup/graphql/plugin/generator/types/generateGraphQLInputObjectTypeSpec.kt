@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.generator.types
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InputObjectTypeDefinition
@@ -46,7 +47,12 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
 
         val inputPropertySpec = inputPropertySpecBuilder.build()
         inputObjectTypeSpecBuilder.addProperty(inputPropertySpec)
-        constructorBuilder.addParameter(inputPropertySpec.name, inputPropertySpec.type)
+
+        val inputParameterSpec = ParameterSpec.builder(inputPropertySpec.name, inputPropertySpec.type)
+        if (inputPropertySpec.type.isNullable) {
+            inputParameterSpec.defaultValue("null")
+        }
+        constructorBuilder.addParameter(inputParameterSpec.build())
     }
     inputObjectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
