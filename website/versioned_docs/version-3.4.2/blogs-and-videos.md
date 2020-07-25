@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-blogs-and-videos
+id: version-3.4.2-blogs-and-videos
 title: Blogs & Videos
 original_id: blogs-and-videos
 ---
