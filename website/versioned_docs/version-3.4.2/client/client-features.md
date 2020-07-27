@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-client-features
+id: version-3.4.2-client-features
 title: Client Features
 original_id: client-features
 ---

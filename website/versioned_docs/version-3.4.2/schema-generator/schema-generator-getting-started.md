@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-schema-generator-getting-started
+id: version-3.4.2-schema-generator-getting-started
 title: Getting Started with the Schema Generator
 original_id: schema-generator-getting-started
 ---

@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-excluding-fields
+id: version-3.4.2-excluding-fields
 title: Excluding Fields
 original_id: excluding-fields
 ---
