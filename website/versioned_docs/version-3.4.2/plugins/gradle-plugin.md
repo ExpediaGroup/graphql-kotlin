@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-gradle-plugin
+id: version-3.4.2-gradle-plugin
 title: Gradle Plugin
 original_id: gradle-plugin
 ---

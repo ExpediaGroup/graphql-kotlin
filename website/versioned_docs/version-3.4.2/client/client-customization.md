@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-client-customization
+id: version-3.4.2-client-customization
 title: Client Customization
 original_id: client-customization
 ---

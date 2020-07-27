@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-subscriptions
+id: version-3.4.2-subscriptions
 title: Subscriptions
 original_id: subscriptions
 ---

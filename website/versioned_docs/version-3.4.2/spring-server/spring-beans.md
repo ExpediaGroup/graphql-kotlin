@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-spring-beans
+id: version-3.4.2-spring-beans
 title: Automatically Created Beans
 original_id: spring-beans
 ---

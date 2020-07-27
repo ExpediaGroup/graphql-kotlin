@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-spring-graphql-context
+id: version-3.4.2-spring-graphql-context
 title: Generating GraphQL Context
 original_id: spring-graphql-context
 ---

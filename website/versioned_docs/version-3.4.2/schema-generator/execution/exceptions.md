@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-exceptions
+id: version-3.4.2-exceptions
 title: Exceptions and Partial Data
 original_id: exceptions
 ---

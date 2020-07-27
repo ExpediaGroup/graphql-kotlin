@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-maven-plugin
+id: version-3.4.2-maven-plugin
 title: Maven Plugin
 original_id: maven-plugin
 ---

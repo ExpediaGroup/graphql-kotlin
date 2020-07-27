@@ -1,5 +1,5 @@
 ---
-id: version-3.4.1-deprecating-schema
+id: version-3.4.2-deprecating-schema
 title: Deprecating Schema
 original_id: deprecating-schema
 ---
