@@ -56,6 +56,22 @@ val result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name 
 }
 ```
 
+### Custom GraphQL client
+
+`GraphQLClient` is an open class which means you can also extend it to provide custom `execute` logic.
+
+```kotlin
+class CustomGraphQLClient(url: URL) : GraphQLClient<CIOEngineConfig>(url = url, engineFactory = CIO) {
+
+    override suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
+        // custom init logic
+        val result = super.execute(query, operationName, variables, resultType, requestBuilder)
+        // custom finalize logic
+        return result
+    }
+}
+```
+
 ## Jackson Customization
 
 `GraphQLClient` relies on Jackson to handle polymorphic types and default enum values. You can specify your own custom
