@@ -49,7 +49,7 @@ class GenerateVariableTypeSpecIT {
                       requestBuilder)
 
                   data class Variables(
-                    val criteria: TestQueryWithVariables.SimpleArgumentInput?
+                    val criteria: TestQueryWithVariables.SimpleArgumentInput? = null
                   )
 
                   /**
@@ -59,15 +59,15 @@ class GenerateVariableTypeSpecIT {
                     /**
                      * Maximum value for test criteria
                      */
-                    val max: Float?,
+                    val max: Float? = null,
                     /**
                      * Minimum value for test criteria
                      */
-                    val min: Float?,
+                    val min: Float? = null,
                     /**
                      * New value to be set
                      */
-                    val newName: String?
+                    val newName: String? = null
                   )
 
                   data class Result(

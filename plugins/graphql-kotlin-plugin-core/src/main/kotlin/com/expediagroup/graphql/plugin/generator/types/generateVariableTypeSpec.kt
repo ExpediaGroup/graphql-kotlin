@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.generator.types
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.VariableDefinition
@@ -34,7 +35,11 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
     variableDefinitions.forEach { variableDef ->
         val kotlinTypeName = generateTypeName(context, variableDef.type)
 
-        constructorSpec.addParameter(variableDef.name, kotlinTypeName)
+        val parameterBuilder = ParameterSpec.builder(variableDef.name, kotlinTypeName)
+        if (kotlinTypeName.isNullable) {
+            parameterBuilder.defaultValue("null")
+        }
+        constructorSpec.addParameter(parameterBuilder.build())
         variableTypeSpec.addProperty(
             PropertySpec.builder(variableDef.name, kotlinTypeName)
                 .initializer(variableDef.name)
