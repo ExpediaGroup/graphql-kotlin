@@ -30,9 +30,9 @@ import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.javaType
 
 /**
- * Spring aware function data fetcher that automatically automatically autowires Spring beans as function parameters.
+ * Spring aware function data fetcher that automatically autowires Spring beans as function parameters.
  */
-class SpringDataFetcher(
+open class SpringDataFetcher(
     target: Any?,
     fn: KFunction<*>,
     objectMapper: ObjectMapper = jacksonObjectMapper(),
