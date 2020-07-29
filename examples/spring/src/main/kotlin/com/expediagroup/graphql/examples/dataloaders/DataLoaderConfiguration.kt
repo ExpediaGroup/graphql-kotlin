@@ -36,4 +36,3 @@ class CompanyService {
 
     fun getCompanies(ids: List<Int>): List<Company> = companies
 }
-

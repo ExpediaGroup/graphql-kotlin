@@ -28,8 +28,8 @@ class SpringAwareQuery : Query {
 class WidgetRepository {
 
     private val widgets = mapOf(
-        1 to Widget(value = 123),
-        2 to Widget(value = 234)
+        1 to Widget(value = 1),
+        2 to Widget(value = 2)
     )
 
     fun findWidget(id: Int): Widget? = widgets[id]

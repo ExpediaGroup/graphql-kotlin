@@ -32,7 +32,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest
 @AutoConfigureWebTestClient
 @TestInstance(PER_CLASS)
-class WidgetQueryIT(@Autowired private val testClient: WebTestClient) {
+class SpringAwareQueryIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify widgetById query`() {
