@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
@@ -40,8 +41,11 @@ class Application {
     fun hooks(wiringFactory: KotlinDirectiveWiringFactory) = CustomSchemaGeneratorHooks(wiringFactory)
 
     @Bean
-    fun dataFetcherFactoryProvider(springDataFetcherFactory: SpringDataFetcherFactory, objectMapper: ObjectMapper) =
-        CustomDataFetcherFactoryProvider(springDataFetcherFactory, objectMapper)
+    fun dataFetcherFactoryProvider(
+        springDataFetcherFactory: SpringDataFetcherFactory,
+        objectMapper: ObjectMapper,
+        applicationContext: ApplicationContext
+    ) = CustomDataFetcherFactoryProvider(springDataFetcherFactory, objectMapper, applicationContext)
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()

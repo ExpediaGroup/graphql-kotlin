@@ -19,6 +19,7 @@ package com.expediagroup.graphql.examples.execution
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
+import org.springframework.context.ApplicationContext
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -28,14 +29,16 @@ import kotlin.reflect.KProperty
  */
 class CustomDataFetcherFactoryProvider(
     private val springDataFetcherFactory: SpringDataFetcherFactory,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val applicationContext: ApplicationContext
 ) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
 
     override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
         CustomFunctionDataFetcher(
             target = target,
             fn = kFunction,
-            objectMapper = objectMapper
+            objectMapper = objectMapper,
+            appContext = applicationContext
         )
     }
 

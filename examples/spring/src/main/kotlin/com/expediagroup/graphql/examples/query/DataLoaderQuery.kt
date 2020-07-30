@@ -1,8 +1,7 @@
 package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.examples.model.Company
-import com.expediagroup.graphql.examples.model.Employee
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -12,18 +11,11 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Example query that showcases the usage of data loader pattern.
+ */
 @Component
-class CompanyService {
-    private val companies = listOf(
-        Company(id = 1, name = "FirstCompany"),
-        Company(id = 2, name = "SecondCompany")
-    )
-
-    fun getCompanies(ids: List<Int>): List<Company> = companies
-}
-
-@Component
-class EmployeeQuery : Query {
+class DataLoaderQuery : Query {
     private val employees = listOf(
         Employee(name = "Mike", companyId = 1),
         Employee(name = "John", companyId = 1),
@@ -35,6 +27,16 @@ class EmployeeQuery : Query {
         return employees
     }
 }
+
+data class Employee(
+    val name: String,
+    @GraphQLIgnore
+    val companyId: Int
+) {
+    lateinit var company: Company
+}
+
+data class Company(val id: Int, val name: String)
 
 @Component("CompanyDataFetcher")
 @Scope("prototype")
