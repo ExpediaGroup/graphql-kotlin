@@ -35,7 +35,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
-                import kotlin.String
+                import kotlin.Any
                 import kotlin.jvm.JvmStatic
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
@@ -61,7 +61,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
 
                       @JsonCreator
                       @JvmStatic
-                      fun create(rawValue: String) = UUID(converter.toScalar(rawValue))
+                      fun create(rawValue: Any) = UUID(converter.toScalar(rawValue))
                     }
                   }
 

@@ -71,7 +71,7 @@ internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGenerator
                 FunSpec.builder("create")
                     .addAnnotation(JsonCreator::class.java)
                     .jvmStatic()
-                    .addParameter("rawValue", String::class)
+                    .addParameter("rawValue", Any::class)
                     .addStatement("return %L(%N.toScalar(rawValue))", customScalarName, converter)
                     .build()
             )

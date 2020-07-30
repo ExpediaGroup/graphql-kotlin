@@ -22,12 +22,12 @@ package com.expediagroup.graphql.client.converter
 interface ScalarConverter<T> {
 
     /**
-     * Deserialize raw JSON String value to a typesafe value.
+     * Deserialize raw JSON value to a typesafe value.
      */
-    fun toScalar(rawValue: String): T
+    fun toScalar(rawValue: Any): T
 
     /**
-     * Serialize typesafe scalar value to a raw JSON string.
+     * Serialize typesafe scalar value to a raw JSON value.
      */
-    fun toJson(value: T): String
+    fun toJson(value: T): Any
 }
