@@ -39,6 +39,9 @@ class SchemaGeneratorTest {
         // Add a valid annotation
         generator.addTypes(MyCustomAnnotation::class)
         assertEquals(1, generator.additionalTypes.size)
+
+        generator.addInputTypes(MyCustomAnnotation::class)
+        assertEquals(2, generator.additionalTypes.size)
     }
 
     @Test
@@ -74,7 +77,7 @@ class SchemaGeneratorTest {
     }
 
     class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
-        internal fun addTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation, false)
+        internal fun addTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation)
 
         internal fun addInputTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation, true)
 
