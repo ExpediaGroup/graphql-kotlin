@@ -35,9 +35,10 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject>,
         subscriptions: List<TopLevelObject>,
-        additionalTypes: Set<KType>
+        additionalTypes: Set<KType>,
+        additionalInputTypes: Set<KType>
     ): GraphQLSchema {
-        addAdditionalTypesWithAnnotation(ExtendsDirective::class)
-        return super.generateSchema(queries, mutations, subscriptions, additionalTypes)
+        addAdditionalTypesWithAnnotation(ExtendsDirective::class, inputType = false)
+        return super.generateSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes)
     }
 }

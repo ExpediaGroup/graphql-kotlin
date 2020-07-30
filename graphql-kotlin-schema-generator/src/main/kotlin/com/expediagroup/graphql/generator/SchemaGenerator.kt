@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator
 
+import com.expediagroup.graphql.AdditionalType
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidPackagesException
@@ -47,7 +48,7 @@ import kotlin.reflect.full.createType
 */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
-    internal val additionalTypes: MutableSet<KType> = mutableSetOf()
+    internal val additionalTypes: MutableSet<AdditionalType> = mutableSetOf()
     internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
@@ -69,10 +70,15 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList(),
-        additionalTypes: Set<KType> = emptySet()
+        additionalTypes: Set<KType> = emptySet(),
+        additionalInputTypes: Set<KType> = emptySet()
     ): GraphQLSchema {
 
-        this.additionalTypes.addAll(additionalTypes)
+        // Backwards compatiable change. For 4.0.0 we can change the arguments
+        // above to just one input of Set<AdditionalType>
+        this.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
+        this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
+
         val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))
         builder.mutation(generateMutations(this, mutations))
@@ -94,14 +100,15 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      *
      * This is helpful for things like federation or combining external schemas
      */
-    protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>) {
+    protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>, inputType: Boolean = false) {
         classScanner.getClassesWithAnnotation(annotation).forEach {
-            additionalTypes.add(it.createType())
+            additionalTypes.add(AdditionalType(it.createType(), inputType))
         }
     }
 
     /**
-     * Generate the GraphQL type for all the `additionalTypes`. They are generated as non-inputs and not as IDs.
+     * Generate the GraphQL type for all the `additionalTypes`.
+     *
      * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
      * you can provide more types to be added through [generateSchema].
      *
@@ -112,7 +119,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         while (this.additionalTypes.isNotEmpty()) {
             val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
             this.additionalTypes.clear()
-            graphqlTypes.addAll(currentlyProcessedTypes.map { generateGraphQLType(this, it) })
+            graphqlTypes.addAll(currentlyProcessedTypes.map { generateGraphQLType(this, it.kType, it.inputType) })
         }
 
         return graphqlTypes.toSet()
