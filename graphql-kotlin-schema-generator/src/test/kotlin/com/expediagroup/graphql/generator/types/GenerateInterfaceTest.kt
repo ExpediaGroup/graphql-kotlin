@@ -26,7 +26,7 @@ import kotlin.math.PI
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-internal class GenerateInterfaceTest : TypeTestHelper() {
+class GenerateInterfaceTest : TypeTestHelper() {
 
     @Test
     fun `Test naming`() {
@@ -59,8 +59,8 @@ internal class GenerateInterfaceTest : TypeTestHelper() {
         val result = generateInterface(generator, Shape::class) as? GraphQLInterfaceType
         assertEquals("Shape", result?.name)
         assertEquals(2, generator.additionalTypes.size)
-        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Circle" })
-        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Square" })
+        assertNotNull(generator.additionalTypes.find { it.kType.getSimpleName() == "Circle" })
+        assertNotNull(generator.additionalTypes.find { it.kType.getSimpleName() == "Square" })
     }
 
     @Test
@@ -69,8 +69,8 @@ internal class GenerateInterfaceTest : TypeTestHelper() {
         val result = generateInterface(generator, Pet::class) as? GraphQLInterfaceType
         assertEquals("Pet", result?.name)
         assertEquals(2, generator.additionalTypes.size)
-        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Cat" })
-        assertNotNull(generator.additionalTypes.find { it.getSimpleName() == "Dog" })
+        assertNotNull(generator.additionalTypes.find { it.kType.getSimpleName() == "Cat" })
+        assertNotNull(generator.additionalTypes.find { it.kType.getSimpleName() == "Dog" })
     }
 
     @Suppress("Detekt.UnusedPrivateClass")

@@ -39,6 +39,9 @@ class SchemaGeneratorTest {
         // Add a valid annotation
         generator.addTypes(MyCustomAnnotation::class)
         assertEquals(1, generator.additionalTypes.size)
+
+        generator.addInputTypes(MyCustomAnnotation::class)
+        assertEquals(2, generator.additionalTypes.size)
     }
 
     @Test
@@ -54,6 +57,18 @@ class SchemaGeneratorTest {
     }
 
     @Test
+    fun generateAdditionalInputTypes() {
+        val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"))
+        val generator = CustomSchemaGenerator(config)
+        generator.addInputTypes(MyCustomAnnotation::class)
+
+        val result = generator.generateCustomAdditionalTypes()
+
+        assertEquals(1, result.size)
+        assertEquals("SomeObjectWithAnnotationInput!", result.first().deepName)
+    }
+
+    @Test
     fun invalidPackagesThrowsException() {
         assertFailsWith(InvalidPackagesException::class) {
             val config = SchemaGeneratorConfig(listOf("foo.bar"))
@@ -63,6 +78,8 @@ class SchemaGeneratorTest {
 
     class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
         internal fun addTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation)
+
+        internal fun addInputTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation, true)
 
         internal fun generateCustomAdditionalTypes() = generateAdditionalTypes()
     }

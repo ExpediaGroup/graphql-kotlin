@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
@@ -58,7 +59,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
 
     generator.classScanner.getSubTypesOf(kClass)
         .filter { it.isGraphQLIgnored().not() }
-        .forEach { generator.additionalTypes.add(it.createType()) }
+        .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 
     val interfaceType = builder.build()
     generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
