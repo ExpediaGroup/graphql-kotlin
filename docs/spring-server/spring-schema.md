@@ -40,7 +40,7 @@ type Query {
 }
 
 type Mutation {
-  myAwesomeMutation(widget: Widget!): Widget!
+  myAwesomeMutation(widget: WidgetInput!): Widget!
 }
 
 type Subscription {
@@ -48,6 +48,11 @@ type Subscription {
 }
 
 type Widget {
+  id: Int!
+  value: String!
+}
+
+input WidgetInput {
   id: Int!
   value: String!
 }
