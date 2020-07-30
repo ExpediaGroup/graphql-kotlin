@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.generator
 
-import com.expediagroup.graphql.AdditionalType
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidPackagesException
+import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
 import com.expediagroup.graphql.generator.types.generateGraphQLType

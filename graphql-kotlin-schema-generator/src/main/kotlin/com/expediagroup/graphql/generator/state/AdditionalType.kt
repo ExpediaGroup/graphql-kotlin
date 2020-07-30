@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql
+package com.expediagroup.graphql.generator.state
 
 import kotlin.reflect.KType
 
@@ -23,7 +23,7 @@ import kotlin.reflect.KType
  * and that can also be picked up at generation time by including all the
  * interface implementations that may not be used in the code.
  */
-data class AdditionalType(
+internal data class AdditionalType(
     val kType: KType,
     val inputType: Boolean = false
 )

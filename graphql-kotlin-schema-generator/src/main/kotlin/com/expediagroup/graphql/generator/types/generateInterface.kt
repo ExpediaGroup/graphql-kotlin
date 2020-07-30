@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.AdditionalType
+import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
