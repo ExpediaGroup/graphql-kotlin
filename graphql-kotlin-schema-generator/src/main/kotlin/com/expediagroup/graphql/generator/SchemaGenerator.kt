@@ -74,8 +74,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         additionalInputTypes: Set<KType> = emptySet()
     ): GraphQLSchema {
 
-        // Backwards compatiable change. For 4.0.0 we can change the arguments
-        // above to just one input of Set<AdditionalType>
         this.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
         this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
 
