@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidPackagesException
+import com.expediagroup.graphql.generator.extensions.isValidAdditionalType
 import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
@@ -30,6 +31,7 @@ import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeUtil
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
@@ -100,7 +102,9 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>, inputType: Boolean = false) {
         classScanner.getClassesWithAnnotation(annotation).forEach {
-            additionalTypes.add(AdditionalType(it.createType(), inputType))
+            if (it.isValidAdditionalType(inputType)) {
+                additionalTypes.add(AdditionalType(it.createType(), inputType))
+            }
         }
     }
 
@@ -117,10 +121,14 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         while (this.additionalTypes.isNotEmpty()) {
             val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
             this.additionalTypes.clear()
-            graphqlTypes.addAll(currentlyProcessedTypes.map { generateGraphQLType(this, it.kType, it.inputType) })
+            graphqlTypes.addAll(
+                currentlyProcessedTypes.map {
+                    GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, it.inputType))
+                }
+            )
         }
 
-        return graphqlTypes.toSet()
+        return graphqlTypes
     }
 
     /**

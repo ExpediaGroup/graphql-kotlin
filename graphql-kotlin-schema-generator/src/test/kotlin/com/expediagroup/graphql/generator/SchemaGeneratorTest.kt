@@ -40,8 +40,17 @@ class SchemaGeneratorTest {
         generator.addTypes(MyCustomAnnotation::class)
         assertEquals(1, generator.additionalTypes.size)
 
-        generator.addInputTypes(MyCustomAnnotation::class)
-        assertEquals(2, generator.additionalTypes.size)
+        // Verify interfaces and unions are not added when input types
+        generator.addInputTypes(MyInterfaceAnnotation::class)
+        assertEquals(1, generator.additionalTypes.size)
+
+        // Interfaces and unions can be added when not input types
+        generator.addTypes(MyInterfaceAnnotation::class)
+        assertEquals(3, generator.additionalTypes.size)
+
+        // Verify the interface implementations are picked up at generation time
+        val result = generator.generateCustomAdditionalTypes()
+        assertEquals(4, result.size)
     }
 
     @Test
@@ -53,7 +62,7 @@ class SchemaGeneratorTest {
         val result = generator.generateCustomAdditionalTypes()
 
         assertEquals(1, result.size)
-        assertEquals("SomeObjectWithAnnotation!", result.first().deepName)
+        assertEquals("SomeObjectWithAnnotation", result.first().deepName)
     }
 
     @Test
@@ -65,7 +74,20 @@ class SchemaGeneratorTest {
         val result = generator.generateCustomAdditionalTypes()
 
         assertEquals(1, result.size)
-        assertEquals("SomeObjectWithAnnotationInput!", result.first().deepName)
+        assertEquals("SomeObjectWithAnnotationInput", result.first().deepName)
+    }
+
+    @Test
+    fun generateBothInputAndOutputTypesWithSameName() {
+        val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"))
+        val generator = CustomSchemaGenerator(config)
+        generator.addTypes(AnnotationOnAllTypes::class)
+        generator.addInputTypes(AnnotationOnAllTypes::class)
+
+        val result = generator.generateCustomAdditionalTypes()
+
+        // Verify there are no duplicates
+        assertEquals(8, result.size)
     }
 
     @Test
@@ -86,7 +108,26 @@ class SchemaGeneratorTest {
 
     annotation class MyCustomAnnotation
     annotation class MyOtherCustomAnnotation
+    annotation class MyInterfaceAnnotation
+    annotation class AnnotationOnAllTypes
 
     @MyCustomAnnotation
+    @AnnotationOnAllTypes
     data class SomeObjectWithAnnotation(val name: String)
+
+    @MyInterfaceAnnotation
+    @AnnotationOnAllTypes
+    interface SomeUnion
+
+    @AnnotationOnAllTypes
+    data class UnionImpl(val id: String) : SomeUnion
+
+    @MyInterfaceAnnotation
+    @AnnotationOnAllTypes
+    interface SomeInterface {
+        val id: String
+    }
+
+    @AnnotationOnAllTypes
+    data class InterfaceImpl(override val id: String) : SomeInterface
 }

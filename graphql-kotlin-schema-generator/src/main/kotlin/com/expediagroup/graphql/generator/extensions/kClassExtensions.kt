@@ -57,10 +57,18 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
 internal fun KClass<*>.findConstructorParameter(name: String): KParameter? =
     this.primaryConstructor?.findParameterByName(name)
 
-internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface || this.isAbstract || this.isSealed
+internal fun KClass<*>.isInterface(): Boolean =
+    this.java.isInterface || this.isAbstract || this.isSealed
 
 internal fun KClass<*>.isUnion(): Boolean =
     this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+
+/**
+ * Do not add interfaces as additional types if it expects all the types
+ * to be input types. The isInteface() check works for both
+ * GraphQL Interfaces and GraphQL Unions
+ */
+internal fun KClass<*>.isValidAdditionalType(inputType: Boolean): Boolean = !(inputType && this.isInterface())
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 

@@ -60,7 +60,7 @@ open class KClassExtensionsTest {
         val publicProperty: String = "public",
         val filteredProperty: String = "filtered",
         private val privateVal: String = "hidden"
-    ) : TestInterface {
+    ) : TestUnion {
         fun publicFunction() = "public function"
 
         fun filteredFunction() = "filtered function"
@@ -82,7 +82,7 @@ open class KClassExtensionsTest {
 
     class MyPublicClass
 
-    internal class UnionSuperclass : TestInterface
+    internal class UnionSuperclass : TestUnion
 
     @GraphQLIgnore
     internal interface IgnoredInterface {
@@ -129,7 +129,7 @@ open class KClassExtensionsTest {
         val id = 1
     }
 
-    interface TestInterface
+    interface TestUnion
 
     sealed class Pet(val name: String) {
         class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
@@ -242,7 +242,7 @@ open class KClassExtensionsTest {
         assertNotNull(MyTestClass::class.findConstructorParameter("publicProperty"))
         assertNull(MyTestClass::class.findConstructorParameter("foobar"))
         assertNull(EmptyConstructorClass::class.findConstructorParameter("id"))
-        assertNull(TestInterface::class.findConstructorParameter("foobar"))
+        assertNull(TestUnion::class.findConstructorParameter("foobar"))
     }
 
     @Test
@@ -261,7 +261,7 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test graphql interface extension`() {
-        assertTrue(TestInterface::class.isInterface())
+        assertTrue(TestUnion::class.isInterface())
         assertTrue(SomeAbstractClass::class.isInterface())
         assertTrue(Pet::class.isInterface())
         assertFalse(MyTestClass::class.isInterface())
@@ -269,7 +269,7 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test graphql union extension`() {
-        assertTrue(TestInterface::class.isUnion())
+        assertTrue(TestUnion::class.isUnion())
         assertFalse(InvalidPropertyUnionInterface::class.isUnion())
         assertFalse(InvalidFunctionUnionInterface::class.isUnion())
         assertFalse(Pet::class.isUnion())
@@ -333,5 +333,20 @@ open class KClassExtensionsTest {
         assertTrue(MyInternalClass::class.isNotPublic())
         assertTrue(MyProtectedClass::class.isNotPublic())
         assertTrue(MyTestClass::class.isNotPublic())
+    }
+
+    @Test
+    fun isValidAdditionalType() {
+        // Valid cases
+        assertTrue(MyPublicClass::class.isValidAdditionalType(false))
+        assertTrue(MyPublicClass::class.isValidAdditionalType(true))
+        assertTrue(SomeInterface::class.isValidAdditionalType(false))
+        assertTrue(TestUnion::class.isValidAdditionalType(false))
+        assertTrue(MyTestEnum::class.isValidAdditionalType(false))
+        assertTrue(MyTestEnum::class.isValidAdditionalType(true))
+
+        // Invalid cases
+        assertFalse(SomeInterface::class.isValidAdditionalType(true))
+        assertFalse(TestUnion::class.isValidAdditionalType(true))
     }
 }
