@@ -40,11 +40,16 @@ class SchemaGeneratorTest {
         generator.addTypes(MyCustomAnnotation::class)
         assertEquals(1, generator.additionalTypes.size)
 
+        // Verify interfaces and unions are not added when input types
         generator.addInputTypes(MyInterfaceAnnotation::class)
+        assertEquals(1, generator.additionalTypes.size)
+
+        // Interfaces and unions can be added when not input types
+        generator.addTypes(MyInterfaceAnnotation::class)
         assertEquals(3, generator.additionalTypes.size)
 
-        // Verify there are no duplicates
-        val result = generator.generateCustomAdditionalTypes().map { it.deepName }.toSet()
+        // Verify the interface implementations are picked up at generation time
+        val result = generator.generateCustomAdditionalTypes()
         assertEquals(4, result.size)
     }
 
@@ -79,7 +84,7 @@ class SchemaGeneratorTest {
         generator.addTypes(AnnotationOnAllTypes::class)
         generator.addInputTypes(AnnotationOnAllTypes::class)
 
-        val result = generator.generateCustomAdditionalTypes().map { it.deepName }.toSet()
+        val result = generator.generateCustomAdditionalTypes()
 
         // Verify there are no duplicates
         assertEquals(8, result.size)

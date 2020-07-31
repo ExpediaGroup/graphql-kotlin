@@ -19,7 +19,7 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidPackagesException
-import com.expediagroup.graphql.generator.extensions.distinctName
+import com.expediagroup.graphql.generator.extensions.isValidAdditionalType
 import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
@@ -102,7 +102,9 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>, inputType: Boolean = false) {
         classScanner.getClassesWithAnnotation(annotation).forEach {
-            additionalTypes.add(AdditionalType(it.createType(), inputType))
+            if (it.isValidAdditionalType(inputType)) {
+                additionalTypes.add(AdditionalType(it.createType(), inputType))
+            }
         }
     }
 
@@ -126,8 +128,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
             )
         }
 
-        // The set may have duplicate types, so create a unique by comparing their distinctName()
-        return graphqlTypes.distinctBy { it.distinctName() }.toSet()
+        return graphqlTypes
     }
 
     /**

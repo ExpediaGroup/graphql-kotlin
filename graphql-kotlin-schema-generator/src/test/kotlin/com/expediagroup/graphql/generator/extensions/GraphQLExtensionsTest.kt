@@ -17,13 +17,10 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLSchemaElement
-import graphql.Scalars
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLInputObjectField
-import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
@@ -143,29 +140,5 @@ internal class GraphQLExtensionsTest {
         assertFailsWith(CouldNotCastGraphQLSchemaElement::class) {
             type.safeCast<GraphQLInterfaceType>()
         }
-    }
-
-    @Test
-    fun `distinctName returns the full class name value`() {
-        val inputType = GraphQLInputObjectType.newInputObject()
-            .name("Foo")
-            .field(
-                GraphQLInputObjectField.newInputObjectField()
-                    .name("value")
-                    .type(Scalars.GraphQLString)
-            )
-            .build()
-
-        val objectType = GraphQLObjectType.newObject()
-            .name("Foo")
-            .field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name("value")
-                    .type(Scalars.GraphQLString)
-            )
-            .build()
-
-        assertEquals("graphql.schema.GraphQLInputObjectType.Foo", inputType.distinctName())
-        assertEquals("graphql.schema.GraphQLObjectType.Foo", objectType.distinctName())
     }
 }

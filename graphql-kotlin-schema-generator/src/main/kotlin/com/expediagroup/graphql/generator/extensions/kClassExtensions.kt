@@ -57,10 +57,16 @@ internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<K
 internal fun KClass<*>.findConstructorParameter(name: String): KParameter? =
     this.primaryConstructor?.findParameterByName(name)
 
-internal fun KClass<*>.isInterface(): Boolean = this.java.isInterface || this.isAbstract || this.isSealed
+internal fun KClass<*>.isInterface(): Boolean =
+    this.java.isInterface || this.isAbstract || this.isSealed
 
 internal fun KClass<*>.isUnion(): Boolean =
     this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+
+internal fun KClass<*>.isValidAdditionalType(inputType: Boolean): Boolean = when {
+    inputType && (this.isInterface() || this.isUnion()) -> false
+    else -> true
+}
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
