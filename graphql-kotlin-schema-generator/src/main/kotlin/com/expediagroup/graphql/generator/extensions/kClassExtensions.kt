@@ -63,10 +63,12 @@ internal fun KClass<*>.isInterface(): Boolean =
 internal fun KClass<*>.isUnion(): Boolean =
     this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
 
-internal fun KClass<*>.isValidAdditionalType(inputType: Boolean): Boolean = when {
-    inputType && (this.isInterface() || this.isUnion()) -> false
-    else -> true
-}
+/**
+ * Do not add interfaces as additional types if it expects all the types
+ * to be input types. The isInteface() check works for both
+ * GraphQL Interfaces and GraphQL Unions
+ */
+internal fun KClass<*>.isValidAdditionalType(inputType: Boolean): Boolean = !(inputType && this.isInterface())
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
