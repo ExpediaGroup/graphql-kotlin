@@ -35,7 +35,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -107,8 +108,11 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
             .accept(MediaType.TEXT_PLAIN)
             .exchange()
             .expectStatus().isOk
-            .expectBody<String>()
-            .isEqualTo(expectedSchema)
+            .expectBody()
+            .consumeWith {
+                val body = assertNotNull(it.responseBody)
+                assertEquals(expectedSchema, String(body))
+            }
     }
 
     @Test
