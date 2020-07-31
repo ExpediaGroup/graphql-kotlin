@@ -18,8 +18,8 @@
           "version-3.5.0-schema-generator/writing-schemas/lists",
           "version-3.5.0-schema-generator/writing-schemas/interfaces",
           "version-3.5.0-schema-generator/writing-schemas/unions",
-          "version-3.5.0-schema-generator/writing-schemas/nested-arguments",
-          "version-3.5.0-schema-generator/writing-schemas/annotations"
+          "version-3.5.0-schema-generator/writing-schemas/annotations",
+          "version-3.5.0-schema-generator/writing-schemas/nested-arguments"
         ]
       },
       {
@@ -60,6 +60,7 @@
       "version-3.5.0-spring-server/spring-overview",
       "version-3.5.0-spring-server/spring-beans",
       "version-3.5.0-spring-server/spring-properties",
+      "version-3.5.0-spring-server/spring-schema",
       "version-3.5.0-spring-server/spring-graphql-context",
       "version-3.5.0-spring-server/http-request-response",
       "version-3.5.0-spring-server/subscriptions"

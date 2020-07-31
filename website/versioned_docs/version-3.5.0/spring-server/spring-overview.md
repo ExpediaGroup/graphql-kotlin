@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-spring-overview
+id: version-3.5.0-spring-overview
 title: Spring Server Overview
 original_id: spring-overview
 ---
@@ -89,7 +89,7 @@ type Query {
 }
 
 type Mutation {
-  myAwesomeMutation(widget: Widget!): Widget!
+  myAwesomeMutation(widget: WidgetInput!): Widget!
 }
 
 type Subscription {
@@ -97,6 +97,11 @@ type Subscription {
 }
 
 type Widget {
+  id: Int!
+  value: String!
+}
+
+input WidgetInput {
   id: Int!
   value: String!
 }

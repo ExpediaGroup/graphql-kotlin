@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-client-customization
+id: version-3.5.0-client-customization
 title: Client Customization
 original_id: client-customization
 ---
@@ -54,6 +54,22 @@ attributes that can be accessed from the pipeline features as well specify timeo
 val helloWorldQuery = HelloWorldQuery(client)
 val result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = null)) {
     header("X-B3-TraceId", "0123456789abcdef")
+}
+```
+
+### Custom GraphQL client
+
+`GraphQLClient` is an open class which means you can also extend it to provide custom `execute` logic.
+
+```kotlin
+class CustomGraphQLClient(url: URL) : GraphQLClient<CIOEngineConfig>(url = url, engineFactory = CIO) {
+
+    override suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
+        // custom init logic
+        val result = super.execute(query, operationName, variables, resultType, requestBuilder)
+        // custom finalize logic
+        return result
+    }
 }
 ```
 

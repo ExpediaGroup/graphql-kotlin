@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-spring-beans
+id: version-3.5.0-spring-beans
 title: Automatically Created Beans
 original_id: spring-beans
 ---
@@ -15,7 +15,7 @@ can be customized by providing custom beans in your application context. See sec
 | FederatedSchemaGeneratorConfig | Federated schema generator configuration information. You can customize the configuration by providing `TopLevelNames`, `FederatedSchemaGeneratorHooks` and `KotlinDataFetcherFactoryProvider` beans.<br><br>_Created instead of default `SchemaGeneratorConfig` if federation is enabled_. |
 | FederatedTypeRegistry          | Default type registry without any resolvers. See [Federated Type Resolution](../federated/type-resolution.md) for more details.<br><br>_Created only if federation is enabled. You should register your custom type registry bean whenever implementing federated GraphQL schema with extended types_. |
 | GraphQLSchema                  | GraphQL schema generated based on the schema generator configuration and  `Query`, `Mutation` and `Subscription` objects available in the application context. |
-| KotlinDataFetcherFactoryProvider | Factory used during schema construction to obtain `DataFetcherFactory` that should be used for target function and property resolution.|
+| KotlinDataFetcherFactoryProvider | Factory used during schema construction to obtain `DataFetcherFactory` that should be used for target function (using Spring aware `SpringDataFetcher`) and property resolution. |
 | SchemaGeneratorConfig          | Schema generator configuration information, see [Schema Generator Configuration](../schema-generator/customizing-schemas/generator-config.md) for details. Can be customized by providing `TopLevelNames`, [SchemaGeneratorHooks](../schema-generator/customizing-schemas/generator-config.md) and `KotlinDataFetcherFactoryProvider` beans. |
 
 ## Execution

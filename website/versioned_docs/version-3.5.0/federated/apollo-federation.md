@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-apollo-federation
+id: version-3.5.0-apollo-federation
 title: Apollo Federation
 original_id: apollo-federation
 ---

@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-type-resolution
+id: version-3.5.0-type-resolution
 title: Federated Type Resolution
 original_id: type-resolution
 ---

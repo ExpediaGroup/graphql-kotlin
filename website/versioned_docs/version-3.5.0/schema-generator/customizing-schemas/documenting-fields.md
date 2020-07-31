@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-documenting-fields
+id: version-3.5.0-documenting-fields
 title: Documenting Schema
 original_id: documenting-fields
 ---

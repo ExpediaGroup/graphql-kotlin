@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-federated-schemas
+id: version-3.5.0-federated-schemas
 title: Federated Schemas
 original_id: federated-schemas
 ---

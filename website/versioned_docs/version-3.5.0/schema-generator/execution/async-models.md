@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-async-models
+id: version-3.5.0-async-models
 title: Async Models
 original_id: async-models
 ---

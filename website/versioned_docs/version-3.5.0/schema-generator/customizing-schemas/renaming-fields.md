@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-renaming-fields
+id: version-3.5.0-renaming-fields
 title: Renaming Fields
 original_id: renaming-fields
 ---

@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-release-proc
+id: version-3.5.0-release-proc
 title: Releasing a new version
 original_id: release-proc
 ---

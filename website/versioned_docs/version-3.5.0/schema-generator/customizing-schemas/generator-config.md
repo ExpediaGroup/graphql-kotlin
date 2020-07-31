@@ -1,5 +1,5 @@
 ---
-id: version-3.4.2-generator-config
+id: version-3.5.0-generator-config
 title: Generator Configuration
 original_id: generator-config
 ---
