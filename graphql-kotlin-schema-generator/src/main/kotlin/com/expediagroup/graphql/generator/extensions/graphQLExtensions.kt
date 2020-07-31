@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.extensions
 
 import com.expediagroup.graphql.exceptions.CouldNotCastGraphQLSchemaElement
+import com.expediagroup.graphql.extensions.deepName
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
@@ -34,6 +35,12 @@ internal fun GraphQLType.wrapInNonNull(type: KType): GraphQLType = when {
     type.isMarkedNullable -> this
     else -> GraphQLNonNull.nonNull(this)
 }
+
+/**
+ * Get a distinct name for the class so we can tell input and object types
+ * apart and create a set of truly unique types.
+ */
+internal fun GraphQLType.distinctName(): String = "${this.javaClass.name}.${this.deepName}"
 
 @Throws(CouldNotCastGraphQLSchemaElement::class)
 internal inline fun <reified T : GraphQLSchemaElement> GraphQLSchemaElement.safeCast(): T {
