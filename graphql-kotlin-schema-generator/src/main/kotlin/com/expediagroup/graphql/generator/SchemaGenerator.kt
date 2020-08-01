@@ -36,7 +36,6 @@ import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 /**
@@ -72,12 +71,10 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         queries: List<TopLevelObject>,
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList(),
-        additionalTypes: Set<KType> = emptySet(),
-        additionalInputTypes: Set<KType> = emptySet()
+        additionalTypes: Set<AdditionalType> = emptySet()
     ): GraphQLSchema {
 
-        this.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
-        this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
+        this.additionalTypes.addAll(additionalTypes)
 
         val builder = GraphQLSchema.newSchema()
         builder.query(generateQueries(this, queries))

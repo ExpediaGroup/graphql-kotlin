@@ -23,7 +23,7 @@ import kotlin.reflect.KType
  * and that can also be picked up at generation time by including all the
  * interface implementations that may not be used in the code.
  */
-internal data class AdditionalType(
+data class AdditionalType(
     val kType: KType,
     val inputType: Boolean = false
 )
