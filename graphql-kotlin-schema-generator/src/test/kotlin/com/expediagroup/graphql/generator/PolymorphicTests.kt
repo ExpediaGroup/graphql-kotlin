@@ -35,7 +35,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-internal class PolymorphicTests {
+class PolymorphicTests {
 
     @Test
     fun `Schema generator creates union types from marked up interface`() {

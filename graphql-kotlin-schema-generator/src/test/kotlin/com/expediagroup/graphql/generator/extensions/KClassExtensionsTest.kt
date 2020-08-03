@@ -92,6 +92,9 @@ open class KClassExtensionsTest {
     @GraphQLIgnore
     interface IgnoredSecondLevelInterface : SomeInterface
 
+    @GraphQLIgnore
+    class IgnoredClass(val value: String)
+
     internal class ClassWithSecondLevelInterface : IgnoredSecondLevelInterface {
         override val someField: String = "hello"
 
@@ -348,5 +351,11 @@ open class KClassExtensionsTest {
         // Invalid cases
         assertFalse(SomeInterface::class.isValidAdditionalType(true))
         assertFalse(TestUnion::class.isValidAdditionalType(true))
+        assertFalse(IgnoredInterface::class.isValidAdditionalType(true))
+        assertFalse(IgnoredInterface::class.isValidAdditionalType(false))
+        assertFalse(IgnoredSecondLevelInterface::class.isValidAdditionalType(true))
+        assertFalse(IgnoredSecondLevelInterface::class.isValidAdditionalType(false))
+        assertFalse(IgnoredClass::class.isValidAdditionalType(true))
+        assertFalse(IgnoredClass::class.isValidAdditionalType(false))
     }
 }
