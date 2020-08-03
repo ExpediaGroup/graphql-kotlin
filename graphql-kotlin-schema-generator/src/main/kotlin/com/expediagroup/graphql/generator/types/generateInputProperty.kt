@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
@@ -27,7 +28,11 @@ import kotlin.reflect.KProperty
 
 internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
     val builder = GraphQLInputObjectField.newInputObjectField()
-    val graphQLInputType = generateGraphQLType(generator = generator, type = prop.returnType, inputType = true).safeCast<GraphQLInputType>()
+
+    // Verfiy that the unwrapped GraphQL type is a valid input type
+    val graphQLInputType = generateGraphQLType(generator = generator, type = prop.returnType, inputType = true)
+        .unwrapType()
+        .safeCast<GraphQLInputType>()
 
     builder.description(prop.getPropertyDescription(parentClass))
     builder.name(prop.getPropertyName(parentClass))

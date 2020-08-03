@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidPackagesException
-import com.expediagroup.graphql.generator.extensions.isValidAdditionalType
 import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.generator.state.ClassScanner
 import com.expediagroup.graphql.generator.state.TypesCache
@@ -98,12 +97,12 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
     /**
      * Add all types with the following annotation to the schema.
      *
-     * This is helpful for things like federation or combining external schemas
+     * This is helpful for things like federation or combining external schemas.
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>, inputType: Boolean = false) {
-        classScanner.getClassesWithAnnotation(annotation).forEach {
-            if (it.isValidAdditionalType(inputType)) {
-                additionalTypes.add(AdditionalType(it.createType(), inputType))
+        classScanner.getClassesWithAnnotation(annotation).forEach { kClass ->
+            if (config.hooks.isValidAdditionalType(kClass, inputType)) {
+                additionalTypes.add(AdditionalType(kClass.createType(), inputType))
             }
         }
     }

@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.generator.state.AdditionalType
 import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
@@ -24,8 +23,8 @@ import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
-import com.expediagroup.graphql.generator.extensions.isGraphQLIgnored
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.generator.state.AdditionalType
 import graphql.TypeResolutionEnvironment
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLTypeReference
@@ -58,7 +57,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
     generator.classScanner.getSubTypesOf(kClass)
-        .filter { it.isGraphQLIgnored().not() }
+        .filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
         .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 
     val interfaceType = builder.build()

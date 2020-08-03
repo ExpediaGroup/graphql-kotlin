@@ -24,6 +24,7 @@ import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
 import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
 import com.expediagroup.graphql.generator.extensions.isSubclassOf
+import com.expediagroup.graphql.generator.extensions.isValidAdditionalType
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLFieldDefinition
@@ -101,6 +102,14 @@ interface SchemaGeneratorHooks {
      * NOTE: You will most likely need to also override the [willResolveMonad] hook to allow for your custom type to be generated.
      */
     fun isValidSubscriptionReturnType(kClass: KClass<*>, function: KFunction<*>): Boolean = function.returnType.isSubclassOf(Publisher::class)
+
+    /**
+     * Allow for custom logic when adding additional types to filter out specific classes
+     * or classes with other annotations or metadata.
+     *
+     * The default logic just filters out interfaces if inputType is true.
+     */
+    fun isValidAdditionalType(kClass: KClass<*>, inputType: Boolean): Boolean = kClass.isValidAdditionalType(inputType)
 
     /**
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.

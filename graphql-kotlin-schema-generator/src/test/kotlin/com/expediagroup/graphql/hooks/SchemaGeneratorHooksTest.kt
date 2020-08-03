@@ -16,12 +16,14 @@
 
 package com.expediagroup.graphql.hooks
 
+import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.exceptions.EmptyInputObjectTypeException
 import com.expediagroup.graphql.exceptions.EmptyInterfaceTypeException
 import com.expediagroup.graphql.exceptions.EmptyObjectTypeException
 import com.expediagroup.graphql.extensions.deepName
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.test.utils.graphqlUUIDType
@@ -120,6 +122,34 @@ class SchemaGeneratorHooksTest {
         )
         assertTrue(hooks.calledFilterFunction)
         assertTrue(schema.queryType.fieldDefinitions.isEmpty())
+    }
+
+    @Test
+    fun `calls hook to filter additionalTypes`() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
+            var calledFilterFunction = false
+
+            override fun isValidAdditionalType(kClass: KClass<*>, inputType: Boolean): Boolean {
+                calledFilterFunction = true
+                return true
+            }
+        }
+
+        class CustomGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
+            fun addTypesWithAnnotation(annotation: KClass<*>) = super.addAdditionalTypesWithAnnotation(annotation, false)
+            fun getAdditionalTypesCount() = additionalTypes.size
+        }
+
+        val hooks = MockSchemaGeneratorHooks()
+        val generator = CustomGenerator(getTestSchemaConfigWithHooks(hooks))
+
+        assertFalse(hooks.calledFilterFunction)
+        assertEquals(0, generator.getAdditionalTypesCount())
+
+        generator.addTypesWithAnnotation(CustomAnnotation::class)
+
+        assertTrue(hooks.calledFilterFunction)
+        assertEquals(1, generator.getAdditionalTypesCount())
     }
 
     @Test
@@ -348,6 +378,9 @@ class SchemaGeneratorHooksTest {
         fun emptyInterface(): EmptyInterface = EmptyImplementation("123")
     }
 
+    annotation class CustomAnnotation
+
+    @CustomAnnotation
     interface EmptyInterface {
         @GraphQLIgnore
         val id: String

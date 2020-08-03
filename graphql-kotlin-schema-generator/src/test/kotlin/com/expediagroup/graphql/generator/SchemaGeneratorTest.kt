@@ -19,10 +19,15 @@ package com.expediagroup.graphql.generator
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.extensions.deepName
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import graphql.schema.GraphQLNamedType
+import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 
 class SchemaGeneratorTest {
 
@@ -79,7 +84,19 @@ class SchemaGeneratorTest {
 
     @Test
     fun generateBothInputAndOutputTypesWithSameName() {
-        val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"))
+        val customHooks = object : SchemaGeneratorHooks {
+            override fun isValidAdditionalType(kClass: KClass<*>, inputType: Boolean): Boolean {
+                val allowedForInput = kClass.findAnnotation<AnnotationOnAllTypes>()?.allowedForInput ?: true
+
+                if (inputType && !allowedForInput) {
+                    return false
+                }
+
+                return super.isValidAdditionalType(kClass, inputType)
+            }
+        }
+
+        val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"), hooks = customHooks)
         val generator = CustomSchemaGenerator(config)
         generator.addTypes(AnnotationOnAllTypes::class)
         generator.addInputTypes(AnnotationOnAllTypes::class)
@@ -87,7 +104,9 @@ class SchemaGeneratorTest {
         val result = generator.generateCustomAdditionalTypes()
 
         // Verify there are no duplicates
-        assertEquals(8, result.size)
+        assertEquals(7, result.size)
+        val interfaceImpl = assertNotNull(result.find { (it as? GraphQLNamedType)?.name == "InterfaceImpl" } as? GraphQLObjectType)
+        assertEquals(6, interfaceImpl.fieldDefinitions.size)
     }
 
     @Test
@@ -109,7 +128,7 @@ class SchemaGeneratorTest {
     annotation class MyCustomAnnotation
     annotation class MyOtherCustomAnnotation
     annotation class MyInterfaceAnnotation
-    annotation class AnnotationOnAllTypes
+    annotation class AnnotationOnAllTypes(val allowedForInput: Boolean = true)
 
     @MyCustomAnnotation
     @AnnotationOnAllTypes
@@ -128,6 +147,13 @@ class SchemaGeneratorTest {
         val id: String
     }
 
-    @AnnotationOnAllTypes
-    data class InterfaceImpl(override val id: String) : SomeInterface
+    @AnnotationOnAllTypes(allowedForInput = false)
+    data class InterfaceImpl(
+        override val id: String,
+        val listField: List<String>,
+        val optionalListField: List<String>?,
+        val optionalListOptionalField: List<String?>?,
+        val requiredUnionField: SomeUnion,
+        val optionalUnionField: SomeUnion?
+    ) : SomeInterface
 }
