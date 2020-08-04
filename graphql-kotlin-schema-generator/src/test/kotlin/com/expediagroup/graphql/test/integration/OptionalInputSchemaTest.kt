@@ -33,7 +33,8 @@ class OptionalInputSchemaTest {
             queries = listOf(TopLevelObject(Query())),
             additionalInputTypes = setOf(MyAdditionalInput::class.createType())
         )
-        val sdl = """
+        val sdl =
+            """
             schema {
               query: Query
             }
@@ -48,6 +49,7 @@ class OptionalInputSchemaTest {
 
             input MyAdditionalInput {
               listOptional: [String]
+              listRequired: [String!]!
               optional: String
               required: String!
             }
@@ -79,6 +81,7 @@ class OptionalInputSchemaTest {
     data class MyAdditionalInput(
         val required: String,
         val optional: String?,
-        val listOptional: List<String?>?
+        val listOptional: List<String?>?,
+        val listRequired: List<String>
     )
 }
