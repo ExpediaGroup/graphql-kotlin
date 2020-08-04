@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.extensions.unwrapType
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
@@ -30,9 +29,7 @@ internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*
     val builder = GraphQLInputObjectField.newInputObjectField()
 
     // Verfiy that the unwrapped GraphQL type is a valid input type
-    val graphQLInputType = generateGraphQLType(generator = generator, type = prop.returnType, inputType = true)
-        .unwrapType()
-        .safeCast<GraphQLInputType>()
+    val graphQLInputType = generateGraphQLType(generator = generator, type = prop.returnType, inputType = true).safeCast<GraphQLInputType>()
 
     builder.description(prop.getPropertyDescription(parentClass))
     builder.name(prop.getPropertyName(parentClass))
