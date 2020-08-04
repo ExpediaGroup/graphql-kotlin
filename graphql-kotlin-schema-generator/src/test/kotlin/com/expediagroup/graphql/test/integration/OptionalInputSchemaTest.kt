@@ -59,7 +59,7 @@ class OptionalInputSchemaTest {
               value: String
             }
 
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(sdl, schema.print(includeDirectiveDefinitions = false))
     }
