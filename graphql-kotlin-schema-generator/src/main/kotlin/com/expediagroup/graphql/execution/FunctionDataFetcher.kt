@@ -116,7 +116,7 @@ open class FunctionDataFetcher(
     /**
      * Once all parameters values are properly converted, this function will be called to run a suspendable function.
      * If you need to override the exception handling you can override the entire method.
-     * You can also call it from [get] with different values to override the default corotuine context or start parameter.
+     * You can also call it from [get] with different values to override the default coroutine context or start parameter.
      */
     protected open fun runSuspendingFunction(
         instance: Any,
