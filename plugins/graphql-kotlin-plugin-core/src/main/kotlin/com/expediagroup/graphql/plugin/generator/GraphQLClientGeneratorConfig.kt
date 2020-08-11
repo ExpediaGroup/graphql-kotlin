@@ -27,7 +27,9 @@ data class GraphQLClientGeneratorConfig(
     /** Boolean flag indicating whether to allow selection of deprecated fields. Defaults to false. */
     val allowDeprecated: Boolean = false,
     /** Custom scalar type to converter mapping. */
-    val scalarTypeToConverterMapping: Map<String, ScalarConverterMapping> = emptyMap()
+    val scalarTypeToConverterMapping: Map<String, ScalarConverterMapping> = emptyMap(),
+    /** Supported client type to be generated. */
+    val clientType: GraphQLClientType = GraphQLClientType.DEFAULT
 )
 
 /**
@@ -39,3 +41,12 @@ data class ScalarConverterMapping(
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     val converter: String
 ) : Serializable
+
+enum class GraphQLClientType {
+    /** Generic GraphQL client. */
+    DEFAULT,
+    /** Ktor based GraphQL client. */
+    KTOR,
+    /** Spring WebClient based GraphQL client. */
+    WEBCLIENT
+}

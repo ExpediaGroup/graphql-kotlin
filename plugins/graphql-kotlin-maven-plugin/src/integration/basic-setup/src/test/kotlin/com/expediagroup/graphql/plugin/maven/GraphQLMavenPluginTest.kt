@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
-import com.expediagroup.graphql.client.GraphQLClient
+import com.expediagroup.graphql.client.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -47,7 +47,7 @@ class GraphQLMavenPluginTest {
     @Test
     fun `verify client code was generated and can execute query`() {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
-        val client = GraphQLClient(URL(graphQLEndpoint))
+        val client = GraphQLKtorClient(URL(graphQLEndpoint))
         val query = ExampleQuery(client)
 
         val variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(newName = "whatever", min = null, max = null))

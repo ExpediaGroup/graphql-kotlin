@@ -29,24 +29,21 @@ class GenerateVariableTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Boolean
                 import kotlin.Float
                 import kotlin.String
-                import kotlin.Unit
 
                 const val TEST_QUERY_WITH_VARIABLES: String =
                     "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
 
                 class TestQueryWithVariables(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(variables: TestQueryWithVariables.Variables,
-                      requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                  suspend fun execute(variables: TestQueryWithVariables.Variables):
                       GraphQLResponse<TestQueryWithVariables.Result> =
-                      graphQLClient.execute(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables,
-                      requestBuilder)
+                      graphQLClient.execute(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables)
 
                   data class Variables(
                     val criteria: TestQueryWithVariables.SimpleArgumentInput? = null

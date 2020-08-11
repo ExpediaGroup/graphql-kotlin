@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.config.TimeoutConfig
+import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import java.io.File
 
@@ -55,6 +56,8 @@ open class GraphQLPluginClientExtension {
     var converters: MutableMap<String, ScalarConverterMapping> = mutableMapOf()
     /** List of query files to be processed. */
     var queryFiles: MutableList<File> = mutableListOf()
+    /** Type of GraphQL client implementation to generate. */
+    var clientType: GraphQLClientType = GraphQLClientType.DEFAULT
 
     /** Connect and read timeout configuration for executing introspection query/download schema */
     internal val timeoutConfig: TimeoutConfig = TimeoutConfig()

@@ -62,6 +62,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                     generateClientTask.allowDeprecatedFields.convention(project.provider { extension.clientExtension.allowDeprecatedFields })
                     generateClientTask.converters.convention(extension.clientExtension.converters)
                     generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
+                    generateClientTask.clientType.convention(extension.clientExtension.clientType)
 
                     if (extension.clientExtension.endpoint != null) {
                         val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
