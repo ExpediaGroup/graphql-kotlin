@@ -8,7 +8,7 @@ easily generate federated GraphQL schemas directly from the code. Federated sche
 `toFederatedSchema` function that accepts federated configuration as well as a list of regular queries, mutations and 
 subscriptions exposed by the schema.
 
-All [federated directives]((federated-directives)) are provided as annotations that are used to decorate your classes, 
+All [federated directives](federated-directives) are provided as annotations that are used to decorate your classes, 
 properties and functions. Since federated types might not be accessible through the regular query execution path, they 
 are explicitly picked up by the schema generator based on their directives. Due to the above, we also need to provide
 a way to instantiate the underlying federated objects by implementing corresponding `FederatedTypeResolvers`. See 
