@@ -20,8 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
- * GraphQL error representation that is spec complaint with serialization and deserialization,
- * but still implements the graphql-java interface.
+ * GraphQL error representation that is spec complaint with serialization and deserialization.
  *
  * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
  */
