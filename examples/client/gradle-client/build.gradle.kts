@@ -3,7 +3,7 @@ import com.expediagroup.graphql.plugin.gradle.graphql
 
 plugins {
     application
-    id("org.jetbrains.kotlin.jvm") version "1.3.72"
+    id("org.jetbrains.kotlin.jvm") version "1.4.0"
     id("com.expediagroup.graphql") version "3.1.0"
 }
 
