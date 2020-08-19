@@ -33,6 +33,7 @@ internal fun KProperty<*>.isPropertyGraphQLID(parentClass: KClass<*>): Boolean =
 internal fun KProperty<*>.isPropertyGraphQLIgnored(parentClass: KClass<*>): Boolean = when {
     this.isGraphQLIgnored() -> true
     getConstructorParameter(parentClass)?.isGraphQLIgnored().isTrue() -> true
+    this.getter.isGraphQLIgnored() -> true
     else -> false
 }
 
