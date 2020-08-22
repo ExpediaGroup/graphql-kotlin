@@ -18,8 +18,8 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.expediagroup.graphql.types.GraphQLRequest
@@ -32,21 +32,23 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.core.publisher.ReplayProcessor
-import reactor.netty.http.client.HttpClient
+import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
+import reactor.test.publisher.TestPublisher
 import java.net.URI
 import java.time.Duration
 import kotlin.random.Random
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["graphql.packages=com.expediagroup.graphql.spring.execution"]
+    properties = [
+        "graphql.packages=com.expediagroup.graphql.spring.execution"
+    ]
 )
 @EnableAutoConfiguration
 class SubscriptionWebSocketHandlerIT(
@@ -54,29 +56,39 @@ class SubscriptionWebSocketHandlerIT(
 ) {
 
     private val objectMapper = jacksonObjectMapper().registerKotlinModule()
-    private val httpClient: HttpClient = HttpClient.create().headers { it.set("X-Custom-Header", "junit") }
     private val client = ReactorNettyWebSocketClient()
+    private val uri = URI.create("ws://localhost:$port/subscriptions")
 
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest("subscription { characters }")
-        val message = SubscriptionOperationMessage(GQL_START.type, id = "1", payload = request).toJson()
-        val output = ReplayProcessor.create<String>()
-        val uri = URI.create("ws://localhost:$port/subscriptions")
+        val messageId = "1"
+        val initMessage = getInitMessage(messageId)
+        val startMessage = getStartMessage(messageId, request)
+        val dataOutput = TestPublisher.create<String>()
 
-        val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(message)))
+        client.execute(uri) { session ->
+            val firstMessage = session.textMessage(initMessage).toMono()
+                .concatWith(session.textMessage(startMessage).toMono())
+
+            session.send(firstMessage)
                 .thenMany(
                     session.receive()
                         .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .map { objectMapper.writeValueAsString(it.payload) }
+                        .doOnNext {
+                            if (it.type == ServerMessages.GQL_DATA.type) {
+                                val data = objectMapper.writeValueAsString(it.payload)
+                                dataOutput.next(data)
+                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                dataOutput.complete()
+                            }
+                        }
                 )
-                .subscribeWith(output)
-                .take(5)
                 .then()
-        }
+        }.subscribe()
 
-        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
+        StepVerifier.create(dataOutput)
+            .expectSubscription()
             .expectNext("{\"data\":{\"characters\":\"Alice\"}}")
             .expectNext("{\"data\":{\"characters\":\"Bob\"}}")
             .expectNext("{\"data\":{\"characters\":\"Chuck\"}}")
@@ -87,50 +99,40 @@ class SubscriptionWebSocketHandlerIT(
     }
 
     @Test
-    fun `verify graphql-ws subscription init`() {
-        val request = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type).toJson()
-        val output = ReplayProcessor.create<String>()
-        val uri = URI.create("ws://localhost:$port/subscriptions")
-
-        val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(request)))
-                .thenMany(
-                    session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .map { objectMapper.writeValueAsString(it.payload) }
-                )
-                .subscribeWith(output)
-                .take(0)
-                .then()
-        }
-
-        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
-            .expectComplete()
-            .verify()
-    }
-
-    @Test
     fun `verify subscription to counter`() {
         val request = GraphQLRequest("subscription { counter }")
-        val message = SubscriptionOperationMessage(GQL_START.type, id = "2", payload = request).toJson()
-        val output = ReplayProcessor.create<String>()
-        val uri = URI.create("ws://localhost:$port/subscriptions")
+        val messageId = "2"
+        val initMessage = getInitMessage(messageId)
+        val startMessage = getStartMessage(messageId, request)
+        val dataOutput = TestPublisher.create<String>()
 
-        val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(message)))
+        client.execute(uri) { session ->
+            val firstMessage = session.textMessage(initMessage).toMono()
+                .concatWith(session.textMessage(startMessage).toMono())
+
+            session.send(firstMessage)
                 .thenMany(
                     session.receive()
-                        .timeout(Duration.ofSeconds(5))
                         .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .map { objectMapper.writeValueAsString(it.payload) }
+                        .doOnNext {
+                            if (it.type == ServerMessages.GQL_DATA.type) {
+                                val data = objectMapper.writeValueAsString(it.payload)
+                                dataOutput.next(data)
+                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                dataOutput.complete()
+                            }
+                        }
                 )
-                .subscribeWith(output)
-                .take(5)
                 .then()
-        }
+        }.subscribe()
 
-        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
-            .expectNextCount(5)
+        StepVerifier.create(dataOutput)
+            .expectSubscription()
+            .expectNext("{\"data\":{\"counter\":1}}")
+            .expectNext("{\"data\":{\"counter\":2}}")
+            .expectNext("{\"data\":{\"counter\":3}}")
+            .expectNext("{\"data\":{\"counter\":4}}")
+            .expectNext("{\"data\":{\"counter\":5}}")
             .expectComplete()
             .verify()
     }
@@ -138,24 +140,34 @@ class SubscriptionWebSocketHandlerIT(
     @Test
     fun `verify subscription with context`() {
         val request = GraphQLRequest("subscription { ticker }")
-        val message = SubscriptionOperationMessage(GQL_START.type, id = "3", payload = request).toJson()
-        val output = ReplayProcessor.create<String>()
-        val client = ReactorNettyWebSocketClient(httpClient)
-        val uri = URI.create("ws://localhost:$port/subscriptions")
+        val messageId = "3"
+        val initMessage = getInitMessage(messageId)
+        val startMessage = getStartMessage(messageId, request)
+        val dataOutput = TestPublisher.create<String>()
+        val headers = HttpHeaders()
+        headers.set("X-Custom-Header", "junit")
 
-        val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(message)))
+        client.execute(uri, headers) { session ->
+            val firstMessage = session.textMessage(initMessage).toMono()
+                .concatWith(session.textMessage(startMessage).toMono())
+
+            session.send(firstMessage)
                 .thenMany(
                     session.receive()
                         .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .map { objectMapper.writeValueAsString(it.payload) }
+                        .doOnNext {
+                            if (it.type == ServerMessages.GQL_DATA.type) {
+                                val data = objectMapper.writeValueAsString(it.payload)
+                                dataOutput.next(data)
+                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                dataOutput.complete()
+                            }
+                        }
                 )
-                .subscribeWith(output)
-                .take(1)
                 .then()
-        }
+        }.subscribe()
 
-        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
+        StepVerifier.create(dataOutput)
             .expectNextMatches { it.matches("\\{\"data\":\\{\"ticker\":\"junit:-?\\d+\"}}".toRegex()) }
             .expectComplete()
             .verify()
@@ -189,18 +201,19 @@ class SubscriptionWebSocketHandlerIT(
 
         private val characters = listOf("Alice", "Bob", "Chuck", "Dave", "Eve")
 
-        fun characters(): Flux<String> = Flux.interval(Duration.ofMillis(100))
-            .zipWithIterable(characters)
-            .map { it.t2 }
+        fun characters(): Flux<String> = Flux.fromIterable(characters)
 
+        @Suppress("unused")
         fun counter(): Flux<Int> = Flux.range(1, 5)
             .delayElements(Duration.ofMillis(100))
-            .map { Random.nextInt() }
 
+        @Suppress("unused")
         fun ticker(ctx: SubscriptionContext): Flux<String> = Flux.just("${ctx.value}:${Random.nextInt()}")
     }
 
     data class SubscriptionContext(val value: String) : GraphQLContext
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
+    private fun getInitMessage(id: String) = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type, id).toJson()
+    private fun getStartMessage(id: String, payload: Any) = SubscriptionOperationMessage(ClientMessages.GQL_START.type, id, payload).toJson()
 }

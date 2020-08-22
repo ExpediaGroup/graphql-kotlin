@@ -18,6 +18,8 @@ package com.expediagroup.graphql.spring.routes
 
 import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
 import com.expediagroup.graphql.types.GraphQLRequest
@@ -35,9 +37,9 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.core.publisher.ReplayProcessor
+import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
+import reactor.test.publisher.TestPublisher
 import java.net.URI
 
 @SpringBootTest(
@@ -107,25 +109,36 @@ class SubscriptionRoutesConfigurationIT(
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest("subscription { getNumber }")
-        val message = SubscriptionOperationMessage(SubscriptionOperationMessage.ClientMessages.GQL_START.type, id = "1", payload = request)
-        val output = ReplayProcessor.create<String>()
+        val messageId = "1"
+        val initMessage = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type, id = messageId).toJson()
+        val startMessage = SubscriptionOperationMessage(ClientMessages.GQL_START.type, id = messageId, payload = request).toJson()
+        val terminateMessage = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_TERMINATE.type, id = messageId).toJson()
+        val dataOutput = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port/foo")
 
-        val sessionMono = client.execute(uri) { session ->
-            session.send(Mono.just(session.textMessage(objectMapper.writeValueAsString(message))))
+        client.execute(uri) { session ->
+            val firstMessage = session.textMessage(initMessage).toMono()
+                .concatWith(session.textMessage(startMessage).toMono())
+
+            session.send(firstMessage)
                 .thenMany(
                     session.receive()
                         .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .map { objectMapper.writeValueAsString(it.payload) }
+                        .doOnNext {
+                            if (it.type == ServerMessages.GQL_DATA.type) {
+                                val data = objectMapper.writeValueAsString(it.payload)
+                                dataOutput.next(data)
+                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                dataOutput.complete()
+                            }
+                        }
                 )
-                .subscribeWith(output)
-                .take(1)
-                .then()
-        }
+                .then(session.send(session.textMessage(terminateMessage).toMono()))
+        }.subscribe()
 
-        StepVerifier.create(output.doOnSubscribe { sessionMono.subscribe() })
+        StepVerifier.create(dataOutput)
             .expectNext("{\"data\":{\"getNumber\":42}}")
             .expectComplete()
             .verify()
@@ -136,4 +149,6 @@ class SubscriptionRoutesConfigurationIT(
         .jsonPath("$.data.hello").isEqualTo(expected)
         .jsonPath("$.errors").doesNotExist()
         .jsonPath("$.extensions").doesNotExist()
+
+    private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
 }

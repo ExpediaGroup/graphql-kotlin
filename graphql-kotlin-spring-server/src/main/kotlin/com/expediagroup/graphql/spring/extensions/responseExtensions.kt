@@ -26,8 +26,8 @@ import graphql.ExecutionResult
  */
 fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
     val data: Any? = getData<Any?>()
-    val filteredErrors = if (errors?.isNotEmpty() == true) errors?.map { it.toGraphQLKotlinType() } else null
-    val filteredExtensions = if (extensions?.isNotEmpty() == true) extensions else null
+    val filteredErrors: List<GraphQLError>? = if (errors?.isNotEmpty() == true) errors?.map { it.toGraphQLKotlinType() } else null
+    val filteredExtensions: MutableMap<Any, Any>? = if (extensions?.isNotEmpty() == true) extensions else null
     return GraphQLResponse(data, filteredErrors, filteredExtensions)
 }
 

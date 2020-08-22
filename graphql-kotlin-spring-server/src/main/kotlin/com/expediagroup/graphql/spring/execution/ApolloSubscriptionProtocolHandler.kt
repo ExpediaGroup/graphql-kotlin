@@ -57,7 +57,8 @@ class ApolloSubscriptionProtocolHandler(
     fun handle(payload: String, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
         val operationMessage = convertToMessageOrNull(payload) ?: return Flux.just(basicConnectionErrorMessage)
         logger.debug("GraphQL subscription client message, sessionId=${session.id} operationMessage=$operationMessage")
-        return Mono.subscriberContext().flatMapMany<SubscriptionOperationMessage> { reactorContext ->
+
+        return Mono.subscriberContext().flatMapMany { reactorContext ->
             try {
                 val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
                 when (operationMessage.type) {
@@ -65,18 +66,14 @@ class ApolloSubscriptionProtocolHandler(
                     GQL_START.type -> onStart(operationMessage, session, graphQLContext)
                     GQL_STOP.type -> onStop(operationMessage, session)
                     GQL_CONNECTION_TERMINATE.type -> onDisconnect(session, graphQLContext)
-                    else -> {
-                        logger.error("Unknown subscription operation $operationMessage")
-                        sessionState.stopOperation(session, operationMessage)
-                        Flux.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
-                    }
+                    else -> onUnknownOperation(operationMessage, session)
                 }
             } catch (exception: Exception) {
-                logger.error("Error parsing the subscription message", exception)
-                Flux.just(basicConnectionErrorMessage)
+                onException(exception)
             }
         }
     }
+
     @Suppress("Detekt.TooGenericExceptionCaught")
     private fun convertToMessageOrNull(payload: String): SubscriptionOperationMessage? {
         return try {
@@ -86,6 +83,7 @@ class ApolloSubscriptionProtocolHandler(
             null
         }
     }
+
     /**
      * If the keep alive configuration is set, send a message back to client at every interval until the session is terminated.
      * Otherwise just return empty flux to append to the acknowledge message.
@@ -135,6 +133,7 @@ class ApolloSubscriptionProtocolHandler(
                     }
                 }
                 .doOnSubscribe { sessionState.saveOperation(session, operationMessage, it) }
+                .concatWith(onComplete(operationMessage, session))
         } catch (exception: Exception) {
             logger.error("Error running graphql subscription", exception)
             // Do not terminate the session, just stop the operation messages
@@ -144,38 +143,83 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?): Flux<SubscriptionOperationMessage> {
-        val connectionParams = operationMessage.payload as? Map<String, String> ?: emptyMap()
+        val connectionParams = getConnectionParams(operationMessage.payload)
         val onConnect = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
         sessionState.saveOnConnectHook(session, onConnect)
-        val acknowledgeMessageFlux = Flux.just(acknowledgeMessage)
+        val acknowledgeMessage = Mono.just(acknowledgeMessage)
         val keepAliveFlux = getKeepAliveFlux(session)
-        return acknowledgeMessageFlux.concatWith(keepAliveFlux)
+        return acknowledgeMessage.concatWith(keepAliveFlux)
     }
 
+    /**
+     * This is the best cast saftey we can get with the generics
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun getConnectionParams(payload: Any?): Map<String, String> {
+        if (payload != null && payload is Map<*, *> && payload.isNotEmpty()) {
+            if (payload.keys.first() is String && payload.values.first() is String) {
+                return payload as Map<String, String>
+            }
+        }
+
+        return emptyMap()
+    }
+
+    /**
+     * Called when the client sends the start message.
+     * It triggers the specific hooks first, runs the operation, and appends it with a complete message.
+     */
     private fun onStart(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
         graphQLContext: Any?
     ): Flux<SubscriptionOperationMessage> {
         val onConnect = sessionState.onConnect(session) ?: subscriptionHooks.onConnect(emptyMap(), session, graphQLContext)
-        return onConnect.flatMap { subscriptionHooks.onOperation(operationMessage, session, graphQLContext) }
-            .flatMapMany { startSubscription(operationMessage, session) }
+        return onConnect.flatMapMany { onOperation(operationMessage, session, graphQLContext) }
     }
 
+    /**
+     * Called when we are ready to start executing the operation
+     */
+    private fun onOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?): Flux<SubscriptionOperationMessage> =
+        subscriptionHooks.onOperation(operationMessage, session, graphQLContext)
+            .flatMapMany { startSubscription(operationMessage, session) }
+
+    /**
+     * Called with the publisher has completed on its own.
+     */
+    private fun onComplete(
+        operationMessage: SubscriptionOperationMessage,
+        session: WebSocketSession
+    ): Mono<SubscriptionOperationMessage> = subscriptionHooks.onOperationComplete(session)
+        .then(sessionState.completeOperation(session, operationMessage))
+
+    /**
+     * Called with the client has called stop manually, or on error, and we need to cancel the publisher
+     */
     private fun onStop(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession
-    ): Flux<SubscriptionOperationMessage> = subscriptionHooks.onOperationComplete(session)
-        .flatMapMany {
-            sessionState.stopOperation(session, operationMessage)
-        }
+    ): Mono<SubscriptionOperationMessage> = subscriptionHooks.onOperationComplete(session)
+        .then(sessionState.stopOperation(session, operationMessage))
 
     private fun onDisconnect(
         session: WebSocketSession,
         graphQLContext: Any?
-    ): Flux<SubscriptionOperationMessage> = subscriptionHooks.onDisconnect(session, graphQLContext)
-        .flatMapMany {
+    ): Mono<SubscriptionOperationMessage> = subscriptionHooks.onDisconnect(session, graphQLContext)
+        .flatMap {
             sessionState.terminateSession(session)
-            Flux.empty<SubscriptionOperationMessage>()
+            Mono.empty<SubscriptionOperationMessage>()
         }
+
+    private fun onUnknownOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Mono<SubscriptionOperationMessage> {
+        logger.error("Unknown subscription operation $operationMessage")
+        sessionState.stopOperation(session, operationMessage)
+        return Mono.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+    }
+
+    private fun onException(exception: Exception): Mono<SubscriptionOperationMessage> {
+        logger.error("Error parsing the subscription message", exception)
+        return Mono.just(basicConnectionErrorMessage)
+    }
 }

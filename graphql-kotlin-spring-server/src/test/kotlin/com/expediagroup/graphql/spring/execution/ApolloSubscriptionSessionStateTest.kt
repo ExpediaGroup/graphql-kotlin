@@ -143,7 +143,7 @@ class ApolloSubscriptionSessionStateTest {
         assertEquals(expected = 1, actual = state.activeOperations.size)
         assertEquals(expected = 1, actual = state.activeOperations["123"]?.size)
 
-        state.stopOperation(mockSession, inputOperation)
+        state.stopOperation(mockSession, inputOperation).subscribe()
 
         assertEquals(expected = 0, actual = state.activeOperations.size)
         assertNull(state.activeOperations["123"])
@@ -165,7 +165,7 @@ class ApolloSubscriptionSessionStateTest {
         assertEquals(expected = 1, actual = state.activeOperations.size)
         assertEquals(expected = 2, actual = state.activeOperations["123"]?.size)
 
-        state.stopOperation(mockSession, inputOperation1)
+        state.stopOperation(mockSession, inputOperation1).subscribe()
 
         assertEquals(expected = 1, actual = state.activeOperations.size)
         assertEquals(expected = 1, actual = state.activeOperations["123"]?.size)

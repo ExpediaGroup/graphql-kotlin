@@ -20,7 +20,6 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
 import org.reactivestreams.Subscription
 import org.springframework.web.reactive.socket.WebSocketSession
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 
@@ -33,7 +32,8 @@ internal class ApolloSubscriptionSessionState {
     internal val activeOperations = ConcurrentHashMap<String, ConcurrentHashMap<String, Subscription>>()
 
     // OnConnect hooks are saved by web socket session id, then operation id
-    internal val onConnectHooks = ConcurrentHashMap<String, Mono<Unit>>()
+    private val onConnectHooks = ConcurrentHashMap<String, Mono<Unit>>()
+
     /**
      * Save the onConnect mono for the session.
      * This will prevent the operation from starting prior to the OnConnect mono being resolved.
@@ -42,10 +42,12 @@ internal class ApolloSubscriptionSessionState {
     fun saveOnConnectHook(session: WebSocketSession, onConnect: Mono<Unit>) {
         onConnectHooks[session.id] = onConnect
     }
+
     /**
      * Return the onConnect mono so that the operation can wait to start until it has been resolved.
      */
     fun onConnect(session: WebSocketSession): Mono<Unit>? = onConnectHooks[session.id]
+
     /**
      * Save the session that is sending keep alive messages.
      * This will override values without cancelling the subscription so it is the responsibility of the consumer to cancel.
@@ -69,22 +71,46 @@ internal class ApolloSubscriptionSessionState {
     }
 
     /**
-     * Stop the subscription sending data. Does NOT terminate the session.
+     * Send the [GQL_COMPLETE] message.
+     * This can happen when the publisher finishes or if the client manually sends the stop message.
      */
-    fun stopOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Flux<SubscriptionOperationMessage> {
+    fun completeOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Mono<SubscriptionOperationMessage> {
+        return getCompleteMessage(operationMessage)
+            .doFinally { removeActiveOperation(session, operationMessage.id, cancelSubscription = false) }
+    }
+
+    /**
+     * Stop the subscription sending data and send the [GQL_COMPLETE] message.
+     * Does NOT terminate the session.
+     */
+    fun stopOperation(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Mono<SubscriptionOperationMessage> {
+        return getCompleteMessage(operationMessage)
+            .doFinally { removeActiveOperation(session, operationMessage.id, cancelSubscription = true) }
+    }
+
+    private fun getCompleteMessage(operationMessage: SubscriptionOperationMessage): Mono<SubscriptionOperationMessage> {
         val id = operationMessage.id
-        if (operationMessage.id != null) {
-            val operationsForSession = activeOperations[session.id]
-            operationsForSession?.get(id)?.let {
-                it.cancel()
-                operationsForSession.remove(id)
-                if (operationsForSession.isEmpty()) {
-                    activeOperations.remove(session.id)
-                }
-                return Flux.just(SubscriptionOperationMessage(type = GQL_COMPLETE.type, id = operationMessage.id))
+        if (id != null) {
+            return Mono.just(SubscriptionOperationMessage(type = GQL_COMPLETE.type, id = id))
+        }
+        return Mono.empty()
+    }
+
+    /**
+     * Remove active running subscription from the cache and cancel if needed
+     */
+    private fun removeActiveOperation(session: WebSocketSession, id: String?, cancelSubscription: Boolean) {
+        val operationsForSession = activeOperations[session.id]
+        val subscription = operationsForSession?.get(id)
+        if (subscription != null) {
+            if (cancelSubscription) {
+                subscription.cancel()
+            }
+            operationsForSession.remove(id)
+            if (operationsForSession.isEmpty()) {
+                activeOperations.remove(session.id)
             }
         }
-        return Flux.empty()
     }
 
     /**
