@@ -17,12 +17,15 @@
 package com.expediagroup.graphql.test.integration
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.extensions.deepName
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class InterfaceOfInterfaceTest {
 
@@ -30,7 +33,7 @@ class InterfaceOfInterfaceTest {
     fun `interface of interface`() {
         val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
         val schema = toSchema(queries = queries, config = testSchemaConfig)
-        assertEquals(expected = 1, actual = schema.queryType.fieldDefinitions.size)
+        assertEquals(expected = 2, actual = schema.queryType.fieldDefinitions.size)
 
         val implementation = schema.getObjectType("MyClass")
         assertNotNull(implementation)
@@ -49,6 +52,19 @@ class InterfaceOfInterfaceTest {
         assertNotNull(firstLevelInterface)
     }
 
+    @Test
+    fun `ignore class and use interface as type`() {
+        val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
+        val schema = toSchema(queries = queries, config = testSchemaConfig)
+
+        // The ignored class should not be in the schema at all
+        assertNull(schema.getType("IgnoredClass"))
+
+        assertEquals(expected = 2, actual = schema.queryType.fieldDefinitions.size)
+        val queryField = assertNotNull(schema.queryType.getFieldDefinition("getIgnoredClass"))
+        assertEquals("SecondLevel!", queryField.type.deepName)
+    }
+
     interface FirstLevel {
         val id: String
     }
@@ -61,5 +77,12 @@ class InterfaceOfInterfaceTest {
 
     class InterfaceOfInterfaceQuery {
         fun getClass() = MyClass(id = "1", name = "fooBar")
+        fun getIgnoredClass(): SecondLevel = IgnoredClass(id = "2", name = "baz")
     }
+
+    @GraphQLIgnore
+    class IgnoredClass(
+        override val id: String,
+        override val name: String
+    ) : SecondLevel
 }
