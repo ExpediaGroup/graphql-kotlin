@@ -1,7 +1,14 @@
 package com.example
 
 import com.example.generated.JUnitQuery
-import com.expediagroup.graphql.client.GraphQLClient
+{{#webClient}}
+    import com.expediagroup.graphql.client.GraphQLWebClient
+    import org.springframework.web.reactive.function.client.WebClient
+{{/webClient}}
+{{^webClient}}
+    import com.expediagroup.graphql.client.GraphQLKtorClient
+{{/webClient}}
+import com.expediagroup.graphql.client.execute
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.header
 import kotlinx.coroutines.runBlocking
@@ -9,14 +16,24 @@ import java.net.URL
 
 fun main() {
     {{^defaultHeader}}
-        val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint")))
+        val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint")))
     {{/defaultHeader}}
     {{#defaultHeader}}
-        val client = GraphQLClient(URL(System.getProperty("graphQLEndpoint"))) {
-            defaultRequest {
-                header("{{name}}", "{{value}}")
+        {{#webClient}}
+            val webClientBuilder = WebClient.builder()
+                .defaultHeader("{{name}}", "{{value}}")
+            val client = GraphQLWebClient(
+                url = System.getProperty("graphQLEndpoint"),
+                builder = webClientBuilder
+            )
+        {{/webClient}}
+        {{^webClient}}
+            val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint"))) {
+                defaultRequest {
+                    header("{{name}}", "{{value}}")
+                }
             }
-        }
+        {{/webClient}}
     {{/defaultHeader}}
     val query = JUnitQuery(client)
 

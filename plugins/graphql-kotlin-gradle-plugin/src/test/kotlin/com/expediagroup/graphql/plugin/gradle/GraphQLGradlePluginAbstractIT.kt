@@ -84,6 +84,7 @@ abstract class GraphQLGradlePluginAbstractIT {
             """
             import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
             import com.expediagroup.graphql.plugin.config.TimeoutConfig
+            import com.expediagroup.graphql.plugin.generator.GraphQLClientType
             import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
             import com.expediagroup.graphql.plugin.gradle.graphql
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
@@ -109,7 +110,8 @@ abstract class GraphQLGradlePluginAbstractIT {
 
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-                implementation("com.expediagroup:graphql-kotlin-client:$gqlKotlinVersion")
+                implementation("com.expediagroup:graphql-kotlin-ktor-client:$gqlKotlinVersion")
+                implementation("com.expediagroup:graphql-kotlin-spring-client:$gqlKotlinVersion")
                 testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
                 testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
             }

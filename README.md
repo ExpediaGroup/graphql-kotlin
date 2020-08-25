@@ -10,8 +10,8 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 
 ## 📦 Modules
 
+* [clients](/clients) - Lightweight GraphQL Kotlin HTTP clients based on Ktor HTTP client and Spring WebClient
 * [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
-* [graphql-kotlin-client](/graphql-kotlin-client) - Lightweight GraphQL Kotlin HTTP client
 * [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build Apollo Federation GraphQL schemas
 * [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
 * [graphql-kotlin-spring-server](/graphql-kotlin-spring-server) - Spring Boot auto-configuration library to create a GraphQL server

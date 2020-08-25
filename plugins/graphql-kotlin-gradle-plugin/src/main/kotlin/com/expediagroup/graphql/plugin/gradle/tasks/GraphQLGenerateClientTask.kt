@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.generateClient
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -115,6 +116,11 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     @Optional
     val queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 
+    @Input
+    @Optional
+    @Option(option = "clientType", description = "Type of GraphQL client implementation to generate")
+    val clientType: Property<GraphQLClientType> = project.objects.property(GraphQLClientType::class.java)
+
     @OutputDirectory
     val outputDirectory: Property<Directory> = project.objects.directoryProperty()
 
@@ -124,6 +130,7 @@ open class GraphQLGenerateClientTask : DefaultTask() {
 
         allowDeprecatedFields.convention(false)
         converters.convention(emptyMap())
+        clientType.convention(GraphQLClientType.DEFAULT)
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -163,7 +170,8 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         val config = GraphQLClientGeneratorConfig(
             packageName = targetPackage,
             allowDeprecated = allowDeprecatedFields.get(),
-            scalarTypeToConverterMapping = converters.get()
+            scalarTypeToConverterMapping = converters.get(),
+            clientType = clientType.get()
         )
         generateClient(config, graphQLSchema, targetQueryFiles).forEach {
             it.writeTo(targetDirectory)

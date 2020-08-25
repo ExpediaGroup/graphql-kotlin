@@ -39,15 +39,15 @@ import java.io.Closeable
 import java.net.URL
 
 /**
- * A lightweight typesafe GraphQL HTTP client.
+ * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
  */
 @KtorExperimentalAPI
-open class GraphQLClient<in T : HttpClientEngineConfig>(
+open class GraphQLKtorClient<in T : HttpClientEngineConfig>(
     private val url: URL,
     engineFactory: HttpClientEngineFactory<T>,
     private val mapper: ObjectMapper = jacksonObjectMapper(),
     configuration: HttpClientConfig<T>.() -> Unit = {}
-) : Closeable {
+) : GraphQLClient, Closeable {
 
     private val typeCache = mutableMapOf<Class<*>, JavaType>()
 
@@ -71,7 +71,7 @@ open class GraphQLClient<in T : HttpClientEngineConfig>(
      * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
      * manually deserialize using passed in result type Class information.
      */
-    open suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<T> {
+    open suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
         // Variables are simple data classes which will be serialized as map.
         // By using map instead of typed object we can eliminate the need to explicitly convert variables to a map
         val graphQLRequest = mapOf(
@@ -91,18 +91,19 @@ open class GraphQLClient<in T : HttpClientEngineConfig>(
         return mapper.readValue(rawResult, parameterizedType(resultType))
     }
 
+    override suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>): GraphQLResponse<T> =
+        execute(query, operationName, variables, resultType, {})
+
     /**
      * Executes specified GraphQL query or mutation operation.
      */
-    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null, noinline requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<T> {
-        return execute(query, operationName, variables, T::class.java, requestBuilder)
-    }
+    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null, noinline requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> =
+        execute(query, operationName, variables, T::class.java, requestBuilder)
 
-    private fun <T> parameterizedType(resultType: Class<T>): JavaType {
-        return typeCache.computeIfAbsent(resultType) {
+    private fun <T> parameterizedType(resultType: Class<T>): JavaType =
+        typeCache.computeIfAbsent(resultType) {
             mapper.typeFactory.constructParametricType(GraphQLResponse::class.java, resultType)
         }
-    }
 
     override fun close() {
         client.close()
@@ -110,6 +111,6 @@ open class GraphQLClient<in T : HttpClientEngineConfig>(
 
     companion object {
         operator fun invoke(url: URL, mapper: ObjectMapper = jacksonObjectMapper(), config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {}) =
-            GraphQLClient(url = url, engineFactory = CIO, mapper = mapper, configuration = config)
+            GraphQLKtorClient(url = url, engineFactory = CIO, mapper = mapper, configuration = config)
     }
 }

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGenerator
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.testSchema
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
@@ -36,19 +37,17 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
-                import kotlin.Unit
 
                 const val MI_XE_DCA_SE_QUERY: String = "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
 
                 class MiXEDcaSEQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<MiXEDcaSEQuery.Result> = graphQLClient.execute(MI_XE_DCA_SE_QUERY,
-                      "miXEDcaSEQuery", null, requestBuilder)
+                  suspend fun execute(): GraphQLResponse<MiXEDcaSEQuery.Result> =
+                      graphQLClient.execute(MI_XE_DCA_SE_QUERY, "miXEDcaSEQuery", null)
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -87,19 +86,17 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
-                import kotlin.Unit
 
                 const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
                 class AnonymousTestQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<AnonymousTestQuery.Result> = graphQLClient.execute(ANONYMOUS_TEST_QUERY, null,
-                      null, requestBuilder)
+                  suspend fun execute(): GraphQLResponse<AnonymousTestQuery.Result> =
+                      graphQLClient.execute(ANONYMOUS_TEST_QUERY, null, null)
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -146,21 +143,19 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Boolean
                 import kotlin.String
-                import kotlin.Unit
 
                 const val ALIAS_TEST_QUERY: String =
                     "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
 
                 class AliasTestQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<AliasTestQuery.Result> = graphQLClient.execute(ALIAS_TEST_QUERY,
-                      "AliasTestQuery", null, requestBuilder)
+                  suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
+                      graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
 
                   data class Result(
                     /**
@@ -205,20 +200,18 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Deprecated
                 import kotlin.String
-                import kotlin.Unit
 
                 const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
 
                 class DeprecatedFieldQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<DeprecatedFieldQuery.Result> = graphQLClient.execute(DEPRECATED_FIELD_QUERY,
-                      "DeprecatedFieldQuery", null, requestBuilder)
+                  suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
+                      graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
 
                   data class Result(
                     /**
@@ -244,5 +237,135 @@ class GenerateGraphQLClientIT {
                 allowDeprecated = true
             )
         )
+    }
+
+    @Test
+    fun `verify we can generate ktor based client`(@TempDir tempDir: Path) {
+        val expectedQueryFileSpec =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.GraphQLKtorClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
+                import kotlin.String
+                import kotlin.Unit
+
+                const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
+
+                class AnonymousTestQuery(
+                  private val graphQLClient: GraphQLKtorClient<*>
+                ) {
+                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
+                      GraphQLResponse<AnonymousTestQuery.Result> = graphQLClient.execute(ANONYMOUS_TEST_QUERY, null,
+                      null, requestBuilder)
+
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * UTF-8 character sequence
+                     */
+                    val name: String
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: AnonymousTestQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+                query {
+                  scalarQuery {
+                    name
+                  }
+                }
+            """.trimIndent()
+        val testDirectory = tempDir.toFile()
+        val queryFile = File(testDirectory, "anonymousTestQuery.graphql")
+        queryFile.deleteOnExit()
+        queryFile.writeText(query)
+
+        val generator = GraphQLClientGenerator(
+            testSchema(),
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                clientType = GraphQLClientType.KTOR
+            )
+        )
+        val fileSpecs = generator.generate(listOf(queryFile))
+        assertEquals(1, fileSpecs.size)
+        assertEquals(expectedQueryFileSpec, fileSpecs[0].toString().trim())
+    }
+
+    @Test
+    fun `verify we can generate spring webclient based client`(@TempDir tempDir: Path) {
+        val expectedQueryFileSpec =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.GraphQLWebClient
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.String
+                import kotlin.Unit
+                import org.springframework.web.reactive.function.client.WebClient
+
+                const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
+
+                class AnonymousTestQuery(
+                  private val graphQLClient: GraphQLWebClient
+                ) {
+                  suspend fun execute(requestBuilder: WebClient.RequestBodyUriSpec.() -> Unit = {}):
+                      GraphQLResponse<AnonymousTestQuery.Result> = graphQLClient.execute(ANONYMOUS_TEST_QUERY, null,
+                      null, requestBuilder)
+
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * UTF-8 character sequence
+                     */
+                    val name: String
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: AnonymousTestQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+                query {
+                  scalarQuery {
+                    name
+                  }
+                }
+            """.trimIndent()
+        val testDirectory = tempDir.toFile()
+        val queryFile = File(testDirectory, "anonymousTestQuery.graphql")
+        queryFile.deleteOnExit()
+        queryFile.writeText(query)
+
+        val generator = GraphQLClientGenerator(
+            testSchema(),
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                clientType = GraphQLClientType.WEBCLIENT
+            )
+        )
+        val fileSpecs = generator.generate(listOf(queryFile))
+        assertEquals(1, fileSpecs.size)
+        assertEquals(expectedQueryFileSpec, fileSpecs[0].toString().trim())
     }
 }

@@ -31,26 +31,24 @@ class GenerateGraphQLUnionTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
-                import kotlin.Unit
 
                 const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
                     "query UnionQueryWithInlineFragments {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n}"
 
                 class UnionQueryWithInlineFragments(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<UnionQueryWithInlineFragments.Result> =
+                  suspend fun execute(): GraphQLResponse<UnionQueryWithInlineFragments.Result> =
                       graphQLClient.execute(UNION_QUERY_WITH_INLINE_FRAGMENTS, "UnionQueryWithInlineFragments",
-                      null, requestBuilder)
+                      null)
 
                   /**
                    * Some basic description
@@ -133,26 +131,23 @@ class GenerateGraphQLUnionTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
-                import kotlin.Unit
 
                 const val UNION_QUERY_WITH_NAMED_FRAGMENTS: String =
                     "query UnionQueryWithNamedFragments {\n  unionQuery {\n    ... basicObjectFields\n    ... complexObjectFields\n  }\n}\n\nfragment basicObjectFields on BasicObject {\n  __typename\n  id\n  name\n}\nfragment complexObjectFields on ComplexObject {\n  __typename\n  id\n  name\n  optional\n}"
 
                 class UnionQueryWithNamedFragments(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<UnionQueryWithNamedFragments.Result> =
-                      graphQLClient.execute(UNION_QUERY_WITH_NAMED_FRAGMENTS, "UnionQueryWithNamedFragments", null,
-                      requestBuilder)
+                  suspend fun execute(): GraphQLResponse<UnionQueryWithNamedFragments.Result> =
+                      graphQLClient.execute(UNION_QUERY_WITH_NAMED_FRAGMENTS, "UnionQueryWithNamedFragments", null)
 
                   /**
                    * Some basic description
@@ -288,26 +283,23 @@ class GenerateGraphQLUnionTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
-                import kotlin.Unit
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n  complexObjectQuery {\n    id\n    name\n    details {\n      value\n    }\n  }\n}"
 
                 class DifferentSelectionSetQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<DifferentSelectionSetQuery.Result> =
-                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null,
-                      requestBuilder)
+                  suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
 
                   /**
                    * Some basic description
@@ -431,26 +423,23 @@ class GenerateGraphQLUnionTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Int
                 import kotlin.String
-                import kotlin.Unit
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n    }\n    ... on ComplexObject {\n      id\n    }\n  }\n  second: unionQuery {\n    __typename\n    ... on BasicObject {\n      name\n    }\n    ... on ComplexObject {\n      name\n    }\n  }\n}"
 
                 class DifferentSelectionSetQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<DifferentSelectionSetQuery.Result> =
-                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null,
-                      requestBuilder)
+                  suspend fun execute(): GraphQLResponse<DifferentSelectionSetQuery.Result> =
+                      graphQLClient.execute(DIFFERENT_SELECTION_SET_QUERY, "DifferentSelectionSetQuery", null)
 
                   /**
                    * Some basic description

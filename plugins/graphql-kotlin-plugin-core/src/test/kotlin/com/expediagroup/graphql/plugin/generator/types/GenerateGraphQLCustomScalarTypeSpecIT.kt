@@ -30,24 +30,22 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.plugin.generator.UUIDConverter
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
-                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
-                import kotlin.Unit
                 import kotlin.jvm.JvmStatic
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
                     "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
 
                 class CustomScalarTestQuery(
-                  private val graphQLClient: GraphQLClient<*>
+                  private val graphQLClient: GraphQLClient
                 ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<CustomScalarTestQuery.Result> =
-                      graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null, requestBuilder)
+                  suspend fun execute(): GraphQLResponse<CustomScalarTestQuery.Result> =
+                      graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
 
                   /**
                    * Custom scalar representing UUID

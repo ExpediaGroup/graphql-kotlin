@@ -58,6 +58,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
 | `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
@@ -97,6 +98,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
 | `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-test-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
@@ -215,7 +217,7 @@ Mojo can also be configured in your Maven build file
 
 By default, `introspect-schema` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
 
-### Generating Client
+### Generating Generic Client
 
 This Mojo generates GraphQL client code based on the provided queries using target GraphQL `schemaFile`. Classes are
 generated under specified `packageName`. When using default configuration and storing GraphQL queries under `src/main/resources`
@@ -252,6 +254,35 @@ Generated classes will be automatically added to the project compile sources.
 
 >NOTE: You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
 >[build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+
+### Generating Ktor or WebClient Based Client
+
+By default, GraphQL Kotlin plugins will generate client code that uses generic `GraphQLClient` interface. Additional
+configuration options are available if you generate type specific client code but it will also put a restriction on
+type of client that can be used for your queries.
+
+For example in order to generate Ktor based HTTP client we need to specify `GraphQLClientType.KTOR` client type. Alternatively,
+if you would like to use WebClient implementation instead you need to specify `GraphQLClientType.WEBCLIENT` instead.
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>generate-client</goal>
+            </goals>
+            <configuration>
+                <clientType>KTOR</clientType>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>mySchema.graphql</schemaFile>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
 
 ### Generating Client with Custom Scalars
 

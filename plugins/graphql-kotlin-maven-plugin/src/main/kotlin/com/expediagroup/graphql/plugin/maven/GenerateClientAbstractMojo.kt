@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generateClient
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Parameter
@@ -93,6 +94,12 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var queryFiles: List<File>? = null
 
     /**
+     * Type of GraphQL client implementation that should be generated.
+     */
+    @Parameter(name = "clientType")
+    private var clientType: GraphQLClientType = GraphQLClientType.DEFAULT
+
+    /**
      * Target directory where to store generated files.
      */
     abstract var outputDirectory: File
@@ -111,7 +118,8 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
         val config = GraphQLClientGeneratorConfig(
             packageName = packageName,
             allowDeprecated = allowDeprecatedFields,
-            scalarTypeToConverterMapping = converters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap()
+            scalarTypeToConverterMapping = converters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap(),
+            clientType = clientType
         )
         generateClient(config, schemaFile, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)

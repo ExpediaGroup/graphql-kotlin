@@ -26,6 +26,7 @@ Plugin should be configured as part of your `pom.xml` build file.
                 <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                 <!-- optional configuration below -->
                 <allowDeprecatedFields>true</allowDeprecatedFields>
+                <clientType>DEFAULT</clientType>
                 <converters>
                     <!-- custom scalar UUID type -->
                     <UUID>
@@ -100,6 +101,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
 | `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
@@ -139,6 +141,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
+| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
 | `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-test-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |

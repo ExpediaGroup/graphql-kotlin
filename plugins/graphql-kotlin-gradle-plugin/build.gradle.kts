@@ -12,7 +12,6 @@ val mustacheVersion: String by project
 dependencies {
     api(project(path = ":graphql-kotlin-plugin-core"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
-    testImplementation(project(path = ":graphql-kotlin-client"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
     testImplementation("com.github.spullara.mustache.java:compiler:$mustacheVersion")
 }
