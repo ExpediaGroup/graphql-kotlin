@@ -71,25 +71,28 @@ is configured, it will automatically download SDL/run introspection to generate 
 all GraphQL clients. GraphQL Extension should be used by default, except for cases where you need to only run individual
 tasks.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.GraphQLClientType
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
   client {
-    <span class="hljs-comment">// GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.</span>
-    endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
-    <span class="hljs-comment">// GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.</span>
-    sdlEndpoint = <span class="hljs-string">"http://localhost:8080/sdl"</span>
-    <span class="hljs-comment">// Target package name to be used for generated classes.</span>
-    packageName = <span class="hljs-string">"com.example.generated"</span>
-    <span class="hljs-comment">// Optional HTTP headers to be specified on an introspection query or SDL request.</span>
-    headers[<span class="hljs-string">"X-Custom-Header"</span>] = <span class="hljs-string">"Custom-Header-Value"</span>
     <span class="hljs-comment">// Boolean flag indicating whether or not selection of deprecated fields is allowed.</span>
     allowDeprecatedFields = <span class="hljs-literal">false</span>
+    <span class="hljs-comment">// Type of GraphQL client implementation to generate.</span>
+    clientType = GraphQLClientType.DEFAULT
     <span class="hljs-comment">// Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</span>
     converters[<span class="hljs-string">"UUID"</span>] = ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>)
-    <span class="hljs-comment">// List of query files to be processed.</span>
+    <span class="hljs-comment">// GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.</span>
+    endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span>
+    <span class="hljs-comment">// Optional HTTP headers to be specified on an introspection query or SDL request.</span>
+    headers[<span class="hljs-string">"X-Custom-Header"</span>] = <span class="hljs-string">"Custom-Header-Value"</span>
+    <span class="hljs-comment">// Target package name to be used for generated classes.</span>
+    packageName = <span class="hljs-string">"com.example.generated"</span>
+    <span class="hljs-comment">// Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.</span>
     queryFiles.add(file(<span class="hljs-string">"<span class="hljs-subst">${project.projectDir}</span>/src/main/resources/queries/MyQuery.graphql"</span>))
-    <span class="hljs-comment">// Timeout configuration</span>
+    <span class="hljs-comment">// GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.</span>
+    sdlEndpoint = <span class="hljs-string">"http://localhost:8080/sdl"</span>
+    <span class="hljs-comment">// Timeout configuration for introspection query/downloading SDL</span>
     timeout {
         <span class="hljs-comment">// Connect timeout in milliseconds</span>
         connect = <span class="hljs-number">5_000</span>
@@ -131,6 +134,7 @@ resulting generated code will be automatically added to the project main source 
 </thead>
 <tbody>
 <tr><td><code>allowDeprecatedFields</code></td><td>Boolean</td><td></td><td>Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/><strong>Default value is:</strong> <code>false</code>.<br/><strong>Command line property is</strong>: <code>allowDeprecatedFields</code>.</td></tr>
+<tr><td><code>clientType</code></td><td>GraphQLClientType</td><td></td><td>Enum value that specifies target GraphQL client type implementation.<br/><strong>Default value is:</strong> <code>GraphQLClientType.DEFAULT</code>.</td></tr>
 <tr><td><code>converters</code></td><td>Map&lt;String, ScalarConverter&gt;</td><td></td><td>Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</td></tr>
 <tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>Command line property is</strong>: <code>packageName</code>.</td></tr>
 <tr><td><code>queryFiles</code></td><td>FileCollection</td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can specify <code>queryFileDirectory</code> directory instead. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
@@ -152,6 +156,7 @@ test source set.</p>
 </thead>
 <tbody>
 <tr><td><code>allowDeprecatedFields</code></td><td>Boolean</td><td></td><td>Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/><strong>Default value is:</strong> <code>false</code>.<br/><strong>Command line property is</strong>: <code>allowDeprecatedFields</code>.</td></tr>
+<tr><td><code>clientType</code></td><td>GraphQLClientType</td><td></td><td>Enum value that specifies target GraphQL client type implementation.<br/><strong>Default value is:</strong> <code>GraphQLClientType.DEFAULT</code>.</td></tr>
 <tr><td><code>converters</code></td><td>Map&lt;String, ScalarConverter&gt;</td><td></td><td>Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.</td></tr>
 <tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>Command line property is</strong>: <code>packageName</code>.</td></tr>
 <tr><td><code>queryFiles</code></td><td>FileCollection</td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can specify <code>queryFileDirectory</code> directory instead. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
@@ -213,7 +218,7 @@ command line by explicitly passing endpoint parameter</p>
 <p>NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 invoke it OR configure it as a dependency of some other task.</p>
 </blockquote>
-<h3><a class="anchor" aria-hidden="true" id="generating-client"></a><a href="#generating-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Client</h3>
+<h3><a class="anchor" aria-hidden="true" id="generating-generic-client"></a><a href="#generating-generic-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Generic Client</h3>
 <p>GraphQL Kotlin client code is generated based on the provided queries that will be executed against target GraphQL <code>schemaFile</code>.
 Separate class is generated for each provided GraphQL query and are saved under specified <code>packageName</code>. When using default
 configuration and storing GraphQL queries under <code>src/main/resources</code> directories, task can be executed directly from the
@@ -231,6 +236,21 @@ command line by explicitly providing required properties.</p>
 </code></pre>
 <p>This will process all GraphQL queries located under <code>src/main/resources</code> and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project compile sources.</p>
+<h3><a class="anchor" aria-hidden="true" id="generating-ktor-or-webclient-based-client"></a><a href="#generating-ktor-or-webclient-based-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Ktor or WebClient Based Client</h3>
+<p>By default, GraphQL Kotlin plugins will generate client code that uses generic <code>GraphQLClient</code> interface. Additional
+configuration options are available if you generate type specific client code but it will also put a restriction on
+type of client that can be used for your queries.</p>
+<p>For example in order to generate Ktor based HTTP client we need to specify <code>GraphQLClientType.KTOR</code> client type. Alternatively,
+if you would like to use WebClient implementation instead you need to specify <code>GraphQLClientType.WEBCLIENT</code> instead.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+<span class="hljs-keyword">val</span> graphqlGenerateClient <span class="hljs-keyword">by</span> tasks.getting(GraphQLGenerateClientTask::<span class="hljs-class"><span class="hljs-keyword">class</span>) </span>{
+  clientType.<span class="hljs-keyword">set</span>(GraphQLClientType.KTOR)
+  packageName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"com.example.generated"</span>)
+  schemaFileName.<span class="hljs-keyword">set</span>(<span class="hljs-string">"mySchema.graphql"</span>)
+}
+</code></pre>
 <h3><a class="anchor" aria-hidden="true" id="generating-client-with-custom-scalars"></a><a href="#generating-client-with-custom-scalars" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating Client with Custom Scalars</h3>
 <p>By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
 custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt">scalar converter</a>.</p>
@@ -309,9 +329,10 @@ graphql {
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="complete-configuration-example"></a><a href="#complete-configuration-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complete Configuration Example</h3>
 <p>Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
-the GraphQL client code based on the provided query.</p>
+the GraphQL Ktor client code based on the provided query.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.config.TimeoutConfig
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.GraphQLClientType
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql
 
@@ -321,8 +342,9 @@ graphql {
     packageName = <span class="hljs-string">"com.example.generated"</span>
     <span class="hljs-comment">// optional configuration</span>
     allowDeprecatedFields = <span class="hljs-literal">true</span>
-    headers[<span class="hljs-string">"X-Custom-Header"</span>] = <span class="hljs-string">"My-Custom-Header"</span>
+    clientType = GraphQLClientType.KTOR
     converters[<span class="hljs-string">"UUID"</span>] = ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>)
+    headers[<span class="hljs-string">"X-Custom-Header"</span>] = <span class="hljs-string">"My-Custom-Header"</span>
     queryFiles.add(file(<span class="hljs-string">"<span class="hljs-subst">${project.projectDir}</span>/src/main/resources/queries/MyQuery.graphql"</span>))
     timeout {
         connect = <span class="hljs-number">10_000</span>
@@ -334,6 +356,7 @@ graphql {
 <p>Above configuration is equivalent to the following</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-comment">// build.gradle.kts</span>
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.config.TimeoutConfig
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.GraphQLClientType
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 <span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
@@ -348,13 +371,14 @@ graphql {
     schemaFile.<span class="hljs-keyword">set</span>(graphqlDownloadSDL.outputFile)
     <span class="hljs-comment">// optional</span>
     allowDeprecatedFields.<span class="hljs-keyword">set</span>(<span class="hljs-literal">true</span>)
+    clientType.<span class="hljs-keyword">set</span>(GraphQLClientType.KTOR)
     converters.put(<span class="hljs-string">"UUID"</span>, ScalarConverterMapping(<span class="hljs-string">"java.util.UUID"</span>, <span class="hljs-string">"com.example.UUIDScalarConverter"</span>))
     queryFiles.from(<span class="hljs-string">"<span class="hljs-subst">${project.projectDir}</span>/src/main/resources/queries/MyQuery.graphql"</span>)
 
     dependsOn(<span class="hljs-string">"graphqlDownloadSDL"</span>)
 }
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/next/client/client-customization"><span class="arrow-prev">← </span><span>Client Customization</span></a><a class="docs-next button" href="/graphql-kotlin/docs/next/plugins/maven-plugin"><span>Maven Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#extension">Extension</a></li><li><a href="#tasks">Tasks</a><ul class="toc-headings"><li><a href="#graphqldownloadsdl">graphqlDownloadSDL</a></li><li><a href="#graphqlgenerateclient">graphqlGenerateClient</a></li><li><a href="#graphqlgeneratetestclient">graphqlGenerateTestClient</a></li><li><a href="#graphqlintrospectschema">graphqlIntrospectSchema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-client">Generating Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating Client with Custom Scalars</a></li><li><a href="#generating-test-client">Generating Test Client</a></li><li><a href="#complete-minimal-configuration-example">Complete Minimal Configuration Example</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/next/client/client-customization"><span class="arrow-prev">← </span><span>Client Customization</span></a><a class="docs-next button" href="/graphql-kotlin/docs/next/plugins/maven-plugin"><span>Maven Plugin</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#usage">Usage</a></li><li><a href="#extension">Extension</a></li><li><a href="#tasks">Tasks</a><ul class="toc-headings"><li><a href="#graphqldownloadsdl">graphqlDownloadSDL</a></li><li><a href="#graphqlgenerateclient">graphqlGenerateClient</a></li><li><a href="#graphqlgeneratetestclient">graphqlGenerateTestClient</a></li><li><a href="#graphqlintrospectschema">graphqlIntrospectSchema</a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#downloading-schema-sdl">Downloading Schema SDL</a></li><li><a href="#introspecting-schema">Introspecting Schema</a></li><li><a href="#generating-generic-client">Generating Generic Client</a></li><li><a href="#generating-ktor-or-webclient-based-client">Generating Ktor or WebClient Based Client</a></li><li><a href="#generating-client-with-custom-scalars">Generating Client with Custom Scalars</a></li><li><a href="#generating-test-client">Generating Test Client</a></li><li><a href="#complete-minimal-configuration-example">Complete Minimal Configuration Example</a></li><li><a href="#complete-configuration-example">Complete Configuration Example</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
