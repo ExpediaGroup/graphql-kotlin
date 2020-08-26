@@ -302,7 +302,7 @@ class SchemaGeneratorHooksTest {
     @Test
     fun `willResolveMonad returns basic type`() {
         val hooks = NoopSchemaGeneratorHooks
-        val type = TestQuery::query.returnType
+        val type = (TestQuery::query as KFunction<*>).returnType
 
         assertEquals(expected = "SomeData", actual = hooks.willResolveMonad(type).getSimpleName())
     }

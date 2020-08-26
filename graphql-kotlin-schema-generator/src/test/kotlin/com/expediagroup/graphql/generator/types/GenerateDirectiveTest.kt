@@ -26,6 +26,7 @@ import com.expediagroup.graphql.test.utils.SimpleDirective
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -92,40 +93,47 @@ class GenerateDirectiveTest {
 
     @Test
     fun `no annotation`() {
-        assertTrue(generateDirectives(basicGenerator, MyClass::noAnnotation).isEmpty().isTrue())
+        val noAnnotation: KFunction<String> = MyClass::noAnnotation
+        assertTrue(generateDirectives(basicGenerator, noAnnotation).isEmpty().isTrue())
     }
 
     @Test
     fun `no directive`() {
-        assertTrue(generateDirectives(basicGenerator, MyClass::noDirective).isEmpty().isTrue())
+        val noDirective: KFunction<String> = MyClass::noDirective
+        assertTrue(generateDirectives(basicGenerator, noDirective).isEmpty().isTrue())
     }
 
     @Test
     fun `has directive`() {
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::simpleDirective).size)
+        val simpleDirective: KFunction<String> = MyClass::simpleDirective
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, simpleDirective).size)
     }
 
     @Test
     fun `has directive with string`() {
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::directiveWithString).size)
+        val directiveWithString: KFunction<String> = MyClass::directiveWithString
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithString).size)
     }
 
     @Test
     fun `has directive with enum`() {
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::directiveWithEnum).size)
+        val directiveWithEnum: KFunction<String> = MyClass::directiveWithEnum
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithEnum).size)
     }
 
     @Test
     fun `has directive with class`() {
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, MyClass::directiveWithClass).size)
+        val directiveWithClass: KFunction<String> = MyClass::directiveWithClass
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithClass).size)
     }
 
     @Test
     fun `directives are only added to the schema once`() {
         val initialCount = basicGenerator.directives.size
-        val firstInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
+        val simpleDirective: KFunction<String> = MyClass::simpleDirective
+        val firstInvocation = generateDirectives(basicGenerator, simpleDirective)
         assertEquals(1, firstInvocation.size)
-        val secondInvocation = generateDirectives(basicGenerator, MyClass::simpleDirective)
+        val secondInvocation = generateDirectives(basicGenerator, simpleDirective)
         assertEquals(1, secondInvocation.size)
         assertEquals(firstInvocation.first(), secondInvocation.first())
         assertEquals(initialCount + 1, basicGenerator.directives.size)
@@ -154,8 +162,10 @@ class GenerateDirectiveTest {
     @Test
     fun `directives are created per each declaration`() {
         val initialCount = basicGenerator.directives.size
-        val directivesOnFirstField = generateDirectives(basicGenerator, MyClass::directiveWithString)
-        val directivesOnSecondField = generateDirectives(basicGenerator, MyClass::directiveWithAnotherString)
+        val directiveWithString: KFunction<String> = MyClass::directiveWithString
+        val directiveWithAnotherString: KFunction<String> = MyClass::directiveWithAnotherString
+        val directivesOnFirstField = generateDirectives(basicGenerator, directiveWithString)
+        val directivesOnSecondField = generateDirectives(basicGenerator, directiveWithAnotherString)
         assertEquals(expected = 1, actual = directivesOnFirstField.size)
         assertEquals(expected = 1, actual = directivesOnSecondField.size)
 
@@ -191,7 +201,8 @@ class GenerateDirectiveTest {
 
     @Test
     fun `exlude directive arguments @GraphQLIgnore`() {
-        val directives = generateDirectives(basicGenerator, MyClass::directiveWithIgnoredArgs)
+        val directiveWithIgnoredArgs: KFunction<String> = MyClass::directiveWithIgnoredArgs
+        val directives = generateDirectives(basicGenerator, directiveWithIgnoredArgs)
         assertEquals(expected = 1, actual = directives.size)
         assertEquals(expected = 1, actual = directives.first().arguments.size)
         assertEquals(expected = "string", actual = directives.first().arguments.first().name)

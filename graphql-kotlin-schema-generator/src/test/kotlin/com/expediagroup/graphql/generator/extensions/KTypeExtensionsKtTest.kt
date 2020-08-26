@@ -25,16 +25,18 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-internal class KTypeExtensionsKtTest {
+class KTypeExtensionsKtTest {
 
-    internal class MyClass {
+    class MyClass {
         fun listFun(list: List<String>) = list.joinToString(separator = ",") { it }
 
         fun arrayFun(array: Array<String>) = array.joinToString(separator = ",") { it }
@@ -44,9 +46,9 @@ internal class KTypeExtensionsKtTest {
         fun stringFun(string: String) = "hello $string"
     }
 
-    internal interface SimpleInterface
+    interface SimpleInterface
 
-    internal class SimpleClass(val id: String) : SimpleInterface
+    class SimpleClass(val id: String) : SimpleInterface
 
     @Test
     fun getTypeOfFirstArgument() {
@@ -77,7 +79,22 @@ internal class KTypeExtensionsKtTest {
 
     @Test
     fun getKClass() {
-        assertEquals(MyClass::class, MyClass::class.starProjectedType.getKClass())
+        assertEquals(MyClass::class, MyClass::class.createType().getKClass())
+    }
+
+    @Test
+    fun getJavaClass() {
+        val listType = assertNotNull(MyClass::listFun.findParameterByName("list")?.type)
+        assertEquals(List::class.java, listType.getJavaClass())
+
+        val arrayType = assertNotNull(MyClass::arrayFun.findParameterByName("array")?.type)
+        assertEquals(Array<String>::class.java, arrayType.getJavaClass())
+
+        val primitiveArrayType = assertNotNull(MyClass::primitiveArrayFun.findParameterByName("intArray")?.type)
+        assertEquals(IntArray::class.java, primitiveArrayType.getJavaClass())
+
+        val stringType = assertNotNull(MyClass::stringFun.findParameterByName("string")?.type)
+        assertEquals(String::class.java, stringType.getJavaClass())
     }
 
     @Test

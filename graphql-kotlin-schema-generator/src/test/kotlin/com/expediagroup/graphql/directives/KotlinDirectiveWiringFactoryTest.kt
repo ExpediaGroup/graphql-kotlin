@@ -211,7 +211,7 @@ class KotlinDirectiveWiringFactoryTest {
     }
 
     @Test
-    fun `verify exception is thrown if no coordinates or code registry is specified for the field`() {
+    fun `verify exception is thrown if no coordinates are specified for the field`() {
         val myTestField = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
             .type { context, visitor -> context.thisNode().accept(context, visitor) }
@@ -220,7 +220,21 @@ class KotlinDirectiveWiringFactoryTest {
             .build()
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            SimpleWiringFactory().onWire(graphQLSchemaElement = myTestField, coordinates = null, codeRegistry = null)
+            SimpleWiringFactory().onWire(graphQLSchemaElement = myTestField, coordinates = null, codeRegistry = mockk())
+        }
+    }
+
+    @Test
+    fun `verify exception is thrown if no code registry is specified for the field`() {
+        val myTestField = GraphQLFieldDefinition.newFieldDefinition()
+            .name("MyField")
+            .type { context, visitor -> context.thisNode().accept(context, visitor) }
+            .description("My Field Description")
+            .withDirective(graphQLLowercaseDirective)
+            .build()
+
+        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
+            SimpleWiringFactory().onWire(graphQLSchemaElement = myTestField, coordinates = mockk(), codeRegistry = null)
         }
     }
 
