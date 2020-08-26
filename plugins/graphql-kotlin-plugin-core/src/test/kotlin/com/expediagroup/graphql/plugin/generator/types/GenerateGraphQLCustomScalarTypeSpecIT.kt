@@ -36,6 +36,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
                 import kotlin.Any
+                import kotlin.String
                 import kotlin.jvm.JvmStatic
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
