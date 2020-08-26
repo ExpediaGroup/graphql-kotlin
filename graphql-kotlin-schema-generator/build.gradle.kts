@@ -6,6 +6,7 @@ val jacksonVersion: String by project
 val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val rxjavaVersion: String by project
+val junitVersion: String by project
 
 dependencies {
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
@@ -14,6 +15,7 @@ dependencies {
     implementation(kotlin("reflect", kotlinVersion))
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }
 
 tasks {

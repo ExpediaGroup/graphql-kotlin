@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.extensions.isDataFetchingEnvironment
 import com.expediagroup.graphql.generator.extensions.isGraphQLContext
 import com.expediagroup.graphql.generator.extensions.isList
+import com.expediagroup.graphql.generator.extensions.isOptionalInputType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
@@ -103,13 +104,27 @@ open class FunctionDataFetcher(
         val name = param.getName()
         val argument = environment.arguments[name]
 
-        return if (param.isList()) {
-            val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
-            val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
-            objectMapper.convertValue(argument, jacksonCollectionType)
-        } else {
-            val javaClass = param.type.getJavaClass()
-            objectMapper.convertValue(argument, javaClass)
+        return when {
+            param.isList() -> {
+                val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
+                val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
+                objectMapper.convertValue(argument, jacksonCollectionType)
+            }
+            param.type.isOptionalInputType() -> {
+                when {
+                    !environment.containsArgument(name) -> OptionalInput.Undefined
+                    argument == null -> OptionalInput.Defined(null)
+                    else -> {
+                        val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
+                        val value = objectMapper.convertValue(argument, argumentClass)
+                        OptionalInput.Defined(value)
+                    }
+                }
+            }
+            else -> {
+                val javaClass = param.type.getJavaClass()
+                objectMapper.convertValue(argument, javaClass)
+            }
         }
     }
 
