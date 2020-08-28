@@ -3,6 +3,7 @@
     "Introduction": [
       "getting-started",
       "examples",
+      "graphql-java-comparison",
       "blogs-and-videos"
     ],
     "Schema Generator": [
