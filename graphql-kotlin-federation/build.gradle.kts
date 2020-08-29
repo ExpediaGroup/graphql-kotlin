@@ -1,9 +1,11 @@
 description = "Federated GraphQL schema generator"
 
+val kotlinVersion: String by project
 val junitVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
+    implementation(kotlin("reflect", kotlinVersion))
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }
 

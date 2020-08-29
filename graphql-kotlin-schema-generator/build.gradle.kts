@@ -12,7 +12,7 @@ dependencies {
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinCoroutinesVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    api(kotlin("reflect", kotlinVersion))
+    implementation(kotlin("reflect", kotlinVersion))
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
