@@ -18,6 +18,7 @@ dependencies {
     api("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinCoroutinesVersion")
     kapt("org.springframework.boot:spring-boot-configuration-processor:$springBootVersion")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:$springBootVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation("io.projectreactor:reactor-test:$reactorVersion")

@@ -16,18 +16,11 @@
 
 package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
-import com.expediagroup.graphql.examples.extend.widgetResolver
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
-class Application {
-
-    @Bean
-    fun federatedTypeRegistry() = FederatedTypeRegistry(mapOf("Widget" to widgetResolver))
-}
+class Application
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {

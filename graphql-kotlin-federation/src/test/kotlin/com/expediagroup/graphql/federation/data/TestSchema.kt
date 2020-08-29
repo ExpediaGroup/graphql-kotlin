@@ -26,7 +26,7 @@ import graphql.schema.GraphQLSchema
 
 internal fun federatedTestSchema(
     queries: List<TopLevelObject> = emptyList(),
-    federatedTypeResolvers: Map<String, FederatedTypeResolver<*>> = emptyMap()
+    federatedTypeResolvers: List<FederatedTypeResolver<*>> = emptyList()
 ): GraphQLSchema {
     val config = FederatedSchemaGeneratorConfig(
         supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),

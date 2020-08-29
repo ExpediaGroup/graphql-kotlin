@@ -33,16 +33,19 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import java.util.Optional
 
 /**
- * SpringBoot autoconfiguration for generating GraphQL schema.
+ * SpringBoot autoconfiguration for generating a non-federated GraphQL schema object.
+ * This will override the beans in [FederatedSchemaAutoConfiguration] if federation is disabled.
  */
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "false", matchIfMissing = true)
 @Configuration
-class SchemaAutoConfiguration {
+@Import(GraphQLExecutionConfiguration::class)
+class NonFederatedSchemaAutoConfiguration {
 
-    private val logger = LoggerFactory.getLogger(SchemaAutoConfiguration::class.java)
+    private val logger = LoggerFactory.getLogger(NonFederatedSchemaAutoConfiguration::class.java)
 
     @Bean
     @ConditionalOnMissingBean

@@ -24,6 +24,12 @@ import graphql.schema.DataFetchingEnvironment
 interface FederatedTypeResolver<out T> {
 
     /**
+     * This is the GraphQL name of the type [T]. It is used when running the resolvers and inspecting the
+     * GraphQL "__typename" property during the entities requests
+     */
+    val typeName: String
+
+    /**
      * Resolves underlying federated types based on the passed in _entities query representations. Entities
      * need to be resolved in the same order they were specified by the list of representations. Each passed
      * in representation should either be resolved to a target entity OR NULL if entity cannot be resolved.

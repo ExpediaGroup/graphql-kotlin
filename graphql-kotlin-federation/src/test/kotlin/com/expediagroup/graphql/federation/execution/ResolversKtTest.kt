@@ -27,15 +27,17 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class ResolversKtTest {
+class ResolversKtTest {
 
     @Test
     fun `resolveBatch should call the resolver from the registry`() {
         val indexedValue = mapOf<String, Any>()
         val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(IndexedValue(7, indexedValue))
-        val mockResolver: FederatedTypeResolver<*> = mockk()
-        coEvery { mockResolver.resolve(any(), any()) } returns listOf("foo")
-        val registry = FederatedTypeRegistry(mapOf("MyType" to mockResolver))
+        val mockResolver: FederatedTypeResolver<*> = mockk {
+            every { typeName } returns "MyType"
+            coEvery { resolve(any(), any()) } returns listOf("foo")
+        }
+        val registry = FederatedTypeRegistry(listOf(mockResolver))
 
         runBlocking {
             val result = resolveType(mockk(), "MyType", indexedRequests, registry)
@@ -49,10 +51,12 @@ internal class ResolversKtTest {
     fun `resolver still works when registry returns null`() {
         val indexedValue = mapOf<String, Any>()
         val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(IndexedValue(7, indexedValue))
-        val mockResolver: FederatedTypeResolver<*> = mockk()
-        coEvery { mockResolver.resolve(any(), any()) } returns listOf("foo")
-        val registry: FederatedTypeRegistry = mockk()
-        every { registry.getFederatedResolver(any()) } returns null
+        val mockResolver: FederatedTypeResolver<*> = mockk {
+            coEvery { resolve(any(), any()) } returns listOf("foo")
+        }
+        val registry: FederatedTypeRegistry = mockk {
+            every { getFederatedResolver(any()) } returns null
+        }
 
         runBlocking {
             val result = resolveType(mockk(), "MyType", indexedRequests, registry)
@@ -68,9 +72,11 @@ internal class ResolversKtTest {
     fun `resolver maps the value to a failure when the federated resolver throws an exception`() {
         val indexedValue = mapOf<String, Any>()
         val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(IndexedValue(7, indexedValue))
-        val mockResolver: FederatedTypeResolver<*> = mockk()
-        coEvery { mockResolver.resolve(any(), any()) } throws Exception("custom exception")
-        val registry = FederatedTypeRegistry(mapOf("MyType" to mockResolver))
+        val mockResolver: FederatedTypeResolver<*> = mockk {
+            every { typeName } returns "MyType"
+            coEvery { resolve(any(), any()) } throws Exception("custom exception")
+        }
+        val registry = FederatedTypeRegistry(listOf(mockResolver))
 
         runBlocking {
             val result = resolveType(mockk(), "MyType", indexedRequests, registry)
@@ -89,9 +95,11 @@ internal class ResolversKtTest {
             IndexedValue(7, indexedValue),
             IndexedValue(5, indexedValue)
         )
-        val mockResolver: FederatedTypeResolver<*> = mockk()
-        coEvery { mockResolver.resolve(any(), any()) } returns listOf("foo")
-        val registry = FederatedTypeRegistry(mapOf("MyType" to mockResolver))
+        val mockResolver: FederatedTypeResolver<*> = mockk {
+            every { typeName } returns "MyType"
+            coEvery { resolve(any(), any()) } returns listOf("foo")
+        }
+        val registry = FederatedTypeRegistry(listOf(mockResolver))
 
         runBlocking {
             val result = resolveType(mockk(), "MyType", indexedRequests, registry)

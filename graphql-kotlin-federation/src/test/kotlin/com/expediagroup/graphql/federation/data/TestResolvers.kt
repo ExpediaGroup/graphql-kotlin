@@ -22,6 +22,8 @@ import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import graphql.schema.DataFetchingEnvironment
 
 internal class BookResolver : FederatedTypeResolver<Book> {
+    override val typeName: String = "Book"
+
     override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Book?> {
         val results = mutableListOf<Book?>()
         for (keys in representations) {
@@ -37,6 +39,8 @@ internal class BookResolver : FederatedTypeResolver<Book> {
 }
 
 internal class UserResolver : FederatedTypeResolver<User> {
+    override val typeName: String = "User"
+
     override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<User?> {
         val results = mutableListOf<User?>()
         for (keys in representations) {
