@@ -1,6 +1,7 @@
 {
   "name": "graphql-kotlin-docs",
   "license": "Apache-2.0",
+  "repository": "https://github.com/ExpediaGroup/graphql-kotlin",
   "engines": {
     "node": "12",
     "npm": "6"
@@ -15,12 +16,8 @@
     "rename-version": "docusaurus-rename-version",
     "clean": "rimraf build i18n"
   },
-  "@comment devDependencies": {
-    "minimist": "This is only includes for security reasons. This can be removed once docusaurus updates"
-  },
   "devDependencies": {
-    "docusaurus": "1.14.4",
-    "rimraf": "3.0.2",
-    "minimist": "1.2.5"
+    "docusaurus": "1.14.6",
+    "rimraf": "3.0.2"
   }
 }
