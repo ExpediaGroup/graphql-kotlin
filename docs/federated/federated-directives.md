@@ -4,6 +4,8 @@ title: Federated Directives
 ---
 `graphql-kotlin` supports a number of directives that can be used to annotate a schema and direct certain behaviors.
 
+For more details, see the [Apollo Federation Specification](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/).
+
 ## `@extends` directive
 
 ```graphql
@@ -19,7 +21,7 @@ Example
 ```kotlin
 @KeyDirective(FieldSet("id"))
 @ExtendsDirective
-class Product(@property:ExternalDirective val id: String) {
+class Product(@ExternalDirective val id: String) {
    fun newFunctionality(): String = "whatever"
 }
 ```
@@ -27,7 +29,7 @@ class Product(@property:ExternalDirective val id: String) {
 will generate
 
 ```graphql
-type Product @extends @key(fields : "id") {
+type Product @key(fields : "id") @extends {
   id: String! @external
   newFunctionality: String!
 }
@@ -49,7 +51,7 @@ Example
 ```kotlin
 @KeyDirective(FieldSet("id"))
 @ExtendsDirective
-class Product(@property:ExternalDirective val id: String) {
+class Product(@ExternalDirective val id: String) {
   fun newFunctionality(): String = "whatever"
 }
 ```
@@ -57,7 +59,7 @@ class Product(@property:ExternalDirective val id: String) {
 will generate
 
 ```graphql
-type Product @extends @key(fields : "id") {
+type Product @key(fields : "id") @extends {
   id: String! @external
   newFunctionality: String!
 }
@@ -70,10 +72,10 @@ directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
 ```
 
 The `@key` directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an
-object or interface. Specified field set can represent single field (e.g. `"id"`), multiple fields (e.g. `"id name"`) or
+object or interface. The specified field set can represent single field (e.g. `"id"`), multiple fields (e.g. `"id name"`) or
 nested selection sets (e.g. `"id user { name }"`).
 
-Key directive should be specified on the root base type as well as all the corresponding federated (i.e. extended)
+Key directives should be specified on the root base type as well as all the corresponding federated (i.e. extended)
 types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL
 interface/object. Federated extended types should also instrument all the referenced key fields with `@external`
 directive.
@@ -116,14 +118,14 @@ We might want to expose only name of the user that submitted a review.
 @KeyDirective(FieldSet("id"))
 class Review(val id: String) {
   @ProvidesDirective(FieldSet("name"))
-  fun user(): User = // implementation goes here
+  fun user(): User = getUserByReviewId(id)
 }
 
 @KeyDirective(FieldSet("userId"))
 @ExtendsDirective
 class User(
-  @property:ExternalDirective val userId: String,
-  @property:ExternalDirective val name: String
+  @ExternalDirective val userId: String,
+  @ExternalDirective val name: String
 )
 ```
 
@@ -135,7 +137,7 @@ type Review @key(fields : "id") {
   user: User! @provides(fields : "name")
 }
 
-type User @extends @key(fields : "userId") {
+type User @key(fields : "userId") @extends {
   userId: String! @external
   name: String! @external
 }
@@ -167,7 +169,7 @@ Example:
 ```kotlin
 @KeyDirective(FieldSet("id"))
 @ExtendsDirective
-class Product(@property:ExternalDirective val id: String) {
+class Product(@ExternalDirective val id: String) {
   @ExternalDirective
   var weight: Double by Delegates.notNull()
 
@@ -181,7 +183,7 @@ class Product(@property:ExternalDirective val id: String) {
 will generate
 
 ```graphql
-type Product @extends @key(fields : "id") {
+type Product @key(fields : "id") @extends  {
   additionalInfo: String!
   id: String! @external
   shippingCost: String! @requires(fields : "weight")
