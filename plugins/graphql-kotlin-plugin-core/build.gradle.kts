@@ -1,6 +1,7 @@
 description = "GraphQL Kotlin common plugin utilities library."
 
 val graphQLJavaVersion: String by project
+val kotlinVersion: String by project
 val kotlinPoetVersion: String by project
 val ktorVersion: String by project
 val wireMockVersion: String by project
@@ -10,6 +11,7 @@ dependencies {
     api(project(path = ":graphql-kotlin-spring-client"))
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
     api("com.squareup:kotlinpoet:$kotlinPoetVersion")
+    implementation(kotlin("reflect", kotlinVersion))
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-json:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
