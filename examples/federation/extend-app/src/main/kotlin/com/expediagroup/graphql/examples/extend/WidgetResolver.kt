@@ -19,10 +19,9 @@ package com.expediagroup.graphql.examples.extend
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
-import kotlin.random.Random
 
 @Component
-class WidgetResolver : FederatedTypeResolver<Widget> {
+class WidgetResolver(private val randomNumberService: RandomNumberService) : FederatedTypeResolver<Widget> {
     override val typeName: String = "Widget"
 
     override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Widget?> = representations.map {
@@ -31,7 +30,7 @@ class WidgetResolver : FederatedTypeResolver<Widget> {
 
         // If we needed to construct a Widget which has data from other APIs,
         // this is the place where we could call them with the widget id
-        val valueFromExtend = Random.nextInt()
+        val valueFromExtend = randomNumberService.getInt()
         Widget(id, valueFromExtend)
     }
 
