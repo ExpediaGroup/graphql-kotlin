@@ -24,7 +24,7 @@ import com.expediagroup.graphql.federation.directives.KeyDirective
 @KeyDirective(fields = FieldSet("id"))
 @ExtendsDirective
 class Widget(
-    @property:ExternalDirective val id: Int,
+    @ExternalDirective val id: Int,
     val randomValueFromExtend: Int
 ) {
     @Suppress("FunctionOnlyReturningConstant")
