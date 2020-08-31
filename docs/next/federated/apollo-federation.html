@@ -62,9 +62,9 @@ scale their graphs more easily.</p>
 <p><a href="https://www.apollographql.com/docs/apollo-server/federation/introduction/">Apollo Federation</a> is an architecture for
 composing multiple GraphQL services into a single graph. Federated schemas rely on a number of custom directives to
 instrument the behavior of the underlying graph and convey the relationships between different schema types. Each individual
-GraphQL server generates a valid GraphQL schema and can be run independently. This is in contrast with traditional schema
+GraphQL server generates a valid GraphQL schema and can be run independently. This is in contrast with a traditional schema
 stitching approach where relationships between individual services, i.e. linking configuration, is configured at the GraphQL
-Gateway level.</p>
+gateway level.</p>
 <h2><a class="anchor" aria-hidden="true" id="install"></a><a href="#install" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Install</h2>
 <p>Using a JVM dependency manager, simply link <code>graphql-kotlin-federation</code> to your project.</p>
 <p>With Maven:</p>
@@ -107,13 +107,33 @@ toFederatedSchema(
 )
 </code></pre>
 <p>will generate</p>
-<pre><code class="hljs css language-graphql">type Query {
- getUsers: [User!]!
+<pre><code class="hljs css language-graphql"><span class="hljs-comment"># Federation spec types</span>
+scalar _Any
+scalar _FieldSet
+
+union _Entity
+<span class="hljs-built_in">
+type </span>_Service {
+   sdl: String!
+}
+
+directive @external on FIELD_DEFINITION
+directive @requires(fields: _FieldSet) on FIELD_DEFINITION
+directive @provides(fields: _FieldSet) on FIELD_DEFINITION
+directive @key(fields: _FieldSet) on OBJECT |<span class="hljs-built_in"> INTERFACE
+</span>directive @extends on OBJECT |<span class="hljs-built_in"> INTERFACE
+</span>
+<span class="hljs-comment"># Schema types</span><span class="hljs-built_in">
+type </span>Query @extends {
+   getUsers: [User!]!
+
+   _entities(representations: [_Any!]!): [_Entity]!
+   _service: _Service!
 }
 <span class="hljs-built_in">
 type User </span>@key(fields : <span class="hljs-string">"id"</span>) {
- id: ID!
- name: String!
+   id: ID!
+   name: String!
 }
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/next/schema-generator/execution/introspection"><span class="arrow-prev">← </span><span>Introspection</span></a><a class="docs-next button" href="/graphql-kotlin/docs/next/federated/federated-schemas"><span>Federated Schemas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#install">Install</a></li><li><a href="#usage">Usage</a><ul class="toc-headings"><li><a href="#tofederatedschema"><code>toFederatedSchema</code></a></li></ul></li><li><a href="#example">Example</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
