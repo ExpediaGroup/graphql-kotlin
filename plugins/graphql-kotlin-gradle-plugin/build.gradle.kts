@@ -5,7 +5,6 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
-val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val wireMockVersion: String by project
 val mustacheVersion: String by project
@@ -15,7 +14,6 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
     testImplementation("com.github.spullara.mustache.java:compiler:$mustacheVersion")
-    testImplementation(kotlin("reflect", kotlinVersion))
 }
 
 gradlePlugin {
