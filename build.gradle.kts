@@ -181,7 +181,7 @@ subprojects {
     }
 
     dependencies {
-        implementation(kotlin("stdlib-jdk8", kotlinVersion))
+        implementation(kotlin("stdlib", kotlinVersion))
         implementation(kotlin("reflect", kotlinVersion))
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
         testImplementation(kotlin("test", kotlinVersion))
