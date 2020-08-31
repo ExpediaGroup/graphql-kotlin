@@ -24,7 +24,7 @@ class FederatedTypeRegistry(federatedTypeResolvers: List<FederatedTypeResolver<*
     /**
      * Precompute the map of names to types so that we don't have to search the list every time.
      */
-    private val namesToResolvers: Map<String, FederatedTypeResolver<*>> = federatedTypeResolvers.map { it.typeName to it }.toMap()
+    private val namesToResolvers: Map<String, FederatedTypeResolver<*>> = federatedTypeResolvers.associateBy { it.typeName }
 
     /**
      * Retrieve target federated resolver for the specified GraphQL type.

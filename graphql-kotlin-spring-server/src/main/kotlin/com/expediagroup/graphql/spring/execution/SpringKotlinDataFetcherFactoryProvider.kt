@@ -22,6 +22,10 @@ import graphql.schema.DataFetcherFactory
 import org.springframework.context.ApplicationContext
 import kotlin.reflect.KFunction
 
+/**
+ * This provides a wrapper around the [SimpleKotlinDataFetcherFactoryProvider] to call the [SpringDataFetcher] on functions.
+ * This allows you to use Spring beans as function arugments and they will be populated by the data fetcher.
+ */
 class SpringKotlinDataFetcherFactoryProvider(
     private val objectMapper: ObjectMapper,
     private val applicationContext: ApplicationContext

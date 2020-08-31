@@ -32,7 +32,7 @@ internal class ClassScanner(supportedPackages: List<String>) : Closeable {
     @Suppress("Detekt.SpreadOperator")
     private val scanResult = ClassGraph()
         .enableAllInfo()
-        .acceptPackages(*supportedPackages.toTypedArray())
+        .whitelistPackages(*supportedPackages.toTypedArray())
         .scan()
 
     /**
