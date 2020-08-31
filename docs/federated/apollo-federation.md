@@ -12,9 +12,9 @@ scale their graphs more easily.
 [Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/introduction/) is an architecture for
 composing multiple GraphQL services into a single graph. Federated schemas rely on a number of custom directives to
 instrument the behavior of the underlying graph and convey the relationships between different schema types. Each individual
-GraphQL server generates a valid GraphQL schema and can be run independently. This is in contrast with traditional schema
+GraphQL server generates a valid GraphQL schema and can be run independently. This is in contrast with a traditional schema
 stitching approach where relationships between individual services, i.e. linking configuration, is configured at the GraphQL
-Gateway level.
+gateway level.
 
 ## Install
 Using a JVM dependency manager, simply link `graphql-kotlin-federation` to your project.
@@ -77,12 +77,32 @@ toFederatedSchema(
 will generate
 
  ```graphql
-type Query {
-  getUsers: [User!]!
+# Federation spec types
+scalar _Any
+scalar _FieldSet
+
+union _Entity
+
+type _Service {
+    sdl: String!
+}
+
+directive @external on FIELD_DEFINITION
+directive @requires(fields: _FieldSet) on FIELD_DEFINITION
+directive @provides(fields: _FieldSet) on FIELD_DEFINITION
+directive @key(fields: _FieldSet) on OBJECT | INTERFACE
+directive @extends on OBJECT | INTERFACE
+
+# Schema types
+type Query @extends {
+    getUsers: [User!]!
+
+    _entities(representations: [_Any!]!): [_Entity]!
+    _service: _Service!
 }
 
 type User @key(fields : "id") {
-  id: ID!
-  name: String!
+    id: ID!
+    name: String!
 }
 ```

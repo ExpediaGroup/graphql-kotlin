@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples
+package com.expediagroup.graphql.examples.extend
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
+import org.springframework.stereotype.Service
+import kotlin.random.Random
 
-@SpringBootApplication
-class Application
-
-@Suppress("SpreadOperator")
-fun main(args: Array<String>) {
-    runApplication<Application>(*args)
+/**
+ * Example of how we can use other services to get data in our federated resolvers
+ */
+@Service
+class RandomNumberService {
+    fun getInt() = Random.nextInt()
 }

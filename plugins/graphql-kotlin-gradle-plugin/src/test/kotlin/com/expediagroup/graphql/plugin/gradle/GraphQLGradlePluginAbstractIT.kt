@@ -98,8 +98,8 @@ abstract class GraphQLGradlePluginAbstractIT {
             }
 
             repositories {
-                mavenCentral()
                 mavenLocal()
+                mavenCentral()
             }
 
             tasks.withType<KotlinCompile> {

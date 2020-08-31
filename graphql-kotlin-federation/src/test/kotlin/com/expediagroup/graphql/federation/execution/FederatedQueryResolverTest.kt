@@ -49,7 +49,7 @@ class FederatedQueryResolverTest {
     @Test
     fun `verify can resolve federated entities`() {
         val schema = federatedTestSchema(
-            federatedTypeResolvers = mapOf("Book" to BookResolver(), "User" to UserResolver())
+            federatedTypeResolvers = listOf(BookResolver(), UserResolver())
         )
         val userRepresentation = mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
         val book1Representation = mapOf<String, Any>("__typename" to "Book", "id" to 987, "weight" to 2.0)

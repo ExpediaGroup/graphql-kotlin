@@ -22,6 +22,7 @@ import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.federation.toFederatedSchema
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
@@ -33,24 +34,29 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import java.util.Optional
 
 /**
- * SpringBoot autoconfiguration for generating Federated GraphQL schema.
+ * SpringBoot autoconfiguration for generating federated GraphQL schema object.
+ * These will override the beans in [NonFederatedSchemaAutoConfiguration] if federation is enabled.
  */
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
+@Import(GraphQLExecutionConfiguration::class)
 class FederatedSchemaAutoConfiguration {
 
     private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedTypeRegistry(): FederatedTypeRegistry = FederatedTypeRegistry(emptyMap())
+    fun federatedTypeRegistry(resolvers: Optional<List<FederatedTypeResolver<*>>>): FederatedTypeRegistry =
+        FederatedTypeRegistry(resolvers.orElse(emptyList()))
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedSchemaGeneratorHooks(registry: FederatedTypeRegistry): FederatedSchemaGeneratorHooks = FederatedSchemaGeneratorHooks(registry)
+    fun federatedSchemaGeneratorHooks(registry: FederatedTypeRegistry): FederatedSchemaGeneratorHooks =
+        FederatedSchemaGeneratorHooks(registry)
 
     @Bean
     @ConditionalOnMissingBean

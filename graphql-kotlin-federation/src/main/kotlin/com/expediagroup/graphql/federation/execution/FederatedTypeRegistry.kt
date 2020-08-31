@@ -19,10 +19,15 @@ package com.expediagroup.graphql.federation.execution
 /**
  * Simple registry that holds mapping of all registered federated GraphQL types and their corresponding resolvers.
  */
-class FederatedTypeRegistry(private val federatedTypeResolvers: Map<String, FederatedTypeResolver<*>> = emptyMap()) {
+class FederatedTypeRegistry(federatedTypeResolvers: List<FederatedTypeResolver<*>> = emptyList()) {
+
+    /**
+     * Precompute the map of names to types so that we don't have to search the list every time.
+     */
+    private val namesToResolvers: Map<String, FederatedTypeResolver<*>> = federatedTypeResolvers.associateBy { it.typeName }
 
     /**
      * Retrieve target federated resolver for the specified GraphQL type.
      */
-    fun getFederatedResolver(type: String) = federatedTypeResolvers[type]
+    fun getFederatedResolver(type: String) = namesToResolvers[type]
 }
