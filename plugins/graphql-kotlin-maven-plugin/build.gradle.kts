@@ -1,6 +1,5 @@
-import java.time.Duration
-import kotlin.arrayOf
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
+import java.time.Duration
 
 description = "GraphQL Kotlin Maven plugin"
 
@@ -32,10 +31,10 @@ plugins {
 dependencies {
     api(project(path = ":graphql-kotlin-plugin-core"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
-    testImplementation(project(path = ":graphql-kotlin-client"))
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
+    testImplementation(project(path = ":graphql-kotlin-client"))
 }
 
 tasks {
