@@ -71,3 +71,14 @@ jobs:
           publish_dir: ./website/build/graphql-kotlin
           user_name: eg-oss-ci
           user_email: oss@expediagroup.com
+
+      - name: Commit new files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -a -m "Add new docs version"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
