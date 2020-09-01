@@ -64,7 +64,6 @@ function Versions(props) {
             </tbody>
           </table>
 
-          {/* TODO uncomment below once we release 4.x.x
           <h3 id="archive">Past Versions</h3>
           <p>Here you can find previous versions of the documentation.</p>
           <table className="versions">
@@ -96,7 +95,6 @@ function Versions(props) {
             You can find past versions of this project on{' '}
             <a href={repoUrl}>GitHub</a>.
           </p>
-          */}
         </div>
       </Container>
     </div>
