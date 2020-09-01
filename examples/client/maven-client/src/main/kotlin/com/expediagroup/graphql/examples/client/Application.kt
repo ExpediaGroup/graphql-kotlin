@@ -1,39 +1,39 @@
 package com.expediagroup.graphql.examples.client
 
-import com.expediagroup.graphql.client.GraphQLClient
+import com.expediagroup.graphql.client.GraphQLWebClient
 import com.expediagroup.graphql.generated.AddObjectMutation
+import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.features.logging.DEFAULT
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logger
-import io.ktor.client.features.logging.Logging
+import io.netty.channel.ChannelOption
+import io.netty.handler.timeout.ReadTimeoutHandler
+import io.netty.handler.timeout.WriteTimeoutHandler
 import kotlinx.coroutines.runBlocking
-import java.net.URL
+import org.springframework.http.client.reactive.ClientHttpConnector
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.netty.http.client.HttpClient
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    val jackson = jacksonObjectMapper()
-    val client = GraphQLClient(
-        url = URL("http://localhost:8080/graphql"),
-        engineFactory = OkHttp,
-        mapper = jackson
-    ) {
-        engine {
-            config {
-                connectTimeout(10, TimeUnit.SECONDS)
-                readTimeout(60, TimeUnit.SECONDS)
-                writeTimeout(60, TimeUnit.SECONDS)
-            }
+    val httpClient: HttpClient = HttpClient.create()
+        .tcpConfiguration { client ->
+            client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
+                .doOnConnected { conn ->
+                    conn.addHandlerLast(ReadTimeoutHandler(60_000, TimeUnit.MILLISECONDS))
+                    conn.addHandlerLast(WriteTimeoutHandler(60_000, TimeUnit.MILLISECONDS))
+                }
         }
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.HEADERS
-        }
-    }
+    val connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient.wiretap(true))
+    val webClientBuilder = WebClient.builder()
+        .clientConnector(connector)
+
+    val client = GraphQLWebClient(
+        url = "http://localhost:8080/graphql",
+        builder = webClientBuilder
+    )
+
     val helloWorldQuery = HelloWorldQuery(client)
     println("HelloWorld examples")
     runBlocking {
@@ -59,5 +59,16 @@ fun main() {
         val updateResult = updateObjectMutation.execute(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated")))
         println("\tupdate new object: ${updateResult.data?.updateBasicObject}")
     }
-    client.close()
+
+    println("additional examples")
+    val exampleQuery = ExampleQuery(client)
+    runBlocking {
+        val exampleData = exampleQuery.execute(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f)))
+        println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
+        println("\tretrieved union: ${exampleData.data?.unionQuery} ")
+        println("\tretrieved enum: ${exampleData.data?.enumQuery} ")
+        println("\tretrieved example list: [${exampleData.data?.listQuery?.joinToString { it.name }}]")
+    }
+
+
 }

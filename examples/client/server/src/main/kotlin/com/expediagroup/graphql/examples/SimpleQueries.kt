@@ -100,7 +100,7 @@ class SimpleQueries(private val repository: BasicObjectRepository) : Query {
     }
 
     @GraphQLDescription("Query that accepts some input arguments")
-    fun inputObjectQuery(criteria: SimpleArgument): Boolean = random.nextBoolean()
+    fun inputObjectQuery(criteria: SimpleArgument?): Boolean = random.nextBoolean()
 
     @Deprecated(message = "old query should not be used")
     @GraphQLDescription("Deprecated query that should not be used anymore")

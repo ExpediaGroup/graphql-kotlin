@@ -1,10 +1,11 @@
+import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 plugins {
     application
-    id("org.jetbrains.kotlin.jvm") version "1.4.0"
-    id("com.expediagroup.graphql") version "3.1.0"
+    id("org.jetbrains.kotlin.jvm") version "1.3.72"
+    id("com.expediagroup.graphql") version "4.0.0-alpha.1"
 }
 
 repositories {
@@ -13,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expediagroup:graphql-kotlin-client:3.1.0")
+    implementation("com.expediagroup:graphql-kotlin-ktor-client:4.0.0-alpha.1")
     implementation("io.ktor:ktor-client-okhttp:1.3.1")
     implementation("io.ktor:ktor-client-logging-jvm:1.3.1")
 }
@@ -32,6 +33,7 @@ graphql {
         allowDeprecatedFields = true
         headers["X-Custom-Header"] = "My-Custom-Header"
         converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter")
+        clientType = GraphQLClientType.KTOR
     }
 }
 

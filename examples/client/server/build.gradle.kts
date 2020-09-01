@@ -1,7 +1,7 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.4.0"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.4.0"
-    id("org.springframework.boot") version "2.2.7.RELEASE"
+    id("org.jetbrains.kotlin.jvm") version "1.3.72"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.3.72"
+    id("org.springframework.boot") version "2.2.9.RELEASE"
 }
 
 repositories {
@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.expediagroup:graphql-kotlin-spring-server:3.1.0")
+    implementation("com.expediagroup:graphql-kotlin-spring-server:4.0.0-alpha.1")
 }
 
 tasks {
