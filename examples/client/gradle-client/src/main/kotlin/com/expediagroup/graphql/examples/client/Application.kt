@@ -2,6 +2,7 @@ package com.expediagroup.graphql.examples.client
 
 import com.expediagroup.graphql.client.GraphQLKtorClient
 import com.expediagroup.graphql.generated.AddObjectMutation
+import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
@@ -59,5 +60,16 @@ fun main() {
         val updateResult = updateObjectMutation.execute(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated")))
         println("\tupdate new object: ${updateResult.data?.updateBasicObject}")
     }
+
+    println("additional examples")
+    val exampleQuery = ExampleQuery(client)
+    runBlocking {
+        val exampleData = exampleQuery.execute(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f)))
+        println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
+        println("\tretrieved union: ${exampleData.data?.unionQuery} ")
+        println("\tretrieved enum: ${exampleData.data?.enumQuery} ")
+        println("\tretrieved example list: [${exampleData.data?.listQuery?.joinToString { it.name }}]")
+    }
+
     client.close()
 }
