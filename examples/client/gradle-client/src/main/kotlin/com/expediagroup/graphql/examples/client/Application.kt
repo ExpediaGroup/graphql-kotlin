@@ -1,6 +1,6 @@
 package com.expediagroup.graphql.examples.client
 
-import com.expediagroup.graphql.client.GraphQLClient
+import com.expediagroup.graphql.client.GraphQLKtorClient
 import com.expediagroup.graphql.generated.AddObjectMutation
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 fun main() {
     val jackson = jacksonObjectMapper()
-    val client = GraphQLClient(
+    val client = GraphQLKtorClient(
             url = URL("http://localhost:8080/graphql"),
             engineFactory = OkHttp,
             mapper = jackson
