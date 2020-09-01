@@ -35,7 +35,7 @@ abstract class GraphQLGradlePluginAbstractIT {
     // unsure if there is a better way - correct values are set from Gradle build
     // when running directly from IDE you will need to manually update those to correct values
     private val gqlKotlinVersion = System.getProperty("graphQLKotlinVersion") ?: "4.0.0-SNAPSHOT"
-    private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.4.0"
+    private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.72"
     private val junitVersion = System.getProperty("junitVersion") ?: "5.6.2"
 
     val testSchema = loadResource("mocks/schema.graphql")

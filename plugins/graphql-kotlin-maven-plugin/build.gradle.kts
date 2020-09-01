@@ -34,7 +34,6 @@ dependencies {
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
-    testImplementation(project(path = ":graphql-kotlin-client"))
 }
 
 tasks {
