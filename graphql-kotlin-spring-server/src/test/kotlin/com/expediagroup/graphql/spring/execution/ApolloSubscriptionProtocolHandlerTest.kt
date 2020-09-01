@@ -22,6 +22,7 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Client
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_STOP
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ACK
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ERROR
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages.GQL_DATA
@@ -315,6 +316,7 @@ class ApolloSubscriptionProtocolHandlerTest {
                     it.id == "abc" &&
                     payload?.data == "myData"
             }
+            .expectNextMatches { it.type == GQL_COMPLETE.type }
             .expectComplete()
             .verify()
         verify(exactly = 0) { session.close() }
@@ -341,11 +343,11 @@ class ApolloSubscriptionProtocolHandlerTest {
 
         StepVerifier.create(stopFlux)
             .expectSubscription()
-            .expectNextMatches { it.type == "complete" }
+            .expectNextMatches { it.type == GQL_COMPLETE.type }
             .thenCancel()
             .verify()
 
-        assertEquals(expected = 1, actual = startFlux.count().block())
+        assertEquals(expected = 2, actual = startFlux.count().block())
         assertEquals(expected = 1, actual = stopFlux.count().block())
         verify(exactly = 0) { session.close() }
     }
@@ -366,11 +368,14 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
         StepVerifier.create(flux)
-            .expectNextCount(1)
+            .expectNextMatches { it.type == GQL_DATA.type }
+            .expectNextMatches { it.type == GQL_COMPLETE.type }
             .expectComplete()
             .verify()
         val fluxTwo = handler.handle(operationMessage, session)
         StepVerifier.create(fluxTwo)
+            .expectNextMatches { it.type == GQL_DATA.type }
+            .expectNextMatches { it.type == GQL_COMPLETE.type }
             .expectComplete()
             .verify()
         verify(exactly = 0) { session.close() }
@@ -400,6 +405,7 @@ class ApolloSubscriptionProtocolHandlerTest {
                     it.id == "abc" &&
                     payload?.errors?.isNotEmpty() == true
             }
+            .expectNextMatches { it.type == GQL_COMPLETE.type }
             .expectComplete()
             .verify()
         verify(exactly = 0) { session.close() }
@@ -456,7 +462,6 @@ class ApolloSubscriptionProtocolHandlerTest {
             }
         }
         val graphQLRequest = GraphQLRequest("{ message }")
-        val initMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type).toJson()
         val startMessage = SubscriptionOperationMessage(GQL_START.type, id = "abc", payload = graphQLRequest).toJson()
         val session: WebSocketSession = mockk {
             every { id } returns "123"
@@ -468,13 +473,13 @@ class ApolloSubscriptionProtocolHandlerTest {
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
             every { onConnect(any(), any(), any()) } returns mono { }
             every { onOperation(any(), any(), any()) } returns mono { }
+            every { onOperationComplete(any()) } returns mono { }
         }
         val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
-        val initFlux = handler.handle(initMessage, session)
         val startFlux = handler.handle(startMessage, session)
-        initFlux.blockFirst(Duration.ofSeconds(2))
         StepVerifier.create(startFlux)
             .expectNextMatches { it.payload == expectedResponse }
+            .expectNextMatches { it.type == GQL_COMPLETE.type }
             .expectComplete()
             .verify()
         verify(exactly = 1) {

@@ -17,10 +17,14 @@
 package com.expediagroup.graphql.spring.extensions
 
 import org.junit.jupiter.api.Test
+import org.springframework.aop.framework.ProxyFactory
+import org.springframework.stereotype.Component
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class GeneratorExtensionsKtTest {
 
+    @Component
     class MyClass(val id: Int)
 
     @Test
@@ -29,5 +33,14 @@ class GeneratorExtensionsKtTest {
         val result = listOf(myObject).toTopLevelObjects()
         assertEquals(MyClass::class, result.first().kClass)
         assertEquals(myObject, result.first().obj)
+    }
+
+    @Test
+    fun `toTopLevelObjects with AOP class`() {
+        val myObject = MyClass(2)
+        val proxyFactory = ProxyFactory(myObject)
+        val result = listOf(proxyFactory.proxy).toTopLevelObjects()
+        assertEquals(MyClass::class, result.first().kClass)
+        assertTrue(result.first().obj is MyClass)
     }
 }

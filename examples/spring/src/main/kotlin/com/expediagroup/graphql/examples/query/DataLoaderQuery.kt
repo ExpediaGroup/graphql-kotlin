@@ -1,7 +1,8 @@
 package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.examples.model.Company
+import com.expediagroup.graphql.examples.model.Employee
 import com.expediagroup.graphql.spring.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -27,16 +28,6 @@ class DataLoaderQuery : Query {
         return employees
     }
 }
-
-data class Employee(
-    val name: String,
-    @GraphQLIgnore
-    val companyId: Int
-) {
-    lateinit var company: Company
-}
-
-data class Company(val id: Int, val name: String)
 
 @Component("CompanyDataFetcher")
 @Scope("prototype")

@@ -29,14 +29,15 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.ReplayProcessor
 import reactor.test.StepVerifier
+import reactor.test.publisher.TestPublisher
 import java.net.URI
-import java.time.Duration
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["graphql.packages=com.expediagroup.graphql.examples"]
+)
 @EnableAutoConfiguration
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
@@ -45,7 +46,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify singleValueSubscription query`() {
         val query = "singleValueSubscription"
-        val subscription = subscribe(query, "1", 1L)
+        val subscription = subscribe(query, "1")
 
         StepVerifier.create(subscription)
             .expectNext("{\"data\":{\"$query\":1}}")
@@ -55,10 +56,10 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
     @Test
     fun `verify counter query`() {
-        val query = "counter"
+        val query = "counter(limit: 2)"
         val numberRegex = "(\\-?[0-9]+)"
-        val expectedDataRegex = Regex("\\{\"data\":\\{\"$query\":$numberRegex}}")
-        val subscription = subscribe(query, "2", 2L)
+        val expectedDataRegex = Regex("\\{\"data\":\\{\"counter\":$numberRegex}}")
+        val subscription = subscribe(query, "2")
 
         StepVerifier.create(subscription)
             .expectNextMatches { s -> s.matches(expectedDataRegex) }
@@ -70,10 +71,10 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify singleValueThenError query`() {
         val query = "singleValueThenError"
-        val subscription = subscribe(query, "3", 2L)
+        val subscription = subscribe(query, "3")
 
         StepVerifier.create(subscription)
-            .expectNextCount(2)
+            .expectNextCount(1)
             .expectComplete()
             .verify()
     }
@@ -81,7 +82,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify flow query`() {
         val query = "flow"
-        val subscription = subscribe(query, "4", 3L)
+        val subscription = subscribe(query, "4")
 
         StepVerifier.create(subscription)
             .expectNext("{\"data\":{\"$query\":1}}")
@@ -91,31 +92,35 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .verify()
     }
 
-    private fun subscribe(query: String, id: String, take: Long): Flux<String> {
+    private fun subscribe(query: String, id: String): TestPublisher<String> {
         val message = toMessage(query, id)
-        val output = ReplayProcessor.create<String>()
+        val output = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
-        val sessionMono = client.execute(uri) { session -> executeSubscription(session, message, output, take) }
-        return output.doOnSubscribe { sessionMono.subscribe() }.timeout(Duration.ofSeconds(10))
+        client.execute(uri) { session -> executeSubscription(session, message, output) }.subscribe()
+        return output
     }
 
     private fun executeSubscription(
         session: WebSocketSession,
         message: String,
-        output: ReplayProcessor<String>,
-        take: Long
+        output: TestPublisher<String>
     ): Mono<Void> {
         return session.send(Mono.just(session.textMessage(message)))
             .thenMany(
                 session.receive()
                     .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                    .map { objectMapper.writeValueAsString(it.payload) }
+                    .doOnNext {
+                        if (it.type == SubscriptionOperationMessage.ServerMessages.GQL_DATA.type) {
+                            val data = objectMapper.writeValueAsString(it.payload)
+                            output.next(data)
+                        } else if (it.type == SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE.type) {
+                            output.complete()
+                        }
+                    }
             )
-            .subscribeWith(output)
-            .take(take)
             .then()
     }
 
