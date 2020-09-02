@@ -26,10 +26,18 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
+private const val TYPENAME_FIELD = "__typename"
+private const val REPRESENTATIONS = "representations"
+
 /**
  * Federated _entities query resolver.
  */
-open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegistry) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
+open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
+
+    /**
+     * Pre-compute the resolves by typename so we don't have to search on every request
+     */
+    private val resolverMap: Map<String, FederatedTypeResolver<*>> = resolvers.associateBy { it.typeName }
 
     /**
      * Resolves entities based on the passed in representations argument. Entities are resolved in the same order
@@ -42,15 +50,15 @@ open class EntityResolver(private val federatedTypeRegistry: FederatedTypeRegist
      * @return list of resolved nullable entities
      */
     override fun get(env: DataFetchingEnvironment): CompletableFuture<DataFetcherResult<List<Any?>>> {
-        val representations: List<Map<String, Any>> = env.getArgument("representations")
+        val representations: List<Map<String, Any>> = env.getArgument(REPRESENTATIONS)
 
-        val indexedBatchRequestsByType = representations.withIndex().groupBy { it.value["__typename"].toString() }
+        val indexedBatchRequestsByType = representations.withIndex().groupBy { it.value[TYPENAME_FIELD].toString() }
         return GlobalScope.future {
             val data = mutableListOf<Any?>()
             val errors = mutableListOf<GraphQLError>()
             indexedBatchRequestsByType.map { (typeName, indexedRequests) ->
                 async {
-                    resolveType(env, typeName, indexedRequests, federatedTypeRegistry)
+                    resolveType(env, typeName, indexedRequests, resolverMap)
                 }
             }.awaitAll()
                 .flatten()

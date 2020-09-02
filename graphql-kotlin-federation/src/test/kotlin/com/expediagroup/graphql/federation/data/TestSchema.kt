@@ -19,7 +19,6 @@ package com.expediagroup.graphql.federation.data
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
@@ -30,7 +29,7 @@ internal fun federatedTestSchema(
 ): GraphQLSchema {
     val config = FederatedSchemaGeneratorConfig(
         supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),
-        hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry(federatedTypeResolvers))
+        hooks = FederatedSchemaGeneratorHooks(federatedTypeResolvers)
     )
     return toFederatedSchema(config = config, queries = queries)
 }

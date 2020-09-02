@@ -34,7 +34,7 @@ class EntityQueryResolverTest {
 
     @Test
     fun `verify can resolve federated entities`() {
-        val resolver = EntityResolver(FederatedTypeRegistry(listOf(UserResolver())))
+        val resolver = EntityResolver(listOf(UserResolver()))
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
@@ -53,7 +53,7 @@ class EntityQueryResolverTest {
         val mockUserResolver: FederatedTypeResolver<*> = mockk {
             every { typeName } returns "User"
         }
-        val resolver = EntityResolver(FederatedTypeRegistry(listOf(mockBookResolver, mockUserResolver)))
+        val resolver = EntityResolver(listOf(mockBookResolver, mockUserResolver))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns listOf(emptyMap<String, Any>())
         }
@@ -65,7 +65,7 @@ class EntityQueryResolverTest {
 
     @Test
     fun `verify federated entity resolver returns GraphQLError if __typename cannot be resolved`() {
-        val resolver = EntityResolver(FederatedTypeRegistry())
+        val resolver = EntityResolver(emptyList())
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
@@ -82,7 +82,7 @@ class EntityQueryResolverTest {
             every { typeName } returns "User"
             coEvery { resolve(any(), any()) } throws RuntimeException("JUnit exception")
         }
-        val resolver = EntityResolver(FederatedTypeRegistry(listOf(mockUserResolver)))
+        val resolver = EntityResolver(listOf(mockUserResolver))
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env: DataFetchingEnvironment = mockk {
             every { getArgument<Any>(any()) } returns representations
@@ -107,7 +107,7 @@ class EntityQueryResolverTest {
 
         val spyUserResolver = spyk(UserResolver())
         val spyBookResolver = spyk(BookResolver())
-        val resolver = EntityResolver(FederatedTypeRegistry(listOf(spyUserResolver, spyBookResolver)))
+        val resolver = EntityResolver(listOf(spyUserResolver, spyBookResolver))
         val result = resolver.get(env).get()
 
         verifyData(result.data, user1, book, user2)
@@ -135,7 +135,7 @@ class EntityQueryResolverTest {
             every { typeName } returns "Book"
             coEvery { resolve(any(), any()) } throws RuntimeException("JUnit")
         }
-        val resolver = EntityResolver(FederatedTypeRegistry(listOf(spyUserResolver, mockBookResolver)))
+        val resolver = EntityResolver(listOf(spyUserResolver, mockBookResolver))
         val result = resolver.get(env).get()
 
         verifyData(result.data, user, null)
@@ -159,7 +159,7 @@ class EntityQueryResolverTest {
             every { typeName } returns "User"
             coEvery { resolve(any(), any()) } returns listOf(user)
         }
-        val resolver = EntityResolver(FederatedTypeRegistry(listOf(mockUserResolver)))
+        val resolver = EntityResolver(listOf(mockUserResolver))
         val result = resolver.get(env).get()
 
         verifyData(result.data, null, null)

@@ -27,7 +27,7 @@ import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.directives.PROVIDES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.directives.REQUIRES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.federation.execution.EntityResolver
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.federation.extensions.addDirectivesIfNotPresent
 import com.expediagroup.graphql.federation.types.ANY_SCALAR_TYPE
 import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
@@ -51,7 +51,7 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Hooks for generating federated GraphQL schema.
  */
-open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: FederatedTypeRegistry) : SchemaGeneratorHooks {
+open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>) : SchemaGeneratorHooks {
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query(?!\\s*\\{)\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
@@ -114,7 +114,7 @@ open class FederatedSchemaGeneratorHooks(private val federatedTypeRegistry: Fede
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
-            federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(federatedTypeRegistry))
+            federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(resolvers))
             federatedCodeRegistry.typeResolver("_Entity") { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
             federatedSchemaBuilder.additionalType(ANY_SCALAR_TYPE)
         }

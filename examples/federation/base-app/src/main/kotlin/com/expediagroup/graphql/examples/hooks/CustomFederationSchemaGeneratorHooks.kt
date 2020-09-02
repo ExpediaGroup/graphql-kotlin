@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.examples.hooks
 
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
+import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
@@ -28,7 +28,7 @@ import kotlin.reflect.KType
 /**
  * Schema generator hook that adds additional scalar types.
  */
-class CustomFederationSchemaGeneratorHooks(federatedTypeRegistry: FederatedTypeRegistry) : FederatedSchemaGeneratorHooks(federatedTypeRegistry) {
+class CustomFederationSchemaGeneratorHooks(resolvers: List<FederatedTypeResolver<*>>) : FederatedSchemaGeneratorHooks(resolvers) {
 
     /**
      * Register additional GraphQL scalar types.

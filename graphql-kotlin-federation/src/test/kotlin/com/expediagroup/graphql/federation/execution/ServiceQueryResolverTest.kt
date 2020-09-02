@@ -87,7 +87,7 @@ type SelfReferenceObject {
 
 class ServiceQueryResolverTest {
 
-    class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(FederatedTypeRegistry()) {
+    class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(emptyList()) {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
             CustomScalar::class -> graphqlCustomScalar
             else -> super.willGenerateGraphQLType(type)
@@ -150,7 +150,7 @@ class ServiceQueryResolverTest {
     fun `verify can retrieve SDL using _service query for non-federated schemas`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery()), TopLevelObject(NestedQuery())))

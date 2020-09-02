@@ -24,7 +24,6 @@ import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.operations.Query
@@ -122,7 +121,7 @@ class FederationConfigurationTest {
         @Bean
         fun customSchemaConfig(): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         @Bean
