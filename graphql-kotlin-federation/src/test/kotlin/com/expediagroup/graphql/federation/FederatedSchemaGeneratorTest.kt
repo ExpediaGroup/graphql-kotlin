@@ -21,7 +21,6 @@ import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
