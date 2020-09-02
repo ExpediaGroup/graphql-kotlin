@@ -17,18 +17,15 @@
 package com.expediagroup.graphql.examples
 
 import com.expediagroup.graphql.examples.hooks.CustomFederationSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import java.util.Optional
 
 @SpringBootApplication
 class Application {
 
     @Bean
-    fun hooks(resolvers: Optional<List<FederatedTypeResolver<*>>>) =
-        CustomFederationSchemaGeneratorHooks(resolvers.orElse(emptyList()))
+    fun hooks() = CustomFederationSchemaGeneratorHooks(emptyList())
 }
 
 @Suppress("SpreadOperator")

@@ -17,6 +17,8 @@ can be customized by providing custom beans in your application context. See sec
 
 
 ## Non-Federated Schema
+_Created only if federation is disabled_
+
 | Bean                             | Description |
 |:---------------------------------|:------------|
 | SchemaGeneratorConfig          | Schema generator configuration information, see [Schema Generator Configuration](../schema-generator/customizing-schemas/generator-config.md) for details. Can be customized by providing `TopLevelNames`, [SchemaGeneratorHooks](../schema-generator/customizing-schemas/generator-config.md) and `KotlinDataFetcherFactoryProvider` beans. |
@@ -24,12 +26,15 @@ can be customized by providing custom beans in your application context. See sec
 
 
 ## Federated Schema
+_Created only if federation is enabled_
+
 | Bean                             | Description |
 |:---------------------------------|:------------|
-| FederatedTypeRegistry          | Default type registry that adds any resolvers also marked as Spring beans. See [Federated Type Resolution](../federated/type-resolution.md) for more details.<br><br>_Created only if federation is enabled. You should register your custom type registry bean whenever implementing federated GraphQL schema with extended types_. |
-| FederatedSchemaGeneratorHooks  | Schema generator hooks used to build federated schema.<br><br>_Created only if federation is enabled_. |
-| FederatedSchemaGeneratorConfig | Federated schema generator configuration information. You can customize the configuration by providing `TopLevelNames`, `FederatedSchemaGeneratorHooks` and `KotlinDataFetcherFactoryProvider` beans.<br><br>_Created instead of default `SchemaGeneratorConfig` if federation is enabled_. |
+| FederatedTypeResolvers         | List of `FederatedTypeResolvers` marked as beans that should be added to hooks. See [Federated Type Resolution](../federated/type-resolution.md) for more details |
+| FederatedSchemaGeneratorHooks  | Schema generator hooks used to build federated schema |
+| FederatedSchemaGeneratorConfig | Federated schema generator configuration information. You can customize the configuration by providing `TopLevelNames`, `FederatedSchemaGeneratorHooks` and `KotlinDataFetcherFactoryProvider` beans |
 | GraphQLSchema                  | GraphQL schema generated based on the federated schema generator configuration and  `Query`, `Mutation` and `Subscription` objects available in the application context. |
+
 
 ## GraphQL Configuration
 | Bean                             | Description |
@@ -39,6 +44,8 @@ can be customized by providing custom beans in your application context. See sec
 
 
 ## Subscriptions
+_Created only if the `Subscription` marker interface is used _
+
 | Bean                             | Description |
 |:---------------------------------|:------------|
 | SubscriptionHandler              | Web socket handler for executing GraphQL subscriptions, defaults to [SimpleSubscriptionHandler](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/SubscriptionHandler.kt#L49).<br><br>_Created only if `Subscription` bean is available in the context._ |

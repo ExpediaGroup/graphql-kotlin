@@ -33,9 +33,7 @@ query ($_representations: [_Any!]!) {
 ### Federated Type Resolver
 
 In order to simplify the integrations, `graphql-kotlin-federation` provides a default `_entities` query resolver that
-relies on
-[FederatedTypeRegistry](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeRegistry.kt)
-to retrieve the
+retrieves the
 [FederatedTypeResolver](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeResolver.kt)
 that is used to resolve the specified `__typename`.
 
@@ -69,9 +67,10 @@ class ProductResolver : FederatedTypeResolver<Product> {
     }
 }
 
-// The FederatedTypeRegistry provides mapping between the "__typename" and the corresponding type resolver
-// If you are using "graphql-kotlin-spring-server" this is created for you if your FederatedTypeResolvers are marked as Spring beans
-val federatedTypeRegistry = FederatedTypeRegistry(listOf(productResolver))
-val config = FederatedSchemaGeneratorConfig(supportedPackages = listOf("org.example"), hooks = FederatedSchemaGeneratorHooks(federatedTypeRegistry))
+// If you are using "graphql-kotlin-spring-server", your FederatedTypeResolvers can be marked as Spring beans
+// and will automatically be added to the hooks
+val resolvers = listOf(productResolver)
+val hooks = FederatedSchemaGeneratorHooks(resolvers)
+val config = FederatedSchemaGeneratorConfig(supportedPackages = listOf("org.example"), hooks = hooks)
 val schema = toFederatedSchema(config)
 ```
