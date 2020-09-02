@@ -26,11 +26,11 @@ import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
 
 /**
- * SpringBoot auto configuration for generating Playground Service.
+ * Configuration for exposing the GraphQL Playground on a specific HTTP path
  */
 @ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing = true)
 @Configuration
-class PlaygroundAutoConfiguration(
+class PlaygroundRouteConfiguration(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource
 ) {

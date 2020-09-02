@@ -16,14 +16,11 @@
 
 package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
-import graphql.schema.GraphQLSchema
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -42,28 +39,24 @@ internal const val REQUEST_PARAM_VARIABLES = "variables"
 internal val graphQLMediaType = MediaType("application", "graphql")
 
 /**
- * Default route configuration for GraphQL service and SDL service endpoints.
+ * Default route configuration for GraphQL endpoints.
+ * Can handle requests over GET or POST as per the following guidelines:
+ * https://graphql.org/learn/serving-over-http/
  */
 @Configuration
 @Import(GraphQLSchemaConfiguration::class)
-class RoutesConfiguration(
+class GraphQLRoutesConfiguration(
     private val config: GraphQLConfigurationProperties,
-    private val schema: GraphQLSchema,
     private val queryHandler: QueryHandler,
     private val objectMapper: ObjectMapper
 ) {
+
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean
     fun graphQLRoutes() = coRouter {
         val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
-        val isNotWebsocketRequest = headers {
-            // These headers are defined in the HTTP Protocol upgrade mechanism
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
-            val isUpgrade = requestContainsHeader(it, "Connection", "Upgrade")
-            val isWebSocket = requestContainsHeader(it, "Upgrade", "websocket")
-            isUpgrade and isWebSocket
-        }.not()
+        val isNotWebsocketRequest = headers { isWebSocketHeaders(it) }.not()
 
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
@@ -76,37 +69,47 @@ class RoutesConfiguration(
         }
     }
 
+    /**
+     * These headers are defined in the HTTP Protocol upgrade mechanism that identify a web socket request
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
+     */
+    private fun isWebSocketHeaders(headers: ServerRequest.Headers): Boolean {
+        val isUpgrade = requestContainsHeader(headers, "Connection", "Upgrade")
+        val isWebSocket = requestContainsHeader(headers, "Upgrade", "websocket")
+        return isUpgrade and isWebSocket
+    }
+
     private fun requestContainsHeader(headers: ServerRequest.Headers, headerName: String, headerValue: String): Boolean =
         headers.header(headerName).map { it.toLowerCase() }.contains(headerValue.toLowerCase())
 
-    @Bean
-    @ConditionalOnProperty(value = ["graphql.sdl.enabled"], havingValue = "true", matchIfMissing = true)
-    fun sdlRoute() = coRouter {
-        GET(config.sdl.endpoint) {
-            ok().contentType(MediaType.TEXT_PLAIN).bodyValueAndAwait(schema.print())
-        }
+    private suspend fun createGraphQLRequest(serverRequest: ServerRequest): GraphQLRequest? = when {
+        serverRequest.queryParam(REQUEST_PARAM_QUERY).isPresent -> { getRequestFromGet(serverRequest) }
+        serverRequest.method() == HttpMethod.POST -> { getRequestFromPost(serverRequest) }
+        else -> null
     }
 
-    // https://github.com/FasterXML/jackson-module-kotlin/issues/221
+    private fun getRequestFromGet(serverRequest: ServerRequest): GraphQLRequest {
+        val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
+        val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
+        val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
+        val graphQLVariables: Map<String, Any>? = variables?.let {
+            objectMapper.readValue(it, mapTypeReference)
+        }
+
+        return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
+    }
+
+    /**
+     * We have have to suppress the warning due to a jackson issue
+     * https://github.com/FasterXML/jackson-module-kotlin/issues/221
+     */
     @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun createGraphQLRequest(serverRequest: ServerRequest): GraphQLRequest? = when {
-        serverRequest.queryParam(REQUEST_PARAM_QUERY).isPresent -> {
-            val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
-            val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
-            val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
-            val graphQLVariables: Map<String, Any>? = variables?.let {
-                objectMapper.readValue(it, mapTypeReference)
-            }
-            GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
+    private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLRequest? {
+        val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
+        return when {
+            contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.awaitBody()
+            contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
+            else -> null
         }
-        serverRequest.method() == HttpMethod.POST -> {
-            val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
-            when {
-                contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.awaitBody()
-                contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
-                else -> null
-            }
-        }
-        else -> null
     }
 }
