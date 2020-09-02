@@ -36,7 +36,7 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 
 /**
  * This value is needed so that this url handler is run without a drastically different order
- * to the graphql routes in [RoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
+ * to the graphql routes in [GraphQLRoutesConfiguration]. If we use [org.springframework.core.Ordered] to set as extreme
  * high or low, then the requests are not handled properly.
  *
  * Hopefully we can eventually move the url handler to the same router DSL.
