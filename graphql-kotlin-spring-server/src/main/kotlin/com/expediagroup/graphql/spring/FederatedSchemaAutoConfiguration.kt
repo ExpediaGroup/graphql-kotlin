@@ -21,7 +21,6 @@ import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.federation.toFederatedSchema
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
@@ -50,13 +49,8 @@ class FederatedSchemaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedTypeRegistry(resolvers: Optional<List<FederatedTypeResolver<*>>>): FederatedTypeRegistry =
-        FederatedTypeRegistry(resolvers.orElse(emptyList()))
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun federatedSchemaGeneratorHooks(registry: FederatedTypeRegistry): FederatedSchemaGeneratorHooks =
-        FederatedSchemaGeneratorHooks(registry)
+    fun federatedSchemaGeneratorHooks(resolvers: Optional<List<FederatedTypeResolver<*>>>): FederatedSchemaGeneratorHooks =
+        FederatedSchemaGeneratorHooks(resolvers.orElse(emptyList()))
 
     @Bean
     @ConditionalOnMissingBean

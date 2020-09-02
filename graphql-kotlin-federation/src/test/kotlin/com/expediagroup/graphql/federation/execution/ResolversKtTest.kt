@@ -37,10 +37,10 @@ class ResolversKtTest {
             every { typeName } returns "MyType"
             coEvery { resolve(any(), any()) } returns listOf("foo")
         }
-        val registry = FederatedTypeRegistry(listOf(mockResolver))
+        val resolverMap = mapOf("MyType" to mockResolver)
 
         runBlocking {
-            val result = resolveType(mockk(), "MyType", indexedRequests, registry)
+            val result = resolveType(mockk(), "MyType", indexedRequests, resolverMap)
             assertTrue(result.isNotEmpty())
             assertEquals(expected = 7 to "foo", actual = result.first())
             coVerify(exactly = 1) { mockResolver.resolve(any(), any()) }
@@ -54,12 +54,9 @@ class ResolversKtTest {
         val mockResolver: FederatedTypeResolver<*> = mockk {
             coEvery { resolve(any(), any()) } returns listOf("foo")
         }
-        val registry: FederatedTypeRegistry = mockk {
-            every { getFederatedResolver(any()) } returns null
-        }
 
         runBlocking {
-            val result = resolveType(mockk(), "MyType", indexedRequests, registry)
+            val result = resolveType(mockk(), "MyType", indexedRequests, emptyMap())
             assertTrue(result.isNotEmpty())
             val mappedValue = result.first()
             val response = mappedValue.second
@@ -76,10 +73,10 @@ class ResolversKtTest {
             every { typeName } returns "MyType"
             coEvery { resolve(any(), any()) } throws Exception("custom exception")
         }
-        val registry = FederatedTypeRegistry(listOf(mockResolver))
+        val resolverMap = mapOf("MyType" to mockResolver)
 
         runBlocking {
-            val result = resolveType(mockk(), "MyType", indexedRequests, registry)
+            val result = resolveType(mockk(), "MyType", indexedRequests, resolverMap)
             assertTrue(result.isNotEmpty())
             val mappedValue = result.first()
             val response = mappedValue.second
@@ -99,7 +96,7 @@ class ResolversKtTest {
             every { typeName } returns "MyType"
             coEvery { resolve(any(), any()) } returns listOf("foo")
         }
-        val registry = FederatedTypeRegistry(listOf(mockResolver))
+        val registry = mapOf("MyType" to mockResolver)
 
         runBlocking {
             val result = resolveType(mockk(), "MyType", indexedRequests, registry)

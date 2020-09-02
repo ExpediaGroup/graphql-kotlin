@@ -24,11 +24,11 @@ internal suspend fun resolveType(
     environment: DataFetchingEnvironment,
     typeName: String,
     indexedRequests: List<IndexedValue<Map<String, Any>>>,
-    federatedTypeRegistry: FederatedTypeRegistry
+    resolverMap: Map<String, FederatedTypeResolver<*>>
 ): List<Pair<Int, Any?>> {
     val indices = indexedRequests.map { it.index }
     val batch = indexedRequests.map { it.value }
-    val results = resolveBatch(environment, typeName, batch, federatedTypeRegistry)
+    val results = resolveBatch(environment, typeName, batch, resolverMap)
     return if (results.size != indices.size) {
         indices.map {
             it to FederatedRequestFailure("Federation batch request for $typeName generated different number of results than requested, representations=${indices.size}, results=${results.size}")
@@ -39,8 +39,13 @@ internal suspend fun resolveType(
 }
 
 @Suppress("TooGenericExceptionCaught")
-private suspend fun resolveBatch(environment: DataFetchingEnvironment, typeName: String, batch: List<Map<String, Any>>, federatedTypeRegistry: FederatedTypeRegistry): List<Any?> {
-    val resolver = federatedTypeRegistry.getFederatedResolver(typeName)
+private suspend fun resolveBatch(
+    environment: DataFetchingEnvironment,
+    typeName: String,
+    batch: List<Map<String, Any>>,
+    resolverMap: Map<String, FederatedTypeResolver<*>>
+): List<Any?> {
+    val resolver = resolverMap[typeName]
     return if (resolver != null) {
         try {
             resolver.resolve(environment, batch)

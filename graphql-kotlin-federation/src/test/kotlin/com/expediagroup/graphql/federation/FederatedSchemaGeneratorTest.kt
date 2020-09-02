@@ -21,7 +21,6 @@ import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -129,7 +128,7 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.federated"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config = config)
@@ -205,7 +204,7 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(SimpleQuery())))
@@ -241,7 +240,7 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(FederatedTypeRegistry())
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(NestedQuery())))
