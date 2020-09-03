@@ -55,7 +55,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Build website
+      - name: Build website with version
         run: |
           NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
           echo "New version: ${NEW_VERSION}"
@@ -64,18 +64,10 @@ jobs:
           npm run version $NEW_VERSION
           npm run build
 
-      - name: Deploy GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./website/build/graphql-kotlin
-          user_name: eg-oss-ci
-          user_email: oss@expediagroup.com
-
       - name: Commit new files
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "oss@expediagroup.com"
+          git config --local user.name "eg-oss-ci"
           git add website docs
           git commit -m "Add new docs version"
 
@@ -83,3 +75,11 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build/graphql-kotlin
+          user_name: eg-oss-ci
+          user_email: oss@expediagroup.com
