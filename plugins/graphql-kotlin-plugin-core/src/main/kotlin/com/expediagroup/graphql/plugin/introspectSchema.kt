@@ -25,7 +25,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.cio.endpoint
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.url
@@ -51,7 +50,6 @@ suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = e
         client.post<Map<String, Any?>> {
             url(endpoint)
             contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
             httpHeaders.forEach { (name, value) ->
                 header(name, value)
             }
