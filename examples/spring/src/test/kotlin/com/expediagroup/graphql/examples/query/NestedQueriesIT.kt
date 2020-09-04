@@ -42,14 +42,14 @@ class NestedQueriesIT(@Autowired private val testClient: WebTestClient) {
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query { details { veryDetailedFunction }, id, type } }")
+            .bodyValue("query { $query { details { veryDetailedFunction }, id, animalType } }")
             .exchange()
             .expectStatus().isOk
             .verifyOnlyDataExists(query)
             .jsonPath("$DATA_JSON_PATH.$query.details").exists()
             .jsonPath("$DATA_JSON_PATH.$query.details.veryDetailedFunction").isEqualTo("Details(1)")
             .jsonPath("$DATA_JSON_PATH.$query.id").isEqualTo("1")
-            .jsonPath("$DATA_JSON_PATH.$query.type").isEqualTo("cat")
+            .jsonPath("$DATA_JSON_PATH.$query.animalType").isEqualTo("cat")
     }
 
     @Test
