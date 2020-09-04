@@ -30,7 +30,6 @@ import io.ktor.client.engine.cio.CIOEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -82,7 +81,6 @@ open class GraphQLKtorClient<in T : HttpClientEngineConfig>(
 
         val rawResult = client.post<String>(url) {
             apply(requestBuilder)
-            accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
             body = graphQLRequest
         }
