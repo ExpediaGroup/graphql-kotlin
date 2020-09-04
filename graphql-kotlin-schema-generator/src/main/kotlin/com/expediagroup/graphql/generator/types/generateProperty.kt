@@ -33,9 +33,11 @@ internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, pa
     val propertyType = generateGraphQLType(generator, type = prop.returnType)
         .safeCast<GraphQLOutputType>()
 
+    val propertyName = prop.getPropertyName(parentClass)
+
     val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
         .description(prop.getPropertyDescription(parentClass))
-        .name(prop.getPropertyName(parentClass))
+        .name(propertyName)
         .type(propertyType)
 
     prop.getPropertyDeprecationReason(parentClass)?.let {
@@ -50,7 +52,7 @@ internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, pa
     val field = fieldBuilder.build()
 
     val parentType = parentClass.getSimpleName()
-    val coordinates = FieldCoordinates.coordinates(parentType, prop.name)
+    val coordinates = FieldCoordinates.coordinates(parentType, propertyName)
     val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.propertyDataFetcherFactory(kClass = parentClass, kProperty = prop)
     generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
 

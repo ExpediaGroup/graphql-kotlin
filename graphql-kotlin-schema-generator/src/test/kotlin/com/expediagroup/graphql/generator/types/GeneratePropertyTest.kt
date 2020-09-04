@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
@@ -42,6 +43,7 @@ import io.mockk.spyk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -54,7 +56,7 @@ class GeneratePropertyTest : TypeTestHelper() {
     private class ClassWithProperties {
         @GraphQLDescription("It's not a lie")
         @PropertyDirective("trust me")
-        lateinit var cake: String
+        val cake: String = "chocolate"
 
         @Deprecated("Only cake")
         lateinit var dessert: String
@@ -63,6 +65,9 @@ class GeneratePropertyTest : TypeTestHelper() {
         lateinit var healthyFood: String
 
         var nullableCake: String? = null
+
+        @GraphQLName("pie")
+        val renameMe: String = "apple"
     }
 
     private data class DataClassWithProperties(
@@ -84,6 +89,20 @@ class GeneratePropertyTest : TypeTestHelper() {
         val result = generateProperty(generator, prop, ClassWithProperties::class)
 
         assertEquals("cake", result.name)
+        val registry = generator.codeRegistry.build()
+        val coordinates = FieldCoordinates.coordinates("ClassWithProperties", "cake")
+        assertNotNull(registry.getDataFetcher(coordinates, result))
+    }
+
+    @Test
+    fun `Test naming override`() {
+        val prop = ClassWithProperties::renameMe
+        val result = generateProperty(generator, prop, ClassWithProperties::class)
+
+        assertEquals("pie", result.name)
+        val registry = generator.codeRegistry.build()
+        val coordinates = FieldCoordinates.coordinates("ClassWithProperties", "pie")
+        assertNotNull(registry.getDataFetcher(coordinates, result))
     }
 
     @Test

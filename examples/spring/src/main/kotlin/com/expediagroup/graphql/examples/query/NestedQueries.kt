@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.examples.query
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.spring.operations.Query
 import com.fasterxml.jackson.annotation.JsonIgnore
 import graphql.schema.DataFetcher
@@ -38,6 +39,7 @@ class NestedQueries(private val coffeeBean: CoffeeBean) : Query {
 
 data class NestedAnimal(
     val id: Int,
+    @GraphQLName("animalType")
     val type: String
 ) {
     @JsonIgnore
