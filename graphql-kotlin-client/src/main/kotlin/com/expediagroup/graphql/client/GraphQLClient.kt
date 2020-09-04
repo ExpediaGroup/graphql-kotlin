@@ -82,7 +82,6 @@ open class GraphQLClient<in T : HttpClientEngineConfig>(
 
         val rawResult = client.post<String>(url) {
             apply(requestBuilder)
-            accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
             body = graphQLRequest
         }
