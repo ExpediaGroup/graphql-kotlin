@@ -3,8 +3,8 @@ id: graphql-java-comparison
 title: GraphQL Java Comparison
 ---
 
-[graphql-java](https://graphql-java.com/) is one of the more popular JVM based GraphQL implemenations. GraphQL Kotlin is
-built on top of `grahpql-java` as there are many parts of the GraphQL specification that are trivial and this implemenatation
+[graphql-java](https://graphql-java.com/) is one of the most popular JVM based GraphQL implemenations. GraphQL Kotlin is
+built on top of `grahpql-java` as it can be easily extended with additional functionality and this implementation
 has been used and tested by many users.
 
 ### GraphQL Java Schema
