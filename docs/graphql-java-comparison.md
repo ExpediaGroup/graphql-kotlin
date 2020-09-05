@@ -36,76 +36,52 @@ type Author {
 
 Then write the runtime code that matches this schema to build the `GraphQLSchema` object.
 
-```java
-public class Schema {
+```kotlin
+class GraphQLDataFetchers {
+    private val books: List<Map<String, String>> = booksFromDB()
+    private val authors: List<Map<String, String>> = authorsFromDB()
 
-    public static void main(String[] args) {
-        SchemaParser schemaParser = new SchemaParser();
-        SchemaGenerator schemaGenerator = new SchemaGenerator();
-
-        File schemaFile = loadSchema("schema.graphqls");
-        TypeDefinitionRegistry typeRegistry = schemaParser.parse(schemaFile);
-
-        RuntimeWiring runtimeWiring = buildRuntimeWiring();
-
-        GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);
+    fun getBookByIdDataFetcher() = DataFetcher { dataFetchingEnvironment ->
+        val bookId: String = dataFetchingEnvironment.getArgument("id")
+        return books.firstOrNull { book -> book["id"] == bookId }
     }
 
-    private RuntimeWiring buildRuntimeWiring() {
-        return RuntimeWiring.newRuntimeWiring()
-            .type(
-                newTypeWiring("Query")
-                    .dataFetcher("bookById", graphQLDataFetchers.getBookByIdDataFetcher())
-            )
-            .type(
-                newTypeWiring("Book")
-                    .dataFetcher("author", graphQLDataFetchers.getAuthorDataFetcher())
-                    .dataFetcher("pageCount", graphQLDataFetchers.getPageCountDataFetcher())
-            )
-            .build();
+    fun getAuthorDataFetcher() = DataFetcher { dataFetchingEnvironment ->
+        val book: Map<String, String> = dataFetchingEnvironment.getSource()
+        val authorId: String = book["authorId"]
+        return authors.firstOrNull { author -> author["id"] == authorId }
+    }
+
+    fun getPageCountDataFetcher() = DataFetcher { dataFetchingEnvironment ->
+        val book: Map<String, String> = dataFetchingEnvironment.getSource()
+        return book["totalPages"]
     }
 }
 
-public class GraphQLDataFetchers {
+val schemaParser = SchemaParser()
+val schemaGenerator = SchemaGenerator()
+val schemaFile = loadSchema("schema.graphqls")
+val typeRegistry = schemaParser.parse(schemaFile)
+val graphQLDataFetchers = GraphQLDataFetchers()
 
-    private static List<Map<String, String>> books = booksFromDB();
-    private static List<Map<String, String>> authors = authorsFromDB();
+val runtimeWiring = RuntimeWiring.newRuntimeWiring()
+    .type(
+        newTypeWiring("Query")
+            .dataFetcher("bookById", graphQLDataFetchers.getBookByIdDataFetcher())
+    )
+    .type(
+        newTypeWiring("Book")
+            .dataFetcher("author", graphQLDataFetchers.getAuthorDataFetcher())
+            .dataFetcher("pageCount", graphQLDataFetchers.getPageCountDataFetcher())
+    )
+    .build()
 
-    public DataFetcher getBookByIdDataFetcher() {
-        return dataFetchingEnvironment -> {
-            String bookId = dataFetchingEnvironment.getArgument("id");
-            return books
-                    .stream()
-                    .filter(book -> book.get("id").equals(bookId))
-                    .findFirst()
-                    .orElse(null);
-        };
-    }
-
-    public DataFetcher getAuthorDataFetcher() {
-        return dataFetchingEnvironment -> {
-            Map<String,String> book = dataFetchingEnvironment.getSource();
-            String authorId = book.get("authorId");
-            return authors
-                    .stream()
-                    .filter(author -> author.get("id").equals(authorId))
-                    .findFirst()
-                    .orElse(null);
-        };
-    }
-
-    public DataFetcher getPageCountDataFetcher() {
-        return dataFetchingEnvironment -> {
-            Map<String,String> book = dataFetchingEnvironment.getSource();
-            return book.get("totalPages");
-        };
-    }
-}
+val graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring)
 ```
 
-This means that there are two sources-of-truth for your schema and changes in either have to be reflected in both locations.
+This means that there are two sources of truth for your schema and changes in either have to be reflected in both locations.
 As your schema scales to hundreds of types and many different resolvers, it can get more difficult to track what code needs to be changed if you want to add a new field,
-deprecated or delete an existing one, or fix a bug in the resolver code.
+deprecate or delete an existing one, or fix a bug in the resolver code.
 
 These errors will most likely be caught by your build or automated tests, but it is another layer your have to be worried about when creating your API.
 
