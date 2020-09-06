@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.scalars.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
@@ -45,7 +46,7 @@ class GenerateScalarTest : TypeTestHelper() {
     }
 
     private fun verify(kType: KType, expected: GraphQLScalarType?) {
-        val actual = generateScalar(generator, kType)
+        val actual = generateScalar(NoopSchemaGeneratorHooks, kType)
         assertEquals(expected = expected, actual = actual)
     }
 }

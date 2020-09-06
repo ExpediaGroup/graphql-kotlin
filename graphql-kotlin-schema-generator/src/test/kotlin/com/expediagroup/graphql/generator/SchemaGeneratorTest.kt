@@ -35,23 +35,23 @@ class SchemaGeneratorTest {
     fun addAdditionalTypesWithAnnotation() {
         val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"))
         val generator = CustomSchemaGenerator(config)
-        assertEquals(0, generator.additionalTypes.size)
+        assertEquals(0, generator.typeGenerator.additionalTypes.size)
 
         // Add a non-existant annotaiton
         generator.addTypes(MyOtherCustomAnnotation::class)
-        assertEquals(0, generator.additionalTypes.size)
+        assertEquals(0, generator.typeGenerator.additionalTypes.size)
 
         // Add a valid annotation
         generator.addTypes(MyCustomAnnotation::class)
-        assertEquals(1, generator.additionalTypes.size)
+        assertEquals(1, generator.typeGenerator.additionalTypes.size)
 
         // Verify interfaces and unions are not added when input types
         generator.addInputTypes(MyInterfaceAnnotation::class)
-        assertEquals(1, generator.additionalTypes.size)
+        assertEquals(1, generator.typeGenerator.additionalTypes.size)
 
         // Interfaces and unions can be added when not input types
         generator.addTypes(MyInterfaceAnnotation::class)
-        assertEquals(3, generator.additionalTypes.size)
+        assertEquals(3, generator.typeGenerator.additionalTypes.size)
 
         // Verify the interface implementations are picked up at generation time
         val result = generator.generateCustomAdditionalTypes()

@@ -16,26 +16,23 @@
 
 package com.expediagroup.graphql.generator.types
 
+import com.expediagroup.graphql.extensions.deepName
 import com.expediagroup.graphql.extensions.unwrapType
-import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
-import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 
-class GenerateGraphQLTypeKtTest : TypeTestHelper() {
+class GenerateSuperclassesKtTest : TypeTestHelper() {
 
     @Test
-    fun generateGraphQLType() {
-        assertEquals(0, generator.additionalTypes.size)
-        val result = generator.generateGraphQLType(Pet::class.createType()).unwrapType()
-        assertTrue(result is GraphQLInterfaceType)
-        assertEquals("name", result.fieldDefinitions.first().name)
-        assertEquals(2, generator.additionalTypes.size)
+    fun `verify the correct classes are picked up`() {
+        val result = generateSuperclasses(generator, Pet.Dog::class)
+
+        assertEquals(1, result.size)
+        assertNotNull(result.find { it.unwrapType().deepName == "Pet" })
     }
 
-    sealed class Pet(open val name: String) {
-        data class Dog(override val name: String, val goodBoysReceived: Int) : Pet(name)
-        data class Cat(override val name: String, val livesRemaining: Int) : Pet(name)
+    sealed class Pet(val name: String) {
+        class Dog(name: String) : Pet(name)
     }
 }

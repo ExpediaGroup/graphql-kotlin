@@ -23,7 +23,6 @@ import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.scalars.ID
@@ -106,6 +105,7 @@ class GeneratePropertyTest : TypeTestHelper() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `Test deprecation`() {
         val prop = ClassWithProperties::dessert
         val result = generateProperty(generator, prop, ClassWithProperties::class)
@@ -115,6 +115,7 @@ class GeneratePropertyTest : TypeTestHelper() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `Test deprecation with replacement`() {
         val prop = ClassWithProperties::healthyFood
         val result = generateProperty(generator, prop, ClassWithProperties::class)
@@ -215,7 +216,7 @@ class GeneratePropertyTest : TypeTestHelper() {
             hooks = hooks,
             dataFetcherFactoryProvider = mockDataFetcherFactoryProvider
         )
-        val localGenerator = SchemaGenerator(localConfig)
+        val localGenerator = TypeGenerator(localConfig)
 
         val prop = ClassWithProperties::cake
         val result = generateProperty(localGenerator, prop, ClassWithProperties::class)

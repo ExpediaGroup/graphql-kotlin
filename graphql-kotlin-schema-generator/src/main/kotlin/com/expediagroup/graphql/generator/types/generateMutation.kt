@@ -18,12 +18,11 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidMutationTypeException
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject>): GraphQLObjectType? {
+internal fun generateMutations(generator: TypeGenerator, mutations: List<TopLevelObject>): GraphQLObjectType? {
 
     if (mutations.isEmpty()) {
         return null

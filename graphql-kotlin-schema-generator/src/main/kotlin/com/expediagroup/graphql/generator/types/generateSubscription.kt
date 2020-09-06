@@ -18,12 +18,11 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
 import graphql.schema.GraphQLObjectType
 
-internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: List<TopLevelObject>): GraphQLObjectType? {
+internal fun generateSubscriptions(generator: TypeGenerator, subscriptions: List<TopLevelObject>): GraphQLObjectType? {
     if (subscriptions.isEmpty()) {
         return null
     }

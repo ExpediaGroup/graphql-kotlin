@@ -137,7 +137,7 @@ class SchemaGeneratorHooksTest {
 
         class CustomGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
             fun addTypesWithAnnotation(annotation: KClass<*>) = super.addAdditionalTypesWithAnnotation(annotation, false)
-            fun getAdditionalTypesCount() = additionalTypes.size
+            fun getAdditionalTypesCount() = typeGenerator.additionalTypes.size
         }
 
         val hooks = MockSchemaGeneratorHooks()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.generator.extensions.getWrappedType
-import graphql.schema.GraphQLList
-import kotlin.reflect.KType
+import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
+import graphql.schema.GraphQLType
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
 
-internal fun generateList(generator: TypeGenerator, type: KType, inputType: Boolean): GraphQLList {
-    val wrappedType = generator.generateGraphQLType(type.getWrappedType(), inputType)
-    return GraphQLList.list(wrappedType)
+internal fun generateSuperclasses(generator: TypeGenerator, kClass: KClass<*>): List<GraphQLType> {
+    return kClass.getValidSuperclasses(generator.config.hooks)
+        .map { generator.generateGraphQLType(it.createType()) }
 }

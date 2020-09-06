@@ -17,12 +17,8 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.extensions.unwrapType
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
-import com.expediagroup.graphql.generator.extensions.getValidFunctions
-import com.expediagroup.graphql.generator.extensions.getValidProperties
-import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
 import com.expediagroup.graphql.generator.state.AdditionalType
 import graphql.TypeResolutionEnvironment
@@ -31,8 +27,8 @@ import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
-    val builder = GraphQLInterfaceType.newInterface()
+internal fun generateInterface(generator: TypeGenerator, kClass: KClass<*>): GraphQLInterfaceType {
+    val builder: GraphQLInterfaceType.Builder = GraphQLInterfaceType.newInterface()
 
     builder.name(kClass.getSimpleName())
     builder.description(kClass.getGraphQLDescription())
@@ -41,20 +37,20 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         builder.withDirective(it)
     }
 
-    kClass.getValidSuperclasses(generator.config.hooks)
-        .map { generateGraphQLType(generator, it.createType()) }
-        .forEach {
-            when (val unwrappedType = it.unwrapType()) {
-                is GraphQLTypeReference -> builder.withInterface(unwrappedType)
-                is GraphQLInterfaceType -> builder.withInterface(unwrappedType)
-            }
+    generateSuperclasses(generator, kClass).forEach {
+        when (val unwrappedType = it.unwrapType()) {
+            is GraphQLTypeReference -> builder.withInterface(unwrappedType)
+            is GraphQLInterfaceType -> builder.withInterface(unwrappedType)
         }
+    }
 
-    kClass.getValidProperties(generator.config.hooks)
-        .forEach { builder.field(generateProperty(generator, it, kClass)) }
+    generateProperties(generator, kClass).forEach {
+        builder.field(it)
+    }
 
-    kClass.getValidFunctions(generator.config.hooks)
-        .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
+    generateFunctions(generator, kClass, abstract = true).forEach {
+        builder.field(it)
+    }
 
     generator.classScanner.getSubTypesOf(kClass)
         .filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }

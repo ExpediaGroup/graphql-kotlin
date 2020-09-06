@@ -18,22 +18,16 @@ package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.generator.state.AdditionalType
-import com.expediagroup.graphql.generator.state.ClassScanner
-import com.expediagroup.graphql.generator.state.TypesCache
-import com.expediagroup.graphql.generator.types.generateGraphQLType
+import com.expediagroup.graphql.generator.types.TypeGenerator
 import com.expediagroup.graphql.generator.types.generateMutations
 import com.expediagroup.graphql.generator.types.generateQueries
 import com.expediagroup.graphql.generator.types.generateSubscriptions
-import graphql.schema.GraphQLCodeRegistry
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import java.io.Closeable
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
@@ -49,20 +43,7 @@ import kotlin.reflect.full.createType
 */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
-    internal val additionalTypes: MutableSet<AdditionalType> = mutableSetOf()
-    internal val classScanner = ClassScanner(config.supportedPackages)
-    internal val cache = TypesCache(config.supportedPackages)
-    internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
-    internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
-
-    /**
-     * Validate that the supported packages contain classes
-     */
-    init {
-        if (classScanner.isEmptyScan()) {
-            throw InvalidPackagesException(config.supportedPackages)
-        }
-    }
+    internal val typeGenerator = TypeGenerator(config)
 
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
@@ -75,21 +56,21 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         additionalInputTypes: Set<KType> = emptySet()
     ): GraphQLSchema {
 
-        this.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
-        this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
+        typeGenerator.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
+        typeGenerator.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
 
         val builder = GraphQLSchema.newSchema()
-        builder.query(generateQueries(this, queries))
-        builder.mutation(generateMutations(this, mutations))
-        builder.subscription(generateSubscriptions(this, subscriptions))
+        builder.query(generateQueries(typeGenerator, queries))
+        builder.mutation(generateMutations(typeGenerator, mutations))
+        builder.subscription(generateSubscriptions(typeGenerator, subscriptions))
         builder.additionalTypes(generateAdditionalTypes())
-        builder.additionalDirectives(directives.values.toSet())
+        builder.additionalDirectives(typeGenerator.directives.values.toSet())
 
         if (!config.introspectionEnabled) {
-            codeRegistry.fieldVisibility(NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY)
+            typeGenerator.codeRegistry.fieldVisibility(NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY)
         }
 
-        builder.codeRegistry(codeRegistry.build())
+        builder.codeRegistry(typeGenerator.codeRegistry.build())
 
         return config.hooks.willBuildSchema(builder).build()
     }
@@ -100,9 +81,9 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      * This is helpful for things like federation or combining external schemas.
      */
     protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>, inputType: Boolean = false) {
-        classScanner.getClassesWithAnnotation(annotation).forEach { kClass ->
+        typeGenerator.classScanner.getClassesWithAnnotation(annotation).forEach { kClass ->
             if (config.hooks.isValidAdditionalType(kClass, inputType)) {
-                additionalTypes.add(AdditionalType(kClass.createType(), inputType))
+                typeGenerator.additionalTypes.add(AdditionalType(kClass.createType(), inputType))
             }
         }
     }
@@ -117,12 +98,12 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      */
     protected fun generateAdditionalTypes(): Set<GraphQLType> {
         val graphqlTypes = mutableSetOf<GraphQLType>()
-        while (this.additionalTypes.isNotEmpty()) {
-            val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
-            this.additionalTypes.clear()
+        while (typeGenerator.additionalTypes.isNotEmpty()) {
+            val currentlyProcessedTypes = LinkedHashSet(typeGenerator.additionalTypes)
+            typeGenerator.additionalTypes.clear()
             graphqlTypes.addAll(
                 currentlyProcessedTypes.map {
-                    GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, it.inputType))
+                    GraphQLTypeUtil.unwrapNonNull(typeGenerator.generateGraphQLType(it.kType, it.inputType))
                 }
             )
         }
@@ -140,9 +121,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      * clean up of resources for you.
      */
     override fun close() {
-        classScanner.close()
-        cache.close()
-        additionalTypes.clear()
-        directives.clear()
+        typeGenerator.close()
     }
 }

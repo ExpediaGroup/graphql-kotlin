@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
@@ -24,7 +23,7 @@ import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.GraphQLInputObjectType
 import kotlin.reflect.KClass
 
-internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInputObjectType {
+internal fun generateInputObject(generator: TypeGenerator, kClass: KClass<*>): GraphQLInputObjectType {
     val builder = GraphQLInputObjectType.newInputObject()
 
     builder.name(kClass.getSimpleName(isInputClass = true))

@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLIgnore
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.test.utils.SimpleDirective
@@ -89,7 +88,7 @@ class GenerateDirectiveTest {
         val noDirective: String
     )
 
-    private val basicGenerator = SchemaGenerator(getTestSchemaConfigWithMockedDirectives())
+    private val basicGenerator = TypeGenerator(getTestSchemaConfigWithMockedDirectives())
 
     @Test
     fun `no annotation`() {

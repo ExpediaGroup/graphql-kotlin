@@ -17,19 +17,26 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.directives.deprecatedDirectiveWithReason
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getFunctionName
 import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
+import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidArguments
+import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.safeCast
 import com.expediagroup.graphql.generator.types.utils.getWrappedReturnType
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
-internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
+internal fun generateFunctions(generator: TypeGenerator, kClass: KClass<*>, abstract: Boolean): List<GraphQLFieldDefinition> {
+    return kClass.getValidFunctions(generator.config.hooks)
+        .map { generateFunction(generator, it, kClass.getSimpleName(), null, abstract) }
+}
+
+internal fun generateFunction(generator: TypeGenerator, fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
     val builder = GraphQLFieldDefinition.newFieldDefinition()
     val functionName = fn.getFunctionName()
     builder.name(functionName)
@@ -50,7 +57,7 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
 
     val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
     val returnType = getWrappedReturnType(typeFromHooks)
-    val graphQLOutputType = generateGraphQLType(generator = generator, type = returnType).safeCast<GraphQLOutputType>()
+    val graphQLOutputType = generator.generateGraphQLType(type = returnType).safeCast<GraphQLOutputType>()
     val graphQLType = builder.type(graphQLOutputType).build()
     val coordinates = FieldCoordinates.coordinates(parentName, functionName)
 

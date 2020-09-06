@@ -217,7 +217,7 @@ class FlowSubscriptionExecutionStrategyTest {
             return flow {
                 for (i in 1..5) {
                     delay(100)
-                    emit(DataFetcherResult(i, listOf()))
+                    emit(DataFetcherResult.newResult<Int>().data(i).build())
                 }
             }
         }

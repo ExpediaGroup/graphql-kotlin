@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
@@ -29,7 +28,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import com.expediagroup.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
-internal fun generateDirectives(generator: SchemaGenerator, element: KAnnotatedElement, parentClass: KClass<*>? = null): List<GraphQLDirective> {
+internal fun generateDirectives(generator: TypeGenerator, element: KAnnotatedElement, parentClass: KClass<*>? = null): List<GraphQLDirective> {
     val annotations = when {
         element is KProperty<*> && parentClass != null -> element.getPropertyAnnotations(parentClass)
         else -> element.annotations
@@ -40,12 +39,12 @@ internal fun generateDirectives(generator: SchemaGenerator, element: KAnnotatedE
         .map { getDirective(generator, it) }
 }
 
-internal fun generateFieldDirectives(generator: SchemaGenerator, field: Field): List<GraphQLDirective> =
+internal fun generateFieldDirectives(generator: TypeGenerator, field: Field): List<GraphQLDirective> =
     field.annotations
         .mapNotNull { it.getDirectiveInfo() }
         .map { getDirective(generator, it) }
 
-private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLDirective {
+private fun getDirective(generator: TypeGenerator, directiveInfo: DirectiveInfo): GraphQLDirective {
     val directiveName = directiveInfo.effectiveName
     val directive = generator.directives.computeIfAbsent(directiveName) {
         val builder = GraphQLDirective.newDirective()
@@ -84,10 +83,10 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
     }
 }
 
-private fun generateDirectiveArgument(prop: KProperty<*>, directiveInfo: DirectiveInfo, generator: SchemaGenerator): GraphQLArgument {
+private fun generateDirectiveArgument(prop: KProperty<*>, directiveInfo: DirectiveInfo, generator: TypeGenerator): GraphQLArgument {
     val propertyName = prop.name
     val value = prop.call(directiveInfo.directive)
-    val type = generateGraphQLType(generator, prop.returnType)
+    val type = generator.generateGraphQLType(prop.returnType)
 
     return GraphQLArgument.newArgument()
         .name(propertyName)

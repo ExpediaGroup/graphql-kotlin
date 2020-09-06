@@ -44,12 +44,14 @@ class AnnotationExtensionsTest {
     private data class NoAnnotations(val id: String)
 
     @Test
+    @Suppress("DEPRECATION")
     fun `verify @GraphQLName on classes`() {
         assertEquals(expected = "WithAnnotationsCustomName", actual = WithAnnotations::class.getGraphQLName())
         assertNull(NoAnnotations::class.getGraphQLName())
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `verify @GraphQLName on fields`() {
         val fieldName = WithAnnotations::class.findMemberProperty("id")?.getGraphQLName()
         assertEquals(expected = "newName", actual = fieldName)
@@ -57,12 +59,14 @@ class AnnotationExtensionsTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `verify @GraphQLDescrption on classes`() {
         assertEquals(expected = "class description", actual = WithAnnotations::class.getGraphQLDescription())
         assertNull(NoAnnotations::class.getGraphQLDescription())
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `verify @Deprecated`() {
         val classDeprecation = WithAnnotations::class.getDeprecationReason()
         val classPropertyDeprecation = WithAnnotations::class.findMemberProperty("id")?.getDeprecationReason()
@@ -74,6 +78,7 @@ class AnnotationExtensionsTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `verify @GraphQLIgnore`() {
         assertTrue(WithAnnotations::class.isGraphQLIgnored())
         assertFalse(NoAnnotations::class.isGraphQLIgnored())

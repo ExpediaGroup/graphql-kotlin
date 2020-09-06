@@ -49,6 +49,7 @@ class KPropertyExtensionsKtTest {
     )
 
     @Test
+    @Suppress("DEPRECATION")
     fun isPropertyGraphQLIgnored() {
         assertTrue(MyDataClass::propertyAnnotation.isPropertyGraphQLIgnored(MyDataClass::class))
         assertTrue(MyDataClass::constructorAnnotation.isPropertyGraphQLIgnored(MyDataClass::class))
@@ -57,6 +58,7 @@ class KPropertyExtensionsKtTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun getPropertyDeprecationReason() {
         assertEquals("property deprecated", MyDataClass::propertyAnnotation.getPropertyDeprecationReason(MyDataClass::class))
         assertEquals("constructor deprecated", MyDataClass::constructorAnnotation.getPropertyDeprecationReason(MyDataClass::class))
@@ -64,6 +66,7 @@ class KPropertyExtensionsKtTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun getPropertyDescription() {
         assertEquals("property description", MyDataClass::propertyAnnotation.getPropertyDescription(MyDataClass::class))
         assertEquals("constructor description", MyDataClass::constructorAnnotation.getPropertyDescription(MyDataClass::class))
@@ -71,6 +74,7 @@ class KPropertyExtensionsKtTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun getPropertyName() {
         assertEquals("nameOnProperty", MyDataClass::propertyAnnotation.getPropertyName(MyDataClass::class))
         assertEquals("nameOnConstructor", MyDataClass::constructorAnnotation.getPropertyName(MyDataClass::class))

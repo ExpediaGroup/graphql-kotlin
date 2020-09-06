@@ -17,11 +17,11 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.directives.deprecatedDirectiveWithReason
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getPropertyDeprecationReason
 import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.getSimpleName
+import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
@@ -29,8 +29,13 @@ import graphql.schema.GraphQLOutputType
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
-    val propertyType = generateGraphQLType(generator, type = prop.returnType)
+internal fun generateProperties(generator: TypeGenerator, parentClass: KClass<*>): List<GraphQLFieldDefinition> {
+    return parentClass.getValidProperties(generator.config.hooks)
+        .map { generateProperty(generator, it, parentClass) }
+}
+
+internal fun generateProperty(generator: TypeGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
+    val propertyType = generator.generateGraphQLType(type = prop.returnType)
         .safeCast<GraphQLOutputType>()
 
     val propertyName = prop.getPropertyName(parentClass)

@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.generator.types
 
-import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getKClass
 import com.expediagroup.graphql.generator.extensions.safeCast
+import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.scalars.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
@@ -27,12 +27,12 @@ import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-internal fun generateScalar(generator: SchemaGenerator, type: KType): GraphQLScalarType? {
+internal fun generateScalar(hooks: SchemaGeneratorHooks, type: KType): GraphQLScalarType? {
     val kClass: KClass<*> = type.getKClass()
     val scalar: GraphQLScalarType? = defaultScalarsMap[kClass]
 
     return scalar?.let {
-        generator.config.hooks.onRewireGraphQLType(it).safeCast()
+        hooks.onRewireGraphQLType(it).safeCast()
     }
 }
 

@@ -125,6 +125,7 @@ class GenerateFunctionTest : TypeTestHelper() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `Functions can be deprecated`() {
         val kFunction = Happy::sketch
         val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
