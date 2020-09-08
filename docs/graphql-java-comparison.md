@@ -37,24 +37,38 @@ type Author {
 Then write the runtime code that matches this schema to build the `GraphQLSchema` object.
 
 ```kotlin
+// Internal DB class, not schema class
+class Book(
+    val id: ID,
+    val name: String,
+    val totalPages: Int, // This needs to be renamed to pageCount
+    val authorId: ID // This is not in the schema
+)
+
+// Internal DB class, not schema class
+class Author(
+    val id: ID,
+    val firstName: String,
+    val lastName: String
+)
+
 class GraphQLDataFetchers {
-    private val books: List<Map<String, String>> = booksFromDB()
-    private val authors: List<Map<String, String>> = authorsFromDB()
+    private val books: List<Book> = booksFromDB()
+    private val authors: List<Author> = authorsFromDB()
 
     fun getBookByIdDataFetcher() = DataFetcher { dataFetchingEnvironment ->
         val bookId: String = dataFetchingEnvironment.getArgument("id")
-        return books.firstOrNull { book -> book["id"] == bookId }
+        return books.firstOrNull { it.id == bookId }
     }
 
     fun getAuthorDataFetcher() = DataFetcher { dataFetchingEnvironment ->
-        val book: Map<String, String> = dataFetchingEnvironment.getSource()
-        val authorId: String = book["authorId"]
-        return authors.firstOrNull { author -> author["id"] == authorId }
+        val book: Book = dataFetchingEnvironment.getSource() as Book
+        return authors.firstOrNull { it.id == book.authorId }
     }
 
     fun getPageCountDataFetcher() = DataFetcher { dataFetchingEnvironment ->
-        val book: Map<String, String> = dataFetchingEnvironment.getSource()
-        return book["totalPages"]
+        val book: Book = dataFetchingEnvironment.getSource() as Book
+        return book.totalPages
     }
 }
 
@@ -100,12 +114,13 @@ class Query {
 class Book(
     val id: ID,
     val name: String,
-    val pageCount: Int,
+    private val pageCount: Int,
     private val authorId: ID
 ) {
     private val authors: List<Author> = authorsFromDB()
 
     fun author(): Author? = authors.find { it.id == authorId }
+    fun totalPages(): Int = pageCount
 }
 
 class Author(
