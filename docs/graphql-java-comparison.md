@@ -114,13 +114,13 @@ class Query {
 class Book(
     val id: ID,
     val name: String,
-    private val pageCount: Int,
+    private val totalPages: Int,
     private val authorId: ID
 ) {
     private val authors: List<Author> = authorsFromDB()
 
     fun author(): Author? = authors.find { it.id == authorId }
-    fun totalPages(): Int = pageCount
+    fun pageCount(): Int = totalPages
 }
 
 class Author(
