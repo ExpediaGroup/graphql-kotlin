@@ -90,7 +90,8 @@ val runtimeWiring = RuntimeWiring.newRuntimeWiring()
     )
     .build()
 
-val graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring)
+// Combine the types and runtime code together to make a schema
+val graphQLSchema: GraphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring)
 ```
 
 This means that there are two sources of truth for your schema and changes in either have to be reflected in both locations.
@@ -105,9 +106,10 @@ These errors will hopefully be caught by your build or automated tests, but it i
 All you need to do is write your schema code in a Kotlin class with public functions or properties.
 
 ```kotlin
-class Query {
-    private val books: List<Book> = booksFromDB()
+private val books: List<Book> = booksFromDB()
+private val authors: List<Author> = authorsFromDB()
 
+class Query {
     fun bookById(id: ID): Book? = books.find { it.id == id }
 }
 
@@ -117,8 +119,6 @@ class Book(
     private val totalPages: Int,
     private val authorId: ID
 ) {
-    private val authors: List<Author> = authorsFromDB()
-
     fun author(): Author? = authors.find { it.id == authorId }
     fun pageCount(): Int = totalPages
 }
