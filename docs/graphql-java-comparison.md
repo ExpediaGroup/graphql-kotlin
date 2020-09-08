@@ -97,7 +97,7 @@ This means that there are two sources of truth for your schema and changes in ei
 As your schema scales to hundreds of types and many different resolvers, it can get more difficult to track what code needs to be changed if you want to add a new field,
 deprecate or delete an existing one, or fix a bug in the resolver code.
 
-These errors will most likely be caught by your build or automated tests, but it is another layer your have to be worried about when creating your API.
+These errors will hopefully be caught by your build or automated tests, but it is another layer your have to be worried about when creating your API.
 
 ### GraphQL Kotlin Schema
 
