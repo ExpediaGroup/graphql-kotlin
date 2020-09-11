@@ -22,7 +22,14 @@ import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
@@ -58,6 +65,11 @@ internal class FunctionDataFetcherTest {
 
         @GraphQLName("myCustomField")
         fun renamedFields(@GraphQLName("myCustomArgument") arg: MyInputClass) = "You sent ${arg.field1}"
+
+        suspend fun suspendSlow(): String {
+            delay(10000)
+            return "shouldNotGetHere"
+        }
     }
 
     @GraphQLName("MyInputClassRenamed")
@@ -132,6 +144,7 @@ internal class FunctionDataFetcherTest {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendPrint)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
         every { mockEnvironmet.arguments } returns mapOf("string" to "hello")
+        every { mockEnvironmet.getContext<CoroutineScope>() } returns null
 
         val result = dataFetcher.get(mockEnvironmet)
 
@@ -156,6 +169,7 @@ internal class FunctionDataFetcherTest {
     fun `suspendThrow throws exception when resolved`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendThrow)
         val mockEnvironmet: DataFetchingEnvironment = mockk()
+        every { mockEnvironmet.getContext<CoroutineScope>() } returns null
 
         try {
             val result = dataFetcher.get(mockEnvironmet)
@@ -176,5 +190,26 @@ internal class FunctionDataFetcherTest {
         val arguments = mapOf("myCustomArgument" to mapOf("jacksonField" to "foo"))
         every { mockEnvironmet.arguments } returns arguments
         assertEquals(expected = "You sent foo", actual = dataFetcher.get(mockEnvironmet))
+    }
+
+    @Test
+    fun `suspend functions are cancellable by context scope`() = runBlocking {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::suspendSlow)
+        val mockEnvironment: DataFetchingEnvironment = mockk()
+        try {
+            val scope = this
+            every { mockEnvironment.getContext<CoroutineScope>() } returns scope
+            val futureResult = dataFetcher.get(mockEnvironment) as CompletableFuture<*>
+            launch {
+                // cancel the future job, but not the test execution coroutine
+                scope.coroutineContext[Job]?.cancelChildren()
+            }
+            futureResult.await()
+            assertTrue(false, "Cancelled job completed anyway")
+        } catch (e: Exception) {
+            val message = e.message
+            assertNotNull(message)
+            assertTrue(message.contains("was cancelled"), "Cancellation exception was not propogated")
+        }
     }
 }

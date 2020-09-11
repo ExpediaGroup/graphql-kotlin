@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
@@ -64,7 +65,8 @@ open class FunctionDataFetcher(
             val parameterValues = getParameterValues(fn, environment)
 
             if (fn.isSuspend) {
-                runSuspendingFunction(it, parameterValues)
+                val scope = (environment.getContext<Any?>() as? CoroutineScope) ?: GlobalScope
+                runSuspendingFunction(it, parameterValues, scope)
             } else {
                 runBlockingFunction(it, parameterValues)
             }
@@ -136,9 +138,10 @@ open class FunctionDataFetcher(
     protected open fun runSuspendingFunction(
         instance: Any,
         parameterValues: Array<Any?>,
+        scope: CoroutineScope,
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
         coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
-    ): CompletableFuture<Any?> = GlobalScope.future(context = coroutineContext, start = coroutineStart) {
+    ): CompletableFuture<Any?> = scope.future(context = coroutineContext, start = coroutineStart) {
         try {
             fn.callSuspend(instance, *parameterValues)
         } catch (exception: InvocationTargetException) {
