@@ -22,6 +22,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FLOAT
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
@@ -111,7 +112,7 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             else -> throw RuntimeException("should never happen")
         }
         val className = ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
-        context.classNameCache[overriddenName]?.add(className)
+        context.classNameCache[graphQLTypeName]?.add(className)
         className
     }
 }
@@ -150,8 +151,7 @@ private fun isCachedTypeApplicable(context: GraphQLClientGeneratorContext, graph
 
 private fun verifySelectionSet(context: GraphQLClientGeneratorContext, graphQLTypeName: String, selectionSet: SelectionSet): Boolean {
     val selectedFields = calculateSelectedFields(context, graphQLTypeName, selectionSet)
-    val typeSpec = context.typeSpecs[graphQLTypeName]
-    val properties = typeSpec?.propertySpecs?.map { it.name }?.toMutableSet() ?: mutableSetOf()
+    val properties = calculateGeneratedTypeProperties(context, graphQLTypeName)
     if (context.objectsWithTypeNameSelection.contains(graphQLTypeName)) {
         properties.add("__typename")
     }
@@ -161,15 +161,16 @@ private fun verifySelectionSet(context: GraphQLClientGeneratorContext, graphQLTy
 private fun calculateSelectedFields(
     context: GraphQLClientGeneratorContext,
     targetType: String,
-    selectionSet: SelectionSet
+    selectionSet: SelectionSet,
+    path: String = ""
 ): Set<String> {
     val result = mutableSetOf<String>()
     selectionSet.selections.forEach { selection ->
         when (selection) {
             is Field -> {
-                result.add(selection.name)
+                result.add(path + selection.name)
                 if (selection.selectionSet != null) {
-                    result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet))
+                    result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, "$path${selection.name}."))
                 }
             }
             is InlineFragment -> if (selection.typeCondition.name == targetType) {
@@ -186,4 +187,25 @@ private fun calculateSelectedFields(
         }
     }
     return result
+}
+
+private fun calculateGeneratedTypeProperties(context: GraphQLClientGeneratorContext, graphQLTypeName: String, path: String = ""): MutableSet<String> {
+    val props = mutableSetOf<String>()
+
+    val typeSpec = context.typeSpecs[graphQLTypeName]
+    for (property in typeSpec?.propertySpecs ?: emptyList()) {
+        props.add(path + property.name)
+        when (val propertyType = property.type) {
+            is ParameterizedTypeName -> {
+                val genericType = propertyType.typeArguments.firstOrNull() as? ClassName
+                val genericTypeName = genericType?.simpleNameWithoutWrapper() ?: ""
+                props.addAll(calculateGeneratedTypeProperties(context, genericTypeName, "$path${property.name}."))
+            }
+            is ClassName -> {
+                val fieldTypeName = propertyType.simpleNameWithoutWrapper()
+                props.addAll(calculateGeneratedTypeProperties(context, fieldTypeName, "$path${property.name}."))
+            }
+        }
+    }
+    return props
 }
