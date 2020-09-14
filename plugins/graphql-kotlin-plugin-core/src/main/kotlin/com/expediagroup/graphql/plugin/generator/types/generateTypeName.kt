@@ -97,7 +97,7 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
     } else {
         // verify we got same selection set for interface and/or objects (unions shouldn't have any fields)
         for (cachedType in cachedTypeNames) {
-            if (isCachedTypeApplicable(context, cachedType.simpleName, graphQLTypeDefinition, selectionSet)) {
+            if (isCachedTypeApplicable(context, cachedType.simpleNameWithoutWrapper(), graphQLTypeDefinition, selectionSet)) {
                 return cachedType
             }
         }
@@ -115,6 +115,8 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
         className
     }
 }
+
+private fun ClassName.simpleNameWithoutWrapper() = this.simpleName.substringAfter(".")
 
 private fun isCachedTypeApplicable(context: GraphQLClientGeneratorContext, graphQLTypeName: String, graphQLTypeDefinition: TypeDefinition<*>, selectionSet: SelectionSet): Boolean =
     when (graphQLTypeDefinition) {
@@ -149,9 +151,11 @@ private fun isCachedTypeApplicable(context: GraphQLClientGeneratorContext, graph
 private fun verifySelectionSet(context: GraphQLClientGeneratorContext, graphQLTypeName: String, selectionSet: SelectionSet): Boolean {
     val selectedFields = calculateSelectedFields(context, graphQLTypeName, selectionSet)
     val typeSpec = context.typeSpecs[graphQLTypeName]
-    val properties = typeSpec?.propertySpecs?.map { it.name }?.toSet() ?: emptySet()
-    return selectedFields == properties ||
-        (selectedFields.minus(properties).size == 1 && selectedFields.contains("__typename") && context.objectsWithTypeNameSelection.contains(graphQLTypeName))
+    val properties = typeSpec?.propertySpecs?.map { it.name }?.toMutableSet() ?: mutableSetOf()
+    if (context.objectsWithTypeNameSelection.contains(graphQLTypeName)) {
+        properties.add("__typename")
+    }
+    return selectedFields == properties
 }
 
 private fun calculateSelectedFields(
@@ -162,7 +166,12 @@ private fun calculateSelectedFields(
     val result = mutableSetOf<String>()
     selectionSet.selections.forEach { selection ->
         when (selection) {
-            is Field -> result.add(selection.name)
+            is Field -> {
+                result.add(selection.name)
+                if (selection.selectionSet != null) {
+                    result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet))
+                }
+            }
             is InlineFragment -> if (selection.typeCondition.name == targetType) {
                 result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet))
             }
