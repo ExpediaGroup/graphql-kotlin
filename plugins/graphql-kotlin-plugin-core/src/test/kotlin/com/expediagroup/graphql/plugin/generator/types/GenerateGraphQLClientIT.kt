@@ -368,4 +368,354 @@ class GenerateGraphQLClientIT {
         assertEquals(1, fileSpecs.size)
         assertEquals(expectedQueryFileSpec, fileSpecs[0].toString().trim())
     }
+
+    @Test
+    fun `verifies types are reused with same selection set`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.Int
+                import kotlin.String
+
+                const val REUSED_TYPES_QUERY: String =
+                    "query ReusedTypesQuery {\n  first: complexObjectQuery {\n    id\n    name\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n  third: complexObjectQuery {\n    id\n    name\n    details {\n      id\n    }\n  }\n  fourth: complexObjectQuery {\n    id\n    name\n  }\n  fifth: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
+
+                class ReusedTypesQuery(
+                  private val graphQLClient: GraphQLClient
+                ) {
+                  suspend fun execute(): GraphQLResponse<ReusedTypesQuery.Result> =
+                      graphQLClient.execute(REUSED_TYPES_QUERY, "ReusedTypesQuery", null)
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String
+                  )
+
+                  /**
+                   * Inner type object description
+                   */
+                  data class DetailsObject(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Actual detail value
+                     */
+                    val value: String
+                  )
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject2(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String,
+                    /**
+                     * Some additional details
+                     */
+                    val details: ReusedTypesQuery.DetailsObject
+                  )
+
+                  /**
+                   * Inner type object description
+                   */
+                  data class DetailsObject2(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int
+                  )
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject3(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String,
+                    /**
+                     * Some additional details
+                     */
+                    val details: ReusedTypesQuery.DetailsObject2
+                  )
+
+                  data class Result(
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val first: ReusedTypesQuery.ComplexObject,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val second: ReusedTypesQuery.ComplexObject2,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val third: ReusedTypesQuery.ComplexObject3,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val fourth: ReusedTypesQuery.ComplexObject,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val fifth: ReusedTypesQuery.ComplexObject2
+                  )
+                }
+            """.trimIndent()
+        val reusedTypesQuery =
+            """
+                query ReusedTypesQuery {
+                  first: complexObjectQuery {
+                    id
+                    name
+                  }
+                  second: complexObjectQuery {
+                    id
+                    name
+                    details {
+                      id
+                      value
+                    }
+                  }
+                  third: complexObjectQuery {
+                    id
+                    name
+                    details {
+                      id
+                    }
+                  }
+                  fourth: complexObjectQuery {
+                    id
+                    name
+                  }
+                  fifth: complexObjectQuery {
+                    id
+                    name
+                    details {
+                      id
+                      value
+                    }
+                  }
+                }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(reusedTypesQuery, expected)
+    }
+
+    @Test
+    fun `verifies list types are reused with same selection set`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.Int
+                import kotlin.String
+                import kotlin.collections.List
+
+                const val REUSED_LIST_TYPES_QUERY: String =
+                    "query ReusedListTypesQuery {\n  first: listQuery {\n    id\n    name\n  }\n  second: listQuery {\n    name\n  }\n  third: listQuery {\n    id\n    name\n  }\n  firstComplex: complexObjectQuery {\n    id\n    name\n    basicList {\n      id\n      name\n    }\n  }\n  secondComplex: complexObjectQuery {\n    id\n    name\n    basicList {\n      id\n      name\n    }\n  }\n  thirdComplex: complexObjectQuery {\n    id\n    name\n    basicList {\n      name\n    }\n  }\n  fourthComplex: complexObjectQuery {\n    id\n    basicList {\n      id\n    }\n  }\n}"
+
+                class ReusedListTypesQuery(
+                  private val graphQLClient: GraphQLClient
+                ) {
+                  suspend fun execute(): GraphQLResponse<ReusedListTypesQuery.Result> =
+                      graphQLClient.execute(REUSED_LIST_TYPES_QUERY, "ReusedListTypesQuery", null)
+
+                  /**
+                   * Some basic description
+                   */
+                  data class BasicObject(
+                    val id: Int,
+                    /**
+                     * Object name
+                     */
+                    val name: String
+                  )
+
+                  /**
+                   * Some basic description
+                   */
+                  data class BasicObject2(
+                    /**
+                     * Object name
+                     */
+                    val name: String
+                  )
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String,
+                    /**
+                     * List of objects
+                     */
+                    val basicList: List<ReusedListTypesQuery.BasicObject>
+                  )
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject2(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String,
+                    /**
+                     * List of objects
+                     */
+                    val basicList: List<ReusedListTypesQuery.BasicObject2>
+                  )
+
+                  /**
+                   * Some basic description
+                   */
+                  data class BasicObject3(
+                    val id: Int
+                  )
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject3(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * List of objects
+                     */
+                    val basicList: List<ReusedListTypesQuery.BasicObject3>
+                  )
+
+                  data class Result(
+                    /**
+                     * Query returning list of simple objects
+                     */
+                    val first: List<ReusedListTypesQuery.BasicObject>,
+                    /**
+                     * Query returning list of simple objects
+                     */
+                    val second: List<ReusedListTypesQuery.BasicObject2>,
+                    /**
+                     * Query returning list of simple objects
+                     */
+                    val third: List<ReusedListTypesQuery.BasicObject>,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val firstComplex: ReusedListTypesQuery.ComplexObject,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val secondComplex: ReusedListTypesQuery.ComplexObject,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val thirdComplex: ReusedListTypesQuery.ComplexObject2,
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val fourthComplex: ReusedListTypesQuery.ComplexObject3
+                  )
+                }
+            """.trimIndent()
+        val reusedTypesQuery =
+            """
+                query ReusedListTypesQuery {
+                  first: listQuery {
+                    id
+                    name
+                  }
+                  second: listQuery {
+                    name
+                  }
+                  third: listQuery {
+                    id
+                    name
+                  }
+                  firstComplex: complexObjectQuery {
+                    id
+                    name
+                    basicList {
+                      id
+                      name
+                    }
+                  }
+                  secondComplex: complexObjectQuery {
+                    id
+                    name
+                    basicList {
+                      id
+                      name
+                    }
+                  }
+                  thirdComplex: complexObjectQuery {
+                    id
+                    name
+                    basicList {
+                      name
+                    }
+                  }
+                  fourthComplex: complexObjectQuery {
+                    id
+                    basicList {
+                      id
+                    }
+                  }
+                }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(reusedTypesQuery, expected)
+    }
 }
