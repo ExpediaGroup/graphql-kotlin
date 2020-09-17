@@ -49,6 +49,8 @@ type ComplexObject {
   Second line of the description
   """
   optional: String
+  "List of objects"
+  basicList: [BasicObject!]!
 }
 "Inner type object description"
 type DetailsObject {
