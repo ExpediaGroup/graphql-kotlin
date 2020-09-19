@@ -21,11 +21,12 @@ import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.federation.types.ENTITY_UNION_NAME
 import graphql.schema.GraphQLUnionType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 private val FEDERATED_SDL =
     """
@@ -137,7 +138,7 @@ class FederatedSchemaGeneratorTest {
         assertNotNull(productType)
         assertNotNull(productType.getDirective(KEY_DIRECTIVE_NAME))
 
-        val entityUnion = schema.getType("_Entity") as? GraphQLUnionType
+        val entityUnion = schema.getType(ENTITY_UNION_NAME) as? GraphQLUnionType
         assertNotNull(entityUnion)
         assertTrue(entityUnion.types.contains(productType))
     }

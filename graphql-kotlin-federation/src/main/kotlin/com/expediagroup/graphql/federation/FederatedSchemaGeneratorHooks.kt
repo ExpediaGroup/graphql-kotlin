@@ -30,6 +30,7 @@ import com.expediagroup.graphql.federation.execution.EntityResolver
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.federation.extensions.addDirectivesIfNotPresent
 import com.expediagroup.graphql.federation.types.ANY_SCALAR_TYPE
+import com.expediagroup.graphql.federation.types.ENTITY_UNION_NAME
 import com.expediagroup.graphql.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.federation.types.SERVICE_FIELD_DEFINITION
 import com.expediagroup.graphql.federation.types._Service
@@ -83,39 +84,18 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
             .field(SERVICE_FIELD_DEFINITION)
             .withDirective(EXTENDS_DIRECTIVE_TYPE)
 
-        /**
-         * Register the data fetcher for the SDL returned by _service field.
-         *
-         * It should NOT contain:
-         *   - default schema definition
-         *   - empty Query type
-         *   - any directive definitions
-         *   - any custom directives
-         *   - new federated scalars
-         */
-        val sdl = originalSchema.print(
-            includeDefaultSchemaDefinition = false,
-            includeDirectiveDefinitions = false,
-            includeDirectivesFilter = customDirectivePredicate
-        ).replace(scalarDefinitionRegex, "")
-            .replace(emptyQueryRegex, "")
-            .trim()
+        // Register the data fetcher for the _service query
+        val sdl = getFederatedServiceSdl(originalSchema)
         federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
 
-        val entityTypeNames = originalSchema.allTypesAsList
-            .asSequence()
-            .filterIsInstance<GraphQLObjectType>()
-            .filter { type -> type.getDirective(KEY_DIRECTIVE_NAME) != null }
-            .map { it.name }
-            .toSet()
-
-        // Add the _entities field to the query
+        // Add the _entities field to the query and register all the _Entity union types
+        val entityTypeNames = getFederatedEntities(originalSchema)
         if (entityTypeNames.isNotEmpty()) {
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
             federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(resolvers))
-            federatedCodeRegistry.typeResolver("_Entity") { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
+            federatedCodeRegistry.typeResolver(ENTITY_UNION_NAME) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
             federatedSchemaBuilder.additionalType(ANY_SCALAR_TYPE)
         }
 
@@ -123,12 +103,52 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
             .codeRegistry(federatedCodeRegistry.build())
     }
 
-    // skip validation for empty query type - federation will add _service query
+    /**
+     * Skip validation for empty query type - federation will add _service query
+     */
     override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = type
-}
 
-private fun TypeResolutionEnvironment.getObjectName(): String? {
-    val kClass = this.getObject<Any>().javaClass.kotlin
-    return kClass.findAnnotation<GraphQLName>()?.value
-        ?: kClass.simpleName
+    /**
+     * Get the modified SDL returned by _service field
+     *
+     * It should NOT contain:
+     *   - default schema definition
+     *   - empty Query type
+     *   - any directive definitions
+     *   - any custom directives
+     *   - new federated scalars
+     *
+     * See the federation spec for more details:
+     * https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#query_service
+     */
+    private fun getFederatedServiceSdl(schema: GraphQLSchema): String {
+        return schema.print(
+            includeDefaultSchemaDefinition = false,
+            includeDirectiveDefinitions = false,
+            includeDirectivesFilter = customDirectivePredicate
+        ).replace(scalarDefinitionRegex, "")
+            .replace(emptyQueryRegex, "")
+            .trim()
+    }
+
+    /**
+     * Get all the federation entities in the _Entity union, aka all the types with the @key directive.
+     *
+     * See the federation spec:
+     * https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#union-_entity
+     */
+    private fun getFederatedEntities(originalSchema: GraphQLSchema): Set<String> {
+        return originalSchema.allTypesAsList
+            .asSequence()
+            .filterIsInstance<GraphQLObjectType>()
+            .filter { type -> type.getDirective(KEY_DIRECTIVE_NAME) != null }
+            .map { it.name }
+            .toSet()
+    }
+
+    private fun TypeResolutionEnvironment.getObjectName(): String? {
+        val kClass = this.getObject<Any>().javaClass.kotlin
+        return kClass.findAnnotation<GraphQLName>()?.value
+            ?: kClass.simpleName
+    }
 }

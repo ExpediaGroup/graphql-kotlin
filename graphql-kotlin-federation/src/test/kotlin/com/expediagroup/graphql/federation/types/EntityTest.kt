@@ -18,11 +18,11 @@ package com.expediagroup.graphql.federation.types
 
 import com.expediagroup.graphql.extensions.unwrapType
 import graphql.schema.GraphQLUnionType
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import org.junit.jupiter.api.Test
 
 class EntityTest {
 
@@ -37,14 +37,14 @@ class EntityTest {
     fun `generateEntityFieldDefinition should return a valid type on a single set`() {
         val result = generateEntityFieldDefinition(setOf("MyType"))
         assertNotNull(result)
-        assertEquals(expected = "_entities", actual = result.name)
+        assertEquals(expected = ENTITIES_FIELD_NAME, actual = result.name)
         assertFalse(result.description.isNullOrEmpty())
         assertEquals(expected = 1, actual = result.arguments.size)
 
         val graphQLUnionType = result.type.unwrapType() as? GraphQLUnionType
 
         assertNotNull(graphQLUnionType)
-        assertEquals(expected = "_Entity", actual = graphQLUnionType.name)
+        assertEquals(expected = ENTITY_UNION_NAME, actual = graphQLUnionType.name)
         assertEquals(expected = 1, actual = graphQLUnionType.types.size)
         assertEquals(expected = "MyType", actual = graphQLUnionType.types.first().name)
     }
