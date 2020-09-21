@@ -20,11 +20,12 @@ import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.future
-import java.util.concurrent.CompletableFuture
 
 private const val TYPENAME_FIELD = "__typename"
 private const val REPRESENTATIONS = "representations"
@@ -51,16 +52,13 @@ open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetch
      */
     override fun get(env: DataFetchingEnvironment): CompletableFuture<DataFetcherResult<List<Any?>>> {
         val representations: List<Map<String, Any>> = env.getArgument(REPRESENTATIONS)
-
         val indexedBatchRequestsByType = representations.withIndex().groupBy { it.value[TYPENAME_FIELD].toString() }
+
         return GlobalScope.future {
             val data = mutableListOf<Any?>()
             val errors = mutableListOf<GraphQLError>()
-            indexedBatchRequestsByType.map { (typeName, indexedRequests) ->
-                async {
-                    resolveType(env, typeName, indexedRequests, resolverMap)
-                }
-            }.awaitAll()
+
+            resolveRequests(indexedBatchRequestsByType, env)
                 .flatten()
                 .sortedBy { it.first }
                 .forEach {
@@ -72,10 +70,21 @@ open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetch
                         data.add(result)
                     }
                 }
+
             DataFetcherResult.newResult<List<Any?>>()
                 .data(data)
                 .errors(errors)
                 .build()
+        }
+    }
+
+    private suspend fun resolveRequests(indexedBatchRequestsByType: Map<String, List<IndexedValue<Map<String, Any>>>>, env: DataFetchingEnvironment): List<List<Pair<Int, Any?>>> {
+        return coroutineScope {
+            indexedBatchRequestsByType.map { (typeName, indexedRequests) ->
+                async {
+                    resolveType(env, typeName, indexedRequests, resolverMap)
+                }
+            }.awaitAll()
         }
     }
 }

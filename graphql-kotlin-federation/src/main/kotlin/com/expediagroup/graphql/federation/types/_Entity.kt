@@ -23,6 +23,9 @@ import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLUnionType
 
+internal const val ENTITY_UNION_NAME = "_Entity"
+internal const val ENTITIES_FIELD_NAME = "_entities"
+
 /**
  * Generates union of all types that use the  @key directive, including both types native to the schema and extended types.
  */
@@ -47,14 +50,14 @@ internal fun generateEntityFieldDefinition(federatedTypes: Set<String>): GraphQL
     val graphQLType = GraphQLNonNull(
         GraphQLList(
             GraphQLUnionType.newUnionType()
-                .name("_Entity")
+                .name(ENTITY_UNION_NAME)
                 .possibleTypes(*possibleTypes)
                 .build()
         )
     )
 
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_entities")
+        .name(ENTITIES_FIELD_NAME)
         .description("Union of all types that use the @key directive, including both types native to the schema and extended types")
         .argument(graphQLArgument)
         .type(graphQLType)

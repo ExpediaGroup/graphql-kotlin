@@ -19,13 +19,14 @@ package com.expediagroup.graphql.federation.execution
 import com.expediagroup.graphql.federation.data.BookResolver
 import com.expediagroup.graphql.federation.data.UserResolver
 import com.expediagroup.graphql.federation.data.federatedTestSchema
+import com.expediagroup.graphql.federation.types.ENTITIES_FIELD_NAME
 import graphql.ExecutionInput
 import graphql.GraphQL
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import org.junit.jupiter.api.Test
 
 const val FEDERATED_QUERY =
 """
@@ -65,7 +66,7 @@ class FederatedQueryResolverTest {
         val result = graphQL.executeAsync(executionInput).get().toSpecification()
 
         assertNotNull(result["data"] as? Map<*, *>) { data ->
-            assertNotNull(data["_entities"] as? List<*>) { entities ->
+            assertNotNull(data[ENTITIES_FIELD_NAME] as? List<*>) { entities ->
                 assertFalse(entities.isEmpty())
                 assertEquals(representations.size, entities.size)
                 assertNotNull(entities[0] as? Map<*, *>) { user ->
