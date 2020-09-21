@@ -28,7 +28,7 @@ A basic example of how you can use [graphql-kotlin-spring-server](/graphql-kotli
 
 ### Client Example
 
-A basic setup of [graphql-kotlin-client](/graphql-kotlin-client) can be found on our [client documentation section](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview).
+A basic setup of [graphql-kotlin-client](/clients/graphql-kotlin-client) can be found on our [client documentation section](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview).
 
 ## 📋 Documentation
 
