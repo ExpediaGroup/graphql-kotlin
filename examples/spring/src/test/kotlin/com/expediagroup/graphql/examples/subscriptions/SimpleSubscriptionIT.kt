@@ -18,11 +18,14 @@ package com.expediagroup.graphql.examples.subscriptions
 
 import com.expediagroup.graphql.examples.SUBSCRIPTION_ENDPOINT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import java.net.URI
+import kotlin.random.Random
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,9 +33,9 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
-import java.net.URI
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -93,22 +96,28 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     }
 
     private fun subscribe(query: String, id: String): TestPublisher<String> {
-        val message = toMessage(query, id)
+        val message = getStartMessage(query, id)
         val output = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
         client.execute(uri) { session -> executeSubscription(session, message, output) }.subscribe()
+
         return output
     }
 
     private fun executeSubscription(
         session: WebSocketSession,
-        message: String,
+        startMessage: String,
         output: TestPublisher<String>
     ): Mono<Void> {
-        return session.send(Mono.just(session.textMessage(message)))
+        val messageId = Random.nextInt().toString()
+        val initMessage = getInitMessage(messageId)
+        val firstMessage = session.textMessage(initMessage).toMono()
+            .concatWith(session.textMessage(startMessage).toMono())
+
+        return session.send(firstMessage)
             .thenMany(
                 session.receive()
                     .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
@@ -124,9 +133,10 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .then()
     }
 
-    private fun toMessage(query: String, id: String): String {
+    private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
+    private fun getInitMessage(id: String) = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type, id).toJson()
+    private fun getStartMessage(query: String, id: String): String {
         val request = GraphQLRequest("subscription { $query }")
-        val subscriptionOperationMessage = SubscriptionOperationMessage(GQL_START.type, id = id, payload = request)
-        return objectMapper.writeValueAsString(subscriptionOperationMessage)
+        return SubscriptionOperationMessage(GQL_START.type, id = id, payload = request).toJson()
     }
 }
