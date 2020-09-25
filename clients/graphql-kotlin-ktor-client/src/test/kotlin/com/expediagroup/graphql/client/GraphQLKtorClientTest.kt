@@ -3,6 +3,7 @@ package com.expediagroup.graphql.client
 import com.expediagroup.graphql.types.GraphQLError
 import com.expediagroup.graphql.types.GraphQLResponse
 import com.expediagroup.graphql.types.SourceLocation
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
@@ -10,11 +11,13 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.features.ServerResponseException
 import io.ktor.client.features.logging.DEFAULT
 import io.ktor.client.features.logging.LogLevel
 import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.header
+import io.ktor.client.statement.readText
 import io.ktor.network.sockets.SocketTimeoutException
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
@@ -133,6 +136,38 @@ class GraphQLKtorClientTest {
             assertEquals(expectedResponse.data?.helloWorld, result.data?.helloWorld)
             assertNull(result.errors)
             assertNull(result.extensions)
+        }
+    }
+
+    @Test
+    fun `verifies Non-OK HTTP responses will throw error`() {
+        WireMock.stubFor(
+            WireMock.post("/graphql")
+                .willReturn(WireMock.aResponse().withStatus(500).withBody("Internal server error"))
+        )
+
+        val client = GraphQLKtorClient(URL("${wireMockServer.baseUrl()}/graphql"))
+        val error = assertFailsWith<ServerResponseException> {
+            runBlocking {
+                client.execute<HelloWorldResult>("query HelloWorldQuery { helloWorld }")
+            }
+        }
+        assertEquals(500, error.response.status.value)
+        assertEquals("Internal server error", runBlocking { error.response.readText() })
+    }
+
+    @Test
+    fun `verifies response with empty body will throw error`() {
+        WireMock.stubFor(
+            WireMock.post("/graphql")
+                .willReturn(WireMock.aResponse().withStatus(204))
+        )
+
+        val client = GraphQLKtorClient(URL("${wireMockServer.baseUrl()}/graphql"))
+        assertFailsWith<MismatchedInputException> {
+            runBlocking {
+                client.execute<HelloWorldResult>("query HelloWorldQuery { helloWorld }")
+            }
         }
     }
 

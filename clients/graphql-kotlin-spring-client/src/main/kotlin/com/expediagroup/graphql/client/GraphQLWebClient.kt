@@ -21,13 +21,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.awaitExchange
 
 /**
  * A lightweight typesafe GraphQL HTTP client using Spring WebClient engine.
@@ -81,8 +80,9 @@ open class GraphQLWebClient(
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(graphQLRequest)
-            .awaitExchange()
-            .awaitBody<String>()
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .awaitSingle()
 
         @Suppress("BlockingMethodInNonBlockingContext")
         return mapper.readValue(rawResult, parameterizedType(resultType))
