@@ -25,7 +25,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.net.URI
-import kotlin.random.Random
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -96,24 +95,24 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     }
 
     private fun subscribe(query: String, id: String): TestPublisher<String> {
-        val message = getStartMessage(query, id)
         val output = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
-        client.execute(uri) { session -> executeSubscription(session, message, output) }.subscribe()
+        client.execute(uri) { session -> executeSubscription(session, query, id, output) }.subscribe()
 
         return output
     }
 
     private fun executeSubscription(
         session: WebSocketSession,
-        startMessage: String,
+        query: String,
+        id: String,
         output: TestPublisher<String>
     ): Mono<Void> {
-        val messageId = Random.nextInt().toString()
-        val initMessage = getInitMessage(messageId)
+        val initMessage = getInitMessage(id)
+        val startMessage = getStartMessage(query, id)
         val firstMessage = session.textMessage(initMessage).toMono()
             .concatWith(session.textMessage(startMessage).toMono())
 
