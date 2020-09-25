@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
@@ -132,6 +133,38 @@ class GraphQLWebClientTest {
             assertEquals(expectedResponse.data?.helloWorld, result.data?.helloWorld)
             assertNull(result.errors)
             assertNull(result.extensions)
+        }
+    }
+
+    @Test
+    fun `verifies Non-OK HTTP responses will throw error`() {
+        WireMock.stubFor(
+            WireMock.post("/graphql")
+                .willReturn(WireMock.aResponse().withStatus(500).withBody("Internal server error"))
+        )
+
+        val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
+        val error = assertFailsWith<WebClientResponseException> {
+            runBlocking {
+                client.execute<HelloWorldResult>("query HelloWorldQuery { helloWorld }")
+            }
+        }
+        assertEquals(500, error.rawStatusCode)
+        assertEquals("Internal server error", error.responseBodyAsString)
+    }
+
+    @Test
+    fun `verifies response with empty body will throw error`() {
+        WireMock.stubFor(
+            WireMock.post("/graphql")
+                .willReturn(WireMock.aResponse().withStatus(204))
+        )
+
+        val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
+        assertFailsWith<NoSuchElementException> {
+            runBlocking {
+                client.execute<HelloWorldResult>("query HelloWorldQuery { helloWorld }")
+            }
         }
     }
 
