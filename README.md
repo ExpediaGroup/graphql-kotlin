@@ -52,6 +52,11 @@ This project is part of Expedia Group Open Source but also maintained by a dedic
 * GraphQL Kotlin Committers
   * Github team: `@ExpediaGroup/graphql-kotlin-committers`
 
+If you have a specific question about the library or code, please [start a disucssion](https://github.com/ExpediaGroup/graphql-kotlin/discussions) for the community.
+
+We also have a public channel, ([#graphql-kotlin](https://app.slack.com/client/T09229ZC6/CQLNT7B29)), open on the Kotlin Slack instance ([kotlinlang.slack.com](https://kotlinlang.slack.com)).
+See the info [here on how to join this slack instance](https://slack.kotlinlang.org/).
+
 ## ✏️ Contributing
 
 To get started, please fork the repo and checkout a new branch. You can then build the library locally with Gradle
