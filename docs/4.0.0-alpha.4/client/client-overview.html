@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Client Overview · GraphQL Kotlin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. Library provides [Ktor HTTP client](https://ktor.io/clients/index.html)"/><meta name="docsearch:version" content="4.0.0-alpha.4"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Client Overview · GraphQL Kotlin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://expediagroup.github.io/graphql-kotlin/"/><meta property="og:description" content="GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. Library provides [Ktor HTTP client](https://ktor.io/clients/index.html)"/><meta property="og:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/graphql-kotlin/img/favicon.ico"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/graphql-kotlin/js/scrollSpy.js"></script><link rel="stylesheet" href="/graphql-kotlin/css/main.css"/><script src="/graphql-kotlin/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/graphql-kotlin/"><img class="logo" src="/graphql-kotlin/img/EG_Icon_White_on_Blue.png" alt="GraphQL Kotlin"/><h2 class="headerTitleWithLogo">GraphQL Kotlin</h2></a><a href="/graphql-kotlin/versions"><h3>4.0.0-alpha.4</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class="siteNavGroupActive"><a href="/graphql-kotlin/docs/4.0.0-alpha.4/getting-started" target="_self">Docs</a></li><li class=""><a href="https://github.com/ExpediaGroup/graphql-kotlin" target="_self">GitHub</a></li><li class=""><a href=" https://github.com/ExpediaGroup/graphql-kotlin#-contact" target="_self">Contact</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>HTTP Client</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Introduction<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/getting-started">Getting Started</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/examples">Examples</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/graphql-java-comparison">GraphQL Java Comparison</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/blogs-and-videos">Blogs &amp; Videos</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Schema Generator<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/schema-generator-getting-started">Getting Started with the Schema Generator</a></li><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Writing schemas with Kotlin</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/nullability">Nullability</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/arguments">Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/scalars">Scalars</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/enums">Enums</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/lists">Lists</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/interfaces">Interfaces</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/unions">Unions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/annotations">Annotations</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/writing-schemas/nested-arguments">Nested Resolvers and Shared Arguments</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Customizing Schema</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/generator-config">Generator Configuration</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/documenting-fields">Documenting Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/excluding-fields">Excluding Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/renaming-fields">Renaming Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/directives">Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/deprecating-schema">Deprecating Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/customizing-schemas/advanced-features">Advanced Features</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Execution</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/fetching-data">Fetching Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/async-models">Async Models</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/exceptions">Exceptions and Partial Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/data-fetching-environment">Data Fetching Environment</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/contextual-data">Contextual Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/optional-undefined-arguments">Optional Undefined Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/subscriptions">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/schema-generator/execution/introspection">Introspection</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Federation<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/federated/apollo-federation">Apollo Federation</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/federated/federated-schemas">Federated Schemas</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/federated/federated-directives">Federated Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/federated/type-resolution">Federated Type Resolution</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Spring Server<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/spring-overview">Spring Server Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/spring-beans">Automatically Created Beans</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/spring-properties">Configuration Properties</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/spring-schema">Writing Schemas with Spring</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/spring-graphql-context">Generating GraphQL Context</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/http-request-response">Access the HTTP Request-Response</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/subscriptions">Subscriptions</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">HTTP Client<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem navListItemActive"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/client/client-overview">Client Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/client/client-features">Client Features</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/client/client-customization">Client Customization</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Build Plugins<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/plugins/gradle-plugin">Gradle Plugin</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/plugins/maven-plugin">Maven Plugin</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Contributors<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.4/contributors/release-proc">Releasing a new version</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/client/client-overview.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Client Overview</h1></header><article><div><span><p>GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. Library provides <a href="https://ktor.io/clients/index.html">Ktor HTTP client</a>
+and <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-webclient">Spring WebClient</a>
+based reference implementations as well as allows for custom implementations using other engines, see <a href="/graphql-kotlin/docs/4.0.0-alpha.4/client/client-customization">client customization</a>
+documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin <a href="/graphql-kotlin/docs/4.0.0-alpha.4/plugins/gradle-plugin">Gradle</a>
+and <a href="/graphql-kotlin/docs/4.0.0-alpha.4/plugins/maven-plugin">Maven</a> plugins.</p>
+<p>Client Features:</p>
+<ul>
+<li>Supports query and mutation operations</li>
+<li>Automatic generation of type-safe Kotlin models</li>
+<li>Custom scalar support - defaults to String but can be configured to deserialize to specific types</li>
+<li>Supports default enum values to gracefully handle new/unknown server values</li>
+<li>Native support for coroutines</li>
+<li>Easily configurable Ktor and Spring WebClient based HTTP Clients</li>
+<li>Documentation generated from the underlying GraphQL schema</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="project-configuration"></a><a href="#project-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Project Configuration</h2>
+<p>GraphQL Kotlin provides both Gradle and Maven plugins to automatically generate your client code at build time. In order
+to auto-generate the client code, plugins require target GraphQL schema and a list of query files to process.</p>
+<p>GraphQL schema can be provided as</p>
+<ul>
+<li>result of introspection query (default)</li>
+<li>downloaded from an SDL endpoint</li>
+<li>local file</li>
+</ul>
+<p>See <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin">Gradle</a> and <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin">Maven</a>
+plugin documentation for additional details.</p>
+<p>Once your data classes are generated, you can then execute their underlying GraphQL operations using one of the provided
+clients. By default, generated client code will rely on the generic interface which means that you will need to either
+implement a custom client OR pull in one of the reference implementations.</p>
+<blockquote>
+<p>NOTE: If you are going to be using one of the reference implementations it is highly recommended to also configure the
+plugin to generate client type specific code as otherwise you will have limited customization options. See <a href="/graphql-kotlin/docs/4.0.0-alpha.4/client/client-customization">client customization</a>
+for additional details.</p>
+</blockquote>
+<p>Example below configures the project to use introspection query to obtain the schema and uses Ktor based HTTP client.</p>
+<h3><a class="anchor" aria-hidden="true" id="build-configuration"></a><a href="#build-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Build Configuration</h3>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-7-tab-8" class="nav-link active" data-group="group_7" data-tab="tab-group-7-content-8">Gradle</div><div id="tab-group-7-tab-9" class="nav-link" data-group="group_7" data-tab="tab-group-7-content-9">Maven</div></div><div class="tab-content"><div id="tab-group-7-content-8" class="tab-pane active" data-group="group_7" tabindex="-1"><div><span><p>Basic <code>build.gradle.kts</code> Gradle configuration that executes introspection query against specified endpoint to obtain target
+schema and then generate the clients under <code>com.example.generated</code> package name:</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.generator.GraphQLClientType<br /><span class="hljs-keyword">import</span> com.expediagroup.graphql.plugin.gradle.graphql<br /><br />plugins {<br />    id(<span class="hljs-string">"com.expediagroup.graphql"</span>) version $latestGraphQLKotlinVersion<br />}<br /><br />dependencies {<br />  implementation(<span class="hljs-string">"com.expediagroup:graphql-kotlin-ktor-client:<span class="hljs-variable">$latestGraphQLKotlinVersion</span>"</span>)<br />}<br /><br />graphql {<br />    client {<br />        endpoint = <span class="hljs-string">"http://localhost:8080/graphql"</span><br />        packageName = <span class="hljs-string">"com.example.generated"</span><br />        clientType = GraphQLClientType.KTOR<br />    }<br />}<br /></code></pre>
+</span></div></div><div id="tab-group-7-content-9" class="tab-pane" data-group="group_7" tabindex="-1"><div><span><p>Basic Maven <code>pom.xml</code> configuration that executes introspection query against specified endpoint to obtain target
+schema and then generate the clients under <code>com.example.generated</code> package name:</p>
+<pre><code class="hljs css language-xml"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br /><span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://maven.apache.org/POM/4.0.0"</span> <span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="hljs-attr">xsi:schemaLocation</span>=<span class="hljs-string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">modelVersion</span>&gt;</span>4.0.0<span class="hljs-tag">&lt;/<span class="hljs-name">modelVersion</span>&gt;</span><br /><br />    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.example<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-client-example<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br />    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br /><br />    <span class="hljs-tag">&lt;<span class="hljs-name">properties</span>&gt;</span><br />        <span class="hljs-tag">&lt;<span class="hljs-name">graphql-kotlin.version</span>&gt;</span>$latestGraphQLKotlinVersion<span class="hljs-tag">&lt;/<span class="hljs-name">graphql-kotlin.version</span>&gt;</span><br />    <span class="hljs-tag">&lt;/<span class="hljs-name">properties</span>&gt;</span><br /><br />    <span class="hljs-tag">&lt;<span class="hljs-name">dependencies</span>&gt;</span><br />        <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-ktor-client<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br />        <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br />    <span class="hljs-tag">&lt;/<span class="hljs-name">dependencies</span>&gt;</span><br /><br />    <span class="hljs-tag">&lt;<span class="hljs-name">build</span>&gt;</span><br />        <span class="hljs-tag">&lt;<span class="hljs-name">plugins</span>&gt;</span><br />            <span class="hljs-tag">&lt;<span class="hljs-name">plugin</span>&gt;</span><br />                <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.expediagroup<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br />                <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>graphql-kotlin-maven-plugin<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br />                <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>${graphql-kotlin.version}<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br />                <span class="hljs-tag">&lt;<span class="hljs-name">executions</span>&gt;</span><br />                    <span class="hljs-tag">&lt;<span class="hljs-name">execution</span>&gt;</span><br />                        <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>generate-graphql-client<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span><br />                        <span class="hljs-tag">&lt;<span class="hljs-name">goals</span>&gt;</span><br />                            <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>introspectSchema<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span><br />                            <span class="hljs-tag">&lt;<span class="hljs-name">goal</span>&gt;</span>generateClient<span class="hljs-tag">&lt;/<span class="hljs-name">goal</span>&gt;</span><br />                        <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span><br />                        <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span><br />                            <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/graphql<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span><br />                            <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span><br />                            <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/schema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span><br />                            <span class="hljs-tag">&lt;<span class="hljs-name">clientType</span>&gt;</span>KTOR<span class="hljs-tag">&lt;/<span class="hljs-name">clientType</span>&gt;</span><br />                        <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span><br />                    <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span><br />                <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span><br />            <span class="hljs-tag">&lt;/<span class="hljs-name">plugin</span>&gt;</span><br />        <span class="hljs-tag">&lt;/<span class="hljs-name">plugins</span>&gt;</span><br />    <span class="hljs-tag">&lt;/<span class="hljs-name">build</span>&gt;</span><br /><span class="hljs-tag">&lt;/<span class="hljs-name">project</span>&gt;</span><br /></code></pre>
+</span></div></div></div></div>
+<p>See <a href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client">graphql-kotlin-client-example</a> project for complete
+working examples of Gradle and Maven based projects.</p>
+<h3><a class="anchor" aria-hidden="true" id="generating-graphql-client"></a><a href="#generating-graphql-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Generating GraphQL Client</h3>
+<p>By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all <code>*.graphql</code> files located under
+<code>src/main/resources</code>. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
+the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
+See our documentation for more details on supported <a href="/graphql-kotlin/docs/4.0.0-alpha.4/plugins/gradle-plugin">Gradle tasks</a>
+and <a href="/graphql-kotlin/docs/4.0.0-alpha.4/plugins/maven-plugin">Maven Mojos</a>.</p>
+<p>When creating your GraphQL queries make sure to always specify an operation name and name the files accordingly. Each
+one of your query files will generate a corresponding Kotlin file with a class matching your operation
+name that will act as a wrapper for all corresponding data classes. For example, given <code>HelloWorldQuery.graphql</code> with
+<code>HelloWorldQuery</code> as the operation name, GraphQL Kotlin plugins will generate a corresponding <code>HelloWorldQuery.kt</code> file
+with a <code>HelloWorldQuery</code> class under the configured package.</p>
+<p>For example, given a simple schema</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Query</span> {
+  <span class="hljs-attribute">helloWorld</span>: String
+}
+</code></pre>
+<p>And a corresponding <code>HelloWorldQuery.graphql</code> query</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">query</span> HelloWorldQuery {
+  <span class="hljs-attribute">helloWorld</span>
+}
+</code></pre>
+<p>Plugins will generate following client code</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">package</span> com.example.generated
+
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.client.GraphQLKtorClient
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.types.GraphQLResponse
+<span class="hljs-keyword">import</span> kotlin.String
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">val</span> HELLO_WORLD_QUERY: String = <span class="hljs-string">"query HelloWorldQuery {\n    helloWorld\n}"</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HelloWorldQuery</span></span>(
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">val</span> graphQLClient: GraphQLKtorClient&lt;*&gt;
+) {
+  <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">execute</span><span class="hljs-params">(requestBuilder: <span class="hljs-type">HttpRequestBuilder</span>.() -&gt; <span class="hljs-type">Unit</span> = {})</span></span>: GraphQLResponse&lt;HelloWorldQuery.Result&gt; =
+      graphQLClient.execute(HELLO_WORLD_QUERY, <span class="hljs-string">"HelloWorldQuery"</span>, <span class="hljs-literal">null</span>, requestBuilder)
+
+  <span class="hljs-keyword">data</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Result</span></span>(
+    <span class="hljs-keyword">val</span> helloWorld: String
+  )
+}
+</code></pre>
+<p>Generated classes requires an instance of <code>GraphQLKtorClient</code> and exposes a single <code>execute</code> suspendable method that executes
+the underlying GraphQL operation using the provided client.</p>
+<h3><a class="anchor" aria-hidden="true" id="executing-queries"></a><a href="#executing-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Executing Queries</h3>
+<p>Your auto generated classes accept an instance of <code>GraphQLKtorClient</code> which is a thin wrapper around Ktor HTTP client that
+ensures proper serialization and deserialization of your GraphQL objects. <code>GraphQLKtorClient</code> requires target URL to be
+specified and defaults to fully asynchronous non-blocking <a href="https://ktor.io/clients/http-client/engines.html#cio">Coroutine-based IO engine</a>.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">package</span> com.example.client
+
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.client.GraphQLKtorClient
+<span class="hljs-keyword">import</span> com.expediagroup.graphql.generated.HelloWorldQuery
+<span class="hljs-keyword">import</span> kotlinx.coroutines.runBlocking
+<span class="hljs-keyword">import</span> java.net.URL
+
+<span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-keyword">val</span> client = GraphQLKtorClient(url = URL(<span class="hljs-string">"http://localhost:8080/graphql"</span>))
+    <span class="hljs-keyword">val</span> helloWorldQuery = HelloWorldQuery(client)
+    runBlocking {
+        <span class="hljs-keyword">val</span> result = helloWorldQuery.execute()
+        println(<span class="hljs-string">"hello world query result: <span class="hljs-subst">${result.data?.helloWorld}</span>"</span>)
+    }
+    client.close()
+}
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/4.0.0-alpha.4/spring-server/subscriptions"><span class="arrow-prev">← </span><span>Subscriptions</span></a><a class="docs-next button" href="/graphql-kotlin/docs/4.0.0-alpha.4/client/client-features"><span>Client Features</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#project-configuration">Project Configuration</a><ul class="toc-headings"><li><a href="#build-configuration">Build Configuration</a></li><li><a href="#generating-graphql-client">Generating GraphQL Client</a></li><li><a href="#executing-queries">Executing Queries</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: 'b23761059e66eefd46f5f665a2d4537a',
+                indexName: 'graphql-kotlin',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
