@@ -42,7 +42,6 @@ subprojects {
 
     dependencies {
         implementation(kotlin("stdlib", kotlinVersion))
-        implementation("com.expediagroup:graphql-kotlin-spring-server")
         testImplementation(kotlin("test-junit5", kotlinVersion))
         testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
         testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")

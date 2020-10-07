@@ -9,7 +9,8 @@ val springBootVersion: String by project
 val reactorVersion: String by project
 
 dependencies {
-    implementation("javax.validation", "validation-api", "2.0.1.Final")
+    implementation("com.expediagroup", "graphql-kotlin-spring-server")
+    implementation("org.springframework.boot", "spring-boot-starter-validation", springBootVersion)
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation("io.projectreactor:reactor-test:$reactorVersion")
 }
