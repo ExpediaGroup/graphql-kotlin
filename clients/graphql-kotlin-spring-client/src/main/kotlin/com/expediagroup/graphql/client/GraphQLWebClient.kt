@@ -25,7 +25,6 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
-import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 
 /**
@@ -42,16 +41,13 @@ open class GraphQLWebClient(
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
 
-        val strategies = ExchangeStrategies
-            .builder()
-            .codecs { configurer ->
-                configurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON))
-                configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON))
-            }.build()
-        builder.exchangeStrategies(strategies)
+        builder.codecs { codecConfigurer ->
+            codecConfigurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON))
+            codecConfigurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON))
+        }
     }
 
-    private val client = builder.baseUrl(url).build()
+    private val client: WebClient = builder.baseUrl(url).build()
 
     /**
      * Executes specified GraphQL query or mutation.
