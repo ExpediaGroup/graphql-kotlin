@@ -226,8 +226,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
                     headers["X-Custom-Header"] = "My-Custom-Header-Value"
                     queryFiles = [
-                        file("${testProjectDirectory}/src/main/resources/queries/JUnitQuery.graphql"),
-                        file("${testProjectDirectory}/src/main/resources/queries/DeprecatedQuery.graphql")
+                        file("$testProjectDirectory/src/main/resources/queries/JUnitQuery.graphql"),
+                        file("$testProjectDirectory/src/main/resources/queries/DeprecatedQuery.graphql")
                     ]
                     timeout { t ->
                         t.connect = 10000
