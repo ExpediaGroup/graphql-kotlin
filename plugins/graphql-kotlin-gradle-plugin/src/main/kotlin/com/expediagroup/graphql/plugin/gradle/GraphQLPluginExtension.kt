@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.gradle
 import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import org.gradle.api.Action
 import java.io.File
 
 /**
@@ -34,8 +35,8 @@ open class GraphQLPluginExtension {
     }
 
     /** Plugin configuration for generating GraphQL client. */
-    fun client(config: GraphQLPluginClientExtension.() -> Unit = {}) {
-        clientExtension.apply(config)
+    fun client(action: Action<GraphQLPluginClientExtension>) {
+        action.execute(clientExtension)
     }
 
     internal fun isClientConfigurationAvailable(): Boolean = clientExtensionConfigured
@@ -62,7 +63,7 @@ open class GraphQLPluginClientExtension {
     /** Connect and read timeout configuration for executing introspection query/download schema */
     internal val timeoutConfig: TimeoutConfig = TimeoutConfig()
 
-    fun timeout(config: TimeoutConfig.() -> Unit = {}) {
-        timeoutConfig.apply(config)
+    fun timeout(action: Action<TimeoutConfig>) {
+        action.execute(timeoutConfig)
     }
 }

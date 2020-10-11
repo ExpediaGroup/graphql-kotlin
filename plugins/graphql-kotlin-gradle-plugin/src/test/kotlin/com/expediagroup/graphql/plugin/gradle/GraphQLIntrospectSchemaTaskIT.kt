@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -31,7 +32,8 @@ import kotlin.test.assertTrue
 class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
-    fun `apply the gradle plugin and execute introspectSchema task`(@TempDir tempDir: Path) {
+    @Tag("kts")
+    fun `verify introspectSchema task (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
@@ -40,19 +42,12 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
-
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDirectory)
-            .withPluginClasspath()
-            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
-            .build()
-
-        assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
-        assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
+        verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
 
     @Test
-    fun `apply the gradle plugin and execute introspectSchema task with headers`(@TempDir tempDir: Path) {
+    @Tag("kts")
+    fun `verify introspectSchema task with headers (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         val customHeaderName = "X-Custom-Header"
         val customHeaderValue = "My-Custom-Header-Value"
@@ -66,19 +61,12 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
-
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDirectory)
-            .withPluginClasspath()
-            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
-            .build()
-
-        assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
-        assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
+        verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
 
     @Test
-    fun `apply the gradle plugin and execute introspectSchema with timeout`(@TempDir tempDir: Path) {
+    @Tag("kts")
+    fun `verify introspectSchema with timeout (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         WireMock.reset()
         WireMock.stubFor(stubIntrospectionResult(delay = 10_000))
@@ -91,7 +79,72 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
+        verifyIntrospectionTaskTimeout(testProjectDirectory)
+    }
 
+    @Test
+    @Tag("groovy")
+    fun `verify introspectSchema task (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            graphqlIntrospectSchema {
+              endpoint = "${wireMockServer.baseUrl()}/graphql"
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        verifyIntrospectionTaskSuccess(testProjectDirectory)
+    }
+
+    @Test
+    @Tag("groovy")
+    fun `verify introspectSchema task with headers (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val customHeaderName = "X-Custom-Header"
+        val customHeaderValue = "My-Custom-Header-Value"
+        WireMock.reset()
+        WireMock.stubFor(stubIntrospectionResult().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
+        val buildFileContents =
+            """
+            graphqlIntrospectSchema {
+              endpoint = "${wireMockServer.baseUrl()}/graphql"
+              headers["$customHeaderName"] = "$customHeaderValue"
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        verifyIntrospectionTaskSuccess(testProjectDirectory)
+    }
+
+    @Test
+    @Tag("groovy")
+    fun `verify introspectSchema with timeout (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        WireMock.reset()
+        WireMock.stubFor(stubIntrospectionResult(delay = 10_000))
+
+        val buildFileContents =
+            """
+            graphqlIntrospectSchema {
+              endpoint = "${wireMockServer.baseUrl()}/graphql"
+              timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(100, 100)
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        verifyIntrospectionTaskTimeout(testProjectDirectory)
+    }
+
+    private fun verifyIntrospectionTaskSuccess(testProjectDirectory: File) {
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
+    }
+
+    private fun verifyIntrospectionTaskTimeout(testProjectDirectory: File) {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()

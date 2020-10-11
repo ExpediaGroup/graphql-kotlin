@@ -10,12 +10,64 @@ GraphQL Kotlin Gradle Plugin provides functionality to introspect GraphQL schema
 `graphql-kotlin-gradle-plugin` is published on Gradle [Plugin Portal](https://plugins.gradle.org/plugin/com.expediagroup.graphql).
 In order to execute any of the provided tasks you need to first apply the plugin on your project.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
+Using plugins DSL syntax
+
 ```kotlin
 // build.gradle.kts
 plugins {
     id("com.expediagroup.graphql") version $graphQLKotlinVersion
 }
 ```
+
+Or by using legacy plugin application
+
+```kotlin
+// build.gradle.kts
+buildscript {
+  repositories {
+    maven {
+      url = uri("https://plugins.gradle.org/m2/")
+    }
+  }
+  dependencies {
+    classpath("com.expediagroup:graphql-kotlin-gradle-plugin:$graphQLKotlinVersion")
+  }
+}
+
+apply(plugin = "com.expediagroup.graphql")
+```
+<!--Groovy-->
+
+Using plugins DSL syntax
+
+```groovy
+// build.gradle
+plugins {
+    id 'com.expediagroup.graphql' version $graphQLKotlinVersion
+}
+```
+
+Or by using legacy plugin application
+
+```groovy
+// build.gradle
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.expediagroup:graphql-kotlin-gradle-plugin:$graphQLKotlinVersion"
+  }
+}
+
+apply plugin: "com.expediagroup.graphql"
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Extension
 
@@ -25,6 +77,9 @@ This extension can be used to configure global options instead of explicitly con
 is configured, it will automatically download SDL/run introspection to generate GraphQL schema and subsequently generate
 all GraphQL clients. GraphQL Extension should be used by default, except for cases where you need to only run individual
 tasks.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
 
 ```kotlin
 // build.gradle.kts
@@ -46,7 +101,7 @@ graphql {
     // Target package name to be used for generated classes.
     packageName = "com.example.generated"
     // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
-    queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
     sdlEndpoint = "http://localhost:8080/sdl"
     // Timeout configuration for introspection query/downloading SDL
@@ -59,6 +114,39 @@ graphql {
   }
 }
 ```
+<!--Groovy-->
+
+```groovy
+// build.gradle
+graphql {
+    client {
+        // Boolean flag indicating whether or not selection of deprecated fields is allowed.
+        allowDeprecatedFields = false
+        // Type of GraphQL client implementation to generate.
+        clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.DEFAULT
+        // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+        converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+        // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
+        endpoint = "http://localhost:8080/graphql"
+        // Optional HTTP headers to be specified on an introspection query or SDL request.
+        headers["X-Custom-Header"] = "My-Custom-Header-Value"
+        // Target package name to be used for generated classes.
+        packageName = "com.example.generated"
+        // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
+        queryFiles = [file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")]
+        // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
+        sdlEndpoint = "http://localhost:8080/sdl"
+        // Timeout configuration for introspection query/downloading SDL
+        timeout { t ->
+            // Connect timeout in milliseconds
+            t.connect = 5000
+            t.read = 15000
+        }
+    }
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Tasks
 
@@ -152,6 +240,9 @@ $ gradle graphqlDownloadSDL --endpoint="http://localhost:8080/sdl"
 
 Task can also be explicitly configured in your Gradle build file
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
 ```kotlin
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
@@ -160,6 +251,17 @@ val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
     endpoint.set("http://localhost:8080/sdl")
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+graphqlDownloadSDL {
+    endpoint = "http://localhost:8080/sdl"
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 >NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 >invoke it OR configure it as a dependency of some other task.
@@ -175,6 +277,9 @@ $ gradle graphqlIntrospectSchema --endpoint="http://localhost:8080/graphql"
 
 Task can also be explicitly configured in your Gradle build file
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
 ```kotlin
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
@@ -183,6 +288,17 @@ val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class)
     endpoint.set("http://localhost:8080/graphql")
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+graphqlIntrospectSchema {
+    endpoint = "http://localhost:8080/graphql"
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 >NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 >invoke it OR configure it as a dependency of some other task.
@@ -200,6 +316,9 @@ $ gradle graphqlGenerateClient --schemaFileName"mySchema.graphql" --packageName=
 
 Task can also be explicitly configured in your Gradle build file
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
 ```kotlin
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
@@ -209,6 +328,18 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   schemaFileName.set("mySchema.graphql")
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+graphqlGenerateClient {
+    packageName = "com.example.generated"
+    schemaFileName = "mySchema.graphql"
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project compile sources.
@@ -222,8 +353,12 @@ type of client that can be used for your queries.
 For example in order to generate Ktor based HTTP client we need to specify `GraphQLClientType.KTOR` client type. Alternatively,
 if you would like to use WebClient implementation instead you need to specify `GraphQLClientType.WEBCLIENT` instead.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
 ```kotlin
 // build.gradle.kts
+import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
@@ -232,6 +367,19 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   schemaFileName.set("mySchema.graphql")
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+graphqlGenerateClient {
+    clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
+    packageName = "com.example.generated"
+    schemaFileName = "mySchema.graphql"
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ### Generating Client with Custom Scalars
 
@@ -260,6 +408,9 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
 
 Afterwards we need to configure our plugin to use this custom converter
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
 ```kotlin
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
@@ -270,6 +421,19 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+graphqlGenerateClient {
+    packageName = "com.example.generated"
+    schemaFileName = "mySchema.graphql"
+    converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ### Generating Test Client
 
@@ -284,6 +448,9 @@ $ gradle graphqlGenerateTestClient --schemaFileName"mySchema.graphql" --packageN
 
 Task can also be explicitly configured in your Gradle build file
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
 ```kotlin
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
@@ -293,6 +460,18 @@ val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class)
   schemaFileName.set("mySchema.graphql")
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+graphqlGenerateTestClient {
+    packageName = "com.example.generated"
+    schemaFileName = "mySchema.graphql"
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project test compile sources.
@@ -304,6 +483,9 @@ Generated classes will be automatically added to the project test compile source
 Following is the minimal configuration that runs introspection query against a target GraphQL server and generates a
 corresponding schema. This generated schema is subsequently used to generate GraphQL client code based on the queries
 provided under `src/main/resources` directory.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
 
 ```kotlin
 // build.gradle.kts
@@ -334,10 +516,40 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 }
 ```
 
+<!--Groovy-->
+
+```groovy
+graphql {
+    client {
+        endpoint = "http://localhost:8080/graphql"
+        packageName = "com.example.generated"
+    }
+}
+```
+
+Above configuration is equivalent to the following
+
+```groovy
+// build.gradle
+graphqlIntrospectSchema {
+    endpoint = "http://localhost:8080/graphql"
+}
+graphqlGenerateClient {
+    packageName = "com.example.generated"
+    schemaFile = graphqlIntrospectSchema.outputFile
+    dependsOn graphqlIntrospectSchema
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 ### Complete Configuration Example
 
 Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
 the GraphQL Ktor client code based on the provided query.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
 
 ```kotlin
 // build.gradle.kts
@@ -355,7 +567,7 @@ graphql {
     clientType = GraphQLClientType.KTOR
     converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
     headers["X-Custom-Header"] = "My-Custom-Header"
-    queryFiles.add(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     timeout {
         connect = 10_000
         read = 30_000
@@ -391,3 +603,49 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     dependsOn("graphqlDownloadSDL")
 }
 ```
+
+<!--Groovy-->
+
+```groovy
+// build.gradle
+graphql {
+    client {
+        sdlEndpoint = "http://localhost:8080/sdl"
+        packageName = "com.example.generated"
+        // optional configuration
+        allowDeprecatedFields = true
+        clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
+        converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+        headers["X-Custom-Header"] = "My-Custom-Header"
+        queryFiles = [file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")]
+        timeout { t ->
+            t.connect = 10_000
+            t.read = 30_000
+        }
+    }
+}
+```
+
+Above configuration is equivalent to the following
+
+```groovy
+//build.gradle
+graphqlDownloadSDL {
+    endpoint = "http://localhost:8080/sdl"
+    headers["X-Custom-Header"] = "My-Custom-Header"
+    timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(10000, 30000)
+}
+graphqlGenerateClient {
+    packageName = "com.example.generated"
+    schemaFile = graphqlDownloadSDL.outputFile
+    // optional
+    allowDeprecatedFields = true
+    clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
+    converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+    queryFiles.from("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")
+
+    dependsOn graphqlDownloadSDL
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->

@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -31,7 +32,8 @@ import kotlin.test.assertTrue
 class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
-    fun `apply the gradle plugin and execute downloadSDL task`(@TempDir tempDir: Path) {
+    @Tag("kts")
+    fun `verify downloadSDL task (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
@@ -40,19 +42,12 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
-
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDirectory)
-            .withPluginClasspath()
-            .withArguments(DOWNLOAD_SDL_TASK_NAME)
-            .build()
-
-        assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
-        assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
+        verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
 
     @Test
-    fun `apply the gradle plugin and execute downloadSDL task with headers`(@TempDir tempDir: Path) {
+    @Tag("kts")
+    fun `verify downloadSDL task with headers (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         val customHeaderName = "X-Custom-Header"
         val customHeaderValue = "My-Custom-Header-Value"
@@ -67,19 +62,12 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
-
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDirectory)
-            .withPluginClasspath()
-            .withArguments(DOWNLOAD_SDL_TASK_NAME)
-            .build()
-
-        assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
-        assertTrue(File(tempDir.toFile(), "build/schema.graphql").exists())
+        verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
 
     @Test
-    fun `apply the gradle plugin and execute downloadSDL with timeout`(@TempDir tempDir: Path) {
+    @Tag("kts")
+    fun `verify downloadSDL task with timeout (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         WireMock.reset()
         WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
@@ -92,7 +80,73 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFile(buildFileContents)
+        verifyDownloadSDLTaskTimeout(testProjectDirectory)
+    }
 
+    @Test
+    @Tag("groovy")
+    fun `verify downloadSDL task (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            graphqlDownloadSDL {
+              endpoint = "${wireMockServer.baseUrl()}/sdl"
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        verifyDownloadSDLTaskSuccess(testProjectDirectory)
+    }
+
+    @Test
+    @Tag("groovy")
+    fun `verify downloadSDL task with headers (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val customHeaderName = "X-Custom-Header"
+        val customHeaderValue = "My-Custom-Header-Value"
+        WireMock.reset()
+        WireMock.stubFor(stubSdlEndpoint().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
+
+        val buildFileContents =
+            """
+            graphqlDownloadSDL {
+                endpoint = "${wireMockServer.baseUrl()}/sdl"
+                headers["$customHeaderName"] = "$customHeaderValue"
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        verifyDownloadSDLTaskSuccess(testProjectDirectory)
+    }
+
+    @Test
+    @Tag("groovy")
+    fun `verify downloadSDL task with timeout (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        WireMock.reset()
+        WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
+
+        val buildFileContents =
+            """
+            graphqlDownloadSDL {
+                endpoint = "${wireMockServer.baseUrl()}/sdl"
+                timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(100, 100)
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        verifyDownloadSDLTaskTimeout(testProjectDirectory)
+    }
+
+    private fun verifyDownloadSDLTaskSuccess(testProjectDirectory: File) {
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(DOWNLOAD_SDL_TASK_NAME)
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
+    }
+
+    private fun verifyDownloadSDLTaskTimeout(testProjectDirectory: File) {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()

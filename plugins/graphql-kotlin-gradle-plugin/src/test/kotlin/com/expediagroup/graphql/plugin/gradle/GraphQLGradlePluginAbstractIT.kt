@@ -123,6 +123,39 @@ abstract class GraphQLGradlePluginAbstractIT {
         buildFile.writeText(buildFileContents)
     }
 
+    internal fun File.generateGroovyBuildFile(contents: String) {
+        val buildFileContents =
+            """
+            plugins {
+              id 'org.jetbrains.kotlin.jvm' version '$kotlinVersion'
+              id 'com.expediagroup.graphql'
+              id 'application'
+            }
+
+            repositories {
+                mavenLocal()
+                mavenCentral()
+            }
+
+            compileKotlin {
+                kotlinOptions.jvmTarget = "1.8"
+            }
+
+            dependencies {
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "com.expediagroup:graphql-kotlin-ktor-client:$gqlKotlinVersion"
+                implementation "com.expediagroup:graphql-kotlin-spring-client:$gqlKotlinVersion"
+                testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+                testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+            }
+
+            $contents
+            """.trimIndent()
+
+        val buildFile = File(this, "build.gradle")
+        buildFile.writeText(buildFileContents)
+    }
+
     internal fun File.createTestFile(fileName: String, subDirectory: String? = null): File {
         val targetDirectory = if (subDirectory != null) {
             File(this, subDirectory)
