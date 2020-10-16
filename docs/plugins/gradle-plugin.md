@@ -101,7 +101,7 @@ graphql {
     // Target package name to be used for generated classes.
     packageName = "com.example.generated"
     // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
-    queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    queryFiles = mutableListOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
     sdlEndpoint = "http://localhost:8080/sdl"
     // Timeout configuration for introspection query/downloading SDL
