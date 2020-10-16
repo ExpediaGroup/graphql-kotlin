@@ -3,7 +3,7 @@ id: client-overview
 title: Client Overview
 ---
 
-GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. Library provides [Ktor HTTP client](https://ktor.io/clients/index.html)
+GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. The library provides [Ktor HTTP client](https://ktor.io/clients/index.html)
 and [Spring WebClient](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-webclient)
 based reference implementations as well as allows for custom implementations using other engines, see [client customization](client-customization.md)
 documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin.md)
