@@ -50,13 +50,13 @@ open class GraphQLPluginClientExtension {
     /** Target package name to be used for generated classes. */
     var packageName: String? = null
     /** Optional HTTP headers to be specified on an introspection query or SDL request. */
-    var headers: MutableMap<String, Any> = mutableMapOf()
+    var headers: Map<String, Any> = emptyMap()
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
     /** Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
-    var converters: MutableMap<String, ScalarConverterMapping> = mutableMapOf()
+    var converters: Map<String, ScalarConverterMapping> = emptyMap()
     /** List of query files to be processed. */
-    var queryFiles: MutableList<File> = mutableListOf()
+    var queryFiles: List<File> = emptyList()
     /** Type of GraphQL client implementation to generate. */
     var clientType: GraphQLClientType = GraphQLClientType.DEFAULT
 

@@ -22,7 +22,7 @@ import com.expediagroup.graphql.plugin.generator.GraphQLClientType
 import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -122,7 +122,7 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     val clientType: Property<GraphQLClientType> = project.objects.property(GraphQLClientType::class.java)
 
     @OutputDirectory
-    val outputDirectory: Property<Directory> = project.objects.directoryProperty()
+    val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     init {
         group = "GraphQL"

@@ -96,10 +96,12 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
                 // optional
                 allowDeprecatedFields = true
-                headers["$customHeaderName"] = "$customHeaderValue"
-                converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
-                queryFiles.add(file("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"))
-                queryFiles.add(file("${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"))
+                headers = mapOf("$customHeaderName" to "$customHeaderValue")
+                converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+                queryFiles = listOf(
+                    file("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"),
+                    file("${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
+                )
               }
             }
             """.trimIndent()
@@ -223,8 +225,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     // optional configuration
                     allowDeprecatedFields = true
                     clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
-                    converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
-                    headers["X-Custom-Header"] = "My-Custom-Header-Value"
+                    converters = ["UUID" : new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")]
+                    headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
                     queryFiles = [
                         file("$testProjectDirectory/src/main/resources/queries/JUnitQuery.graphql"),
                         file("$testProjectDirectory/src/main/resources/queries/DeprecatedQuery.graphql")

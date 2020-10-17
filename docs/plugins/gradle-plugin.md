@@ -5,6 +5,8 @@ title: Gradle Plugin
 
 GraphQL Kotlin Gradle Plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.
 
+> NOTE: This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
+
 ## Usage
 
 `graphql-kotlin-gradle-plugin` is published on Gradle [Plugin Portal](https://plugins.gradle.org/plugin/com.expediagroup.graphql).
@@ -93,15 +95,15 @@ graphql {
     // Type of GraphQL client implementation to generate.
     clientType = GraphQLClientType.DEFAULT
     // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
-    converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+    converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
     // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
     endpoint = "http://localhost:8080/graphql"
     // Optional HTTP headers to be specified on an introspection query or SDL request.
-    headers["X-Custom-Header"] = "Custom-Header-Value"
+    headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
     // Target package name to be used for generated classes.
     packageName = "com.example.generated"
     // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
-    queryFiles = mutableListOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+    queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
     sdlEndpoint = "http://localhost:8080/sdl"
     // Timeout configuration for introspection query/downloading SDL
@@ -125,11 +127,11 @@ graphql {
         // Type of GraphQL client implementation to generate.
         clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.DEFAULT
         // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
-        converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+        converters = ["UUID" : new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")]
         // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
         endpoint = "http://localhost:8080/graphql"
         // Optional HTTP headers to be specified on an introspection query or SDL request.
-        headers["X-Custom-Header"] = "My-Custom-Header-Value"
+        headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
         // Target package name to be used for generated classes.
         packageName = "com.example.generated"
         // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
@@ -565,8 +567,8 @@ graphql {
     // optional configuration
     allowDeprecatedFields = true
     clientType = GraphQLClientType.KTOR
-    converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
-    headers["X-Custom-Header"] = "My-Custom-Header"
+    converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+    headers = mapOf("X-Custom-Header" to "My-Custom-Header")
     queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     timeout {
         connect = 10_000
@@ -615,8 +617,8 @@ graphql {
         // optional configuration
         allowDeprecatedFields = true
         clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
-        converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
-        headers["X-Custom-Header"] = "My-Custom-Header"
+        converters = ["UUID" : new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")]
+        headers = ["X-Custom-Header" : "My-Custom-Header"]
         queryFiles = [file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")]
         timeout { t ->
             t.connect = 10_000

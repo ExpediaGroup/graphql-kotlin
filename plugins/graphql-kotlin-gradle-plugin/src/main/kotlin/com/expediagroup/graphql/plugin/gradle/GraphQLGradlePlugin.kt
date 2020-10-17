@@ -64,22 +64,26 @@ class GraphQLGradlePlugin : Plugin<Project> {
                     generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
                     generateClientTask.clientType.convention(extension.clientExtension.clientType)
 
-                    if (extension.clientExtension.endpoint != null) {
-                        val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
-                        introspectSchemaTask.endpoint.convention(project.provider { extension.clientExtension.endpoint })
-                        introspectSchemaTask.headers.convention(project.provider { extension.clientExtension.headers })
-                        introspectSchemaTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
-                        generateClientTask.dependsOn(introspectSchemaTask.path)
-                        generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile)
-                    } else if (extension.clientExtension.sdlEndpoint != null) {
-                        val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
-                        downloadSDLTask.endpoint.convention(project.provider { extension.clientExtension.sdlEndpoint })
-                        downloadSDLTask.headers.convention(project.provider { extension.clientExtension.headers })
-                        downloadSDLTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
-                        generateClientTask.dependsOn(downloadSDLTask.path)
-                        generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
-                    } else {
-                        throw RuntimeException("Invalid GraphQL client extension configuration - missing required endpoint/sdlEndpoint property")
+                    when {
+                        extension.clientExtension.endpoint != null -> {
+                            val introspectSchemaTask = project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java).get()
+                            introspectSchemaTask.endpoint.convention(project.provider { extension.clientExtension.endpoint })
+                            introspectSchemaTask.headers.convention(project.provider { extension.clientExtension.headers })
+                            introspectSchemaTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
+                            generateClientTask.dependsOn(introspectSchemaTask.path)
+                            generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile)
+                        }
+                        extension.clientExtension.sdlEndpoint != null -> {
+                            val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
+                            downloadSDLTask.endpoint.convention(project.provider { extension.clientExtension.sdlEndpoint })
+                            downloadSDLTask.headers.convention(project.provider { extension.clientExtension.headers })
+                            downloadSDLTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
+                            generateClientTask.dependsOn(downloadSDLTask.path)
+                            generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
+                        }
+                        else -> {
+                            throw RuntimeException("Invalid GraphQL client extension configuration - missing required endpoint/sdlEndpoint property")
+                        }
                     }
                 }
             }
@@ -96,7 +100,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
     private fun configureCompileTaskDependency(project: Project, generateClientTaskPath: String, compileTaskName: String = "compileKotlin") {
         val compileKotlinTask = project.tasks.findByPath(compileTaskName)
         if (compileKotlinTask == null) {
-            throw RuntimeException("$compileKotlinTask task not found")
+            throw RuntimeException("build file misconfigured - GraphQLGradlePlugin cannot be applied as build is missing $compileTaskName task")
         } else {
             compileKotlinTask.dependsOn(generateClientTaskPath)
         }
