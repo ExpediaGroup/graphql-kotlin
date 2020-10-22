@@ -57,6 +57,8 @@ open class GraphQLPluginClientExtension {
     var converters: Map<String, ScalarConverterMapping> = emptyMap()
     /** List of query files to be processed. */
     var queryFiles: List<File> = emptyList()
+    /** Directory containing GraphQL query files. */
+    var queryFileDirectory: String? = null
     /** Type of GraphQL client implementation to generate. */
     var clientType: GraphQLClientType = GraphQLClientType.DEFAULT
 
