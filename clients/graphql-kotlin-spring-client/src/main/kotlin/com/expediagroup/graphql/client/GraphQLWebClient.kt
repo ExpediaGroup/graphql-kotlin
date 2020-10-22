@@ -26,6 +26,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.WebClient
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A lightweight typesafe GraphQL HTTP client using Spring WebClient engine.
@@ -36,7 +37,7 @@ open class GraphQLWebClient(
     builder: WebClient.Builder = WebClient.builder()
 ) : GraphQLClient {
 
-    private val typeCache = mutableMapOf<Class<*>, JavaType>()
+    private val typeCache = ConcurrentHashMap<Class<*>, JavaType>()
 
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
