@@ -36,6 +36,7 @@ import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import java.io.Closeable
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
@@ -48,7 +49,7 @@ open class GraphQLKtorClient<in T : HttpClientEngineConfig>(
     configuration: HttpClientConfig<T>.() -> Unit = {}
 ) : GraphQLClient, Closeable {
 
-    private val typeCache = mutableMapOf<Class<*>, JavaType>()
+    private val typeCache = ConcurrentHashMap<Class<*>, JavaType>()
 
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
