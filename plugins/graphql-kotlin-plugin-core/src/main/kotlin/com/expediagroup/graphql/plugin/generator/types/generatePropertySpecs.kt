@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.exceptions.DeprecatedFieldsSelectedException
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.PropertySpec
 import graphql.Directives.DeprecatedDirective
@@ -45,7 +47,7 @@ internal fun generatePropertySpecs(
     }
     .map { selectedField ->
         val fieldDefinition = fieldDefinitions.find { it.name == selectedField.name }
-            ?: throw RuntimeException("unable to find corresponding field definition of ${selectedField.name} in $objectName")
+            ?: throw InvalidSelectionSetException("unable to find corresponding field definition of ${selectedField.name} in $objectName")
 
         val nullable = fieldDefinition.type !is NonNullType
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
@@ -57,7 +59,7 @@ internal fun generatePropertySpecs(
         }
         fieldDefinition.getDirective(DeprecatedDirective.name)?.let { deprecatedDirective ->
             if (!context.allowDeprecated) {
-                throw RuntimeException("query specifies deprecated field - ${selectedField.name} in $objectName, update your query or update your configuration to allow usage of deprecated fields")
+                throw DeprecatedFieldsSelectedException(selectedField.name, objectName)
             } else {
                 val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
                 val reason = deprecatedReason?.value ?: "no longer supported"

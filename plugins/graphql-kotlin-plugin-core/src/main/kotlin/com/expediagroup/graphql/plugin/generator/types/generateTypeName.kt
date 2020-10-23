@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.exceptions.UnknownGraphQLTypeException
+import com.expediagroup.graphql.plugin.generator.extensions.findFragmentDefinition
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FLOAT
@@ -29,7 +31,6 @@ import com.squareup.kotlinpoet.TypeName
 import graphql.Scalars
 import graphql.language.EnumTypeDefinition
 import graphql.language.Field
-import graphql.language.FragmentDefinition
 import graphql.language.FragmentSpread
 import graphql.language.InlineFragment
 import graphql.language.InputObjectTypeDefinition
@@ -60,7 +61,8 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
             else -> generateCustomClassName(context, graphQLType, selectionSet)
         }
         is ListType -> LIST.parameterizedBy(generateTypeName(context, graphQLType.type, selectionSet))
-        else -> throw RuntimeException("Unsupported GraphQL type $graphQLType")
+        // should never happen
+        else -> throw UnknownGraphQLTypeException(graphQLType)
     }.copy(nullable = nullable)
 }
 
@@ -87,7 +89,8 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                 is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition)
-                else -> throw RuntimeException("should never happen")
+                // should never happen as above list covers all graphql types
+                else -> throw UnknownGraphQLTypeException(graphQLType)
             }
             ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
         }
@@ -109,7 +112,8 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
             is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
             is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
-            else -> throw RuntimeException("should never happen")
+            // should never happen as we can only generate different object, interface or union type
+            else -> throw UnknownGraphQLTypeException(graphQLType)
         }
         val className = ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
         context.classNameCache[graphQLTypeName]?.add(className)
@@ -178,11 +182,8 @@ private fun calculateSelectedFields(
             }
             is FragmentSpread -> {
                 val fragmentDefinition = context.queryDocument
-                    .getDefinitionsOfType(FragmentDefinition::class.java)
-                    .find { it.name == selection.name } ?: throw RuntimeException("fragment not found")
-                if (fragmentDefinition.typeCondition.name == targetType) {
-                    result.addAll(calculateSelectedFields(context, targetType, fragmentDefinition.selectionSet))
-                }
+                    .findFragmentDefinition(selection.name, targetType)
+                result.addAll(calculateSelectedFields(context, targetType, fragmentDefinition.selectionSet))
             }
         }
     }

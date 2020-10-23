@@ -16,8 +16,11 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidPolymorphicQueryException
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -265,8 +268,14 @@ class GenerateGraphQLInterfaceTypeSpecIT {
 
     @Test
     fun `verify interface generation will throw exception if empty selection set is specified`() {
-        assertThrows<RuntimeException> {
-            generateGraphQLInterfaceTypeSpec(mockk(), mockk(), SelectionSet.newSelectionSet().build())
+        assertThrows<InvalidSelectionSetException> {
+            generateGraphQLInterfaceTypeSpec(
+                mockk(),
+                mockk {
+                    every { name } returns "junit_interface"
+                },
+                SelectionSet.newSelectionSet().build()
+            )
         }
     }
 
@@ -287,7 +296,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                   }
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<InvalidPolymorphicQueryException> {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
@@ -307,7 +316,7 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                   }
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<InvalidPolymorphicQueryException> {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }

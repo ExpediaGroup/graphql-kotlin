@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InterfaceTypeDefinition
 import graphql.language.SelectionSet
@@ -34,7 +35,7 @@ internal fun generateGraphQLInterfaceTypeSpec(
     interfaceNameOverride: String? = null
 ): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
-        throw RuntimeException("cannot select empty interface")
+        throw InvalidSelectionSetException("invalid interface selection set - cannot select empty ${interfaceDefinition.name} interface ")
     }
 
     val interfaceName = interfaceNameOverride ?: interfaceDefinition.name

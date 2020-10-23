@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.SelectionSet
 import graphql.language.TypeName
@@ -35,7 +36,7 @@ internal fun generateGraphQLUnionTypeSpec(
     unionNameOverride: String? = null
 ): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
-        throw RuntimeException("cannot select empty union")
+        throw InvalidSelectionSetException("invalid union selection set - cannot select empty ${unionDefinition.name} union ")
     }
 
     val unionName = unionNameOverride ?: unionDefinition.name
