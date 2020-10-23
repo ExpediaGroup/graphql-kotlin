@@ -60,7 +60,7 @@ internal fun generateInterfaceTypeSpec(
     if (kdoc != null) {
         interfaceTypeSpec.addKdoc(kdoc)
     }
-    
+
     val namedFragments = selectionSet.getSelectionsOfType(FragmentSpread::class.java).map { fragment ->
         // polymorphic selection set can contain selection set against interface or concrete types
         context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java)
