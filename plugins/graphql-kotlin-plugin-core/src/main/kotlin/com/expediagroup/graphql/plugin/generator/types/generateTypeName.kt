@@ -203,7 +203,10 @@ private fun calculateGeneratedTypeProperties(context: GraphQLClientGeneratorCont
             }
             is ClassName -> {
                 val fieldTypeName = propertyType.simpleNameWithoutWrapper()
-                props.addAll(calculateGeneratedTypeProperties(context, fieldTypeName, "$path${property.name}."))
+                // we need to check whether generated type is a custom scalar
+                if (context.scalarTypeToConverterMapping[fieldTypeName] == null) {
+                    props.addAll(calculateGeneratedTypeProperties(context, fieldTypeName, "$path${property.name}."))
+                }
             }
         }
     }
