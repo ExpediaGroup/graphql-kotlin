@@ -36,7 +36,7 @@ internal fun generateGraphQLObjectTypeSpec(
     objectNameOverride: String? = null
 ): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
-        throw InvalidSelectionSetException("invalid object selection set - cannot select empty ${objectDefinition.name} object ")
+        throw InvalidSelectionSetException(objectDefinition.name, "object")
     }
 
     val typeName = objectNameOverride ?: objectDefinition.name

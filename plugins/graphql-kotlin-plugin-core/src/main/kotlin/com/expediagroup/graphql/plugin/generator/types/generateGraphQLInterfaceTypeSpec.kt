@@ -35,7 +35,7 @@ internal fun generateGraphQLInterfaceTypeSpec(
     interfaceNameOverride: String? = null
 ): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
-        throw InvalidSelectionSetException("invalid interface selection set - cannot select empty ${interfaceDefinition.name} interface ")
+        throw InvalidSelectionSetException(interfaceDefinition.name, "interface")
     }
 
     val interfaceName = interfaceNameOverride ?: interfaceDefinition.name

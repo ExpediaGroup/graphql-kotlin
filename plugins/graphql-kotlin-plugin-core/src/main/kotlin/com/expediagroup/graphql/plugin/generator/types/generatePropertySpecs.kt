@@ -47,7 +47,7 @@ internal fun generatePropertySpecs(
     }
     .map { selectedField ->
         val fieldDefinition = fieldDefinitions.find { it.name == selectedField.name }
-            ?: throw InvalidSelectionSetException("unable to find corresponding field definition of ${selectedField.name} in $objectName")
+            ?: throw InvalidSelectionSetException(selectedField.name, objectName)
 
         val nullable = fieldDefinition.type !is NonNullType
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
