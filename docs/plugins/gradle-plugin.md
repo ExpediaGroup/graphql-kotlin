@@ -102,7 +102,9 @@ graphql {
     headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
     // Target package name to be used for generated classes.
     packageName = "com.example.generated"
-    // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
+    // Custom directory containing query files, defaults to src/main/resources
+    queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
+    // Optional list of query files to be processed, takes precedence over queryFileDirectory
     queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
     sdlEndpoint = "http://localhost:8080/sdl"
@@ -134,7 +136,9 @@ graphql {
         headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
         // Target package name to be used for generated classes.
         packageName = "com.example.generated"
-        // Optional list of query files to be processed, if not specified will default to all query files under src/main/resources.
+        // Custom directory containing query files, defaults to src/main/resources
+        queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
+        // Optional list of query files to be processed, takes precedence over queryFileDirectory
         queryFiles = [file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")]
         // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
         sdlEndpoint = "http://localhost:8080/sdl"

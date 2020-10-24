@@ -61,6 +61,10 @@ class GraphQLGradlePlugin : Plugin<Project> {
                     generateClientTask.packageName.convention(project.provider { extension.clientExtension.packageName })
                     generateClientTask.allowDeprecatedFields.convention(project.provider { extension.clientExtension.allowDeprecatedFields })
                     generateClientTask.converters.convention(extension.clientExtension.converters)
+                    val queryFileDirectory = extension.clientExtension.queryFileDirectory
+                    if (queryFileDirectory != null) {
+                        generateClientTask.queryFileDirectory.convention(queryFileDirectory)
+                    }
                     generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
                     generateClientTask.clientType.convention(extension.clientExtension.clientType)
 

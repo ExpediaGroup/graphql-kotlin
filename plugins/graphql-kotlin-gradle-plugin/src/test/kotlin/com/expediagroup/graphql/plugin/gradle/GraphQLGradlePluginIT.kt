@@ -261,4 +261,48 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
     }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate client using custom directory (kts)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            application {
+              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+              mainClassName = "com.example.ApplicationKt"
+            }
+
+            graphql {
+              client {
+                sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
+                packageName = "com.example.generated"
+
+                // optional
+                allowDeprecatedFields = true
+                queryFileDirectory = "${'$'}{project.projectDir}/src/main/resources/queries"
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
+            .writeText(testQuery)
+        testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
+            .writeText(loadResource("mocks/DeprecatedQuery.graphql"))
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to false)))
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments("build", "run")
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/schema.graphql").exists())
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
+    }
 }
