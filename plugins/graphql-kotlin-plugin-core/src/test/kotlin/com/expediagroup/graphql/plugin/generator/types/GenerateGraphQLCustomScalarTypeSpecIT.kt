@@ -31,7 +31,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
 
                 import com.expediagroup.graphql.client.GraphQLClient
                 import com.expediagroup.graphql.client.execute
-                import com.expediagroup.graphql.plugin.generator.UUIDConverter
+                import com.expediagroup.graphql.plugin.generator.UUIDScalarConverter
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
@@ -58,7 +58,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                     fun rawValue() = converter.toJson(value)
 
                     companion object {
-                      val converter: UUIDConverter = UUIDConverter()
+                      val converter: UUIDScalarConverter = UUIDScalarConverter()
 
                       @JsonCreator
                       @JvmStatic
@@ -99,7 +99,109 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             expected,
             GraphQLClientGeneratorConfig(
                 packageName = "com.expediagroup.graphql.plugin.generator.integration",
-                scalarTypeToConverterMapping = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.plugin.generator.UUIDConverter"))
+                scalarTypeToConverterMapping = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.plugin.generator.UUIDScalarConverter"))
+            )
+        )
+    }
+
+    @Test
+    fun `verify selection sets can reference custom scalars`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.plugin.generator.UUIDScalarConverter
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.fasterxml.jackson.annotation.JsonCreator
+                import com.fasterxml.jackson.annotation.JsonValue
+                import kotlin.Any
+                import kotlin.Int
+                import kotlin.String
+                import kotlin.jvm.JvmStatic
+
+                const val CUSTOM_SCALAR_TEST_QUERY: String =
+                    "query CustomScalarTestQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  count\n  custom\n  id\n}"
+
+                class CustomScalarTestQuery(
+                  private val graphQLClient: GraphQLClient
+                ) {
+                  suspend fun execute(): GraphQLResponse<CustomScalarTestQuery.Result> =
+                      graphQLClient.execute(CUSTOM_SCALAR_TEST_QUERY, "CustomScalarTestQuery", null)
+
+                  /**
+                   * Custom scalar representing UUID
+                   */
+                  data class UUID(
+                    val value: java.util.UUID
+                  ) {
+                    @JsonValue
+                    fun rawValue() = converter.toJson(value)
+
+                    companion object {
+                      val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+                      @JsonCreator
+                      @JvmStatic
+                      fun create(rawValue: Any) = UUID(converter.toScalar(rawValue))
+                    }
+                  }
+
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  data class ScalarWrapper(
+                    /**
+                     * A signed 32-bit nullable integer value
+                     */
+                    val count: Int?,
+                    /**
+                     * Custom scalar
+                     */
+                    val custom: CustomScalarTestQuery.UUID,
+                    /**
+                     * ID represents unique identifier that is not intended to be human readable
+                     */
+                    val id: ID
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val first: CustomScalarTestQuery.ScalarWrapper,
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val second: CustomScalarTestQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+            query CustomScalarTestQuery {
+              first: scalarQuery {
+                ... scalarSelections
+              }
+              second: scalarQuery {
+                ... scalarSelections
+              }
+            }
+            fragment scalarSelections on ScalarWrapper {
+              count
+              custom
+              id
+            }
+            """.trimIndent()
+
+        verifyGeneratedFileSpecContents(
+            query,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                scalarTypeToConverterMapping = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.plugin.generator.UUIDScalarConverter"))
             )
         )
     }

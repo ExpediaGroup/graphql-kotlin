@@ -16,9 +16,11 @@
 
 package com.expediagroup.graphql.plugin.generator
 
+import com.expediagroup.graphql.client.converter.ScalarConverter
 import com.squareup.kotlinpoet.FileSpec
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
+import java.util.UUID
 import kotlin.test.assertEquals
 
 internal fun testSchema(): TypeDefinitionRegistry {
@@ -47,4 +49,9 @@ internal fun verifyGeneratedFileSpecContents(
 ) {
     val fileSpecs = generateTestFileSpec(query, graphQLConfig)
     assertEquals(expected, fileSpecs.first().toString().trim())
+}
+
+class UUIDScalarConverter : ScalarConverter<UUID> {
+    override fun toScalar(rawValue: Any): UUID = UUID.fromString(rawValue.toString())
+    override fun toJson(value: UUID): String = value.toString()
 }
