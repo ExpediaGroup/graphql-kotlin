@@ -17,10 +17,11 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
+import com.expediagroup.graphql.plugin.generator.extensions.findFragmentDefinition
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
-import graphql.language.FragmentDefinition
 import graphql.language.FragmentSpread
 import graphql.language.ObjectTypeDefinition
 import graphql.language.SelectionSet
@@ -35,7 +36,7 @@ internal fun generateGraphQLObjectTypeSpec(
     objectNameOverride: String? = null
 ): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
-        throw RuntimeException("cannot select empty objects")
+        throw InvalidSelectionSetException(objectDefinition.name, "object")
     }
 
     val typeName = objectNameOverride ?: objectDefinition.name
@@ -59,8 +60,7 @@ internal fun generateGraphQLObjectTypeSpec(
     selectionSet.getSelectionsOfType(FragmentSpread::class.java)
         .forEach { fragment ->
             val fragmentDefinition = context.queryDocument
-                .getDefinitionsOfType(FragmentDefinition::class.java)
-                .find { it.name == fragment.name } ?: throw RuntimeException("fragment not found")
+                .findFragmentDefinition(fragment.name, objectDefinition.name)
             generatePropertySpecs(
                 context = context,
                 objectName = objectDefinition.name,

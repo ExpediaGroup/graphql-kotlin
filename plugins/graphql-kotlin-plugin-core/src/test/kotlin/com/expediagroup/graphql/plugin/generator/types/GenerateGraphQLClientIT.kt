@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.generator.types
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGenerator
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.generator.GraphQLClientType
+import com.expediagroup.graphql.plugin.generator.exceptions.DeprecatedFieldsSelectedException
 import com.expediagroup.graphql.plugin.generator.testSchema
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
@@ -188,7 +189,7 @@ class GenerateGraphQLClientIT {
                   deprecatedQuery
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<DeprecatedFieldsSelectedException> {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }

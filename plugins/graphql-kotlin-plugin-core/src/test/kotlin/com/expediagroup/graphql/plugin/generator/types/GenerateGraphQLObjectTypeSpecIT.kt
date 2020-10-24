@@ -16,8 +16,11 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidFragmentException
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -209,15 +212,21 @@ class GenerateGraphQLObjectTypeSpecIT {
                   }
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<InvalidFragmentException> {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
 
     @Test
     fun `verify exception is thrown when attempting to generate object with empty selection set`() {
-        assertThrows<RuntimeException> {
-            generateGraphQLObjectTypeSpec(mockk(), mockk(), SelectionSet.newSelectionSet().build())
+        assertThrows<InvalidSelectionSetException> {
+            generateGraphQLObjectTypeSpec(
+                mockk(),
+                mockk {
+                    every { name } returns "junit_object"
+                },
+                SelectionSet.newSelectionSet().build()
+            )
         }
     }
 
@@ -233,7 +242,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                   }
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<InvalidSelectionSetException> {
             verifyGeneratedFileSpecContents(invalidQuery, "will throw exception")
         }
     }
@@ -588,5 +597,24 @@ class GenerateGraphQLObjectTypeSpecIT {
                 }
             """.trimIndent()
         verifyGeneratedFileSpecContents(differentSelectionsQuery, expected)
+    }
+
+    @Test
+    fun `verify generation fails if query specifies invalid fragment`() {
+        val invalidFragmentQuery =
+            """
+                query InvalidFragmentQuery {
+                  complexObjectQuery {
+                    ... complexObjectFields
+                  }
+                }
+                fragment complexObjectFields on complex {
+                  id
+                  name
+                }
+            """.trimIndent()
+        assertThrows<InvalidFragmentException> {
+            verifyGeneratedFileSpecContents(invalidFragmentQuery, "will throw exception")
+        }
     }
 }

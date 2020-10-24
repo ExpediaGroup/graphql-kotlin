@@ -16,8 +16,11 @@
 
 package com.expediagroup.graphql.plugin.generator.types
 
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidPolymorphicQueryException
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.generator.verifyGeneratedFileSpecContents
 import graphql.language.SelectionSet
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -241,7 +244,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                   }
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<InvalidPolymorphicQueryException> {
             verifyGeneratedFileSpecContents(invalidQuery, "should throw exception")
         }
     }
@@ -264,15 +267,21 @@ class GenerateGraphQLUnionTypeSpecIT {
                   }
                 }
             """.trimIndent()
-        assertThrows<RuntimeException> {
+        assertThrows<InvalidPolymorphicQueryException> {
             verifyGeneratedFileSpecContents(invalidQuery, "should throw exception")
         }
     }
 
     @Test
     fun `verify union type generation will throw exception if we pass empty selection set`() {
-        assertThrows<RuntimeException> {
-            generateGraphQLUnionTypeSpec(mockk(), mockk(), SelectionSet.newSelectionSet().build())
+        assertThrows<InvalidSelectionSetException> {
+            generateGraphQLUnionTypeSpec(
+                mockk(),
+                mockk {
+                    every { name } returns "junit_union"
+                },
+                SelectionSet.newSelectionSet().build()
+            )
         }
     }
 

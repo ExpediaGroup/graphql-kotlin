@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.plugin.generator.types
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidFragmentException
+import com.expediagroup.graphql.plugin.generator.exceptions.InvalidPolymorphicQueryException
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -60,7 +62,9 @@ internal fun generateInterfaceTypeSpec(
     }
 
     val namedFragments = selectionSet.getSelectionsOfType(FragmentSpread::class.java).map { fragment ->
-        context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java).find { it.name == fragment.name } ?: throw RuntimeException("fragment ${fragment.name} not found")
+        // polymorphic selection set can contain selection set against interface or concrete types
+        context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java)
+            .find { it.name == fragment.name } ?: throw InvalidFragmentException(fragment.name, interfaceName)
     }.associateBy { it.typeCondition.name }
 
     // find super selection set that contains
@@ -108,7 +112,7 @@ internal fun generateInterfaceTypeSpec(
     // check if all implementations are selected
     val notImplemented = implementations.minus(implementationSelections.keys)
     if (notImplemented.isNotEmpty()) {
-        throw RuntimeException("query does not specify all polymorphic implementations - $interfaceName field selection is missing $notImplemented")
+        throw InvalidPolymorphicQueryException("query does not specify all polymorphic implementations - $interfaceName field selection is missing $notImplemented")
     }
 
     // generate implementations with final selection set
@@ -116,7 +120,7 @@ internal fun generateInterfaceTypeSpec(
     implementationSelections.forEach { implementationName, (typeCondition, selections) ->
         val distinctSelections = selections.filterIsInstance(Field::class.java).distinctBy { if (it.alias != null) it.alias else it.name }
         if (!verifyTypeNameIsSelected(distinctSelections)) {
-            throw RuntimeException("invalid selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
+            throw InvalidPolymorphicQueryException("invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
         }
         val implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build()) as ClassName
         val simpleName = implementationClassName.simpleName.substringAfter('.')

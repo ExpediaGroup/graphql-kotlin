@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.generator
 
+import com.expediagroup.graphql.plugin.generator.exceptions.MultipleOperationsInFileException
 import com.expediagroup.graphql.plugin.generator.types.generateGraphQLObjectTypeSpec
 import com.expediagroup.graphql.plugin.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
@@ -81,7 +82,7 @@ class GraphQLClientGenerator(
 
         val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
         if (operationDefinitions.size > 1) {
-            throw RuntimeException("GraphQL client does not support query files with multiple operations")
+            throw MultipleOperationsInFileException
         }
 
         val fileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
