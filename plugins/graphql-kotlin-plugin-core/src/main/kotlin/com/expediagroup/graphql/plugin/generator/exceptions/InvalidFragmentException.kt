@@ -20,4 +20,4 @@ package com.expediagroup.graphql.plugin.generator.exceptions
  * Exception thrown when query file specifies invalid fragment.
  */
 internal class InvalidFragmentException(fragmentName: String, targetType: String) :
-    RuntimeException("invalid fragment - $fragmentName fragment not found or does not reference valid $targetType type")
+    RuntimeException("Invalid fragment, $fragmentName fragment not found or does not reference valid $targetType type")

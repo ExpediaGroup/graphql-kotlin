@@ -23,4 +23,4 @@ import graphql.language.Node
  * is used to mark unreachable code execution branches that ensures non null response from all valid branches.
  */
 internal class UnknownGraphQLTypeException(graphQLType: Node<*>) :
-    RuntimeException("client generation failure - attempting to generate code for unsupported GraphQL type $graphQLType")
+    RuntimeException("Client generation failure - attempting to generate code for unsupported GraphQL type $graphQLType")

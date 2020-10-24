@@ -20,4 +20,4 @@ package com.expediagroup.graphql.plugin.generator.exceptions
  * Exception thrown when query specifies deprecated fields but client configuration does not allow it.
  */
 internal class DeprecatedFieldsSelectedException(field: String, type: String) :
-    RuntimeException("query specifies deprecated field - $field in $type, update your query or update your configuration to allow usage of deprecated fields")
+    RuntimeException("Operation specifies deprecated field - $field in $type. Update your operation or update your configuration to allow usage of deprecated fields")

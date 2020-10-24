@@ -19,4 +19,4 @@ package com.expediagroup.graphql.plugin.generator.exceptions
 /**
  * Exception thrown when specified query file contains invalid selection set.
  */
-internal class InvalidSelectionSetException(message: String) : RuntimeException(message)
+internal class InvalidSelectionSetException(typeDefinitionName : String, typeName : String) : RuntimeException("Invalid selection set for $typeName - cannot select empty $typeDefinitionName")
