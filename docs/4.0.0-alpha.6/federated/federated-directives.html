@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Federated Directives · GraphQL Kotlin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="`graphql-kotlin` supports a number of directives that can be used to annotate a schema and direct certain behaviors."/><meta name="docsearch:version" content="4.0.0-alpha.6"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Federated Directives · GraphQL Kotlin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://expediagroup.github.io/graphql-kotlin/"/><meta property="og:description" content="`graphql-kotlin` supports a number of directives that can be used to annotate a schema and direct certain behaviors."/><meta property="og:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/graphql-kotlin/img/favicon.ico"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/graphql-kotlin/js/scrollSpy.js"></script><link rel="stylesheet" href="/graphql-kotlin/css/main.css"/><script src="/graphql-kotlin/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/graphql-kotlin/"><img class="logo" src="/graphql-kotlin/img/EG_Icon_White_on_Blue.png" alt="GraphQL Kotlin"/><h2 class="headerTitleWithLogo">GraphQL Kotlin</h2></a><a href="/graphql-kotlin/versions"><h3>4.0.0-alpha.6</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class="siteNavGroupActive"><a href="/graphql-kotlin/docs/4.0.0-alpha.6/getting-started" target="_self">Docs</a></li><li class=""><a href="https://github.com/ExpediaGroup/graphql-kotlin" target="_self">GitHub</a></li><li class=""><a href=" https://github.com/ExpediaGroup/graphql-kotlin#-contact" target="_self">Contact</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Federation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Introduction<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/getting-started">Getting Started</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/examples">Examples</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/graphql-java-comparison">GraphQL Java Comparison</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/blogs-and-videos">Blogs &amp; Videos</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Schema Generator<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/schema-generator-getting-started">Getting Started with the Schema Generator</a></li><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Writing schemas with Kotlin</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/nullability">Nullability</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/arguments">Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/scalars">Scalars</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/enums">Enums</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/lists">Lists</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/interfaces">Interfaces</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/unions">Unions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/annotations">Annotations</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/writing-schemas/nested-arguments">Nested Resolvers and Shared Arguments</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Customizing Schema</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/generator-config">Generator Configuration</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/documenting-fields">Documenting Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/excluding-fields">Excluding Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/renaming-fields">Renaming Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/directives">Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/deprecating-schema">Deprecating Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/customizing-schemas/advanced-features">Advanced Features</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Execution</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/fetching-data">Fetching Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/async-models">Async Models</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/exceptions">Exceptions and Partial Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/data-fetching-environment">Data Fetching Environment</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/contextual-data">Contextual Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/optional-undefined-arguments">Optional Undefined Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/subscriptions">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/schema-generator/execution/introspection">Introspection</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Federation<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/federated/apollo-federation">Apollo Federation</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/federated/federated-schemas">Federated Schemas</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/federated/federated-directives">Federated Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/federated/type-resolution">Federated Type Resolution</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Spring Server<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/spring-overview">Spring Server Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/spring-beans">Automatically Created Beans</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/spring-properties">Configuration Properties</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/spring-schema">Writing Schemas with Spring</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/spring-graphql-context">Generating GraphQL Context</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/http-request-response">Access the HTTP Request-Response</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/spring-server/subscriptions">Subscriptions</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">HTTP Client<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/client/client-overview">Client Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/client/client-features">Client Features</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/client/client-customization">Client Customization</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Build Plugins<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/plugins/gradle-plugin">Gradle Plugin</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/plugins/maven-plugin">Maven Plugin</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Contributors<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/4.0.0-alpha.6/contributors/release-proc">Releasing a new version</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/federated/federated-directives.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Federated Directives</h1></header><article><div><span><p><code>graphql-kotlin</code> supports a number of directives that can be used to annotate a schema and direct certain behaviors.</p>
+<p>For more details, see the <a href="https://www.apollographql.com/docs/apollo-server/federation/federation-spec/">Apollo Federation Specification</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="extends-directive"></a><a href="#extends-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@extends</code> directive</h2>
+<pre><code class="hljs css language-graphql">directive @extends on OBJECT |<span class="hljs-built_in"> INTERFACE
+</span></code></pre>
+<p><code>@extends</code> directive is used to represent type extensions in the schema. Native type extensions are currently
+unsupported by the <code>graphql-kotlin</code> libraries. Federated extended types should have corresponding <code>@key</code> directive
+defined that specifies primary key required to fetch the underlying object.</p>
+<p>Example</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@KeyDirective(FieldSet(<span class="hljs-meta-string">"id"</span>)</span>)
+<span class="hljs-meta">@ExtendsDirective</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Product</span></span>(<span class="hljs-meta">@ExternalDirective</span> <span class="hljs-keyword">val</span> id: String) {
+   <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">newFunctionality</span><span class="hljs-params">()</span></span>: String = <span class="hljs-string">"whatever"</span>
+}
+</code></pre>
+<p>will generate</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Product</span> @<span class="hljs-selector-tag">key</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"id"</span>) @<span class="hljs-selector-tag">extends</span> {
+  <span class="hljs-attribute">id</span>: String! <span class="hljs-variable">@external</span>
+  <span class="hljs-attribute">newFunctionality</span>: String!
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="external-directive"></a><a href="#external-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@external</code> directive</h2>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">directive</span> <span class="hljs-variable">@external</span> <span class="hljs-literal">on</span> FIELD_DEFINITION
+</code></pre>
+<p>The <code>@external</code> directive is used to mark a field as owned by another service. This allows service A to use fields from
+service B while also knowing at runtime the types of that field. <code>@external</code> directive is only applicable on federated
+extended types. All the external fields should either be referenced from the <code>@key</code>, <code>@requires</code> or <code>@provides</code>
+directives field sets.</p>
+<p>Example</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@KeyDirective(FieldSet(<span class="hljs-meta-string">"id"</span>)</span>)
+<span class="hljs-meta">@ExtendsDirective</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Product</span></span>(<span class="hljs-meta">@ExternalDirective</span> <span class="hljs-keyword">val</span> id: String) {
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">newFunctionality</span><span class="hljs-params">()</span></span>: String = <span class="hljs-string">"whatever"</span>
+}
+</code></pre>
+<p>will generate</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Product</span> @<span class="hljs-selector-tag">key</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"id"</span>) @<span class="hljs-selector-tag">extends</span> {
+  <span class="hljs-attribute">id</span>: String! <span class="hljs-variable">@external</span>
+  <span class="hljs-attribute">newFunctionality</span>: String!
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="key-directive"></a><a href="#key-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@key</code> directive</h2>
+<pre><code class="hljs css language-graphql">directive @key(fields: _FieldSet!) on OBJECT |<span class="hljs-built_in"> INTERFACE
+</span></code></pre>
+<p>The <code>@key</code> directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an
+object or interface. The specified field set can represent single field (e.g. <code>&quot;id&quot;</code>), multiple fields (e.g. <code>&quot;id name&quot;</code>) or
+nested selection sets (e.g. <code>&quot;id user { name }&quot;</code>).</p>
+<p>Key directives should be specified on the root base type as well as all the corresponding federated (i.e. extended)
+types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL
+interface/object. Federated extended types should also instrument all the referenced key fields with <code>@external</code>
+directive.</p>
+<blockquote>
+<p>NOTE: The Federation spec specifies that multiple @key directives can be applied on the field. The GraphQL spec has been recently changed to allow this behavior,
+but we are currently blocked and are tracking progress in <a href="https://github.com/ExpediaGroup/graphql-kotlin/issues/590">this issue</a>.</p>
+</blockquote>
+<p>Example</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@KeyDirective(FieldSet(<span class="hljs-meta-string">"id"</span>)</span>)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Product</span></span>(<span class="hljs-keyword">val</span> id: String, <span class="hljs-keyword">val</span> name: String)
+</code></pre>
+<p>will generate</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-keyword">type</span> Product <span class="hljs-meta">@key</span>(fields: <span class="hljs-string">"id"</span>) {
+  id: <span class="hljs-built_in">String</span>!
+  name: <span class="hljs-built_in">String</span>!
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="provides-directive"></a><a href="#provides-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@provides</code> directive</h2>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">directive</span> <span class="hljs-variable">@provides</span>(fields: _FieldSet!) <span class="hljs-literal">on</span> FIELD_DEFINITION
+</code></pre>
+<p>The <code>@provides</code> directive is used to annotate the expected returned field set from a field on a base type that is
+guaranteed to be selectable by the gateway. This allows you to expose only a subset of fields from the underlying
+federated object type to be selectable from the federated schema. Provided fields specified in the directive field set
+should correspond to a valid field on the underlying GraphQL interface/object type. <code>@provides</code> directive can only be
+used on fields returning federated extended objects.</p>
+<p>Example:
+We might want to expose only name of the user that submitted a review.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@KeyDirective(FieldSet(<span class="hljs-meta-string">"id"</span>)</span>)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Review</span></span>(<span class="hljs-keyword">val</span> id: String) {
+  <span class="hljs-meta">@ProvidesDirective(FieldSet(<span class="hljs-meta-string">"name"</span>)</span>)
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">user</span><span class="hljs-params">()</span></span>: User = getUserByReviewId(id)
+}
+
+<span class="hljs-meta">@KeyDirective(FieldSet(<span class="hljs-meta-string">"userId"</span>)</span>)
+<span class="hljs-meta">@ExtendsDirective</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span></span>(
+  <span class="hljs-meta">@ExternalDirective</span> <span class="hljs-keyword">val</span> userId: String,
+  <span class="hljs-meta">@ExternalDirective</span> <span class="hljs-keyword">val</span> name: String
+)
+</code></pre>
+<p>will generate</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Review</span> @<span class="hljs-selector-tag">key</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"id"</span>) {
+  <span class="hljs-attribute">id</span>: String!
+  <span class="hljs-attribute">user</span>: User! <span class="hljs-variable">@provides</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"name"</span>)
+}
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">User</span> @<span class="hljs-selector-tag">key</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"userId"</span>) @<span class="hljs-selector-tag">extends</span> {
+  <span class="hljs-attribute">userId</span>: String! <span class="hljs-variable">@external</span>
+  <span class="hljs-attribute">name</span>: String! <span class="hljs-variable">@external</span>
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="requires-directive"></a><a href="#requires-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@requires</code> directive</h2>
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">directive</span> <span class="hljs-variable">@requires</span>(fields: _FieldSet!) <span class="hljs-literal">on</span> FIELD_DEFINITON
+</code></pre>
+<p>The <code>@requires</code> directive is used to annotate the required input field set from a base type for a resolver. It is used
+to develop a query plan where the required fields may not be needed by the client, but the service may need additional
+information from other services. Required fields specified in the directive field set should correspond to a valid field
+on the underlying GraphQL interface/object and should be instrumented with <code>@external</code> directive. Since <code>@requires</code>
+directive specifies additional fields (besides the one specified in <code>@key</code> directive) that are required to resolve
+federated type fields, this directive can only be specified on federated extended objects fields.</p>
+<p>NOTE: fields specified in the <code>@requires</code> directive will only be specified in the queries that reference those fields.
+This is problematic for Kotlin as the non nullable primitive properties have to be initialized when they are declared.
+Simplest workaround for this problem is to initialize the underlying property to some dummy value that will be used if
+it is not specified. This approach might become problematic though as it might be impossible to determine whether fields
+was initialized with the default value or the invalid/default value was provided by the federated query. Another
+potential workaround is to rely on delegation to initialize the property after the object gets created. This will ensure
+that exception will be thrown if queries attempt to resolve fields that reference the uninitialized property.</p>
+<p>Example:</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-meta">@KeyDirective(FieldSet(<span class="hljs-meta-string">"id"</span>)</span>)
+<span class="hljs-meta">@ExtendsDirective</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Product</span></span>(<span class="hljs-meta">@ExternalDirective</span> <span class="hljs-keyword">val</span> id: String) {
+  <span class="hljs-meta">@ExternalDirective</span>
+  <span class="hljs-keyword">var</span> weight: <span class="hljs-built_in">Double</span> <span class="hljs-keyword">by</span> Delegates.notNull()
+
+  <span class="hljs-meta">@RequiresDirective(FieldSet(<span class="hljs-meta-string">"weight"</span>)</span>)
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">shippingCost</span><span class="hljs-params">()</span></span>: String { ... }
+
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">additionalInfo</span><span class="hljs-params">()</span></span>: String { ... }
+}
+</code></pre>
+<p>will generate</p>
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Product</span> @<span class="hljs-selector-tag">key</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"id"</span>) @<span class="hljs-selector-tag">extends</span>  {
+  <span class="hljs-attribute">additionalInfo</span>: String!
+  <span class="hljs-attribute">id</span>: String! <span class="hljs-variable">@external</span>
+  <span class="hljs-attribute">shippingCost</span>: String! <span class="hljs-variable">@requires</span>(<span class="hljs-attribute">fields </span>: <span class="hljs-string">"weight"</span>)
+  <span class="hljs-attribute">weight</span>: Float! <span class="hljs-variable">@external</span>
+}
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/4.0.0-alpha.6/federated/federated-schemas"><span class="arrow-prev">← </span><span>Federated Schemas</span></a><a class="docs-next button" href="/graphql-kotlin/docs/4.0.0-alpha.6/federated/type-resolution"><span>Federated Type Resolution</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#extends-directive"><code>@extends</code> directive</a></li><li><a href="#external-directive"><code>@external</code> directive</a></li><li><a href="#key-directive"><code>@key</code> directive</a></li><li><a href="#provides-directive"><code>@provides</code> directive</a></li><li><a href="#requires-directive"><code>@requires</code> directive</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2020 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: 'b23761059e66eefd46f5f665a2d4537a',
+                indexName: 'graphql-kotlin',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
