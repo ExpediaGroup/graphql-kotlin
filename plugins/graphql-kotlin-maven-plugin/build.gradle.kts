@@ -86,6 +86,7 @@ tasks {
         mustRunAfter("startWireMock")
     }
     val integrationTest by register("integrationTest") {
+        dependsOn(publishToMavenLocal)
         dependsOn(startWireMock.path)
         finalizedBy(stopWireMock.path)
         timeout.set(Duration.ofSeconds(500))
