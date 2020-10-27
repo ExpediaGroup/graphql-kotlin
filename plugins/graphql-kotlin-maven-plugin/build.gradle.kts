@@ -86,6 +86,11 @@ tasks {
         mustRunAfter("startWireMock")
     }
     val integrationTest by register("integrationTest") {
+        dependsOn(":graphql-kotlin-types:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-client:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-ktor-client:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-spring-client:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-plugin-core:publishToMavenLocal")
         dependsOn("publishToMavenLocal")
         dependsOn(startWireMock.path)
         finalizedBy(stopWireMock.path)
