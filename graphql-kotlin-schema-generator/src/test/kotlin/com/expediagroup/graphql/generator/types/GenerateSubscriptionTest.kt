@@ -18,19 +18,16 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.extensions.isSubclassOf
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLFieldDefinition
 import io.mockk.every
 import io.reactivex.rxjava3.core.Flowable
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.reactivestreams.Publisher
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -38,8 +35,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.reactivestreams.Publisher
 
-internal class GenerateSubscriptionTest : TypeTestHelper() {
+class GenerateSubscriptionTest : TypeTestHelper() {
 
     @Test
     fun `given an empty list, it should not return a field`() {
@@ -148,28 +150,45 @@ internal class GenerateSubscriptionTest : TypeTestHelper() {
         assertEquals(1, result?.fieldDefinitions?.size)
         assertNotNull(result?.fieldDefinitions?.find { it.name == "number" })
     }
+
+    @Test
+    fun `give a valid subscription class with directives, it should only apply the valid locations`() {
+        val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
+        val result = assertNotNull(generateSubscriptions(generator, subscriptions))
+
+        assertEquals(1, result.directives.size)
+        assertEquals("mySubscriptionDirective", result.directives.first().name)
+    }
+
+    @MySubscriptionDirective
+    @MyInterfaceDirective
+    class MyPublicTestSubscription {
+        fun counter(): Publisher<Int> = Flowable.just(1)
+
+        fun flowabelCounter(): Flowable<Int> = Flowable.just(1)
+
+        fun filterMe(): Publisher<Int> = Flowable.just(2)
+    }
+
+    class MyInvalidSubscriptionClass {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun number(): Int = 1
+    }
+
+    class MyCustomSubscriptionClass {
+        @Suppress("Detekt.FunctionOnlyReturningConstant")
+        fun number(): Flow<Int> = flowOf(1)
+    }
+
+    private class MyPrivateTestSubscription {
+        fun counter(): Publisher<Int> = Flowable.just(3)
+    }
+
+    class MyEmptyTestSubscription
+
+    @GraphQLDirective(locations = [DirectiveLocation.OBJECT])
+    annotation class MySubscriptionDirective
+
+    @GraphQLDirective(locations = [DirectiveLocation.INTERFACE])
+    annotation class MyInterfaceDirective
 }
-
-class MyPublicTestSubscription {
-    fun counter(): Publisher<Int> = Flowable.just(1)
-
-    fun flowabelCounter(): Flowable<Int> = Flowable.just(1)
-
-    fun filterMe(): Publisher<Int> = Flowable.just(2)
-}
-
-class MyInvalidSubscriptionClass {
-    @Suppress("Detekt.FunctionOnlyReturningConstant")
-    fun number(): Int = 1
-}
-
-class MyCustomSubscriptionClass {
-    @Suppress("Detekt.FunctionOnlyReturningConstant")
-    fun number(): Flow<Int> = flowOf(1)
-}
-
-private class MyPrivateTestSubscription {
-    fun counter(): Publisher<Int> = Flowable.just(3)
-}
-
-class MyEmptyTestSubscription

@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.safeCast
+import graphql.introspection.Introspection
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
@@ -29,7 +30,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import com.expediagroup.graphql.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
-internal fun generateDirectives(generator: SchemaGenerator, element: KAnnotatedElement, parentClass: KClass<*>? = null): List<GraphQLDirective> {
+internal fun generateDirectives(
+    generator: SchemaGenerator,
+    element: KAnnotatedElement,
+    location: Introspection.DirectiveLocation,
+    parentClass: KClass<*>? = null
+): List<GraphQLDirective> {
     val annotations = when {
         element is KProperty<*> && parentClass != null -> element.getPropertyAnnotations(parentClass)
         else -> element.annotations
@@ -37,12 +43,14 @@ internal fun generateDirectives(generator: SchemaGenerator, element: KAnnotatedE
 
     return annotations
         .mapNotNull { it.getDirectiveInfo() }
+        .filter { it.directiveAnnotation.locations.contains(location) }
         .map { getDirective(generator, it) }
 }
 
-internal fun generateFieldDirectives(generator: SchemaGenerator, field: Field): List<GraphQLDirective> =
+internal fun generateFieldDirectives(generator: SchemaGenerator, field: Field, location: Introspection.DirectiveLocation): List<GraphQLDirective> =
     field.annotations
         .mapNotNull { it.getDirectiveInfo() }
+        .filter { it.directiveAnnotation.locations.contains(location) }
         .map { getDirective(generator, it) }
 
 private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLDirective {
