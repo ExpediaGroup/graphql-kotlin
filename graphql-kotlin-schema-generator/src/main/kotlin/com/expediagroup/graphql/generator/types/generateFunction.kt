@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getValidArguments
 import com.expediagroup.graphql.generator.extensions.safeCast
 import com.expediagroup.graphql.generator.types.utils.getWrappedReturnType
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -40,7 +41,7 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
         builder.withDirective(deprecatedDirectiveWithReason(it))
     }
 
-    generateDirectives(generator, fn).forEach {
+    generateDirectives(generator, fn, DirectiveLocation.FIELD_DEFINITION).forEach {
         builder.withDirective(it)
     }
 

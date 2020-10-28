@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.safeCast
 import graphql.TypeResolutionEnvironment
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLUnionType
@@ -33,7 +34,7 @@ internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): Graph
     builder.name(kClass.getSimpleName())
     builder.description(kClass.getGraphQLDescription())
 
-    generateDirectives(generator, kClass).forEach {
+    generateDirectives(generator, kClass, DirectiveLocation.UNION).forEach {
         builder.withDirective(it)
     }
 

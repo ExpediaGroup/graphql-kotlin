@@ -27,6 +27,7 @@ import com.expediagroup.graphql.generator.extensions.isListType
 import com.expediagroup.graphql.generator.extensions.isUnion
 import com.expediagroup.graphql.generator.extensions.safeCast
 import com.expediagroup.graphql.generator.extensions.unwrapOptionalInputType
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -54,7 +55,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
         .description(parameter.getGraphQLDescription())
         .type(graphQLType.safeCast())
 
-    generateDirectives(generator, parameter).forEach {
+    generateDirectives(generator, parameter, DirectiveLocation.ARGUMENT_DEFINITION).forEach {
         builder.withDirective(it)
     }
 

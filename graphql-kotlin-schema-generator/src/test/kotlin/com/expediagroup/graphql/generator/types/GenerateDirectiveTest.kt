@@ -23,12 +23,13 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.test.utils.SimpleDirective
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Test
+import graphql.introspection.Introspection.DirectiveLocation
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Test
 
 class GenerateDirectiveTest {
 
@@ -51,11 +52,25 @@ class GenerateDirectiveTest {
         TWO
     }
 
+    @DirectiveOnInputObjectOnly
+    @DirectiveOnObjectOnly
+    @DirectiveOnFieldDefinitionOnly
+    data class MyExampleObject(val value: String)
+
     @GraphQLDirective
     annotation class DirectiveWithEnum(val type: Type)
 
     @GraphQLDirective
     annotation class DirectiveWithClass(val kclass: KClass<*>)
+
+    @GraphQLDirective(locations = [DirectiveLocation.INPUT_OBJECT])
+    annotation class DirectiveOnInputObjectOnly
+
+    @GraphQLDirective(locations = [DirectiveLocation.OBJECT])
+    annotation class DirectiveOnObjectOnly
+
+    @GraphQLDirective(locations = [DirectiveLocation.FIELD_DEFINITION])
+    annotation class DirectiveOnFieldDefinitionOnly
 
     class MyClass {
 
@@ -81,6 +96,12 @@ class GenerateDirectiveTest {
 
         @DirectiveWithIgnoredArgs(string = "foo", ignoreMe = "bar")
         fun directiveWithIgnoredArgs(string: String) = string
+
+        // While all of these annotations are valid kotlin code, only the ones with valid locations should be added
+        @DirectiveOnFieldDefinitionOnly
+        @DirectiveOnObjectOnly
+        @DirectiveOnInputObjectOnly
+        fun invalidDirectives(string: String) = string
     }
 
     data class MyClassWithConstructorArgs(
@@ -94,46 +115,46 @@ class GenerateDirectiveTest {
     @Test
     fun `no annotation`() {
         val noAnnotation: KFunction<String> = MyClass::noAnnotation
-        assertTrue(generateDirectives(basicGenerator, noAnnotation).isEmpty().isTrue())
+        assertTrue(generateDirectives(basicGenerator, noAnnotation, DirectiveLocation.FIELD_DEFINITION).isEmpty().isTrue())
     }
 
     @Test
     fun `no directive`() {
         val noDirective: KFunction<String> = MyClass::noDirective
-        assertTrue(generateDirectives(basicGenerator, noDirective).isEmpty().isTrue())
+        assertTrue(generateDirectives(basicGenerator, noDirective, DirectiveLocation.FIELD_DEFINITION).isEmpty().isTrue())
     }
 
     @Test
     fun `has directive`() {
         val simpleDirective: KFunction<String> = MyClass::simpleDirective
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, simpleDirective).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, simpleDirective, DirectiveLocation.FIELD_DEFINITION).size)
     }
 
     @Test
     fun `has directive with string`() {
         val directiveWithString: KFunction<String> = MyClass::directiveWithString
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithString).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithString, DirectiveLocation.FIELD_DEFINITION).size)
     }
 
     @Test
     fun `has directive with enum`() {
         val directiveWithEnum: KFunction<String> = MyClass::directiveWithEnum
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithEnum).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithEnum, DirectiveLocation.FIELD_DEFINITION).size)
     }
 
     @Test
     fun `has directive with class`() {
         val directiveWithClass: KFunction<String> = MyClass::directiveWithClass
-        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithClass).size)
+        assertEquals(expected = 1, actual = generateDirectives(basicGenerator, directiveWithClass, DirectiveLocation.FIELD_DEFINITION).size)
     }
 
     @Test
     fun `directives are only added to the schema once`() {
         val initialCount = basicGenerator.directives.size
         val simpleDirective: KFunction<String> = MyClass::simpleDirective
-        val firstInvocation = generateDirectives(basicGenerator, simpleDirective)
+        val firstInvocation = generateDirectives(basicGenerator, simpleDirective, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(1, firstInvocation.size)
-        val secondInvocation = generateDirectives(basicGenerator, simpleDirective)
+        val secondInvocation = generateDirectives(basicGenerator, simpleDirective, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(1, secondInvocation.size)
         assertEquals(firstInvocation.first(), secondInvocation.first())
         assertEquals(initialCount + 1, basicGenerator.directives.size)
@@ -164,8 +185,8 @@ class GenerateDirectiveTest {
         val initialCount = basicGenerator.directives.size
         val directiveWithString: KFunction<String> = MyClass::directiveWithString
         val directiveWithAnotherString: KFunction<String> = MyClass::directiveWithAnotherString
-        val directivesOnFirstField = generateDirectives(basicGenerator, directiveWithString)
-        val directivesOnSecondField = generateDirectives(basicGenerator, directiveWithAnotherString)
+        val directivesOnFirstField = generateDirectives(basicGenerator, directiveWithString, DirectiveLocation.FIELD_DEFINITION)
+        val directivesOnSecondField = generateDirectives(basicGenerator, directiveWithAnotherString, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(expected = 1, actual = directivesOnFirstField.size)
         assertEquals(expected = 1, actual = directivesOnSecondField.size)
 
@@ -181,31 +202,46 @@ class GenerateDirectiveTest {
 
     @Test
     fun `directives on constructor arguments can be used with or without annotation prefix`() {
-        val noDirectiveResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noDirective)
+        val noDirectiveResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noDirective, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(expected = 0, actual = noDirectiveResult.size)
 
-        val propertyPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::propertyPrefix)
+        val propertyPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::propertyPrefix, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(expected = 1, actual = propertyPrefixResult.size)
         assertEquals(expected = "simpleDirective", actual = propertyPrefixResult.first().name)
 
-        val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, MyClassWithConstructorArgs::class)
+        val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, DirectiveLocation.FIELD_DEFINITION, MyClassWithConstructorArgs::class)
         assertEquals(expected = 1, actual = noPrefixResult.size)
         assertEquals(expected = "simpleDirective", actual = noPrefixResult.first().name)
     }
 
     @Test
     fun `directives on constructor arguments only works with parent class`() {
-        val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, null)
+        val noPrefixResult = generateDirectives(basicGenerator, MyClassWithConstructorArgs::noPrefix, DirectiveLocation.FIELD_DEFINITION, null)
         assertEquals(expected = 0, actual = noPrefixResult.size)
     }
 
     @Test
     fun `exlude directive arguments @GraphQLIgnore`() {
         val directiveWithIgnoredArgs: KFunction<String> = MyClass::directiveWithIgnoredArgs
-        val directives = generateDirectives(basicGenerator, directiveWithIgnoredArgs)
+        val directives = generateDirectives(basicGenerator, directiveWithIgnoredArgs, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(expected = 1, actual = directives.size)
         assertEquals(expected = 1, actual = directives.first().arguments.size)
         assertEquals(expected = "string", actual = directives.first().arguments.first().name)
+    }
+
+    @Test
+    fun `exlude directives with invalid locations`() {
+        val objectDirectives = generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.OBJECT)
+        assertEquals(expected = 1, actual = objectDirectives.size)
+        assertEquals("directiveOnObjectOnly", objectDirectives.first().name)
+
+        val inputObjectDirectives = generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.INPUT_OBJECT)
+        assertEquals(expected = 1, actual = inputObjectDirectives.size)
+        assertEquals("directiveOnInputObjectOnly", inputObjectDirectives.first().name)
+
+        val fieldDirectives = generateDirectives(basicGenerator, MyClass::invalidDirectives, DirectiveLocation.FIELD_DEFINITION)
+        assertEquals(expected = 1, actual = fieldDirectives.size)
+        assertEquals("directiveOnFieldDefinitionOnly", fieldDirectives.first().name)
     }
 
     companion object {
