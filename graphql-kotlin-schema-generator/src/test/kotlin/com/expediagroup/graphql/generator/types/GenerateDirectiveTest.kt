@@ -153,10 +153,10 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `directives are valid on fields (enum values)`() {
+    fun `directives are valid on enum values`() {
         val field = Type::class.java.getField("ONE")
 
-        val directives = generateFieldDirectives(basicGenerator, field, DirectiveLocation.ENUM_VALUE)
+        val directives = generateEnumValueDirectives(basicGenerator, field)
 
         assertEquals(2, directives.size)
         assertEquals("directiveWithString", directives.first().name)
@@ -167,7 +167,7 @@ class GenerateDirectiveTest {
     fun `directives are empty on an enum with no valid annotations`() {
         val field = Type::class.java.getField("TWO")
 
-        val directives = generateFieldDirectives(basicGenerator, field, DirectiveLocation.ENUM_VALUE)
+        val directives = generateEnumValueDirectives(basicGenerator, field)
 
         assertEquals(0, directives.size)
     }

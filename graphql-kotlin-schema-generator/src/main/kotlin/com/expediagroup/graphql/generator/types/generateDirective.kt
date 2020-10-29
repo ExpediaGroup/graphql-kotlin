@@ -21,7 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.safeCast
-import graphql.introspection.Introspection
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
@@ -33,7 +33,7 @@ import com.expediagroup.graphql.annotations.GraphQLDirective as GraphQLDirective
 internal fun generateDirectives(
     generator: SchemaGenerator,
     element: KAnnotatedElement,
-    location: Introspection.DirectiveLocation,
+    location: DirectiveLocation,
     parentClass: KClass<*>? = null
 ): List<GraphQLDirective> {
     val annotations = when {
@@ -47,10 +47,10 @@ internal fun generateDirectives(
         .map { getDirective(generator, it) }
 }
 
-internal fun generateFieldDirectives(generator: SchemaGenerator, field: Field, location: Introspection.DirectiveLocation): List<GraphQLDirective> =
+internal fun generateEnumValueDirectives(generator: SchemaGenerator, field: Field): List<GraphQLDirective> =
     field.annotations
         .mapNotNull { it.getDirectiveInfo() }
-        .filter { it.directiveAnnotation.locations.contains(location) }
+        .filter { it.directiveAnnotation.locations.contains(DirectiveLocation.ENUM_VALUE) }
         .map { getDirective(generator, it) }
 
 private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLDirective {

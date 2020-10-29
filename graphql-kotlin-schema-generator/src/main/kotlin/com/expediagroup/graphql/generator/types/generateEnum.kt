@@ -52,7 +52,7 @@ private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kC
     valueBuilder.name(name)
     valueBuilder.value(name)
 
-    generateFieldDirectives(generator, valueField, DirectiveLocation.ENUM_VALUE).forEach {
+    generateEnumValueDirectives(generator, valueField).forEach {
         valueBuilder.withDirective(it)
     }
 
