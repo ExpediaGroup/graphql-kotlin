@@ -21,6 +21,7 @@ import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLObjectType
 
 internal fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelObject>): GraphQLObjectType {
@@ -32,7 +33,7 @@ internal fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelO
             throw InvalidQueryTypeException(query.kClass)
         }
 
-        generateDirectives(generator, query.kClass).forEach {
+        generateDirectives(generator, query.kClass, DirectiveLocation.OBJECT).forEach {
             queryBuilder.withDirective(it)
         }
 

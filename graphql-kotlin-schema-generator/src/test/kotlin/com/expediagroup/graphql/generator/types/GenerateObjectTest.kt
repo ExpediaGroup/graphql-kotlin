@@ -19,13 +19,14 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLDirective
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.test.utils.InputObjectOnlyDirective
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import org.junit.jupiter.api.Test
 
 class GenerateObjectTest : TypeTestHelper() {
 
@@ -34,6 +35,7 @@ class GenerateObjectTest : TypeTestHelper() {
 
     @GraphQLDescription("The truth")
     @ObjectDirective("Don't worry")
+    @InputObjectOnlyDirective
     private class BeHappy
 
     @GraphQLName("BeHappyRenamed")
@@ -67,7 +69,7 @@ class GenerateObjectTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Test custom directive`() {
+    fun `Objects should only have directives with OBJECT in their locations`() {
         val result = generateObject(generator, BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
         assertEquals(1, result.directives.size)

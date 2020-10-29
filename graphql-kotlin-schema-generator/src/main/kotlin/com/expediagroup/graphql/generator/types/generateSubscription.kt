@@ -21,6 +21,7 @@ import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLObjectType
 
 internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: List<TopLevelObject>): GraphQLObjectType? {
@@ -36,6 +37,10 @@ internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: Li
 
         if (kClass.isNotPublic()) {
             throw InvalidSubscriptionTypeException(kClass)
+        }
+
+        generateDirectives(generator, subscription.kClass, DirectiveLocation.OBJECT).forEach {
+            subscriptionBuilder.withDirective(it)
         }
 
         kClass.getValidFunctions(generator.config.hooks)

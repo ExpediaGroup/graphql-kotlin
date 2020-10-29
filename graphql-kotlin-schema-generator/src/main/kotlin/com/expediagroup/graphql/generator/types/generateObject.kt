@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.extensions.safeCast
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
@@ -37,7 +38,7 @@ internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): Grap
     builder.name(name)
     builder.description(kClass.getGraphQLDescription())
 
-    generateDirectives(generator, kClass).forEach {
+    generateDirectives(generator, kClass, DirectiveLocation.OBJECT).forEach {
         builder.withDirective(it)
     }
 

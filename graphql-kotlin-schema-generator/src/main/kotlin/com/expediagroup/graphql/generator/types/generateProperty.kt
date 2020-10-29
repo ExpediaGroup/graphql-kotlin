@@ -23,6 +23,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.safeCast
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
@@ -43,7 +44,7 @@ internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, pa
         fieldBuilder.withDirective(deprecatedDirectiveWithReason(it))
     }
 
-    generateDirectives(generator, prop, parentClass).forEach {
+    generateDirectives(generator, prop, DirectiveLocation.FIELD_DEFINITION, parentClass).forEach {
         fieldBuilder.withDirective(it)
     }
 

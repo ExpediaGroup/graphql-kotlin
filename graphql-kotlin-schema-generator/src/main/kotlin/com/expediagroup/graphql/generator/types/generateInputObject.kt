@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.extensions.getSimpleName
 import com.expediagroup.graphql.generator.extensions.getValidProperties
 import com.expediagroup.graphql.generator.extensions.safeCast
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInputObjectType
 import kotlin.reflect.KClass
 
@@ -30,7 +31,7 @@ internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>):
     builder.name(kClass.getSimpleName(isInputClass = true))
     builder.description(kClass.getGraphQLDescription())
 
-    generateDirectives(generator, kClass).forEach {
+    generateDirectives(generator, kClass, DirectiveLocation.INPUT_OBJECT).forEach {
         builder.withDirective(it)
     }
 
