@@ -19,22 +19,25 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
 import com.expediagroup.graphql.test.utils.CustomDirective
+import com.expediagroup.graphql.test.utils.InterfaceOnlyDirective
 import com.expediagroup.graphql.test.utils.SimpleDirective
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.Test
 
 class GenerateEnumTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("MyTestEnum description")
     @SimpleDirective
+    @InterfaceOnlyDirective
     enum class MyTestEnum {
         @GraphQLDescription("enum 'ONE' description")
         @SimpleDirective
+        @InterfaceOnlyDirective
         ONE,
 
         @GraphQLDescription("enum 'TWO' description")
@@ -120,8 +123,10 @@ class GenerateEnumTest : TypeTestHelper() {
     @Test
     fun `Enum values can have a multiple directives`() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
-        assertEquals(1, gqlEnum.values.first().directives.size)
-        assertEquals("simpleDirective", gqlEnum.values.first().directives.first().name)
+
+        val enumValuesDirectives = assertNotNull(gqlEnum.values.find { it.name == "ONE" }?.directives)
+        assertEquals(1, enumValuesDirectives.size)
+        assertEquals("simpleDirective", enumValuesDirectives.first().name)
     }
 
     @Test

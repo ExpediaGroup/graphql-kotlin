@@ -18,15 +18,17 @@ package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.test.utils.ObjectOnlyDirective
 import com.expediagroup.graphql.test.utils.SimpleDirective
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.Test
 
-internal class GenerateInputObjectTest : TypeTestHelper() {
+class GenerateInputObjectTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
     @SimpleDirective
+    @ObjectOnlyDirective
     private class InputClass {
         @SimpleDirective
         val myField: String = "car"
@@ -65,7 +67,7 @@ internal class GenerateInputObjectTest : TypeTestHelper() {
     }
 
     @Test
-    fun `directives should be on input objects`() {
+    fun `directives with locations as INPUT_OBJECT should only be added`() {
         val result = generateInputObject(generator, InputClass::class)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.first().name)

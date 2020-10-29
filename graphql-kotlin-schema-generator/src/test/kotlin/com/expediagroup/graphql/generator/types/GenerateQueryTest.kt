@@ -23,16 +23,17 @@ import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.extensions.isTrue
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.test.utils.InterfaceOnlyDirective
 import com.expediagroup.graphql.test.utils.SimpleDirective
 import graphql.schema.GraphQLFieldDefinition
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 @Suppress("Detekt.NestedClassesVisibility")
 internal class GenerateQueryTest : TypeTestHelper() {
@@ -49,6 +50,7 @@ internal class GenerateQueryTest : TypeTestHelper() {
         fun echo(msg: String) = msg
     }
 
+    @InterfaceOnlyDirective
     @SimpleDirective
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
@@ -103,7 +105,7 @@ internal class GenerateQueryTest : TypeTestHelper() {
     }
 
     @Test
-    fun `query objects can have directives`() {
+    fun `query objects should only have directive with OBJECT as their location`() {
         val queries = listOf(TopLevelObject(QueryObject()))
         val result = generateQueries(generator, queries)
         assertEquals(expected = 1, actual = result.directives.size)
