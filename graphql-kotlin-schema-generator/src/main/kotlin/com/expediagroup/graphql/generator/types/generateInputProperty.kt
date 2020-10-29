@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.extensions.getPropertyName
 import com.expediagroup.graphql.generator.extensions.safeCast
 import com.expediagroup.graphql.generator.extensions.unwrapOptionalInputType
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputType
 import kotlin.reflect.KClass
@@ -38,7 +39,7 @@ internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*
     builder.name(prop.getPropertyName(parentClass))
     builder.type(graphQLInputType)
 
-    generateDirectives(generator, prop, parentClass).forEach {
+    generateDirectives(generator, prop, DirectiveLocation.INPUT_FIELD_DEFINITION, parentClass).forEach {
         builder.withDirective(it)
     }
 

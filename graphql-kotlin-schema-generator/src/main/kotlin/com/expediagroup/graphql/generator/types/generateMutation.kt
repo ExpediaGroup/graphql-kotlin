@@ -21,6 +21,7 @@ import com.expediagroup.graphql.exceptions.InvalidMutationTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.extensions.isNotPublic
+import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLObjectType
 
 internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLevelObject>): GraphQLObjectType? {
@@ -37,7 +38,7 @@ internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLe
             throw InvalidMutationTypeException(mutation.kClass)
         }
 
-        generateDirectives(generator, mutation.kClass).forEach {
+        generateDirectives(generator, mutation.kClass, DirectiveLocation.OBJECT).forEach {
             mutationBuilder.withDirective(it)
         }
 
