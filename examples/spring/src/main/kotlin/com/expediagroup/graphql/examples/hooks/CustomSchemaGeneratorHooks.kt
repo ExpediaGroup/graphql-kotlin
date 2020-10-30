@@ -68,16 +68,24 @@ internal val graphqlUUIDType = GraphQLScalarType.newScalar()
     .build()
 
 private object UUIDCoercing : Coercing<UUID, String> {
-    override fun parseValue(input: Any?): UUID = UUID.fromString(
-        serialize(
-            input
-        )
-    )
-
-    override fun parseLiteral(input: Any?): UUID? {
-        val uuidString = (input as? StringValue)?.value
-        return UUID.fromString(uuidString)
+    override fun parseValue(input: Any): UUID = runCatching {
+        UUID.fromString(serialize(input))
+    }.getOrElse {
+        throw CoercingParseValueException("Expected valid UUID but was $input")
     }
 
-    override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+    override fun parseLiteral(input: Any): UUID? {
+        val uuidString = (input as? StringValue)?.value
+        return runCatching {
+            UUID.fromString(uuidString)
+        }.getOrElse {
+            throw CoercingParseLiteralException("Expected valid UUID literal but was $uuidString")
+        }
+    }
+
+    override fun serialize(dataFetcherResult: Any): String = runCatching {
+        dataFetcherResult.toString()
+    }.getOrElse {
+        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+    }
 }

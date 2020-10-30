@@ -83,13 +83,13 @@ val customObjectMapper = jacksonObjectMapper()
 val client = GraphQLClient(url = URL("http://localhost:8080/graphql"), mapper = customObjectMapper)
 ```
 
-## Deprecated Field Usage
+## Deprecated Field Usage
 
 Build plugins will automatically fail generation of a client if any of the specified query files are referencing
 deprecated fields. This ensures that your clients have to explicitly opt-in into deprecated usage by specifying
 `allowDeprecatedFields` configuration option.
 
-## Custom GraphQL Scalars
+## Custom GraphQL Scalars
 
 By default, custom GraphQL scalars are serialized and [type-aliased](https://kotlinlang.org/docs/reference/type-aliases.html)
 to a String. GraphQL Kotlin plugins also support custom serialization based on provided configuration.
@@ -104,8 +104,8 @@ import com.expediagroup.graphql.client.converter.ScalarConverter
 import java.util.UUID
 
 class UUIDScalarConverter : ScalarConverter<UUID> {
-    override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
-    override fun toJson(value: UUID): String = value.toString()
+    override fun toScalar(rawValue: Any ): UUID = UUID.fromString(rawValue)
+    override fun toJson(value: UUID): Any = value.toString()
 }
 ```
 
