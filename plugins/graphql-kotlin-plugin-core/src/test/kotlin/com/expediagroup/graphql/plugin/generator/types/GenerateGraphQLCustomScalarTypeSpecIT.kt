@@ -35,6 +35,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
                 import io.ktor.client.request.HttpRequestBuilder
+                import kotlin.Any
                 import kotlin.String
                 import kotlin.Unit
                 import kotlin.jvm.JvmStatic
@@ -117,6 +118,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
                 import io.ktor.client.request.HttpRequestBuilder
+                import kotlin.Any
                 import kotlin.Int
                 import kotlin.String
                 import kotlin.Unit
@@ -146,7 +148,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
 
                       @JsonCreator
                       @JvmStatic
-                      fun create(rawValue: String) = UUID(converter.toScalar(rawValue))
+                      fun create(rawValue: Any) = UUID(converter.toScalar(rawValue))
                     }
                   }
 
