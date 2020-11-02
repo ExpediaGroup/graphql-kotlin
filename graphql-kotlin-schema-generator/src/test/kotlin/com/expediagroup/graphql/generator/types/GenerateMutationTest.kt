@@ -19,6 +19,8 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.exceptions.ConflictingFieldsException
 import com.expediagroup.graphql.exceptions.EmptyMutationTypeException
 import com.expediagroup.graphql.exceptions.InvalidMutationTypeException
 import com.expediagroup.graphql.generator.extensions.isTrue
@@ -50,6 +52,15 @@ internal class GenerateMutationTest : TypeTestHelper() {
     class MutationObject {
         @GraphQLDescription("A GraphQL mutation method")
         fun mutation(value: Int) = value
+    }
+
+    class MutationObjectWithSameFun {
+        fun mutation(value: Int) = value
+    }
+
+    class MutationObjectWithSameFieldNameDescription {
+        @GraphQLName("mutation")
+        fun mutationNotSameName(value: Int) = value
     }
 
     class NoFunctions {
@@ -107,5 +118,21 @@ internal class GenerateMutationTest : TypeTestHelper() {
         val result = generateMutations(generator, mutations)
         assertEquals(expected = 1, actual = result?.directives?.size)
         assertEquals(expected = "simpleDirective", actual = result?.directives?.first()?.name)
+    }
+
+    @Test
+    fun `verify builder fails if plural mutations have the function names`() {
+        val mutations = listOf(TopLevelObject(MutationObject()), TopLevelObject(MutationObjectWithSameFun()))
+        assertThrows<ConflictingFieldsException> {
+            generateMutations(generator, mutations)
+        }
+    }
+
+    @Test
+    fun `verify builder fails if plural mutations have the same field name from field name description`() {
+        val mutations = listOf(TopLevelObject(MutationObject()), TopLevelObject(MutationObjectWithSameFieldNameDescription()))
+        assertThrows<ConflictingFieldsException> {
+            generateMutations(generator, mutations)
+        }
     }
 }

@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.exceptions.ConflictingFieldsException
 import com.expediagroup.graphql.exceptions.EmptySubscriptionTypeException
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.generator.extensions.getTypeOfFirstArgument
@@ -160,6 +161,14 @@ class GenerateSubscriptionTest : TypeTestHelper() {
         assertEquals("mySubscriptionDirective", result.directives.first().name)
     }
 
+    @Test
+    fun `verify builder fails if plural subscriptions have the same field names`() {
+        val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()), TopLevelObject(MyPublicTestSubscriptionWithSameFun()))
+        assertThrows<ConflictingFieldsException> {
+            generateSubscriptions(generator, subscriptions)
+        }
+    }
+
     @MySubscriptionDirective
     @MyInterfaceDirective
     class MyPublicTestSubscription {
@@ -168,6 +177,10 @@ class GenerateSubscriptionTest : TypeTestHelper() {
         fun flowabelCounter(): Flowable<Int> = Flowable.just(1)
 
         fun filterMe(): Publisher<Int> = Flowable.just(2)
+    }
+
+    class MyPublicTestSubscriptionWithSameFun {
+        fun counter(): Publisher<Int> = Flowable.just(1)
     }
 
     class MyInvalidSubscriptionClass {

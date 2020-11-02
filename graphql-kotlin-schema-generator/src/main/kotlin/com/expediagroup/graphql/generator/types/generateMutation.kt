@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.exceptions.ConflictingFieldsException
 import com.expediagroup.graphql.exceptions.InvalidMutationTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
@@ -46,6 +47,9 @@ internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLe
             .forEach {
                 val function = generateFunction(generator, it, generator.config.topLevelNames.mutation, mutation.obj)
                 val functionFromHook = generator.config.hooks.didGenerateMutationField(mutation.kClass, it, function)
+                if (mutationBuilder.hasField(functionFromHook.name)) {
+                    throw ConflictingFieldsException("Mutation(class: ${mutation.kClass})", it.name)
+                }
                 mutationBuilder.field(functionFromHook)
             }
     }

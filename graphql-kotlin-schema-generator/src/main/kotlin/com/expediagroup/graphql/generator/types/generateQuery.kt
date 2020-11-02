@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.exceptions.ConflictingFieldsException
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
@@ -41,6 +42,9 @@ internal fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelO
             .forEach {
                 val function = generateFunction(generator, it, generator.config.topLevelNames.query, query.obj)
                 val functionFromHook = generator.config.hooks.didGenerateQueryField(query.kClass, it, function)
+                if (queryBuilder.hasField(functionFromHook.name)) {
+                    throw ConflictingFieldsException("Query(class: ${query.kClass})", it.name)
+                }
                 queryBuilder.field(functionFromHook)
             }
     }
