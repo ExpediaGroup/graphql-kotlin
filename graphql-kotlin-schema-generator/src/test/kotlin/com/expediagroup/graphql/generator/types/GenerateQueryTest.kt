@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.types
 import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.exceptions.ConflictingFieldsException
 import com.expediagroup.graphql.exceptions.EmptyQueryTypeException
 import com.expediagroup.graphql.exceptions.InvalidQueryTypeException
 import com.expediagroup.graphql.generator.extensions.isTrue
@@ -52,6 +53,10 @@ internal class GenerateQueryTest : TypeTestHelper() {
     @SimpleDirective
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
+        fun query(value: Int) = value
+    }
+
+    class QueryObjectWithSameFun {
         fun query(value: Int) = value
     }
 
@@ -108,5 +113,13 @@ internal class GenerateQueryTest : TypeTestHelper() {
         val result = generateQueries(generator, queries)
         assertEquals(expected = 1, actual = result.directives.size)
         assertEquals(expected = "simpleDirective", actual = result.directives.first().name)
+    }
+
+    @Test
+    fun `verify builder fails if plural queries the have same field names`() {
+        val queries = listOf(TopLevelObject(QueryObject()), TopLevelObject(QueryObjectWithSameFun()))
+        assertThrows<ConflictingFieldsException> {
+            generateQueries(generator, queries)
+        }
     }
 }

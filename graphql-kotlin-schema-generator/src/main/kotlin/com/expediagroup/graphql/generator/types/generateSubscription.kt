@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.types
 
 import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.exceptions.ConflictingFieldsException
 import com.expediagroup.graphql.exceptions.InvalidSubscriptionTypeException
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.getValidFunctions
@@ -51,6 +52,9 @@ internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: Li
 
                 val function = generateFunction(generator, it, generator.config.topLevelNames.subscription, subscription.obj)
                 val functionFromHook = generator.config.hooks.didGenerateSubscriptionField(kClass, it, function)
+                if (subscriptionBuilder.hasField(functionFromHook.name)) {
+                    throw ConflictingFieldsException("Subscription(class: ${subscription.kClass})", it.name)
+                }
                 subscriptionBuilder.field(functionFromHook)
             }
     }
