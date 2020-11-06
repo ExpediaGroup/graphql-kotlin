@@ -25,8 +25,8 @@ import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLUnionType
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.Test
 
 class ValidateFieldSetKtTest {
 
@@ -52,6 +52,7 @@ class ValidateFieldSetKtTest {
     fun `@key returns an error on null targetField`() {
         val errors = mutableListOf<String>()
         validateFieldSet(
+            fieldName = "foo",
             targetField = null,
             extendedType = false,
             errors = errors,
@@ -59,7 +60,7 @@ class ValidateFieldSetKtTest {
         )
 
         assertEquals(1, errors.size)
-        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - field set specifies fields that do not exist", errors.first())
+        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - field set specifies field that does not exist, field=foo", errors.first())
     }
 
     /**
@@ -76,6 +77,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,
@@ -101,6 +103,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = false,
             errors = errors,
@@ -127,6 +130,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,
@@ -163,6 +167,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,
@@ -188,6 +193,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,
@@ -219,6 +225,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,
@@ -250,6 +257,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,
@@ -275,6 +283,7 @@ class ValidateFieldSetKtTest {
             .build()
 
         validateFieldSet(
+            fieldName = "foo",
             targetField = target,
             extendedType = true,
             errors = errors,

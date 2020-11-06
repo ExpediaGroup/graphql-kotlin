@@ -42,7 +42,7 @@ internal fun validateFieldSelection(
                 }
             }
             "}" -> return
-            else -> validateFieldSet(fields[currentField], extendedType, errors, validatedDirective)
+            else -> validateFieldSet(currentField, fields[currentField], extendedType, errors, validatedDirective)
         }
         previousField = currentField
     }
