@@ -3,27 +3,27 @@ id: fetching-data
 title: Fetching Data
 ---
 
-Each field exposed through a GraphQL query has a corresponding resolver (aka data fetcher) associated with it. `graphql-kotlin-schema-generator` generates GraphQL schema
-directly from the source code automatically mapping all the fields either to use
+Each field exposed in the GraphQL schema has a corresponding resolver (aka data fetcher) associated with it. `graphql-kotlin-schema-generator` generates the GraphQL schema
+directly from the source code, automatically mapping all the fields either to use
 [FunctionDataFetcher](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/FunctionDataFetcher.kt)
-to resolve underlying functions or a [PropertyDataFetcher](https://www.graphql-java.com/documentation/v14/data-fetching/) to read a value from an underlying Kotlin property.
+to resolve underlying functions or the default data fetcher from graphql-java, [PropertyDataFetcher](https://www.graphql-java.com/documentation/v15/data-fetching/) to read a value from an underlying Kotlin property.
 
-While all the fields in a GraphQL query are resolved independently to produce a final result, whether field is backed by a function or a property can have significant
+While all the fields in a GraphQL schema are resolved independently to produce a final result, whether a field is backed by a function or a property can have significant
 performance repercussions. For example, given the following schema:
 
 ```graphql
 type Query {
-  product(id: Int!): Product
+  product(id: ID!): Product
 }
 
 type Product {
-  id: Int!
+  id: ID!
   name: String!
   reviews: [Review!]!
 }
 
 type Review {
-  id: Int!
+  id: ID!
   text: String!
 }
 ```
@@ -31,13 +31,13 @@ type Review {
 We can define `Product` as
 
 ```kotlin
-data class Product(val id: Int, val name: String, reviews: List<Review>)
+data class Product(val id: ID, val name: String, reviews: List<Review>)
 ```
 
 or
 
 ```kotlin
-class Product(val id: Int, val name: String) {
+class Product(val id: ID, val name: String) {
   suspend fun reviews(): List<Reviews> {
      // logic to fetch reviews here
   }
@@ -53,4 +53,5 @@ expose all your GraphQL fields that require some additional computations through
 You can provide your own custom data fetchers to resolve functions and properties by providing an instance of
 [KotlinDataFetcherFactoryProvider](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/KotlinDataFetcherFactoryProvider.kt#L31)
 to your [SchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/SchemaGeneratorConfig.kt).
+
 See our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring) for an example of `CustomDataFetcherFactoryProvider`.
