@@ -23,7 +23,7 @@ import graphql.schema.GraphQLList
 import graphql.schema.GraphQLTypeUtil
 import graphql.schema.GraphQLUnionType
 
-internal fun validateFieldSet(targetField: GraphQLFieldDefinition?, extendedType: Boolean, errors: MutableList<String>, validatedDirective: DirectiveInfo) {
+internal fun validateFieldSet(fieldName: String, targetField: GraphQLFieldDefinition?, extendedType: Boolean, errors: MutableList<String>, validatedDirective: DirectiveInfo) {
     val errorMessage = validatedDirective.getErrorString()
     if (null != targetField) {
         val externalField = targetField.getDirective(EXTERNAL_DIRECTIVE_NAME) != null
@@ -45,6 +45,6 @@ internal fun validateFieldSet(targetField: GraphQLFieldDefinition?, extendedType
             }
         }
     } else {
-        errors.add("$errorMessage specifies invalid field set - field set specifies fields that do not exist")
+        errors.add("$errorMessage specifies invalid field set - field set specifies field that does not exist, field=$fieldName")
     }
 }
