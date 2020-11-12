@@ -20,11 +20,11 @@ import com.expediagroup.graphql.TopLevelObject
 import com.expediagroup.graphql.federation.data.integration.requires.failure._3.RequiresOnLocalTypeQuery
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.toFederatedSchema
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 
 class FederatedRequiresDirectiveIT {
 
@@ -64,7 +64,7 @@ class FederatedRequiresDirectiveIT {
         val expected =
             """
                 Invalid federated schema:
-                 - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies fields that do not exist
+                 - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies field that does not exist, field=zipCode
             """.trimIndent()
         assertEquals(expected, exception.message)
     }

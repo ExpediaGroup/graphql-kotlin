@@ -30,11 +30,11 @@ import com.expediagroup.graphql.federation.data.integration.key.success._5.KeyWi
 import com.expediagroup.graphql.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 
 class FederatedKeyDirectiveIT {
 
@@ -130,7 +130,7 @@ class FederatedKeyDirectiveIT {
                 queries = listOf(TopLevelObject(InvalidKeyQuery()))
             )
         }
-        val expected = "Invalid federated schema:\n - @key(fields = id) directive on InvalidKey specifies invalid field set - field set specifies fields that do not exist"
+        val expected = "Invalid federated schema:\n - @key(fields = id) directive on InvalidKey specifies invalid field set - field set specifies field that does not exist, field=id"
         assertEquals(expected, exception.message)
     }
 
@@ -207,7 +207,7 @@ class FederatedKeyDirectiveIT {
         }
         val expected = "Invalid federated schema:\n" +
             " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set defines nested selection set on unsupported type\n" +
-            " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set specifies fields that do not exist"
+            " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set specifies field that does not exist, field=uuid"
         assertEquals(expected, exception.message)
     }
 }
