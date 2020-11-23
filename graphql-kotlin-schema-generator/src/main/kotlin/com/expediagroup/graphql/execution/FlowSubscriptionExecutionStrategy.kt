@@ -18,15 +18,11 @@ package com.expediagroup.graphql.execution
 
 import graphql.ExecutionResult
 import graphql.ExecutionResultImpl
-import graphql.GraphQLError
-import graphql.execution.AbsoluteGraphQLError
 import graphql.execution.DataFetcherExceptionHandler
-import graphql.execution.DataFetcherResult
 import graphql.execution.ExecutionContext
 import graphql.execution.ExecutionStepInfo
 import graphql.execution.ExecutionStrategy
 import graphql.execution.ExecutionStrategyParameters
-import graphql.execution.FetchedValue
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
@@ -41,7 +37,6 @@ import kotlinx.coroutines.reactive.asFlow
 import org.reactivestreams.Publisher
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
-import java.util.function.Consumer
 
 /**
  * [SubscriptionExecutionStrategy] replacement that returns an [ExecutionResult]
@@ -131,7 +126,6 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to {ExecuteQuery()} since this is how each event result is produced.
      */
-
     private fun executeSubscriptionEvent(
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters,
@@ -147,7 +141,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
         val subscribedFieldStepInfo = createSubscribedFieldStepInfo(executionContext, newParameters)
 
-        val i13nFieldParameters = InstrumentationFieldParameters(executionContext, subscribedFieldStepInfo.fieldDefinition, subscribedFieldStepInfo)
+        val i13nFieldParameters = InstrumentationFieldParameters(executionContext) { subscribedFieldStepInfo }
         val subscribedFieldCtx = instrumentation.beginSubscribedFieldEvent(i13nFieldParameters)
 
         val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, parameters, eventPayload)
@@ -193,7 +187,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         val fields = parameters.fields
         val firstField = fields.getSubField(fields.keys[0])
 
-        val fieldPath = parameters.path.segment(ExecutionStrategy.mkNameForPath(firstField.singleField))
+        val fieldPath = parameters.path.segment(mkNameForPath(firstField.singleField))
         return parameters.transform { builder -> builder.field(firstField).path(fieldPath) }
     }
 
@@ -205,41 +199,5 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         val parentType = parameters.executionStepInfo.unwrappedNonNullType as GraphQLObjectType
         val fieldDef = getFieldDef(executionContext.graphQLSchema, parentType, field)
         return createExecutionStepInfo(executionContext, parameters, fieldDef, parentType)
-    }
-
-    /**
-     * java->kotlin copy of [ExecutionStrategy.unboxPossibleDataFetcherResult] where it's package-private
-     */
-    private fun unboxPossibleDataFetcherResult(
-        executionContext: ExecutionContext,
-        parameters: ExecutionStrategyParameters,
-        result: Any?
-    ): FetchedValue {
-        return if (result is DataFetcherResult<*>) {
-            if (result.isMapRelativeErrors) {
-                result.errors.stream()
-                    .map { relError: GraphQLError? -> AbsoluteGraphQLError(parameters, relError) }
-                    .forEach { error: AbsoluteGraphQLError? -> executionContext.addError(error) }
-            } else {
-                result.errors.forEach(Consumer { error: GraphQLError? -> executionContext.addError(error) })
-            }
-            var localContext = result.localContext
-            if (localContext == null) {
-                // if the field returns nothing then they get the context of their parent field
-                localContext = parameters.localContext
-            }
-            FetchedValue.newFetchedValue()
-                .fetchedValue(executionContext.valueUnboxer.unbox(result.data))
-                .rawFetchedValue(result.data)
-                .errors(result.errors)
-                .localContext(localContext)
-                .build()
-        } else {
-            FetchedValue.newFetchedValue()
-                .fetchedValue(executionContext.valueUnboxer.unbox(result))
-                .rawFetchedValue(result)
-                .localContext(parameters.localContext)
-                .build()
-        }
     }
 }

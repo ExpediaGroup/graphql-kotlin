@@ -73,7 +73,7 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
-type Query {
+type Query @extends {
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!
 }

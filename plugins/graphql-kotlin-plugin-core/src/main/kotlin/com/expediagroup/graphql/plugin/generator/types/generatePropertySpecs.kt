@@ -57,7 +57,8 @@ internal fun generatePropertySpecs(
         if (!abstract) {
             propertySpecBuilder.initializer(fieldName)
         }
-        fieldDefinition.getDirective(DeprecatedDirective.name)?.let { deprecatedDirective ->
+        val deprecatedDirective = fieldDefinition.getDirectives(DeprecatedDirective.name).firstOrNull()
+        if (deprecatedDirective != null) {
             if (!context.allowDeprecated) {
                 throw DeprecatedFieldsSelectedException(selectedField.name, objectName)
             } else {

@@ -31,7 +31,7 @@ import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
 import graphql.Scalars
 import graphql.execution.DataFetcherResult
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.introspection.IntrospectionQuery
 import graphql.language.SourceLocation
 import graphql.schema.GraphQLNonNull
@@ -553,7 +553,7 @@ class ToSchemaTest {
 
     class QueryWithDataFetcherResult {
         fun dataAndErrors(): DataFetcherResult<String> {
-            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+            val error = ExceptionWhileDataFetching(ResultPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
             return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
         }
     }
