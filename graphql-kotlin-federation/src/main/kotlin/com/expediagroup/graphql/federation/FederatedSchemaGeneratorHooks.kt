@@ -54,7 +54,9 @@ import kotlin.reflect.full.findAnnotation
  */
 open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>) : SchemaGeneratorHooks {
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val emptyQueryRegex = "^type Query(?!\\s*\\{)\\s+".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val emptyQueryRegex = "^type Query @extends \\s*\\{\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val serviceFieldRegex = "\\s*_service: _Service".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val serviceTypeRegex = "^type _Service\\s*\\{\\s*sdl: String!\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
     private val federatedDirectiveTypes: List<GraphQLDirective> = listOf(EXTERNAL_DIRECTIVE_TYPE, REQUIRES_DIRECTIVE_TYPE, PROVIDES_DIRECTIVE_TYPE, KEY_DIRECTIVE_TYPE, EXTENDS_DIRECTIVE_TYPE)
@@ -79,16 +81,12 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
         // Add all the federation directives if they are not present
         val federatedSchemaBuilder = originalSchema.addDirectivesIfNotPresent(federatedDirectiveTypes)
 
-        // Modify the query type to have the service field and extends directive
-        val federatedQuery = GraphQLObjectType.newObject(originalQuery)
-            .field(SERVICE_FIELD_DEFINITION)
-            .withDirective(EXTENDS_DIRECTIVE_TYPE)
-
         // Register the data fetcher for the _service query
         val sdl = getFederatedServiceSdl(originalSchema)
         federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, SERVICE_FIELD_DEFINITION.name), DataFetcher { _Service(sdl) })
 
         // Add the _entities field to the query and register all the _Entity union types
+        val federatedQuery = GraphQLObjectType.newObject(originalQuery)
         val entityTypeNames = getFederatedEntities(originalSchema)
         if (entityTypeNames.isNotEmpty()) {
             val entityField = generateEntityFieldDefinition(entityTypeNames)
@@ -104,9 +102,15 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
     }
 
     /**
-     * Skip validation for empty query type - federation will add _service query
+     * Federated service may not have any regular queries but will have federated queries. In order to ensure that we
+     * have a valid GraphQL schema that can be modified in the [willBuildSchema], query has to have at least one single field.
+     *
+     * Add federated _service query to ensure it is a valid GraphQL schema.
      */
-    override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = type
+    override fun didGenerateQueryObject(query: GraphQLObjectType): GraphQLObjectType = GraphQLObjectType.newObject(query)
+        .field(SERVICE_FIELD_DEFINITION)
+        .withDirective(EXTENDS_DIRECTIVE_TYPE)
+        .build()
 
     /**
      * Get the modified SDL returned by _service field
@@ -127,6 +131,8 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
             includeDirectiveDefinitions = false,
             includeDirectivesFilter = customDirectivePredicate
         ).replace(scalarDefinitionRegex, "")
+            .replace(serviceFieldRegex, "")
+            .replace(serviceTypeRegex, "")
             .replace(emptyQueryRegex, "")
             .trim()
     }

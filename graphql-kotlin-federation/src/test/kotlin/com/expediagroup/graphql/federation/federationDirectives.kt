@@ -31,6 +31,8 @@ internal fun getKeyDirective(diretiveValue: String): GraphQLDirective = mockk {
             every { value } returns diretiveValue
         }
     }
+    every { isNonRepeatable } returns true
+    every { isRepeatable } returns false
 }
 
 internal fun getRequiresDirective(directiveValue: String): GraphQLDirective = mockk {
@@ -40,6 +42,8 @@ internal fun getRequiresDirective(directiveValue: String): GraphQLDirective = mo
             every { value } returns directiveValue
         }
     }
+    every { isNonRepeatable } returns true
+    every { isRepeatable } returns false
 }
 
 internal val externalDirective = GraphQLDirective.newDirective().name(EXTERNAL_DIRECTIVE_NAME)

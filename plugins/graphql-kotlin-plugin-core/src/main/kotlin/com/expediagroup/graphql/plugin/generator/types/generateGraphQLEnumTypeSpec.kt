@@ -37,7 +37,8 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
         enumValueDefinition.description?.content?.let { kdoc ->
             enumValueTypeSpecBuilder.addKdoc(kdoc)
         }
-        enumValueDefinition.getDirective(DeprecatedDirective.name)?.let { deprecatedDirective ->
+        val deprecatedDirective = enumValueDefinition.getDirectives(DeprecatedDirective.name).firstOrNull()
+        if (deprecatedDirective != null) {
             val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
             val reason = deprecatedReason?.value ?: "no longer supported"
             enumValueTypeSpecBuilder.addAnnotation(
