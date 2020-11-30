@@ -21,7 +21,6 @@ import com.expediagroup.graphql.plugin.generator.extensions.findFragmentDefiniti
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
-import graphql.language.FragmentDefinition
 import graphql.language.FragmentSpread
 import graphql.language.ObjectTypeDefinition
 import graphql.language.SelectionSet

@@ -62,29 +62,35 @@ class GenerateGraphQLInputObjectTypeSpecIT {
         verifyGeneratedFileSpecContents(query, expected)
     }
 
-
     @Test
     fun `verify generation of self referencing input object`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
+
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.Boolean
                 import kotlin.Float
                 import kotlin.String
+                import kotlin.Unit
+
                 const val INPUT_OBJECT_TEST_QUERY: String =
                     "query InputObjectTestQuery(${'$'}{'${'$'}'}input: ComplexArgumentInput) {\n  complexInputObjectQuery(criteria: ${'$'}{'${'$'}'}input)\n}"
+
                 class InputObjectTestQuery(
-                  private val graphQLClient: GraphQLClient
+                  private val graphQLClient: GraphQLClient<*>
                 ) {
-                  suspend fun execute(variables: InputObjectTestQuery.Variables):
+                  suspend fun execute(variables: InputObjectTestQuery.Variables,
+                      requestBuilder: HttpRequestBuilder.() -> Unit = {}):
                       GraphQLResponse<InputObjectTestQuery.Result> = graphQLClient.execute(INPUT_OBJECT_TEST_QUERY,
-                      "InputObjectTestQuery", variables)
+                      "InputObjectTestQuery", variables, requestBuilder)
+
                   data class Variables(
                     val input: InputObjectTestQuery.ComplexArgumentInput? = null
                   )
+
                   /**
                    * Self referencing input object
                    */
@@ -102,6 +108,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                      */
                     val next: InputObjectTestQuery.ComplexArgumentInput? = null
                   )
+
                   data class Result(
                     /**
                      * Query that accepts self referencing input object
