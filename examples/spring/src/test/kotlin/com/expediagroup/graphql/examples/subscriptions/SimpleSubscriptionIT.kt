@@ -120,8 +120,6 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .verify()
     }
 
-
-
     private fun subscribe(query: String, id: String, initPayload: Any? = null): TestPublisher<String> {
         val output = TestPublisher.create<String>()
 
