@@ -38,5 +38,6 @@ data class GraphQLClientGeneratorContext(
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeSpecs: MutableMap<String, TypeSpec> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
-    val objectsWithTypeNameSelection: MutableSet<String> = mutableSetOf()
+
+    val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
 }

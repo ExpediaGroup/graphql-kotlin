@@ -24,7 +24,6 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FLOAT
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.LIST
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
@@ -78,11 +77,15 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
 
     return if (cachedTypeNames == null || cachedTypeNames.isEmpty()) {
         // build new custom type
-        val className = if (graphQLTypeDefinition is ScalarTypeDefinition && context.scalarTypeToConverterMapping[graphQLTypeName] == null) {
+        if (graphQLTypeDefinition is ScalarTypeDefinition && context.scalarTypeToConverterMapping[graphQLTypeName] == null) {
             val typeAlias = generateGraphQLCustomScalarTypeAlias(context, graphQLTypeDefinition)
-            ClassName(context.packageName, typeAlias.name)
+            val className = ClassName(context.packageName, typeAlias.name)
+            context.classNameCache[graphQLTypeName] = mutableListOf(className)
+            className
         } else {
-            val typeSpec = when (graphQLTypeDefinition) {
+            val className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+            // generate corresponding type spec
+            when (graphQLTypeDefinition) {
                 is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is InputObjectTypeDefinition -> generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
                 is EnumTypeDefinition -> generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
@@ -92,10 +95,8 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                 // should never happen as above list covers all graphql types
                 else -> throw UnknownGraphQLTypeException(graphQLType)
             }
-            ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
+            className
         }
-        context.classNameCache[graphQLTypeName] = mutableListOf(className)
-        className
     } else if (selectionSet == null) {
         cachedTypeNames.first()
     } else {
@@ -108,58 +109,57 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
 
         // if different selection set we need to generate custom type
         val overriddenName = "$graphQLTypeName${cachedTypeNames.size + 1}"
-        val typeSpec = when (graphQLTypeDefinition) {
+        val className = generateClassName(context, graphQLTypeDefinition, selectionSet, overriddenName)
+
+        // generate new type spec
+        when (graphQLTypeDefinition) {
             is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
             is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
             is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
             // should never happen as we can only generate different object, interface or union type
             else -> throw UnknownGraphQLTypeException(graphQLType)
         }
-        val className = ClassName(context.packageName, "${context.rootType}.${typeSpec.name}")
-        context.classNameCache[graphQLTypeName]?.add(className)
         className
     }
+}
+
+/**
+ * Generate custom [ClassName] reference to a Kotlin class representing GraphQL complex type (object, input object, enum, interface, union or custom scalar) and caches the value.
+ */
+internal fun generateClassName(
+    context: GraphQLClientGeneratorContext,
+    graphQLType: NamedNode<*>,
+    selectionSet: SelectionSet? = null,
+    nameOverride: String? = null
+): ClassName {
+    val typeName = nameOverride ?: graphQLType.name
+    val className = ClassName(context.packageName, "${context.rootType}.$typeName")
+    val classNames = context.classNameCache.getOrDefault(graphQLType.name, mutableListOf())
+    classNames.add(className)
+    context.classNameCache[graphQLType.name] = classNames
+
+    if (selectionSet != null) {
+        val selectedFields = calculateSelectedFields(context, typeName, selectionSet)
+        context.typeToSelectionSetMap[typeName] = selectedFields
+    }
+
+    return className
 }
 
 private fun ClassName.simpleNameWithoutWrapper() = this.simpleName.substringAfter(".")
 
 private fun isCachedTypeApplicable(context: GraphQLClientGeneratorContext, graphQLTypeName: String, graphQLTypeDefinition: TypeDefinition<*>, selectionSet: SelectionSet): Boolean =
     when (graphQLTypeDefinition) {
-        is UnionTypeDefinition -> {
-            val unionImplementations = graphQLTypeDefinition.memberTypes.filterIsInstance(graphql.language.TypeName::class.java).map { it.name }
-            var result = true
-            for (unionImplementation in unionImplementations) {
-                result = result && verifySelectionSet(context, unionImplementation, selectionSet)
-                if (!result) {
-                    break
-                }
-            }
-            result
-        }
-        is InterfaceTypeDefinition -> {
-            var result = verifySelectionSet(context, graphQLTypeName, selectionSet)
-            if (result) {
-                val implementations = context.graphQLSchema.getImplementationsOf(graphQLTypeDefinition).map { it.name }
-                for (implementation in implementations) {
-                    result = result && verifySelectionSet(context, implementation, selectionSet)
-                    if (!result) {
-                        break
-                    }
-                }
-            }
-            result
-        }
+        is UnionTypeDefinition -> verifySelectionSet(context, graphQLTypeName, selectionSet)
+        is InterfaceTypeDefinition -> verifySelectionSet(context, graphQLTypeName, selectionSet)
         is ObjectTypeDefinition -> verifySelectionSet(context, graphQLTypeName, selectionSet)
         else -> true
     }
 
 private fun verifySelectionSet(context: GraphQLClientGeneratorContext, graphQLTypeName: String, selectionSet: SelectionSet): Boolean {
     val selectedFields = calculateSelectedFields(context, graphQLTypeName, selectionSet)
-    val properties = calculateGeneratedTypeProperties(context, graphQLTypeName)
-    if (context.objectsWithTypeNameSelection.contains(graphQLTypeName)) {
-        properties.add("__typename")
-    }
-    return selectedFields == properties
+    val cachedTypeFields = context.typeToSelectionSetMap[graphQLTypeName]
+    return selectedFields == cachedTypeFields
 }
 
 private fun calculateSelectedFields(
@@ -177,39 +177,26 @@ private fun calculateSelectedFields(
                     result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, "$path${selection.name}."))
                 }
             }
-            is InlineFragment -> if (selection.typeCondition.name == targetType) {
-                result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet))
+            is InlineFragment -> {
+                val targetFragmentType = selection.typeCondition.name
+                val fragmentPathPrefix = if (targetFragmentType == targetType) {
+                    path
+                } else {
+                    "$path$targetFragmentType."
+                }
+                result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, fragmentPathPrefix))
             }
             is FragmentSpread -> {
-                val fragmentDefinition = context.queryDocument
-                    .findFragmentDefinition(selection.name, targetType)
-                result.addAll(calculateSelectedFields(context, targetType, fragmentDefinition.selectionSet))
+                val fragmentDefinition = context.queryDocument.findFragmentDefinition(context, selection.name, targetType)
+                val targetFragmentType = fragmentDefinition.typeCondition.name
+                val fragmentPathPrefix = if (targetFragmentType == targetType) {
+                    path
+                } else {
+                    "$path$targetFragmentType."
+                }
+                result.addAll(calculateSelectedFields(context, targetType, fragmentDefinition.selectionSet, fragmentPathPrefix))
             }
         }
     }
     return result
-}
-
-private fun calculateGeneratedTypeProperties(context: GraphQLClientGeneratorContext, graphQLTypeName: String, path: String = ""): MutableSet<String> {
-    val props = mutableSetOf<String>()
-
-    val typeSpec = context.typeSpecs[graphQLTypeName]
-    for (property in typeSpec?.propertySpecs ?: emptyList()) {
-        props.add(path + property.name)
-        when (val propertyType = property.type) {
-            is ParameterizedTypeName -> {
-                val genericType = propertyType.typeArguments.firstOrNull() as? ClassName
-                val genericTypeName = genericType?.simpleNameWithoutWrapper() ?: ""
-                props.addAll(calculateGeneratedTypeProperties(context, genericTypeName, "$path${property.name}."))
-            }
-            is ClassName -> {
-                val fieldTypeName = propertyType.simpleNameWithoutWrapper()
-                // we need to check whether generated type is a custom scalar
-                if (context.scalarTypeToConverterMapping[fieldTypeName] == null) {
-                    props.addAll(calculateGeneratedTypeProperties(context, fieldTypeName, "$path${property.name}."))
-                }
-            }
-        }
-    }
-    return props
 }

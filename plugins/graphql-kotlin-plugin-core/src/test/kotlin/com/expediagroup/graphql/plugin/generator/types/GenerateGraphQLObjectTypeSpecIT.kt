@@ -302,7 +302,7 @@ class GenerateGraphQLObjectTypeSpecIT {
     }
 
     @Test
-    fun `verify we can generate nested objects`() {
+    fun `verify we can generate self referencing objects`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
@@ -315,13 +315,59 @@ class GenerateGraphQLObjectTypeSpecIT {
                 import kotlin.collections.List
 
                 const val NESTED_QUERY: String =
-                    "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      id\n      name\n    }\n  }\n}"
+                    "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      name\n      children {\n        id\n        name\n        children {\n          id\n          name\n        }\n      }\n    }\n  }\n}"
 
                 class NestedQuery(
                   private val graphQLClient: GraphQLClient
                 ) {
                   suspend fun execute(): GraphQLResponse<NestedQuery.Result> = graphQLClient.execute(NESTED_QUERY,
                       "NestedQuery", null)
+
+                  /**
+                   * Example of an object self-referencing itself
+                   */
+                  data class NestedObject4(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Name of the object
+                     */
+                    val name: String
+                  )
+
+                  /**
+                   * Example of an object self-referencing itself
+                   */
+                  data class NestedObject3(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Name of the object
+                     */
+                    val name: String,
+                    /**
+                     * Children elements
+                     */
+                    val children: List<NestedQuery.NestedObject4>
+                  )
+
+                  /**
+                   * Example of an object self-referencing itself
+                   */
+                  data class NestedObject2(
+                    /**
+                     * Name of the object
+                     */
+                    val name: String,
+                    /**
+                     * Children elements
+                     */
+                    val children: List<NestedQuery.NestedObject3>
+                  )
 
                   /**
                    * Example of an object self-referencing itself
@@ -338,7 +384,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     /**
                      * Children elements
                      */
-                    val children: List<NestedQuery.NestedObject>
+                    val children: List<NestedQuery.NestedObject2>
                   )
 
                   data class Result(
@@ -356,8 +402,15 @@ class GenerateGraphQLObjectTypeSpecIT {
                     id
                     name
                     children {
-                      id
                       name
+                      children {
+                        id
+                        name
+                        children {
+                          id
+                          name
+                        }
+                      }
                     }
                   }
                 }

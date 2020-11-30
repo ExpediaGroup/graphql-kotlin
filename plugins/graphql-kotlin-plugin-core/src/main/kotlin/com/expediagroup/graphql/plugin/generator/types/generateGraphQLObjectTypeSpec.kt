@@ -60,7 +60,7 @@ internal fun generateGraphQLObjectTypeSpec(
     selectionSet.getSelectionsOfType(FragmentSpread::class.java)
         .forEach { fragment ->
             val fragmentDefinition = context.queryDocument
-                .findFragmentDefinition(fragment.name, objectDefinition.name)
+                .findFragmentDefinition(context, fragment.name, objectDefinition.name)
             generatePropertySpecs(
                 context = context,
                 objectName = objectDefinition.name,
