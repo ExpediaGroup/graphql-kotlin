@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.spring.context
 
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_FILTER_ODER
+import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_FILTER_ORDER
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.types.GraphQLRequest
@@ -78,7 +78,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         }
 
         @Bean
-        @Order(GRAPHQL_CONTEXT_FILTER_ODER - 1)
+        @Order(GRAPHQL_CONTEXT_FILTER_ORDER - 1)
         fun customWebFilter(): WebFilter = WebFilter { exchange, chain ->
             val headerValue = exchange.request.headers.getFirst("X-First-Header") ?: "DEFAULT_FIRST"
             chain.filter(exchange).subscriberContext { it.put("firstFilterValue", headerValue) }

@@ -94,24 +94,51 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .verify()
     }
 
-    private fun subscribe(query: String, id: String): TestPublisher<String> {
+    @Test
+    fun `verify subscriptionContext query without connectionParams`() {
+        val query = "subscriptionContext"
+        val subscription = subscribe(query, "5")
+
+        StepVerifier.create(subscription)
+            .expectNext("{\"data\":{\"$query\":\"none\"}}")
+            .expectNext("{\"data\":{\"$query\":\"value 2\"}}")
+            .expectNext("{\"data\":{\"$query\":\"value3\"}}")
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun `verify subscriptionContext query with connectionParams read by MySubscriptionHooks`() {
+        val query = "subscriptionContext"
+        val subscription = subscribe(query, "5", mapOf("Authorization" to "mytoken"))
+
+        StepVerifier.create(subscription)
+            .expectNext("{\"data\":{\"$query\":\"mytoken\"}}")
+            .expectNext("{\"data\":{\"$query\":\"value 2\"}}")
+            .expectNext("{\"data\":{\"$query\":\"value3\"}}")
+            .expectComplete()
+            .verify()
+    }
+
+    private fun subscribe(query: String, id: String, initPayload: Any? = null): TestPublisher<String> {
         val output = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
-        client.execute(uri) { session -> executeSubscription(session, query, id, output) }.subscribe()
+        client.execute(uri) { session -> executeSubscription(session, initPayload, query, id, output) }.subscribe()
 
         return output
     }
 
     private fun executeSubscription(
         session: WebSocketSession,
+        initPayload: Any?,
         query: String,
         id: String,
         output: TestPublisher<String>
     ): Mono<Void> {
-        val initMessage = getInitMessage(id)
+        val initMessage = getInitMessage(id, initPayload)
         val startMessage = getStartMessage(query, id)
         val firstMessage = session.textMessage(initMessage).toMono()
             .concatWith(session.textMessage(startMessage).toMono())
@@ -133,7 +160,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
-    private fun getInitMessage(id: String) = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type, id).toJson()
+    private fun getInitMessage(id: String, payload: Any?) = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type, id = id, payload = payload).toJson()
     private fun getStartMessage(query: String, id: String): String {
         val request = GraphQLRequest("subscription { $query }")
         return SubscriptionOperationMessage(GQL_START.type, id = id, payload = request).toJson()
