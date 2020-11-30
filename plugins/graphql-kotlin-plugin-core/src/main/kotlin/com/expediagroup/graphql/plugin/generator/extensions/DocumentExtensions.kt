@@ -16,10 +16,12 @@
 
 package com.expediagroup.graphql.plugin.generator.extensions
 
+import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.generator.exceptions.InvalidFragmentException
 import graphql.language.Document
 import graphql.language.FragmentDefinition
 
-internal fun Document.findFragmentDefinition(targetFragment: String, targetType: String): FragmentDefinition =
+internal fun Document.findFragmentDefinition(context: GraphQLClientGeneratorContext, targetFragment: String, targetType: String): FragmentDefinition =
     this.getDefinitionsOfType(FragmentDefinition::class.java)
-        .find { it.name == targetFragment && it.typeCondition.name == targetType } ?: throw InvalidFragmentException(targetFragment, targetType)
+        .find { it.name == targetFragment && context.graphQLSchema.getType(it.typeCondition.name).isPresent }
+        ?: throw InvalidFragmentException(targetFragment, targetType)

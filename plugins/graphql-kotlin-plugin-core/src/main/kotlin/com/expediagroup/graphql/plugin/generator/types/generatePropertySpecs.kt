@@ -38,13 +38,7 @@ internal fun generatePropertySpecs(
     fieldDefinitions: List<FieldDefinition>,
     abstract: Boolean = false
 ): List<PropertySpec> = selectionSet.getSelectionsOfType(Field::class.java)
-    .filterNot {
-        val typeNameSelected = it.name == "__typename"
-        if (typeNameSelected) {
-            context.objectsWithTypeNameSelection.add(objectName)
-        }
-        typeNameSelected
-    }
+    .filterNot { it.name == "__typename" }
     .map { selectedField ->
         val fieldDefinition = fieldDefinitions.find { it.name == selectedField.name }
             ?: throw InvalidSelectionSetException(selectedField.name, objectName)

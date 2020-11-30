@@ -59,4 +59,67 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             """.trimIndent()
         verifyGeneratedFileSpecContents(query, expected)
     }
+
+    @Test
+    fun `verify generation of self referencing input object`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.GraphQLClient
+                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.types.GraphQLResponse
+                import kotlin.Boolean
+                import kotlin.Float
+                import kotlin.String
+
+                const val INPUT_OBJECT_TEST_QUERY: String =
+                    "query InputObjectTestQuery(${'$'}{'${'$'}'}input: ComplexArgumentInput) {\n  complexInputObjectQuery(criteria: ${'$'}{'${'$'}'}input)\n}"
+
+                class InputObjectTestQuery(
+                  private val graphQLClient: GraphQLClient
+                ) {
+                  suspend fun execute(variables: InputObjectTestQuery.Variables):
+                      GraphQLResponse<InputObjectTestQuery.Result> = graphQLClient.execute(INPUT_OBJECT_TEST_QUERY,
+                      "InputObjectTestQuery", variables)
+
+                  data class Variables(
+                    val input: InputObjectTestQuery.ComplexArgumentInput? = null
+                  )
+
+                  /**
+                   * Self referencing input object
+                   */
+                  data class ComplexArgumentInput(
+                    /**
+                     * Maximum value for test criteria
+                     */
+                    val max: Float? = null,
+                    /**
+                     * Minimum value for test criteria
+                     */
+                    val min: Float? = null,
+                    /**
+                     * Next criteria
+                     */
+                    val next: InputObjectTestQuery.ComplexArgumentInput? = null
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that accepts self referencing input object
+                     */
+                    val complexInputObjectQuery: Boolean
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+            query InputObjectTestQuery(${'$'}input: ComplexArgumentInput) {
+              complexInputObjectQuery(criteria: ${'$'}input)
+            }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(query, expected)
+    }
 }

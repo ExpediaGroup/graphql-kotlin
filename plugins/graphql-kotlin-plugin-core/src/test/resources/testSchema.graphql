@@ -86,6 +86,8 @@ type NestedObject {
 type Query {
   "Query returning an object that references another object"
   complexObjectQuery: ComplexObject!
+  "Query that accepts self referencing input object"
+  complexInputObjectQuery(criteria: ComplexArgumentInput!): Boolean!
   "Deprecated query that should not be used anymore"
   deprecatedQuery: String! @deprecated(reason : "old query should not be used")
   "Query that returns enum value"
@@ -146,4 +148,13 @@ input SimpleArgumentInput {
   min: Float
   "New value to be set"
   newName: String
+}
+"Self referencing input object"
+input ComplexArgumentInput {
+  "Maximum value for test criteria"
+  max: Float
+  "Minimum value for test criteria"
+  min: Float
+  "Next criteria"
+  next: ComplexArgumentInput
 }
