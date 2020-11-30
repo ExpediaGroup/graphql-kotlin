@@ -1,7 +1,8 @@
 val ktor_version: String by project
 val logback_version: String by project
+val slf4j_version: String by project
 
-description = "An Example GraphQL service served by a Spark HTTP server"
+description = "An Example GraphQL service served by Ktor"
 
 plugins {
     id("application")
@@ -19,5 +20,4 @@ dependencies {
 
     implementation("com.expediagroup", "graphql-kotlin-schema-generator")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", kotlinCoroutinesVersion)
-    testImplementation("org.slf4j", "slf4j-log4j12", "1.7.30")
 }

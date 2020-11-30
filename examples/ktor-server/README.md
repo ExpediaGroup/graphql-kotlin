@@ -1,6 +1,6 @@
 # GraphQL Kotlin Ktor
 
-[Ktor](http://ktor.io/) is a simple HTTP server library
+[Ktor](http://ktor.io/) is an asynchronous framework for creating microservices, web applications, and more.
 
 ### Running locally
 Build the application by running the following from examples root directory:
