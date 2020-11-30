@@ -32,7 +32,7 @@ import reactor.core.publisher.Mono
  * [org.springframework.core.Ordered] value used for the [ContextWebFilter] order in which it will be applied to the incoming requests.
  * Smaller value take higher precedence.
  */
-const val GRAPHQL_CONTEXT_FILTER_ODER = 0
+const val GRAPHQL_CONTEXT_FILTER_ORDER = 0
 
 /**
  * Default web filter that populates GraphQL context in the reactor subscriber context.
@@ -61,7 +61,7 @@ open class ContextWebFilter<out T : GraphQLContext>(config: GraphQLConfiguration
             chain.filter(exchange)
         }
 
-    override fun getOrder(): Int = GRAPHQL_CONTEXT_FILTER_ODER
+    override fun getOrder(): Int = GRAPHQL_CONTEXT_FILTER_ORDER
 
     open fun isApplicable(path: String): Boolean {
         val parsedPath = PathContainer.parsePath(path)
