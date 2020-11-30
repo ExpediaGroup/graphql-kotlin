@@ -300,7 +300,7 @@ class GenerateGraphQLObjectTypeSpecIT {
     }
 
     @Test
-    fun `verify we can generate nested objects`() {
+    fun `verify we can generate self-reference objects`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
@@ -326,6 +326,20 @@ class GenerateGraphQLObjectTypeSpecIT {
                   /**
                    * Example of an object self-referencing itself
                    */
+                  data class NestedObject2(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Name of the object
+                     */
+                    val name: String
+                  )
+
+                  /**
+                   * Example of an object self-referencing itself
+                   */
                   data class NestedObject(
                     /**
                      * Unique identifier
@@ -338,7 +352,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     /**
                      * Children elements
                      */
-                    val children: List<NestedQuery.NestedObject>
+                    val children: List<NestedQuery.NestedObject2>
                   )
 
                   data class Result(
