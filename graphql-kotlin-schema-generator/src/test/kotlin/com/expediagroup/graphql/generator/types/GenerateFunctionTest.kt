@@ -29,7 +29,7 @@ import graphql.Scalars
 import graphql.Scalars.GraphQLInt
 import graphql.Scalars.GraphQLString
 import graphql.execution.DataFetcherResult
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.introspection.Introspection
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
@@ -44,6 +44,7 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @Suppress("Detekt.UnusedPrivateClass")
@@ -89,7 +90,7 @@ class GenerateFunctionTest : TypeTestHelper() {
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
 
         fun dataFetcherResult(): DataFetcherResult<String> {
-            val error = ExceptionWhileDataFetching(ExecutionPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
+            val error = ExceptionWhileDataFetching(ResultPath.rootPath(), RuntimeException(), SourceLocation(1, 1))
             return DataFetcherResult.newResult<String>().data("Hello").error(error).build()
         }
 
@@ -146,7 +147,7 @@ class GenerateFunctionTest : TypeTestHelper() {
         assertEquals("functionDirective", directive.name)
         assertEquals("happy", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
-        assertEquals(GraphQLNonNull(GraphQLString), directive.arguments[0].type)
+        assertTrue(GraphQLNonNull(GraphQLString).isEqualTo(directive.arguments[0].type))
         assertEquals(
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
@@ -294,7 +295,9 @@ class GenerateFunctionTest : TypeTestHelper() {
         val implResult = generateFunction(generator, fn = kImplFunction, parentName = "Query", target = null, abstract = false)
 
         assertTrue(implResult.type is GraphQLNonNull)
-        assertEquals(kInterfaceResult.type, implResult.type)
+        val resultType = kInterfaceResult.type as? GraphQLNonNull
+        assertNotNull(resultType)
+        assertTrue(resultType.isEqualTo(implResult.type))
     }
 
     @Test

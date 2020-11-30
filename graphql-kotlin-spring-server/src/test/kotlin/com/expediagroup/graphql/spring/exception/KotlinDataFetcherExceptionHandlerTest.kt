@@ -18,7 +18,7 @@ package com.expediagroup.graphql.spring.exception
 
 import graphql.execution.AbortExecutionException
 import graphql.execution.DataFetcherExceptionHandlerParameters
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import io.mockk.every
 import io.mockk.mockk
@@ -34,7 +34,7 @@ class KotlinDataFetcherExceptionHandlerTest {
         val parameters: DataFetcherExceptionHandlerParameters = mockk {
             every { exception } returns AbortExecutionException("my exception")
             every { sourceLocation } returns SourceLocation(1, 1)
-            every { path } returns ExecutionPath.parse("/foo")
+            every { path } returns ResultPath.parse("/foo")
         }
 
         val handler = KotlinDataFetcherExceptionHandler()
@@ -52,7 +52,7 @@ class KotlinDataFetcherExceptionHandlerTest {
         val parameters: DataFetcherExceptionHandlerParameters = mockk {
             every { exception } returns Throwable("generic exception")
             every { sourceLocation } returns SourceLocation(1, 1)
-            every { path } returns ExecutionPath.parse("/foo")
+            every { path } returns ResultPath.parse("/foo")
         }
 
         val handler = KotlinDataFetcherExceptionHandler()

@@ -25,7 +25,7 @@ import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import org.slf4j.LoggerFactory
 
@@ -49,7 +49,7 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 @JsonIgnoreProperties("exception")
 class ValidationDataFetchingGraphQLError(
     val constraintErrors: List<ConstraintError>,
-    path: ExecutionPath,
+    path: ResultPath,
     exception: Throwable,
     sourceLocation: SourceLocation
 ) : ExceptionWhileDataFetching(

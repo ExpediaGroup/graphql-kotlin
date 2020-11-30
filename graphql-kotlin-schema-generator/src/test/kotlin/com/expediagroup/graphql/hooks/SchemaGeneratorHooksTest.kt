@@ -29,12 +29,14 @@ import com.expediagroup.graphql.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.test.utils.graphqlUUIDType
 import com.expediagroup.graphql.testSchemaConfig
 import com.expediagroup.graphql.toSchema
+import graphql.Scalars
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.validation.InvalidSchemaException
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher
 import org.junit.jupiter.api.Test
@@ -60,7 +62,14 @@ class SchemaGeneratorHooksTest {
             var willBuildSchemaCalled = false
             override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
                 willBuildSchemaCalled = true
-                builder.additionalTypes(setOf(GraphQLObjectType.newObject().name("InjectedFromHook").build()))
+                builder.additionalTypes(
+                    setOf(
+                        GraphQLObjectType.newObject()
+                            .name("InjectedFromHook")
+                            .field { GraphQLFieldDefinition.newFieldDefinition().name("name").type(Scalars.GraphQLString) }
+                            .build()
+                    )
+                )
                 return builder
             }
         }
@@ -81,7 +90,7 @@ class SchemaGeneratorHooksTest {
 
             override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>): Boolean {
                 calledFilterFunction = true
-                return false
+                return kClass.simpleName != "SomeData" || property.name != "someNumber"
             }
 
             // skip validation
@@ -95,7 +104,8 @@ class SchemaGeneratorHooksTest {
         )
         assertTrue(hooks.calledFilterFunction)
         assertFalse(schema.queryType.fieldDefinitions.isEmpty())
-        assertTrue(schema.getObjectType("SomeData").fieldDefinitions.isEmpty())
+        assertTrue(schema.getObjectType("SomeData").fieldDefinitions.size == 1)
+        assertTrue(schema.getObjectType("SomeData").fieldDefinitions.first().name == "id")
     }
 
     @Test
@@ -116,12 +126,13 @@ class SchemaGeneratorHooksTest {
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
-        )
+        assertThrows<InvalidSchemaException>(message = "\"Query\" must define one or more fields.") {
+            toSchema(
+                queries = listOf(TopLevelObject(TestQuery())),
+                config = getTestSchemaConfigWithHooks(hooks)
+            )
+        }
         assertTrue(hooks.calledFilterFunction)
-        assertTrue(schema.queryType.fieldDefinitions.isEmpty())
     }
 
     @Test

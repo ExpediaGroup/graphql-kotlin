@@ -26,6 +26,7 @@ import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class GenerateObjectTest : TypeTestHelper() {
 
@@ -76,7 +77,7 @@ class GenerateObjectTest : TypeTestHelper() {
         assertEquals("objectDirective", directive.name)
         assertEquals("Don't worry", directive.arguments[0].value)
         assertEquals("arg", directive.arguments[0].name)
-        assertEquals(GraphQLNonNull(Scalars.GraphQLString), directive.arguments[0].type)
+        assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(directive.arguments[0].type))
         assertEquals(
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.OBJECT)
