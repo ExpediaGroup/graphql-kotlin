@@ -27,10 +27,6 @@ using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
 
 ## Code Generation Limitations
 
-* Currently only Ktor Http Client is supported. Additional clients (e.g. Spring WebClient) might be supported in the future.
 * Due to the custom logic required for deserialization of polymorphic types and default enum values only Jackson is currently supported.
 * Only a single operation per GraphQL query file is supported.
 * Subscriptions are currently NOT supported.
-* Nested queries have limited support as same object will be used for ALL nested results. This means that you have to
-  explicitly ask for data from ALL nested levels + the NULL/empty child following it (that may skip recursive field selection
-  as it will be NULL)

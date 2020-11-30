@@ -300,7 +300,7 @@ class GenerateGraphQLObjectTypeSpecIT {
     }
 
     @Test
-    fun `verify we can generate nested objects`() {
+    fun `verify we can generate self-reference objects`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
