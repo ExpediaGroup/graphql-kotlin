@@ -23,8 +23,8 @@ Plugin should be configured as part of your `pom.xml` build file.
             <configuration>
                 <endpoint>http://localhost:8080/graphql</endpoint>
                 <packageName>com.example.generated</packageName>
-                <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                 <!-- optional configuration below -->
+                <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                 <allowDeprecatedFields>true</allowDeprecatedFields>
                 <clientType>DEFAULT</clientType>
                 <converters>
@@ -59,8 +59,9 @@ Plugin should be configured as part of your `pom.xml` build file.
 ### download-sdl
 
 This Mojo attempts to download schema from the specified `graphql.endpoint`, validates the result whether it is a valid
-schema and saves it locally as `schema.graphql` under build directory. In general, this goal provides limited functionality
-by itself and instead should be used to generate input for the subsequent `generate-client` goal.
+schema and saves it locally to a specified target schema file (defaults to `schema.graphql` under build directory). In
+general, this goal provides limited functionality by itself and instead should be used to generate input for the subsequent
+`generate-client` goal.
 
 **Attributes**
 
@@ -72,7 +73,8 @@ by itself and instead should be used to generate input for the subsequent `gener
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**User property is**: `graphql.endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request.
-| `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default values are:** connect timeout = 5000, read timeout = 15000.<br/> |
+| `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default values are:**<br/>connect timeout = 5000<br/>read timeout = 15000.<br/> |
+| `schemaFile` | File | | Target schema file.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 
 **Parameter Details**
 
@@ -107,7 +109,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
 | `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
-| `schemaFile` | String | yes | GraphQL schema file that will be used to generate client code.<br/>**User property is**: `graphql.schemaFile`. |
+| `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 
 **Parameter Details**
 
@@ -147,7 +149,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
 | `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
-| `schemaFile` | String | yes | GraphQL schema file that will be used to generate client code.<br/>**User property is**: `graphql.schemaFile`. |
+| `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 
 **Parameter Details**
 
@@ -168,9 +170,9 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 
 ### introspect-schema
 
-Executes GraphQL introspection query against specified `graphql.endpoint` and saves the underlying schema file as
-`schema.graphql` under build directory. In general, this goal provides limited functionality by itself and instead
-should be used to generate input for the subsequent `generate-client` goal.
+Executes GraphQL introspection query against specified `graphql.endpoint` and saves the result to a specified target schema
+file (defaults to `schema.graphql` under build directory). In general, this goal provides limited functionality by itself
+and instead should be used to generate input for the subsequent `generate-client` goal.
 
 **Attributes**
 
@@ -182,7 +184,8 @@ should be used to generate input for the subsequent `generate-client` goal.
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**User property is**: `graphql.endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
-| `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default values are:** connect timeout = 5000, read timeout = 15000.<br/> |
+| `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default values are:**<br/>connect timeout = 5000<br/>read timeout = 15000.<br/> |
+| `schemaFile` | File | | Target schema file.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
 
 **Parameter Details**
 

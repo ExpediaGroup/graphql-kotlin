@@ -33,7 +33,7 @@ class GraphQLMavenPluginTest {
     @Test
     fun `verify introspection query run and schema file was downloaded`() {
         val buildDirectory = System.getProperty("buildDirectory")
-        val schemaFile = File(buildDirectory, "schema.graphql")
+        val schemaFile = File(buildDirectory, "mySchema.graphql")
         assertTrue(schemaFile.exists(), "schema file was downloaded")
     }
 

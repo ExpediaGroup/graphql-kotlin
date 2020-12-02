@@ -89,7 +89,6 @@
                         <configuration>
                             <endpoint>@graphql.endpoint@/graphql</endpoint>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>
-                            <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                         </configuration>
                     </execution>
                 </executions>

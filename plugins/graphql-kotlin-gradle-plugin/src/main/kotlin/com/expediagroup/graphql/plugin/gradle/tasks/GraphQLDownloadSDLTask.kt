@@ -20,10 +20,9 @@ import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import com.expediagroup.graphql.plugin.downloadSchema
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -57,8 +56,11 @@ open class GraphQLDownloadSDLTask : DefaultTask() {
     @Input
     val timeoutConfig: Property<TimeoutConfig> = project.objects.property(TimeoutConfig::class.java)
 
+    /**
+     * Target GraphQL schema file to be generated.
+     */
     @OutputFile
-    val outputFile: Provider<RegularFile> = project.layout.buildDirectory.file("schema.graphql")
+    val outputFile: RegularFileProperty = project.objects.fileProperty()
 
     init {
         group = "GraphQL"
@@ -66,6 +68,7 @@ open class GraphQLDownloadSDLTask : DefaultTask() {
 
         headers.convention(emptyMap())
         timeoutConfig.convention(TimeoutConfig())
+        outputFile.convention(project.layout.buildDirectory.file("schema.graphql"))
     }
 
     /**
@@ -77,7 +80,7 @@ open class GraphQLDownloadSDLTask : DefaultTask() {
         logger.debug("starting download SDL task against ${endpoint.get()}")
         runBlocking {
             val schema = downloadSchema(endpoint = endpoint.get(), httpHeaders = headers.get(), timeoutConfig = timeoutConfig.get())
-            val outputFile = outputFile.get().asFile
+            val outputFile = outputFile.asFile.get()
             outputFile.writeText(schema)
         }
         logger.debug("successfully downloaded SDL")

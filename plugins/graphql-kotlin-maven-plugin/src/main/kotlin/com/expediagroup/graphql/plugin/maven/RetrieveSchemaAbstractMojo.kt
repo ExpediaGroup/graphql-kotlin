@@ -20,12 +20,19 @@ import com.expediagroup.graphql.plugin.config.TimeoutConfig
 import kotlinx.coroutines.runBlocking
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Parameter
+import org.apache.maven.project.MavenProject
 import java.io.File
 
 /**
  * Retrieve GraphQL schema by running introspection query or by downloading it directly from a specified SDL endpoint.
  */
 abstract class RetrieveSchemaAbstractMojo : AbstractMojo() {
+
+    /**
+     * The current Maven project.
+     */
+    @Parameter(property = "project", required = true, readonly = true)
+    private lateinit var project: MavenProject
 
     /**
      * Target endpoint.
@@ -46,18 +53,23 @@ abstract class RetrieveSchemaAbstractMojo : AbstractMojo() {
     @Parameter(name = "timeoutConfiguration")
     private var timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
 
-    @Parameter(defaultValue = "\${project.build.directory}", readonly = true)
-    private lateinit var outputDirectory: File
+    /**
+     * Target GraphQL schema file.
+     */
+    @Parameter(defaultValue = "\${graphql.schemaFile}", name = "schemaFile")
+    private var schemaFile: File? = null
 
     override fun execute() {
         log.debug("downloading GraphQL schema from $endpoint")
+        val outputDirectory = File(project.build.directory)
         if (!outputDirectory.isDirectory) {
             outputDirectory.mkdirs()
         }
-        val schemaFile = File("${outputDirectory.absolutePath}/schema.graphql")
+
+        val graphQLSchemaFile = schemaFile ?: File("${outputDirectory.absolutePath}/schema.graphql")
         runBlocking {
             val schema = retrieveGraphQLSchema(endpoint, headers, TimeoutConfig(connect = timeoutConfiguration.connect, read = timeoutConfiguration.read))
-            schemaFile.writeText(schema)
+            graphQLSchemaFile.writeText(schema)
         }
         log.debug("successfully downloaded schema")
     }
