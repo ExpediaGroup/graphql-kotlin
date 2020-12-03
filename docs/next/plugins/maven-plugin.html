@@ -65,9 +65,9 @@
 Since GraphQL schema is needed to generate type safe clients, as alternative GraphQL servers might expose private
 endpoints (e.g. accessible only from within network, etc) that could be used to download schema in Schema Definition
 Language (SDL) directly. This Mojo attempts to download schema from the specified <code>graphql.endpoint</code>, validates the
-result whether it is a valid schema and saves it locally as <code>schema.graphql</code> under build directory. In general, this
-goal provides limited functionality by itself and instead should be used to generate input for the subsequent
-<code>generate-client</code> goal.</p>
+result whether it is a valid schema and saves it locally in a specified target file (defaults to <code>schema.graphql</code> under
+build directory). In general, this goal provides limited functionality by itself and instead should be used to generate
+input for the subsequent <code>generate-client</code> goal.</p>
 <p><strong>Attributes</strong></p>
 <ul>
 <li><em>Default Lifecycle Phase</em>: <code>generate-sources</code></li>
@@ -80,7 +80,8 @@ goal provides limited functionality by itself and instead should be used to gene
 <tbody>
 <tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server SDL endpoint that will be used to download schema.<br/><strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 <tr><td><code>headers</code></td><td>Map&lt;String, Any&gt;</td><td></td><td>Optional HTTP headers to be specified on a SDL request.</td></tr>
-<tr><td><code>timeoutConfiguration</code></td><td>TimeoutConfiguration</td><td></td><td>Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/><strong>Default values are:</strong> connect timeout = 5000, read timeout = 15000.<br/></td></tr>
+<tr><td><code>timeoutConfiguration</code></td><td>TimeoutConfiguration</td><td></td><td>Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/><strong>Default values are:</strong><br/>connect timeout = 5000<br/>read timeout = 15000.<br/></td></tr>
+<tr><td><code>schemaFile</code></td><td>File</td><td></td><td>Target schema file.<br/><strong>Default value is</strong>: <code>${project.build.directory}/schema.graphql</code><br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
 </tbody>
 </table>
 <p><strong>Parameter Details</strong></p>
@@ -114,7 +115,7 @@ goal provides limited functionality by itself and instead should be used to gene
 <tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>User property is</strong>: <code>graphql.packageName</code>.</td></tr>
 <tr><td><code>queryFileDirectory</code></td><td>File</td><td></td><td>Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using <code>queryFiles</code> property instead.<br/><strong>Default value is:</strong> <code>src/main/resources</code>.</td></tr>
 <tr><td><code>queryFiles</code></td><td>List<File></td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can also specify <code>queryFileDirectory</code> directory containing all the files. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
-<tr><td><code>schemaFile</code></td><td>String</td><td>yes</td><td>GraphQL schema file that will be used to generate client code.<br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
+<tr><td><code>schemaFile</code></td><td>String</td><td></td><td>GraphQL schema file that will be used to generate client code.<br/><strong>Default value is</strong>: <code>${project.build.directory}/schema.graphql</code><br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
 </tbody>
 </table>
 <p><strong>Parameter Details</strong></p>
@@ -153,7 +154,7 @@ goal provides limited functionality by itself and instead should be used to gene
 <tr><td><code>packageName</code></td><td>String</td><td>yes</td><td>Target package name for generated code.<br/><strong>User property is</strong>: <code>graphql.packageName</code>.</td></tr>
 <tr><td><code>queryFileDirectory</code></td><td>File</td><td></td><td>Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using <code>queryFiles</code> property instead.<br/><strong>Default value is:</strong> <code>src/test/resources</code>.</td></tr>
 <tr><td><code>queryFiles</code></td><td>List<File></td><td></td><td>List of query files to be processed. Instead of a list of files to be processed you can also specify <code>queryFileDirectory</code> directory containing all the files. If this property is specified it will take precedence over the corresponding directory property.</td></tr>
-<tr><td><code>schemaFile</code></td><td>String</td><td>yes</td><td>GraphQL schema file that will be used to generate client code.<br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
+<tr><td><code>schemaFile</code></td><td>String</td><td></td><td>GraphQL schema file that will be used to generate client code.<br/><strong>Default value is</strong>: <code>${project.build.directory}/schema.graphql</code><br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
 </tbody>
 </table>
 <p><strong>Parameter Details</strong></p>
@@ -172,9 +173,9 @@ goal provides limited functionality by itself and instead should be used to gene
 </code></pre></li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="introspect-schema"></a><a href="#introspect-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>introspect-schema</h3>
-<p>Executes GraphQL introspection query against specified <code>graphql.endpoint</code> and saves the underlying schema file as
-<code>schema.graphql</code> under build directory. In general, this goal provides limited functionality by itself and instead
-should be used to generate input for the subsequent <code>generate-client</code> goal.</p>
+<p>Executes GraphQL introspection query against specified <code>graphql.endpoint</code> and saves the result locally to a target file
+(defaults to <code>schema.graphql</code> under build directory). In general, this goal provides limited functionality by itself and
+instead should be used to generate input for the subsequent <code>generate-client</code> goal.</p>
 <p><strong>Attributes</strong></p>
 <ul>
 <li><em>Default Lifecycle Phase</em>: <code>generate-sources</code></li>
@@ -187,7 +188,8 @@ should be used to generate input for the subsequent <code>generate-client</code>
 <tbody>
 <tr><td><code>endpoint</code></td><td>String</td><td>yes</td><td>Target GraphQL server endpoint that will be used to execute introspection queries.<br/><strong>User property is</strong>: <code>graphql.endpoint</code>.</td></tr>
 <tr><td><code>headers</code></td><td>Map&lt;String, Any&gt;</td><td></td><td>Optional HTTP headers to be specified on an introspection query.</td></tr>
-<tr><td><code>timeoutConfiguration</code></td><td>TimeoutConfiguration</td><td></td><td>Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/><strong>Default values are:</strong> connect timeout = 5000, read timeout = 15000.<br/></td></tr>
+<tr><td><code>timeoutConfiguration</code></td><td>TimeoutConfiguration</td><td></td><td>Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/><strong>Default values are:</strong><br/>connect timeout = 5000<br/>read timeout = 15000.<br/></td></tr>
+<tr><td><code>schemaFile</code></td><td>File</td><td></td><td>Target schema file.<br/><strong>Default value is</strong>: <code>${project.build.directory}/schema.graphql</code><br/><strong>User property is</strong>: <code>graphql.schemaFile</code>.</td></tr>
 </tbody>
 </table>
 <p><strong>Parameter Details</strong></p>
@@ -395,7 +397,6 @@ This generated schema is subsequently used to generate GraphQL client code based
             <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/graphql<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
-                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/schema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
             <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
         <span class="hljs-tag">&lt;/<span class="hljs-name">execution</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">executions</span>&gt;</span>
@@ -422,8 +423,8 @@ the GraphQL client code based on the provided query.</p>
             <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">endpoint</span>&gt;</span>http://localhost:8080/sdl<span class="hljs-tag">&lt;/<span class="hljs-name">endpoint</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
-                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/schema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
                 <span class="hljs-comment">&lt;!-- optional configuration below --&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/mySchema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">converters</span>&gt;</span>
                     <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
