@@ -75,7 +75,8 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**Command line property is**: `endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on a SDL request. |
-| `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:** connect timeout = 5_000, read timeout = 15_000.<br/>|
+| `outputFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+| `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:**<br/>connect timeout = 5_000<br/>read timeout = 15_000.<br/>|
 
 ### graphqlGenerateClient
 
@@ -131,7 +132,8 @@ should be used to generate input for the subsequent `graphqlGenerateClient` task
 | -------- | ---- | -------- | ----------- |
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
-| `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default value are:** connect timeout = 5_000, read timeout = 15_000.<br/>|
+| `outputFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+| `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default value are:**<br/>connect timeout = 5_000</br>>read timeout = 15_000.<br/>|
 
 ## Documentation
 

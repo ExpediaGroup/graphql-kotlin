@@ -89,7 +89,7 @@
                         <configuration>
                             <endpoint>@graphql.endpoint@/sdlWithHeaders</endpoint>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>
-                            <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
+                            <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
                             <!-- optional configuration below -->
                             <allowDeprecatedFields>true</allowDeprecatedFields>
                             <headers>

@@ -39,15 +39,9 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     /**
      * GraphQL schema file that will be used to generate client code.
      */
-    /**
-     * GraphQL schema file that will be used to generate client code.
-     */
-    @Parameter(defaultValue = "\${graphql.schemaFile}", name = "schemaFile", required = true)
-    private lateinit var schemaFile: File
+    @Parameter(defaultValue = "\${graphql.schemaFile}", name = "schemaFile")
+    private var schemaFile: File? = null
 
-    /**
-     * Target package name for generated code.
-     */
     /**
      * Target package name for generated code.
      */
@@ -107,21 +101,22 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun execute() {
         log.debug("generating GraphQL client")
-        validateGraphQLSchemaExists(schemaFile)
+        val graphQLSchemaFile = schemaFile ?: File(project.build.directory, "schema.graphql")
+        validateGraphQLSchemaExists(graphQLSchemaFile)
         val targetQueryFiles: List<File> = locateQueryFiles(queryFiles, queryFileDirectory)
 
         if (!outputDirectory.isDirectory && !outputDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
 
-        logConfiguration(targetQueryFiles)
+        logConfiguration(graphQLSchemaFile, targetQueryFiles)
         val config = GraphQLClientGeneratorConfig(
             packageName = packageName,
             allowDeprecated = allowDeprecatedFields,
             scalarTypeToConverterMapping = converters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap(),
             clientType = clientType
         )
-        generateClient(config, schemaFile, targetQueryFiles).forEach {
+        generateClient(config, graphQLSchemaFile, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)
         }
 
@@ -137,17 +132,17 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
         return targetQueryFiles
     }
 
-    private fun validateGraphQLSchemaExists(graphQLSchema: File) {
-        if (!graphQLSchema.isFile) {
-            throw RuntimeException("specified GraphQL schema is not a file, ${graphQLSchema.path}")
+    private fun validateGraphQLSchemaExists(graphQLSchemaFile: File) {
+        if (!graphQLSchemaFile.isFile) {
+            throw RuntimeException("specified GraphQL schema is not a file, ${graphQLSchemaFile.path}")
         }
     }
 
     abstract fun configureProjectWithGeneratedSources(mavenProject: MavenProject, generatedSourcesDirectory: File)
 
-    private fun logConfiguration(queryFiles: List<File>) {
+    private fun logConfiguration(graphQLSchemaFile: File, queryFiles: List<File>) {
         log.debug("GraphQL Client generator configuration:")
-        log.debug("  schema file = ${schemaFile.path}")
+        log.debug("  schema file = ${graphQLSchemaFile.path}")
         log.debug("  queries")
         queryFiles.forEach {
             log.debug("    - ${it.name}")
