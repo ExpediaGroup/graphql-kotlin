@@ -20,7 +20,7 @@ import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.spring.exception.KotlinDataFetcherExceptionHandler
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
-import com.expediagroup.graphql.spring.execution.EmptyContextFactory
+import com.expediagroup.graphql.spring.execution.DefaultContextFactory
 import com.expediagroup.graphql.spring.execution.EmptyDataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.SpringKotlinDataFetcherFactoryProvider
@@ -58,7 +58,7 @@ class GraphQLExecutionConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLContextFactory(): GraphQLContextFactory<*> = EmptyContextFactory
+    fun graphQLContextFactory(): GraphQLContextFactory<*> = DefaultContextFactory
 
     @Bean
     @ConditionalOnMissingBean

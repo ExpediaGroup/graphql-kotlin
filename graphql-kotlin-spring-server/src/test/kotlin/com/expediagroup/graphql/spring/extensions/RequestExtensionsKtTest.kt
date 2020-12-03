@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.spring.extensions
 
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
-import graphql.GraphQLContext
 import io.mockk.mockk
 import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test

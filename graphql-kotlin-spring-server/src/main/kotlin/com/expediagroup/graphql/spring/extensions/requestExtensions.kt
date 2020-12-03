@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.spring.extensions
 
+import com.expediagroup.graphql.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.ExecutionInput
-import graphql.GraphQLContext
 import org.dataloader.DataLoaderRegistry
 
 /**
@@ -29,6 +29,6 @@ fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegis
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
-        .context(graphQLContext ?: GraphQLContext.newContext().build())
+        .context(graphQLContext ?: DefaultGraphQLContext())
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()

@@ -16,6 +16,9 @@
 
 package com.expediagroup.graphql.execution
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
+
 /**
  * Marker interface to indicate that the implementing class should be considered
  * as the GraphQL context. This means the implementing class will not appear in the schema.
@@ -23,6 +26,9 @@ package com.expediagroup.graphql.execution
 interface GraphQLContext
 
 /**
- * Can be used as a default [GraphQLContext] if there is none provided.
+ * Default [GraphQLContext] that can be used if there is none provided. Exposes generic concurrent hash map
+ * that can be populated with custom data.
  */
-class EmptyGraphQLContext : GraphQLContext
+class DefaultGraphQLContext : GraphQLContext {
+    val contents: ConcurrentMap<Any, Any> = ConcurrentHashMap()
+}
