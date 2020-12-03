@@ -23,15 +23,15 @@ allprojects {
     buildscript {
         repositories {
             mavenLocal()
-            jcenter()
             mavenCentral()
+            jcenter()
         }
     }
 
     repositories {
         mavenLocal()
-        jcenter()
         mavenCentral()
+        jcenter()
     }
 
     apply(plugin = "de.marcphilipp.nexus-publish")
