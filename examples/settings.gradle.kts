@@ -19,16 +19,16 @@ pluginManagement {
 rootProject.name = "graphql-kotlin-examples"
 
 includeBuild("..")
-include(":spring-example")
 include(":federation-example")
 include(":federation-example:base-app")
 include(":federation-example:extend-app")
-include(":spark-example")
-include(":ktor-server")
+include(":server:ktor-server-example")
+include(":server:spark-server-example")
+include(":server:spring-server-example")
 
-project(":spring-example").projectDir = file("spring")
 project(":federation-example").projectDir = file("federation")
 project(":federation-example:base-app").projectDir = file("federation/base-app")
 project(":federation-example:extend-app").projectDir = file("federation/extend-app")
-project(":spark-example").projectDir = file("spark")
-project(":ktor-server").projectDir = file("ktor-server")
+project(":server:spring-server-example").projectDir = file("server/spring-server")
+project(":server:spark-server-example").projectDir = file("server/spark-server")
+project(":server:ktor-server-example").projectDir = file("server/ktor-server")
