@@ -18,7 +18,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
     api("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinCoroutinesVersion")
-    implementation("com.apollographql.federation:federation-graphql-java-support:$federationGraphQLJavaSupport")
+    api("com.apollographql.federation:federation-graphql-java-support:$federationGraphQLJavaSupport")
     kapt("org.springframework.boot:spring-boot-configuration-processor:$springBootVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")

@@ -5,7 +5,7 @@ val federationGraphQLJavaSupport: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
-    implementation("com.apollographql.federation:federation-graphql-java-support:$federationGraphQLJavaSupport")
+    api("com.apollographql.federation:federation-graphql-java-support:$federationGraphQLJavaSupport")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }
 
