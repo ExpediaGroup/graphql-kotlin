@@ -115,6 +115,7 @@ class GraphQLAutoConfiguration {
         preparsedDocumentProvider.ifPresent {
             graphQL.preparsedDocumentProvider(it)
         }
+
         return graphQL.build()
     }
 
@@ -128,10 +129,6 @@ class GraphQLAutoConfiguration {
         graphql: GraphQL,
         dataLoaderRegistryFactory: DataLoaderRegistryFactory
     ): QueryHandler = SimpleQueryHandler(graphql, dataLoaderRegistryFactory)
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun graphQLContextFactory(): GraphQLContextFactory<*> = EmptyContextFactory
 
     @Bean
     @ConditionalOnMissingBean

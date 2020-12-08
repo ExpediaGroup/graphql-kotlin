@@ -18,6 +18,8 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.EmptyGraphQLContext
 import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.federation.execution.EmptyFederationGraphQLContext
+import com.expediagroup.graphql.federation.execution.FederationGraphQLContext
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 
@@ -38,9 +40,22 @@ interface GraphQLContextFactory<out T : GraphQLContext> {
 }
 
 /**
+ * Factory that generates Federation GraphQL context.
+ */
+interface FederationGraphQLContextFactory<out T : FederationGraphQLContext> : GraphQLContextFactory<T>
+
+/**
  * Default context factory that generates empty GraphQL context.
  */
 internal object EmptyContextFactory : GraphQLContextFactory<EmptyGraphQLContext> {
 
     override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse) = EmptyGraphQLContext()
+}
+
+/**
+ * Default federation context factory that generates empty GraphQL context.
+ */
+internal object EmptyFederationContextFactory : FederationGraphQLContextFactory<FederationGraphQLContext> {
+
+    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse) = EmptyFederationGraphQLContext()
 }

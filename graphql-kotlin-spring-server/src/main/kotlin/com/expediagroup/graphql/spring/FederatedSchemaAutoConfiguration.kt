@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.spring
 
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.TopLevelNames
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.extensions.print
@@ -23,17 +24,19 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
+import com.expediagroup.graphql.spring.execution.EmptyFederationContextFactory
+import com.expediagroup.graphql.spring.execution.FederationGraphQLContextFactory
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.spring.operations.Subscription
 import graphql.schema.GraphQLSchema
+import java.util.Optional
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.util.Optional
 
 /**
  * SpringBoot autoconfiguration for generating Federated GraphQL schema.
@@ -86,4 +89,21 @@ class FederatedSchemaAutoConfiguration {
 
         return schema
     }
+
+    /**
+     * Instrumentation is automatically added to the schema if it is registered as a spring component.
+     * This registers the federaiton tracing intrumentation for federated services.
+     */
+    @Bean
+    fun federationTracing(): FederatedTracingInstrumentation {
+        return FederatedTracingInstrumentation()
+    }
+
+    /**
+     * Federation requires we use a different context for the tracing so we must use the
+     * specific interface factory.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    fun graphQLContextFactory(): FederationGraphQLContextFactory<*> = EmptyFederationContextFactory
 }
