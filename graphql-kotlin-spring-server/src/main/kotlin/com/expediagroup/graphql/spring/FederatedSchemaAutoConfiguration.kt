@@ -24,8 +24,8 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.spring.execution.EmptyFederationContextFactory
-import com.expediagroup.graphql.spring.execution.FederationGraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.EmptyFederatedContextFactory
+import com.expediagroup.graphql.spring.execution.FederatedGraphQLContextFactory
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
@@ -95,9 +95,8 @@ class FederatedSchemaAutoConfiguration {
      * This registers the federation tracing instrumentation for federated services.
      */
     @Bean
-    fun federationTracing(): FederatedTracingInstrumentation {
-        return FederatedTracingInstrumentation()
-    }
+    @ConditionalOnMissingBean
+    fun federatedTracing(): FederatedTracingInstrumentation = FederatedTracingInstrumentation()
 
     /**
      * Federation requires we use a different context for the tracing so we must use the
@@ -105,5 +104,5 @@ class FederatedSchemaAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLContextFactory(): FederationGraphQLContextFactory<*> = EmptyFederationContextFactory
+    fun graphQLContextFactory(): FederatedGraphQLContextFactory<*> = EmptyFederatedContextFactory
 }
