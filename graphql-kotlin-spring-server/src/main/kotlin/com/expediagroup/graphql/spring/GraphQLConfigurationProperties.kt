@@ -56,7 +56,7 @@ data class GraphQLConfigurationProperties(
     data class FederationTracingConfigurationProperties(
         /**
          * Flag to enable or disable field tracing for the Apollo Gateway.
-         * Your sevice may not have a federated schema but you still may be connecting to a Gateway that needs the tracing info.
+         * Default is true as this is only used if the parent config is enabled.
          */
         val enabled: Boolean = true,
 
