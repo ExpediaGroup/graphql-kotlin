@@ -21,7 +21,6 @@ import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.spring.exception.KotlinDataFetcherExceptionHandler
 import com.expediagroup.graphql.spring.execution.ContextWebFilter
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
-import com.expediagroup.graphql.spring.execution.EmptyContextFactory
 import com.expediagroup.graphql.spring.execution.EmptyDataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
