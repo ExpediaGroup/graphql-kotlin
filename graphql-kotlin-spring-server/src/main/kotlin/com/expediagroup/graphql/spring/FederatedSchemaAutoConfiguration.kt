@@ -92,7 +92,7 @@ class FederatedSchemaAutoConfiguration {
 
     /**
      * Instrumentation is automatically added to the schema if it is registered as a spring component.
-     * This registers the federaiton tracing intrumentation for federated services.
+     * This registers the federation tracing instrumentation for federated services.
      */
     @Bean
     fun federationTracing(): FederatedTracingInstrumentation {
