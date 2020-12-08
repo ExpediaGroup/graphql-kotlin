@@ -34,4 +34,4 @@ While executing the query, the corresponding GraphQL context will be read from t
 
 For more details see the [Contextual Data documentation](../schema-generator/execution/contextual-data).
 
-If you need [federation tracing support](../federated/federation-tracing.md) you must implement the separate `FederationGraphQLContext` and `FederationGraphQLContextFactory` interfaces.
+If you need [federation tracing support](../federated/federation-tracing.md) you must implement the separate `FederatedGraphQLContext` and `FederatedGraphQLContextFactory` interfaces.
