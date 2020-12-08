@@ -39,8 +39,31 @@ data class GraphQLConfigurationProperties(
      * Apollo Federation configuration properties.
      */
     data class FederationConfigurationProperties(
-        /** Boolean flag indicating whether to generate federated GraphQL model */
-        val enabled: Boolean = false
+        /**
+         * Boolean flag indicating whether to generate federated GraphQL schema
+         */
+        val enabled: Boolean = false,
+
+        /**
+         * Federation tracing config
+         */
+        val tracing: FederationTracingConfigurationProperties = FederationTracingConfigurationProperties()
+    )
+
+    /**
+     * Apollo Federation tracing configuration properties
+     */
+    data class FederationTracingConfigurationProperties(
+        /**
+         * Flag to enable or disable field tracing for the Apollo Gateway.
+         * Your sevice may not have a federated schema but you still may be connecting to a Gateway that needs the tracing info.
+         */
+        val enabled: Boolean = true,
+
+        /**
+         * Flag to enable or disable debug logging
+         */
+        val debug: Boolean = false
     )
 
     /**
