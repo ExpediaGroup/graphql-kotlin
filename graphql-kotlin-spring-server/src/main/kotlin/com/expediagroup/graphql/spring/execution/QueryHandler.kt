@@ -23,10 +23,10 @@ import com.expediagroup.graphql.spring.extensions.toGraphQLResponse
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.expediagroup.graphql.types.GraphQLResponse
 import graphql.GraphQL
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactor.ReactorContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * GraphQL query handler.
