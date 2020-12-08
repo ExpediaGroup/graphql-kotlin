@@ -29,6 +29,6 @@ interface GraphQLContext
  * Default [GraphQLContext] that can be used if there is none provided. Exposes generic concurrent hash map
  * that can be populated with custom data.
  */
-class DefaultGraphQLContext : GraphQLContext {
+open class DefaultGraphQLContext : GraphQLContext {
     val contents: ConcurrentMap<Any, Any> = ConcurrentHashMap()
 }

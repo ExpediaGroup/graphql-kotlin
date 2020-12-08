@@ -33,3 +33,5 @@ Once your application is configured to build your custom `MyGraphQLContext`, we 
 While executing the query, the corresponding GraphQL context will be read from the environment and automatically injected to the function input arguments.
 
 For more details see the [Contextual Data documentation](../schema-generator/execution/contextual-data).
+
+If you need [federation tracing support](../federated/federation-tracing.md) you must implement the separate `FederationGraphQLContext` and `FederationGraphQLContextFactory` interfaces.

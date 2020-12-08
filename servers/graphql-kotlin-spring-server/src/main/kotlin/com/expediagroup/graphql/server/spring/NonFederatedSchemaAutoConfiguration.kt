@@ -28,13 +28,13 @@ import com.expediagroup.graphql.types.operations.Mutation
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription
 import graphql.schema.GraphQLSchema
+import java.util.Optional
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import java.util.Optional
 
 /**
  * SpringBoot autoconfiguration for generating a non-federated GraphQL schema object.

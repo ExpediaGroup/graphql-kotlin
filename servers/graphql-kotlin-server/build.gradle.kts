@@ -4,7 +4,7 @@ val kotlinCoroutinesVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-types"))
-    api(project(path = ":graphql-kotlin-schema-generator"))
+    api(project(path = ":graphql-kotlin-federation"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
 }
 

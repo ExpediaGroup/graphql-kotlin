@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.extensions.print
@@ -28,13 +29,13 @@ import com.expediagroup.graphql.types.operations.Mutation
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription
 import graphql.schema.GraphQLSchema
+import java.util.Optional
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import java.util.Optional
 
 /**
  * SpringBoot autoconfiguration for generating federated GraphQL schema object.
@@ -86,4 +87,12 @@ class FederatedSchemaAutoConfiguration {
 
         return schema
     }
+
+    /**
+     * Instrumentation is automatically added to the schema if it is registered as a spring component.
+     * This registers the federation tracing instrumentation for federated services.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    fun federatedTracing(): FederatedTracingInstrumentation = FederatedTracingInstrumentation()
 }
