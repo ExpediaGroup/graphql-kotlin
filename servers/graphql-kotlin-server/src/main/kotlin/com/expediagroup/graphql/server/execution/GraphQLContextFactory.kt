@@ -16,10 +16,7 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.generator.federation.execution.DefaultFederatedGraphQLContext
-import com.expediagroup.graphql.generator.federation.execution.FederatedGraphQLContext
 
 /**
  * Factory that generates GraphQL context.
@@ -31,23 +28,4 @@ interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
      * If no context should be generated and used in the request, return null.
      */
     fun generateContext(request: Request): Context?
-}
-
-/**
- * Factory that generates Federation GraphQL context.
- */
-interface FederationGraphQLContextFactory<out Context : FederatedGraphQLContext, Request> : GraphQLContextFactory<Context, Request>
-
-/**
- * Default context factory that generates GraphQL context with empty concurrent map that can store any elements.
- */
-class DefaultGraphQLContextFactory<T> : GraphQLContextFactory<DefaultGraphQLContext, T> {
-    override fun generateContext(request: T) = DefaultGraphQLContext()
-}
-
-/**
- * Default federation context factory that generates empty federation GraphQL context.
- */
-class DefaultFederationContextFactory<T> : FederationGraphQLContextFactory<DefaultFederatedGraphQLContext, T> {
-    override fun generateContext(request: T) = DefaultFederatedGraphQLContext()
 }

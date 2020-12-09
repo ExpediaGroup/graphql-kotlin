@@ -7,9 +7,5 @@ Support for Apollo Federation tracing is added to both the `graphql-kotlin-feder
 
 ### `FederatedGraphQLContext`
 
-To best support tracing, the context must implement a specific method to get the HTTP headers from the request. This is done by implementing the `FederatedGraphQLContext` interface instead of just the `GraphQLContext` interface from `graphql-kotlin`.
-
-### `FederatedGraphQLContextFactory`
-
-To make sure we return the correct `GraphQLContext` implementation, add the `FederatedGraphQLContextFactory` class as a bean instead of the regular `GraphQLContextFactory`.
-This will return a `FederatedGraphQLContext` when we execute the different operations and will allow us to add tracing information to the response.
+To best support tracing, the context must implement a specific method to get the HTTP headers from the request.
+This is done by implementing the `FederatedGraphQLContext` interface instead of just the `GraphQLContext` interface from `graphql-kotlin-schema-generator`.
