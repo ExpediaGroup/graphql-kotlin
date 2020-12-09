@@ -93,7 +93,8 @@ class FederatedSchemaAutoConfiguration {
      * This registers the federation tracing instrumentation for federated services.
      */
     @Bean
-    @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true")
+    // TODO Uncomment this once order issues are resolved
+    // @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true")
     fun federatedTracing(config: GraphQLConfigurationProperties): FederatedTracingInstrumentation =
         FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug))
 

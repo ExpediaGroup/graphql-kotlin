@@ -18,12 +18,15 @@ package com.expediagroup.graphql.server.spring
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 
 /**
  * [ConfigurationProperties] bean that defines supported GraphQL configuration options.
  */
 @ConstructorBinding
 @ConfigurationProperties("graphql")
+@Order(Ordered.HIGHEST_PRECEDENCE)
 data class GraphQLConfigurationProperties(
     /** GraphQL server endpoint, defaults to 'graphql' */
     val endpoint: String = "graphql",
