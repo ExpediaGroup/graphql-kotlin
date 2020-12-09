@@ -38,7 +38,7 @@ function Versions(props) {
                   </a>
                 </td>
                 <td>
-                  <a href={`${repoUrl}/releases/tag/${latestVersion}`}>Release Notes</a>
+                  <a href={`${repoUrl}/releases`}>Release Notes</a>
                 </td>
               </tr>
             </tbody>
@@ -77,12 +77,12 @@ function Versions(props) {
                         <a
                           href={`${siteConfig.baseUrl}${siteConfig.docsUrl}/${
                             props.language ? props.language + '/' : ''
-                          }${version}/getting-started.html`}>
+                          }${version}/doc1`}>
                           Documentation
                         </a>
                       </td>
                       <td>
-                        <a href={`${repoUrl}/releases/tag/${version}`}>
+                        <a href={`${repoUrl}/releases/tag/v${version}`}>
                           Release Notes
                         </a>
                       </td>
