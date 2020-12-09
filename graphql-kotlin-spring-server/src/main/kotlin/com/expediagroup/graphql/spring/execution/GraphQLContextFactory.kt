@@ -52,7 +52,7 @@ internal object EmptyContextFactory : GraphQLContextFactory<EmptyGraphQLContext>
 }
 
 /**
- * Default federated context factory that generates empty GraphQL context.
+ * Default federated context factory that generates default GraphQL context.
  */
 internal object DefaultFederatedContextFactory : FederatedGraphQLContextFactory<FederatedGraphQLContext> {
 

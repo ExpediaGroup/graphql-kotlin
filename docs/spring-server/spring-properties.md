@@ -13,6 +13,8 @@ details on the supported configuration properties.
 | graphql.endpoint | GraphQL server endpoint | graphql |
 | graphql.packages | List of supported packages that can contain GraphQL schema type definitions | |
 | graphql.federation.enabled | Boolean flag indicating whether to generate federated GraphQL model | false |
+| graphql.federation.tracing.enabled | Boolean flag indicating whether add federated tracing data to the extensions | true (if federation enabled) |
+| graphql.federation.tracing.debug | Boolean flag to log debug info in the federated tracing | false (if federation enabled) |
 | graphql.introspection.enabled | Boolean flag indicating whether introspection queries are enabled | true |
 | graphql.playground.enabled | Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE | true |
 | graphql.playground.endpoint | Prisma Labs Playground GraphQL IDE endpoint | playground |
