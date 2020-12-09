@@ -24,6 +24,7 @@ import com.expediagroup.graphql.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.federation.directives.ExternalDirective
 import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
+import com.expediagroup.graphql.federation.execution.FederatedGraphQLContext
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
@@ -31,17 +32,22 @@ import com.expediagroup.graphql.spring.operations.Query
 import com.expediagroup.graphql.toSchema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+
+private const val APOLLO_FEDERATION_TRACING_HEADER_NAME = "apollo-federation-include-trace"
+private const val APOLLO_FEDERATION_TRACING_HEADER_VALUE = "ftv1"
 
 class FederationConfigurationTest {
 
@@ -81,6 +87,30 @@ class FederationConfigurationTest {
     }
 
     @Test
+    fun `verify federated schema execution with federated tracing`() {
+        contextRunner.withUserConfiguration(FederatedConfiguration::class.java)
+            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring", "graphql.federation.enabled=true")
+            .run { ctx ->
+                assertThat(ctx).hasSingleBean(GraphQL::class.java)
+                val graphQL = ctx.getBean(GraphQL::class.java)
+                val federatedContext = MockFederatedGraphQLContext()
+                val input = ExecutionInput.newExecutionInput()
+                    .query("query { widget { id name } }")
+                    .context(federatedContext)
+                    .build()
+                val result = graphQL.execute(input).toSpecification()
+                val data = assertNotNull(result["data"] as? Map<*, *>)
+                val widget = assertNotNull(data["widget"] as? Map<*, *>)
+                assertEquals(1, widget["id"])
+                assertEquals("hello", widget["name"])
+
+                assertNull(result["errors"])
+                val extensions = assertNotNull(result["extensions"] as? Map<*, *>)
+                assertNotNull(extensions[APOLLO_FEDERATION_TRACING_HEADER_VALUE])
+            }
+    }
+
+    @Test
     fun `verify federated schema auto configuration backs off in beans are defined by user`() {
         contextRunner.withUserConfiguration(CustomFederatedConfiguration::class.java)
             .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring", "graphql.federation.enabled=true")
@@ -103,7 +133,6 @@ class FederationConfigurationTest {
 
     @Configuration
     class FederatedConfiguration {
-
         // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean
         fun objectMapper(): ObjectMapper = jacksonObjectMapper()
@@ -140,4 +169,13 @@ class FederationConfigurationTest {
     @ExtendsDirective
     @KeyDirective(fields = FieldSet("id"))
     data class Widget(@ExternalDirective val id: Int, val name: String)
+
+    class MockFederatedGraphQLContext : FederatedGraphQLContext {
+        override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
+            if (caseInsensitiveHeaderName == APOLLO_FEDERATION_TRACING_HEADER_NAME) {
+                APOLLO_FEDERATION_TRACING_HEADER_VALUE
+            } else {
+                null
+            }
+    }
 }

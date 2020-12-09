@@ -24,12 +24,12 @@ import com.expediagroup.graphql.execution.GraphQLContext
  * request came from the Apollo Gateway. That means we need a special interface
  * for the federation context.
  */
-interface FederationGraphQLContext : GraphQLContext, HTTPRequestHeaders
+interface FederatedGraphQLContext : GraphQLContext, HTTPRequestHeaders
 
 /**
- * Can be used as a default [FederationGraphQLContext] if there is none provided.
+ * Can be used as a default [FederatedGraphQLContext] if there is none provided.
  */
-class EmptyFederationGraphQLContext : FederationGraphQLContext {
+class EmptyFederatedGraphQLContext : FederatedGraphQLContext {
     override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? {
         return null
     }

@@ -24,8 +24,8 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeRegistry
 import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.spring.execution.EmptyFederationContextFactory
-import com.expediagroup.graphql.spring.execution.FederationGraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.DefaultFederatedContextFactory
+import com.expediagroup.graphql.spring.execution.FederatedGraphQLContextFactory
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.spring.operations.Mutation
 import com.expediagroup.graphql.spring.operations.Query
@@ -43,7 +43,9 @@ import org.springframework.context.annotation.Configuration
  */
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
-class FederatedSchemaAutoConfiguration {
+class FederatedSchemaAutoConfiguration(
+    private val config: GraphQLConfigurationProperties
+) {
 
     private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
 
@@ -58,7 +60,6 @@ class FederatedSchemaAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun federatedSchemaConfig(
-        config: GraphQLConfigurationProperties,
         hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
         dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
@@ -95,9 +96,9 @@ class FederatedSchemaAutoConfiguration {
      * This registers the federation tracing instrumentation for federated services.
      */
     @Bean
-    fun federationTracing(): FederatedTracingInstrumentation {
-        return FederatedTracingInstrumentation()
-    }
+    @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true", matchIfMissing = true)
+    fun federatedTracing(): FederatedTracingInstrumentation =
+        FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug))
 
     /**
      * Federation requires we use a different context for the tracing so we must use the
@@ -105,5 +106,5 @@ class FederatedSchemaAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLContextFactory(): FederationGraphQLContextFactory<*> = EmptyFederationContextFactory
+    fun graphQLContextFactory(): FederatedGraphQLContextFactory<*> = DefaultFederatedContextFactory
 }
