@@ -26,7 +26,7 @@ function Versions(props) {
           <header className="postHeader">
             <h1>{siteConfig.title} Versions</h1>
           </header>
-          <h3 id="latest">Current version (Stable)</h3>
+          <h3 id="latest">Latest version</h3>
           <table className="versions">
             <tbody>
               <tr>
@@ -38,7 +38,7 @@ function Versions(props) {
                   </a>
                 </td>
                 <td>
-                  <a href={`${repoUrl}/releases`}>Release Notes</a>
+                  <a href={`${repoUrl}/releases/tag/${latestVersion}`}>Release Notes</a>
                 </td>
               </tr>
             </tbody>
@@ -77,12 +77,12 @@ function Versions(props) {
                         <a
                           href={`${siteConfig.baseUrl}${siteConfig.docsUrl}/${
                             props.language ? props.language + '/' : ''
-                          }${version}/doc1`}>
+                          }${version}/getting-started.html`}>
                           Documentation
                         </a>
                       </td>
                       <td>
-                        <a href={`${repoUrl}/releases/tag/v${version}`}>
+                        <a href={`${repoUrl}/releases/tag/${version}`}>
                           Release Notes
                         </a>
                       </td>
