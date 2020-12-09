@@ -29,13 +29,13 @@ import com.expediagroup.graphql.types.operations.Mutation
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription
 import graphql.schema.GraphQLSchema
-import java.util.Optional
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import java.util.Optional
 
 /**
  * SpringBoot autoconfiguration for generating federated GraphQL schema object.
@@ -44,7 +44,9 @@ import org.springframework.context.annotation.Import
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
 @Import(GraphQLExecutionConfiguration::class)
-class FederatedSchemaAutoConfiguration {
+class FederatedSchemaAutoConfiguration(
+    private val config: GraphQLConfigurationProperties
+) {
 
     private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
 
@@ -56,7 +58,6 @@ class FederatedSchemaAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun federatedSchemaConfig(
-        config: GraphQLConfigurationProperties,
         hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
         dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
@@ -93,9 +94,8 @@ class FederatedSchemaAutoConfiguration {
      * This registers the federation tracing instrumentation for federated services.
      */
     @Bean
-    // TODO Uncomment this once order issues are resolved
-    // @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true")
-    fun federatedTracing(config: GraphQLConfigurationProperties): FederatedTracingInstrumentation =
+    @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true", matchIfMissing = true)
+    fun federatedTracing(): FederatedTracingInstrumentation =
         FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug))
 
 }

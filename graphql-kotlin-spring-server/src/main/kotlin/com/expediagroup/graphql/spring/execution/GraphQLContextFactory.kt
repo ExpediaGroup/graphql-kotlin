@@ -61,7 +61,6 @@ internal object DefaultFederatedContextFactory : FederatedGraphQLContextFactory<
             override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? {
                 return request.headers.getFirst(caseInsensitiveHeaderName)
             }
-
         }
     }
 }
