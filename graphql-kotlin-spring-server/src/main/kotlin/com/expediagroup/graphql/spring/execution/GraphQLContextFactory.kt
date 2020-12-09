@@ -18,7 +18,6 @@ package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.EmptyGraphQLContext
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.federation.execution.EmptyFederatedGraphQLContext
 import com.expediagroup.graphql.federation.execution.FederatedGraphQLContext
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -55,7 +54,13 @@ internal object EmptyContextFactory : GraphQLContextFactory<EmptyGraphQLContext>
 /**
  * Default federated context factory that generates empty GraphQL context.
  */
-internal object EmptyFederatedContextFactory : FederatedGraphQLContextFactory<FederatedGraphQLContext> {
+internal object DefaultFederatedContextFactory : FederatedGraphQLContextFactory<FederatedGraphQLContext> {
 
-    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse) = EmptyFederatedGraphQLContext()
+    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): FederatedGraphQLContext {
+        return object : FederatedGraphQLContext {
+            override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? {
+                return request.headers.getFirst(caseInsensitiveHeaderName)
+            }
+        }
+    }
 }
