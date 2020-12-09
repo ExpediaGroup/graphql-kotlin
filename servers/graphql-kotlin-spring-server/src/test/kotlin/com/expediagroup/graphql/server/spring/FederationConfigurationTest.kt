@@ -32,6 +32,7 @@ import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.types.operations.Query
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
@@ -86,51 +87,24 @@ class FederationConfigurationTest {
     }
 
     @Test
-    fun `verify federated schema with federated tracing`() {
+    fun `verify federated schema execution with federated tracing`() {
         contextRunner.withUserConfiguration(FederatedConfiguration::class.java)
             .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring", "graphql.federation.enabled=true")
             .run { ctx ->
-                assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
-                val schemaGeneratorConfig = ctx.getBean(SchemaGeneratorConfig::class.java)
-                assertEquals(listOf("com.expediagroup.graphql.spring"), schemaGeneratorConfig.supportedPackages)
-
-                assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
-                val schema = ctx.getBean(GraphQLSchema::class.java)
-                val query = schema.queryType
-                val fields = query.fieldDefinitions
-                assertEquals(3, fields.size)
-                val federatedQuery = fields.firstOrNull { it.name == "widget" }
-                assertNotNull(federatedQuery)
-                val serviceQuery = fields.firstOrNull { it.name == "_service" }
-                assertNotNull(serviceQuery)
-                val entitiesQuery = fields.firstOrNull { it.name == "_entities" }
-                assertNotNull(entitiesQuery)
-
-                val widgetType = schema.getType("Widget") as? GraphQLObjectType
-                assertNotNull(widgetType)
-                assertNotNull(widgetType.directives.firstOrNull { it.name == "key" })
-                assertNotNull(widgetType.directives.firstOrNull { it.name == "extends" })
-
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
-                assertThat(ctx).hasSingleBean(Query::class.java)
-                assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
 
                 val graphQL = ctx.getBean(GraphQL::class.java)
-                val federatedContext = object : FederatedGraphQLContext, DefaultGraphQLContext() {
-                    override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
-                        if (caseInsensitiveHeaderName == APOLLO_FEDERATION_TRACING_HEADER_NAME) {
-                            APOLLO_FEDERATION_TRACING_HEADER_VALUE
-                        } else {
-                            null
-                        }
+                val federatedContext = MockFederatedGraphQLContext()
+                val input = ExecutionInput.newExecutionInput()
+                    .query("query { widget { id name } }")
+                    .context(federatedContext)
+                    .build()
+                val result = graphQL.execute(input).toSpecification()
+                val data = assertNotNull(result["data"] as? Map<*, *>)
+                val widget = assertNotNull(data["widget"] as? Map<*, *>)
+                assertEquals(1, widget["id"])
+                assertEquals("hello", widget["name"])
 
-                }
-                val result = graphQL.execute("query { widget { id name }", federatedContext).toSpecification()
-                assertNotNull(result["data"] as? Map<*, *>) { data ->
-                    val widget = assertNotNull(data["widget"] as? Map<*, *>)
-                    assertEquals(1, widget["id"])
-                    assertEquals("hello", widget["name"])
-                }
                 assertNull(result["errors"])
                 val extensions = assertNotNull(result["extensions"] as? Map<*, *>)
                 assertNotNull(extensions[APOLLO_FEDERATION_TRACING_HEADER_VALUE])
@@ -197,4 +171,13 @@ class FederationConfigurationTest {
     @ExtendsDirective
     @KeyDirective(fields = FieldSet("id"))
     data class Widget(@ExternalDirective val id: Int, val name: String)
+
+    class MockFederatedGraphQLContext : FederatedGraphQLContext, DefaultGraphQLContext() {
+        override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
+            if (caseInsensitiveHeaderName == APOLLO_FEDERATION_TRACING_HEADER_NAME) {
+                APOLLO_FEDERATION_TRACING_HEADER_VALUE
+            } else {
+                null
+            }
+    }
 }
