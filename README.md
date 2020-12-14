@@ -49,7 +49,6 @@ This project is part of Expedia Group Open Source but also maintained by a dedic
 
 * Expedia Group OSS
   * https://expediagroup.github.io
-  * oss@expediagroup.com
 
 * GraphQL Kotlin Committers
   * Github team: `@ExpediaGroup/graphql-kotlin-committers`
