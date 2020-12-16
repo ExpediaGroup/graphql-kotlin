@@ -4,7 +4,12 @@ title: Subscriptions
 ---
 
 ## Schema
-To see more details of how to implement subscriptions in your schema, see [executing subscriptions](../execution/subscriptions).
+To see more details of how to implement subscriptions in your schema, see [executing subscriptions](../schema-generator/execution/subscriptions).
+
+## Flow Support
+
+`graphql-kotlin-spring-server` provides automatic support for Kotlin `Flow` through `FlowSubscriptionExecutionStrategy`
+that supports existing `Publisher`s and relies on Kotlin reactive-streams interop to convert `Flow` to a `Publisher`.
 
 ## `graphql-ws` subprotocol
 ### Overview
