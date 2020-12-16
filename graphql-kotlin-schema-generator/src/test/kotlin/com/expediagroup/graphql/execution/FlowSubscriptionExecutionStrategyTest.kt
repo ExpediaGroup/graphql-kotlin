@@ -34,11 +34,9 @@ import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.reactive.asPublisher
+import kotlinx.coroutines.reactive.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
@@ -68,9 +66,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { ticker }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        flow.collect {
+        publisher.collect {
             list.add(it.getData<Map<String, Int>>().getValue("ticker"))
             assertEquals(it.extensions["testKey"], "testValue")
         }
@@ -84,9 +82,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to datafetcher flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { datafetcher }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        flow.collect {
+        publisher.collect {
             val intVal = it.getData<Map<String, Int>>().getValue("datafetcher")
             list.add(intVal)
             assertEquals(it.extensions["testKey"], "testValue")
@@ -101,9 +99,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to publisher`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { publisherTicker }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        flow.collect {
+        publisher.collect {
             list.add(it.getData<Map<String, Int>>().getValue("publisherTicker"))
         }
         assertEquals(5, list.size)
@@ -119,9 +117,9 @@ class FlowSubscriptionExecutionStrategyTest {
             .context(SubscriptionContext("junitHandler"))
             .build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        flow.collect {
+        publisher.collect {
             val contextValue = it.getData<Map<String, String>>().getValue("contextualTicker")
             assertTrue(contextValue.startsWith("junitHandler:"))
             list.add(contextValue.substringAfter("junitHandler:").toInt())
@@ -136,18 +134,21 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to failing flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { alwaysThrows }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val errors = mutableListOf<GraphQLError>()
         val results = mutableListOf<Int>()
-        flow.onEach {
-            val dataMap = it.getData<Map<String, Int>>()
-            if (dataMap != null) {
-                results.add(dataMap.getValue("alwaysThrows"))
+        try {
+            publisher.collect {
+                val dataMap = it.getData<Map<String, Int>>()
+                if (dataMap != null) {
+                    results.add(dataMap.getValue("alwaysThrows"))
+                }
+                errors.addAll(it.errors)
             }
-            errors.addAll(it.errors)
-        }.catch {
-            errors.add(GraphqlErrorBuilder.newError().message(it.message).build())
-        }.collect()
+        } catch (e: Exception) {
+            errors.add(GraphqlErrorBuilder.newError().message(e.message).build())
+        }
+
         assertEquals(2, results.size)
         for (i in results.indices) {
             assertEquals(i + 1, results[i])
@@ -160,9 +161,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to exploding flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { throwsFast }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val errors = response.errors
-        assertNull(flow)
+        assertNull(publisher)
         assertEquals(1, errors.size)
         assertEquals("JUNIT flow failure", errors[0].message.substringAfter(" : "))
     }
@@ -171,9 +172,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription alias`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { t: ticker }").build()
         val response = testGraphQL.execute(request)
-        val flow = response.getData<Flow<ExecutionResult>>()
+        val publisher = response.getData<Publisher<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        flow.collect {
+        publisher.collect {
             list.add(it.getData<Map<String, Int>>().getValue("t"))
         }
         assertEquals(5, list.size)
@@ -217,7 +218,7 @@ class FlowSubscriptionExecutionStrategyTest {
             return flow {
                 for (i in 1..5) {
                     delay(100)
-                    emit(DataFetcherResult(i, listOf()))
+                    emit(DataFetcherResult.newResult<Int>().data(i).build())
                 }
             }
         }
