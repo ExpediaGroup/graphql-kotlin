@@ -26,6 +26,11 @@ toSchema(
 )
 ```
 
+### Flow Support
+
+`graphql-kotlin` provides support for Kotlin `Flow` through `FlowSubscriptionExecutionStrategy` that automatically converts
+`Flow` to a `Publisher`.
+
 ### Subscription Hooks
 
 #### `didGenerateSubscriptionType`

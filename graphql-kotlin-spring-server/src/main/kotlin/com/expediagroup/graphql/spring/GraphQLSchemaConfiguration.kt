@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.spring
 
+import com.expediagroup.graphql.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
 import com.expediagroup.graphql.spring.execution.SimpleQueryHandler
@@ -24,7 +25,6 @@ import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.ExecutionIdProvider
-import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
@@ -69,7 +69,7 @@ class GraphQLSchemaConfiguration {
         val graphQL = GraphQL.newGraphQL(schema)
             .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
             .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
-            .subscriptionExecutionStrategy(SubscriptionExecutionStrategy(dataFetcherExceptionHandler))
+            .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy(dataFetcherExceptionHandler))
 
         instrumentations.ifPresent { unordered ->
             if (unordered.size == 1) {

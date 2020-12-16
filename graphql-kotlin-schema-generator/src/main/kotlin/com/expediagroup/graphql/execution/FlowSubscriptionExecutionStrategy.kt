@@ -31,24 +31,20 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldParamete
 import graphql.execution.reactive.CompletionStageMappingPublisher
 import graphql.schema.GraphQLObjectType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.asPublisher
 import org.reactivestreams.Publisher
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
+import java.util.function.Function
 
 /**
- * [SubscriptionExecutionStrategy] replacement that returns an [ExecutionResult]
- * that is a [Flow] instead of a [Publisher], and allows schema subscription functions
+ * [SubscriptionExecutionStrategy] replacement that and allows schema subscription functions
  * to return either a [Flow] or a [Publisher].
  *
  * Note this implementation is mostly a java->kotlin copy of [SubscriptionExecutionStrategy],
- * with [CompletionStageMappingPublisher] replaced by a [Flow] mapping, and [Flow] allowed
- * as an additional return type.  Any [Publisher]s returned will be converted to [Flow]s,
- * which may lose meaningful context information, so users are encouraged to create and
- * consume [Flow]s directly (see https://github.com/Kotlin/kotlinx.coroutines/issues/1825
- * https://github.com/Kotlin/kotlinx.coroutines/issues/1860 for some examples of lost context)
+ * with updated [createSourceEventStream] that supports [Flow] and [Publisher]. Any returned
+ * [Flow]s will be automatically converted to corresponding [Publisher].
  */
 class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : ExecutionStrategy(dfe) {
     constructor() : this(SimpleDataFetcherExceptionHandler())
@@ -66,14 +62,20 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         //
         // when the upstream source event stream completes, subscribe to it and wire in our adapter
-        val overallResult: CompletableFuture<ExecutionResult> = sourceEventStream.thenApply { sourceFlow ->
-            if (sourceFlow == null) {
+        val overallResult: CompletableFuture<ExecutionResult> = sourceEventStream.thenApply { publisher ->
+            if (publisher == null) {
                 ExecutionResultImpl(null, executionContext.errors)
             } else {
-                val returnFlow = sourceFlow.map {
-                    executeSubscriptionEvent(executionContext, parameters, it).await()
+                val mapperFunction = Function<Any, CompletionStage<ExecutionResult>> { eventPayload: Any? ->
+                    executeSubscriptionEvent(
+                        executionContext,
+                        parameters,
+                        eventPayload
+                    )
                 }
-                ExecutionResultImpl(returnFlow, executionContext.errors)
+                // we need explicit cast as Kotlin Flow is covariant (Flow<out T> vs Publisher<T>)
+                val mapSourceToResponse = CompletionStageMappingPublisher<ExecutionResult, Any>(publisher as Publisher<Any>, mapperFunction)
+                ExecutionResultImpl(mapSourceToResponse, executionContext.errors)
             }
         }
 
@@ -100,17 +102,18 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
     private fun createSourceEventStream(
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters
-    ): CompletableFuture<Flow<*>> {
+    ): CompletableFuture<Publisher<out Any>?> {
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
 
         val fieldFetched = fetchField(executionContext, newParameters)
         return fieldFetched.thenApply { fetchedValue ->
-            val flow = when (val publisherOrFlow = fetchedValue.fetchedValue) {
-                is Publisher<*> -> publisherOrFlow.asFlow()
-                is Flow<*> -> publisherOrFlow
+            val publisher = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
+                is Publisher<*> -> publisherOrFlow
+                // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
+                is Flow<*> -> (publisherOrFlow as? Flow<Any>)?.asPublisher()
                 else -> null
             }
-            flow
+            publisher
         }
     }
 
