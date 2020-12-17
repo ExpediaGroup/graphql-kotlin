@@ -32,7 +32,8 @@ import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.TimeoutCancellationException
 
-private const val INTROSPECTION_QUERY = """
+private const val INTROSPECTION_QUERY =
+    """
     query IntrospectionQuery {
       __schema {
         queryType { name }
@@ -120,7 +121,8 @@ private const val INTROSPECTION_QUERY = """
           }
         }
       }
-    }"""
+    }
+    """
 
 /**
  * Runs introspection query against specified GraphQL endpoint and returns underlying schema.
