@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.plugin
 
 import com.expediagroup.graphql.plugin.config.TimeoutConfig
-import graphql.introspection.IntrospectionQuery
 import graphql.introspection.IntrospectionResultToSchema
 import graphql.schema.idl.SchemaPrinter
 import io.ktor.client.HttpClient
@@ -32,6 +31,98 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.TimeoutCancellationException
+
+private const val INTROSPECTION_QUERY =
+    """
+    query IntrospectionQuery {
+      __schema {
+        queryType { name }
+        mutationType { name }
+        subscriptionType { name }
+        types {
+          ...FullType
+        }
+        directives {
+          name
+          description
+          locations
+          args {
+            ...InputValue
+          }
+        }
+      }
+    }
+    fragment FullType on __Type {
+      kind
+      name
+      description
+      fields(includeDeprecated: true) {
+        name
+        description
+        args {
+          ...InputValue
+        }
+        type {
+          ...TypeRef
+        }
+        isDeprecated
+        deprecationReason
+      }
+      inputFields {
+        ...InputValue
+      }
+      interfaces {
+        ...TypeRef
+      }
+      enumValues(includeDeprecated: true) {
+        name
+        description
+        isDeprecated
+        deprecationReason
+      }
+      possibleTypes {
+        ...TypeRef
+      }
+    }
+    fragment InputValue on __InputValue {
+      name
+      description
+      type { ...TypeRef }
+      defaultValue
+    }
+    fragment TypeRef on __Type {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
 
 /**
  * Runs introspection query against specified GraphQL endpoint and returns underlying schema.
@@ -54,7 +145,7 @@ suspend fun introspectSchema(endpoint: String, httpHeaders: Map<String, Any> = e
                 header(name, value)
             }
             body = mapOf(
-                "query" to IntrospectionQuery.INTROSPECTION_QUERY,
+                "query" to INTROSPECTION_QUERY,
                 "operationName" to "IntrospectionQuery"
             )
         }
