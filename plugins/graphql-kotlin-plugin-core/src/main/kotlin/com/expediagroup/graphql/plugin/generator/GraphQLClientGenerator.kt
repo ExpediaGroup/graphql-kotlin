@@ -39,7 +39,6 @@ import graphql.language.OperationDefinition
 import graphql.parser.Parser
 import graphql.schema.idl.TypeDefinitionRegistry
 import io.ktor.client.request.HttpRequestBuilder
-import org.springframework.web.reactive.function.client.WebClient
 import java.io.File
 
 private const val LIBRARY_PACKAGE = "com.expediagroup.graphql.client"
@@ -143,7 +142,7 @@ class GraphQLClientGenerator(
                     val webClientRequestCustomizer: ParameterSpec = ParameterSpec.builder(
                         "requestBuilder",
                         LambdaTypeName.get(
-                            WebClient.RequestBodyUriSpec::class.asTypeName(),
+                            ClassName("org.springframework.web.reactive.function.client", "WebClient", "RequestBodyUriSpec"),
                             emptyList(),
                             Unit::class.asTypeName()
                         )
