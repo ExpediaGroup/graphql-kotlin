@@ -36,12 +36,16 @@ sealed class OptionalInput<out T> {
     /**
      * Represents missing/undefined value.
      */
-    object Undefined : OptionalInput<Nothing>()
+    object Undefined : OptionalInput<Nothing>() {
+        override fun toString() = "UNDEFINED"
+    }
 
     /**
      * Wrapper holding explicitly specified value including NULL.
      */
-    class Defined<out U> @JsonCreator constructor(@JsonValue val value: U?) : OptionalInput<U>()
+    class Defined<out U> @JsonCreator constructor(@JsonValue val value: U?) : OptionalInput<U>() {
+        override fun toString(): String = "Defined(value=$value)"
+    }
 }
 
 /**
