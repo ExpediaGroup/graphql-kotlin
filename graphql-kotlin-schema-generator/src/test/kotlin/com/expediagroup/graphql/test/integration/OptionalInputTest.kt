@@ -44,7 +44,13 @@ class OptionalInputTest {
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" optional: 1 }) }", "argument scalar value: 1"),
             Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" }) }", "argument with optional object was not specified"),
             Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" optional: null }) }", "argument object value: null"),
-            Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" optional: { id: 1, name: \"XYZ\" } }) }", "argument object value: SimpleArgument(id=1, name=XYZ)")
+            Arguments.of("{ inputWithOptionalValues(input: { required: \"ABC\" optional: { id: 1, name: \"XYZ\" } }) }", "argument object value: SimpleArgument(id=1, name=XYZ)"),
+            /* ktlint-disable */
+            Arguments.of(
+                "{ inputWithNestedOptionalValues(input: { optional: { nestedOptionalScalar: \"ABC\", nestedOptionalInt: null } } )}",
+                "HasNestedOptionalArguments(optional=Defined(value=DeeplyNestedArguments(nestedOptional=UNDEFINED, nestedOptionalScalar=Defined(value=ABC), nestedOptionalInt=Defined(value=null))), optionalScalar=UNDEFINED)"
+            )
+            /* ktlint-enable */
         )
     }
 }
@@ -62,6 +68,17 @@ data class HasOptionalScalarArguments(
 data class HasOptionalArguments(
     val required: String,
     val optional: OptionalInput<SimpleArgument>
+)
+
+data class HasNestedOptionalArguments(
+    val optional: OptionalInput<DeeplyNestedArguments> = OptionalInput.Undefined,
+    val optionalScalar: OptionalInput<Int> = OptionalInput.Undefined
+)
+
+data class DeeplyNestedArguments(
+    val nestedOptional: OptionalInput<SimpleArgument> = OptionalInput.Undefined,
+    val nestedOptionalScalar: OptionalInput<String> = OptionalInput.Undefined,
+    val nestedOptionalInt: OptionalInput<Int> = OptionalInput.Undefined
 )
 
 class OptionalInputQuery {
@@ -84,4 +101,6 @@ class OptionalInputQuery {
         is OptionalInput.Undefined -> "argument with optional object was not specified"
         is OptionalInput.Defined<SimpleArgument> -> "argument object value: ${input.optional.value}"
     }
+
+    fun inputWithNestedOptionalValues(input: HasNestedOptionalArguments): String = input.toString()
 }
