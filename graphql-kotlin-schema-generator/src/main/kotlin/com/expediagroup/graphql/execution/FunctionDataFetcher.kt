@@ -36,7 +36,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.callSuspend
+import kotlin.reflect.full.callSuspendBy
+import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.valueParameters
 
 /**
@@ -59,72 +60,90 @@ open class FunctionDataFetcher(
      */
     override fun get(environment: DataFetchingEnvironment): Any? {
         val instance = target ?: environment.getSource<Any?>()
+        val instanceParameter = fn.instanceParameter
 
-        return instance?.let {
-            val parameterValues = getParameterValues(fn, environment)
+        return if (instance != null && instanceParameter != null) {
+            val parameterValues = getParameters(fn, environment)
+                .plus(instanceParameter to instance)
 
             if (fn.isSuspend) {
-                runSuspendingFunction(it, parameterValues)
+                runSuspendingFunction(parameterValues)
             } else {
-                runBlockingFunction(it, parameterValues)
+                runBlockingFunction(parameterValues)
             }
+        } else {
+            null
         }
     }
 
     /**
-     * Iterate over all the function parameters and map them to the proper input values from the environment
+     * Iterate over all the input values from the environment and the [KParameter]s for the function and, using the environment,
+     * map them all to a value to pass to the function. If there is a missing environment argument, that means the client did not pass
+     * in a value for this optional paramter. This allows for the default Kotlin values to be used if no mapping is added.
+     * You can override this behaviour by providing a value for a specific [KParameter] when [mapParameterToValue] is called.
      */
-    protected open fun getParameterValues(fn: KFunction<*>, environment: DataFetchingEnvironment): Array<Any?> = fn.valueParameters
-        .map { param -> mapParameterToValue(param, environment) }
-        .toTypedArray()
+    protected open fun getParameters(fn: KFunction<*>, environment: DataFetchingEnvironment): Map<KParameter, Any?> {
+        return fn.valueParameters
+            .mapNotNull { mapParameterToValue(it, environment) }
+            .toMap()
+    }
 
     /**
      * Retreives the provided parameter value in the operation input to pass to the function to execute.
+     *
+     * If the arugment is missing in the input, and the type is not an [OptionalInput], do not return a mapping.
+     * This allows for default Kotlin values to be used when executing the function. Otherwise if you need logic when a value
+     * is missing, use the [OptionalInput] wrapper instead.
+     *
      * If the parameter is of a special type then we do not read the input and instead just pass on that value.
-     *
      * The special values include:
-     *   - If the parameter is marked as a [com.expediagroup.graphql.execution.GraphQLContext],
-     *     then return the environment context
-     *
+     *   - If the parameter is marked as a [com.expediagroup.graphql.execution.GraphQLContext], then return the environment context
      *   - The entire environment is returned if the parameter is of type [DataFetchingEnvironment]
      */
-    protected open fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? =
+    protected open fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
         when {
-            param.isGraphQLContext() -> environment.getContext()
-            param.isDataFetchingEnvironment() -> environment
-            else -> convertParameterValue(param, environment)
+            param.isGraphQLContext() -> param to environment.getContext()
+            param.isDataFetchingEnvironment() -> param to environment
+            else -> {
+                val name = param.getName()
+                if (environment.containsArgument(name) || param.type.isOptionalInputType()) {
+                    val value: Any? = environment.arguments[name]
+                    param to convertArgumentToObject(param, environment, name, value)
+                } else {
+                    null
+                }
+            }
         }
 
     /**
-     * Called to convert the generic input object to the parameter class.
-     *
+     * Convert the generic arument value from JSON input to the paramter class.
      * This is currently achieved by using a Jackson ObjectMapper.
      */
-    protected open fun convertParameterValue(param: KParameter, environment: DataFetchingEnvironment): Any? {
-        val name = param.getName()
-        val argument = environment.arguments[name]
-
-        return when {
-            param.isList() -> {
-                val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
-                val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
-                objectMapper.convertValue(argument, jacksonCollectionType)
-            }
-            param.type.isOptionalInputType() -> {
-                when {
-                    !environment.containsArgument(name) -> OptionalInput.Undefined
-                    argument == null -> OptionalInput.Defined(null)
-                    else -> {
-                        val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
-                        val value = objectMapper.convertValue(argument, argumentClass)
-                        OptionalInput.Defined(value)
-                    }
+    private fun convertArgumentToObject(
+        param: KParameter,
+        environment: DataFetchingEnvironment,
+        argumentName: String,
+        argumentValue: Any?
+    ): Any? = when {
+        param.isList() -> {
+            val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
+            val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
+            objectMapper.convertValue(argumentValue, jacksonCollectionType)
+        }
+        param.type.isOptionalInputType() -> {
+            when {
+                !environment.containsArgument(argumentName) -> OptionalInput.Undefined
+                argumentValue == null -> OptionalInput.Defined(null)
+                else -> {
+                    val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
+                    val value = objectMapper.convertValue(argumentValue, argumentClass)
+                    OptionalInput.Defined(value)
                 }
             }
-            else -> {
-                val javaClass = param.type.getJavaClass()
-                objectMapper.convertValue(argument, javaClass)
-            }
+        }
+        else -> {
+            val javaClass = param.type.getJavaClass()
+            objectMapper.convertValue(argumentValue, javaClass)
         }
     }
 
@@ -134,13 +153,12 @@ open class FunctionDataFetcher(
      * You can also call it from [get] with different values to override the default coroutine context or start parameter.
      */
     protected open fun runSuspendingFunction(
-        instance: Any,
-        parameterValues: Array<Any?>,
+        parameterValues: Map<KParameter, Any?>,
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
         coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
     ): CompletableFuture<Any?> = GlobalScope.future(context = coroutineContext, start = coroutineStart) {
         try {
-            fn.callSuspend(instance, *parameterValues)
+            fn.callSuspendBy(parameterValues)
         } catch (exception: InvocationTargetException) {
             throw exception.cause ?: exception
         }
@@ -150,9 +168,9 @@ open class FunctionDataFetcher(
      * Once all parameters values are properly converted, this function will be called to run a simple blocking function.
      * If you need to override the exception handling you can override this method.
      */
-    protected open fun runBlockingFunction(instance: Any, parameterValues: Array<Any?>): Any? {
+    protected open fun runBlockingFunction(parameterValues: Map<KParameter, Any?>): Any? {
         try {
-            return fn.call(instance, *parameterValues)
+            return fn.callBy(parameterValues)
         } catch (exception: InvocationTargetException) {
             throw exception.cause ?: exception
         }
