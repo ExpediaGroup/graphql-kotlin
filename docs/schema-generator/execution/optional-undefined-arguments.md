@@ -7,7 +7,7 @@ In the GraphQL world, input types can be optional which means that the client ca
 
 * Not specify a value at all
 * Send null explicitly
-* Send the non-null type
+* Send a non-null value
 
 This is in contrast with the JVM world where objects can either have some specific value or don't have any value (i.e.
 are `null`). As a result, when using default serialization logic it is not possible to distinguish between missing/unspecified
@@ -15,9 +15,9 @@ value and explicit `null` value.
 
 ## Using OptionalInput wrapper
 
-`OptionalInput` sealed class is a convenient wrapper that provides easy distinction between unspecified, `null` and non-null
-value. If target argument is not specified in the request it will be represented as `Undefined` object, otherwise actual
-value will be wrapped in `Defined` class.
+`OptionalInput` is a convenient sealed class wrapper that provides distinction between undefined, null, and non-null
+values. If the argument is not specified in the request it will be represented as a `OptionalInput.Undefined` object, otherwise the
+value will be wrapped in `OptionalInput.Defined` class.
 
 ```kotlin
 fun optionalInput(input: OptionalInput<String>): String = when (input) {
@@ -28,14 +28,14 @@ fun optionalInput(input: OptionalInput<String>): String = when (input) {
 
 ```graphql
 query OptionalInputQuery {
-  undefined: optionalInput
-  null: optionalInput(value: null)
-  foo: optionalInput(value: "foo")
+  undefined: optionalInput # input was not specified
+  null: optionalInput(value: null) # input value: null
+  foo: optionalInput(value: "foo") # input value: foo
 }
 ```
 
-> NOTE: Regardless whether generic type of `OptionalInput` is specified as nullable or not it will always result in nullable
-> value in `Defined` class.
+> NOTE: Regardless whether the generic type of `OptionalInput` is specified as nullable or not it will always result in nullable
+> value in `Defined` class, i.e. `OptionalInput<String>` will appear as nullable `String` in the GraphQL schema and in the wrapped value
 
 ## Using DataFetchingEnvironment
 
@@ -47,9 +47,9 @@ fun optionalInput(value: String?): String? = value
 
 ```graphql
 query OptionalInputQuery {
-  undefined: optionalInput
-  null: optionalInput(value: null)
-  foo: optionalInput(value: "foo")
+  undefined: optionalInput # null
+  null: optionalInput(value: null) # null
+  foo: optionalInput(value: "foo") # foo
 }
 ```
 
@@ -67,3 +67,7 @@ fun optionalInput(value: String?, dataFetchingEnvironment: DataFetchingEnvironme
         "The value was undefined"
     }
 ```
+
+## Kotlin Default Values
+
+If you don't need logic for when the client specified a value, you can still use [Kotlin default values](../writing-schemas/arguments.md)
