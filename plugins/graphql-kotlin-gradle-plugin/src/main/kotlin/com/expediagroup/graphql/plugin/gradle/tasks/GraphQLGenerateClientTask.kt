@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,7 +163,7 @@ open class GraphQLGenerateClientTask : DefaultTask() {
 
         val targetDirectory = outputDirectory.get().asFile
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
-            throw RuntimeException("failed to generate generated source directory")
+            throw RuntimeException("failed to generate generated source directory = $targetDirectory")
         }
 
         logConfiguration(graphQLSchema, targetQueryFiles)

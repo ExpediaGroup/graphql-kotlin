@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ open class GraphQLPluginExtension {
         clientExtensionConfigured = true
         GraphQLPluginClientExtension()
     }
+    private var schemaExtensionConfigured: Boolean = false
+    internal val schemaExtension: GraphQLPluginSchemaExtension by lazy {
+        schemaExtensionConfigured = true
+        GraphQLPluginSchemaExtension()
+    }
 
     /** Plugin configuration for generating GraphQL client. */
     fun client(action: Action<GraphQLPluginClientExtension>) {
@@ -40,6 +45,13 @@ open class GraphQLPluginExtension {
     }
 
     internal fun isClientConfigurationAvailable(): Boolean = clientExtensionConfigured
+
+    internal fun isSchemaConfigurationAvailable(): Boolean = schemaExtensionConfigured
+
+    /** Plugin configuration for generating GraphQL schema artifact. */
+    fun schema(action: Action<GraphQLPluginSchemaExtension>) {
+        action.execute(schemaExtension)
+    }
 }
 
 open class GraphQLPluginClientExtension {
@@ -68,4 +80,11 @@ open class GraphQLPluginClientExtension {
     fun timeout(action: Action<TimeoutConfig>) {
         action.execute(timeoutConfig)
     }
+}
+
+open class GraphQLPluginSchemaExtension {
+    /** List of supported packages that can contain GraphQL schema type definitions. */
+    var packages: List<String> = emptyList()
+    /** Optional fully qualified artifact name that contains SchemaGeneratorHooks service provider. */
+    var hooksProviderArtifact: String? = null
 }

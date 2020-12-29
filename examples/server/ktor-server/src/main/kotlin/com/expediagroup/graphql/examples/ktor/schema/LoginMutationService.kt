@@ -16,10 +16,11 @@
 package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.examples.ktor.schema.models.User
+import com.expediagroup.graphql.server.operations.Mutation
 
 data class AuthPayload(val token: String? = null, val user: User? = null)
 
-class LoginMutationService {
+class LoginMutationService : Mutation {
     suspend fun login(email: String, password: String, aliasUUID: String?): AuthPayload {
         val token = "fake-token"
         val user = User(

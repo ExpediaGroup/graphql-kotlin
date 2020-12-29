@@ -16,9 +16,10 @@
 package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.examples.ktor.schema.models.University
+import com.expediagroup.graphql.server.operations.Query
 import graphql.GraphQLException
 
-class UniversityQueryService {
+class UniversityQueryService : Query {
     @Throws(GraphQLException::class)
     suspend fun searchUniversities(params: UniversitySearchParameters): List<University> =
         University.search(params.ids)

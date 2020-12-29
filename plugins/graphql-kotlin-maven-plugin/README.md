@@ -9,6 +9,8 @@ GraphQL Kotlin Maven Plugin provides functionality to introspect GraphQL schemas
 
 Plugin should be configured as part of your `pom.xml` build file.
 
+### Generating GraphQL Client
+
 ```xml
 <plugin>
     <groupId>com.expediagroup</groupId>
@@ -48,6 +50,30 @@ Plugin should be configured as part of your `pom.xml` build file.
                 <queryFiles>
                     <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
                 </queryFiles>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### Generating GraphQL Schema
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>generate-sdl</goal>
+            </goals>
+            <configuration>
+                <packages>
+                    <package>com.example</package>
+                </packages>
+                <!-- optional configuration below -->
+                <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
             </configuration>
         </execution>
     </executions>
@@ -128,6 +154,32 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
     </converters>
     ```
 
+### generate-sdl
+
+Generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
+to generate the schema from classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces.
+In order to limit the amount of packages to scan, this mojo requires users to provide a list of `packages` that can contain
+GraphQL types.
+
+This MOJO utilizes [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
+mechanism to dynamically load available `SchemaGeneratorHooksProvider` service providers from the classpath. Service provider
+can be provided as part of your project, included in one of your project dependencies or through explicitly provided artifact.
+See [Schema Generator Hooks Provider](https://expediagroup.github.io/graphql-kotlin/docs/plugins/hooks-provider) for additional
+details on how to create custom hooks service provider. Configuration below shows how to configure GraphQL Kotlin plugin
+with explicitly provided artifact.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `process-classes`
+* *Requires Maven Project*
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `packages` | List<String> | yes | List of supported packages that can be scanned to generate SDL. |
+| `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+
 ### generate-test-client
 
 Generate GraphQL test client code based on the provided GraphQL schema and target queries.
@@ -198,6 +250,13 @@ and instead should be used to generate input for the subsequent `generate-client
         <read>30000</read>
     </timeoutConfiguration>
     ```
+
+## Testing
+
+This project is built using Gradle which invokes Maven to run integration tests that verify plugin functionality. Integration
+tests are run through [Maven Invoker Plugin](https://maven.apache.org/plugins/maven-invoker-plugin/) that builds all test
+projects provided under `src/integration` directory. Since tests are run in separate JVMs, there is no JaCoCo coverage
+calculated for those integration tests.
 
 ## Documentation
 

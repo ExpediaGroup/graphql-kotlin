@@ -33,12 +33,32 @@
         </dependency>
         <dependency>
             <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-hooks-provider</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-federated-hooks-provider</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-ktor-client</artifactId>
             <version>${graphql-kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-sdl-generator</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-spring-client</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-spring-server</artifactId>
             <version>${graphql-kotlin.version}</version>
         </dependency>
         <dependency>

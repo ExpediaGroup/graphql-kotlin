@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.plugin.gradle
+package com.expediagroup.graphql.plugin.gradle.tasks
 
-import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.GraphQLGradlePluginAbstractIT
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.gradle.testkit.runner.GradleRunner
@@ -41,7 +41,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
               endpoint.set("${wireMockServer.baseUrl()}/sdl")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
 
@@ -61,7 +61,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
               headers.put("$customHeaderName", "$customHeaderValue")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
 
@@ -79,7 +79,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
               timeoutConfig.set(TimeoutConfig(connect = 100, read = 100))
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskTimeout(testProjectDirectory)
     }
 
@@ -93,7 +93,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
               endpoint = "${wireMockServer.baseUrl()}/sdl"
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
 
@@ -113,7 +113,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
                 headers["$customHeaderName"] = "$customHeaderValue"
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
 
@@ -131,7 +131,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
                 timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(100, 100)
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskTimeout(testProjectDirectory)
     }
 

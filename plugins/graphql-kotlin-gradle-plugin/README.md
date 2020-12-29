@@ -27,31 +27,37 @@ import com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
   client {
-    // Boolean flag indicating whether or not selection of deprecated fields is allowed.
-    allowDeprecatedFields = false
-    // Type of GraphQL client implementation to generate.
-    clientType = GraphQLClientType.DEFAULT
-    // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
-    converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
-    // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
-    endpoint = "http://localhost:8080/graphql"
-    // Optional HTTP headers to be specified on an introspection query or SDL request.
-    headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
-    // Target package name to be used for generated classes.
-    packageName = "com.example.generated"
-    // Custom directory containing query files, defaults to src/main/resources
-    queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
-    // Optional list of query files to be processed, takes precedence over queryFileDirectory
-    queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
-    // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
-    sdlEndpoint = "http://localhost:8080/sdl"
-    // Timeout configuration for introspection query/downloading SDL
-    timeout {
-        // Connect timeout in milliseconds
-        connect = 5_000
-        // Read timeout in milliseconds
-        read = 15_000
-    }
+      // Boolean flag indicating whether or not selection of deprecated fields is allowed.
+      allowDeprecatedFields = false
+      // Type of GraphQL client implementation to generate.
+      clientType = GraphQLClientType.DEFAULT
+      // Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+      converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+      // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
+      endpoint = "http://localhost:8080/graphql"
+      // Optional HTTP headers to be specified on an introspection query or SDL request.
+      headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
+      // Target package name to be used for generated classes.
+      packageName = "com.example.generated"
+      // Custom directory containing query files, defaults to src/main/resources
+      queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
+      // Optional list of query files to be processed, takes precedence over queryFileDirectory
+      queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+      // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
+      sdlEndpoint = "http://localhost:8080/sdl"
+      // Timeout configuration for introspection query/downloading SDL
+      timeout {
+          // Connect timeout in milliseconds
+          connect = 5_000
+          // Read timeout in milliseconds
+          read = 15_000
+      }
+  }
+  schema {
+      // List of supported packages that can contain GraphQL schema type definitions
+      packages = listOf("com.example")
+      // Optional artifact name that contains SchemaGeneratorHooks service provider
+      hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$$graphQLKotlinVersion"
   }
 }
 ```
@@ -99,6 +105,21 @@ resulting generated code will be automatically added to the project main source 
 | `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
 | `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
 
+### graphqlGenerateSDL
+
+Task that generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
+to generate the schema from classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces.
+In order to limit the amount of packages to scan, this task requires users to provide a list of `packages` that can contain
+GraphQL types.
+
+**Properties**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `hooksProvider` | String | | Optional fully qualified artifact name that contains SchemaGeneratorHooks service provider. **Default hooks:** `NoopSchemaGeneratorHooks` |
+| `packages` | List<String> | yes | List of supported packages that can be scanned to generate SDL. |
+| `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+
 ### graphqlGenerateTestClient
 
 Task that generates GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries that are
@@ -134,6 +155,12 @@ should be used to generate input for the subsequent `graphqlGenerateClient` task
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
 | `outputFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
 | `timeoutConfig` | TimeoutConfig | | Optional timeout configuration(in milliseconds) to execute introspection query before we cancel the request.<br/>**Default value are:**<br/>connect timeout = 5_000</br>>read timeout = 15_000.<br/>|
+
+## Testing
+
+This project uses [Gradle TestKit](https://docs.gradle.org/current/userguide/test_kit.html) to run functional integration
+tests using `GradleRunner`. Integration tests apply plugin and verifies its correctness by running embedded Gradle against
+auto-generated projects. Since tests are run in separate JVMs, there is no JaCoCo coverage calculated for those tests.
 
 ## Documentation
 

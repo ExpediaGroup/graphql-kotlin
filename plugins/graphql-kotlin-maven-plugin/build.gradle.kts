@@ -1,7 +1,7 @@
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
 import java.time.Duration
 
-description = "GraphQL Kotlin Maven plugin"
+description = "Gradle Kotlin Maven Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
 val graphQLJavaVersion: String by project
 val junitVersion: String by project
@@ -30,10 +30,13 @@ plugins {
 
 dependencies {
     api(project(path = ":graphql-kotlin-plugin-core"))
+    api(project(path = ":graphql-kotlin-sdl-generator"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
+    testImplementation(project(path = ":graphql-kotlin-spring-server"))
+    testImplementation(project(path = ":graphql-kotlin-federated-hooks-provider"))
 }
 
 tasks {
@@ -86,11 +89,17 @@ tasks {
         mustRunAfter("startWireMock")
     }
     val integrationTest by register("integrationTest") {
+        // since we will be running maven we need to explicitly specify that integration test
+        // should run after artifacts are published to local m2 repo
         dependsOn(":graphql-kotlin-types:publishToMavenLocal")
         dependsOn(":graphql-kotlin-client:publishToMavenLocal")
         dependsOn(":graphql-kotlin-ktor-client:publishToMavenLocal")
         dependsOn(":graphql-kotlin-spring-client:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-spring-server:publishToMavenLocal")
         dependsOn(":graphql-kotlin-plugin-core:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-sdl-generator:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-hooks-provider:publishToMavenLocal")
+        dependsOn(":graphql-kotlin-federated-hooks-provider:publishToMavenLocal")
         dependsOn("publishToMavenLocal")
         dependsOn(startWireMock.path)
         finalizedBy(stopWireMock.path)
@@ -99,7 +108,7 @@ tasks {
             exec {
                 environment(mavenEnvironmentVariables)
                 environment("graphqlEndpoint", "http://localhost:$wireMockServerPort")
-                commandLine("${project.projectDir}/mvnw", "invoker:install", "invoker:run")
+                commandLine("${project.projectDir}/mvnw", "dependency:go-offline", "invoker:install", "invoker:run", "--no-transfer-progress")
             }
         }
     }
