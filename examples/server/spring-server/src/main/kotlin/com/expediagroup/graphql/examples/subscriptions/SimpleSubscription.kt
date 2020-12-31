@@ -18,8 +18,8 @@ package com.expediagroup.graphql.examples.subscriptions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
-import com.expediagroup.graphql.spring.operations.Subscription
 import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 import javax.validation.Valid

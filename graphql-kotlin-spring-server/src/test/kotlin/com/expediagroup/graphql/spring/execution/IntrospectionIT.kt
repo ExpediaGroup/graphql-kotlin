@@ -15,7 +15,7 @@
  */
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.introspection.IntrospectionQuery
 import org.junit.jupiter.api.Test

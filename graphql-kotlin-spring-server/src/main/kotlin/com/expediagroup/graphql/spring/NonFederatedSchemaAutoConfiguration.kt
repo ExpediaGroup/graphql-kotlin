@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import com.expediagroup.graphql.extensions.print
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.spring.extensions.toTopLevelObjects
-import com.expediagroup.graphql.spring.operations.Mutation
-import com.expediagroup.graphql.spring.operations.Query
-import com.expediagroup.graphql.spring.operations.Subscription
+import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory

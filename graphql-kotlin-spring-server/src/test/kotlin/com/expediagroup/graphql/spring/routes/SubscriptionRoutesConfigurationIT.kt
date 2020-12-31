@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
-import com.expediagroup.graphql.spring.operations.Query
-import com.expediagroup.graphql.spring.operations.Subscription
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
