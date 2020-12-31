@@ -13,10 +13,12 @@ import java.util.stream.Stream
 import kotlin.test.assertEquals
 
 class OptionalInputTest {
+
     private val schema = toSchema(
         queries = listOf(TopLevelObject(OptionalInputQuery())),
         config = testSchemaConfig
     )
+
     private val graphQL = GraphQL.newGraphQL(schema).build()
 
     @DisplayName("verify optional arguments can be correctly deserialized")

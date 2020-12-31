@@ -40,14 +40,15 @@ open class SpringDataFetcher(
 ) : FunctionDataFetcher(target, fn, objectMapper) {
 
     @ExperimentalStdlibApi
-    override fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Any? = if (param.hasAnnotation<Autowired>()) {
-        val qualifier = param.findAnnotation<Qualifier>()?.value
-        if (qualifier != null) {
-            applicationContext.getBean(qualifier)
+    override fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
+        if (param.hasAnnotation<Autowired>()) {
+            val qualifier = param.findAnnotation<Qualifier>()?.value
+            if (qualifier != null) {
+                param to applicationContext.getBean(qualifier)
+            } else {
+                param to applicationContext.getBean(param.type.javaType as Class<*>)
+            }
         } else {
-            applicationContext.getBean(param.type.javaType as Class<*>)
+            super.mapParameterToValue(param, environment)
         }
-    } else {
-        super.mapParameterToValue(param, environment)
-    }
 }
