@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.operations
+package com.expediagroup.graphql.server.operations
 
 /**
  * Marker interface to indicate what classes should be used for GraphQL mutations.

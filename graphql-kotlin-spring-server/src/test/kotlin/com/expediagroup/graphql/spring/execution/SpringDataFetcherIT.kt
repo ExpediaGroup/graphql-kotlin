@@ -16,7 +16,7 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.annotations.GraphQLIgnore
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.types.GraphQLRequest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.expediagroup.graphql.federation.directives.FieldSet
 import com.expediagroup.graphql.federation.directives.KeyDirective
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.QueryHandler
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.toSchema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

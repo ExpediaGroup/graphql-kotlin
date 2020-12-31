@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHandler
 import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHooks
 import com.expediagroup.graphql.spring.execution.SubscriptionHandler
 import com.expediagroup.graphql.spring.execution.SubscriptionWebSocketHandler
-import com.expediagroup.graphql.spring.operations.Subscription
+import com.expediagroup.graphql.server.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.directives.LowercaseDirective
 import com.expediagroup.graphql.examples.directives.SpecificValueOnly
 import com.expediagroup.graphql.examples.directives.StringEval
-import com.expediagroup.graphql.spring.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 
 @Component
