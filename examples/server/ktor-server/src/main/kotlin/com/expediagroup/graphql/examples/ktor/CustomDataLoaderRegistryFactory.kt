@@ -27,7 +27,7 @@ import org.dataloader.DataLoaderRegistry
 
 class CustomDataLoaderRegistryFactory : DataLoaderRegistryFactory {
 
-    override fun generate(): DataLoaderRegistry? {
+    override fun generate(): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
         registry.register(UNIVERSITY_LOADER_NAME, batchUniversityLoader)
         registry.register(COURSE_LOADER_NAME, batchCourseLoader)
