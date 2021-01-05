@@ -15,7 +15,7 @@ fun Application.graphQLModule() {
 
     routing {
         post("graphql") {
-            GraphQLHandler().handle(this.call)
+            GraphQLServer().handle(this.call)
         }
 
         get("playground") {

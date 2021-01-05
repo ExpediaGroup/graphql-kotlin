@@ -16,11 +16,15 @@
 
 package com.expediagroup.graphql.spring
 
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_KEY
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.reactor.ReactorContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -32,6 +36,7 @@ import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
+import kotlin.coroutines.coroutineContext
 
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
@@ -47,13 +52,14 @@ internal val graphQLMediaType = MediaType("application", "graphql")
 @Import(GraphQLSchemaConfiguration::class)
 class GraphQLRoutesConfiguration(
     private val config: GraphQLConfigurationProperties,
-    private val queryHandlerGraphQL: GraphQLRequestHandler,
+    private val requestHandler: GraphQLRequestHandler,
     private val objectMapper: ObjectMapper
 ) {
 
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean
+    @ExperimentalCoroutinesApi
     fun graphQLRoutes() = coRouter {
         val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
         val isNotWebsocketRequest = headers { isWebSocketHeaders(it) }.not()
@@ -61,12 +67,19 @@ class GraphQLRoutesConfiguration(
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLRequest = createGraphQLRequest(serverRequest)
             if (graphQLRequest != null) {
-                val graphQLResponse = queryHandlerGraphQL.executeRequest(graphQLRequest)
+                val context = getContext()
+                val graphQLResponse = requestHandler.executeRequest(graphQLRequest, context)
                 ok().json().bodyValueAndAwait(graphQLResponse)
             } else {
                 badRequest().buildAndAwait()
             }
         }
+    }
+
+    @ExperimentalCoroutinesApi
+    private suspend fun getContext(): GraphQLContext? {
+        val reactorContext = coroutineContext[ReactorContext]
+        return reactorContext?.context?.getOrDefault<GraphQLContext?>(GRAPHQL_CONTEXT_KEY, null)
     }
 
     /**

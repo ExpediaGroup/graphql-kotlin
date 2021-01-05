@@ -117,7 +117,7 @@ internal class ApolloSubscriptionSessionState {
      * Terminate the session, cancelling the keep alive messages and all operations active for this session.
      */
     fun terminateSession(session: WebSocketSession) {
-        activeOperations[session.id]?.forEach { _, subscription -> subscription.cancel() }
+        activeOperations[session.id]?.forEach { (_, subscription) -> subscription.cancel() }
         activeOperations.remove(session.id)
         onConnectHooks.remove(session.id)
         activeKeepAliveSessions[session.id]?.cancel()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.execution
+package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
@@ -28,23 +28,21 @@ import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
-import reactor.util.context.Context
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class SpringGraphQLRequestHandlerTest {
+class GraphQLRequestHandlerTest {
 
     private val testSchema: GraphQLSchema = toSchema(
-        config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.spring.execution")),
+        config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.server.execution")),
         queries = listOf(TopLevelObject(BasicQuery()))
     )
     private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()
-    private val graphQLRequestHandler = SpringGraphQLRequestHandler(testGraphQL)
+    private val graphQLRequestHandler = GraphQLRequestHandler(testGraphQL)
 
     @Test
     @ExperimentalCoroutinesApi
@@ -110,10 +108,11 @@ class SpringGraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with context`() = runBlockingTest(Context.of(GRAPHQL_CONTEXT_KEY, MyContext("JUNIT context value")).asCoroutineContext()) {
+    fun `execute graphQL query with context`() = runBlockingTest {
+        val context = MyContext("JUNIT context value")
         val request = GraphQLRequest(query = "query { contextualValue }")
 
-        val response = graphQLRequestHandler.executeRequest(request)
+        val response = graphQLRequestHandler.executeRequest(request, context)
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["contextualValue"] as? String) { msg ->
                 assertEquals("JUNIT context value", msg)
@@ -129,7 +128,7 @@ class SpringGraphQLRequestHandlerTest {
         val mockGraphQL: GraphQL = mockk {
             every { executeAsync(any<ExecutionInput>()) } throws RuntimeException("Uncaught JUNIT")
         }
-        val mockQueryHandler = SpringGraphQLRequestHandler(mockGraphQL)
+        val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
         val response = mockQueryHandler.executeRequest(GraphQLRequest(query = "query { whatever }"))
         assertNull(response.data)
         assertNotNull(response.errors) { errors ->
@@ -146,7 +145,7 @@ class SpringGraphQLRequestHandlerTest {
         val mockGraphQL: GraphQL = mockk {
             every { executeAsync(any<ExecutionInput>()) } throws AbortExecutionException("Uncaught abort exception")
         }
-        val mockQueryHandler = SpringGraphQLRequestHandler(mockGraphQL)
+        val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
         val response = mockQueryHandler.executeRequest(GraphQLRequest(query = "query { whatever }"))
         assertNull(response.data)
         assertNotNull(response.errors) { errors ->

@@ -22,9 +22,6 @@ import com.expediagroup.graphql.examples.model.Employee
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.BeanFactoryAware
-import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -46,18 +43,11 @@ class DataLoaderQuery : Query {
 }
 
 @Component("CompanyDataFetcher")
-@Scope("prototype")
-class CompanyDataFetcher : DataFetcher<CompletableFuture<Company>>, BeanFactoryAware {
-    private lateinit var beanFactory: BeanFactory
-
-    override fun setBeanFactory(beanFactory: BeanFactory) {
-        this.beanFactory = beanFactory
-    }
+class CompanyDataFetcher : DataFetcher<CompletableFuture<Company>> {
 
     override fun get(environment: DataFetchingEnvironment): CompletableFuture<Company> {
         val companyId = environment.getSource<Employee>().companyId
-        return environment
-            .getDataLoader<Int, Company>("companyLoader")
-            .load(companyId)
+
+        return environment.getDataLoader<Int, Company>("companyLoader").load(companyId)
     }
 }

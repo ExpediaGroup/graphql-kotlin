@@ -17,9 +17,8 @@
 package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.execution.FlowSubscriptionExecutionStrategy
+import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.spring.execution.DataLoaderRegistryFactory
-import com.expediagroup.graphql.spring.execution.SpringGraphQLRequestHandler
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -99,5 +98,5 @@ class GraphQLSchemaConfiguration {
     fun graphQLRequestHandler(
         graphql: GraphQL,
         dataLoaderRegistryFactory: DataLoaderRegistryFactory
-    ): GraphQLRequestHandler = SpringGraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
+    ) = GraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
 }

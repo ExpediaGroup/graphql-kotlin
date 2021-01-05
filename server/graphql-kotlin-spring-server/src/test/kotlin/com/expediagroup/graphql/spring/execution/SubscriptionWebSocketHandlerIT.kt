@@ -17,11 +17,11 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
-import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -67,7 +67,7 @@ class SubscriptionWebSocketHandlerIT(
         val startMessage = getStartMessage(messageId, request)
         val dataOutput = TestPublisher.create<String>()
 
-        client.execute(uri) { session ->
+        val response = client.execute(uri) { session ->
             val firstMessage = session.textMessage(initMessage).toMono()
                 .concatWith(session.textMessage(startMessage).toMono())
 
@@ -96,6 +96,8 @@ class SubscriptionWebSocketHandlerIT(
             .expectNext("{\"data\":{\"characters\":\"Eve\"}}")
             .expectComplete()
             .verify()
+
+        response.dispose()
     }
 
     @Test
@@ -106,7 +108,7 @@ class SubscriptionWebSocketHandlerIT(
         val startMessage = getStartMessage(messageId, request)
         val dataOutput = TestPublisher.create<String>()
 
-        client.execute(uri) { session ->
+        val response = client.execute(uri) { session ->
             val firstMessage = session.textMessage(initMessage).toMono()
                 .concatWith(session.textMessage(startMessage).toMono())
 
@@ -135,6 +137,8 @@ class SubscriptionWebSocketHandlerIT(
             .expectNext("{\"data\":{\"counter\":5}}")
             .expectComplete()
             .verify()
+
+        response.dispose()
     }
 
     @Test
@@ -147,7 +151,7 @@ class SubscriptionWebSocketHandlerIT(
         val headers = HttpHeaders()
         headers.set("X-Custom-Header", "junit")
 
-        client.execute(uri, headers) { session ->
+        val response = client.execute(uri, headers) { session ->
             val firstMessage = session.textMessage(initMessage).toMono()
                 .concatWith(session.textMessage(startMessage).toMono())
 
@@ -171,6 +175,8 @@ class SubscriptionWebSocketHandlerIT(
             .expectNextMatches { it.matches("\\{\"data\":\\{\"ticker\":\"junit:-?\\d+\"}}".toRegex()) }
             .expectComplete()
             .verify()
+
+        response.dispose()
     }
 
     @Configuration

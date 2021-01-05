@@ -324,6 +324,34 @@ class ApolloSubscriptionProtocolHandlerTest {
     }
 
     @Test
+    fun `Return empty flux when sending GQL_START and already connected operation`() {
+        val config: GraphQLConfigurationProperties = mockk()
+        val graphQLRequest = GraphQLRequest("{ message }")
+        val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "123", payload = graphQLRequest).toJson()
+        val session: WebSocketSession = mockk {
+            every { close() } returns mockk()
+            every { id } returns "123"
+        }
+        val subscriptionHandler: GraphQLSubscriptionHandler = mockk {
+            // Never closes
+            every { executeSubscription(eq(graphQLRequest)) } returns Flux.interval(Duration.ofSeconds(1)).map { GraphQLResponse("myData") }
+        }
+
+        val handler = ApolloSubscriptionProtocolHandler(config, subscriptionHandler, objectMapper, subscriptionHooks)
+
+        // Force get a result to cache the operation
+        handler.handle(operationMessage, session).blockFirst()
+
+        verify(exactly = 0) { session.close() }
+
+        // Second call with same id should return empty flux
+        val flux2 = handler.handle(operationMessage, session)
+        StepVerifier.create(flux2)
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
     fun `Return GQL_COMPLETE when sending GQL_STOP with GraphQLRequest having operation id of running operation`() {
         val config: GraphQLConfigurationProperties = mockk()
         val graphQLRequest = GraphQLRequest("{ message }")

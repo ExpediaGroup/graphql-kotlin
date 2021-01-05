@@ -17,12 +17,12 @@
 package com.expediagroup.graphql.spring.routes
 
 import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.spring.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.REQUEST_PARAM_VARIABLES
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.graphQLMediaType
-import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
