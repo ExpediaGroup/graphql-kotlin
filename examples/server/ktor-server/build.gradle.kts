@@ -15,9 +15,7 @@ application {
 
 val kotlinCoroutinesVersion: String by project
 dependencies {
-    implementation("com.expediagroup", "graphql-kotlin-schema-generator")
-    implementation("com.expediagroup", "graphql-kotlin-types")
-
+    implementation("com.expediagroup", "graphql-kotlin-server")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")

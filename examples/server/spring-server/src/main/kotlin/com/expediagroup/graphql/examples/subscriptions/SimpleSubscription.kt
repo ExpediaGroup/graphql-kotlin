@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.subscriptions
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
 import com.expediagroup.graphql.server.operations.Subscription
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
+import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher
@@ -74,7 +74,7 @@ class SimpleSubscription : Subscription {
     fun flowOfErrors(): Publisher<DataFetcherResult<String?>> {
         val dfr: DataFetcherResult<String?> = DataFetcherResult.newResult<String?>()
             .data(null)
-            .error(SimpleKotlinGraphQLError(Exception("error thrown")))
+            .error(KotlinGraphQLError(Exception("error thrown")))
             .build()
 
         return flowOf(dfr, dfr).asPublisher()
