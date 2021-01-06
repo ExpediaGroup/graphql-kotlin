@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.ktor
+package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.examples.ktor.schema.models.User
 import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.types.GraphQLRequest
 
 /**
- * Example of a custom [GraphQLContext]
+ * A generic server interface that handles parsing the specific server implementation request.
  */
-data class AuthorizedContext(
-    val authorizedUser: User? = null,
-    var guestUUID: String? = null,
-    val customHeader: String? = null
-) : GraphQLContext
+interface GraphQLRequestParser<out Context : GraphQLContext, Request> {
+
+    suspend fun createContext(request: Request): Context?
+
+    suspend fun parseRequest(request: Request): GraphQLRequest
+}

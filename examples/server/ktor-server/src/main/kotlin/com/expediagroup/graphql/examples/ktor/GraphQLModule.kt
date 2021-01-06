@@ -15,7 +15,7 @@ fun Application.graphQLModule() {
 
     routing {
         post("graphql") {
-            GraphQLServer().handle(this.call)
+            KtorServer().handle(this.call)
         }
 
         get("playground") {
