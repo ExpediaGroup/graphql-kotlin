@@ -26,5 +26,5 @@ interface DataLoaderRegistryFactory {
     /**
      * Generate [DataLoaderRegistry] to be used for GraphQL request execution.
      */
-    fun generate(): DataLoaderRegistry?
+    fun generate(): DataLoaderRegistry
 }

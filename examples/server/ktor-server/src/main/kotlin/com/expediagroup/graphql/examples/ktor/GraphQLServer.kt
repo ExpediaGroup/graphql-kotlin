@@ -50,7 +50,7 @@ class GraphQLServer {
     private val graphQLSchema = toSchema(config, queries, mutations)
     private val graphQL = GraphQL.newGraphQL(graphQLSchema).build()
     private val mapper = jacksonObjectMapper()
-    private val dataLoaderRegistryFactory = CustomDataLoaderRegistryFactory()
+    private val dataLoaderRegistryFactory = KtorDataLoaderRegistryFactory()
     private val requestHandler = GraphQLRequestHandler(graphQL, dataLoaderRegistryFactory)
 
     /**

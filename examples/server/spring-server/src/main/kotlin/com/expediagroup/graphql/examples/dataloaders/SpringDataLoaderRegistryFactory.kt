@@ -20,7 +20,7 @@ import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 
-class CustomDataLoaderRegistryFactory(
+class SpringDataLoaderRegistryFactory(
     private val companyLoader: DataLoader<*, *>
 ) : DataLoaderRegistryFactory {
 

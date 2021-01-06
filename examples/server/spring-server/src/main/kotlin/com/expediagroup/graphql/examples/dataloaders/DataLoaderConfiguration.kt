@@ -15,5 +15,5 @@ class DataLoaderConfiguration {
     }
 
     @Bean
-    fun dataLoaderRegistryFactory(companyLoader: DataLoader<*, *>) = CustomDataLoaderRegistryFactory(companyLoader)
+    fun dataLoaderRegistryFactory(companyLoader: DataLoader<*, *>) = SpringDataLoaderRegistryFactory(companyLoader)
 }

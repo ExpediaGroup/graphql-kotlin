@@ -25,7 +25,7 @@ import com.expediagroup.graphql.examples.ktor.schema.models.batchUniversityLoade
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import org.dataloader.DataLoaderRegistry
 
-class CustomDataLoaderRegistryFactory : DataLoaderRegistryFactory {
+class KtorDataLoaderRegistryFactory : DataLoaderRegistryFactory {
 
     override fun generate(): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
