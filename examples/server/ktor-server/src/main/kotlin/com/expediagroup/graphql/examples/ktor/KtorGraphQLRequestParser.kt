@@ -30,7 +30,7 @@ import java.io.IOException
  */
 class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper
-) : GraphQLRequestParser<AuthorizedContext, ApplicationRequest> {
+) : GraphQLRequestParser<ApplicationRequest> {
 
     override suspend fun createContext(request: ApplicationRequest): AuthorizedContext {
         val loggedInUser = User(

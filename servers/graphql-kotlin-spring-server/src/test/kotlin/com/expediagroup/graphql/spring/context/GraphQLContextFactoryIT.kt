@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.spring.context
 
 import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_FILTER_ORDER
 import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
-import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.types.GraphQLRequest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.ReactorContext

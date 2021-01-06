@@ -16,32 +16,16 @@
 
 package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_KEY
-import com.expediagroup.graphql.types.GraphQLRequest
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.type.MapType
-import com.fasterxml.jackson.databind.type.TypeFactory
+import com.expediagroup.graphql.server.execution.GraphQLServer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.ReactorContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
-import kotlin.coroutines.coroutineContext
-
-internal const val REQUEST_PARAM_QUERY = "query"
-internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
-internal const val REQUEST_PARAM_VARIABLES = "variables"
-internal val graphQLMediaType = MediaType("application", "graphql")
 
 /**
  * Default route configuration for GraphQL endpoints.
@@ -52,11 +36,8 @@ internal val graphQLMediaType = MediaType("application", "graphql")
 @Import(GraphQLSchemaConfiguration::class)
 class GraphQLRoutesConfiguration(
     private val config: GraphQLConfigurationProperties,
-    private val requestHandler: GraphQLRequestHandler,
-    private val objectMapper: ObjectMapper
+    private val graphQLServer: GraphQLServer<ServerRequest>
 ) {
-
-    private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 
     @Bean
     @ExperimentalCoroutinesApi
@@ -65,21 +46,13 @@ class GraphQLRoutesConfiguration(
         val isNotWebsocketRequest = headers { isWebSocketHeaders(it) }.not()
 
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
-            val graphQLRequest = createGraphQLRequest(serverRequest)
-            if (graphQLRequest != null) {
-                val context = getContext()
-                val graphQLResponse = requestHandler.executeRequest(graphQLRequest, context)
+            val graphQLResponse = graphQLServer.getResponse(serverRequest)
+            if (graphQLResponse != null) {
                 ok().json().bodyValueAndAwait(graphQLResponse)
             } else {
                 badRequest().buildAndAwait()
             }
         }
-    }
-
-    @ExperimentalCoroutinesApi
-    private suspend fun getContext(): GraphQLContext? {
-        val reactorContext = coroutineContext[ReactorContext]
-        return reactorContext?.context?.getOrDefault<GraphQLContext?>(GRAPHQL_CONTEXT_KEY, null)
     }
 
     /**
@@ -94,35 +67,4 @@ class GraphQLRoutesConfiguration(
 
     private fun requestContainsHeader(headers: ServerRequest.Headers, headerName: String, headerValue: String): Boolean =
         headers.header(headerName).map { it.toLowerCase() }.contains(headerValue.toLowerCase())
-
-    private suspend fun createGraphQLRequest(serverRequest: ServerRequest): GraphQLRequest? = when {
-        serverRequest.queryParam(REQUEST_PARAM_QUERY).isPresent -> { getRequestFromGet(serverRequest) }
-        serverRequest.method() == HttpMethod.POST -> { getRequestFromPost(serverRequest) }
-        else -> null
-    }
-
-    private fun getRequestFromGet(serverRequest: ServerRequest): GraphQLRequest {
-        val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
-        val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
-        val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
-        val graphQLVariables: Map<String, Any>? = variables?.let {
-            objectMapper.readValue(it, mapTypeReference)
-        }
-
-        return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
-    }
-
-    /**
-     * We have have to suppress the warning due to a jackson issue
-     * https://github.com/FasterXML/jackson-module-kotlin/issues/221
-     */
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLRequest? {
-        val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
-        return when {
-            contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.awaitBody()
-            contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
-            else -> null
-        }
-    }
 }

@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.execution.GraphQLContext
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -27,11 +26,11 @@ import org.junit.jupiter.api.Test
 @ExperimentalCoroutinesApi
 class GraphQLServerTest {
 
-    class MyContext : GraphQLContext
+    class MockHttpRequest
 
     @Test
     fun `the request handler and parser are called`() {
-        val mockParser = mockk<GraphQLRequestParser<*, MyContext>>(relaxed = true) {
+        val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>>(relaxed = true) {
             coEvery { createContext(any()) } returns mockk()
             coEvery { parseRequest(any()) } returns mockk()
         }
@@ -51,7 +50,7 @@ class GraphQLServerTest {
 
     @Test
     fun `null context is used and passed to the request handler`() {
-        val mockParser = mockk<GraphQLRequestParser<*, MyContext>>(relaxed = true) {
+        val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>>(relaxed = true) {
             coEvery { createContext(any()) } returns null
             coEvery { parseRequest(any()) } returns mockk()
         }

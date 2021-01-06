@@ -16,12 +16,12 @@
 
 package com.expediagroup.graphql.spring.routes
 
-import com.expediagroup.graphql.spring.REQUEST_PARAM_QUERY
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
-import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

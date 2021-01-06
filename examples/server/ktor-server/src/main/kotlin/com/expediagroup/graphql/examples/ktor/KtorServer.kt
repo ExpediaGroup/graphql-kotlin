@@ -18,6 +18,7 @@ package com.expediagroup.graphql.examples.ktor
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.ApplicationCall
+import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 
 /**
@@ -36,7 +37,12 @@ class KtorServer {
         // Execute the query against the schema
         val result = ktorGraphQLServer.getResponse(applicationCall.request)
 
-        // write response as json
-        applicationCall.response.call.respond(mapper.writeValueAsString(result))
+        if (result != null) {
+            // write response as json
+            val json = mapper.writeValueAsString(result)
+            applicationCall.response.call.respond(json)
+        } else {
+            applicationCall.response.call.respond(HttpStatusCode.BadRequest, "Invalid request")
+        }
     }
 }

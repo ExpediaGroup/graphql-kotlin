@@ -22,9 +22,9 @@ import com.expediagroup.graphql.types.GraphQLRequest
 /**
  * A generic server interface that handles parsing the specific server implementation request.
  */
-interface GraphQLRequestParser<out Context : GraphQLContext, Request> {
+interface GraphQLRequestParser<Request> {
 
-    suspend fun createContext(request: Request): Context?
+    suspend fun createContext(request: Request): GraphQLContext?
 
-    suspend fun parseRequest(request: Request): GraphQLRequest
+    suspend fun parseRequest(request: Request): GraphQLRequest?
 }

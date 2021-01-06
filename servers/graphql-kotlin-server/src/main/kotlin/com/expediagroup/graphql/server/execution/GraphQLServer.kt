@@ -16,22 +16,25 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.types.GraphQLResponse
 
 /**
  * A basic server implementation that parses the incoming request and returns a [GraphQLResponse].
  * Subscriptions may require more server-specific details and should be implemented separately.
  */
-open class GraphQLServer<out Context : GraphQLContext, Request>(
-    private val requestParser: GraphQLRequestParser<Context, Request>,
+open class GraphQLServer<Request>(
+    private val requestParser: GraphQLRequestParser<Request>,
     private val requestHandler: GraphQLRequestHandler
 ) {
 
-    open suspend fun getResponse(request: Request): GraphQLResponse<*> {
+    open suspend fun getResponse(request: Request): GraphQLResponse<*>? {
         val context = requestParser.createContext(request)
         val graphQLRequest = requestParser.parseRequest(request)
 
-        return requestHandler.executeRequest(graphQLRequest, context)
+        return if (graphQLRequest != null) {
+            requestHandler.executeRequest(graphQLRequest, context)
+        } else {
+            null
+        }
     }
 }
