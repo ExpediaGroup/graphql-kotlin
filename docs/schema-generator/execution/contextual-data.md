@@ -10,13 +10,10 @@ for the GraphQL context would be trace headers for an OpenTracing system such as
 its function, but the server needs the information to ensure observability.
 
 The contents of the GraphQL context vary across applications and it is up to the GraphQL server developers to decide
-what it should contain. For Spring based applications, `graphql-kotlin-spring-server` provides a simple mechanism to
+what it should contain. `graphql-kotlin-server` provides a simple mechanism to
 build context per query execution through
-[GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
-Once context factory bean is available in the Spring application context it will then be used in a corresponding
-[ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
-to populate GraphQL context based on the incoming request and make it available during query execution. See [graphql-kotlin-spring-server documentation](../../spring-server/spring-graphql-context)
-for additional details
+[GraphQLContextFactory](../../server/graphql-context-factory.md).
+Once a context factory is available it will then be used to populate GraphQL context based on the incoming request and make it available during query execution.
 
 ## GraphQLContext Interface
 
@@ -52,8 +49,7 @@ type Query {
 
 Note that the argument that implements `GraphQLContext` is not reflected in the GraphQL schema.
 
-## Spring Server
-For more details on how to create the context while using `graphql-kotlin-spring-server` see the [spring graphql context page](../../spring-server/spring-graphql-context.md).
-
-### Customization
-The context is injected into the execution through the `FunctionDataFetcher` class. If you want to customize the logic on how the context is determined, that is possible to override. See more details on the [Fetching Data documentation](./fetching-data)
+## Injection Customization
+The context is injected into the execution through the `FunctionDataFetcher` class.
+If you want to customize the logic on how the context is determined, that is possible to override.
+See more details on the [Fetching Data documentation](./fetching-data.md)

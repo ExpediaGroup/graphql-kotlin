@@ -19,10 +19,10 @@ package com.expediagroup.graphql.spring
 import com.expediagroup.graphql.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.execution.GraphQLServer
 import com.expediagroup.graphql.spring.execution.DefaultSpringGraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.SpringGraphQLRequestParser
+import com.expediagroup.graphql.spring.execution.SpringGraphQLServer
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
@@ -38,7 +38,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
-import org.springframework.web.reactive.function.server.ServerRequest
 import java.util.Optional
 
 /**
@@ -101,14 +100,7 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun graphQLRequestHandler(
-        graphql: GraphQL,
-        dataLoaderRegistryFactory: DataLoaderRegistryFactory
-    ) = GraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun springGraphQLRequestParser(objectMapper: ObjectMapper) = SpringGraphQLRequestParser(objectMapper)
+    fun springGraphQLRequestParser(objectMapper: ObjectMapper): SpringGraphQLRequestParser = SpringGraphQLRequestParser(objectMapper)
 
     @Bean
     @ConditionalOnMissingBean
@@ -116,9 +108,16 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    fun graphQLRequestHandler(
+        graphql: GraphQL,
+        dataLoaderRegistryFactory: DataLoaderRegistryFactory
+    ): GraphQLRequestHandler = GraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
+
+    @Bean
+    @ConditionalOnMissingBean
     fun springGraphQLServer(
         requestParser: SpringGraphQLRequestParser,
         contextFactory: SpringGraphQLContextFactory<*>,
         requestHandler: GraphQLRequestHandler
-    ): GraphQLServer<ServerRequest> = GraphQLServer(requestParser, contextFactory, requestHandler)
+    ): SpringGraphQLServer = SpringGraphQLServer(requestParser, contextFactory, requestHandler)
 }

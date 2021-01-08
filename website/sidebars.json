@@ -57,14 +57,25 @@
       "federated/federated-directives",
       "federated/type-resolution"
     ],
-    "Spring Server": [
-      "spring-server/spring-overview",
-      "spring-server/spring-beans",
-      "spring-server/spring-properties",
-      "spring-server/spring-schema",
-      "spring-server/spring-graphql-context",
-      "spring-server/http-request-response",
-      "spring-server/subscriptions"
+    "Server": [
+      "server/graphql-server",
+      "server/graphql-request-parser",
+      "server/graphql-context-factory",
+      "server/graphql-request-handler",
+      "server/http-request-response",
+      "server/server-subscriptions",
+      {
+        "type": "subcategory",
+        "label": "Spring Server",
+        "ids": [
+          "server/spring-server/spring-overview",
+          "server/spring-server/spring-beans",
+          "server/spring-server/spring-properties",
+          "server/spring-server/spring-schema",
+          "server/spring-server/spring-graphql-context",
+          "server/spring-server/spring-subscriptions"
+        ]
+      }
     ],
     "HTTP Client": [
       "client/client-overview",

@@ -26,7 +26,7 @@ are a couple ways we can access it:
 ## DataFetchingEnvironment
 
 You can add the `DataFetchingEnvironment` as an argument. This class will be ignored by the schema generator and will allow
-you to view the entire query sent to the server. See more in the [DataFetchingEnvironment documentation](../execution/data-fetching-environment)
+you to view the entire query sent to the server. See more in the [DataFetchingEnvironment documentation](../execution/data-fetching-environment.md)
 
 ```kotlin
 class User {
@@ -40,7 +40,7 @@ class User {
 ## GraphQL Context
 
 You can add the `GraphQLContext` as an argument. This class will be ignored by the schema generator and will allow you to
-view the context object you set up in the data fetchers. See more in the [GraphQLContext documentation](../execution/contextual-data)
+view the context object you set up in the data fetchers. See more in the [GraphQLContext documentation](../execution/contextual-data.md)
 
 ```kotlin
 class User {
@@ -52,7 +52,7 @@ class User {
 ```
 
 ## Excluding Arguments from the Schema
-You can construct the child objects by passing down arguments as non-public fields or annotate the argument with [@GraphQLIgnore](../customizing-schemas/excluding-fields)
+You can construct the child objects by passing down arguments as non-public fields or annotate the argument with [@GraphQLIgnore](../customizing-schemas/excluding-fields.md)
 
 ```kotlin
 class User(private val userId: String) {
@@ -69,4 +69,4 @@ class User(private val userId: String) {
 
 ## Spring Integration
 
-See [Writing Schemas with Spring](../../spring-server/spring-schema.md) for integration details.
+See [Writing Schemas with Spring](../../server/spring-server/spring-schema.md) for integration details.

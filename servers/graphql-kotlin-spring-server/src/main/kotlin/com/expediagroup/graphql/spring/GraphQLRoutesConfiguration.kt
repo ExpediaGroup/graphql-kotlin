@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.server.execution.GraphQLServer
+import com.expediagroup.graphql.spring.execution.SpringGraphQLServer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -36,7 +36,7 @@ import org.springframework.web.reactive.function.server.json
 @Import(GraphQLSchemaConfiguration::class)
 class GraphQLRoutesConfiguration(
     private val config: GraphQLConfigurationProperties,
-    private val graphQLServer: GraphQLServer<ServerRequest>
+    private val graphQLServer: SpringGraphQLServer
 ) {
 
     @Bean

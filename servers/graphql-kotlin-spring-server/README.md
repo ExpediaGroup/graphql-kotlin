@@ -1,4 +1,4 @@
-# GraphQL Kotlin Spring Boot Autoconfiguration
+# GraphQL Kotlin Spring Server
 [![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-spring-server.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-spring-server%22)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-spring-server.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server)
 
