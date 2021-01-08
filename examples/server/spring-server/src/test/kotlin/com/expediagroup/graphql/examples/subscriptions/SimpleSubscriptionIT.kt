@@ -20,6 +20,7 @@ import com.expediagroup.graphql.examples.SUBSCRIPTION_ENDPOINT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -29,8 +30,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
 import java.net.URI
@@ -139,22 +140,27 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     ): Mono<Void> {
         val initMessage = getInitMessage(id, initPayload)
         val startMessage = getStartMessage(query, id)
-        val firstMessage = session.textMessage(initMessage).toMono()
-            .concatWith(session.textMessage(startMessage).toMono())
+        val firstMessage = Flux.just(session.textMessage(initMessage), session.textMessage(startMessage))
 
         return session.send(firstMessage)
             .thenMany(
                 session.receive()
                     .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .doOnNext {
-                        if (it.type == SubscriptionOperationMessage.ServerMessages.GQL_DATA.type) {
+                        if (it.type == ServerMessages.GQL_DATA.type) {
                             val data = objectMapper.writeValueAsString(it.payload)
                             output.next(data)
-                        } else if (it.type == SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE.type) {
+                        } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
                             output.complete()
                         }
                     }
             )
+            .doOnError {
+                output.error(it)
+            }
+            .doOnComplete {
+                output.complete()
+            }
             .then()
     }
 

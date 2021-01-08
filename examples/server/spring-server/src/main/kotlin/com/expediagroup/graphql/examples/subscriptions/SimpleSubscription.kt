@@ -81,6 +81,6 @@ class SimpleSubscription : Subscription {
     }
 
     @GraphQLDescription("Returns a value from the subscription context")
-    fun subscriptionContext(myGraphQLContext: MySubscriptionGraphQLContext): Publisher<String> =
-        flowOf(myGraphQLContext.subscriptionValue ?: "", "value 2", "value3").asPublisher()
+    fun subscriptionContext(myGraphQLContext: MySubscriptionGraphQLContext): Flux<String> =
+        Flux.just(myGraphQLContext.subscriptionValue ?: "", "value 2", "value3")
 }
