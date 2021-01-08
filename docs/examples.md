@@ -23,16 +23,12 @@ project. Please refer to the README files for details on how to run each applica
 Example integrations of `graphql-kotlin-schema-generator` with number of popular application frameworks can be found under
 [examples/server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server) folder.
 
+These examples also demonstrates how to include [`DataLoaders`](https://github.com/graphql-java/java-dataloader) in your query execution.
+
 ### Ktor Server Example
 
 [Ktor](http://ktor.io/) is an asynchronous framework for creating microservices, web applications, and more. Example
 integration can be found at [examples/server/ktor-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server/ktor-server)
-
-### Spark Server Example
-
-The spark example provides a demonstration of delivering a GraphQL service via the [Spark HTTP framework](http://sparkjava.com/).
-This example also demonstrates how to include [`DataLoaders`](https://github.com/graphql-java/java-dataloader) in your query execution.
-This example can be found at [examples/server/spark-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server/spark-server)
 
 ### Spring Server Example
 
