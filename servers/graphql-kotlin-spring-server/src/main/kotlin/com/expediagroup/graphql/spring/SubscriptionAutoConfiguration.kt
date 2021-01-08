@@ -16,12 +16,13 @@
 
 package com.expediagroup.graphql.spring
 
-import com.expediagroup.graphql.server.execution.GraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.spring.execution.ApolloSubscriptionHooks
 import com.expediagroup.graphql.spring.execution.ApolloSubscriptionProtocolHandler
+import com.expediagroup.graphql.spring.execution.DefaultSpringSubscriptionGraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.SimpleSubscriptionHooks
 import com.expediagroup.graphql.spring.execution.SpringGraphQLSubscriptionHandler
+import com.expediagroup.graphql.spring.execution.SpringSubscriptionGraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.SubscriptionWebSocketHandler
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
@@ -54,7 +55,7 @@ class SubscriptionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun subscriptionHandler(graphQL: GraphQL): GraphQLSubscriptionHandler = SpringGraphQLSubscriptionHandler(graphQL)
+    fun subscriptionHandler(graphQL: GraphQL) = SpringGraphQLSubscriptionHandler(graphQL)
 
     @Bean
     @ConditionalOnMissingBean
@@ -65,12 +66,17 @@ class SubscriptionAutoConfiguration {
     fun apolloSubscriptionHooks(): ApolloSubscriptionHooks = SimpleSubscriptionHooks()
 
     @Bean
+    @ConditionalOnMissingBean
+    fun springSubscriptionGraphQLContextFactory(): SpringSubscriptionGraphQLContextFactory<*> = DefaultSpringSubscriptionGraphQLContextFactory
+
+    @Bean
     fun apolloSubscriptionProtocolHandler(
         config: GraphQLConfigurationProperties,
-        handler: GraphQLSubscriptionHandler,
+        subscriptionContextFactory: SpringSubscriptionGraphQLContextFactory<*>,
+        handler: SpringGraphQLSubscriptionHandler,
         objectMapper: ObjectMapper,
         apolloSubscriptionHooks: ApolloSubscriptionHooks
-    ) = ApolloSubscriptionProtocolHandler(config, handler, objectMapper, apolloSubscriptionHooks)
+    ) = ApolloSubscriptionProtocolHandler(config, subscriptionContextFactory, handler, objectMapper, apolloSubscriptionHooks)
 
     @Bean
     fun subscriptionWebSocketHandler(handler: ApolloSubscriptionProtocolHandler, objectMapper: ObjectMapper) =

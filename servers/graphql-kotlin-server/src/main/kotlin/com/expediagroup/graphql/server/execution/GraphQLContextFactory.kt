@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.spring.execution
+package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.execution.GraphQLContext
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
-
-/**
- * Reactor SubscriberContext key for storing GraphQL context.
- */
-const val GRAPHQL_CONTEXT_KEY = "graphQLContext"
 
 /**
  * Factory that generates GraphQL context.
  */
-interface GraphQLContextFactory<out T : GraphQLContext> {
+interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
 
     /**
      * Generate GraphQL context based on the incoming request and the corresponding response.
+     * If no context should be generated and used in the request, return null.
      */
-    suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): T
+    fun generateContext(request: Request): Context?
 }
 
 /**
  * Default context factory that generates GraphQL context with empty concurrent map that can store any elements.
  */
-internal object DefaultContextFactory : GraphQLContextFactory<DefaultGraphQLContext> {
-
-    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse) = DefaultGraphQLContext()
+class DefaultGraphQLContextFactory<T> : GraphQLContextFactory<DefaultGraphQLContext, T> {
+    override fun generateContext(request: T) = DefaultGraphQLContext()
 }

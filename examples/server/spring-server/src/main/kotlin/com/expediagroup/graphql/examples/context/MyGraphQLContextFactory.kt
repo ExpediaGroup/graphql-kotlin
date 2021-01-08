@@ -1,20 +1,29 @@
 package com.expediagroup.graphql.examples.context
 
-import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
+import com.expediagroup.graphql.server.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.SpringSubscriptionGraphQLContextFactory
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
  * [GraphQLContextFactory] that generates [MyGraphQLContext] that will be available when processing GraphQL requests.
  */
 @Component
-class MyGraphQLContextFactory : GraphQLContextFactory<MyGraphQLContext> {
+class MyGraphQLContextFactory : SpringGraphQLContextFactory<MyGraphQLContext>() {
 
-    override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): MyGraphQLContext = MyGraphQLContext(
-        myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultContext",
+    override fun generateContext(request: ServerRequest): MyGraphQLContext = MyGraphQLContext(
+        myCustomValue = request.headers().firstHeader("MyHeader") ?: "defaultContext",
+        request = request
+    )
+}
+
+@Component
+class MySubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory<MySubscriptionGraphQLContext>() {
+
+    override fun generateContext(request: WebSocketSession): MySubscriptionGraphQLContext = MySubscriptionGraphQLContext(
         request = request,
-        response = response,
         subscriptionValue = null
     )
 }

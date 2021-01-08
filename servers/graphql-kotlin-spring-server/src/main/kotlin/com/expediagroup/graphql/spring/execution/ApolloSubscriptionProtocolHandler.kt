@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.server.execution.GraphQLSubscriptionHandler
+import com.expediagroup.graphql.execution.DefaultGraphQLContext
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.GraphQLConfigurationProperties
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
@@ -32,6 +33,7 @@ import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
@@ -45,7 +47,8 @@ import java.time.Duration
  */
 class ApolloSubscriptionProtocolHandler(
     private val config: GraphQLConfigurationProperties,
-    private val subscriptionHandler: GraphQLSubscriptionHandler,
+    private val contextFactory: SpringSubscriptionGraphQLContextFactory<*>,
+    private val subscriptionHandler: SpringGraphQLSubscriptionHandler,
     private val objectMapper: ObjectMapper,
     private val subscriptionHooks: ApolloSubscriptionHooks
 ) {
@@ -55,24 +58,22 @@ class ApolloSubscriptionProtocolHandler(
     private val basicConnectionErrorMessage = SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type)
     private val acknowledgeMessage = SubscriptionOperationMessage(GQL_CONNECTION_ACK.type)
 
+    @ExperimentalCoroutinesApi
     @Suppress("Detekt.TooGenericExceptionCaught")
     fun handle(payload: String, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
         val operationMessage = convertToMessageOrNull(payload) ?: return Flux.just(basicConnectionErrorMessage)
         logger.debug("GraphQL subscription client message, sessionId=${session.id} operationMessage=$operationMessage")
 
-        return Mono.subscriberContext().flatMapMany { reactorContext ->
-            try {
-                val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
-                when (operationMessage.type) {
-                    GQL_CONNECTION_INIT.type -> onInit(operationMessage, session, graphQLContext)
-                    GQL_START.type -> onStart(operationMessage, session, graphQLContext)
-                    GQL_STOP.type -> onStop(operationMessage, session)
-                    GQL_CONNECTION_TERMINATE.type -> onDisconnect(session, graphQLContext)
-                    else -> onUnknownOperation(operationMessage, session)
-                }
-            } catch (exception: Exception) {
-                onException(exception)
+        return try {
+            when (operationMessage.type) {
+                GQL_CONNECTION_INIT.type -> onInit(operationMessage, session)
+                GQL_START.type -> onStart(operationMessage, session)
+                GQL_STOP.type -> onStop(operationMessage, session)
+                GQL_CONNECTION_TERMINATE.type -> onDisconnect(session)
+                else -> onUnknownOperation(operationMessage, session)
             }
+        } catch (exception: Exception) {
+            onException(exception)
         }
     }
 
@@ -104,8 +105,11 @@ class ApolloSubscriptionProtocolHandler(
     @Suppress("Detekt.TooGenericExceptionCaught")
     private fun startSubscription(
         operationMessage: SubscriptionOperationMessage,
-        session: WebSocketSession
+        session: WebSocketSession,
+        context: GraphQLContext
     ): Flux<SubscriptionOperationMessage> {
+        subscriptionHooks.onOperation(operationMessage, session, context)
+
         if (operationMessage.id == null) {
             logger.error("GraphQL subscription operation id is required")
             return Flux.just(basicConnectionErrorMessage)
@@ -126,7 +130,7 @@ class ApolloSubscriptionProtocolHandler(
 
         try {
             val request = objectMapper.convertValue<GraphQLRequest>(payload)
-            return subscriptionHandler.executeSubscription(request)
+            return subscriptionHandler.executeSubscription(request, context)
                 .toFlux()
                 .map {
                     if (it.errors?.isNotEmpty() == true) {
@@ -135,8 +139,8 @@ class ApolloSubscriptionProtocolHandler(
                         SubscriptionOperationMessage(type = GQL_DATA.type, id = operationMessage.id, payload = it)
                     }
                 }
+                .concatWith(onComplete(operationMessage, session).toFlux())
                 .doOnSubscribe { sessionState.saveOperation(session, operationMessage, it) }
-                .concatWith(onComplete(operationMessage, session))
         } catch (exception: Exception) {
             logger.error("Error running graphql subscription", exception)
             // Do not terminate the session, just stop the operation messages
@@ -145,11 +149,12 @@ class ApolloSubscriptionProtocolHandler(
         }
     }
 
-    private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?): Flux<SubscriptionOperationMessage> {
+    private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
         val connectionParams = getConnectionParams(operationMessage.payload)
+        val graphQLContext = contextFactory.generateContext(session) ?: DefaultGraphQLContext()
         val onConnect = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
-        sessionState.saveOnConnectHook(session, onConnect)
-        val acknowledgeMessage = Mono.just(acknowledgeMessage)
+        sessionState.saveContext(session, onConnect)
+        val acknowledgeMessage = Flux.just(acknowledgeMessage)
         val keepAliveFlux = getKeepAliveFlux(session)
         return acknowledgeMessage.concatWith(keepAliveFlux)
     }
@@ -174,19 +179,18 @@ class ApolloSubscriptionProtocolHandler(
      */
     private fun onStart(
         operationMessage: SubscriptionOperationMessage,
-        session: WebSocketSession,
-        graphQLContext: Any?
+        session: WebSocketSession
     ): Flux<SubscriptionOperationMessage> {
-        val onConnect = sessionState.onConnect(session) ?: subscriptionHooks.onConnect(emptyMap(), session, graphQLContext)
-        return onConnect.flatMapMany { onOperation(operationMessage, session, graphQLContext) }
-    }
+        val context = sessionState.getContext(session)
 
-    /**
-     * Called when we are ready to start executing the operation
-     */
-    private fun onOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession, graphQLContext: Any?): Flux<SubscriptionOperationMessage> =
-        subscriptionHooks.onOperation(operationMessage, session, graphQLContext)
-            .flatMapMany { startSubscription(operationMessage, session) }
+        // If we do not have a context, that means the init message was never sent
+        return if (context != null) {
+            context.flatMapMany { startSubscription(operationMessage, session, it) }
+        } else {
+            val message = getConnectionErrorMessage(operationMessage)
+            Flux.just(message)
+        }
+    }
 
     /**
      * Called with the publisher has completed on its own.
@@ -194,8 +198,10 @@ class ApolloSubscriptionProtocolHandler(
     private fun onComplete(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession
-    ): Mono<SubscriptionOperationMessage> = subscriptionHooks.onOperationComplete(session)
-        .then(sessionState.completeOperation(session, operationMessage))
+    ): Mono<SubscriptionOperationMessage> {
+        subscriptionHooks.onOperationComplete(session)
+        return sessionState.completeOperation(session, operationMessage)
+    }
 
     /**
      * Called with the client has called stop manually, or on error, and we need to cancel the publisher
@@ -203,26 +209,29 @@ class ApolloSubscriptionProtocolHandler(
     private fun onStop(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession
-    ): Mono<SubscriptionOperationMessage> = subscriptionHooks.onOperationComplete(session)
-        .then(sessionState.stopOperation(session, operationMessage))
-
-    private fun onDisconnect(
-        session: WebSocketSession,
-        graphQLContext: Any?
-    ): Mono<SubscriptionOperationMessage> = subscriptionHooks.onDisconnect(session, graphQLContext)
-        .flatMap {
-            sessionState.terminateSession(session)
-            Mono.empty<SubscriptionOperationMessage>()
-        }
-
-    private fun onUnknownOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Mono<SubscriptionOperationMessage> {
-        logger.error("Unknown subscription operation $operationMessage")
-        sessionState.stopOperation(session, operationMessage)
-        return Mono.just(SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id))
+    ): Flux<SubscriptionOperationMessage> {
+        subscriptionHooks.onOperationComplete(session)
+        return sessionState.stopOperation(session, operationMessage).toFlux()
     }
 
-    private fun onException(exception: Exception): Mono<SubscriptionOperationMessage> {
+    private fun onDisconnect(session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+        subscriptionHooks.onDisconnect(session)
+        sessionState.terminateSession(session)
+        return Flux.empty<SubscriptionOperationMessage>()
+    }
+
+    private fun onUnknownOperation(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
+        logger.error("Unknown subscription operation $operationMessage")
+        sessionState.stopOperation(session, operationMessage)
+        return Flux.just(getConnectionErrorMessage(operationMessage))
+    }
+
+    private fun onException(exception: Exception): Flux<SubscriptionOperationMessage> {
         logger.error("Error parsing the subscription message", exception)
-        return Mono.just(basicConnectionErrorMessage)
+        return Flux.just(basicConnectionErrorMessage)
+    }
+
+    private fun getConnectionErrorMessage(operationMessage: SubscriptionOperationMessage): SubscriptionOperationMessage {
+        return SubscriptionOperationMessage(type = GQL_CONNECTION_ERROR.type, id = operationMessage.id)
     }
 }

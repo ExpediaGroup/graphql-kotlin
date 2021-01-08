@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.spring.execution
 
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.server.exception.KotlinGraphQLError
-import com.expediagroup.graphql.server.execution.GraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
 import com.expediagroup.graphql.server.extensions.toGraphQLResponse
@@ -33,11 +33,10 @@ import reactor.kotlin.core.publisher.toFlux
 /**
  * Default Spring implementation of GraphQL subscription handler.
  */
-open class SpringGraphQLSubscriptionHandler(private val graphQL: GraphQL) : GraphQLSubscriptionHandler {
+open class SpringGraphQLSubscriptionHandler(private val graphQL: GraphQL) {
 
-    override fun executeSubscription(graphQLRequest: GraphQLRequest): Flux<GraphQLResponse<*>> = Mono.subscriberContext()
-        .flatMapMany { reactorContext ->
-            val graphQLContext = reactorContext.getOrDefault<Any>(GRAPHQL_CONTEXT_KEY, null)
+    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flux<GraphQLResponse<*>> = Mono.subscriberContext()
+        .flatMapMany {
             graphQL.execute(graphQLRequest.toExecutionInput(graphQLContext))
                 .getData<Publisher<ExecutionResult>>()
                 .toFlux()

@@ -23,8 +23,6 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Client
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.net.URI
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -35,6 +33,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
+import java.net.URI
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -43,7 +42,7 @@ import reactor.test.publisher.TestPublisher
 @EnableAutoConfiguration
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
-    private val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    private val objectMapper = jacksonObjectMapper()
 
     @Test
     fun `verify singleValueSubscription query`() {

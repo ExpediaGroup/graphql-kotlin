@@ -16,19 +16,15 @@
 
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.ReactorContext
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.awaitBody
-import kotlin.coroutines.coroutineContext
 
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
@@ -40,12 +36,6 @@ open class SpringGraphQLRequestParser(
 ) : GraphQLRequestParser<ServerRequest> {
 
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
-
-    @ExperimentalCoroutinesApi
-    override suspend fun createContext(request: ServerRequest): GraphQLContext? {
-        val reactorContext = coroutineContext[ReactorContext]
-        return reactorContext?.context?.getOrDefault<GraphQLContext?>(GRAPHQL_CONTEXT_KEY, null)
-    }
 
     override suspend fun parseRequest(request: ServerRequest): GraphQLRequest? = when {
         request.queryParam(REQUEST_PARAM_QUERY).isPresent -> { getRequestFromGet(request) }

@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.spring.execution
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
@@ -29,6 +30,7 @@ class SubscriptionWebSocketHandler(
     private val objectMapper: ObjectMapper
 ) : WebSocketHandler {
 
+    @ExperimentalCoroutinesApi
     @Suppress("ForbiddenVoid")
     override fun handle(session: WebSocketSession): Mono<Void> {
         val response = session.receive()

@@ -18,14 +18,13 @@ package com.expediagroup.graphql.spring
 
 import com.expediagroup.graphql.SchemaGeneratorConfig
 import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.spring.execution.ContextWebFilter
-import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.toSchema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -88,7 +87,6 @@ class SchemaConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
-                assertThat(ctx).hasSingleBean(ContextWebFilter::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
     }
@@ -119,12 +117,8 @@ class SchemaConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
-                assertThat(ctx).hasSingleBean(ContextWebFilter::class.java)
-                assertThat(ctx).getBean(ContextWebFilter::class.java)
-                    .isSameAs(customConfiguration.myCustomContextWebFilter(graphQLProperties, customConfiguration.myCustomContextFactory()))
-
-                assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
-                assertThat(ctx).getBean(GraphQLContextFactory::class.java)
+                assertThat(ctx).hasSingleBean(SpringGraphQLContextFactory::class.java)
+                assertThat(ctx).getBean(SpringGraphQLContextFactory::class.java)
                     .isSameAs(customConfiguration.myCustomContextFactory())
             }
     }
@@ -167,25 +161,10 @@ class SchemaConfigurationTest {
             .build()
 
         @Bean
-        fun myCustomContextFactory(): GraphQLContextFactory<*> = mockk()
+        fun myCustomContextFactory(): SpringGraphQLContextFactory<*> = mockk()
 
         @Bean
         fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
-
-        @Bean
-        fun myCustomContextWebFilter(
-            config: GraphQLConfigurationProperties,
-            graphQLContextFactory: GraphQLContextFactory<*>
-        ) = CustomWebFilter(config, graphQLContextFactory)
-    }
-
-    class CustomWebFilter<out T : GraphQLContext>(
-        config: GraphQLConfigurationProperties,
-        graphQLContextFactory: GraphQLContextFactory<T>
-    ) : ContextWebFilter<T>(config, graphQLContextFactory) {
-        private val regex = config.endpoint.toRegex()
-
-        override fun isApplicable(path: String): Boolean = regex.matches(path)
     }
 
     class BasicQuery : Query {

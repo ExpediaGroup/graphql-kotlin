@@ -24,6 +24,7 @@ import com.expediagroup.graphql.toSchema
 import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
@@ -47,7 +48,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest(query = "subscription { ticker }")
-        val responseFlux = subscriptionHandler.executeSubscription(request)
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk())
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -65,8 +66,8 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription with context`() {
         val request = GraphQLRequest(query = "subscription { contextualTicker }")
-        val responseFlux = subscriptionHandler.executeSubscription(request)
-            .subscriberContext { it.put(GRAPHQL_CONTEXT_KEY, SubscriptionContext("junitHandler")) }
+        val context = SubscriptionContext("junitHandler")
+        val responseFlux = subscriptionHandler.executeSubscription(request, context)
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -87,7 +88,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription to failing publisher`() {
         val request = GraphQLRequest(query = "subscription { alwaysThrows }")
-        val responseFlux = subscriptionHandler.executeSubscription(request)
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk())
 
         StepVerifier.create(responseFlux)
             .assertNext { response ->

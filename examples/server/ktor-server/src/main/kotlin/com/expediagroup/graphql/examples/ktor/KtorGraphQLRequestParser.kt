@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.examples.ktor
 
-import com.expediagroup.graphql.examples.ktor.schema.models.User
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -26,25 +25,11 @@ import io.ktor.request.receiveText
 import java.io.IOException
 
 /**
- * Custom logic for how Ktor parses the incoming [ApplicationRequest] into the GraphQL specific objects
+ * Custom logic for how Ktor parses the incoming [ApplicationRequest] into the [GraphQLRequest]
  */
 class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper
 ) : GraphQLRequestParser<ApplicationRequest> {
-
-    override suspend fun createContext(request: ApplicationRequest): AuthorizedContext {
-        val loggedInUser = User(
-            email = "fake@site.com",
-            firstName = "Someone",
-            lastName = "You Don't know",
-            universityId = 4
-        )
-
-        // Parse any headers from the Ktor request
-        val customHeader: String? = request.headers["my-custom-header"]
-
-        return AuthorizedContext(loggedInUser, customHeader = customHeader)
-    }
 
     override suspend fun parseRequest(request: ApplicationRequest): GraphQLRequest {
         return try {

@@ -20,6 +20,8 @@ import com.expediagroup.graphql.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
+import com.expediagroup.graphql.spring.execution.DefaultSpringGraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.SpringGraphQLRequestParser
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
@@ -106,11 +108,17 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLRequestParser(objectMapper: ObjectMapper): SpringGraphQLRequestParser =
-        SpringGraphQLRequestParser(objectMapper)
+    fun springGraphQLRequestParser(objectMapper: ObjectMapper) = SpringGraphQLRequestParser(objectMapper)
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLServer(requestParser: SpringGraphQLRequestParser, requestHandler: GraphQLRequestHandler): GraphQLServer<ServerRequest> =
-        GraphQLServer(requestParser, requestHandler)
+    fun springGraphQLContextFactory(): SpringGraphQLContextFactory<*> = DefaultSpringGraphQLContextFactory()
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun springGraphQLServer(
+        requestParser: SpringGraphQLRequestParser,
+        contextFactory: SpringGraphQLContextFactory<*>,
+        requestHandler: GraphQLRequestHandler
+    ): GraphQLServer<ServerRequest> = GraphQLServer(requestParser, contextFactory, requestHandler)
 }

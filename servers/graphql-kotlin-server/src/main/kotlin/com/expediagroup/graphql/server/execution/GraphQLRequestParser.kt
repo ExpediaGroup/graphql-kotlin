@@ -16,15 +16,12 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
 
 /**
- * A generic server interface that handles parsing the specific server implementation request.
+ * A generic server interface that handles parsing the specific server implementation request to a [GraphQLRequest]
  */
 interface GraphQLRequestParser<Request> {
-
-    suspend fun createContext(request: Request): GraphQLContext?
 
     suspend fun parseRequest(request: Request): GraphQLRequest?
 }

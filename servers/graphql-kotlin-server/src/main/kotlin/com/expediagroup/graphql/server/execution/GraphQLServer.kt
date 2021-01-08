@@ -20,18 +20,27 @@ import com.expediagroup.graphql.types.GraphQLResponse
 
 /**
  * A basic server implementation that parses the incoming request and returns a [GraphQLResponse].
- * Subscriptions may require more server-specific details and should be implemented separately.
+ * Subscriptions require more server-specific details and should be implemented separately.
  */
 open class GraphQLServer<Request>(
     private val requestParser: GraphQLRequestParser<Request>,
+    private val contextFactory: GraphQLContextFactory<*, Request>,
     private val requestHandler: GraphQLRequestHandler
 ) {
 
+    /**
+     * Default execution logic for handling a [Request] and returning a [GraphQLResponse].
+     *
+     * If null is returned, that indicates a problem parsing the request or context.
+     * If the request is valid, a [GraphQLResponse] should always be retuned.
+     * In the case of errors or exceptions, return a response with [GraphQLResponse.errors] populated.
+     * If you need custom logic inside this method you can override this class or choose not to use it.
+     */
     open suspend fun getResponse(request: Request): GraphQLResponse<*>? {
-        val context = requestParser.createContext(request)
         val graphQLRequest = requestParser.parseRequest(request)
 
         return if (graphQLRequest != null) {
+            val context = contextFactory.generateContext(request)
             requestHandler.executeRequest(graphQLRequest, context)
         } else {
             null

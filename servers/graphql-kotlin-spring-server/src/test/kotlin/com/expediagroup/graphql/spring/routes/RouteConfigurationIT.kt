@@ -18,10 +18,10 @@ package com.expediagroup.graphql.spring.routes
 
 import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.spring.execution.REQUEST_PARAM_VARIABLES
+import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -32,10 +32,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.web.reactive.function.server.ServerRequest
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -50,9 +49,9 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         fun query(): Query = SimpleQuery()
 
         @Bean
-        fun customContextFactory(): GraphQLContextFactory<CustomContext> = object : GraphQLContextFactory<CustomContext> {
-            override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): CustomContext = CustomContext(
-                value = request.headers.getFirst("X-Custom-Header") ?: "default"
+        fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
+            override fun generateContext(request: ServerRequest): CustomContext = CustomContext(
+                value = request.headers().firstHeader("X-Custom-Header") ?: "default"
             )
         }
     }

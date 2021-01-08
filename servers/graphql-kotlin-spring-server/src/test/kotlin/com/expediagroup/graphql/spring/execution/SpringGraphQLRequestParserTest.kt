@@ -16,13 +16,11 @@
 
 package com.expediagroup.graphql.spring.execution
 
-import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
@@ -31,7 +29,6 @@ import org.springframework.http.MediaType
 import org.springframework.mock.web.reactive.function.server.MockServerRequest
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
-import reactor.util.context.Context
 import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -39,21 +36,8 @@ import kotlin.test.assertNull
 @ExperimentalCoroutinesApi
 class SpringGraphQLRequestParserTest {
 
-    class MyContext(val value: String) : GraphQLContext
-
     private val objectMapper = jacksonObjectMapper()
     private val parser = SpringGraphQLRequestParser(objectMapper)
-
-    @Test
-    fun `createContext should work when the context is set with the proper key`() = runBlockingTest(Context.of(GRAPHQL_CONTEXT_KEY, MyContext("JUNIT context value")).asCoroutineContext()) {
-        val context = parser.createContext(mockk()) as? MyContext
-        assertEquals("JUNIT context value", context?.value)
-    }
-
-    @Test
-    fun `createContext should return null when the context does not set proper key`() = runBlockingTest(Context.of("foo", MyContext("JUNIT context value")).asCoroutineContext()) {
-        assertNull(parser.createContext(mockk()))
-    }
 
     @Test
     fun `parseRequest should return null if request method is not valid`() = runBlockingTest {

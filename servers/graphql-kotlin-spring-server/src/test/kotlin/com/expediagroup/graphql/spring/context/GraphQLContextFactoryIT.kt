@@ -18,24 +18,18 @@ package com.expediagroup.graphql.spring.context
 
 import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.spring.execution.GRAPHQL_CONTEXT_FILTER_ORDER
-import com.expediagroup.graphql.spring.execution.GraphQLContextFactory
+import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.types.GraphQLRequest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.ReactorContext
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.annotation.Order
 import org.springframework.http.MediaType
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.server.WebFilter
-import kotlin.coroutines.coroutineContext
+import org.springframework.web.reactive.function.server.ServerRequest
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.spring.context"])
 @EnableAutoConfiguration
@@ -67,21 +61,13 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
 
         @Bean
         @ExperimentalCoroutinesApi
-        fun customContextFactory(): GraphQLContextFactory<CustomContext> = object : GraphQLContextFactory<CustomContext> {
-            override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): CustomContext {
-                val firstValue = coroutineContext[ReactorContext]?.context?.get<String>("firstFilterValue")
+        fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
+            override fun generateContext(request: ServerRequest): CustomContext {
                 return CustomContext(
-                    first = firstValue,
-                    second = request.headers.getFirst("X-Second-Header") ?: "DEFAULT_SECOND"
+                    first = request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST",
+                    second = request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND"
                 )
             }
-        }
-
-        @Bean
-        @Order(GRAPHQL_CONTEXT_FILTER_ORDER - 1)
-        fun customWebFilter(): WebFilter = WebFilter { exchange, chain ->
-            val headerValue = exchange.request.headers.getFirst("X-First-Header") ?: "DEFAULT_FIRST"
-            chain.filter(exchange).subscriberContext { it.put("firstFilterValue", headerValue) }
         }
     }
 

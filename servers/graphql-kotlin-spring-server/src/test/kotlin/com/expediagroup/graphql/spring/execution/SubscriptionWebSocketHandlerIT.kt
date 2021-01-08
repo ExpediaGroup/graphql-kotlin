@@ -25,7 +25,6 @@ import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.Server
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -33,8 +32,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
+import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toMono
@@ -55,7 +53,7 @@ class SubscriptionWebSocketHandlerIT(
     @LocalServerPort private var port: Int
 ) {
 
-    private val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    private val objectMapper = jacksonObjectMapper()
     private val client = ReactorNettyWebSocketClient()
     private val uri = URI.create("ws://localhost:$port/subscriptions")
 
@@ -189,9 +187,9 @@ class SubscriptionWebSocketHandlerIT(
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun customContextFactory(): GraphQLContextFactory<SubscriptionContext> = object : GraphQLContextFactory<SubscriptionContext> {
-            override suspend fun generateContext(request: ServerHttpRequest, response: ServerHttpResponse): SubscriptionContext = SubscriptionContext(
-                value = request.headers.getFirst("X-Custom-Header") ?: "default"
+        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory<SubscriptionContext> = object : SpringSubscriptionGraphQLContextFactory<SubscriptionContext>() {
+            override fun generateContext(request: WebSocketSession): SubscriptionContext = SubscriptionContext(
+                value = request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default"
             )
         }
     }

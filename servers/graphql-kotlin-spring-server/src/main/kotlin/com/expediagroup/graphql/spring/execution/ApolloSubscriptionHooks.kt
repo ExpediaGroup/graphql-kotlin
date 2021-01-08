@@ -15,8 +15,8 @@
  */
 package com.expediagroup.graphql.spring.execution
 
+import com.expediagroup.graphql.execution.GraphQLContext
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
-import kotlinx.coroutines.reactor.mono
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 
@@ -25,30 +25,37 @@ import reactor.core.publisher.Mono
  * https://www.apollographql.com/docs/graphql-subscriptions/lifecycle-events/
  */
 interface ApolloSubscriptionHooks {
-    /**
-     * Allows validation of connectionParams prior to starting the connection.
-     * You can reject the connection by throwing an exception
-     */
-    fun onConnect(connectionParams: Map<String, String>, session: WebSocketSession, graphQLContext: Any?): Mono<Unit> = mono {}
 
     /**
-     * Called when the client executes a GraphQL operation
+     * Allows validation of connectionParams prior to starting the connection.
+     * You can reject the connection by throwing an exception.
+     * If you need to forward state to execution, update and return the [GraphQLContext].
+     */
+    fun onConnect(
+        connectionParams: Map<String, String>,
+        session: WebSocketSession,
+        graphQLContext: GraphQLContext
+    ): Mono<GraphQLContext> = Mono.just(graphQLContext)
+
+    /**
+     * Called when the client executes a GraphQL operation.
+     * The context can not be updated here, it is read only.
      */
     fun onOperation(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
-        graphQLContext: Any?
-    ): Mono<Unit> = mono { }
+        graphQLContext: GraphQLContext
+    ): Unit = Unit
 
     /**
      * Called when client's unsubscribes
      */
-    fun onOperationComplete(session: WebSocketSession): Mono<Unit> = mono { }
+    fun onOperationComplete(session: WebSocketSession): Unit = Unit
 
     /**
      * Called when the client disconnects
      */
-    fun onDisconnect(session: WebSocketSession, graphQLContext: Any?): Mono<Unit> = mono { }
+    fun onDisconnect(session: WebSocketSession): Unit = Unit
 }
 
 /**

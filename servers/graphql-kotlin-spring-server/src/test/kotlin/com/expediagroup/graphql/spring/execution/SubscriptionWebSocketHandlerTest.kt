@@ -20,7 +20,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class SubscriptionWebSocketHandlerTest {
+class SubscriptionWebSocketHandlerTest {
 
     @Test
     fun getSubProtocols() {
