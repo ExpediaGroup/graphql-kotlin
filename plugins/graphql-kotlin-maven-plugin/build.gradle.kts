@@ -1,7 +1,7 @@
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
 import java.time.Duration
 
-description = "GraphQL Kotlin Maven plugin"
+description = "GraphQL Kotlin Maven Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
 val graphQLJavaVersion: String by project
 val junitVersion: String by project
@@ -30,10 +30,13 @@ plugins {
 
 dependencies {
     api(project(path = ":graphql-kotlin-plugin-core"))
+    api(project(path = ":graphql-kotlin-sdl-generator"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
+    testImplementation(project(path = ":graphql-kotlin-spring-server"))
+    testImplementation(project(path = ":graphql-kotlin-federated-hooks-provider"))
 }
 
 tasks {
@@ -62,6 +65,9 @@ tasks {
     var wireMockServer: WireMockServerRunner? = null
     var wireMockServerPort: Int? = null
     val startWireMock by register("startWireMock") {
+        dependsOn(":resolveIntegrationTestDependencies")
+        finalizedBy("stopWireMock")
+
         doLast {
             val wireMockConfig = arrayOf(
                 "--root-dir=${project.projectDir}/src/integration/wiremock",
@@ -72,9 +78,10 @@ tasks {
             wireMockServerPort = wireMockServer?.port()
             logger.info("wiremock started at port $wireMockServerPort")
         }
-        finalizedBy("stopWireMock")
     }
     val stopWireMock by register("stopWireMock") {
+        mustRunAfter("startWireMock")
+
         doLast {
             val server = wireMockServer
             if (server?.isRunning == true) {
@@ -83,15 +90,8 @@ tasks {
                 logger.info("wiremock server stopped")
             }
         }
-        mustRunAfter("startWireMock")
     }
     val integrationTest by register("integrationTest") {
-        dependsOn(":graphql-kotlin-types:publishToMavenLocal")
-        dependsOn(":graphql-kotlin-client:publishToMavenLocal")
-        dependsOn(":graphql-kotlin-ktor-client:publishToMavenLocal")
-        dependsOn(":graphql-kotlin-spring-client:publishToMavenLocal")
-        dependsOn(":graphql-kotlin-plugin-core:publishToMavenLocal")
-        dependsOn("publishToMavenLocal")
         dependsOn(startWireMock.path)
         finalizedBy(stopWireMock.path)
         timeout.set(Duration.ofSeconds(500))
@@ -99,7 +99,7 @@ tasks {
             exec {
                 environment(mavenEnvironmentVariables)
                 environment("graphqlEndpoint", "http://localhost:$wireMockServerPort")
-                commandLine("${project.projectDir}/mvnw", "invoker:install", "invoker:run")
+                commandLine("${project.projectDir}/mvnw", "dependency:go-offline", "invoker:install", "invoker:run", "--no-transfer-progress")
             }
         }
     }

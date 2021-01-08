@@ -89,6 +89,8 @@ tasks {
         }
     }
     test {
+        dependsOn(":resolveIntegrationTestDependencies")
+
         val kotlinVersion: String by project
         val junitVersion: String by project
         val springBootVersion: String by project
