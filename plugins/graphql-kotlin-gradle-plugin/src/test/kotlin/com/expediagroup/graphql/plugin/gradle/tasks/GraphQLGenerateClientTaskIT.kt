@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.plugin.gradle
+package com.expediagroup.graphql.plugin.gradle.tasks
 
-import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
-import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_TEST_CLIENT_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.GraphQLGradlePluginAbstractIT
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Tag
@@ -59,7 +58,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
@@ -83,7 +82,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
         testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
@@ -136,7 +135,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               )
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
@@ -146,7 +145,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to true)))
         testProjectDirectory.createTestFile("UUIDScalarConverter.kt", "src/main/kotlin/com/example")
-            .writeText(loadResource("mocks/UUIDScalarConverter.kt"))
+            .writeText(loadResource("mocks/UUIDScalarConverter.txt"))
         // end project setup
 
         verifyGenerateClientTaskSuccess(testProjectDirectory)
@@ -183,7 +182,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/test/resources")
@@ -224,7 +223,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
                 "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
 
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
@@ -235,7 +234,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to true)))
         testProjectDirectory.createTestFile("UUIDScalarConverter.kt", "src/main/kotlin/com/example")
-            .writeText(loadResource("mocks/UUIDScalarConverter.kt"))
+            .writeText(loadResource("mocks/UUIDScalarConverter.txt"))
         // end project setup
 
         verifyGenerateClientTaskSuccess(testProjectDirectory)

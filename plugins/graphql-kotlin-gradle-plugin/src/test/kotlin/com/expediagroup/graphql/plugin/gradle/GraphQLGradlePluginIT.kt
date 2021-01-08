@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.generator.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.tasks.DEFAULT_SCHEMA
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.FEDERATED_SCHEMA
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
@@ -52,7 +55,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
@@ -105,7 +108,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)
         testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
@@ -113,7 +116,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to true)))
         testProjectDirectory.createTestFile("UUIDScalarConverter.kt", "src/main/kotlin/com/example")
-            .writeText(loadResource("mocks/UUIDScalarConverter.kt"))
+            .writeText(loadResource("mocks/UUIDScalarConverter.txt"))
 
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
@@ -171,7 +174,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
         val useWebClient = clientType == GraphQLClientType.WEBCLIENT
@@ -238,7 +241,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                 }
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)
         testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
@@ -246,7 +249,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to true)))
         testProjectDirectory.createTestFile("UUIDScalarConverter.kt", "src/main/kotlin/com/example")
-            .writeText(loadResource("mocks/UUIDScalarConverter.kt"))
+            .writeText(loadResource("mocks/UUIDScalarConverter.txt"))
 
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
@@ -284,7 +287,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)
         testProjectDirectory.createTestFile("DeprecatedQuery.graphql", "src/main/resources/queries")
@@ -304,5 +307,230 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
+    }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate SDL (kts)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            graphql {
+              schema {
+                packages = listOf("com.example")
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFileForServer(buildFileContents)
+
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))
+        testProjectDirectory.createTestFile("HelloWorldQuery.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("HelloWorldQuery", mapOf("customScalarsEnabled" to false)))
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(GENERATE_SDL_TASK_NAME)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
+
+        val generatedSchemaFile = File(testProjectDirectory, "build/schema.graphql")
+        assertTrue(generatedSchemaFile.exists())
+        assertEquals(DEFAULT_SCHEMA, generatedSchemaFile.readText().trim())
+    }
+
+    @Test
+    @Tag("groovy")
+    fun `apply the plugin extension to generate SDL (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            graphql {
+              schema {
+                packages = ["com.example"]
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents)
+
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))
+        testProjectDirectory.createTestFile("HelloWorldQuery.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("HelloWorldQuery", mapOf("customScalarsEnabled" to false)))
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(GENERATE_SDL_TASK_NAME)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
+
+        val generatedSchemaFile = File(testProjectDirectory, "build/schema.graphql")
+        assertTrue(generatedSchemaFile.exists())
+        assertEquals(DEFAULT_SCHEMA, generatedSchemaFile.readText().trim())
+    }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate SDL with custom hooks provider (kts)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            graphql {
+              schema {
+                packages = listOf("com.example")
+                hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFileForServer(buildFileContents)
+
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))
+        testProjectDirectory.createTestFile("HelloWorldQuery.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("HelloWorldQuery", mapOf("customScalarsEnabled" to false)))
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(GENERATE_SDL_TASK_NAME)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
+
+        val generatedSchemaFile = File(testProjectDirectory, "build/schema.graphql")
+        assertTrue(generatedSchemaFile.exists())
+        assertEquals(FEDERATED_SCHEMA, generatedSchemaFile.readText().trim())
+    }
+
+    @Test
+    @Tag("groovy")
+    fun `apply the plugin extension to generate SDL with custom hooks provider (groovy)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            graphql {
+              schema {
+                packages = ["com.example"]
+                hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents)
+
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))
+        testProjectDirectory.createTestFile("HelloWorldQuery.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("HelloWorldQuery", mapOf("customScalarsEnabled" to false)))
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(GENERATE_SDL_TASK_NAME)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
+
+        val generatedSchemaFile = File(testProjectDirectory, "build/schema.graphql")
+        assertTrue(generatedSchemaFile.exists())
+        assertEquals(FEDERATED_SCHEMA, generatedSchemaFile.readText().trim())
+    }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate SDL with custom hooks provider on classpath (kts)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+
+        val expectedFederatedSchemaWithCustomScalar =
+            """
+            schema {
+              query: Query
+            }
+
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Marks the field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String = "No longer supported"
+              ) on FIELD_DEFINITION | ENUM_VALUE
+
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
+
+            "Marks target field as external meaning it will be resolved by federated schema"
+            directive @external on FIELD_DEFINITION
+
+            "Specifies required input field set from the base type for a resolver"
+            directive @requires(fields: _FieldSet) on FIELD_DEFINITION
+
+            "Specifies the base type field set that will be selectable by the gateway"
+            directive @provides(fields: _FieldSet) on FIELD_DEFINITION
+
+            "Space separated list of primary keys needed to access federated object"
+            directive @key(fields: _FieldSet) on OBJECT | INTERFACE
+
+            "Marks target object as extending part of the federated schema"
+            directive @extends on OBJECT | INTERFACE
+
+            type Query @extends {
+              _service: _Service
+              helloWorld(name: String): String!
+              randomUUID: UUID!
+            }
+
+            type _Service {
+              sdl: String!
+            }
+
+            "Custom scalar representing UUID"
+            scalar UUID
+
+            "Federation type representing set of fields"
+            scalar _FieldSet
+            """.trimIndent()
+        val buildFileContents =
+            """
+            graphql {
+              schema {
+                packages = listOf("com.example")
+              }
+            }
+            """.trimIndent()
+        testProjectDirectory.generateBuildFileForServer(buildFileContents)
+
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to true)))
+        testProjectDirectory.createTestFile("HelloWorldQuery.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("HelloWorldQuery", mapOf("customScalarsEnabled" to true)))
+        testProjectDirectory.createTestFile("CustomHooksProvider.kt", "src/main/kotlin/com/example")
+            .writeText(loadResource("mocks/CustomHooksProvider.txt"))
+        testProjectDirectory.createTestFile("CustomFederatedHooks.kt", "src/main/kotlin/com/example")
+            .writeText(loadResource("mocks/CustomFederatedHooks.txt"))
+        testProjectDirectory.createTestFile("com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider", "src/main/resources/META-INF/services")
+            .writeText("com.example.CustomHooksProvider")
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments(GENERATE_SDL_TASK_NAME)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
+
+        val generatedSchemaFile = File(testProjectDirectory, "build/schema.graphql")
+        assertTrue(generatedSchemaFile.exists())
+        assertEquals(expectedFederatedSchemaWithCustomScalar, generatedSchemaFile.readText().trim())
     }
 }

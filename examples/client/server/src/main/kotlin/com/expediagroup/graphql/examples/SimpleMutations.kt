@@ -2,11 +2,9 @@ package com.expediagroup.graphql.examples
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.model.BasicObject
-import com.expediagroup.graphql.examples.model.SimpleArgument
 import com.expediagroup.graphql.examples.repository.BasicObjectRepository
 import com.expediagroup.graphql.spring.operations.Mutation
 import org.springframework.stereotype.Component
-import kotlin.random.Random
 
 @Component
 class SimpleMutations(private val repository: BasicObjectRepository) : Mutation {

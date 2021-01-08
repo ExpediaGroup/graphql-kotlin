@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.plugin.gradle
+package com.expediagroup.graphql.plugin.gradle.tasks
 
-import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.GraphQLGradlePluginAbstractIT
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.gradle.testkit.runner.GradleRunner
@@ -41,7 +41,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
               endpoint.set("${wireMockServer.baseUrl()}/graphql")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
 
@@ -60,7 +60,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
               headers.put("$customHeaderName", "$customHeaderValue")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
 
@@ -78,7 +78,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
               timeoutConfig.set(TimeoutConfig(connect = 100, read = 100))
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFile(buildFileContents)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskTimeout(testProjectDirectory)
     }
 
@@ -92,7 +92,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
               endpoint = "${wireMockServer.baseUrl()}/graphql"
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
 
@@ -111,7 +111,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
               headers["$customHeaderName"] = "$customHeaderValue"
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
 
@@ -129,7 +129,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
               timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(100, 100)
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFile(buildFileContents)
+        testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskTimeout(testProjectDirectory)
     }
 

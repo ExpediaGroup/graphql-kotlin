@@ -73,6 +73,7 @@
     ],
     "Build Plugins": [
       "plugins/gradle-plugin",
+      "plugins/gradle-plugin-examples",
       "plugins/maven-plugin",
       "plugins/hooks-provider"
     ],

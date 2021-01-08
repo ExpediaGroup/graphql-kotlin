@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ abstract class GraphQLGradlePluginAbstractIT {
 
     // unsure if there is a better way - correct values are set from Gradle build
     // when running directly from IDE you will need to manually update those to correct values
-    private val gqlKotlinVersion = System.getProperty("graphQLKotlinVersion") ?: "4.0.0-SNAPSHOT"
     private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.72"
     private val junitVersion = System.getProperty("junitVersion") ?: "5.6.2"
+    private val springBootVersion = System.getProperty("springBootVersion") ?: "2.3.4.RELEASE"
 
     val testSchema = loadResource("mocks/schema.graphql")
     val introspectionResult = loadResource("mocks/IntrospectionResult.json")
@@ -79,10 +79,52 @@ abstract class GraphQLGradlePluginAbstractIT {
         return testApplicationMustache.execute(StringWriter(), configuration).toString()
     }
 
-    internal fun File.generateBuildFile(contents: String) {
+    internal fun File.generateBuildFileForClient(contents: String) {
+        val plugins =
+            """
+            plugins {
+              id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
+              id("com.expediagroup.graphql")
+              application
+            }
+            """.trimIndent()
+        val dependencies =
+            """
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+                implementation("com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION")
+                implementation("com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION")
+                testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+                testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+            }
+            """.trimIndent()
+        this.generateBuildFile(plugins, dependencies, contents)
+    }
+
+    internal fun File.generateBuildFileForServer(contents: String) {
+        val plugins =
+            """
+            plugins {
+                kotlin("jvm") version "$kotlinVersion"
+                kotlin("plugin.spring") version "$kotlinVersion"
+                id("org.springframework.boot") version "$springBootVersion"
+                id("com.expediagroup.graphql")
+            }
+            """.trimIndent()
+        val dependencies =
+            """
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib")
+                implementation("com.expediagroup", "graphql-kotlin-spring-server", "$DEFAULT_PLUGIN_VERSION")
+                implementation("com.expediagroup", "graphql-kotlin-hooks-provider", "$DEFAULT_PLUGIN_VERSION")
+            }
+            """.trimIndent()
+        this.generateBuildFile(plugins, dependencies, contents)
+    }
+
+    private fun File.generateBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
             import com.expediagroup.graphql.plugin.config.TimeoutConfig
             import com.expediagroup.graphql.plugin.generator.GraphQLClientType
             import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
@@ -91,30 +133,20 @@ abstract class GraphQLGradlePluginAbstractIT {
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
-            plugins {
-              id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
-              id("com.expediagroup.graphql")
-              application
-            }
+            $plugins
 
             repositories {
                 mavenLocal()
                 mavenCentral()
             }
 
-            tasks.withType<KotlinCompile> {
+            tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
                 kotlinOptions {
                     jvmTarget = "1.8"
                 }
             }
 
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-                implementation("com.expediagroup:graphql-kotlin-ktor-client:$gqlKotlinVersion")
-                implementation("com.expediagroup:graphql-kotlin-spring-client:$gqlKotlinVersion")
-                testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-                testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-            }
+            $dependencies
 
             $contents
             """.trimIndent()
@@ -123,14 +155,54 @@ abstract class GraphQLGradlePluginAbstractIT {
         buildFile.writeText(buildFileContents)
     }
 
-    internal fun File.generateGroovyBuildFile(contents: String) {
-        val buildFileContents =
+    internal fun File.generateGroovyBuildFileForClient(contents: String) {
+        val plugins =
             """
             plugins {
               id 'org.jetbrains.kotlin.jvm' version '$kotlinVersion'
               id 'com.expediagroup.graphql'
               id 'application'
             }
+            """.trimIndent()
+        val dependencies =
+            """
+            dependencies {
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION"
+                implementation "com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION"
+                testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+                testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+            }
+            """.trimIndent()
+        return this.generateGroovyBuildFile(plugins, dependencies, contents)
+    }
+
+    internal fun File.generateGroovyBuildFileForServer(contents: String) {
+        val plugins =
+            """
+            plugins {
+              id 'org.jetbrains.kotlin.jvm' version '$kotlinVersion'
+              id 'org.jetbrains.kotlin.plugin.spring' version '$kotlinVersion'
+              id 'org.springframework.boot' version '$springBootVersion'
+              id 'com.expediagroup.graphql'
+              id 'application'
+            }
+            """.trimIndent()
+        val dependencies =
+            """
+            dependencies {
+                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+                implementation "com.expediagroup:graphql-kotlin-spring-server:$DEFAULT_PLUGIN_VERSION"
+                implementation "com.expediagroup:graphql-kotlin-hooks-provider:$DEFAULT_PLUGIN_VERSION"
+            }
+            """.trimIndent()
+        return this.generateGroovyBuildFile(plugins, dependencies, contents)
+    }
+
+    private fun File.generateGroovyBuildFile(plugins: String, dependencies: String, contents: String) {
+        val buildFileContents =
+            """
+            $plugins
 
             repositories {
                 mavenLocal()
@@ -141,13 +213,7 @@ abstract class GraphQLGradlePluginAbstractIT {
                 kotlinOptions.jvmTarget = "1.8"
             }
 
-            dependencies {
-                implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-                implementation "com.expediagroup:graphql-kotlin-ktor-client:$gqlKotlinVersion"
-                implementation "com.expediagroup:graphql-kotlin-spring-client:$gqlKotlinVersion"
-                testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-                testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-            }
+            $dependencies
 
             $contents
             """.trimIndent()

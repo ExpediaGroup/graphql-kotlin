@@ -1,4 +1,4 @@
-description = "GraphQL Kotlin Gradle plugin that can generate type-safe GraphQL Kotlin client"
+description = "Gradle Kotlin Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
 plugins {
     `java-gradle-plugin`
@@ -32,13 +32,43 @@ pluginBundle {
     (plugins) {
         "graphQLPlugin" {
             displayName = "GraphQL Kotlin Gradle Plugin"
-            description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client"
-            tags = listOf("graphql", "kotlin", "graphql-client")
+            description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
+            tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("$buildDir/generated/src")
         }
     }
 }
 
 tasks {
+    val generateDefaultVersion by registering {
+        val fileName = "PluginVersion.kt"
+        val defaultVersionFile = File("$buildDir/generated/src/com/expediagroup/graphql/plugin/gradle", fileName)
+
+        inputs.property(fileName, project.version)
+        outputs.file(defaultVersionFile)
+
+        doFirst {
+            defaultVersionFile.parentFile.mkdirs()
+            defaultVersionFile.writeText(
+                """
+                package com.expediagroup.graphql.plugin.gradle
+                internal const val DEFAULT_PLUGIN_VERSION = "${project.version}"
+
+                """.trimIndent()
+            )
+        }
+    }
+
+    compileKotlin {
+        dependsOn(generateDefaultVersion)
+    }
     publishPlugins {
         doFirst {
             System.setProperty("gradle.publish.key", System.getenv("PLUGIN_PORTAL_KEY"))
@@ -61,8 +91,9 @@ tasks {
     test {
         val kotlinVersion: String by project
         val junitVersion: String by project
-        systemProperty("graphQLKotlinVersion", project.version)
+        val springBootVersion: String by project
         systemProperty("kotlinVersion", kotlinVersion)
+        systemProperty("springBootVersion", springBootVersion)
         systemProperty("junitVersion", junitVersion)
     }
 }
