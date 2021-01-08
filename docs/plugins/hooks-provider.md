@@ -19,16 +19,16 @@ on the classpath.
 
 ## Creating Custom Hooks Service Provider
 
-### Add dependency on graphql-kotlin-sdl-generator
+### Add dependency on graphql-kotlin-hooks-provider
 
-`SchemaGeneratorHooksProvider` interface is defined in `graphql-kotlin-sdl-generator` module.
+`SchemaGeneratorHooksProvider` interface is defined in `graphql-kotlin-hooks-provider` module.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Gradle-->
 
 ```kotlin
 // build.gradle.kts
-implementation("com.expediagroup", "graphql-kotlin-sdl-generator", latestVersion)
+implementation("com.expediagroup", "graphql-kotlin-hooks-provider", latestVersion)
 ```
 
 <!--Maven-->
@@ -36,7 +36,7 @@ implementation("com.expediagroup", "graphql-kotlin-sdl-generator", latestVersion
 ```xml
 <dependency>
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-sdl-generator</artifactId>
+    <artifactId>graphql-kotlin-hooks-provider</artifactId>
     <version>${latestVersion}</version>
 </dependency>
 ```
@@ -60,7 +60,7 @@ class MyCustomSchemaGeneratorHooksProvider : SchemaGeneratorHooksProvider {
 
 Service loader provider configuration file should be created under JAR `/META-INF/services` directory (e.g. `src/main/resources/META-INF/services`
 in default project structure). Name of the provider configuration should be fully qualified service provider interface name, i.e.
-`com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider` and contain single entry - a fully qualified
+`SchemaGeneratorHooksProvider` and contain single entry - a fully qualified
 name of the service provider implementation.
 
 Using the example service provider implementation from the above, our project structure should look like
@@ -76,7 +76,7 @@ my-project
     |- resources
       |- META-INF
         |- services
-          |- com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
+          |- SchemaGeneratorHooksProvider
 ```
 
 Our service provider configuration file should have following content

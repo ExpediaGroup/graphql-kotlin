@@ -22,7 +22,7 @@ import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
  * Service provider interface that is used by the graphql-kotlin plugins to generate GraphQL schema in SDL format.
  *
  * Providers should be packaged in a JAR that contains provider configuration file under `src/main/resources/META-INF/services`. Provider file should be named
- * the same as implementing interface - `com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider`.
+ * the same as implementing interface - `SchemaGeneratorHooksProvider`.
  * Provider configuration file should contain only single entry - fully qualified name of provider implementation.
  *
  * **See Also**: [ServiceLoader documentation](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
