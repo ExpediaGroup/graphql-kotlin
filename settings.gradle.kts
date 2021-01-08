@@ -29,13 +29,21 @@ rootProject.name = "graphql-kotlin"
 include(":graphql-kotlin-types")
 include(":graphql-kotlin-schema-generator")
 include(":graphql-kotlin-federation")
+
+// servers
 include(":graphql-kotlin-spring-server")
+
+// clients
 include(":graphql-kotlin-client")
 include(":graphql-kotlin-ktor-client")
 include(":graphql-kotlin-spring-client")
+
+// plugins
 include(":graphql-kotlin-plugin-core")
 include(":graphql-kotlin-gradle-plugin")
 include(":graphql-kotlin-maven-plugin")
+include(":graphql-kotlin-sdl-generator")
+include(":graphql-kotlin-federated-hooks-provider")
 
 project(":graphql-kotlin-client").projectDir = file("clients/graphql-kotlin-client")
 project(":graphql-kotlin-ktor-client").projectDir = file("clients/graphql-kotlin-ktor-client")
@@ -44,3 +52,5 @@ project(":graphql-kotlin-spring-client").projectDir = file("clients/graphql-kotl
 project(":graphql-kotlin-plugin-core").projectDir = file("plugins/graphql-kotlin-plugin-core")
 project(":graphql-kotlin-gradle-plugin").projectDir = file("plugins/graphql-kotlin-gradle-plugin")
 project(":graphql-kotlin-maven-plugin").projectDir = file("plugins/graphql-kotlin-maven-plugin")
+project(":graphql-kotlin-sdl-generator").projectDir = file("plugins/schema/graphql-kotlin-sdl-generator")
+project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-federated-hooks-provider")
