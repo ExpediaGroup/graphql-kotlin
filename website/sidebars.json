@@ -73,7 +73,8 @@
     ],
     "Build Plugins": [
       "plugins/gradle-plugin",
-      "plugins/maven-plugin"
+      "plugins/maven-plugin",
+      "plugins/hooks-provider"
     ],
     "Contributors": [
       "contributors/release-proc"
