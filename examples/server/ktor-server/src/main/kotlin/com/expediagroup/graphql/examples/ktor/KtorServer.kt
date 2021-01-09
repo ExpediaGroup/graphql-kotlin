@@ -35,7 +35,7 @@ class KtorServer {
      */
     suspend fun handle(applicationCall: ApplicationCall) {
         // Execute the query against the schema
-        val result = ktorGraphQLServer.getResponse(applicationCall.request)
+        val result = ktorGraphQLServer.execute(applicationCall.request)
 
         if (result != null) {
             // write response as json

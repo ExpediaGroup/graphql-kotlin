@@ -45,7 +45,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.getResponse(mockk()) }
+        runBlockingTest { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
@@ -68,7 +68,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.getResponse(mockk()) }
+        runBlockingTest { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
@@ -91,7 +91,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.getResponse(mockk()) }
+        runBlockingTest { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
