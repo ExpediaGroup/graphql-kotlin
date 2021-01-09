@@ -23,7 +23,7 @@ import com.expediagroup.graphql.examples.execution.CustomDataFetcherFactoryProvi
 import com.expediagroup.graphql.examples.execution.MySubscriptionHooks
 import com.expediagroup.graphql.examples.execution.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.hooks.CustomSchemaGeneratorHooks
-import com.expediagroup.graphql.spring.execution.ApolloSubscriptionHooks
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
