@@ -28,8 +28,8 @@ import graphql.GraphQL
 
 /**
  * Custom logic for how this Ktor server loads all the queries and configuration to create the [GraphQL] object
- * needed to handle incoming requests. In a more enterprise solution you may want to load more things from configuration
- * instead of hardcoding them.
+ * needed to handle incoming requests. In a more enterprise solution you may want to load more things from
+ * configuration files instead of hardcoding them.
  */
 private val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.examples.ktor"))
 private val queries = listOf(

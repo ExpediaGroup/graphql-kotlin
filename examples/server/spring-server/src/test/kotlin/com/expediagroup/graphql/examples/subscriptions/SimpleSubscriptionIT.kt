@@ -25,6 +25,7 @@ import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -41,6 +42,7 @@ import java.net.URI
     properties = ["graphql.packages=com.expediagroup.graphql.examples"]
 )
 @EnableAutoConfiguration
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
     private val objectMapper = jacksonObjectMapper()
@@ -140,28 +142,28 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     ): Mono<Void> {
         val initMessage = getInitMessage(id, initPayload)
         val startMessage = getStartMessage(query, id)
-        val firstMessage = Flux.just(session.textMessage(initMessage), session.textMessage(startMessage))
 
-        return session.send(firstMessage)
-            .thenMany(
-                session.receive()
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                    .doOnNext {
-                        if (it.type == ServerMessages.GQL_DATA.type) {
-                            val data = objectMapper.writeValueAsString(it.payload)
-                            output.next(data)
-                        } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                            output.complete()
+        return session.send(Flux.just(session.textMessage(initMessage)))
+            .then(session.send(Flux.just(session.textMessage(startMessage)))
+                .thenMany(
+                    session.receive()
+                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                        .doOnNext {
+                            if (it.type == ServerMessages.GQL_DATA.type) {
+                                val data = objectMapper.writeValueAsString(it.payload)
+                                output.next(data)
+                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                output.complete()
+                            }
                         }
-                    }
+                )
+                .doOnError {
+                    output.error(it)
+                }
+                .doOnComplete {
+                    output.complete()
+                }.then()
             )
-            .doOnError {
-                output.error(it)
-            }
-            .doOnComplete {
-                output.complete()
-            }
-            .then()
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)

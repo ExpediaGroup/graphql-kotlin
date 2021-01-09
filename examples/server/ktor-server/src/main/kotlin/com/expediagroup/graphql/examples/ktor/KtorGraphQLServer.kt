@@ -25,11 +25,17 @@ import io.ktor.request.ApplicationRequest
  * Helper method for how this Ktor example creates the common [GraphQLServer] object that
  * can handle requests.
  */
-fun getGraphQLServer(mapper: ObjectMapper): GraphQLServer<ApplicationRequest> {
+class KtorGraphQLServer(
+    requestParser: KtorGraphQLRequestParser,
+    contextFactory: KtorGraphQLContextFactory,
+    requestHandler: GraphQLRequestHandler
+) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
+
+fun getGraphQLServer(mapper: ObjectMapper): KtorGraphQLServer {
     val dataLoaderRegistryFactory = KtorDataLoaderRegistryFactory()
     val requestParser = KtorGraphQLRequestParser(mapper)
     val contextFactory = KtorGraphQLContextFactory()
     val requestHandler = GraphQLRequestHandler(graphQL, dataLoaderRegistryFactory)
 
-    return GraphQLServer(requestParser, contextFactory, requestHandler)
+    return KtorGraphQLServer(requestParser, contextFactory, requestHandler)
 }
