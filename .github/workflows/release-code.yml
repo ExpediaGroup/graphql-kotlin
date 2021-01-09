@@ -5,8 +5,8 @@ on:
     types: [published]
 
 jobs:
-  timeout-minutes: 60
   release-code:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
