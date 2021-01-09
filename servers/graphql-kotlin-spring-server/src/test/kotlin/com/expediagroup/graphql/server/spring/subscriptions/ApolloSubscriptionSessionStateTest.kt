@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionSessionState
-import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
