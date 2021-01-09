@@ -64,7 +64,7 @@ Using `graphql-kotlin-federation`, you can generate an [Apollo Federation](https
 See the docs in [Apollo Federation](./federated/apollo-federation.md).
 
 ## Running a Server
-`graphql-kotlin-server` is a combination of the schema generator, fedeation, and server libraries. If you are looking to run a GraphQL server, this is the place to start.
+`graphql-kotlin-server` is a combination of the schema generator, federation, and server libraries. If you are looking to run a GraphQL server, this is the place to start.
 
 See the docs in [GraphQL Kotlin Server](./server/graphql-server.md).
 
