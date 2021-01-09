@@ -10,8 +10,8 @@ on:
       - 'website/**'
 
 jobs:
-  timeout-minutes: 30
   build:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       matrix:

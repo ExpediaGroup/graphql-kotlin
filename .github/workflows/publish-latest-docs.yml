@@ -9,8 +9,8 @@ on:
       - 'website/**'
 
 jobs:
-  timeout-minutes: 10
   publish-docs:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     if: github.repository == 'ExpediaGroup/graphql-kotlin'
 

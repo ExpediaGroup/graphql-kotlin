@@ -10,8 +10,8 @@ on:
       - 'website/**'
 
 jobs:
-  timeout-minutes: 30
   build:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,6 +45,7 @@ jobs:
         run: ./gradlew clean build
 
   release-notes:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Release Drafter
