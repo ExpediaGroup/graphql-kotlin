@@ -6,6 +6,7 @@ description = "An Example GraphQL service served by Ktor"
 
 plugins {
     id("application")
+    id("com.expediagroup.graphql")
 }
 
 application {
@@ -14,10 +15,17 @@ application {
 
 val kotlinCoroutinesVersion: String by project
 dependencies {
+    implementation("com.expediagroup", "graphql-kotlin-schema-generator")
+    implementation("com.expediagroup", "graphql-kotlin-types")
+
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-
-    implementation("com.expediagroup", "graphql-kotlin-schema-generator")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", kotlinCoroutinesVersion)
+}
+
+graphql {
+    schema {
+        packages = listOf("com.expediagroup.graphql.examples.ktor")
+    }
 }

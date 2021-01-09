@@ -17,11 +17,12 @@ package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.ktor.schema.models.Book
+import com.expediagroup.graphql.server.operations.Query
 
 /**
  * Provide Search options for book data
  */
-class BookQueryService {
+class BookQueryService : Query {
     @GraphQLDescription("Return list of books based on BookSearchParameter options")
     @Suppress("unused")
     suspend fun searchBooks(params: BookSearchParameters) = Book.search(params.ids)
