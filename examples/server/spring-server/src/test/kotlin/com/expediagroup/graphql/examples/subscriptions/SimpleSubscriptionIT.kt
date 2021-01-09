@@ -17,10 +17,10 @@
 package com.expediagroup.graphql.examples.subscriptions
 
 import com.expediagroup.graphql.examples.SUBSCRIPTION_ENDPOINT
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
-import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
+import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage
+import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
+import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_START
+import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

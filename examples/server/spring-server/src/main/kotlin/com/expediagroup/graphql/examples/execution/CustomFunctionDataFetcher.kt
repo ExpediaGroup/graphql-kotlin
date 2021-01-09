@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.execution
 
-import com.expediagroup.graphql.spring.execution.SpringDataFetcher
+import com.expediagroup.graphql.server.spring.execution.SpringDataFetcher
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.context.ApplicationContext

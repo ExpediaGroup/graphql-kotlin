@@ -1,8 +1,8 @@
 package com.expediagroup.graphql.examples.context
 
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
-import com.expediagroup.graphql.spring.execution.SpringGraphQLContextFactory
-import com.expediagroup.graphql.spring.execution.SpringSubscriptionGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.subscriptions.SpringSubscriptionGraphQLContextFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.socket.WebSocketSession

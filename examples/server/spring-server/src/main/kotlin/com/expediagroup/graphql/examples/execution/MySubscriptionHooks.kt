@@ -2,7 +2,7 @@ package com.expediagroup.graphql.examples.execution
 
 import com.expediagroup.graphql.examples.context.MySubscriptionGraphQLContext
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.spring.execution.ApolloSubscriptionHooks
+import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import kotlinx.coroutines.reactor.mono
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
