@@ -10,6 +10,7 @@ on:
       - 'website/**'
 
 jobs:
+  timeout-minutes: 30
   build:
     runs-on: ubuntu-latest
     strategy:
