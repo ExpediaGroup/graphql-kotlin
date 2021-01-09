@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               packageName.set("com.example.generated")
               schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
               // optional config
-              converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+              customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
               allowDeprecatedFields.set(true)
               queryFiles.from(
                 "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
@@ -218,7 +218,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
               schemaFileName = "${'$'}{project.projectDir}/schema.graphql"
               // optional config
               allowDeprecatedFields = true
-              converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+              customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
               queryFiles.from("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
                 "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
             }

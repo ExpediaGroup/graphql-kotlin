@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("UnstableApiUsage")
+
 package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
@@ -31,11 +31,13 @@ import org.gradle.api.tasks.SourceSetContainer
 import java.io.File
 
 private const val PLUGIN_EXTENSION_NAME = "graphql"
+private const val GENERATE_CLIENT_CONFIGURATION = "graphqlClient"
 private const val GENERATE_SDL_CONFIGURATION = "graphqlSDL"
 
 /**
  * GraphQL Kotlin Gradle Plugin
  */
+@Suppress("UnstableApiUsage")
 class GraphQLGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
@@ -46,11 +48,21 @@ class GraphQLGradlePlugin : Plugin<Project> {
         project.afterEvaluate {
             processExtensionConfiguration(project, extension)
 
+            project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java) { task ->
+                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+                task.pluginClasspath.setFrom(configuration)
+            }
             project.tasks.named(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { task ->
                 configureProjectSourceSet(project = project, outputDirectory = task.outputDirectory.get().asFile)
+
+                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+                task.pluginClasspath.setFrom(configuration)
             }
             project.tasks.named(GENERATE_TEST_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { task ->
                 configureProjectSourceSet(project = project, outputDirectory = task.outputDirectory.get().asFile, targetSourceSet = "test")
+
+                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+                task.pluginClasspath.setFrom(configuration)
             }
             project.tasks.named(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java) { task ->
                 val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
@@ -60,10 +72,22 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
                 task.pluginClasspath.setFrom(configuration)
             }
+            project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java) { task ->
+                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+                task.pluginClasspath.setFrom(configuration)
+            }
         }
     }
 
     private fun configurePluginDependencies(project: Project) {
+        project.configurations.create(GENERATE_CLIENT_CONFIGURATION) { configuration ->
+            configuration.isVisible = true
+            configuration.isTransitive = true
+            configuration.description = "Configuration for generating GraphQL client"
+
+            configuration.dependencies.add(project.dependencies.create("com.expediagroup:graphql-kotlin-client-generator:$DEFAULT_PLUGIN_VERSION"))
+        }
+
         project.configurations.create(GENERATE_SDL_CONFIGURATION) { configuration ->
             configuration.isVisible = true
             configuration.isTransitive = true
@@ -114,7 +138,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                 val generateClientTask = project.tasks.named(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java).get()
                 generateClientTask.packageName.convention(project.provider { extension.clientExtension.packageName })
                 generateClientTask.allowDeprecatedFields.convention(project.provider { extension.clientExtension.allowDeprecatedFields })
-                generateClientTask.converters.convention(extension.clientExtension.converters)
+                generateClientTask.customScalars.convention(extension.clientExtension.customScalars)
                 val queryFileDirectory = extension.clientExtension.queryFileDirectory
                 if (queryFileDirectory != null) {
                     generateClientTask.queryFileDirectory.convention(queryFileDirectory)

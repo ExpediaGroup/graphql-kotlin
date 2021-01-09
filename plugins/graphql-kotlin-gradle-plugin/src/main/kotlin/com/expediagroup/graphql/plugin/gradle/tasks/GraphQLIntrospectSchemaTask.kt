@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,22 @@
 
 package com.expediagroup.graphql.plugin.gradle.tasks
 
-import com.expediagroup.graphql.plugin.config.TimeoutConfig
-import com.expediagroup.graphql.plugin.introspectSchema
-import kotlinx.coroutines.runBlocking
+import com.expediagroup.graphql.plugin.gradle.actions.IntrospectSchemaAction
+import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.workers.ClassLoaderWorkerSpec
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
+import javax.inject.Inject
 
 internal const val INTROSPECT_SCHEMA_TASK_NAME: String = "graphqlIntrospectSchema"
 
@@ -34,7 +39,10 @@ internal const val INTROSPECT_SCHEMA_TASK_NAME: String = "graphqlIntrospectSchem
  * Task that executes GraphQL introspection query against specified endpoint and saves the underlying schema file.
  */
 @Suppress("UnstableApiUsage")
-open class GraphQLIntrospectSchemaTask : DefaultTask() {
+abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
+
+    @get:Classpath
+    val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
     /**
      * Target GraphQL server endpoint that will be used to execute introspection queries.
@@ -54,7 +62,7 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
      * Defaults to Ktor CIO engine defaults (5 seconds for connect timeout and 15 seconds for read timeout).
      */
     @Input
-    val timeoutConfig: Property<TimeoutConfig> = project.objects.property(TimeoutConfig::class.java)
+    val timeoutConfig: Property<TimeoutConfiguration> = project.objects.property(TimeoutConfiguration::class.java)
 
     /**
      * Target GraphQL schema file to be generated.
@@ -62,12 +70,15 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
     @OutputFile
     val outputFile: RegularFileProperty = project.objects.fileProperty()
 
+    @Inject
+    abstract fun getWorkerExecutor(): WorkerExecutor
+
     init {
         group = "GraphQL"
         description = "Run introspection query against target GraphQL endpoint and save schema locally."
 
         headers.convention(emptyMap())
-        timeoutConfig.convention(TimeoutConfig())
+        timeoutConfig.convention(TimeoutConfiguration())
         outputFile.convention(project.layout.buildDirectory.file("schema.graphql"))
     }
 
@@ -77,12 +88,25 @@ open class GraphQLIntrospectSchemaTask : DefaultTask() {
     @Suppress("EXPERIMENTAL_API_USAGE")
     @TaskAction
     fun introspectSchemaAction() {
-        logger.debug("starting introspection task against ${endpoint.get()}")
-        runBlocking {
-            val schema = introspectSchema(endpoint = endpoint.get(), httpHeaders = headers.get(), timeoutConfig = timeoutConfig.get())
-            val outputFile = outputFile.asFile.get()
-            outputFile.writeText(schema)
+        val schemaFile = outputFile.asFile.get()
+        val targetDirectory = schemaFile.parentFile
+        if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
+            throw RuntimeException("failed to generate target schema directory = $targetDirectory")
         }
-        logger.debug("successfully created GraphQL schema from introspection result")
+
+        val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
+            workerSpec.classpath.from(pluginClasspath)
+            logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
+        }
+
+        logger.debug("submitting work item to introspect schema from ${endpoint.get()} endpoint")
+        workQueue.submit(IntrospectSchemaAction::class.java) { parameters ->
+            parameters.endpoint.set(endpoint)
+            parameters.headers.set(headers)
+            parameters.timeoutConfiguration.set(timeoutConfig)
+            parameters.schemaFile.set(schemaFile)
+        }
+        workQueue.await()
+        logger.debug("successfully introspected GraphQL schema")
     }
 }

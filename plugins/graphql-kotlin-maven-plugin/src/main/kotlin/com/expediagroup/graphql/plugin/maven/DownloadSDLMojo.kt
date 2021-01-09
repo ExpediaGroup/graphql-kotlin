@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package com.expediagroup.graphql.plugin.maven
 
-import com.expediagroup.graphql.plugin.config.TimeoutConfig
-import com.expediagroup.graphql.plugin.downloadSchema
+import com.expediagroup.graphql.plugin.client.downloadSchema
 import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
 
@@ -28,6 +27,6 @@ import org.apache.maven.plugins.annotations.Mojo
 class DownloadSDLMojo : RetrieveSchemaAbstractMojo() {
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    override suspend fun retrieveGraphQLSchema(endpoint: String, httpHeaders: Map<String, Any>, timeoutConfig: TimeoutConfig): String =
-        downloadSchema(endpoint = endpoint, httpHeaders = httpHeaders, timeoutConfig = timeoutConfig)
+    override suspend fun retrieveGraphQLSchema(endpoint: String, httpHeaders: Map<String, Any>, timeoutConfiguration: TimeoutConfiguration): String =
+        downloadSchema(endpoint = endpoint, httpHeaders = httpHeaders, connectTimeout = timeoutConfiguration.connect, readTimeout = timeoutConfiguration.read)
 }

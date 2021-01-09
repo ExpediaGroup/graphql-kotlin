@@ -125,9 +125,9 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import com.expediagroup.graphql.plugin.config.TimeoutConfig
-            import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-            import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+            import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+            import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+            import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
             import com.expediagroup.graphql.plugin.gradle.graphql
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
@@ -202,6 +202,13 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateGroovyBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
+            import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+            import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+            import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
+
             $plugins
 
             repositories {

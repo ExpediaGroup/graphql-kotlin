@@ -172,16 +172,17 @@ Afterwards we need to configure our plugin to use this custom converter
             </goals>
             <configuration>
                 <allowDeprecatedFields>false</allowDeprecatedFields>
-                <converters>
-                    <!-- custom scalar UUID type -->
-                    <UUID>
+                <customScalars>
+                    <customScalar>
+                        <!-- custom scalar UUID type -->
+                        <scalar>UUID</scalar>
                         <!-- fully qualified Java class name of a custom scalar type -->
                         <type>java.util.UUID</type>
                         <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                            used to convert to/from raw JSON and scalar type -->
                         <converter>com.example.UUIDScalarConverter</converter>
-                    </UUID>
-                </converters>
+                    </customScalar>
+                </customScalars>
                 <packageName>com.example.generated</packageName>
                 <schemaFile>mySchema.graphql</schemaFile>
             </configuration>
@@ -279,16 +280,17 @@ the GraphQL client code based on the provided query.
                 <!-- optional configuration below -->
                 <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
                 <allowDeprecatedFields>true</allowDeprecatedFields>
-                <converters>
-                    <!-- custom scalar UUID type -->
-                    <UUID>
+                <customScalars>
+                    <customScalar>
+                        <!-- custom scalar UUID type -->
+                        <scalar>UUID</scalar>
                         <!-- fully qualified Java class name of a custom scalar type -->
                         <type>java.util.UUID</type>
                         <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                            used to convert to/from raw JSON and scalar type -->
                         <converter>com.example.UUIDScalarConverter</converter>
-                    </UUID>
-                </converters>
+                    </customScalar>
+                </customScalars>
                 <headers>
                     <X-Custom-Header>My-Custom-Header</X-Custom-Header>
                 </headers>

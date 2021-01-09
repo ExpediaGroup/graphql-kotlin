@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/graphql")
-              timeoutConfig.set(TimeoutConfig(connect = 100, read = 100))
+              timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
@@ -126,7 +126,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             graphqlIntrospectSchema {
               endpoint = "${wireMockServer.baseUrl()}/graphql"
-              timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(100, 100)
+              timeoutConfig = new com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(100, 100)
             }
             """.trimIndent()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)

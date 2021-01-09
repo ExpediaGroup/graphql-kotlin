@@ -87,7 +87,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.expediagroup</groupId>
-                        <artifactId>graphql-kotlin-plugin-core</artifactId>
+                        <artifactId>graphql-kotlin-client-generator</artifactId>
                         <version>@graphql-kotlin.version@</version>
                     </dependency>
                     <dependency>
