@@ -75,6 +75,7 @@
       "plugins/gradle-plugin",
       "plugins/gradle-plugin-examples",
       "plugins/maven-plugin",
+      "plugins/maven-plugin-examples",
       "plugins/hooks-provider"
     ],
     "Contributors": [
