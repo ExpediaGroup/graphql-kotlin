@@ -144,25 +144,26 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         val startMessage = getStartMessage(query, id)
 
         return session.send(Flux.just(session.textMessage(initMessage)))
-            .then(session.send(Flux.just(session.textMessage(startMessage)))
-                .thenMany(
-                    session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .doOnNext {
-                            if (it.type == ServerMessages.GQL_DATA.type) {
-                                val data = objectMapper.writeValueAsString(it.payload)
-                                output.next(data)
-                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                                output.complete()
+            .then(
+                session.send(Flux.just(session.textMessage(startMessage)))
+                    .thenMany(
+                        session.receive()
+                            .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                            .doOnNext {
+                                if (it.type == ServerMessages.GQL_DATA.type) {
+                                    val data = objectMapper.writeValueAsString(it.payload)
+                                    output.next(data)
+                                } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                    output.complete()
+                                }
                             }
-                        }
-                )
-                .doOnError {
-                    output.error(it)
-                }
-                .doOnComplete {
-                    output.complete()
-                }.then()
+                    )
+                    .doOnError {
+                        output.error(it)
+                    }
+                    .doOnComplete {
+                        output.complete()
+                    }.then()
             )
     }
 

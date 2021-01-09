@@ -37,7 +37,7 @@ _Created only if federation is enabled_
 ## GraphQL Configuration
 | Bean                           | Description |
 |:-------------------------------|:------------|
-| Instrumentation (optional)           | Any number of beans created that implement `graphql-java` [Instrumentation](https://www.graphql-java.com/documentation/v16/instrumentation/) will be pulled in. The beans can be ordered by implementing Spring Ordered interface. Defaults to empty list. |
+| Instrumentation (optional)           | Any number of beans created that implement `graphql-java` [Instrumentation](https://www.graphql-java.com/documentation/v16/instrumentation/) will be pulled in. The beans can be ordered by implementing the Spring `Ordered` interface. |
 | ExecutionIdProvider (optional)       | Any number of beans created that implement `graphql-java` [ExecutionIdProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/ExecutionIdProvider.java) will be pulled in. |
 | PreparsedDocumentProvider (optional) | Any number of beans created that implement `graphql-java` [PreparsedDocumentProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/preparsed/PreparsedDocumentProvider.java) will be pulled in. |
 | GraphQL                              | GraphQL execution object generated using `GraphQLSchema` with default async execution strategies. The GraphQL object can be customized by optionally providing the above beans in the application context. |
@@ -48,7 +48,7 @@ _Created only if federation is enabled_
 
 
 ## Subscriptions
-_Created only if the `Subscription` marker interface is used _
+_Created only if the `Subscription` marker interface is used_
 
 | Bean                             | Description |
 |:---------------------------------|:------------|

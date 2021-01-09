@@ -36,21 +36,20 @@ Using a JVM dependency manager, simply link any `graphql-kotlin-*` library to yo
 version and other examples in [Sonatype Central
 Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-spring-server)
 
-### Maven
-
-```xml
-<dependency>
-  <groupId>com.expediagroup</groupId>
-  <artifactId>graphql-kotlin-spring-server</artifactId>
-  <version>${latestVersion}</version>
-</dependency>
-```
-
-### Gradle
-
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Gradle Kotlin-->
 ```kotlin
 implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
 ```
+<!--Maven-->
+```xml
+<dependency>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-spring-server</artifactId>
+    <version>${latestVersion}</version>
+</dependency>
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Generating a Schema
 

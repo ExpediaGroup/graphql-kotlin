@@ -62,7 +62,7 @@
       "server/graphql-request-parser",
       "server/graphql-context-factory",
       "server/graphql-request-handler",
-      "server/http-request-response",
+      "server/data-loader-registry-factory",
       "server/server-subscriptions",
       {
         "type": "subcategory",
@@ -77,7 +77,7 @@
         ]
       }
     ],
-    "HTTP Client": [
+    "Client": [
       "client/client-overview",
       "client/client-features",
       "client/client-customization"

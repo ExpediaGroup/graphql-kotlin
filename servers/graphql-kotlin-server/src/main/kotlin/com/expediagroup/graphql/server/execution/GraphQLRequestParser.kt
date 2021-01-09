@@ -19,7 +19,8 @@ package com.expediagroup.graphql.server.execution
 import com.expediagroup.graphql.types.GraphQLRequest
 
 /**
- * A generic server interface that handles parsing the specific server implementation request to a [GraphQLRequest]
+ * A generic server interface that handles parsing the specific server implementation request to a [GraphQLRequest].
+ * If the request is not valid return null.
  */
 interface GraphQLRequestParser<Request> {
 
