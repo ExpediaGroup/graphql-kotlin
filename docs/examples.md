@@ -49,4 +49,3 @@ directly from your IDE. Alternatively you can also use the Spring Boot plugin fr
 
 Once the app has started you can explore the example schema by opening Playground endpoint at
 [http://localhost:8080/playground](http://localhost:8080/playground).
-

@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.examples.subscriptions
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.examples.context.MyGraphQLContext
+import com.expediagroup.graphql.examples.context.MySubscriptionGraphQLContext
+import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.server.operations.Subscription
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
 import graphql.execution.DataFetcherResult
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher
@@ -40,7 +40,7 @@ class SimpleSubscription : Subscription {
     fun singleValueSubscription(): Flux<Int> = Flux.just(1)
 
     @GraphQLDescription("Returns a random number every second")
-    fun counter(limit: Long?): Flux<Int> {
+    fun counter(limit: Long? = null): Flux<Int> {
         val flux = Flux.interval(Duration.ofSeconds(1)).map {
             val value = Random.nextInt()
             logger.info("Returning $value from counter")
@@ -74,13 +74,13 @@ class SimpleSubscription : Subscription {
     fun flowOfErrors(): Publisher<DataFetcherResult<String?>> {
         val dfr: DataFetcherResult<String?> = DataFetcherResult.newResult<String?>()
             .data(null)
-            .error(SimpleKotlinGraphQLError(Exception("error thrown")))
+            .error(KotlinGraphQLError(Exception("error thrown")))
             .build()
 
         return flowOf(dfr, dfr).asPublisher()
     }
 
     @GraphQLDescription("Returns a value from the subscription context")
-    fun subscriptionContext(myGraphQLContext: MyGraphQLContext): Publisher<String> =
-        flowOf(myGraphQLContext.subscriptionValue ?: "", "value 2", "value3").asPublisher()
+    fun subscriptionContext(myGraphQLContext: MySubscriptionGraphQLContext): Flux<String> =
+        Flux.just(myGraphQLContext.subscriptionValue ?: "", "value 2", "value3")
 }

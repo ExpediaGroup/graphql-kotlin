@@ -17,10 +17,21 @@
 package com.expediagroup.graphql.examples.context
 
 import com.expediagroup.graphql.execution.GraphQLContext
-import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
- * Simple [GraphQLContext] that holds extra value.
+ * Simple [GraphQLContext] that holds extra value and the [ServerRequest]
  */
-class MyGraphQLContext(val myCustomValue: String, val request: ServerHttpRequest, val response: ServerHttpResponse, var subscriptionValue: String? = null) : GraphQLContext
+class MyGraphQLContext(
+    val myCustomValue: String,
+    val request: ServerRequest
+) : GraphQLContext
+
+/**
+ * Simple [GraphQLContext] that holds extra value and the [WebSocketSession]
+ */
+class MySubscriptionGraphQLContext(
+    val request: WebSocketSession,
+    var subscriptionValue: String? = null
+) : GraphQLContext

@@ -20,30 +20,32 @@ import com.expediagroup.graphql.examples.SUBSCRIPTION_ENDPOINT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ClientMessages.GQL_START
+import com.expediagroup.graphql.spring.model.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.net.URI
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
+import java.net.URI
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = ["graphql.packages=com.expediagroup.graphql.examples"]
 )
 @EnableAutoConfiguration
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
-    private val objectMapper = jacksonObjectMapper().registerKotlinModule()
+    private val objectMapper = jacksonObjectMapper()
 
     @Test
     fun `verify singleValueSubscription query`() {
@@ -140,23 +142,29 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     ): Mono<Void> {
         val initMessage = getInitMessage(id, initPayload)
         val startMessage = getStartMessage(query, id)
-        val firstMessage = session.textMessage(initMessage).toMono()
-            .concatWith(session.textMessage(startMessage).toMono())
 
-        return session.send(firstMessage)
-            .thenMany(
-                session.receive()
-                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                    .doOnNext {
-                        if (it.type == SubscriptionOperationMessage.ServerMessages.GQL_DATA.type) {
-                            val data = objectMapper.writeValueAsString(it.payload)
-                            output.next(data)
-                        } else if (it.type == SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE.type) {
-                            output.complete()
-                        }
+        return session.send(Flux.just(session.textMessage(initMessage)))
+            .then(
+                session.send(Flux.just(session.textMessage(startMessage)))
+                    .thenMany(
+                        session.receive()
+                            .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                            .doOnNext {
+                                if (it.type == ServerMessages.GQL_DATA.type) {
+                                    val data = objectMapper.writeValueAsString(it.payload)
+                                    output.next(data)
+                                } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                                    output.complete()
+                                }
+                            }
+                    )
+                    .doOnError {
+                        output.error(it)
                     }
+                    .doOnComplete {
+                        output.complete()
+                    }.then()
             )
-            .then()
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.exceptions
 
-import com.expediagroup.graphql.spring.exception.SimpleKotlinGraphQLError
+import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import graphql.ErrorType
 import graphql.ErrorType.ValidationError
@@ -39,7 +39,7 @@ class CustomDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 
         val error: GraphQLError = when (exception) {
             is ValidationException -> ValidationDataFetchingGraphQLError(exception.constraintErrors, path, exception, sourceLocation)
-            else -> SimpleKotlinGraphQLError(exception = exception, locations = listOf(sourceLocation), path = path.toList())
+            else -> KotlinGraphQLError(exception = exception, locations = listOf(sourceLocation), path = path.toList())
         }
         log.warn(error.message, exception)
         return DataFetcherExceptionHandlerResult.newResult().error(error).build()

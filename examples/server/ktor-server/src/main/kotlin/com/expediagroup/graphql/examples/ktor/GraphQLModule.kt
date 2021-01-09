@@ -9,18 +9,17 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
-import java.lang.IllegalStateException
 
 fun Application.graphQLModule() {
     install(Routing)
 
     routing {
         post("graphql") {
-            GraphQLHandler().handle(this.call)
+            KtorServer().handle(this.call)
         }
 
         get("playground") {
-            this.call.respondText(buildPlaygroundHtml("graphql", "graphql"), ContentType.Text.Html)
+            this.call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentType.Text.Html)
         }
     }
 }
