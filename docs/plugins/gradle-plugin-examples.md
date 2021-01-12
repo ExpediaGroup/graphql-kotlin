@@ -136,7 +136,7 @@ if you would like to use WebClient implementation instead you need to specify `G
 
 ```kotlin
 // build.gradle.kts
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
@@ -150,8 +150,10 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```groovy
 //build.gradle
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+
 graphqlGenerateClient {
-    clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
+    clientType = GraphQLClientType.KTOR
     packageName = "com.example.generated"
     schemaFileName = "mySchema.graphql"
 }
@@ -191,12 +193,13 @@ Afterwards we need to configure our plugin to use this custom converter
 
 ```kotlin
 // build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   packageName.set("com.example.generated")
   schemaFileName.set("mySchema.graphql")
-  converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+  customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
 
@@ -204,10 +207,12 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```groovy
 //build.gradle
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+
 graphqlGenerateClient {
     packageName = "com.example.generated"
     schemaFileName = "mySchema.graphql"
-    converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+    customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
 
@@ -331,9 +336,8 @@ the GraphQL Ktor client code based on the provided query.
 
 ```kotlin
 // build.gradle.kts
-import com.expediagroup.graphql.plugin.config.TimeoutConfig
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
@@ -343,7 +347,7 @@ graphql {
     // optional configuration
     allowDeprecatedFields = true
     clientType = GraphQLClientType.KTOR
-    converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+    customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
     headers = mapOf("X-Custom-Header" to "My-Custom-Header")
     queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
     timeout {
@@ -358,16 +362,16 @@ Above configuration is equivalent to the following
 
 ```kotlin
 // build.gradle.kts
-import com.expediagroup.graphql.plugin.config.TimeoutConfig
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
 val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
     endpoint.set("http://localhost:8080/sdl")
     headers.put("X-Custom-Header", "My-Custom-Header")
-    timeoutConfig.set(TimeoutConfig(connect = 10_000, read = 30_000))
+    timeoutConfig.set(TimeoutConfiguration(connect = 10_000, read = 30_000))
 }
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     packageName.set("com.example.generated")
@@ -375,7 +379,7 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
     // optional
     allowDeprecatedFields.set(true)
     clientType.set(GraphQLClientType.KTOR)
-    converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+    customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
     queryFiles.from("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")
 
     dependsOn("graphqlDownloadSDL")
@@ -386,19 +390,22 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```groovy
 // build.gradle
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+
 graphql {
     client {
         sdlEndpoint = "http://localhost:8080/sdl"
         packageName = "com.example.generated"
         // optional configuration
         allowDeprecatedFields = true
-        clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
-        converters = ["UUID" : new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")]
+        clientType = GraphQLClientType.KTOR
+        customScalars = [new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter")]
         headers = ["X-Custom-Header" : "My-Custom-Header"]
         queryFiles = [file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")]
         timeout { t ->
-            t.connect = 10_000
-            t.read = 30_000
+            t.connect = 10000
+            t.read = 30000
         }
     }
 }
@@ -408,18 +415,22 @@ Above configuration is equivalent to the following
 
 ```groovy
 //build.gradle
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
+
 graphqlDownloadSDL {
     endpoint = "http://localhost:8080/sdl"
     headers["X-Custom-Header"] = "My-Custom-Header"
-    timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(10000, 30000)
+    timeoutConfig = new TimeoutConfiguration(10000, 30000)
 }
 graphqlGenerateClient {
     packageName = "com.example.generated"
     schemaFile = graphqlDownloadSDL.outputFile
     // optional
     allowDeprecatedFields = true
-    clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
-    converters["UUID"] = new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")
+    clientType = GraphQLClientType.KTOR
+    customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
     queryFiles.from("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")
 
     dependsOn graphqlDownloadSDL

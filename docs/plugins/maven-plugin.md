@@ -63,7 +63,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
 | `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
-| `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `customScalars` | List<CustomScalar> | | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
@@ -72,19 +72,20 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 
 **Parameter Details**
 
-  * *converters* - Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+  * *customScalars* - List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
 
     ```xml
-    <converters>
-      <!-- custom scalar type -->
-      <UUID>
-        <!-- fully qualified Java class name of a custom scalar type -->
-        <type>java.util.UUID</type>
-        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-             used to convert to/from raw JSON and scalar type -->
-        <converter>com.example.UUIDScalarConverter</converter>
-      </UUID>
-    </converters>
+    <customScalars>
+        <customScalar>
+            <!-- custom scalar UUID type -->
+            <scalar>UUID</scalar>
+            <!-- fully qualified Java class name of a custom scalar type -->
+            <type>java.util.UUID</type>
+            <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+              used to convert to/from raw JSON and scalar type -->
+            <converter>com.example.UUIDScalarConverter</converter>
+        </customScalar>
+    </customScalars>
     ```
 
 ### generate-sdl
@@ -128,7 +129,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
 | `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
-| `converters` | Map<String, ScalarConverter> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `customScalars` | List<CustomScalar> | | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-test-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
@@ -137,19 +138,20 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 
 **Parameter Details**
 
-  * *converters* - Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
+  * *customScalars* - List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
 
     ```xml
-    <converters>
-      <!-- custom scalar type -->
-      <UUID>
-        <!-- fully qualified Java class name of a custom scalar type -->
-        <type>java.util.UUID</type>
-        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-             used to convert to/from raw JSON and scalar type -->
-        <converter>com.example.UUIDScalarConverter</converter>
-      </UUID>
-    </converters>
+    <customScalars>
+        <customScalar>
+            <!-- custom scalar UUID type -->
+            <scalar>UUID</scalar>
+            <!-- fully qualified Java class name of a custom scalar type -->
+            <type>java.util.UUID</type>
+            <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+              used to convert to/from raw JSON and scalar type -->
+            <converter>com.example.UUIDScalarConverter</converter>
+        </customScalar>
+    </customScalars>
     ```
 
 ### introspect-schema

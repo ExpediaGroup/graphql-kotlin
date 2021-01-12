@@ -27,8 +27,7 @@ import java.io.File
 @Suppress("UnstableApiUsage")
 interface GenerateSDLParameters : WorkParameters {
     /** List of supported packages that can contain GraphQL schema type definitions. */
-    fun getSupportedPackages(): ListProperty<String>
-
+    val supportedPackages: ListProperty<String>
     /** Target generated schema file. */
-    fun getSchemaFileName(): Property<File>
+    val schemaFile: Property<File>
 }

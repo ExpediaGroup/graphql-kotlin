@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.tasks.DEFAULT_SCHEMA
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.FEDERATED_SCHEMA
@@ -100,7 +100,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                 // optional
                 allowDeprecatedFields = true
                 headers = mapOf("$customHeaderName" to "$customHeaderValue")
-                converters = mapOf("UUID" to ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+                customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
                 queryFiles = listOf(
                     file("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"),
                     file("${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
@@ -227,8 +227,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     packageName = "com.example.generated"
                     // optional configuration
                     allowDeprecatedFields = true
-                    clientType = com.expediagroup.graphql.plugin.generator.GraphQLClientType.KTOR
-                    converters = ["UUID" : new com.expediagroup.graphql.plugin.generator.ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter")]
+                    clientType = GraphQLClientType.KTOR
+                    customScalars = [new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter")]
                     headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
                     queryFiles = [
                         file("$testProjectDirectory/src/main/resources/queries/JUnitQuery.graphql"),

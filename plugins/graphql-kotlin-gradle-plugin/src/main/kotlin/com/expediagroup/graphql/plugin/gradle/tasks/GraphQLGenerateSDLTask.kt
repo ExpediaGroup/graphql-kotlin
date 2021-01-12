@@ -83,21 +83,24 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
             throw RuntimeException("attempt to generate SDL failed - missing required supportedPackages property")
         }
 
+        val generatedSchemaFile = schemaFile.asFile.get()
+        val targetDirectory = generatedSchemaFile.parentFile
+        if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
+            throw RuntimeException("failed to generate target schema directory = $targetDirectory")
+        }
+
         val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
             val workerClasspath = pluginClasspath.plus(projectClasspath).plus(source.files)
             workerSpec.classpath.from(workerClasspath)
             logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
         }
 
-        val generatedSchemaFile = schemaFile.asFile.get()
-        val targetDirectory = generatedSchemaFile.parentFile
-        if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
-            throw RuntimeException("failed to generate target schema directory = $targetDirectory")
-        }
         logger.debug("submitting work item to generate SDL for the supported packages = $packages")
         workQueue.submit(GenerateSDLAction::class.java) { parameters ->
-            parameters.getSupportedPackages().set(packages)
-            parameters.getSchemaFileName().set(generatedSchemaFile)
+            parameters.supportedPackages.set(packages)
+            parameters.schemaFile.set(generatedSchemaFile)
         }
+        workQueue.await()
+        logger.debug("successfully generated GraphQL schema")
     }
 }

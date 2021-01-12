@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
+
+    // build dir = /Users/DKuc/Development/graphql-kotlin/plugins/graphql-kotlin-gradle-plugin/build
 
     @Test
     @Tag("kts")
@@ -76,7 +78,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
               endpoint.set("${wireMockServer.baseUrl()}/sdl")
-              timeoutConfig.set(TimeoutConfig(connect = 100, read = 100))
+              timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
@@ -121,6 +123,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
     @Tag("groovy")
     fun `verify downloadSDL task with timeout (groovy)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
+
         WireMock.reset()
         WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
 
@@ -128,7 +131,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             graphqlDownloadSDL {
                 endpoint = "${wireMockServer.baseUrl()}/sdl"
-                timeoutConfig = new com.expediagroup.graphql.plugin.config.TimeoutConfig(100, 100)
+                timeoutConfig = new com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(100, 100)
             }
             """.trimIndent()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)

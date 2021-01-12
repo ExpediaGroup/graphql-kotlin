@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.config.TimeoutConfig
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import org.gradle.api.Action
 import java.io.File
 
@@ -65,8 +65,8 @@ open class GraphQLPluginClientExtension {
     var headers: Map<String, Any> = emptyMap()
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
-    /** Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
-    var converters: Map<String, ScalarConverterMapping> = emptyMap()
+    /** List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
+    var customScalars: List<GraphQLScalar> = emptyList()
     /** List of query files to be processed. */
     var queryFiles: List<File> = emptyList()
     /** Directory containing GraphQL query files. */
@@ -75,9 +75,9 @@ open class GraphQLPluginClientExtension {
     var clientType: GraphQLClientType = GraphQLClientType.DEFAULT
 
     /** Connect and read timeout configuration for executing introspection query/download schema */
-    internal val timeoutConfig: TimeoutConfig = TimeoutConfig()
+    internal val timeoutConfig: TimeoutConfiguration = TimeoutConfiguration()
 
-    fun timeout(action: Action<TimeoutConfig>) {
+    fun timeout(action: Action<TimeoutConfiguration>) {
         action.execute(timeoutConfig)
     }
 }

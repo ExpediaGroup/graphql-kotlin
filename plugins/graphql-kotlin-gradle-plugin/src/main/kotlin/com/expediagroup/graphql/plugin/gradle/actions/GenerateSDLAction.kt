@@ -17,14 +17,14 @@
 package com.expediagroup.graphql.plugin.gradle.actions
 
 import com.expediagroup.graphql.plugin.gradle.parameters.GenerateSDLParameters
+import com.expediagroup.graphql.plugin.schema.generateSDL
 import org.gradle.workers.WorkAction
 
 /**
  * WorkAction that is used to generate GraphQL schema in SDL format.
  *
  * Action is run using Gradle classloader isolation with a custom classpath that has a dependency on `graphql-kotlin-sdl-generator`
- * and custom `SchemaGeneratorHooks` providers. Since we don't have direct dependency on the sdl-generator within the plugin
- * project, we utilize class loader and reflections to load and invoke `generateSDL` function directly from the classpath.
+ * and custom `SchemaGeneratorHooks` providers.
  */
 @Suppress("UnstableApiUsage")
 abstract class GenerateSDLAction : WorkAction<GenerateSDLParameters> {
@@ -33,16 +33,10 @@ abstract class GenerateSDLAction : WorkAction<GenerateSDLParameters> {
      * Generate GraphQL schema in SDL format.
      */
     override fun execute() {
-        val supportedPackages = parameters.getSupportedPackages().get()
-        val schemaFile = parameters.getSchemaFileName().get()
+        val supportedPackages = parameters.supportedPackages.get()
+        val schemaFile = parameters.schemaFile.get()
 
-        val generatorClass = this.javaClass.classLoader.loadClass("com.expediagroup.graphql.plugin.schema.GenerateSDLKt")
-        val targetMethod = generatorClass.methods.find { it.name == "generateSDL" }
-        if (targetMethod != null) {
-            val schema = targetMethod.invoke(null, supportedPackages)
-            schemaFile.writeText(schema.toString())
-        } else {
-            throw NoSuchMethodError("Unable to locate generateSDL target method")
-        }
+        val schema = generateSDL(supportedPackages = supportedPackages)
+        schemaFile.writeText(schema)
     }
 }

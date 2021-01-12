@@ -95,16 +95,17 @@
                             <headers>
                                 <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
                             </headers>
-                            <converters>
-                                <!-- custom scalar UUID type -->
-                                <UUID>
+                            <customScalars>
+                                <customScalar>
+                                    <!-- custom scalar UUID type -->
+                                    <scalar>UUID</scalar>
                                     <!-- fully qualified Java class name of a custom scalar type -->
                                     <type>java.util.UUID</type>
                                     <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                                        used to convert to/from raw JSON and scalar type -->
                                     <converter>com.example.UUIDScalarConverter</converter>
-                                </UUID>
-                            </converters>
+                                </customScalar>
+                            </customScalars>
                             <queryFiles>
                                 <queryFile>${project.basedir}/src/main/resources/ExampleQuery.graphql</queryFile>
                                 <queryFile>${project.basedir}/src/main/resources/DeprecatedQuery.graphql</queryFile>
@@ -115,7 +116,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.expediagroup</groupId>
-                        <artifactId>graphql-kotlin-plugin-core</artifactId>
+                        <artifactId>graphql-kotlin-client-generator</artifactId>
                         <version>@graphql-kotlin.version@</version>
                     </dependency>
                     <dependency>

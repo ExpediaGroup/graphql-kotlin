@@ -43,11 +43,6 @@
         </dependency>
         <dependency>
             <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-plugin-core</artifactId>
-            <version>${graphql-kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-maven-plugin</artifactId>
             <version>${graphql-kotlin.version}</version>
         </dependency>

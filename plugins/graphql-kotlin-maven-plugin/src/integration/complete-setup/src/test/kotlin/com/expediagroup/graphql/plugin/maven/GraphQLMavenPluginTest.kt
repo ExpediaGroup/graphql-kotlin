@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
+import com.expediagroup.graphql.plugin.generated.UUID
 import com.expediagroup.graphql.client.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -61,7 +62,7 @@ class GraphQLMavenPluginTest {
                 assertTrue(scalarResult is ExampleQuery.ScalarWrapper)
                 assertNotNull(scalarResult)
                 assertTrue(scalarResult?.count is Int)
-                assertTrue(scalarResult?.custom is ExampleQuery.UUID)
+                assertTrue(scalarResult?.custom is UUID)
                 assertEquals(ExampleQuery.CustomEnum.ONE, data?.enumQuery)
                 val interfaceResult = data?.interfaceQuery
                 assertTrue(interfaceResult is ExampleQuery.SecondInterfaceImplementation)

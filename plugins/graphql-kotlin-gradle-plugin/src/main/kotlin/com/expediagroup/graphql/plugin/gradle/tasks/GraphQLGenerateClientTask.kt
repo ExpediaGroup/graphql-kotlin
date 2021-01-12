@@ -16,16 +16,16 @@
 
 package com.expediagroup.graphql.plugin.gradle.tasks
 
-import com.expediagroup.graphql.plugin.generateClient
-import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import com.expediagroup.graphql.plugin.gradle.actions.GenerateClientAction
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -33,7 +33,11 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.workers.ClassLoaderWorkerSpec
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
 import java.io.File
+import javax.inject.Inject
 
 internal const val GENERATE_CLIENT_TASK_NAME: String = "graphqlGenerateClient"
 internal const val GENERATE_TEST_CLIENT_TASK_NAME: String = "graphqlGenerateTestClient"
@@ -42,7 +46,10 @@ internal const val GENERATE_TEST_CLIENT_TASK_NAME: String = "graphqlGenerateTest
  * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
  */
 @Suppress("UnstableApiUsage")
-open class GraphQLGenerateClientTask : DefaultTask() {
+abstract class GraphQLGenerateClientTask : DefaultTask() {
+
+    @get:Classpath
+    val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
     /**
      * Path to GraphQL schema file that will be used to generate client code.
@@ -86,16 +93,15 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     val allowDeprecatedFields: Property<Boolean> = project.objects.property(Boolean::class.java)
 
     /**
-     * Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to
-     * serialize/deserialize values.
+     * List of custom GraphQL scalar converters.
      *
      * ```kotlin
-     * converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter"))
-     * ```
+     * customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter"))
+     * )
      */
     @Input
     @Optional
-    val converters: MapProperty<String, ScalarConverterMapping> = project.objects.mapProperty(String::class.java, ScalarConverterMapping::class.java)
+    val customScalars: ListProperty<GraphQLScalar> = project.objects.listProperty(GraphQLScalar::class.java)
 
     /**
      * Directory containing GraphQL queries. Defaults to `src/main/resources` when generating main sources and `src/test/resources`
@@ -124,12 +130,15 @@ open class GraphQLGenerateClientTask : DefaultTask() {
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
+    @Inject
+    abstract fun getWorkerExecutor(): WorkerExecutor
+
     init {
         group = "GraphQL"
         description = "Generate HTTP client from the specified GraphQL queries."
 
         allowDeprecatedFields.convention(false)
-        converters.convention(emptyMap())
+        customScalars.convention(emptyList())
         clientType.convention(GraphQLClientType.DEFAULT)
     }
 
@@ -167,15 +176,21 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         }
 
         logConfiguration(graphQLSchema, targetQueryFiles)
-        val config = GraphQLClientGeneratorConfig(
-            packageName = targetPackage,
-            allowDeprecated = allowDeprecatedFields.get(),
-            scalarTypeToConverterMapping = converters.get(),
-            clientType = clientType.get()
-        )
-        generateClient(config, graphQLSchema, targetQueryFiles).forEach {
-            it.writeTo(targetDirectory)
+        val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
+            workerSpec.classpath.from(pluginClasspath)
+            logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
         }
+
+        workQueue.submit(GenerateClientAction::class.java) { parameters ->
+            parameters.packageName.set(targetPackage)
+            parameters.allowDeprecated.set(allowDeprecatedFields)
+            parameters.customScalars.set(customScalars)
+            parameters.clientType.set(clientType)
+            parameters.schemaFile.set(graphQLSchema)
+            parameters.queryFiles.set(targetQueryFiles)
+            parameters.targetDirectory.set(targetDirectory)
+        }
+        workQueue.await()
         logger.debug("successfully generated GraphQL HTTP client")
     }
 
@@ -189,10 +204,10 @@ open class GraphQLGenerateClientTask : DefaultTask() {
         logger.debug("  packageName = $packageName")
         logger.debug("  allowDeprecatedFields = $allowDeprecatedFields")
         logger.debug("  converters")
-        converters.get().entries.forEach { (customScalar, converterInfo) ->
+        customScalars.get().forEach { (customScalar, type, converter) ->
             logger.debug("    - custom scalar = $customScalar")
-            logger.debug("      |- type = ${converterInfo.type}")
-            logger.debug("      |- converter = ${converterInfo.converter}")
+            logger.debug("      |- type = $type")
+            logger.debug("      |- converter = $converter")
         }
         logger.debug("")
         logger.debug("-- end GraphQL Client generator configuration --")

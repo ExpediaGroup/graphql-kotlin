@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 package com.expediagroup.graphql.plugin.maven
 
-import com.expediagroup.graphql.plugin.generateClient
-import com.expediagroup.graphql.plugin.generator.GraphQLClientGeneratorConfig
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import com.expediagroup.graphql.plugin.client.generateClient
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientType
+import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.project.MavenProject
@@ -55,24 +54,24 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var allowDeprecatedFields: Boolean = false
 
     /**
-     * Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to
-     * serialize/deserialize values.
+     * List of custom GraphQL scalar converters.
      *
      * ```xml
-     * <converters>
-     *   <!-- custom scalar UUID type -->
-     *   <UUID>
-     *     <!-- fully qualified Java class name of a custom scalar type -->
-     *     <type>java.util.UUID</type>
-     *     <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-     *        used to convert to/from raw JSON and scalar type -->
-     *     <converter>com.example.UUIDScalarConverter</converter>
-     *   </UUID>
-     * </converters>
+     * <customScalars>
+     *     <customScalar>
+     *         <!-- custom scalar UUID type -->
+     *         <scalar>UUID</scalar>
+     *         <!-- fully qualified Java class name of a custom scalar type -->
+     *         <type>java.util.UUID</type>
+     *         <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+     *            used to convert to/from raw JSON and scalar type -->
+     *         <converter>com.example.UUIDScalarConverter</converter>
+     *     </customScalar>
+     * </customScalars>
      * ```
      */
     @Parameter(name = "converters")
-    private var converters: Map<String, ScalarConverter> = mutableMapOf()
+    private var customScalars: List<CustomScalar> = mutableListOf()
 
     /**
      * Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using
@@ -110,13 +109,8 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
         }
 
         logConfiguration(graphQLSchemaFile, targetQueryFiles)
-        val config = GraphQLClientGeneratorConfig(
-            packageName = packageName,
-            allowDeprecated = allowDeprecatedFields,
-            scalarTypeToConverterMapping = converters.map { (key, value) -> key to ScalarConverterMapping(value.type, value.converter) }.toMap(),
-            clientType = clientType
-        )
-        generateClient(config, graphQLSchemaFile, targetQueryFiles).forEach {
+        val customGraphQLScalars = customScalars.map { GraphQLScalar(it.scalar, it.type, it.converter) }
+        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, clientType, graphQLSchemaFile, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)
         }
 
@@ -150,9 +144,9 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
         log.debug("  packageName = $packageName")
         log.debug("  allowDeprecatedFields = $allowDeprecatedFields")
         log.debug("  converters")
-        converters.entries.forEach { (customScalar, converterInfo) ->
-            log.debug("    - custom scalar = $customScalar")
-            log.debug("      |- type = ${converterInfo.type}")
+        customScalars.forEach { converterInfo ->
+            log.debug("    - custom scalar = ${converterInfo.scalar}")
+            log.debug("      |- kotlin type = ${converterInfo.type}")
             log.debug("      |- converter = ${converterInfo.converter}")
         }
         log.debug("")
@@ -161,14 +155,20 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 }
 
 /**
- * Maven Plugin Property equivalent of [ScalarConverterMapping].
+ * Holds mapping between custom GraphQL scalar type, corresponding Kotlin type and the converter that will be used to convert to/from
+ * raw JSON and Java type.
  *
- * Unfortunately we cannot use [ScalarConverterMapping] directly as per rules of mapping complex objects to Mojo parameters, target object has to be declared in
- * the same package as Mojo itself (otherwise we need to explicitly specify fully qualified implementation name in configuration XML block).
+ * Unfortunately we cannot use client-generator GraphQLScalar directly as per rules of mapping complex objects to Mojo parameters, target
+ * object has to be declared in the same package as Mojo itself (otherwise we need to explicitly specify fully qualified implementation
+ * name in configuration XML block).
  *
  * @see [Guide to Configuring Plug-ins](https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Mapping_Complex_Objects)
  */
-class ScalarConverter {
+class CustomScalar {
+    /** Custom scalar name. */
+    @Parameter
+    lateinit var scalar: String
+
     /** Fully qualified class name of a custom scalar type, e.g. java.util.UUID */
     @Parameter
     lateinit var type: String

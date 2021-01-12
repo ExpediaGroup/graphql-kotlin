@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-plugin-core"))
+    api(project(path = ":graphql-kotlin-client-generator"))
     api(project(path = ":graphql-kotlin-sdl-generator"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
