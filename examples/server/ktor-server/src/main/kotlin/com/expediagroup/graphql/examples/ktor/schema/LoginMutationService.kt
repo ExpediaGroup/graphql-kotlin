@@ -16,7 +16,7 @@
 package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.examples.ktor.schema.models.User
-import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.types.operations.Mutation
 
 data class AuthPayload(val token: String? = null, val user: User? = null)
 

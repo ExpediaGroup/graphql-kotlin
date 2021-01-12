@@ -16,7 +16,7 @@
 package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.examples.ktor.schema.models.Course
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 
 class CourseQueryService : Query {
     suspend fun searchCourses(params: CourseSearchParameters) = Course.search(params.ids)

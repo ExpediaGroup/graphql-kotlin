@@ -16,7 +16,7 @@
 package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.examples.ktor.schema.models.University
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 import graphql.GraphQLException
 
 class UniversityQueryService : Query {

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.mutation
 
-import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.types.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
 

@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.server.spring.routes
 
-import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.types.operations.Subscription
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages

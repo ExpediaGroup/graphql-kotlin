@@ -23,9 +23,9 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.server.operations.Mutation
-import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.types.operations.Mutation
+import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.types.operations.Subscription
 import com.expediagroup.graphql.server.spring.extensions.toTopLevelObjects
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory

@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.server.spring.context
 
 import com.expediagroup.graphql.execution.GraphQLContext
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.types.GraphQLRequest
 import kotlinx.coroutines.ExperimentalCoroutinesApi

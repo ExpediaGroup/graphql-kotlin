@@ -23,17 +23,16 @@ import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.federation.toFederatedSchema
 import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
-import com.expediagroup.graphql.server.operations.Mutation
-import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
 import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.types.operations.Mutation
+import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.types.operations.Subscription
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ScanResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.ServiceLoader
-import kotlin.RuntimeException
 
 private val logger: Logger = LoggerFactory.getLogger("generateSDL")
 
