@@ -41,7 +41,9 @@ import graphql.schema.idl.TypeDefinitionRegistry
 import io.ktor.client.request.HttpRequestBuilder
 import java.io.File
 
-private const val LIBRARY_PACKAGE = "com.expediagroup.graphql.client"
+private const val LIBRARY_CLIENT_PACKAGE = "com.expediagroup.graphql.client"
+private const val LIBRARY_CLIENT_KTOR_PACKAGE = "com.expediagroup.graphql.client.ktor"
+private const val LIBRARY_CLIENT_SPRING_PACKAGE = "com.expediagroup.graphql.client.spring"
 private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.types"
 
 /**
@@ -136,7 +138,7 @@ class GraphQLClientGenerator(
                         .build()
                     funSpec.addParameter(ktorRequestCustomizer)
                     funSpec.addStatement("return graphQLClient.execute($queryConstName, $operationName, $variableCode, requestBuilder)")
-                    ClassName(LIBRARY_PACKAGE, "GraphQLKtorClient").parameterizedBy(STAR)
+                    ClassName(LIBRARY_CLIENT_KTOR_PACKAGE, "GraphQLKtorClient").parameterizedBy(STAR)
                 }
                 GraphQLClientType.WEBCLIENT -> {
                     val webClientRequestCustomizer: ParameterSpec = ParameterSpec.builder(
@@ -151,12 +153,12 @@ class GraphQLClientGenerator(
                         .build()
                     funSpec.addParameter(webClientRequestCustomizer)
                     funSpec.addStatement("return graphQLClient.execute($queryConstName, $operationName, $variableCode, requestBuilder)")
-                    ClassName(LIBRARY_PACKAGE, "GraphQLWebClient")
+                    ClassName(LIBRARY_CLIENT_SPRING_PACKAGE, "GraphQLWebClient")
                 }
                 else -> {
-                    val executeExtensionFunction = MemberName(LIBRARY_PACKAGE, "execute")
+                    val executeExtensionFunction = MemberName(LIBRARY_CLIENT_PACKAGE, "execute")
                     funSpec.addStatement("return graphQLClient.%M($queryConstName, $operationName, $variableCode)", executeExtensionFunction)
-                    ClassName(LIBRARY_PACKAGE, "GraphQLClient")
+                    ClassName(LIBRARY_CLIENT_PACKAGE, "GraphQLClient")
                 }
             }
 

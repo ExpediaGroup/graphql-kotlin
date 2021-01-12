@@ -246,7 +246,7 @@ class GenerateGraphQLClientIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLKtorClient
+                import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import io.ktor.client.request.HttpRequestBuilder
                 import kotlin.String
@@ -311,7 +311,7 @@ class GenerateGraphQLClientIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLWebClient
+                import com.expediagroup.graphql.client.spring.GraphQLWebClient
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import kotlin.String
                 import kotlin.Unit

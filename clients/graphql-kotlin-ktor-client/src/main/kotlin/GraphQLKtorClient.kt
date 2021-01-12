@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,56 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client
+package com.expediagroup.graphql.client.ktor
 
+import com.expediagroup.graphql.client.GraphQLClient
 import com.expediagroup.graphql.types.GraphQLResponse
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.coroutines.reactive.awaitSingle
-import org.springframework.http.MediaType
-import org.springframework.http.codec.json.Jackson2JsonDecoder
-import org.springframework.http.codec.json.Jackson2JsonEncoder
-import org.springframework.web.reactive.function.client.WebClient
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngineConfig
+import io.ktor.client.engine.HttpClientEngineFactory
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.cio.CIOEngineConfig
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.post
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.util.KtorExperimentalAPI
+import java.io.Closeable
+import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * A lightweight typesafe GraphQL HTTP client using Spring WebClient engine.
+ * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
  */
-open class GraphQLWebClient(
-    url: String,
+@KtorExperimentalAPI
+open class GraphQLKtorClient<in T : HttpClientEngineConfig>(
+    private val url: URL,
+    engineFactory: HttpClientEngineFactory<T>,
     private val mapper: ObjectMapper = jacksonObjectMapper(),
-    builder: WebClient.Builder = WebClient.builder()
-) : GraphQLClient {
+    configuration: HttpClientConfig<T>.() -> Unit = {}
+) : GraphQLClient, Closeable {
 
     private val typeCache = ConcurrentHashMap<Class<*>, JavaType>()
 
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-
-        builder.codecs { codecConfigurer ->
-            codecConfigurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON))
-            codecConfigurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON))
-        }
     }
 
-    private val client: WebClient = builder.baseUrl(url).build()
+    private val client = HttpClient(engineFactory = engineFactory) {
+        apply(configuration)
+
+        // install default JSON serializer
+        install(JsonFeature) {
+            serializer = JacksonSerializer(mapper)
+        }
+    }
 
     /**
      * Executes specified GraphQL query or mutation.
@@ -57,13 +72,7 @@ open class GraphQLWebClient(
      * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
      * manually deserialize using passed in result type Class information.
      */
-    open suspend fun <T> execute(
-        query: String,
-        operationName: String? = null,
-        variables: Any? = null,
-        resultType: Class<T>,
-        requestBuilder: WebClient.RequestBodyUriSpec.() -> Unit
-    ): GraphQLResponse<T> {
+    open suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
         // Variables are simple data classes which will be serialized as map.
         // By using map instead of typed object we can eliminate the need to explicitly convert variables to a map
         val graphQLRequest = mapOf(
@@ -72,14 +81,11 @@ open class GraphQLWebClient(
             "variables" to variables
         )
 
-        val rawResult = client.post()
-            .apply(requestBuilder)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(graphQLRequest)
-            .retrieve()
-            .bodyToMono(String::class.java)
-            .awaitSingle()
+        val rawResult = client.post<String>(url) {
+            apply(requestBuilder)
+            contentType(ContentType.Application.Json)
+            body = graphQLRequest
+        }
 
         @Suppress("BlockingMethodInNonBlockingContext")
         return mapper.readValue(rawResult, parameterizedType(resultType))
@@ -91,11 +97,20 @@ open class GraphQLWebClient(
     /**
      * Executes specified GraphQL query or mutation operation.
      */
-    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null, noinline requestBuilder: WebClient.RequestBodyUriSpec.() -> Unit): GraphQLResponse<T> =
+    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null, noinline requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> =
         execute(query, operationName, variables, T::class.java, requestBuilder)
 
     private fun <T> parameterizedType(resultType: Class<T>): JavaType =
         typeCache.computeIfAbsent(resultType) {
             mapper.typeFactory.constructParametricType(GraphQLResponse::class.java, resultType)
         }
+
+    override fun close() {
+        client.close()
+    }
+
+    companion object {
+        operator fun invoke(url: URL, mapper: ObjectMapper = jacksonObjectMapper(), config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {}) =
+            GraphQLKtorClient(url = url, engineFactory = CIO, mapper = mapper, configuration = config)
+    }
 }

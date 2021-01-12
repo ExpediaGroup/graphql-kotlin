@@ -2,11 +2,11 @@ package com.example
 
 import com.example.generated.JUnitQuery
 {{#webClient}}
-    import com.expediagroup.graphql.client.GraphQLWebClient
+    import com.expediagroup.graphql.client.spring.GraphQLWebClient
     import org.springframework.web.reactive.function.client.WebClient
 {{/webClient}}
 {{^webClient}}
-    import com.expediagroup.graphql.client.GraphQLKtorClient
+    import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 {{/webClient}}
 import com.expediagroup.graphql.client.execute
 import io.ktor.client.features.defaultRequest

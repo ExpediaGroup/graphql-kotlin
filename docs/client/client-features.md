@@ -3,7 +3,7 @@ id: client-features
 title: Client Features
 ---
 
-## Polymorphic Types Support
+## Polymorphic Types Support
 
 GraphQL supports polymorphic types through unions and interfaces which can be represented in Kotlin as marker and
 regular interfaces. In order to ensure generated objects are not empty, GraphQL queries referencing polymorphic types
@@ -83,7 +83,7 @@ data class SecondInterfaceImplementation(
 ) : PolymorphicQuery.BasicInterface
 ```
 
-## Default Enum Values
+## Default Enum Values
 
 Enums represent predefined set of values. Adding additional enum values could be a potentially breaking change as your
 clients may not be able to process it. GraphQL Kotlin Client automatically adds default `@JsonEnumDefaultValue __UNKNOWN_VALUE`
