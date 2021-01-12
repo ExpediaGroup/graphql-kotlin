@@ -184,16 +184,17 @@ custom <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graph
             <span class="hljs-tag">&lt;/<span class="hljs-name">goals</span>&gt;</span>
             <span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>false<span class="hljs-tag">&lt;/<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>
-                <span class="hljs-tag">&lt;<span class="hljs-name">converters</span>&gt;</span>
-                    <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
-                    <span class="hljs-tag">&lt;<span class="hljs-name">UUID</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">customScalars</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">customScalar</span>&gt;</span>
+                        <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">scalar</span>&gt;</span>UUID<span class="hljs-tag">&lt;/<span class="hljs-name">scalar</span>&gt;</span>
                         <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom scalar type --&gt;</span>
                         <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>java.util.UUID<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span>
                         <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                            used to convert to/from raw JSON and scalar type --&gt;</span>
                         <span class="hljs-tag">&lt;<span class="hljs-name">converter</span>&gt;</span>com.example.UUIDScalarConverter<span class="hljs-tag">&lt;/<span class="hljs-name">converter</span>&gt;</span>
-                    <span class="hljs-tag">&lt;/<span class="hljs-name">UUID</span>&gt;</span>
-                <span class="hljs-tag">&lt;/<span class="hljs-name">converters</span>&gt;</span>
+                    <span class="hljs-tag">&lt;/<span class="hljs-name">customScalar</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">customScalars</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">packageName</span>&gt;</span>com.example.generated<span class="hljs-tag">&lt;/<span class="hljs-name">packageName</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>mySchema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
             <span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
@@ -277,16 +278,17 @@ the GraphQL client code based on the provided query.</p>
                 <span class="hljs-comment">&lt;!-- optional configuration below --&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">schemaFile</span>&gt;</span>${project.build.directory}/mySchema.graphql<span class="hljs-tag">&lt;/<span class="hljs-name">schemaFile</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">allowDeprecatedFields</span>&gt;</span>
-                <span class="hljs-tag">&lt;<span class="hljs-name">converters</span>&gt;</span>
-                    <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
-                    <span class="hljs-tag">&lt;<span class="hljs-name">UUID</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">customScalars</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-name">customScalar</span>&gt;</span>
+                        <span class="hljs-comment">&lt;!-- custom scalar UUID type --&gt;</span>
+                        <span class="hljs-tag">&lt;<span class="hljs-name">scalar</span>&gt;</span>UUID<span class="hljs-tag">&lt;/<span class="hljs-name">scalar</span>&gt;</span>
                         <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom scalar type --&gt;</span>
                         <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>java.util.UUID<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span>
                         <span class="hljs-comment">&lt;!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                            used to convert to/from raw JSON and scalar type --&gt;</span>
                         <span class="hljs-tag">&lt;<span class="hljs-name">converter</span>&gt;</span>com.example.UUIDScalarConverter<span class="hljs-tag">&lt;/<span class="hljs-name">converter</span>&gt;</span>
-                    <span class="hljs-tag">&lt;/<span class="hljs-name">UUID</span>&gt;</span>
-                <span class="hljs-tag">&lt;/<span class="hljs-name">converters</span>&gt;</span>
+                    <span class="hljs-tag">&lt;/<span class="hljs-name">customScalar</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-name">customScalars</span>&gt;</span>
                 <span class="hljs-tag">&lt;<span class="hljs-name">headers</span>&gt;</span>
                     <span class="hljs-tag">&lt;<span class="hljs-name">X-Custom-Header</span>&gt;</span>My-Custom-Header<span class="hljs-tag">&lt;/<span class="hljs-name">X-Custom-Header</span>&gt;</span>
                 <span class="hljs-tag">&lt;/<span class="hljs-name">headers</span>&gt;</span>
