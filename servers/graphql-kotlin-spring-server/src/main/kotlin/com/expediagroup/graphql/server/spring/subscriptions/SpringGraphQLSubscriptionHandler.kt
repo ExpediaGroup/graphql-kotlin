@@ -27,7 +27,6 @@ import graphql.ExecutionResult
 import graphql.GraphQL
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 
 /**
@@ -35,15 +34,14 @@ import reactor.kotlin.core.publisher.toFlux
  */
 open class SpringGraphQLSubscriptionHandler(private val graphQL: GraphQL) {
 
-    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flux<GraphQLResponse<*>> = Mono.subscriberContext()
-        .flatMapMany {
-            graphQL.execute(graphQLRequest.toExecutionInput(graphQLContext))
-                .getData<Publisher<ExecutionResult>>()
-                .toFlux()
-                .map { result -> result.toGraphQLResponse() }
-                .onErrorResume { throwable ->
-                    val error = KotlinGraphQLError(throwable).toGraphQLKotlinType()
-                    Flux.just(GraphQLResponse<Any>(errors = listOf(error)))
-                }
-        }
+    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flux<GraphQLResponse<*>> = Flux.deferContextual {
+        graphQL.execute(graphQLRequest.toExecutionInput(graphQLContext))
+            .getData<Publisher<ExecutionResult>>()
+            .toFlux()
+            .map { result -> result.toGraphQLResponse() }
+            .onErrorResume { throwable ->
+                val error = KotlinGraphQLError(throwable).toGraphQLKotlinType()
+                Flux.just(GraphQLResponse<Any>(errors = listOf(error)))
+            }
+    }
 }

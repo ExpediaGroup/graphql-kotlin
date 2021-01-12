@@ -28,19 +28,19 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import io.netty.channel.ChannelOption
 import io.netty.handler.timeout.ReadTimeoutException
-import io.netty.handler.timeout.ReadTimeoutHandler
-import io.netty.handler.timeout.WriteTimeoutHandler
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -104,13 +104,8 @@ class GraphQLWebClientTest {
         WireMock.stubFor(stubResponse(response = expectedResponse, delayMillis = 50))
 
         val httpClient: HttpClient = HttpClient.create()
-            .tcpConfiguration { client ->
-                client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10)
-                    .doOnConnected { conn ->
-                        conn.addHandlerLast(ReadTimeoutHandler(10, TimeUnit.MILLISECONDS))
-                        conn.addHandlerLast(WriteTimeoutHandler(10, TimeUnit.MILLISECONDS))
-                    }
-            }
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10)
+            .responseTimeout(Duration.ofMillis(10))
         val connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient.wiretap(true))
         val webClientBuilder = WebClient.builder()
             .clientConnector(connector)
@@ -120,12 +115,13 @@ class GraphQLWebClientTest {
             builder = webClientBuilder
         )
         runBlocking {
-            assertFailsWith(ReadTimeoutException::class) {
+            val exception = assertFailsWith(WebClientRequestException::class) {
                 client.execute<GraphQLResponse<HelloWorldResult>>(
                     query = "query HelloWorldQuery { helloWorld }",
                     operationName = "HelloWorldQuery"
                 )
             }
+            assertTrue(exception.cause is ReadTimeoutException)
         }
     }
 

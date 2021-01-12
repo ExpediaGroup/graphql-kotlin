@@ -35,7 +35,7 @@ tasks {
                 limit {
                     counter = "BRANCH"
                     value = "COVEREDRATIO"
-                    minimum = "0.85".toBigDecimal()
+                    minimum = "0.74".toBigDecimal()
                 }
             }
         }
