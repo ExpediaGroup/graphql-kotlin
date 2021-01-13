@@ -49,7 +49,7 @@ class TrackTimesInvokedInstrumentation : SimpleInstrumentation() {
 
     override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters): CompletableFuture<ExecutionResult> {
         val count = (parameters.getInstrumentationState() as? TrackTimesInvokedInstrumenationState)?.getCount()
-        logger.info("TrackTimesInvokedInstrumentation fields invoked: $count")
+        logger.info("Fields invoked: $count")
         return super.instrumentExecutionResult(executionResult, parameters)
     }
 
