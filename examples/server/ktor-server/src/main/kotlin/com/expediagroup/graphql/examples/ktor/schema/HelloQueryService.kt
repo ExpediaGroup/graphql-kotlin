@@ -15,7 +15,7 @@
  */
 package com.expediagroup.graphql.examples.ktor.schema
 
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 
 class HelloQueryService : Query {
     fun hello() = "World!"

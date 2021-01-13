@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.query
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.annotations.GraphQLIgnore
 import com.expediagroup.graphql.examples.model.Selection
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 import org.springframework.stereotype.Component
 import java.util.Random
 

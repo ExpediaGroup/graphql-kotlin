@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.operations
+package com.expediagroup.graphql.types.operations
 
 /**
  * Marker interface to indicate what classes should be used for GraphQL subscriptions.

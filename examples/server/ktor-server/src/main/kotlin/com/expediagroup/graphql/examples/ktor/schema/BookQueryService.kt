@@ -17,7 +17,7 @@ package com.expediagroup.graphql.examples.ktor.schema
 
 import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.ktor.schema.models.Book
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 
 /**
  * Provide Search options for book data

@@ -20,7 +20,7 @@ import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.directives.LowercaseDirective
 import com.expediagroup.graphql.examples.directives.SpecificValueOnly
 import com.expediagroup.graphql.examples.directives.StringEval
-import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.types.operations.Query
 import org.springframework.stereotype.Component
 
 @Component
