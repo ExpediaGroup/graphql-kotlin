@@ -16,16 +16,16 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
-import com.expediagroup.graphql.toSchema
+import com.expediagroup.graphql.types.operations.Query
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
@@ -146,7 +146,7 @@ class SchemaConfigurationTest {
 
         @Bean
         fun customSchemaConfig(): SchemaGeneratorConfig = SchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup")
+            supportedPackages = listOf("com.expediagroup.graphql.server.spring")
         )
 
         @Bean

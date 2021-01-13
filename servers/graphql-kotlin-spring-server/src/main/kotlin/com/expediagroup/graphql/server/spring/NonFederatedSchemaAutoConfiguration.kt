@@ -16,17 +16,17 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.TopLevelNames
-import com.expediagroup.graphql.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.TopLevelNames
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.spring.extensions.toTopLevelObjects
 import com.expediagroup.graphql.types.operations.Mutation
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription
-import com.expediagroup.graphql.server.spring.extensions.toTopLevelObjects
-import com.expediagroup.graphql.toSchema
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.examples.directives.CustomDirectiveWiringFactory
 import com.expediagroup.graphql.examples.exceptions.CustomDataFetcherExceptionHandler
 import com.expediagroup.graphql.examples.execution.CustomDataFetcherFactoryProvider

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.extensions.print
+import com.expediagroup.graphql.generator.extensions.print
 import graphql.schema.GraphQLSchema
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean

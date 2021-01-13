@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.context
 
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.socket.WebSocketSession
 

@@ -16,8 +16,7 @@
 
 package com.expediagroup.graphql.plugin.schema.hooks
 
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 
 /**
  * Default hooks provider to generate federated GraphQL schema in SDL format.
@@ -27,5 +26,5 @@ class FederatedSchemaGeneratorHooksProvider : SchemaGeneratorHooksProvider {
     /**
      * Create a new instance of a FederatedSchemaGeneratorHooks that will be used to generate GraphQL schema in SDL format.
      */
-    override fun hooks(): SchemaGeneratorHooks = FederatedSchemaGeneratorHooks(emptyList())
+    override fun hooks(): SchemaGeneratorHooks = com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks(emptyList())
 }

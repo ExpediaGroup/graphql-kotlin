@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.examples.extend
 
-import com.expediagroup.graphql.federation.directives.ExtendsDirective
-import com.expediagroup.graphql.federation.directives.ExternalDirective
-import com.expediagroup.graphql.federation.directives.FieldSet
-import com.expediagroup.graphql.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
+import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
+import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 
 /**
  * We do not own the "Widget" type in this service. We are extending it here with the new fields when we are given the @key "id"

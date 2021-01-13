@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.schema.hooks
 
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 
 /**
  * Service provider interface that is used by the graphql-kotlin plugins to generate GraphQL schema in SDL format.

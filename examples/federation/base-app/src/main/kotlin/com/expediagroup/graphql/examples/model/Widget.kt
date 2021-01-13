@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.examples.model
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.federation.directives.FieldSet
-import com.expediagroup.graphql.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import java.util.UUID
 
 @KeyDirective(fields = FieldSet("id"))

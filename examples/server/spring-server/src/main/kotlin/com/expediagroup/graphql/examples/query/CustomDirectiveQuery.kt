@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.directives.LowercaseDirective
 import com.expediagroup.graphql.examples.directives.SpecificValueOnly
 import com.expediagroup.graphql.examples.directives.StringEval

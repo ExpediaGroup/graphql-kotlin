@@ -15,7 +15,7 @@
  */
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 

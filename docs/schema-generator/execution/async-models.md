@@ -10,7 +10,7 @@ programming models.
 ## Coroutines
 
 `graphql-kotlin-schema-generator` has built-in support for Kotlin coroutines. Provided default
-[FunctionDataFetcher](https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expedia/graphql/execution/FunctionDataFetcher.kt)
+[FunctionDataFetcher](https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expedia/graphql/execution/FunctionDataFetcher.kt)
 will automatically asynchronously execute suspendable functions and convert the result to `CompletableFuture` expected
 by `graphql-java`.
 
@@ -121,5 +121,5 @@ type Query {
 ```
 
 You can find additional example on how to configure the hooks in our [unit
-tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/test/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorAsyncTests.kt)
+tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/test/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorAsyncTests.kt)
 and [example app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/AsyncQuery.kt).

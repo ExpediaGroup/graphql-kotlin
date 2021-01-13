@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.directives
 
-import com.expediagroup.graphql.directives.KotlinFieldDirectiveEnvironment
-import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
+import com.expediagroup.graphql.generator.directives.KotlinFieldDirectiveEnvironment
+import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
 

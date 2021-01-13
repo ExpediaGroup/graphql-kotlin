@@ -1,6 +1,6 @@
 package com.example.hooks
 
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType

@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.types.operations.Query
 import com.fasterxml.jackson.annotation.JsonIgnore
 import graphql.schema.DataFetcher

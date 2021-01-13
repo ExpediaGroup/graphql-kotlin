@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.directives
 
-import com.expediagroup.graphql.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 
 /**
  * Used to verify the performance overhead of instrumentation on fields.

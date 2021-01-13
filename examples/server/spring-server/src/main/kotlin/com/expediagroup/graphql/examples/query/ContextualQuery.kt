@@ -16,18 +16,15 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MyGraphQLContext
 import com.expediagroup.graphql.examples.model.ContextualResponse
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.types.operations.Query
 import org.springframework.stereotype.Component
 
 /**
- * Example usage of [GraphQLContext] annotation. By using this annotation context parameter won't be exposed as in the
- * schema and will be automatically autowired at runtime using value from the environment.
- *
- * @see com.expediagroup.graphql.examples.context.MyGraphQLContextWebFilter
- * @see com.expediagroup.graphql.execution.FunctionDataFetcher
+ * Example usage of GraphQLContext. Since the argument [ContextualQuery.contextualQuery] implements
+ * the GraphQLContext interface it will not appear in the schema and be populated at runtime.
  */
 @Component
 class ContextualQuery : Query {

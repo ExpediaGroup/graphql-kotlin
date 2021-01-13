@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.hooks
 
-import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import graphql.Scalars
 import graphql.language.StringValue
 import graphql.schema.Coercing

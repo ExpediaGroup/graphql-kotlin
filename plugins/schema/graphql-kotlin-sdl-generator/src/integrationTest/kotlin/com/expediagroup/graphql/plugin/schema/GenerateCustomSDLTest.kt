@@ -84,7 +84,7 @@ class GenerateCustomSDLTest {
                 "Federation type representing set of fields"
                 scalar _FieldSet
             """.trimIndent()
-        val generatedSchema = generateSDL(listOf("com.expediagroup.test"))
+        val generatedSchema = generateSDL(listOf("com.expediagroup.graphql.plugin.test"))
 
         assertEquals(expectedSchema, generatedSchema.trim())
     }

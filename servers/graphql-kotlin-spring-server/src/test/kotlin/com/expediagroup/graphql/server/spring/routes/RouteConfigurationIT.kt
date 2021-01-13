@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.routes
 
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY

@@ -16,15 +16,13 @@
 
 package com.expediagroup.graphql.plugin.schema
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.federation.toFederatedSchema
+import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
-import com.expediagroup.graphql.toSchema
 import com.expediagroup.graphql.types.operations.Mutation
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription
@@ -67,12 +65,12 @@ fun generateSDL(supportedPackages: List<String>): String {
     val subscriptions = findTopLevelObjects(scanResult, Subscription::class.java)
 
     // TODO support top level name overrides?
-    val schema = if (hooks is FederatedSchemaGeneratorHooks) {
+    val schema = if (hooks is com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks) {
         logger.debug("Generating federated schema using hooks = ${hooks.javaClass.simpleName}")
         logger.debug("  query classes = ${queries.map { it.kClass }}")
         logger.debug("  mutation classes = ${mutations.map { it.kClass }}")
         logger.debug("  subscription classes = ${subscriptions.map { it.kClass }}")
-        val config = FederatedSchemaGeneratorConfig(
+        val config = com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig(
             supportedPackages = supportedPackages,
             hooks = hooks
         )

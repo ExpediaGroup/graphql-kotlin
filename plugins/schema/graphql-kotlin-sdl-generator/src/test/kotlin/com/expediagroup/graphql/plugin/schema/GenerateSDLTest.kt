@@ -58,7 +58,7 @@ class GenerateSDLTest {
                   helloWorld(name: String): String!
                 }
             """.trimIndent()
-        val generatedSchema = generateSDL(listOf("com.expediagroup.test"))
+        val generatedSchema = generateSDL(listOf("com.expediagroup.graphql.plugin.test"))
 
         assertEquals(expectedSchema, generatedSchema.trim())
     }
