@@ -19,6 +19,8 @@ package com.expediagroup.graphql.plugin.schema
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
@@ -65,12 +67,12 @@ fun generateSDL(supportedPackages: List<String>): String {
     val subscriptions = findTopLevelObjects(scanResult, Subscription::class.java)
 
     // TODO support top level name overrides?
-    val schema = if (hooks is com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks) {
+    val schema = if (hooks is FederatedSchemaGeneratorHooks) {
         logger.debug("Generating federated schema using hooks = ${hooks.javaClass.simpleName}")
         logger.debug("  query classes = ${queries.map { it.kClass }}")
         logger.debug("  mutation classes = ${mutations.map { it.kClass }}")
         logger.debug("  subscription classes = ${subscriptions.map { it.kClass }}")
-        val config = com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig(
+        val config = FederatedSchemaGeneratorConfig(
             supportedPackages = supportedPackages,
             hooks = hooks
         )

@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.generator.federation.execution
 
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.data.queries.federated.CustomScalar
 import com.expediagroup.graphql.generator.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleQuery
@@ -85,7 +87,7 @@ type SelfReferenceObject {
 
 class ServiceQueryResolverTest {
 
-    class CustomScalarFederatedHooks : com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks(emptyList()) {
+    class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(emptyList()) {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
             CustomScalar::class -> graphqlCustomScalar
             else -> super.willGenerateGraphQLType(type)
@@ -105,7 +107,7 @@ class ServiceQueryResolverTest {
         private class CustomScalarCoercing : Coercing<CustomScalar, String> {
             override fun parseValue(input: Any?): CustomScalar = CustomScalar(serialize(input))
 
-            override fun parseLiteral(input: Any?): CustomScalar? {
+            override fun parseLiteral(input: Any?): CustomScalar {
                 val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("CustomScalar value is null")
                 return CustomScalar(customValue)
             }
@@ -116,7 +118,7 @@ class ServiceQueryResolverTest {
 
     @Test
     fun `verify can retrieve SDL using _service query`() {
-        val config = com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig(
+        val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
             hooks = CustomScalarFederatedHooks()
         )
@@ -146,9 +148,9 @@ class ServiceQueryResolverTest {
 
     @Test
     fun `verify can retrieve SDL using _service query for non-federated schemas`() {
-        val config = com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig(
+        val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.simple"),
-            hooks = com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks(emptyList())
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config = config, queries = listOf(TopLevelObject(SimpleQuery()), TopLevelObject(NestedQuery())))

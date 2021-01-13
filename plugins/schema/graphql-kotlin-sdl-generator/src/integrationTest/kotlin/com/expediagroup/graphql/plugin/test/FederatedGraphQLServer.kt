@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.test
 
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.plugin.test.hooks.CustomFederatedHooks
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -25,7 +26,7 @@ import org.springframework.context.annotation.Bean
 open class FederatedGraphQLServer {
 
     @Bean
-    open fun federatedSchemaGeneratorHooks(): com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks = CustomFederatedHooks()
+    open fun federatedSchemaGeneratorHooks(): FederatedSchemaGeneratorHooks = CustomFederatedHooks()
 }
 
 fun main(args: Array<String>) {
