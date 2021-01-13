@@ -136,7 +136,7 @@ modify the default behavior of your GraphQLTypes is by providing your custom <co
 </code></pre>
 <p>While you can manually apply all the runtime wirings to the corresponding GraphQL types directly in
 <code>SchemaGeneratorHooks#onRewireGraphQLType</code>, we recommend the usage of our
-<a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/directives/KotlinDirectiveWiringFactory.kt">KotlinDirectiveWiringFactory</a>
+<a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/directives/KotlinDirectiveWiringFactory.kt">KotlinDirectiveWiringFactory</a>
 to simplify the integrations. <code>KotlinDirectiveWiringFactory</code> accepts a mapping of directives to corresponding wirings or
 could be extended to provide the wirings through <code>KotlinDirectiveWiringFactory#getSchemaDirectiveWiring</code> that accepts
 <code>KotlinSchemaDirectiveEnvironment</code>.</p>

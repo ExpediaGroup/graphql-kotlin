@@ -60,7 +60,7 @@ strategies that execute each query in parallel on some thread pools, instead we 
 programming models.</p>
 <h2><a class="anchor" aria-hidden="true" id="coroutines"></a><a href="#coroutines" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coroutines</h2>
 <p><code>graphql-kotlin-schema-generator</code> has built-in support for Kotlin coroutines. Provided default
-<a href="https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expedia/graphql/execution/FunctionDataFetcher.kt">FunctionDataFetcher</a>
+<a href="https://github.com/ExpediaDotCom/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expedia/graphql/generator/execution/FunctionDataFetcher.kt">FunctionDataFetcher</a>
 will automatically asynchronously execute suspendable functions and convert the result to <code>CompletableFuture</code> expected
 by <code>graphql-java</code>.</p>
 <p>Example</p>
@@ -148,7 +148,7 @@ toSchema(queries = listOf(TopLevelObject(ReactorQuery())), config = configWithRe
   asynchronouslyDo(): <span class="hljs-type">Int</span>
 }
 </code></pre>
-<p>You can find additional example on how to configure the hooks in our <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/test/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorAsyncTests.kt">unit
+<p>You can find additional example on how to configure the hooks in our <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/test/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorAsyncTests.kt">unit
 tests</a>
 and <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/AsyncQuery.kt">example app</a>.</p>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/next/schema-generator/execution/fetching-data"><span class="arrow-prev">← </span><span>Fetching Data</span></a><a class="docs-next button" href="/graphql-kotlin/docs/next/schema-generator/execution/exceptions"><span>Exceptions and Partial Data</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#coroutines">Coroutines</a></li><li><a href="#completablefuture">CompletableFuture</a></li><li><a href="#rxjavareactor">RxJava/Reactor</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2021 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
