@@ -107,7 +107,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
      *
      * Add federated _service query to ensure it is a valid GraphQL schema.
      */
-    override fun didGenerateQueryObject(query: GraphQLObjectType): GraphQLObjectType = GraphQLObjectType.newObject(query)
+    override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = GraphQLObjectType.newObject(type)
         .field(SERVICE_FIELD_DEFINITION)
         .withDirective(EXTENDS_DIRECTIVE_TYPE)
         .build()

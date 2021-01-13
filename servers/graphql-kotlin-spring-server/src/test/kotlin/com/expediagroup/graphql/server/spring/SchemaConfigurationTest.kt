@@ -97,7 +97,7 @@ class SchemaConfigurationTest {
             .withPropertyValues("graphql.packages=com.expediagroup.graphql.server.spring")
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomConfiguration::class.java)
-                val graphQLProperties = ctx.getBean(GraphQLConfigurationProperties::class.java)
+                assertThat(ctx).hasSingleBean(GraphQLConfigurationProperties::class.java)
 
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 assertThat(ctx).getBean(SchemaGeneratorConfig::class.java)
