@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType

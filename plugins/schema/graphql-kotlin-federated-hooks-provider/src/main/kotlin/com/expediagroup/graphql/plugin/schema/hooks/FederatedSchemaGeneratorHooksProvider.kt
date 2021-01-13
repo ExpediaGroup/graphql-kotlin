@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.plugin.schema.hooks
 
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 
 /**
  * Default hooks provider to generate federated GraphQL schema in SDL format.

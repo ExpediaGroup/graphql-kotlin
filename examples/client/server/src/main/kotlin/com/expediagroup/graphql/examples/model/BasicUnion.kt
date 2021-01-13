@@ -1,6 +1,6 @@
 package com.expediagroup.graphql.examples.model
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 
 @GraphQLDescription("Very basic union of BasicObject and ComplexObject")
 interface BasicUnion

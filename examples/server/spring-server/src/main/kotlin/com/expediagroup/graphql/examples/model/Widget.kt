@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.model
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 
 @GraphQLDescription("A useful widget")
 data class Widget(

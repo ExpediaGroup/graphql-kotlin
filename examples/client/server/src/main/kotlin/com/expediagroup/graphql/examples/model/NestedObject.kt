@@ -1,6 +1,6 @@
 package com.expediagroup.graphql.examples.model
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 
 @GraphQLDescription("Example of an object self-referencing itself")
 data class NestedObject(

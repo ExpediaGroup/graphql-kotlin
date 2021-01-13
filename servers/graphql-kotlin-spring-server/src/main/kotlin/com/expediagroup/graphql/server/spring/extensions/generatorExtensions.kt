@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.extensions
 
-import com.expediagroup.graphql.TopLevelObject
+import com.expediagroup.graphql.generator.TopLevelObject
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 

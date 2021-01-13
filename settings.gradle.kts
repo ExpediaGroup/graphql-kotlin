@@ -26,21 +26,14 @@ pluginManagement {
 
 rootProject.name = "graphql-kotlin"
 
-// Types
-include(":graphql-kotlin-types")
-
-// Generator
-include(":graphql-kotlin-schema-generator")
-include(":graphql-kotlin-federation")
-
-// Servers
-include(":graphql-kotlin-server")
-include(":graphql-kotlin-spring-server")
-
 // Clients
 include(":graphql-kotlin-client")
 include(":graphql-kotlin-ktor-client")
 include(":graphql-kotlin-spring-client")
+
+// Generator
+include(":graphql-kotlin-schema-generator")
+include(":graphql-kotlin-federation")
 
 // Plugins
 include(":graphql-kotlin-gradle-plugin")
@@ -50,21 +43,25 @@ include(":graphql-kotlin-sdl-generator")
 include(":graphql-kotlin-hooks-provider")
 include(":graphql-kotlin-federated-hooks-provider")
 
+// Servers
+include(":graphql-kotlin-server")
+include(":graphql-kotlin-spring-server")
+
+// Types
+include(":graphql-kotlin-types")
+
 //
 // Project mappings so we don't need to create projects that group subprojects
 //
-
-// Types
-project(":graphql-kotlin-types").projectDir = file("types/graphql-kotlin-types")
-
-// Servers
-project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
-project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotlin-spring-server")
 
 // Clients
 project(":graphql-kotlin-client").projectDir = file("clients/graphql-kotlin-client")
 project(":graphql-kotlin-ktor-client").projectDir = file("clients/graphql-kotlin-ktor-client")
 project(":graphql-kotlin-spring-client").projectDir = file("clients/graphql-kotlin-spring-client")
+
+// Generator
+project(":graphql-kotlin-schema-generator").projectDir = file("generator/graphql-kotlin-schema-generator")
+project(":graphql-kotlin-federation").projectDir = file("generator/graphql-kotlin-federation")
 
 // Plugins
 project(":graphql-kotlin-gradle-plugin").projectDir = file("plugins/graphql-kotlin-gradle-plugin")
@@ -73,3 +70,10 @@ project(":graphql-kotlin-client-generator").projectDir = file("plugins/client/gr
 project(":graphql-kotlin-sdl-generator").projectDir = file("plugins/schema/graphql-kotlin-sdl-generator")
 project(":graphql-kotlin-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-hooks-provider")
 project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-federated-hooks-provider")
+
+// Types
+project(":graphql-kotlin-types").projectDir = file("types/graphql-kotlin-types")
+
+// Servers
+project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
+project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotlin-spring-server")

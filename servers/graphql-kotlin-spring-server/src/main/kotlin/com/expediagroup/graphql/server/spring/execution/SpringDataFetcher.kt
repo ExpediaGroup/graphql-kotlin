@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.execution
 
-import com.expediagroup.graphql.execution.FunctionDataFetcher
+import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetchingEnvironment

@@ -1,7 +1,7 @@
 package com.example
 
 import com.example.hooks.CustomFederatedHooks
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean

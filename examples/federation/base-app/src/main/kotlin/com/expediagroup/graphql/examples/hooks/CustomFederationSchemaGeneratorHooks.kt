@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.hooks
 
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType

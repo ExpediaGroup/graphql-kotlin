@@ -1,5 +1,5 @@
 graphql:
   packages:
-    - "com.expediagroup.test"
+    - "com.expediagroup.graphql.plugin.test"
   federation:
     enabled: true

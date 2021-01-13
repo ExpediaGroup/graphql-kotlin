@@ -24,8 +24,10 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.junit.FixMethodOrder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.runners.MethodSorters
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -36,6 +38,7 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
 import java.net.URI
+import kotlin.random.Random
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -43,6 +46,7 @@ import java.net.URI
 )
 @EnableAutoConfiguration
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
     private val objectMapper = jacksonObjectMapper()
@@ -50,7 +54,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify singleValueSubscription query`() {
         val query = "singleValueSubscription"
-        val subscription = subscribe(query, "1")
+        val subscription = subscribe(query)
 
         StepVerifier.create(subscription)
             .expectNext("{\"data\":{\"$query\":1}}")
@@ -63,7 +67,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         val query = "counter(limit: 2)"
         val numberRegex = "(\\-?[0-9]+)"
         val expectedDataRegex = Regex("\\{\"data\":\\{\"counter\":$numberRegex}}")
-        val subscription = subscribe(query, "2")
+        val subscription = subscribe(query)
 
         StepVerifier.create(subscription)
             .expectNextMatches { s -> s.matches(expectedDataRegex) }
@@ -75,7 +79,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify singleValueThenError query`() {
         val query = "singleValueThenError"
-        val subscription = subscribe(query, "3")
+        val subscription = subscribe(query)
 
         StepVerifier.create(subscription)
             .expectNextCount(1)
@@ -86,7 +90,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify flow query`() {
         val query = "flow"
-        val subscription = subscribe(query, "4")
+        val subscription = subscribe(query)
 
         StepVerifier.create(subscription)
             .expectNext("{\"data\":{\"$query\":1}}")
@@ -99,7 +103,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscriptionContext query without connectionParams`() {
         val query = "subscriptionContext"
-        val subscription = subscribe(query, "5")
+        val subscription = subscribe(query)
 
         StepVerifier.create(subscription)
             .expectNext("{\"data\":{\"$query\":\"none\"}}")
@@ -112,7 +116,7 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify subscriptionContext query with connectionParams read by MySubscriptionHooks`() {
         val query = "subscriptionContext"
-        val subscription = subscribe(query, "5", mapOf("Authorization" to "mytoken"))
+        val subscription = subscribe(query, mapOf("Authorization" to "mytoken"))
 
         StepVerifier.create(subscription)
             .expectNext("{\"data\":{\"$query\":\"mytoken\"}}")
@@ -122,13 +126,13 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
             .verify()
     }
 
-    private fun subscribe(query: String, id: String, initPayload: Any? = null): TestPublisher<String> {
+    private fun subscribe(query: String, initPayload: Any? = null): TestPublisher<String> {
         val output = TestPublisher.create<String>()
 
         val client = ReactorNettyWebSocketClient()
         val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
-        client.execute(uri) { session -> executeSubscription(session, initPayload, query, id, output) }.subscribe()
+        client.execute(uri) { session -> executeSubscription(session, initPayload, query, output) }.subscribe()
 
         return output
     }
@@ -137,9 +141,9 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         session: WebSocketSession,
         initPayload: Any?,
         query: String,
-        id: String,
         output: TestPublisher<String>
     ): Mono<Void> {
+        val id = Random.nextInt().toString()
         val initMessage = getInitMessage(id, initPayload)
         val startMessage = getStartMessage(query, id)
 
@@ -163,7 +167,8 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
                     }
                     .doOnComplete {
                         output.complete()
-                    }.then()
+                    }
+                    .then()
             )
     }
 

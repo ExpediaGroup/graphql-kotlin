@@ -1,6 +1,5 @@
 package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.model.BasicInterface
 import com.expediagroup.graphql.examples.model.BasicObject
 import com.expediagroup.graphql.examples.model.BasicUnion
@@ -13,8 +12,9 @@ import com.expediagroup.graphql.examples.model.ScalarWrapper
 import com.expediagroup.graphql.examples.model.SecondInterfaceImplementation
 import com.expediagroup.graphql.examples.model.SimpleArgument
 import com.expediagroup.graphql.examples.repository.BasicObjectRepository
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.spring.operations.Query
-import com.expediagroup.graphql.scalars.ID
 import org.springframework.stereotype.Component
 import java.util.UUID
 import kotlin.random.Random

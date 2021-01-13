@@ -13,8 +13,7 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 
 * [clients](/clients) - Lightweight GraphQL Kotlin HTTP clients based on Ktor HTTP client and Spring WebClient
 * [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
-* [graphql-kotlin-federation](/graphql-kotlin-federation) - Schema generator extension to build Apollo Federation GraphQL schemas
-* [graphql-kotlin-schema-generator](/graphql-kotlin-schema-generator) - Code only GraphQL schema generation for Kotlin
+* [generator](/generator) - Code-First schema generator and extensions to build Apollo Federation schemas
 * [plugins](/plugins) - Gradle and Maven plugins
 * [servers](/servers) - Common and library specific modules for running a GraphQL server
 * [types](/types) - Core types used by both client and server
@@ -25,15 +24,16 @@ While all the individual modules of `graphql-kotlin` are published as stand-alon
 
 ### Server Example
 
-A basic example of how you can use [graphql-kotlin-spring-server](/servers/graphql-kotlin-spring-server) to run a GraphQL server can be found on our [server documentation section](https://expediagroup.github.io/graphql-kotlin/docs/spring-server/spring-overview).
+A basic example of how you can run a GraphQL server can be found on our [server documentation section](https://expediagroup.github.io/graphql-kotlin/docs/server/graphql-server).
 
 ### Client Example
 
-A basic setup of [graphql-kotlin-client](/clients/graphql-kotlin-client) can be found on our [client documentation section](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview).
+A basic setup of a GraphQL client can be found on our [client documentation section](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview).
 
 ## 📋 Documentation
 
-More examples and documentation are available on our [documentation site](https://expediagroup.github.io/graphql-kotlin) hosted in GitHub Pages. We also have the [examples](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples) module which can be run locally for testing and shows example code using the libraries.
+More examples and documentation are available on our [documentation site](https://expediagroup.github.io/graphql-kotlin) hosted in GitHub Pages.
+We also have the [examples](/examples) module which can be run locally for testing and shows example code using the libraries.
 
 If you have a question about something you can not find in our documentation, the indivdual module READMEs, or [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator), feel free to contribute to the docs or [start a disucssion](https://github.com/ExpediaGroup/graphql-kotlin/discussions) and tag it with the question label.
 

@@ -16,18 +16,18 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.directives.ExtendsDirective
-import com.expediagroup.graphql.federation.directives.ExternalDirective
-import com.expediagroup.graphql.federation.directives.FieldSet
-import com.expediagroup.graphql.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
+import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
+import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.types.operations.Query
-import com.expediagroup.graphql.toSchema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
@@ -120,7 +120,7 @@ class FederationConfigurationTest {
 
         @Bean
         fun customSchemaConfig(): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup"),
+            supportedPackages = listOf("com.expediagroup.graphql.server.spring"),
             hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 

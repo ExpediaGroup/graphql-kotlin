@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.model
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
-import com.expediagroup.graphql.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @GraphQLDescription("Use to represent a selection when choosing a value")

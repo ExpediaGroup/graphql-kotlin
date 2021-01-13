@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.extend
 
-import com.expediagroup.graphql.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
 

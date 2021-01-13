@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.examples.ktor
 
 import com.expediagroup.graphql.examples.ktor.schema.models.User
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 
 /**
  * Example of a custom [GraphQLContext]

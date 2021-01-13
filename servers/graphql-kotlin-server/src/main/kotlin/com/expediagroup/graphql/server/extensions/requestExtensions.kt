@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.execution.DefaultGraphQLContext
+import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.ExecutionInput
 import org.dataloader.DataLoaderRegistry

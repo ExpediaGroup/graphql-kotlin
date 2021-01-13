@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

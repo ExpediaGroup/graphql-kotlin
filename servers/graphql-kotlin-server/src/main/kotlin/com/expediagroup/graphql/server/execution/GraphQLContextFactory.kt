@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.execution.DefaultGraphQLContext
-import com.expediagroup.graphql.execution.GraphQLContext
+import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 
 /**
  * Factory that generates GraphQL context.

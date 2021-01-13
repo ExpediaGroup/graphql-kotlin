@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.execution.FlowSubscriptionExecutionStrategy
+import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory

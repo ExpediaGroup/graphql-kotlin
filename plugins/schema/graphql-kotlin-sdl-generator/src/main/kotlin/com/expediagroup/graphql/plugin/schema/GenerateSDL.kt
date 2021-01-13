@@ -16,15 +16,15 @@
 
 package com.expediagroup.graphql.plugin.schema
 
-import com.expediagroup.graphql.SchemaGeneratorConfig
-import com.expediagroup.graphql.TopLevelObject
-import com.expediagroup.graphql.extensions.print
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorConfig
-import com.expediagroup.graphql.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.federation.toFederatedSchema
-import com.expediagroup.graphql.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
+import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.toFederatedSchema
+import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
-import com.expediagroup.graphql.toSchema
 import com.expediagroup.graphql.types.operations.Mutation
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.ktor.schema.models
 
-import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture.supplyAsync
