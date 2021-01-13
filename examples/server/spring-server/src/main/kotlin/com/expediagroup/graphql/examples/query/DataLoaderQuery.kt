@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.examples.query
 
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.model.Company
 import com.expediagroup.graphql.examples.model.Employee
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.types.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment

@@ -16,8 +16,8 @@
 package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.types.operations.Query
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import graphql.language.StringValue
 import graphql.schema.Coercing

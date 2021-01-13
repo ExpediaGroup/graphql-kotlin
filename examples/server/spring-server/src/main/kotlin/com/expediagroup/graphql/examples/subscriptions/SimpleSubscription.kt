@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.examples.subscriptions
 
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.examples.context.MySubscriptionGraphQLContext
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.types.operations.Subscription
 import graphql.execution.DataFetcherResult

@@ -20,8 +20,8 @@ import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema

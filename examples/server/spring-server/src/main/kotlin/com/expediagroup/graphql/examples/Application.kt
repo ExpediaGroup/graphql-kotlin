@@ -16,13 +16,13 @@
 
 package com.expediagroup.graphql.examples
 
-import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.examples.directives.CustomDirectiveWiringFactory
 import com.expediagroup.graphql.examples.exceptions.CustomDataFetcherExceptionHandler
 import com.expediagroup.graphql.examples.execution.CustomDataFetcherFactoryProvider
 import com.expediagroup.graphql.examples.execution.MySubscriptionHooks
 import com.expediagroup.graphql.examples.execution.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.hooks.CustomSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler

@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.examples.query
 
+import com.expediagroup.graphql.examples.model.Widget
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.types.operations.Query
-import com.expediagroup.graphql.examples.model.Widget
 import org.springframework.stereotype.Component
 
 /**

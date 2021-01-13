@@ -18,9 +18,9 @@ package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.types.operations.Query
 import com.expediagroup.graphql.types.operations.Subscription
-import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL

@@ -16,13 +16,13 @@
 
 package com.expediagroup.graphql.examples.ktor
 
-import com.expediagroup.graphql.generator.SchemaGeneratorConfig
-import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.examples.ktor.schema.BookQueryService
 import com.expediagroup.graphql.examples.ktor.schema.CourseQueryService
 import com.expediagroup.graphql.examples.ktor.schema.HelloQueryService
 import com.expediagroup.graphql.examples.ktor.schema.LoginMutationService
 import com.expediagroup.graphql.examples.ktor.schema.UniversityQueryService
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.toSchema
 import graphql.GraphQL
 
