@@ -185,7 +185,7 @@ And then configure build plugin by specifying
 graphql {
     packageName = "com.example.generated"
     endpoint = "http://localhost:8080/graphql"
-    converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
+    customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
 

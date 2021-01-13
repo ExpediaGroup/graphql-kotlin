@@ -18,7 +18,7 @@ package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
 import com.expediagroup.graphql.plugin.generated.UUID
-import com.expediagroup.graphql.client.GraphQLKtorClient
+import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

@@ -51,7 +51,7 @@ Basic `build.gradle.kts` Gradle configuration that executes introspection query 
 schema and then generate the clients under `com.example.generated` package name:
 
 ```kotlin
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 plugins {
@@ -164,7 +164,7 @@ Plugins will generate following client code
 ```kotlin
 package com.example.generated
 
-import com.expediagroup.graphql.client.GraphQLKtorClient
+import com.expediagroup.graphql.client.spring.GraphQLKtorClient
 import com.expediagroup.graphql.types.GraphQLResponse
 import kotlin.String
 
@@ -194,7 +194,7 @@ specified and defaults to fully asynchronous non-blocking [Coroutine-based IO en
 ```kotlin
 package com.example.client
 
-import com.expediagroup.graphql.client.GraphQLKtorClient
+import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import kotlinx.coroutines.runBlocking
 import java.net.URL
