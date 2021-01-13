@@ -28,4 +28,4 @@ val schema = generator.generateSchema(
 ### `SchemaGenerator::addAdditionalTypesWithAnnotation`
 
 This method is protected so if you override the `SchemaGenerator` used you can call this method to add types that have a specific annotation.
-You can see how this is used in `graphql-kotlin-federation` as [an example](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/FederatedSchemaGenerator.kt).
+You can see how this is used in `graphql-kotlin-federation` as [an example](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/FederatedSchemaGenerator.kt).

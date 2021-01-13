@@ -5,7 +5,7 @@ title: Fetching Data
 
 Each field exposed in the GraphQL schema has a corresponding resolver (aka data fetcher) associated with it. `graphql-kotlin-schema-generator` generates the GraphQL schema
 directly from the source code, automatically mapping all the fields either to use
-[FunctionDataFetcher](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/FunctionDataFetcher.kt)
+[FunctionDataFetcher](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/execution/FunctionDataFetcher.kt)
 to resolve underlying functions or the default data fetcher from graphql-java, [PropertyDataFetcher](https://www.graphql-java.com/documentation/v15/data-fetching/) to read a value from an underlying Kotlin property.
 
 While all the fields in a GraphQL schema are resolved independently to produce a final result, whether a field is backed by a function or a property can have significant
@@ -51,7 +51,7 @@ expose all your GraphQL fields that require some additional computations through
 ### Customizing Default Behavior
 
 You can provide your own custom data fetchers to resolve functions and properties by providing an instance of
-[KotlinDataFetcherFactoryProvider](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/KotlinDataFetcherFactoryProvider.kt#L31)
+[KotlinDataFetcherFactoryProvider](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/execution/KotlinDataFetcherFactoryProvider.kt#L31)
 to your [SchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/SchemaGeneratorConfig.kt).
 
 See our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring) for an example of `CustomDataFetcherFactoryProvider`.

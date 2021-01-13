@@ -28,7 +28,7 @@ schema.
 
 For exact names and details of every hook, see the comments and descriptions in our latest
 [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator) or directly in the source file:
-[SchemaGeneratorHooks.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/hooks/SchemaGeneratorHooks.kt)
+[SchemaGeneratorHooks.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/generator/graphql/hooks/SchemaGeneratorHooks.kt)
 
 As an example here is how you would write a custom hook and provide it through the configuration
 

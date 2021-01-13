@@ -34,7 +34,7 @@ query ($_representations: [_Any!]!) {
 
 In order to simplify the integrations, `graphql-kotlin-federation` provides a default `_entities` query resolver that
 retrieves the
-[FederatedTypeResolver](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeResolver.kt)
+[FederatedTypeResolver](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/execution/FederatedTypeResolver.kt)
 that is used to resolve the specified `__typename`.
 
 `FederatedTypeResolver.typeName` specifies the GraphQL type name that should match up to the `__typename` field in the `_entities` query.

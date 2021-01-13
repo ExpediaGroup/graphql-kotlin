@@ -7,7 +7,7 @@ generate federated GraphQL schemas directly from the code. Federated schemas rel
 instrument the behavior of the underlying graph, see [the documentation](https://expediagroup.github.io/graphql-kotlin/docs/federated/federated-directives).
 Once all the federated objects are annotated, you will also have to configure corresponding [FederatedTypeResolver]s
 that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function
-([link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/toFederatedSchema.kt#L34)).
+([link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt#L34)).
 
 See more
 
