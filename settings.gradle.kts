@@ -26,20 +26,23 @@ pluginManagement {
 
 rootProject.name = "graphql-kotlin"
 
+// Types
 include(":graphql-kotlin-types")
+
+// Generator
 include(":graphql-kotlin-schema-generator")
 include(":graphql-kotlin-federation")
 
-// servers
+// Servers
 include(":graphql-kotlin-server")
 include(":graphql-kotlin-spring-server")
 
-// clients
+// Clients
 include(":graphql-kotlin-client")
 include(":graphql-kotlin-ktor-client")
 include(":graphql-kotlin-spring-client")
 
-// plugins
+// Plugins
 include(":graphql-kotlin-gradle-plugin")
 include(":graphql-kotlin-maven-plugin")
 include(":graphql-kotlin-client-generator")
@@ -47,14 +50,23 @@ include(":graphql-kotlin-sdl-generator")
 include(":graphql-kotlin-hooks-provider")
 include(":graphql-kotlin-federated-hooks-provider")
 
-// project mappings so we don't need to create projects that group subprojects
+//
+// Project mappings so we don't need to create projects that group subprojects
+//
+
+// Types
+project(":graphql-kotlin-types").projectDir = file("types/graphql-kotlin-types")
+
+// Servers
 project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
 project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotlin-spring-server")
 
+// Clients
 project(":graphql-kotlin-client").projectDir = file("clients/graphql-kotlin-client")
 project(":graphql-kotlin-ktor-client").projectDir = file("clients/graphql-kotlin-ktor-client")
 project(":graphql-kotlin-spring-client").projectDir = file("clients/graphql-kotlin-spring-client")
 
+// Plugins
 project(":graphql-kotlin-gradle-plugin").projectDir = file("plugins/graphql-kotlin-gradle-plugin")
 project(":graphql-kotlin-maven-plugin").projectDir = file("plugins/graphql-kotlin-maven-plugin")
 project(":graphql-kotlin-client-generator").projectDir = file("plugins/client/graphql-kotlin-client-generator")
