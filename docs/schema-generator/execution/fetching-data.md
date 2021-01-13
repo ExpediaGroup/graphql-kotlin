@@ -52,6 +52,6 @@ expose all your GraphQL fields that require some additional computations through
 
 You can provide your own custom data fetchers to resolve functions and properties by providing an instance of
 [KotlinDataFetcherFactoryProvider](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/execution/KotlinDataFetcherFactoryProvider.kt#L31)
-to your [SchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/SchemaGeneratorConfig.kt).
+to your [SchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorConfig.kt).
 
-See our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring) for an example of `CustomDataFetcherFactoryProvider`.
+See our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server/spring-server) for an example of `CustomDataFetcherFactoryProvider`.

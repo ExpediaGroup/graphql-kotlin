@@ -32,12 +32,12 @@ import graphql.schema.GraphQLSchema
  */
 @Throws(GraphQLKotlinException::class)
 fun toFederatedSchema(
-    config: com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig,
+    config: FederatedSchemaGeneratorConfig,
     queries: List<TopLevelObject> = emptyList(),
     mutations: List<TopLevelObject> = emptyList(),
     subscriptions: List<TopLevelObject> = emptyList()
 ): GraphQLSchema {
-    val generator = com.expediagroup.graphql.generator.federation.FederatedSchemaGenerator(config)
+    val generator = FederatedSchemaGenerator(config)
     return generator.use {
         it.generateSchema(queries, mutations, subscriptions)
     }
