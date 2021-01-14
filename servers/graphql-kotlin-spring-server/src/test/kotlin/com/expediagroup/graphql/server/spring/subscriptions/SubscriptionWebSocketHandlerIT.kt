@@ -34,6 +34,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
@@ -65,23 +66,7 @@ class SubscriptionWebSocketHandlerIT(
         val dataOutput = TestPublisher.create<String>()
 
         val response = client.execute(uri) { session ->
-            val firstMessage = session.textMessage(initMessage).toMono()
-                .concatWith(session.textMessage(startMessage).toMono())
-
-            session.send(firstMessage)
-                .thenMany(
-                    session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .doOnNext {
-                            if (it.type == ServerMessages.GQL_DATA.type) {
-                                val data = objectMapper.writeValueAsString(it.payload)
-                                dataOutput.next(data)
-                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                                dataOutput.complete()
-                            }
-                        }
-                )
-                .then()
+            executeSubsciption(session, initMessage, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -106,23 +91,7 @@ class SubscriptionWebSocketHandlerIT(
         val dataOutput = TestPublisher.create<String>()
 
         val response = client.execute(uri) { session ->
-            val firstMessage = session.textMessage(initMessage).toMono()
-                .concatWith(session.textMessage(startMessage).toMono())
-
-            session.send(firstMessage)
-                .thenMany(
-                    session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .doOnNext {
-                            if (it.type == ServerMessages.GQL_DATA.type) {
-                                val data = objectMapper.writeValueAsString(it.payload)
-                                dataOutput.next(data)
-                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                                dataOutput.complete()
-                            }
-                        }
-                )
-                .then()
+            executeSubsciption(session, initMessage, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -149,23 +118,7 @@ class SubscriptionWebSocketHandlerIT(
         headers.set("X-Custom-Header", "junit")
 
         val response = client.execute(uri, headers) { session ->
-            val firstMessage = session.textMessage(initMessage).toMono()
-                .concatWith(session.textMessage(startMessage).toMono())
-
-            session.send(firstMessage)
-                .thenMany(
-                    session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .doOnNext {
-                            if (it.type == ServerMessages.GQL_DATA.type) {
-                                val data = objectMapper.writeValueAsString(it.payload)
-                                dataOutput.next(data)
-                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                                dataOutput.complete()
-                            }
-                        }
-                )
-                .then()
+            executeSubsciption(session, initMessage, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -174,6 +127,31 @@ class SubscriptionWebSocketHandlerIT(
             .verify()
 
         response.dispose()
+    }
+
+    private fun executeSubsciption(
+        session: WebSocketSession,
+        initMessage: String,
+        startMessage: String,
+        dataOutput: TestPublisher<String>
+    ): Mono<Void> {
+        val firstMessage = session.textMessage(initMessage).toMono()
+            .concatWith(session.textMessage(startMessage).toMono())
+
+        return session.send(firstMessage)
+            .thenMany(
+                session.receive()
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                    .doOnNext {
+                        if (it.type == ServerMessages.GQL_DATA.type) {
+                            val data = objectMapper.writeValueAsString(it.payload)
+                            dataOutput.next(data)
+                        } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                            dataOutput.complete()
+                        }
+                    }
+            )
+            .then()
     }
 
     @Configuration
