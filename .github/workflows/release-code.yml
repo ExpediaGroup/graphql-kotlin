@@ -36,3 +36,14 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
           PLUGIN_PORTAL_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
           PLUGIN_PORTAL_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+
+      - name: Archive failure build reports
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: build-reports-${{ matrix.java }}
+          path: |
+            ./**/build/reports
+            plugins/graphql-kotlin-maven-plugin/build/integration/**/build.log
+            plugins/graphql-kotlin-maven-plugin/build/integration/**/target/surefire-reports
+          retention-days: 7

@@ -40,9 +40,28 @@ jobs:
       - name: Build libraries with Gradle
         run: ./gradlew clean build
 
+      - name: Archive failure build reports
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: build-reports-${{ matrix.java }}
+          path: |
+            ./**/build/reports
+            plugins/graphql-kotlin-maven-plugin/build/integration/**/build.log
+            plugins/graphql-kotlin-maven-plugin/build/integration/**/target/surefire-reports
+          retention-days: 7
+
       - name: Build examples with Gradle
         working-directory: examples
         run: ./gradlew clean build
+
+      - name: Archive examples failure build reports
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: build-examples-reports-${{ matrix.java }}
+          path: ./examples/**/build/reports
+          retention-days: 7
 
   release-notes:
     timeout-minutes: 10

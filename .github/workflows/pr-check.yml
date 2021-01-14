@@ -49,7 +49,7 @@ jobs:
       - name: Build library with Gradle
         run: ./gradlew clean build
 
-      - name: Archive build reports
+      - name: Archive failure build reports
         uses: actions/upload-artifact@v2
         if: failure()
         with:
@@ -64,7 +64,7 @@ jobs:
         working-directory: examples
         run: ./gradlew clean build
 
-      - name: Archive examples build reports
+      - name: Archive examples failure build reports
         uses: actions/upload-artifact@v2
         if: failure()
         with:
