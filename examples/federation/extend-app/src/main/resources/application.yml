@@ -2,7 +2,7 @@ graphql:
   federation:
     enabled: true
   packages:
-    - "com.expediagroup"
+    - "com.expediagroup.graphql.examples.federation.extend"
 
 server:
   port: 8081
