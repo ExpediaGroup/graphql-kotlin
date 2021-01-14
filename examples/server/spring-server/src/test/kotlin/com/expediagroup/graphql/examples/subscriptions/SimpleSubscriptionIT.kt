@@ -50,6 +50,8 @@ import kotlin.random.Random
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
     private val objectMapper = jacksonObjectMapper()
+    private val client = ReactorNettyWebSocketClient()
+    private val uri: URI = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
 
     @Test
     fun `verify singleValueSubscription query`() {
@@ -129,9 +131,6 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     private fun subscribe(query: String, initPayload: Any? = null): TestPublisher<String> {
         val output = TestPublisher.create<String>()
 
-        val client = ReactorNettyWebSocketClient()
-        val uri = URI.create("ws://localhost:$port$SUBSCRIPTION_ENDPOINT")
-
         client.execute(uri) { session -> executeSubscription(session, initPayload, query, output) }.subscribe()
 
         return output
@@ -148,28 +147,26 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         val startMessage = getStartMessage(query, id)
 
         return session.send(Flux.just(session.textMessage(initMessage)))
-            .then(
-                session.send(Flux.just(session.textMessage(startMessage)))
-                    .thenMany(
-                        session.receive()
-                            .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                            .doOnNext {
-                                if (it.type == ServerMessages.GQL_DATA.type) {
-                                    val data = objectMapper.writeValueAsString(it.payload)
-                                    output.next(data)
-                                } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                                    output.complete()
-                                }
-                            }
-                    )
-                    .doOnError {
-                        output.error(it)
+            .then(session.send(Flux.just(session.textMessage(startMessage))))
+            .thenMany(
+                session.receive()
+                    .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
+                    .doOnNext {
+                        if (it.type == ServerMessages.GQL_DATA.type) {
+                            val data = objectMapper.writeValueAsString(it.payload)
+                            output.next(data)
+                        } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                            output.complete()
+                        }
                     }
-                    .doOnComplete {
-                        output.complete()
-                    }
-                    .then()
             )
+            .doOnError {
+                output.error(it)
+            }
+            .doOnComplete {
+                output.complete()
+            }
+            .then()
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
