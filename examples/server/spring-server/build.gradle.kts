@@ -19,6 +19,6 @@ dependencies {
 
 graphql {
     schema {
-        packages = listOf("com.expediagroup.graphql.examples")
+        packages = listOf("com.expediagroup.graphql.examples.server.spring")
     }
 }

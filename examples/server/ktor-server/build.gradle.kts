@@ -23,6 +23,6 @@ dependencies {
 
 graphql {
     schema {
-        packages = listOf("com.expediagroup.graphql.examples.ktor")
+        packages = listOf("com.expediagroup.graphql.examples.server.ktor")
     }
 }
