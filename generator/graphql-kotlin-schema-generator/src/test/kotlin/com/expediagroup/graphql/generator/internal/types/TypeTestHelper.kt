@@ -38,7 +38,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle
 )
 @TestInstance(Lifecycle.PER_CLASS)
 open class TypeTestHelper {
-    private val supportedPackages = listOf("com.expediagroup.graphql")
+    private val supportedPackages = listOf("com.expediagroup.graphql.generator")
     private val dataFetcherFactory: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
     private val topLevelNames = TopLevelNames(
         query = "TestTopLevelQuery",

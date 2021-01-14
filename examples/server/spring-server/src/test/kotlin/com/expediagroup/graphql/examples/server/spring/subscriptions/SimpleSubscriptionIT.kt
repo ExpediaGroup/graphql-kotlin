@@ -42,7 +42,7 @@ import kotlin.random.Random
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["graphql.packages=com.expediagroup.graphql.examples"]
+    properties = ["graphql.packages=com.expediagroup.graphql.examples.server.spring"]
 )
 @EnableAutoConfiguration
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -56,12 +56,16 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
     @Test
     fun `verify singleValueSubscription query`() {
         val query = "singleValueSubscription"
-        val subscription = subscribe(query)
+        val output = TestPublisher.create<String>()
 
-        StepVerifier.create(subscription)
+        val subscription = client.execute(uri) { session -> executeSubscription(session, query, output) }.subscribe()
+
+        StepVerifier.create(output)
             .expectNext("{\"data\":{\"$query\":1}}")
             .expectComplete()
             .verify()
+
+        subscription.dispose()
     }
 
     @Test
@@ -69,78 +73,90 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
         val query = "counter(limit: 2)"
         val numberRegex = "(\\-?[0-9]+)"
         val expectedDataRegex = Regex("\\{\"data\":\\{\"counter\":$numberRegex}}")
-        val subscription = subscribe(query)
+        val output = TestPublisher.create<String>()
 
-        StepVerifier.create(subscription)
+        val subscription = client.execute(uri) { session -> executeSubscription(session, query, output) }.subscribe()
+
+        StepVerifier.create(output)
             .expectNextMatches { s -> s.matches(expectedDataRegex) }
             .expectNextMatches { s -> s.matches(expectedDataRegex) }
             .expectComplete()
             .verify()
+
+        subscription.dispose()
     }
 
     @Test
     fun `verify singleValueThenError query`() {
         val query = "singleValueThenError"
-        val subscription = subscribe(query)
+        val output = TestPublisher.create<String>()
 
-        StepVerifier.create(subscription)
+        val subscription = client.execute(uri) { session -> executeSubscription(session, query, output) }.subscribe()
+
+        StepVerifier.create(output)
             .expectNextCount(1)
             .expectComplete()
             .verify()
+
+        subscription.dispose()
     }
 
     @Test
     fun `verify flow query`() {
         val query = "flow"
-        val subscription = subscribe(query)
+        val output = TestPublisher.create<String>()
 
-        StepVerifier.create(subscription)
+        val subscription = client.execute(uri) { session -> executeSubscription(session, query, output) }.subscribe()
+
+        StepVerifier.create(output)
             .expectNext("{\"data\":{\"$query\":1}}")
             .expectNext("{\"data\":{\"$query\":2}}")
             .expectNext("{\"data\":{\"$query\":4}}")
             .expectComplete()
             .verify()
+
+        subscription.dispose()
     }
 
     @Test
     fun `verify subscriptionContext query without connectionParams`() {
         val query = "subscriptionContext"
-        val subscription = subscribe(query)
+        val output = TestPublisher.create<String>()
 
-        StepVerifier.create(subscription)
+        val subscription = client.execute(uri) { session -> executeSubscription(session, query, output) }.subscribe()
+
+        StepVerifier.create(output)
             .expectNext("{\"data\":{\"$query\":\"none\"}}")
             .expectNext("{\"data\":{\"$query\":\"value 2\"}}")
             .expectNext("{\"data\":{\"$query\":\"value3\"}}")
             .expectComplete()
             .verify()
+
+        subscription.dispose()
     }
 
     @Test
     fun `verify subscriptionContext query with connectionParams read by MySubscriptionHooks`() {
         val query = "subscriptionContext"
-        val subscription = subscribe(query, mapOf("Authorization" to "mytoken"))
+        val output = TestPublisher.create<String>()
 
-        StepVerifier.create(subscription)
+        val subscription = client.execute(uri) { session -> executeSubscription(session, query, output, mapOf("Authorization" to "mytoken")) }.subscribe()
+
+        StepVerifier.create(output)
             .expectNext("{\"data\":{\"$query\":\"mytoken\"}}")
             .expectNext("{\"data\":{\"$query\":\"value 2\"}}")
             .expectNext("{\"data\":{\"$query\":\"value3\"}}")
             .expectComplete()
             .verify()
-    }
 
-    private fun subscribe(query: String, initPayload: Any? = null): TestPublisher<String> {
-        val output = TestPublisher.create<String>()
-
-        client.execute(uri) { session -> executeSubscription(session, initPayload, query, output) }.subscribe()
-
-        return output
+        subscription.dispose()
     }
 
     private fun executeSubscription(
         session: WebSocketSession,
-        initPayload: Any?,
         query: String,
-        output: TestPublisher<String>
+        output: TestPublisher<String>,
+        initPayload: Any? = null
     ): Mono<Void> {
         val id = Random.nextInt().toString()
         val initMessage = getInitMessage(id, initPayload)
@@ -160,12 +176,6 @@ class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
                         }
                     }
             )
-            .doOnError {
-                output.error(it)
-            }
-            .doOnComplete {
-                output.complete()
-            }
             .then()
     }
 
