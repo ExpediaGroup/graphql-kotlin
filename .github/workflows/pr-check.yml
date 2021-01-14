@@ -69,5 +69,5 @@ jobs:
         if: failure()
         with:
           name: build-examples-reports-${{ matrix.java }}
-          path: ./**/build/reports
+          path: ./examples/**/build/reports
           retention-days: 7
