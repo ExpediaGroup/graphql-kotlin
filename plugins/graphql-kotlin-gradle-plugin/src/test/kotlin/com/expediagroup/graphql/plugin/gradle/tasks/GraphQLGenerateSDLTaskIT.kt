@@ -144,7 +144,7 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_SDL_TASK_NAME)
+            .withArguments(GENERATE_SDL_TASK_NAME, "--stacktrace")
             .build()
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
 
@@ -175,7 +175,7 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_SDL_TASK_NAME)
+            .withArguments(GENERATE_SDL_TASK_NAME, "--stacktrace")
             .build()
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
 
@@ -205,7 +205,7 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_SDL_TASK_NAME)
+            .withArguments(GENERATE_SDL_TASK_NAME, "--stacktrace")
             .build()
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
 
@@ -236,7 +236,7 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_SDL_TASK_NAME)
+            .withArguments(GENERATE_SDL_TASK_NAME, "--stacktrace")
             .build()
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_SDL_TASK_NAME")?.outcome)
 

@@ -137,7 +137,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
+            .withArguments(INTROSPECT_SCHEMA_TASK_NAME, "--stacktrace")
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
@@ -148,7 +148,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(INTROSPECT_SCHEMA_TASK_NAME)
+            .withArguments(INTROSPECT_SCHEMA_TASK_NAME, "--stacktrace")
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
