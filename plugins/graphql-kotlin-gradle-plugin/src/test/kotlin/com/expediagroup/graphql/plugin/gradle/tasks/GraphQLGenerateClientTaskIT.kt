@@ -92,7 +92,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_CLIENT_TASK_NAME)
+            .withArguments(GENERATE_CLIENT_TASK_NAME, "--stacktrace")
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
@@ -194,7 +194,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_TEST_CLIENT_TASK_NAME, "test")
+            .withArguments(GENERATE_TEST_CLIENT_TASK_NAME, "test", "--stacktrace")
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_TEST_CLIENT_TASK_NAME")?.outcome)
@@ -245,7 +245,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(GENERATE_CLIENT_TASK_NAME, "run")
+            .withArguments(GENERATE_CLIENT_TASK_NAME, "run", "--stacktrace")
             .build()
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())

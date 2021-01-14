@@ -142,7 +142,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(DOWNLOAD_SDL_TASK_NAME)
+            .withArguments(DOWNLOAD_SDL_TASK_NAME, "--stacktrace")
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
@@ -153,7 +153,7 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments(DOWNLOAD_SDL_TASK_NAME)
+            .withArguments(DOWNLOAD_SDL_TASK_NAME, "--stacktrace")
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
