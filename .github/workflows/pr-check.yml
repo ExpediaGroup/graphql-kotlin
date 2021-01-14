@@ -63,3 +63,11 @@ jobs:
       - name: Build examples with Gradle
         working-directory: examples
         run: ./gradlew clean build
+
+      - name: Archive examples build reports
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: build-examples-reports-${{ matrix.java }}
+          path: ./**/build/reports
+          retention-days: 7
