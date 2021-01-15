@@ -3,11 +3,13 @@ id: interfaces
 title: Interfaces
 ---
 
-Functions returning interfaces will automatically expose all the types implementing this interface that are available on
-the classpath. Due to the GraphQL distinction between interface and a union type, interfaces need to specify at least
+Any Kotlin interfaces will be mapped to a GraphQL interface. Due to the GraphQL distinction between interface and a [union type](./unions.md), Kotlin interfaces need to specify at least
 one common field (property or a function).
 
-Abstract and sealed classes will also be converted to a GraphQL Interface.
+Abstract and sealed classes will also be converted to a GraphQL interface.
+
+> NOTE: [The GraphQL spec](http://spec.graphql.org/June2018/#sec-Interfaces) does not allow interfaces to be used as input.
+> This means that while it is valid Kotlin code to have an inteface as an argument, upon schema generation, an exception will be thrown.
 
 ```kotlin
 interface Animal {
@@ -78,7 +80,7 @@ type TopLevelQuery {
 ```
 
 ## Abstract and Sealed Classes
-[Abstract](https://kotlinlang.org/docs/reference/classes.html#abstract-classes) and [sealed](https://kotlinlang.org/docs/reference/sealed-classes.html) classes can also be used for interface types.
+[Abstract](https://kotlinlang.org/docs/reference/classes.html#abstract-classes) and [sealed](https://kotlinlang.org/docs/reference/sealed-classes.html) classes can also be used for GraphQL interface types.
 
 ```kotlin
 abstract class Shape(val area: Double)
