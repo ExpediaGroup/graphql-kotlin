@@ -7,6 +7,9 @@ Marker interfaces (i.e. interfaces without any common fields or methods) are exp
 types that implement the marker interface, and are available on the classpath, will be automatically exposed as
 objects in the schema.
 
+> NOTE: [The GraphQL spec](http://spec.graphql.org/June2018/#sec-Unions) does not allow unions to be used as input.
+> This means that while it is valid Kotlin code to have a marker inteface as an argument, upon schema generation, an exception will be thrown.
+
 ```kotlin
 interface BodyPart
 
