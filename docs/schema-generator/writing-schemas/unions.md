@@ -4,8 +4,8 @@ title: Unions
 ---
 
 Marker interfaces (i.e. interfaces without any common fields or methods) are exposed as GraphQL union types. All the
-types that are implementing this marker interface and are available on the classpath will be automatically exposed as
-objects in the target schema.
+types that implement the marker interface, and are available on the classpath, will be automatically exposed as
+objects in the schema.
 
 ```kotlin
 interface BodyPart
