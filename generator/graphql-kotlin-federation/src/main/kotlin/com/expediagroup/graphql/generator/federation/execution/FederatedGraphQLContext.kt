@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.federation.execution
 
 import com.apollographql.federation.graphqljava.tracing.HTTPRequestHeaders
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 
 /**
@@ -26,12 +25,3 @@ import com.expediagroup.graphql.generator.execution.GraphQLContext
  * for the federation context.
  */
 interface FederatedGraphQLContext : GraphQLContext, HTTPRequestHeaders
-
-/**
- * Can be used as a default [FederatedGraphQLContext] if there is none provided.
- */
-class DefaultFederatedGraphQLContext : FederatedGraphQLContext, DefaultGraphQLContext() {
-    override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? {
-        return null
-    }
-}
