@@ -97,5 +97,4 @@ class FederatedSchemaAutoConfiguration(
     @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true", matchIfMissing = true)
     fun federatedTracing(): FederatedTracingInstrumentation =
         FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug))
-
 }

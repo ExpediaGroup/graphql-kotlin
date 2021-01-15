@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
@@ -36,15 +37,15 @@ import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 private const val APOLLO_FEDERATION_TRACING_HEADER_NAME = "apollo-federation-include-trace"
 private const val APOLLO_FEDERATION_TRACING_HEADER_VALUE = "ftv1"
@@ -89,17 +90,24 @@ class FederationConfigurationTest {
     @Test
     fun `verify federated schema execution with federated tracing`() {
         contextRunner.withUserConfiguration(FederatedConfiguration::class.java)
-            .withPropertyValues("graphql.packages=com.expediagroup.graphql.spring", "graphql.federation.enabled=true")
+            .withPropertyValues(
+                "graphql.packages=com.expediagroup.graphql.server.spring",
+                "graphql.federation.enabled=true",
+                "graphql.federation.tracing.enabled=true"
+            )
             .run { ctx ->
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
+                assertThat(ctx).hasSingleBean(FederatedTracingInstrumentation::class.java)
 
-                val graphQL = ctx.getBean(GraphQL::class.java)
+                val graphql = ctx.getBean(GraphQL::class.java)
                 val federatedContext = MockFederatedGraphQLContext()
+
+                // TODO: This is failing until federation-jvm updates to graphql-java 16
                 val input = ExecutionInput.newExecutionInput()
                     .query("query { widget { id name } }")
                     .context(federatedContext)
                     .build()
-                val result = graphQL.execute(input).toSpecification()
+                val result = graphql.execute(input).toSpecification()
                 val data = assertNotNull(result["data"] as? Map<*, *>)
                 val widget = assertNotNull(data["widget"] as? Map<*, *>)
                 assertEquals(1, widget["id"])
