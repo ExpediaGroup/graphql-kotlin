@@ -55,8 +55,12 @@
               }
             });
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/schema-generator/writing-schemas/unions.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Unions</h1></header><article><div><span><p>Marker interfaces (i.e. interfaces without any common fields or methods) are exposed as GraphQL union types. All the
-types that are implementing this marker interface and are available on the classpath will be automatically exposed as
-objects in the target schema.</p>
+types that implement the marker interface, and are available on the classpath, will be automatically exposed as
+objects in the schema.</p>
+<blockquote>
+<p>NOTE: <a href="http://spec.graphql.org/June2018/#sec-Unions">The GraphQL spec</a> does not allow unions to be used as input.
+This means that while it is valid Kotlin code to have a marker inteface as an argument, upon schema generation, an exception will be thrown.</p>
+</blockquote>
 <pre><code class="hljs css language-kotlin"><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">BodyPart</span></span>
 
 <span class="hljs-keyword">data</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LeftHand</span></span>(<span class="hljs-keyword">val</span> field: String): BodyPart
