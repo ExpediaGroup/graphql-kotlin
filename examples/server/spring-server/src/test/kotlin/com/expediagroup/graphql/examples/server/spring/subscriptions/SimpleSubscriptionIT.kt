@@ -24,10 +24,10 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.junit.FixMethodOrder
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.runners.MethodSorters
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
@@ -46,7 +46,7 @@ import kotlin.random.Random
 )
 @EnableAutoConfiguration
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.Alphanumeric::class)
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
     private val objectMapper = jacksonObjectMapper()
