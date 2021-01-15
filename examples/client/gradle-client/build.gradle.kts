@@ -1,49 +1,41 @@
-import com.expediagroup.graphql.plugin.generator.GraphQLClientType
-import com.expediagroup.graphql.plugin.generator.ScalarConverterMapping
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.graphql
+
+description = "Example usage of Gradle plugin to generate GraphQL Kotlin Client"
 
 plugins {
     application
-    id("org.jetbrains.kotlin.jvm") version "1.3.72"
-    id("com.expediagroup.graphql") version "4.0.0-alpha.1"
+    id("com.expediagroup.graphql")
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
+val ktorVersion: String by project
 dependencies {
-    implementation("com.expediagroup:graphql-kotlin-ktor-client:4.0.0-alpha.1")
-    implementation("io.ktor:ktor-client-okhttp:1.3.1")
-    implementation("io.ktor:ktor-client-logging-jvm:1.3.1")
+    implementation("com.expediagroup", "graphql-kotlin-ktor-client")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
 }
 
 application {
-    mainClassName = "com.expediagroup.graphql.examples.client.ApplicationKt"
+    mainClass.set("com.expediagroup.graphql.examples.client.gradle.ApplicationKt")
 }
 
+val wireMockServerPort: Int? = ext.get("wireMockServerPort") as? Int
 graphql {
     client {
         packageName = "com.expediagroup.graphql.generated"
         // you can also use direct sdlEndpoint instead
-        endpoint = "http://localhost:8080/graphql"
+        sdlEndpoint = "http://localhost:$wireMockServerPort/sdl"
 
         // optional
         allowDeprecatedFields = true
-        headers["X-Custom-Header"] = "My-Custom-Header"
-        converters["UUID"] = ScalarConverterMapping("java.util.UUID", "com.expediagroup.graphql.examples.client.UUIDScalarConverter")
+        headers = mapOf("X-Custom-Header" to "My-Custom-Header")
+        customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.examples.client.gradle.UUIDScalarConverter"))
         clientType = GraphQLClientType.KTOR
     }
 }
-
-tasks {
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-
-        }
+ktlint {
+    filter {
+        exclude("**/generated/**")
     }
 }
-

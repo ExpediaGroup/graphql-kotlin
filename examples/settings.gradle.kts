@@ -18,13 +18,31 @@ pluginManagement {
 
 rootProject.name = "graphql-kotlin-examples"
 
+// composite builds
 includeBuild("..")
-include(":federation:base-app")
-include(":federation:extend-app")
-include(":server:ktor-server")
-include(":server:spring-server")
 
-project(":federation:base-app").projectDir = file("federation/base-app")
-project(":federation:extend-app").projectDir = file("federation/extend-app")
-project(":server:spring-server").projectDir = file("server/spring-server")
-project(":server:ktor-server").projectDir = file("server/ktor-server")
+// client examples
+include(":client-examples")
+include(":client-examples:gradle-client-example")
+include(":client-examples:maven-client-example")
+include(":client-examples:server-client-example")
+
+// federation examples
+include(":base-app")
+include(":extend-app")
+
+// server examples
+include(":ktor-server")
+include(":spring-server")
+
+// project mappings
+project(":client-examples").projectDir = file("client")
+project(":client-examples:gradle-client-example").projectDir = file("client/gradle-client")
+project(":client-examples:maven-client-example").projectDir = file("client/maven-client")
+project(":client-examples:server-client-example").projectDir = file("client/server")
+
+project(":base-app").projectDir = file("federation/base-app")
+project(":extend-app").projectDir = file("federation/extend-app")
+
+project(":spring-server").projectDir = file("server/spring-server")
+project(":ktor-server").projectDir = file("server/ktor-server")

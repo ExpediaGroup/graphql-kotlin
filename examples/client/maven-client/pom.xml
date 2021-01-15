@@ -7,12 +7,16 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <!-- those properties are set by gradle -->
-        <graphql-kotlin.version>4.0.0-alpha.1</graphql-kotlin.version>
+        <!-- all properties will be set by gradle at runtime -->
+        <graphql-kotlin.version>${graphqlKotlinVersion}</graphql-kotlin.version>
         <!-- lib versions -->
-        <kotlin.version>1.3.72</kotlin.version>
-        <kotlin-coroutines.version>1.3.8</kotlin-coroutines.version>
-        <ktor.version>1.3.1</ktor.version>
+        <kotlin.jvmTarget>${kotlinJvmTarget}</kotlin.jvmTarget>
+        <kotlin.version>${kotlinVersion}</kotlin.version>
+        <kotlin-coroutines.version>${kotlinCoroutinesVersion}</kotlin-coroutines.version>
+        <reactor.version>${reactorVersion}</reactor.version>
+
+        <!-- environment settings -->
+        <graphql.endpoint>${graphqlEndpoint}</graphql.endpoint>
     </properties>
 
     <dependencies>
@@ -24,7 +28,7 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-            <version>3.3.4.RELEASE</version>
+            <version>${reactor.version}</version>
         </dependency>
     </dependencies>
 
@@ -36,7 +40,7 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
                 <configuration>
-                    <jvmTarget>1.8</jvmTarget>
+                    <jvmTarget>${kotlin.jvmTarget}</jvmTarget>
                 </configuration>
                 <executions>
                     <execution>
@@ -54,27 +58,28 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>introspect-schema</goal>
+                            <goal>download-sdl</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
-                            <endpoint>http://localhost:8080/graphql</endpoint>
+                            <endpoint>${graphql.endpoint}</endpoint>
                             <packageName>com.expediagroup.graphql.generated</packageName>
                             <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
                             <allowDeprecatedFields>true</allowDeprecatedFields>
                             <headers>
                                 <X-Custom-Header>My-Custom-Header</X-Custom-Header>
                             </headers>
-                            <converters>
-                                <!-- custom scalar UUID type -->
-                                <UUID>
+                            <customScalars>
+                                <customScalar>
+                                    <!-- custom scalar UUID type -->
+                                    <scalar>UUID</scalar>
                                     <!-- fully qualified Java class name of a custom scalar type -->
                                     <type>java.util.UUID</type>
                                     <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                                        used to convert to/from raw JSON and scalar type -->
-                                    <converter>com.expediagroup.graphql.examples.client.UUIDScalarConverter</converter>
-                                </UUID>
-                            </converters>
+                                    <converter>com.expediagroup.graphql.examples.client.maven.UUIDScalarConverter</converter>
+                                </customScalar>
+                            </customScalars>
                         </configuration>
                     </execution>
                 </executions>
@@ -104,7 +109,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <configuration>
-                    <mainClass>com.expediagroup.graphql.examples.client.ApplicationKt</mainClass>
+                    <mainClass>com.expediagroup.graphql.examples.client.maven.ApplicationKt</mainClass>
                 </configuration>
             </plugin>
         </plugins>
