@@ -57,7 +57,8 @@
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/schema-generator/execution/fetching-data.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Fetching Data</h1></header><article><div><span><p>Each field exposed in the GraphQL schema has a corresponding resolver (aka data fetcher) associated with it. <code>graphql-kotlin-schema-generator</code> generates the GraphQL schema
 directly from the source code, automatically mapping all the fields either to use
 <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/execution/FunctionDataFetcher.kt">FunctionDataFetcher</a>
-to resolve underlying functions or the default data fetcher from graphql-java, <a href="https://www.graphql-java.com/documentation/v15/data-fetching/">PropertyDataFetcher</a> to read a value from an underlying Kotlin property.</p>
+to resolve underlying functions or the <a href="https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/execution/PropertyDataFetcher.kt">PropertyDataFetcher</a>
+to read a value from an underlying Kotlin property.</p>
 <p>While all the fields in a GraphQL schema are resolved independently to produce a final result, whether a field is backed by a function or a property can have significant
 performance repercussions. For example, given the following schema:</p>
 <pre><code class="hljs css language-graphql">type Query {
