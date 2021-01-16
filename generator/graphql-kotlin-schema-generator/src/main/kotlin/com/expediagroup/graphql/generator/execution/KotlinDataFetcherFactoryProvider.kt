@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.execution
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcherFactory
-import graphql.schema.PropertyDataFetcher
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -64,7 +63,7 @@ open class SimpleKotlinDataFetcherFactoryProvider(
         )
     }
 
-    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>) = DataFetcherFactory<Any?> {
-        PropertyDataFetcher(kProperty.name)
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>) = DataFetcherFactory {
+        PropertyDataFetcher(kProperty.getter)
     }
 }

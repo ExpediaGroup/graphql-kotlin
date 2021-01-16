@@ -24,6 +24,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.PropertyDataFetcher
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.scalars.ID
@@ -36,7 +37,6 @@ import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeUtil
-import graphql.schema.PropertyDataFetcher
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
