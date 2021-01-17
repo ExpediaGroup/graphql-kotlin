@@ -48,7 +48,7 @@ class GraphQLRoutesConfiguration(
         (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
             val graphQLResponse = graphQLServer.execute(serverRequest)
             if (graphQLResponse != null) {
-                ok().json().bodyValueAndAwait(graphQLResponse)
+                ok().json().bodyValueAndAwait(graphQLResponse.response)
             } else {
                 badRequest().buildAndAwait()
             }

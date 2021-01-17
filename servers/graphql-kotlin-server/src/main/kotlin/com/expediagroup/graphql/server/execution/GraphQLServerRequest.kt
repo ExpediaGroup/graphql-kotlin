@@ -16,11 +16,19 @@
 
 package com.expediagroup.graphql.server.execution
 
-/**
- * A generic server interface that handles parsing the specific server implementation request to a [GraphQLServerRequest].
- * If the request is not valid return null.
- */
-interface GraphQLRequestParser<Request> {
+import com.expediagroup.graphql.types.GraphQLRequest
 
-    suspend fun parseRequest(request: Request): GraphQLServerRequest<*>?
-}
+/**
+ * GraphQL server request abstraction that provides a convenient way to handle both single and batch requests.
+ */
+sealed class GraphQLServerRequest<T : Any>(val request: T)
+
+/**
+ * Wrapper that holds single GraphQLRequest to be processed within an HTTP request.
+ */
+class GraphQLSingleRequest(graphQLRequest: GraphQLRequest) : GraphQLServerRequest<GraphQLRequest>(graphQLRequest)
+
+/**
+ * Wrapper that holds list of GraphQLRequests to be processed together within a single HTTP request.
+ */
+class GraphQLBatchRequest(requests: List<GraphQLRequest>) : GraphQLServerRequest<List<GraphQLRequest>>(requests)
