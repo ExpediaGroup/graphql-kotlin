@@ -23,7 +23,6 @@ import com.expediagroup.graphql.server.execution.GraphQLSingleRequest
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.request.ApplicationRequest
 import io.ktor.request.receiveText
 import java.io.IOException
@@ -35,7 +34,7 @@ class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper
 ) : GraphQLRequestParser<ApplicationRequest> {
 
-    private val graphQLBatchRequestTypeReference: TypeReference<List<GraphQLRequest>> = object: TypeReference<List<GraphQLRequest>>() {}
+    private val graphQLBatchRequestTypeReference: TypeReference<List<GraphQLRequest>> = object : TypeReference<List<GraphQLRequest>>() {}
 
     @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest<*> = try {
