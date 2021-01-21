@@ -16,7 +16,7 @@ dependencies {
         exclude(group = "com.graphql-java", module = "java-dataloader")
     }
     api("com.squareup:kotlinpoet:$kotlinPoetVersion")
-    implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
 }

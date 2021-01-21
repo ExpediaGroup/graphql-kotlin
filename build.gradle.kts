@@ -29,9 +29,13 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
         jcenter()
+        mavenLocal {
+            content {
+                includeGroup("com.expediagroup")
+            }
+        }
     }
 
     apply(plugin = "de.marcphilipp.nexus-publish")

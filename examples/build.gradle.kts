@@ -10,16 +10,24 @@ plugins {
 allprojects {
     buildscript {
         repositories {
-            mavenLocal()
-            jcenter()
             mavenCentral()
+            jcenter()
+            mavenLocal {
+                content {
+                    includeGroup("com.expediagroup")
+                }
+            }
         }
     }
 
     repositories {
-        mavenLocal()
-        jcenter()
         mavenCentral()
+        jcenter()
+        mavenLocal {
+            content {
+                includeGroup("com.expediagroup")
+            }
+        }
     }
 }
 
