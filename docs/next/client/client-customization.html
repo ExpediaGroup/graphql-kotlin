@@ -112,13 +112,8 @@ a custom instance of <code>WebClient.Builder</code>. See <a href="https://docs.s
 for additional details.</p>
 <p>Example below configures <code>GraphQLWebClient</code> with custom timeouts and adds a default <code>X-MY-API-KEY</code> header to all requests.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> httpClient: HttpClient = HttpClient.create()
-    .tcpConfiguration { client -&gt;
-        client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, <span class="hljs-number">10_000</span>)
-            .doOnConnected { conn -&gt;
-                conn.addHandlerLast(ReadTimeoutHandler(<span class="hljs-number">60_000</span>, TimeUnit.MILLISECONDS))
-                conn.addHandlerLast(WriteTimeoutHandler(<span class="hljs-number">60_000</span>, TimeUnit.MILLISECONDS))
-            }
-    }
+    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, <span class="hljs-number">10_000</span>)
+    .responseTimeout(Duration.ofMillis(<span class="hljs-number">10_000</span>))
 <span class="hljs-keyword">val</span> connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient.wiretap(<span class="hljs-literal">true</span>))
 <span class="hljs-keyword">val</span> webClientBuilder = WebClient.builder()
     .clientConnector(connector)
