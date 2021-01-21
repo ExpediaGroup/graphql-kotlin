@@ -136,8 +136,12 @@ abstract class GraphQLGradlePluginAbstractIT {
             $plugins
 
             repositories {
-                mavenLocal()
                 mavenCentral()
+                mavenLocal {
+                    content {
+                        includeGroup("com.expediagroup")
+                    }
+                }
             }
 
             tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -212,8 +216,12 @@ abstract class GraphQLGradlePluginAbstractIT {
             $plugins
 
             repositories {
-                mavenLocal()
                 mavenCentral()
+                mavenLocal {
+                    content {
+                        includeGroup "com.expediagroup"
+                    }
+                }
             }
 
             compileKotlin {

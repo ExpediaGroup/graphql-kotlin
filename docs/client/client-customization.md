@@ -81,13 +81,8 @@ Example below configures `GraphQLWebClient` with custom timeouts and adds a defa
 
 ```kotlin
 val httpClient: HttpClient = HttpClient.create()
-    .tcpConfiguration { client ->
-        client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
-            .doOnConnected { conn ->
-                conn.addHandlerLast(ReadTimeoutHandler(60_000, TimeUnit.MILLISECONDS))
-                conn.addHandlerLast(WriteTimeoutHandler(60_000, TimeUnit.MILLISECONDS))
-            }
-    }
+    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
+    .responseTimeout(Duration.ofMillis(10_000))
 val connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient.wiretap(true))
 val webClientBuilder = WebClient.builder()
     .clientConnector(connector)

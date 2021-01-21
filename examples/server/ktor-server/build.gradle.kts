@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClassName = "io.ktor.server.netty.EngineMain"
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 val kotlinCoroutinesVersion: String by project
