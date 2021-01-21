@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.examples.server.spring.hooks
 
-import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
+//import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
+//import com.expediagroup.graphql.hooks.SchemaGeneratorHooks
+//import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
 
-class CustomHooksProvider : SchemaGeneratorHooksProvider {
+class CustomHooksProvider /*: SchemaGeneratorHooksProvider*/ {
 
-    override fun hooks(): SchemaGeneratorHooks = CustomSchemaGeneratorHooks(KotlinDirectiveWiringFactory())
+//    override fun hooks(): SchemaGeneratorHooks = CustomSchemaGeneratorHooks(KotlinDirectiveWiringFactory())
 }

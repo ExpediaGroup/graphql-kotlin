@@ -22,7 +22,7 @@ import com.expediagroup.graphql.examples.server.spring.execution.CustomDataFetch
 import com.expediagroup.graphql.examples.server.spring.execution.MySubscriptionHooks
 import com.expediagroup.graphql.examples.server.spring.execution.SpringDataFetcherFactory
 import com.expediagroup.graphql.examples.server.spring.hooks.CustomSchemaGeneratorHooks
-import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler

@@ -19,8 +19,8 @@ package com.expediagroup.graphql.examples.server.spring.query
 import com.expediagroup.graphql.examples.server.spring.directives.LowercaseDirective
 import com.expediagroup.graphql.examples.server.spring.directives.SpecificValueOnly
 import com.expediagroup.graphql.examples.server.spring.directives.StringEval
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 
 @Component

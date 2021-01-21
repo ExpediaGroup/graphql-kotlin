@@ -24,8 +24,8 @@ import com.expediagroup.graphql.examples.server.spring.model.Dog
 import com.expediagroup.graphql.examples.server.spring.model.Fruit
 import com.expediagroup.graphql.examples.server.spring.model.LeftHand
 import com.expediagroup.graphql.examples.server.spring.model.RightHand
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 
 /**

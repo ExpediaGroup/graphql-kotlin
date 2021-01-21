@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.model
 
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLDescription
 
 @GraphQLDescription("animal interface type")
 interface Animal {

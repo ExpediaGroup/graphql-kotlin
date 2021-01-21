@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.execution
 
-import com.expediagroup.graphql.generator.extensions.deepName
+import com.expediagroup.graphql.extensions.deepName
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactory
 import graphql.schema.DataFetcherFactoryEnvironment

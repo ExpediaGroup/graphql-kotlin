@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.examples.server.spring.mutation
 
 import com.expediagroup.graphql.examples.server.spring.model.Widget
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Mutation
+import com.expediagroup.graphql.annotations.GraphQLDescription
+import com.expediagroup.graphql.server.operations.Mutation
 import org.springframework.stereotype.Component
 
 /**

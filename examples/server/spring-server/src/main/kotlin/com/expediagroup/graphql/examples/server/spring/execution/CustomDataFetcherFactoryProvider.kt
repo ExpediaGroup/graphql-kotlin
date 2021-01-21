@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.execution
 
-import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
 import org.springframework.context.ApplicationContext

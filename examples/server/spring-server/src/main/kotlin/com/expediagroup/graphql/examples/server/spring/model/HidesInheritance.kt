@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.model
 
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.annotations.GraphQLDescription
 
 @GraphQLDescription("Class implementing private interface that is not exposed in the schema")
 data class HidesInheritance(val id: Int) : PrivateInterface {

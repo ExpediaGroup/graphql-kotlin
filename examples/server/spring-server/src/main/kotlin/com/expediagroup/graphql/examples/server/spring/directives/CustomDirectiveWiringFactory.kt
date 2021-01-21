@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.examples.server.spring.directives
 
-import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
-import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveEnvironment
-import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
+import com.expediagroup.graphql.directives.KotlinDirectiveWiringFactory
+import com.expediagroup.graphql.directives.KotlinSchemaDirectiveEnvironment
+import com.expediagroup.graphql.directives.KotlinSchemaDirectiveWiring
 import graphql.schema.GraphQLDirectiveContainer
 import kotlin.reflect.KClass
 

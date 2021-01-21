@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.model
 
-import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.annotations.GraphQLIgnore
 
 data class Employee(
     val name: String,
