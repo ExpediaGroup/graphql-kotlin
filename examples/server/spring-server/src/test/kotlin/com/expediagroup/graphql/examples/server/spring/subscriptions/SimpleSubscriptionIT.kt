@@ -24,6 +24,7 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -46,7 +47,8 @@ import kotlin.random.Random
 )
 @EnableAutoConfiguration
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.Alphanumeric::class)
+@TestMethodOrder(MethodOrderer.MethodName::class)
+@Disabled("unknown race condition is causing random failures when run using GH action, cannot reproduce it locally")
 class SimpleSubscriptionIT(@LocalServerPort private var port: Int) {
 
     private val objectMapper = jacksonObjectMapper()
