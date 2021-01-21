@@ -49,17 +49,13 @@ val client = GraphQLKtorClient(
 
 ### Per Request Customization
 
-In order to be able to customize individual GraphQL requests you need to configure GraphQL Kotlin plugin to generate Ktor
-specific client code. See [Gradle](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin) and [Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin)
-plugin documentation for additional details.
-
 Individual GraphQL requests can be customized through [HttpRequestBuilder](https://api.ktor.io/1.3.2/io.ktor.client.request/-http-request-builder/).
 You can use this mechanism to specify custom headers, update target url to include custom query parameters, configure
 attributes that can be accessed from the pipeline features as well specify timeouts per request.
 
 ```kotlin
-val helloWorldQuery = HelloWorldQuery(client)
-val result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = null)) {
+val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables(name = "John Doe"))
+val result = client.execute(helloWorldQuery) {
     header("X-B3-TraceId", "0123456789abcdef")
 }
 ```
@@ -96,17 +92,12 @@ val client = GraphQLWebClient(
 
 ### Per Request Customization
 
-In order to be able to customize individual GraphQL requests you need to configure GraphQL Kotlin plugin to generate Spring
-WebClient specific client code. See [Gradle](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin)
-and [Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin) plugin documentation for additional
-details.
-
 Individual GraphQL requests can be customized by providing `WebClient.RequestBodyUriSpec` lambda. You can use this mechanism
 to specify custom headers or include custom attributes or query parameters.
 
 ```kotlin
-val helloWorldQuery = HelloWorldQuery(client)
-val result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = null)) {
+val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables(name = "John Doe"))
+val result = client.execute(helloWorldQuery) {
     header("X-B3-TraceId", "0123456789abcdef")
 }
 ```
@@ -120,19 +111,14 @@ extend them to provide some custom `execute` logic.
 ```kotlin
 class CustomGraphQLClient(url: URL) : GraphQLKtorClient<CIOEngineConfig>(url = url, engineFactory = CIO) {
 
-    override suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
+    override suspend fun <T> execute(request: GraphQLClientRequest, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
         // custom init logic
-        val result = super.execute(query, operationName, variables, resultType, requestBuilder)
+        val result = super.execute(request, requestCustomizer)
         // custom finalize logic
         return result
     }
 }
 ```
-
-> NOTE: When implementing custom `GraphQLClient` make sure to select proper client type when generating your client code.
-> By default, generated client code is targeting generic interface which allows you to use any client implementations. If
-> you are using Ktor or Spring WebClient based implementations make sure to select corresponding type as that will provide
-> customization options.
 
 ## Jackson Customization
 

@@ -11,6 +11,7 @@ and [Maven](../plugins/maven-plugin-goals.md) plugins.
 
 Client Features:
 * Supports query and mutation operations
+* Supports batch operations
 * Automatic generation of type-safe Kotlin models
 * Custom scalar support - defaults to String but can be configured to deserialize to specific types
 * Supports default enum values to gracefully handle new/unknown server values
@@ -32,13 +33,14 @@ GraphQL schema can be provided as
 See [Gradle](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin) and [Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin)
 plugin documentation for additional details.
 
-Once your data classes are generated, you can then execute their underlying GraphQL operations using one of the provided
-clients. By default, generated client code will rely on the generic interface which means that you will need to either
-implement a custom client OR pull in one of the reference implementations.
+GraphQL Kotlin plugins generated classes are simple POJOs that implement `GraphQLClientRequest` and optionally accept variables
+(only if underlying operation uses variables) as a constructor parameter. While `GraphQLClient` exposes generic methods
+that allow you to execute either a single or batch request, plugins will also automatically generate a convenient `execute<OperationName>`
+extension function that returns target operation result type.
 
-> NOTE: If you are going to be using one of the reference implementations it is highly recommended to also configure the
-plugin to generate client type specific code as otherwise you will have limited customization options. See [client customization](client-customization.md)
-for additional details.
+> NOTE: If you are going to be using one of the reference client implementations it is highly recommended to also configure the
+plugin to generate client type specific extension code that will allow you to return operation specific type. See [client customization](client-customization.md)
+> for additional details.
 
 Example below configures the project to use introspection query to obtain the schema and uses Ktor based HTTP client.
 
@@ -129,16 +131,16 @@ schema and then generate the clients under `com.example.generated` package name:
 See [graphql-kotlin-client-example](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client) project for complete
 working examples of Gradle and Maven based projects.
 
-### Generating GraphQL Client
+### Generating GraphQL Operations
 
-By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all `*.graphql` files located under
-`src/main/resources`. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
+By default, GraphQL Kotlin build plugins will attempt to generate GraphQL operations from all `*.graphql` files located under
+`src/main/resources`. Operations are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
 See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin-tasks.md)
 and [Maven Mojos](../plugins/maven-plugin-goals.md).
 
-When creating your GraphQL queries make sure to always specify an operation name and name the files accordingly. Each
-one of your query files will generate a corresponding Kotlin file with a class matching your operation
+When creating your GraphQL operations make sure to always specify an operation name and name the files accordingly. Each
+one of your GraphQL operation files will generate a corresponding Kotlin file with a class matching your operation
 name that will act as a wrapper for all corresponding data classes. For example, given `HelloWorldQuery.graphql` with
 `HelloWorldQuery` as the operation name, GraphQL Kotlin plugins will generate a corresponding `HelloWorldQuery.kt` file
 with a `HelloWorldQuery` class under the configured package.
@@ -170,40 +172,43 @@ import kotlin.String
 
 const val HELLO_WORLD_QUERY: String = "query HelloWorldQuery {\n    helloWorld\n}"
 
-class HelloWorldQuery(
-  private val graphQLClient: GraphQLKtorClient<*>
-) {
-  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}): GraphQLResponse<HelloWorldQuery.Result> =
-      graphQLClient.execute(HELLO_WORLD_QUERY, "HelloWorldQuery", null, requestBuilder)
+class HelloWorldQuery: GraphQLClientRequest(HELLO_WORLD_QUERY, "HelloWorldQuery") {
+    override fun responseType(): Class<HelloWorldQuery.Result> = HelloWorldQuery.Result::class.java
 
-  data class Result(
-    val helloWorld: String
-  )
+    data class Result(
+        val helloWorld: String
+    )
 }
+
+suspend fun GraphQLKtorClient<*>.executeHelloWorldQuery(
+    request: HelloWorldQuery,
+    requestCustomizer: HttpRequestBuilder.() -> Unit = {}
+): GraphQLResponse<HelloWorldQuery.Result> = execute(request, requestCustomizer)
 ```
 
-Generated classes requires an instance of `GraphQLKtorClient` and exposes a single `execute` suspendable method that executes
-the underlying GraphQL operation using the provided client.
+Generated classes are simple POJOs that implement `GraphQLClientRequest` interface and represent a GraphQL request.
 
-### Executing Queries
+### Executing Operations
 
-Your auto generated classes accept an instance of `GraphQLKtorClient` which is a thin wrapper around Ktor HTTP client that
-ensures proper serialization and deserialization of your GraphQL objects. `GraphQLKtorClient` requires target URL to be
-specified and defaults to fully asynchronous non-blocking [Coroutine-based IO engine](https://ktor.io/clients/http-client/engines.html#cio).
+`GraphQLKtorClient` uses the Ktor HTTP client to execute the underlying operations and allows you to specify different engines
+and HTTP client features. `GraphQLKtorClient` requires target URL to be specified and defaults to fully asynchronous non-blocking
+[Coroutine-based IO engine](https://ktor.io/clients/http-client/engines.html#cio). Please refer to [Ktor HTTP client documentation](https://ktor.io/clients/index.html)
+for additional details.
 
 ```kotlin
 package com.example.client
 
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.generated.HelloWorldQuery
+import com.expediagroup.graphql.generated.executeHelloWorldQuery
 import kotlinx.coroutines.runBlocking
 import java.net.URL
 
 fun main() {
     val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
-    val helloWorldQuery = HelloWorldQuery(client)
     runBlocking {
-        val result = helloWorldQuery.execute()
+        val helloWorldQuery = HelloWorldQuery()
+        val result = client.executeHelloWorldQuery(helloWorldQuery)
         println("hello world query result: ${result.data?.helloWorld}")
     }
     client.close()

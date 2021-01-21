@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.client.spring
 
-import com.expediagroup.graphql.client.execute
+import com.expediagroup.graphql.client.GraphQLClientRequest
 import com.expediagroup.graphql.types.GraphQLError
 import com.expediagroup.graphql.types.GraphQLResponse
 import com.expediagroup.graphql.types.SourceLocation
@@ -73,10 +73,7 @@ class GraphQLWebClientTest {
 
         val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
         runBlocking {
-            val result: GraphQLResponse<HelloWorldResult> = client.execute(
-                query = "query HelloWorldQuery { helloWorld }",
-                operationName = "HelloWorldQuery"
-            )
+            val result: GraphQLResponse<HelloWorldResult> = client.execute(HelloWorldRequest)
 
             assertNotNull(result)
             assertNotNull(result.data)
@@ -116,10 +113,7 @@ class GraphQLWebClientTest {
         )
         runBlocking {
             val exception = assertFailsWith(WebClientRequestException::class) {
-                client.execute<GraphQLResponse<HelloWorldResult>>(
-                    query = "query HelloWorldQuery { helloWorld }",
-                    operationName = "HelloWorldQuery"
-                )
+                client.execute<GraphQLResponse<HelloWorldResult>>(HelloWorldRequest)
             }
             assertTrue(exception.cause is ReadTimeoutException)
         }
@@ -134,10 +128,7 @@ class GraphQLWebClientTest {
 
         val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
         runBlocking {
-            val result: GraphQLResponse<HelloWorldResult> = client.execute(
-                query = "query HelloWorldQuery { helloWorld }",
-                operationName = "HelloWorldQuery"
-            ) {
+            val result: GraphQLResponse<HelloWorldResult> = client.execute(HelloWorldRequest) {
                 header(customHeaderName, customHeaderValue)
             }
 
@@ -159,7 +150,7 @@ class GraphQLWebClientTest {
         val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
         val error = assertFailsWith<WebClientResponseException> {
             runBlocking {
-                client.execute<HelloWorldResult>("query HelloWorldQuery { helloWorld }")
+                client.execute<HelloWorldResult>(HelloWorldRequest)
             }
         }
         assertEquals(500, error.rawStatusCode)
@@ -176,7 +167,7 @@ class GraphQLWebClientTest {
         val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
         assertFailsWith<NoSuchElementException> {
             runBlocking {
-                client.execute<HelloWorldResult>("query HelloWorldQuery { helloWorld }")
+                client.execute<HelloWorldResult>(HelloWorldRequest)
             }
         }
     }
@@ -192,6 +183,14 @@ class GraphQLWebClientTest {
             )
 
     data class HelloWorldResult(val helloWorld: String)
+
+    object HelloWorldRequest : GraphQLClientRequest(
+        query = "query HelloWorldQuery { helloWorld }",
+        operationName = "HelloWorld"
+    ) {
+
+        override fun responseType(): Class<HelloWorldResult> = HelloWorldResult::class.java
+    }
 
     companion object {
         internal val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())

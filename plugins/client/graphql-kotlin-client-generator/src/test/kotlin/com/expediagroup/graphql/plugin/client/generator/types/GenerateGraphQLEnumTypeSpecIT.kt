@@ -28,19 +28,17 @@ class GenerateGraphQLEnumTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+                import java.lang.Class
                 import kotlin.Deprecated
                 import kotlin.String
 
                 const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
 
-                class EnumTestQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<EnumTestQuery.Result> =
-                      graphQLClient.execute(ENUM_TEST_QUERY, "EnumTestQuery", null)
+                class EnumTestQuery : GraphQLClientRequest(ENUM_TEST_QUERY, "EnumTestQuery") {
+                  override fun responseType(): Class<EnumTestQuery.Result> = EnumTestQuery.Result::class.java
 
                   /**
                    * Custom enum description
@@ -76,6 +74,9 @@ class GenerateGraphQLEnumTypeSpecIT {
                     val enumQuery: EnumTestQuery.CustomEnum
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeEnumTestQuery(request: EnumTestQuery):
+                    GraphQLResponse<EnumTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =

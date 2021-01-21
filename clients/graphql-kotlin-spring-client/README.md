@@ -45,8 +45,8 @@ CLI:
 ```
 
 This runs an introspection query against the target GraphQL server and saves the resulting schema in the `schema.graphql` file
-under the build directory. GraphQL schemas can change over time so you should configure this task to run
-as part of your build/release process.
+under the build directory. GraphQL schemas can change over time, so you should configure this task to run as part of your
+build/release process.
 
 ```kotlin
 // build.gradle.kts
@@ -91,14 +91,18 @@ Additional information about Gradle and Maven plugins as well as their respectiv
 
 ### Execute Queries
 
-Your auto generated classes accept an instance of `GraphQLWebClient` which requires the target URL to be specified.
+Your auto generated classes are simple POJOs that optionally accept variables (only if underlying operation uses variables)
+as a constructor parameter. While `GraphQLClient` exposes generic methods that allow you to execute either a single or batch
+request, plugins will also automatically generate a convenient `execute<OperationName>` extension function that returns
+target operation result type.
+
 `GraphQLWebClient` is a thin wrapper on top of [Spring WebClient](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/reactive/function/client/WebClient.html)
 and can be customized by providing customized instance of Spring `WebClient.Builder`.
 
 ```kotlin
 val client = GraphQLWebClient(url = "http://localhost:8080/graphql")
-val query = MyAwesomeQuery(client)
-val result = query.execute()
+val query = MyAwesomeQuery()
+val result = client.executeMyAwesomeQuery(query)
 ```
 
 The result of your query is a type safe object that corresponds to your GraphQL query.

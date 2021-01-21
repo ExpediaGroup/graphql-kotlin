@@ -28,19 +28,18 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Boolean
                 import kotlin.String
 
                 const val INPUT_OBJECT_TEST_QUERY: String =
                     "query InputObjectTestQuery {\n  inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n}"
 
-                class InputObjectTestQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<InputObjectTestQuery.Result> =
-                      graphQLClient.execute(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", null)
+                class InputObjectTestQuery : GraphQLClientRequest(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery") {
+                  override fun responseType(): Class<InputObjectTestQuery.Result> =
+                      InputObjectTestQuery.Result::class.java
 
                   data class Result(
                     /**
@@ -49,6 +48,9 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                     val inputObjectQuery: Boolean
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeInputObjectTestQuery(request: InputObjectTestQuery):
+                    GraphQLResponse<InputObjectTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -67,8 +69,9 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Boolean
                 import kotlin.Float
                 import kotlin.String
@@ -77,11 +80,10 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                     "query InputObjectTestQuery(${'$'}{'${'$'}'}input: ComplexArgumentInput) {\n  complexInputObjectQuery(criteria: ${'$'}{'${'$'}'}input)\n}"
 
                 class InputObjectTestQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(variables: InputObjectTestQuery.Variables):
-                      GraphQLResponse<InputObjectTestQuery.Result> = graphQLClient.execute(INPUT_OBJECT_TEST_QUERY,
-                      "InputObjectTestQuery", variables)
+                  variables: InputObjectTestQuery.Variables
+                ) : GraphQLClientRequest(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", variables) {
+                  override fun responseType(): Class<InputObjectTestQuery.Result> =
+                      InputObjectTestQuery.Result::class.java
 
                   data class Variables(
                     val input: InputObjectTestQuery.ComplexArgumentInput? = null
@@ -112,6 +114,9 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                     val complexInputObjectQuery: Boolean
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeInputObjectTestQuery(request: InputObjectTestQuery):
+                    GraphQLResponse<InputObjectTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =

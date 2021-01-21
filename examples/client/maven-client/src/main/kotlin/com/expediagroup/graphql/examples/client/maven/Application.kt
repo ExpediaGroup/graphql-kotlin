@@ -22,25 +22,22 @@ import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
+import com.expediagroup.graphql.generated.executeAddObjectMutation
+import com.expediagroup.graphql.generated.executeExampleQuery
+import com.expediagroup.graphql.generated.executeRetrieveObjectQuery
+import com.expediagroup.graphql.generated.executeUpdateObjectMutation
 import io.netty.channel.ChannelOption
-import io.netty.handler.timeout.ReadTimeoutHandler
-import io.netty.handler.timeout.WriteTimeoutHandler
 import kotlinx.coroutines.runBlocking
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 fun main() {
     val httpClient: HttpClient = HttpClient.create()
-        .tcpConfiguration { client ->
-            client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
-                .doOnConnected { conn ->
-                    conn.addHandlerLast(ReadTimeoutHandler(60_000, TimeUnit.MILLISECONDS))
-                    conn.addHandlerLast(WriteTimeoutHandler(60_000, TimeUnit.MILLISECONDS))
-                }
-        }
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
+        .responseTimeout(Duration.ofMillis(60_000))
     val connector: ClientHttpConnector = ReactorClientHttpConnector(httpClient.wiretap(true))
     val webClientBuilder = WebClient.builder()
         .clientConnector(connector)
@@ -50,36 +47,37 @@ fun main() {
         builder = webClientBuilder
     )
 
-    val helloWorldQuery = HelloWorldQuery(client)
     println("HelloWorld examples")
     runBlocking {
-        val helloWorldResultNoParam = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = null))
-        println("\tquery without parameters result: ${helloWorldResultNoParam.data?.helloWorld}")
+        val results = client.execute(
+            listOf(
+                HelloWorldQuery(variables = HelloWorldQuery.Variables(name = null)),
+                HelloWorldQuery(variables = HelloWorldQuery.Variables(name = "Dariusz"))
+            )
+        )
 
-        val helloWorldResult = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = "Dariusz"))
-        println("\tquery with parameters result: ${helloWorldResult.data?.helloWorld}")
+        val resultsNoParam = results[0].data as? HelloWorldQuery.Result
+        val resultsWithParam = results[1].data as? HelloWorldQuery.Result
+        println("\tquery without parameters result: ${resultsNoParam?.helloWorld}")
+        println("\tquery with parameters result: ${resultsWithParam?.helloWorld}")
     }
 
     // mutation examples
     println("simple mutation examples")
-    val retrieveObjectQuery = RetrieveObjectQuery(client)
-    val addObjectMutation = AddObjectMutation(client)
-    val updateObjectMutation = UpdateObjectMutation(client)
     runBlocking {
-        val retrieveNonExistentObject = retrieveObjectQuery.execute(variables = RetrieveObjectQuery.Variables(id = 1))
+        val retrieveNonExistentObject = client.executeRetrieveObjectQuery(RetrieveObjectQuery(variables = RetrieveObjectQuery.Variables(id = 1)))
         println("\tretrieve non existent object: ${retrieveNonExistentObject.data?.retrieveBasicObject}")
 
-        val addResult = addObjectMutation.execute(variables = AddObjectMutation.Variables(newObject = AddObjectMutation.BasicObjectInput(1, "first")))
+        val addResult = client.executeAddObjectMutation(AddObjectMutation(variables = AddObjectMutation.Variables(newObject = AddObjectMutation.BasicObjectInput(1, "first"))))
         println("\tadd new object: ${addResult.data?.addBasicObject}")
 
-        val updateResult = updateObjectMutation.execute(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated")))
+        val updateResult = client.executeUpdateObjectMutation(UpdateObjectMutation(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated"))))
         println("\tupdate new object: ${updateResult.data?.updateBasicObject}")
     }
 
     println("additional examples")
-    val exampleQuery = ExampleQuery(client)
     runBlocking {
-        val exampleData = exampleQuery.execute(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f)))
+        val exampleData = client.executeExampleQuery(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f))))
         println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")

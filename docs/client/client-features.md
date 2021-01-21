@@ -126,10 +126,23 @@ data class BasicObject(
 
 ## Native Support for Coroutines
 
-GraphQL Kotlin Client is a thin wrapper on top of [Ktor HTTP Client](https://ktor.io/clients/index.html) which provides
-fully asynchronous communication through Kotlin coroutines. `GraphQLClient` exposes single `execute` method that will
-suspend your GraphQL operation until it gets a response back without blocking the underlying thread. In order to fetch
-data asynchronously and perform some additional computations at the same time you should wrap your client execution in
-`launch` or `async` coroutine builder and explicitly `await` for their results.
+GraphQL Kotlin Client is a generic interface that exposes `execute` methods that will suspend your GraphQL operation until
+it gets a response back without blocking the underlying thread. Reference Ktor and Spring WebClient based implementations
+offer fully asynchronous communication through Kotlin coroutines. In order to fetch data asynchronously you should wrap
+your client execution in `launch` or `async` coroutine builder and explicitly `await` for their results.
 
 See [Kotlin coroutines documentation](https://kotlinlang.org/docs/reference/coroutines-overview.html) for additional details.
+
+## Batch Operation Support
+
+GraphQL Kotlin Clients provide out of the box support for batching multiple client operations into a single GraphQL request.
+Batch requests are sent as an array of individual GraphQL requests and clients expect the server to respond with a corresponding
+array of GraphQL responses. Each response is then deserialized to a corresponding result type.
+
+```kotlin
+val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
+val firstQuery = FirstQuery(variables = FirstQuery.Variables(foo = "bar"))
+val secondQuery = SecondQuery(variables = SecondQuery.Variables(foo = "baz"))
+
+val results: List<GraphQLResponse<*>> = client.execute(listOf(firstQuery, secondQuery))
+```

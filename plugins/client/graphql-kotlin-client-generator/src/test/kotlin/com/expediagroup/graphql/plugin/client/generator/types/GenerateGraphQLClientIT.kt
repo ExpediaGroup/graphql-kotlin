@@ -38,17 +38,15 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.String
 
                 const val MI_XE_DCA_SE_QUERY: String = "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
 
-                class MiXEDcaSEQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<MiXEDcaSEQuery.Result> =
-                      graphQLClient.execute(MI_XE_DCA_SE_QUERY, "miXEDcaSEQuery", null)
+                class MiXEDcaSEQuery : GraphQLClientRequest(MI_XE_DCA_SE_QUERY, "miXEDcaSEQuery") {
+                  override fun responseType(): Class<MiXEDcaSEQuery.Result> = MiXEDcaSEQuery.Result::class.java
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -67,6 +65,9 @@ class GenerateGraphQLClientIT {
                     val scalarQuery: MiXEDcaSEQuery.ScalarWrapper
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeMiXEDcaSEQuery(request: MiXEDcaSEQuery):
+                    GraphQLResponse<MiXEDcaSEQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -87,17 +88,16 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.String
 
                 const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
-                class AnonymousTestQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<AnonymousTestQuery.Result> =
-                      graphQLClient.execute(ANONYMOUS_TEST_QUERY, null, null)
+                class AnonymousTestQuery : GraphQLClientRequest(ANONYMOUS_TEST_QUERY) {
+                  override fun responseType(): Class<AnonymousTestQuery.Result> =
+                      AnonymousTestQuery.Result::class.java
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -116,6 +116,9 @@ class GenerateGraphQLClientIT {
                     val scalarQuery: AnonymousTestQuery.ScalarWrapper
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeAnonymousTestQuery(request: AnonymousTestQuery):
+                    GraphQLResponse<AnonymousTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -144,19 +147,17 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Boolean
                 import kotlin.String
 
                 const val ALIAS_TEST_QUERY: String =
                     "query AliasTestQuery {\n  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )\n}"
 
-                class AliasTestQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<AliasTestQuery.Result> =
-                      graphQLClient.execute(ALIAS_TEST_QUERY, "AliasTestQuery", null)
+                class AliasTestQuery : GraphQLClientRequest(ALIAS_TEST_QUERY, "AliasTestQuery") {
+                  override fun responseType(): Class<AliasTestQuery.Result> = AliasTestQuery.Result::class.java
 
                   data class Result(
                     /**
@@ -169,6 +170,9 @@ class GenerateGraphQLClientIT {
                     val second: Boolean
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeAliasTestQuery(request: AliasTestQuery):
+                    GraphQLResponse<AliasTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -201,18 +205,17 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Deprecated
                 import kotlin.String
 
                 const val DEPRECATED_FIELD_QUERY: String = "query DeprecatedFieldQuery {\n  deprecatedQuery\n}"
 
-                class DeprecatedFieldQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<DeprecatedFieldQuery.Result> =
-                      graphQLClient.execute(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery", null)
+                class DeprecatedFieldQuery : GraphQLClientRequest(DEPRECATED_FIELD_QUERY, "DeprecatedFieldQuery") {
+                  override fun responseType(): Class<DeprecatedFieldQuery.Result> =
+                      DeprecatedFieldQuery.Result::class.java
 
                   data class Result(
                     /**
@@ -222,6 +225,9 @@ class GenerateGraphQLClientIT {
                     val deprecatedQuery: String
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeDeprecatedFieldQuery(request: DeprecatedFieldQuery):
+                    GraphQLResponse<DeprecatedFieldQuery.Result> = execute(request)
             """.trimIndent()
 
         val invalidQuery =
@@ -246,20 +252,19 @@ class GenerateGraphQLClientIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
                 import com.expediagroup.graphql.types.GraphQLResponse
                 import io.ktor.client.request.HttpRequestBuilder
+                import java.lang.Class
                 import kotlin.String
                 import kotlin.Unit
 
                 const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
-                class AnonymousTestQuery(
-                  private val graphQLClient: GraphQLKtorClient<*>
-                ) {
-                  suspend fun execute(requestBuilder: HttpRequestBuilder.() -> Unit = {}):
-                      GraphQLResponse<AnonymousTestQuery.Result> = graphQLClient.execute(ANONYMOUS_TEST_QUERY, null,
-                      null, requestBuilder)
+                class AnonymousTestQuery : GraphQLClientRequest(ANONYMOUS_TEST_QUERY) {
+                  override fun responseType(): Class<AnonymousTestQuery.Result> =
+                      AnonymousTestQuery.Result::class.java
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -278,6 +283,10 @@ class GenerateGraphQLClientIT {
                     val scalarQuery: AnonymousTestQuery.ScalarWrapper
                   )
                 }
+
+                suspend fun GraphQLKtorClient<*>.executeAnonymousTestQuery(request: AnonymousTestQuery,
+                    requestCustomizer: HttpRequestBuilder.() -> Unit = {}):
+                    GraphQLResponse<AnonymousTestQuery.Result> = execute(request, requestCustomizer)
             """.trimIndent()
 
         val query =
@@ -311,20 +320,19 @@ class GenerateGraphQLClientIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.client.spring.GraphQLWebClient
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.String
                 import kotlin.Unit
                 import org.springframework.web.reactive.function.client.WebClient
 
                 const val ANONYMOUS_TEST_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
-                class AnonymousTestQuery(
-                  private val graphQLClient: GraphQLWebClient
-                ) {
-                  suspend fun execute(requestBuilder: WebClient.RequestBodyUriSpec.() -> Unit = {}):
-                      GraphQLResponse<AnonymousTestQuery.Result> = graphQLClient.execute(ANONYMOUS_TEST_QUERY, null,
-                      null, requestBuilder)
+                class AnonymousTestQuery : GraphQLClientRequest(ANONYMOUS_TEST_QUERY) {
+                  override fun responseType(): Class<AnonymousTestQuery.Result> =
+                      AnonymousTestQuery.Result::class.java
 
                   /**
                    * Wrapper that holds all supported scalar types
@@ -343,6 +351,10 @@ class GenerateGraphQLClientIT {
                     val scalarQuery: AnonymousTestQuery.ScalarWrapper
                   )
                 }
+
+                suspend fun GraphQLWebClient.executeAnonymousTestQuery(request: AnonymousTestQuery,
+                    requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit = {}):
+                    GraphQLResponse<AnonymousTestQuery.Result> = execute(request, requestCustomizer)
             """.trimIndent()
 
         val query =
@@ -377,19 +389,17 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
 
                 const val REUSED_TYPES_QUERY: String =
                     "query ReusedTypesQuery {\n  first: complexObjectQuery {\n    id\n    name\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n  third: complexObjectQuery {\n    id\n    name\n    details {\n      id\n    }\n  }\n  fourth: complexObjectQuery {\n    id\n    name\n  }\n  fifth: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
 
-                class ReusedTypesQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<ReusedTypesQuery.Result> =
-                      graphQLClient.execute(REUSED_TYPES_QUERY, "ReusedTypesQuery", null)
+                class ReusedTypesQuery : GraphQLClientRequest(REUSED_TYPES_QUERY, "ReusedTypesQuery") {
+                  override fun responseType(): Class<ReusedTypesQuery.Result> = ReusedTypesQuery.Result::class.java
 
                   /**
                    * Multi line description of a complex type.
@@ -494,6 +504,9 @@ class GenerateGraphQLClientIT {
                     val fifth: ReusedTypesQuery.ComplexObject2
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeReusedTypesQuery(request: ReusedTypesQuery):
+                    GraphQLResponse<ReusedTypesQuery.Result> = execute(request)
             """.trimIndent()
         val reusedTypesQuery =
             """
@@ -541,8 +554,9 @@ class GenerateGraphQLClientIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
                 import kotlin.collections.List
@@ -550,11 +564,9 @@ class GenerateGraphQLClientIT {
                 const val REUSED_LIST_TYPES_QUERY: String =
                     "query ReusedListTypesQuery {\n  first: listQuery {\n    id\n    name\n  }\n  second: listQuery {\n    name\n  }\n  third: listQuery {\n    id\n    name\n  }\n  firstComplex: complexObjectQuery {\n    id\n    name\n    basicList {\n      id\n      name\n    }\n  }\n  secondComplex: complexObjectQuery {\n    id\n    name\n    basicList {\n      id\n      name\n    }\n  }\n  thirdComplex: complexObjectQuery {\n    id\n    name\n    basicList {\n      name\n    }\n  }\n  fourthComplex: complexObjectQuery {\n    id\n    basicList {\n      id\n    }\n  }\n}"
 
-                class ReusedListTypesQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<ReusedListTypesQuery.Result> =
-                      graphQLClient.execute(REUSED_LIST_TYPES_QUERY, "ReusedListTypesQuery", null)
+                class ReusedListTypesQuery : GraphQLClientRequest(REUSED_LIST_TYPES_QUERY, "ReusedListTypesQuery") {
+                  override fun responseType(): Class<ReusedListTypesQuery.Result> =
+                      ReusedListTypesQuery.Result::class.java
 
                   /**
                    * Some basic description
@@ -671,6 +683,9 @@ class GenerateGraphQLClientIT {
                     val fourthComplex: ReusedListTypesQuery.ComplexObject3
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeReusedListTypesQuery(request: ReusedListTypesQuery):
+                    GraphQLResponse<ReusedListTypesQuery.Result> = execute(request)
             """.trimIndent()
         val reusedTypesQuery =
             """
