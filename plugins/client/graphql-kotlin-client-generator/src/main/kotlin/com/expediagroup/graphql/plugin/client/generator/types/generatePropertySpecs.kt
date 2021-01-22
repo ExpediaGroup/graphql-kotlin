@@ -66,7 +66,7 @@ internal fun generatePropertySpecs(
             }
         }
         fieldDefinition.description?.content?.let { kdoc ->
-            propertySpecBuilder.addKdoc(kdoc)
+            propertySpecBuilder.addKdoc("%L", kdoc)
         }
         propertySpecBuilder.build()
     }

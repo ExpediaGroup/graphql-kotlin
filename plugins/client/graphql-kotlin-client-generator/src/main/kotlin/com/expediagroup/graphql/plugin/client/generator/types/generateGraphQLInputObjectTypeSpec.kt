@@ -31,7 +31,7 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
     val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputObjectDefinition.name)
     inputObjectTypeSpecBuilder.modifiers.add(KModifier.DATA)
     inputObjectDefinition.description?.content?.let { kdoc ->
-        inputObjectTypeSpecBuilder.addKdoc(kdoc)
+        inputObjectTypeSpecBuilder.addKdoc("%L", kdoc)
     }
 
     val constructorBuilder = FunSpec.constructorBuilder()
@@ -42,7 +42,7 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
         val inputPropertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
             .initializer(fieldName)
         fieldDefinition.description?.content?.let { kdoc ->
-            inputPropertySpecBuilder.addKdoc(kdoc)
+            inputPropertySpecBuilder.addKdoc("%L", kdoc)
         }
 
         val inputPropertySpec = inputPropertySpecBuilder.build()

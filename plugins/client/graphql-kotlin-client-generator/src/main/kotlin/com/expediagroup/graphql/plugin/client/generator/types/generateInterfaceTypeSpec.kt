@@ -58,7 +58,7 @@ internal fun generateInterfaceTypeSpec(
 ): TypeSpec {
     val interfaceTypeSpec = TypeSpec.interfaceBuilder(interfaceName)
     if (kdoc != null) {
-        interfaceTypeSpec.addKdoc(kdoc)
+        interfaceTypeSpec.addKdoc("%L", kdoc)
     }
 
     val namedFragments = selectionSet.getSelectionsOfType(FragmentSpread::class.java).map { fragment ->
@@ -163,7 +163,7 @@ private fun updateImplementationTypeSpecWithSuperInformation(context: GraphQLCli
 
     val builder = TypeSpec.classBuilder(implementationTypeSpec.name!!)
     builder.addModifiers(implementationTypeSpec.modifiers)
-    builder.addKdoc(implementationTypeSpec.kdoc)
+    builder.addKdoc("%L", implementationTypeSpec.kdoc)
 
     // TODO is there a better way to lookup interface class name?
     //  - cannot use typeNameCache as it was not populated yet
