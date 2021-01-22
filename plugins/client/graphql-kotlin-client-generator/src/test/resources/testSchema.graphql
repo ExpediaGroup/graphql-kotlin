@@ -104,6 +104,8 @@ type Query {
   scalarQuery: ScalarWrapper!
   "Query returning union"
   unionQuery: BasicUnion!
+  "Query to test doc strings"
+  docQuery: DocObject!
 }
 "Wrapper that holds all supported scalar types"
 type ScalarWrapper {
@@ -128,6 +130,11 @@ type SecondInterfaceImplementation implements BasicInterface {
   id: Int!
   "Name of the second implementation"
   name: String!
+}
+"Doc object with % and $ floating around"
+type DocObject {
+  "An id with a comment containing % and $ as well"
+  id: Int!
 }
 "Custom enum description"
 enum CustomEnum {

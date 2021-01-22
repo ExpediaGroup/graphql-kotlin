@@ -30,12 +30,12 @@ import graphql.language.StringValue
 internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDefinition: EnumTypeDefinition): TypeSpec {
     val enumTypeSpecBuilder = TypeSpec.enumBuilder(enumDefinition.name)
     enumDefinition.description?.content?.let { kdoc ->
-        enumTypeSpecBuilder.addKdoc(kdoc)
+        enumTypeSpecBuilder.addKdoc("%L", kdoc)
     }
     enumDefinition.enumValueDefinitions.forEach { enumValueDefinition ->
         val enumValueTypeSpecBuilder = TypeSpec.anonymousClassBuilder()
         enumValueDefinition.description?.content?.let { kdoc ->
-            enumValueTypeSpecBuilder.addKdoc(kdoc)
+            enumValueTypeSpecBuilder.addKdoc("%L", kdoc)
         }
         val deprecatedDirective = enumValueDefinition.getDirectives(DeprecatedDirective.name).firstOrNull()
         if (deprecatedDirective != null) {
@@ -51,7 +51,7 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
     }
 
     val unkownTypeSpec = TypeSpec.anonymousClassBuilder()
-        .addKdoc("This is a default enum value that will be used when attempting to deserialize unknown value.")
+        .addKdoc("%L", "This is a default enum value that will be used when attempting to deserialize unknown value.")
         .addAnnotation(JsonEnumDefaultValue::class)
         .build()
 

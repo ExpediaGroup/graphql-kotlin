@@ -41,7 +41,7 @@ internal fun generateGraphQLCustomScalarTypeSpec(context: GraphQLClientGenerator
     val scalarTypeSpec = TypeSpec.classBuilder(customScalarName)
     scalarTypeSpec.addModifiers(KModifier.DATA)
     scalarTypeDefinition.description?.content?.let { kdoc ->
-        scalarTypeSpec.addKdoc(kdoc)
+        scalarTypeSpec.addKdoc("%L", kdoc)
     }
 
     val scalarValue = PropertySpec.builder("value", converterMapping.type.toClassName())

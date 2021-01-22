@@ -28,7 +28,7 @@ import graphql.language.ScalarTypeDefinition
 internal fun generateGraphQLCustomScalarTypeAlias(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition): TypeAliasSpec {
     val typeAliasSpec = TypeAliasSpec.builder(scalarTypeDefinition.name, String::class)
     scalarTypeDefinition.description?.content?.let { kdoc ->
-        typeAliasSpec.addKdoc(kdoc)
+        typeAliasSpec.addKdoc("%L", kdoc)
     }
 
     val typeAlias = typeAliasSpec.build()

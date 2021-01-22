@@ -43,7 +43,7 @@ internal fun generateGraphQLObjectTypeSpec(
     val objectTypeSpecBuilder = TypeSpec.classBuilder(typeName)
     objectTypeSpecBuilder.modifiers.add(KModifier.DATA)
     objectDefinition.description?.content?.let { kdoc ->
-        objectTypeSpecBuilder.addKdoc(kdoc)
+        objectTypeSpecBuilder.addKdoc("%L", kdoc)
     }
 
     val constructorBuilder = FunSpec.constructorBuilder()
