@@ -56,10 +56,26 @@
             });
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/server/graphql-request-parser.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">GraphQLRequestParser</h1></header><article><div><span><p>The <code>GraphQLRequestParser</code> interface is requrired to parse the library-specific HTTP request object into the common <code>GraphQLRequest</code> class from <code>graphql-kotlin-types</code>.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">GraphQLRequestParser</span>&lt;<span class="hljs-type">Request</span>&gt; </span>{
-    <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parseRequest</span><span class="hljs-params">(request: <span class="hljs-type">Request</span>)</span></span>: GraphQLRequest?
+    <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">parseRequest</span><span class="hljs-params">(request: <span class="hljs-type">Request</span>)</span></span>: GraphQLServerRequest&lt;*&gt;?
 }
 </code></pre>
-<p>While not offically part of the spec, there is a standard format used by most GraphQL clients and servers for <a href="https://graphql.org/learn/serving-over-http/">serving GraphQL over HTTP</a>.</p>
+<p>While not officially part of the spec, there is a standard format used by most GraphQL clients and servers for <a href="https://graphql.org/learn/serving-over-http/">serving GraphQL over HTTP</a>.
+Following the above convention, GraphQL clients should generally use HTTP POST requests with the following body structure</p>
+<pre><code class="hljs css language-json">{
+  <span class="hljs-attr">"query"</span>: <span class="hljs-string">"..."</span>,
+  <span class="hljs-attr">"operationName"</span>: <span class="hljs-string">"..."</span>,
+  <span class="hljs-attr">"variables"</span>: { <span class="hljs-attr">"myVariable"</span>: <span class="hljs-string">"someValue"</span> }
+}
+</code></pre>
+<p>where</p>
+<ul>
+<li><code>query</code> is a required field and contains operation (query, mutation or subscription) that specify their selection set to be executed</li>
+<li><code>operationName</code> is an optional operation name, only required if multiple operations are specified in <code>query</code> string</li>
+<li><code>variables</code> is an optional field that holds an arbitrary JSON objects that are referenced as input arguments from <code>query</code> string</li>
+</ul>
+<p>GraphQL Kotlin server supports both single and batch GraphQL requests. Batch requests are represented as a list of individual
+GraphQL requests. When processing batch requests, same context will be used for processing all requests and server will respond
+with a list of GraphQL responses.</p>
 <p>If the request is not a valid GraphQL format, the interface should return <code>null</code> and let the server specific code return a bad request status to the client.
 This is not the same as a GraphQL error or an exception thrown by the schema.
 Those types of errors should still parse the request and return a valid response with errors set via the <a href="/graphql-kotlin/docs/next/server/graphql-request-handler">GraphQLRequestHandler</a>.</p>
