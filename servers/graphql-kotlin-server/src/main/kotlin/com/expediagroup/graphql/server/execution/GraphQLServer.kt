@@ -36,12 +36,21 @@ open class GraphQLServer<Request>(
      * In the case of errors or exceptions, return a response with [GraphQLResponse.errors] populated.
      * If you need custom logic inside this method you can override this class or choose not to use it.
      */
-    open suspend fun execute(request: Request): GraphQLResponse<*>? {
+    open suspend fun execute(request: Request): GraphQLServerResponse<*>? {
         val graphQLRequest = requestParser.parseRequest(request)
 
         return if (graphQLRequest != null) {
             val context = contextFactory.generateContext(request)
-            requestHandler.executeRequest(graphQLRequest, context)
+            when (graphQLRequest) {
+                is GraphQLSingleRequest -> GraphQLSingleResponse(
+                    requestHandler.executeRequest(graphQLRequest.request, context)
+                )
+                is GraphQLBatchRequest -> GraphQLBatchResponse(
+                    graphQLRequest.request.map {
+                        requestHandler.executeRequest(it, context)
+                    }
+                )
+            }
         } else {
             null
         }

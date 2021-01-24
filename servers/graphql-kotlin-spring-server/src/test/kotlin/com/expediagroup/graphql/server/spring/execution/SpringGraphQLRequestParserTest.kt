@@ -16,7 +16,10 @@
 
 package com.expediagroup.graphql.server.spring.execution
 
+import com.expediagroup.graphql.server.execution.GraphQLBatchRequest
+import com.expediagroup.graphql.server.execution.GraphQLSingleRequest
 import com.expediagroup.graphql.types.GraphQLRequest
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +34,9 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
 import java.util.Optional
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class SpringGraphQLRequestParserTest {
@@ -49,7 +54,7 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return null if request method is GET witout query`() = runBlockingTest {
+    fun `parseRequest should return null if request method is GET without query`() = runBlockingTest {
         val request = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.empty()
             every { method() } returns HttpMethod.GET
@@ -65,10 +70,13 @@ class SpringGraphQLRequestParserTest {
             every { queryParam(REQUEST_PARAM_VARIABLES) } returns Optional.empty()
             every { method() } returns HttpMethod.GET
         }
-        val graphQLRequest = parser.parseRequest(serverRequest)
-        assertEquals("{ foo }", graphQLRequest?.query)
-        assertNull(graphQLRequest?.operationName)
-        assertNull(graphQLRequest?.variables)
+        val graphQLServerRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLServerRequest)
+        assertTrue(graphQLServerRequest is GraphQLSingleRequest)
+        val graphQLRequest = graphQLServerRequest.request
+        assertEquals("{ foo }", graphQLRequest.query)
+        assertNull(graphQLRequest.operationName)
+        assertNull(graphQLRequest.variables)
     }
 
     @Test
@@ -79,39 +87,50 @@ class SpringGraphQLRequestParserTest {
             every { queryParam(REQUEST_PARAM_VARIABLES) } returns Optional.of("""{ "a": 1 }""")
             every { method() } returns HttpMethod.GET
         }
-        val graphQLRequest = parser.parseRequest(serverRequest)
-        assertEquals("query MyFoo { foo }", graphQLRequest?.query)
-        assertEquals("MyFoo", graphQLRequest?.operationName)
-        assertEquals(1, graphQLRequest?.variables?.get("a"))
+        val graphQLServerRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLServerRequest)
+        assertTrue(graphQLServerRequest is GraphQLSingleRequest)
+        val graphQLRequest = graphQLServerRequest.request
+        assertEquals("query MyFoo { foo }", graphQLRequest.query)
+        assertEquals("MyFoo", graphQLRequest.operationName)
+        assertEquals(1, graphQLRequest.variables?.get("a"))
     }
 
     @Test
     fun `parseRequest should return request if method is POST with no content-type`() = runBlockingTest {
         val mockRequest = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
+        val rawRequest = objectMapper.valueToTree<JsonNode>(mockRequest)
 
         val serverRequest = MockServerRequest.builder()
             .method(HttpMethod.POST)
-            .body(Mono.justOrEmpty(mockRequest))
+            .body(Mono.justOrEmpty(rawRequest))
 
-        val graphQLRequest = parser.parseRequest(serverRequest)
-        assertEquals("query MyFoo { foo }", graphQLRequest?.query)
-        assertEquals("MyFoo", graphQLRequest?.operationName)
-        assertEquals(1, graphQLRequest?.variables?.get("a"))
+        val graphQLServerRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLServerRequest)
+        assertTrue(graphQLServerRequest is GraphQLSingleRequest)
+        val graphQLRequest = graphQLServerRequest.request
+        assertEquals("query MyFoo { foo }", graphQLRequest.query)
+        assertEquals("MyFoo", graphQLRequest.operationName)
+        assertEquals(1, graphQLRequest.variables?.get("a"))
     }
 
     @Test
     fun `parseRequest should return request if method is POST with content-type json`() = runBlockingTest {
         val mockRequest = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
+        val rawRequest = objectMapper.valueToTree<JsonNode>(mockRequest)
 
         val serverRequest = MockServerRequest.builder()
             .method(HttpMethod.POST)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .body(Mono.justOrEmpty(mockRequest))
+            .body(Mono.justOrEmpty(rawRequest))
 
-        val graphQLRequest = parser.parseRequest(serverRequest)
-        assertEquals("query MyFoo { foo }", graphQLRequest?.query)
-        assertEquals("MyFoo", graphQLRequest?.operationName)
-        assertEquals(1, graphQLRequest?.variables?.get("a"))
+        val graphQLServerRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLServerRequest)
+        assertTrue(graphQLServerRequest is GraphQLSingleRequest)
+        val graphQLRequest = graphQLServerRequest.request
+        assertEquals("query MyFoo { foo }", graphQLRequest.query)
+        assertEquals("MyFoo", graphQLRequest.operationName)
+        assertEquals(1, graphQLRequest.variables?.get("a"))
     }
 
     @Test
@@ -121,9 +140,42 @@ class SpringGraphQLRequestParserTest {
             .header(HttpHeaders.CONTENT_TYPE, "application/graphql")
             .body(Mono.justOrEmpty("{ foo }"))
 
-        val graphQLRequest = parser.parseRequest(serverRequest)
-        assertEquals("{ foo }", graphQLRequest?.query)
-        assertNull(graphQLRequest?.operationName)
-        assertNull(graphQLRequest?.variables)
+        val graphQLServerRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLServerRequest)
+        assertTrue(graphQLServerRequest is GraphQLSingleRequest)
+        val graphQLRequest = graphQLServerRequest.request
+        assertEquals("{ foo }", graphQLRequest.query)
+        assertNull(graphQLRequest.operationName)
+        assertNull(graphQLRequest.variables)
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    @Test
+    fun `parseRequest should return list of requests if method is POST with array body`() = runBlockingTest {
+        val mockRequest1 = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
+        val mockRequest2 = GraphQLRequest("query MyBar { bar }", "MyBar")
+        val rawRequest = objectMapper.valueToTree<JsonNode>(arrayOf(mockRequest1, mockRequest2))
+
+        val serverRequest = MockServerRequest.builder()
+            .method(HttpMethod.POST)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(Mono.justOrEmpty(rawRequest))
+
+        val graphQLServerRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLServerRequest)
+        assertTrue(graphQLServerRequest is GraphQLBatchRequest)
+
+        val graphQLRequests = graphQLServerRequest.request
+        assertEquals(2, graphQLRequests.size)
+
+        val firstRequest = graphQLRequests[0]
+        assertEquals("query MyFoo { foo }", firstRequest.query)
+        assertEquals("MyFoo", firstRequest.operationName)
+        assertEquals(1, firstRequest.variables?.get("a"))
+
+        val secondRequest = graphQLRequests[1]
+        assertEquals("query MyBar { bar }", secondRequest.query)
+        assertEquals("MyBar", secondRequest.operationName)
+        assertNull(secondRequest.variables)
     }
 }

@@ -34,7 +34,7 @@ class GraphQLServerTest {
     @Test
     fun `the request handler and parser are called`() {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
-            coEvery { parseRequest(any()) } returns mockk()
+            coEvery { parseRequest(any()) } returns GraphQLBatchRequest(requests = listOf(mockk()))
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns MockContext()
@@ -57,7 +57,7 @@ class GraphQLServerTest {
     @Test
     fun `null context is used and passed to the request handler`() {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
-            coEvery { parseRequest(any()) } returns mockk()
+            coEvery { parseRequest(any()) } returns GraphQLSingleRequest(graphQLRequest = mockk())
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns null
