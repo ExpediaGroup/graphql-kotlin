@@ -1,7 +1,7 @@
 # Example GraphQL Kotlin server
 
 This is a basic GraphQL server that uses `graphql-kotlin-spring-server` SpringBoot auto-configuration library. See
-[documentation](https://expediagroup.github.io/graphql-kotlin/docs/spring-server/spring-overview) for details.
+[documentation](https://expediagroup.github.io/graphql-kotlin/docs/server/spring-server/spring-overview) for details.
 
 ## Building locally
 

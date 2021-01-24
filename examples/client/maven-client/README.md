@@ -6,7 +6,15 @@ for details.
 
 ## Building locally
 
-This project uses Maven and you can build it locally using
+This project uses Gradle wrapper to invoke underlying Maven build. You can build it locally using
+
+```shell script
+gradle clean build
+```
+
+Maven POM file references system variables to always point to latest `-SNAPSHOT` version of GraphQL Kotlin modules. In order
+to run Maven directly you will need to provide those system variables/update the POM to point to released versions and then
+you can build it as
 
 ```shell script
 ./mvnw clean install
@@ -14,7 +22,7 @@ This project uses Maven and you can build it locally using
 
 ## Running locally
 
-* [only works after project is build] Run `Application.kt` directly from your IDE
+* **[only works after project is build]** Run `Application.kt` directly from your IDE
 * Alternatively you can also use the Maven exec plugin by running `./mvnw exec:java` from the command line
 
 Application will then attempt to execute few queries and mutations against a target GraphQL server and print out the results.
