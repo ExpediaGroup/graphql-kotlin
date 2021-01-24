@@ -101,12 +101,11 @@ class FederationConfigurationTest {
 
                 val graphql = ctx.getBean(GraphQL::class.java)
                 val federatedContext = MockFederatedGraphQLContext()
-
-                // TODO: This is failing until federation-jvm updates to graphql-java 16
                 val input = ExecutionInput.newExecutionInput()
                     .query("query { widget { id name } }")
                     .context(federatedContext)
                     .build()
+
                 val result = graphql.execute(input).toSpecification()
                 val data = assertNotNull(result["data"] as? Map<*, *>)
                 val widget = assertNotNull(data["widget"] as? Map<*, *>)
