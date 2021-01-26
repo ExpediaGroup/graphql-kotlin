@@ -27,8 +27,8 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.SourceSetContainer
-import java.io.File
 
 private const val PLUGIN_EXTENSION_NAME = "graphql"
 private const val GENERATE_CLIENT_CONFIGURATION = "graphqlClient"
@@ -47,35 +47,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
         val extension = project.extensions.create(PLUGIN_EXTENSION_NAME, GraphQLPluginExtension::class.java)
         project.afterEvaluate {
             processExtensionConfiguration(project, extension)
-
-            project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java) { task ->
-                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
-                task.pluginClasspath.setFrom(configuration)
-            }
-            project.tasks.named(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { task ->
-                configureProjectSourceSet(project = project, outputDirectory = task.outputDirectory.get().asFile)
-
-                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
-                task.pluginClasspath.setFrom(configuration)
-            }
-            project.tasks.named(GENERATE_TEST_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { task ->
-                configureProjectSourceSet(project = project, outputDirectory = task.outputDirectory.get().asFile, targetSourceSet = "test")
-
-                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
-                task.pluginClasspath.setFrom(configuration)
-            }
-            project.tasks.named(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java) { task ->
-                val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
-                if (task.hooksProvider.isPresent) {
-                    configuration.dependencies.add(project.dependencies.create(task.hooksProvider.get()))
-                }
-
-                task.pluginClasspath.setFrom(configuration)
-            }
-            project.tasks.named(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java) { task ->
-                val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
-                task.pluginClasspath.setFrom(configuration)
-            }
+            configureTaskClasspaths(project)
         }
     }
 
@@ -98,38 +70,35 @@ class GraphQLGradlePlugin : Plugin<Project> {
     }
 
     private fun registerTasks(project: Project) {
-        project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
         project.tasks.register(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java)
         project.tasks.register(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { generateClientTask ->
-            configureCompileTaskDependency(project = project, generateClientTaskPath = generateClientTask.path)
-
             generateClientTask.queryFileDirectory.convention("${project.projectDir}/src/main/resources")
             generateClientTask.outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
+
+            generateClientTask.finalizedBy(project.tasks.named("compileKotlin"))
+            configureProjectSourceSet(project = project, outputDirectory = generateClientTask.outputDirectory)
         }
         project.tasks.register(GENERATE_TEST_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { generateTestClientTask ->
-            configureCompileTaskDependency(project = project, generateClientTaskPath = generateTestClientTask.path, compileTaskName = "compileTestKotlin")
-
             generateTestClientTask.description = "Generate HTTP test client from the specified GraphQL queries."
             generateTestClientTask.queryFileDirectory.convention("${project.projectDir}/src/test/resources")
             generateTestClientTask.outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/test"))
+
+            generateTestClientTask.finalizedBy(project.tasks.named("compileTestKotlin"))
+            configureProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
         }
         project.tasks.register(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java) { generateSDLTask ->
             val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
             val mainSourceSet = sourceSetContainer?.findByName("main")
             generateSDLTask.source(mainSourceSet?.output)
             generateSDLTask.projectClasspath.setFrom(mainSourceSet?.runtimeClasspath)
-
-            generateSDLTask.dependsOn("compileKotlin")
+            generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))
         }
+        project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
     }
 
-    private fun configureCompileTaskDependency(project: Project, generateClientTaskPath: String, compileTaskName: String = "compileKotlin") {
-        val compileKotlinTask = project.tasks.findByPath(compileTaskName)
-        if (compileKotlinTask == null) {
-            throw RuntimeException("build file misconfigured - GraphQLGradlePlugin cannot be applied as build is missing $compileTaskName task")
-        } else {
-            compileKotlinTask.dependsOn(generateClientTaskPath)
-        }
+    private fun configureProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
+        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
+        sourceSetContainer?.findByName(targetSourceSet)?.java?.srcDir(outputDirectory)
     }
 
     private fun processExtensionConfiguration(project: Project, extension: GraphQLPluginExtension) {
@@ -185,10 +154,25 @@ class GraphQLGradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun configureProjectSourceSet(project: Project, outputDirectory: File, targetSourceSet: String = "main") {
-        outputDirectory.mkdirs()
-
-        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
-        sourceSetContainer?.findByName(targetSourceSet)?.java?.srcDir(outputDirectory.path)
+    private fun configureTaskClasspaths(project: Project) {
+        project.tasks.withType(GraphQLDownloadSDLTask::class.java).configureEach { downloadSDLTask ->
+            val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+            downloadSDLTask.pluginClasspath.setFrom(configuration)
+        }
+        project.tasks.withType(GraphQLGenerateClientTask::class.java).configureEach { generateClientTask ->
+            val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+            generateClientTask.pluginClasspath.setFrom(configuration)
+        }
+        project.tasks.withType(GraphQLIntrospectSchemaTask::class.java).configureEach { introspectionTask ->
+            val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+            introspectionTask.pluginClasspath.setFrom(configuration)
+        }
+        project.tasks.withType(GraphQLGenerateSDLTask::class.java).configureEach { task ->
+            val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
+            if (task.hooksProvider.isPresent) {
+                configuration.dependencies.add(project.dependencies.create(task.hooksProvider.get()))
+            }
+            task.pluginClasspath.setFrom(configuration)
+        }
     }
 }

@@ -116,6 +116,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             |- JUnitQuery.graphql
             |- DeprecatedQuery.graphql
          */
+        val customOutputDirectory = "/custom/output"
         val buildFileContents =
             """
             application {
@@ -133,6 +134,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
                 "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
                 "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"
               )
+              outputDirectory.set(File("${'$'}{project.layout.projectDirectory}/$customOutputDirectory"))
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
@@ -148,8 +150,8 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             .writeText(loadResource("mocks/UUIDScalarConverter.txt"))
         // end project setup
 
-        verifyGenerateClientTaskSuccess(testProjectDirectory)
-        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
+        verifyGenerateClientTaskSuccess(testProjectDirectory, customOutputDirectory)
+        assertTrue(File(testProjectDirectory, "$customOutputDirectory/com/example/generated/DeprecatedQuery.kt").exists())
     }
 
     @Test
@@ -241,14 +243,14 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/DeprecatedQuery.kt").exists())
     }
 
-    private fun verifyGenerateClientTaskSuccess(testProjectDirectory: File) {
+    private fun verifyGenerateClientTaskSuccess(testProjectDirectory: File, outputDirectory: String = "build/generated/source/graphql/main") {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(GENERATE_CLIENT_TASK_NAME, "run", "--stacktrace")
             .build()
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
-        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertTrue(File(testProjectDirectory, "$outputDirectory/com/example/generated/JUnitQuery.kt").exists())
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
     }
 }
