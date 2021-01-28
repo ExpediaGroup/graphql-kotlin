@@ -1,7 +1,7 @@
 ---
-id: gradle-plugin-examples
-title: Gradle Plugin Examples
-sidebar_label: Gradle Examples
+id: gradle-plugin-usage
+title: Gradle Plugin Usage
+sidebar_label: Usage
 ---
 
 ## Downloading Schema SDL
@@ -366,7 +366,7 @@ import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
     endpoint.set("http://localhost:8080/sdl")
@@ -434,6 +434,72 @@ graphqlGenerateClient {
     queryFiles.from("${project.projectDir}/src/main/resources/queries/MyQuery.graphql")
 
     dependsOn graphqlDownloadSDL
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+## Generating Multiple Clients
+
+GraphQL Kotlin Gradle Plugin registers tasks for generation of a client queries targeting single GraphQL endpoint. You
+can generate queries targeting additional endpoints by explicitly creating and configuring additional tasks.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Kotlin-->
+
+```kotlin
+// build.gradle.kts
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+    endpoint.set("http://localhost:8080/sdl")
+}
+val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+    packageName.set("com.example.generated.first")
+    schemaFile.set(graphqlDownloadSDL.outputFile)
+    queryFiles.from("${project.projectDir}/src/main/resources/queries/MyFirstQuery.graphql")
+    dependsOn("graphqlDownloadSDL")
+}
+
+val graphqlDownloadOtherSDL by tasks.creating(GraphQLDownloadSDLTask::class) {
+    endpoint.set("http://localhost:8081/sdl")
+}
+val graphqlGenerateOtherClient by tasks.creating(GraphQLGenerateClientTask::class) {
+    packageName.set("com.example.generated.second")
+    schemaFile.set(graphqlDownloadOtherSDL.outputFile)
+    queryFiles.from("${project.projectDir}/src/main/resources/queries/MySecondQuery.graphql")
+    dependsOn("graphqlDownloadOtherSDL")
+}
+```
+
+<!--Groovy-->
+
+```groovy
+//build.gradle
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+graphqlDownloadSDL {
+    endpoint = "http://localhost:8080/sdl"
+}
+graphqlGenerateClient {
+    packageName = "com.example.generated.first"
+    schemaFile = graphqlDownloadSDL.outputFile
+    queryFiles.from("${project.projectDir}/src/main/resources/queries/MyFirstQuery.graphql")
+
+    dependsOn graphqlDownloadSDL
+}
+
+task graphqlDownloadOtherSDL(type: GraphQLDownloadSDLTask) {
+    endpoint = "http://localhost:8081/sdl"
+}
+task graphqlGenerateOtherClient(type: GraphQLGenerateClientTask) {
+    packageName = "com.other.generated.second"
+    schemaFile = graphqlDownloadOtherSDL.outputFile
+    queryFiles.from("${project.projectDir}/src/main/resources/queries/MySecondQuery.graphql")
+
+    dependsOn graphqlDownloadOtherSDL
 }
 ```
 
@@ -520,8 +586,11 @@ import com.expediagroup.graphql.plugin.gradle.graphql
 graphql {
   schema {
     packages = listOf("com.example")
-    hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion"
   }
+}
+
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
 }
 ```
 
@@ -533,7 +602,10 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask
 
 val graphqlGenerateSDL by tasks.getting(GraphQLGenerateSDLTask::class) {
     packages.set(listOf("com.example"))
-    hooksProvider.set("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
+}
+
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
 }
 ```
 
@@ -544,8 +616,11 @@ val graphqlGenerateSDL by tasks.getting(GraphQLGenerateSDLTask::class) {
 graphql {
   schema {
     packages = ["com.example"]
-    hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion"
   }
+}
+
+dependencies {
+    graphqlSDL "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
 }
 ```
 
@@ -555,7 +630,10 @@ Above configuration is equivalent to the following task definition
 //build.gradle
 graphqlGenerateSDL {
     packages = ["com.example"]
-    hooksProvider = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion"
+}
+
+dependencies {
+    graphqlSDL "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
 }
 ```
 

@@ -57,8 +57,6 @@ graphql {
   schema {
       // List of supported packages that can contain GraphQL schema type definitions
       packages = listOf("com.example")
-      // Optional artifact name that contains SchemaGeneratorHooks service provider
-      hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion"
   }
 }
 ```
@@ -117,9 +115,20 @@ GraphQL types.
 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
-| `hooksProvider` | String | | Optional fully qualified artifact name that contains SchemaGeneratorHooks service provider. **Default hooks:** `NoopSchemaGeneratorHooks` |
 | `packages` | List<String> | yes | List of supported packages that can be scanned to generate SDL. |
 | `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+
+By default, this task will attempt to generate the schema using `NoopSchemaGeneratorHooks`. If you need to customize your
+schema generation process, you will need to provide your custom instance of `SchemaGeneratorHooksProvider` service provider.
+Service provider can be provided as part of your project, included in one of your project dependencies or through explicitly
+provided artifact to the `graphqlSDL` configuration.
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
+}
+```
 
 ### graphqlGenerateTestClient
 

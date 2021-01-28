@@ -85,6 +85,4 @@ open class GraphQLPluginClientExtension {
 open class GraphQLPluginSchemaExtension {
     /** List of supported packages that can contain GraphQL schema type definitions. */
     var packages: List<String> = emptyList()
-    /** Optional fully qualified artifact name that contains SchemaGeneratorHooks service provider. */
-    var hooksProviderArtifact: String? = null
 }

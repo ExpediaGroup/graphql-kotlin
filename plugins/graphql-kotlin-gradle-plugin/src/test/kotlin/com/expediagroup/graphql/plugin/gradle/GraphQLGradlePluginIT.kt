@@ -380,11 +380,11 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             graphql {
               schema {
                 packages = listOf("com.example")
-                hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFileForServer(buildFileContents)
+        val generateSDLDependencies = "graphqlSDL(\"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\")"
+        testProjectDirectory.generateBuildFileForServer(buildFileContents, generateSDLDependencies)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))
@@ -412,11 +412,11 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             graphql {
               schema {
                 packages = ["com.example"]
-                hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
               }
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents)
+        val generateSDLDependencies = "graphqlSDL \"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\""
+        testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents, generateSDLDependencies)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))

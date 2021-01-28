@@ -129,10 +129,6 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
             val generateSchemaTask = project.tasks.named(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java).get()
             generateSchemaTask.packages.set(supportedPackages)
-
-            if (extension.schemaExtension.hooksProviderArtifact != null) {
-                generateSchemaTask.hooksProvider.set(extension.schemaExtension.hooksProviderArtifact)
-            }
         }
     }
 
@@ -166,9 +162,6 @@ class GraphQLGradlePlugin : Plugin<Project> {
             generateSDLTask.projectClasspath.setFrom(mainSourceSet?.runtimeClasspath)
 
             val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
-            if (generateSDLTask.hooksProvider.isPresent) {
-                configuration.dependencies.add(project.dependencies.create(generateSDLTask.hooksProvider.get()))
-            }
             generateSDLTask.pluginClasspath.setFrom(configuration)
 
             generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))

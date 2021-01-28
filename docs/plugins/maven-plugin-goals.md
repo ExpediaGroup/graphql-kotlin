@@ -1,6 +1,7 @@
 ---
-id: maven-plugin
-title: Maven Plugin
+id: maven-plugin-goals
+title: Maven Plugin Goals
+sidebar_label: Goals
 ---
 
 GraphQL Kotlin Maven Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL

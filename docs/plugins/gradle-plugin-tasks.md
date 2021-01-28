@@ -1,6 +1,7 @@
 ---
-id: gradle-plugin
-title: Gradle Plugin
+id: gradle-plugin-tasks
+title: Gradle Plugin Tasks
+sidebar_label: Tasks
 ---
 
 GraphQL Kotlin Gradle Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL
@@ -121,8 +122,6 @@ graphql {
   schema {
     // List of supported packages that can contain GraphQL schema type definitions
     packages = listOf("com.example")
-    // Optional artifact name that contains SchemaGeneratorHooks service provider
-    hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion"
   }
 }
 ```
@@ -162,7 +161,6 @@ graphql {
     }
     schema {
         packages = ["com.example"]
-        hooksProviderArtifact = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion"
     }
 }
 ```
@@ -171,8 +169,25 @@ graphql {
 
 ## Tasks
 
+By default, `graphql-kotlin-gradle-plugin` lazily registers all its tasks which means that while they are known to the build,
+they are not created nor executed until something in the build needs the instantiated object (e.g. adding explicit dependency
+on those tasks or explicitly creating them). **Configuring plugin through the `graphql` extension will automatically creates
+all the corresponding tasks**.
+
 All `graphql-kotlin-gradle-plugin` tasks are grouped together under `GraphQL` task group and their names are prefixed with
 `graphql`. You can find detailed information about GraphQL kotlin tasks by running Gradle `help --task <taskName>` task.
+
+```shell
+> gradle --tasks
+
+GraphQL tasks
+-------------
+graphqlDownloadSDL - Download schema in SDL format from target endpoint.
+graphqlGenerateClient - Generate HTTP client from the specified GraphQL queries.
+graphqlGenerateSDL - Generate GraphQL schema in SDL format.
+graphqlGenerateTestClient - Generate HTTP test client from the specified GraphQL queries.
+graphqlIntrospectSchema - Run introspection query against target GraphQL endpoint and save schema locally.
+```
 
 ### graphqlDownloadSDL
 
@@ -222,9 +237,20 @@ GraphQL types.
 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
-| `hooksProvider` | String | | Optional fully qualified artifact name that contains SchemaGeneratorHooks service provider. **Default hooks:** `NoopSchemaGeneratorHooks` |
 | `packages` | List<String> | yes | List of supported packages that can be scanned to generate SDL. |
 | `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+
+By default, this task will attempt to generate the schema using `NoopSchemaGeneratorHooks`. If you need to customize your
+schema generation process, you will need to provide your custom instance of `SchemaGeneratorHooksProvider` service provider.
+Service provider can be provided as part of your project, included in one of your project dependencies or through explicitly
+provided artifact to the `graphqlSDL` configuration.
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
+}
+```
 
 ### graphqlGenerateTestClient
 

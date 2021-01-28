@@ -1,7 +1,7 @@
 ---
-id: maven-plugin-examples
-title: Maven Plugin Examples
-sidebar_label: Maven Examples
+id: maven-plugin-usage
+title: Maven Plugin Usage
+sidebar_label: Usage
 ---
 
 ## Downloading Schema SDL
@@ -301,6 +301,49 @@ the GraphQL client code based on the provided query.
                 </timeoutConfiguration>
                 <queryFiles>
                     <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
+                </queryFiles>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+## Generating Multiple Clients
+
+In order to generate GraphQL clients targeting multiple endpoints, we need to configure separate executions targeting
+different endpoints.
+
+```xml
+<plugin>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-maven-plugin</artifactId>
+    <version>${graphql-kotlin.version}</version>
+    <executions>
+        <execution>
+            <id>generate-first-client</id>
+            <goals>
+                <goal>introspect-schema</goal>
+                <goal>generate-client</goal>
+            </goals>
+            <configuration>
+                <endpoint>http://localhost:8080/graphql</endpoint>
+                <packageName>com.example.generated.first</packageName>
+                <queryFiles>
+                    <queryFile>${project.basedir}/src/main/resources/queries/FirstQuery.graphql</queryFile>
+                </queryFiles>
+            </configuration>
+        </execution>
+        <execution>
+            <id>generate-second-client</id>
+            <goals>
+                <goal>introspect-schema</goal>
+                <goal>generate-client</goal>
+            </goals>
+            <configuration>
+                <endpoint>http://localhost:8081/graphql</endpoint>
+                <packageName>com.example.generated.second</packageName>
+                <queryFiles>
+                    <queryFile>${project.basedir}/src/main/resources/queries/SecondQuery.graphql</queryFile>
                 </queryFiles>
             </configuration>
         </execution>

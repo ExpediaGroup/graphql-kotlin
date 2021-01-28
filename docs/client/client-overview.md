@@ -6,8 +6,8 @@ title: Client Overview
 GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. The library provides [Ktor HTTP client](https://ktor.io/clients/index.html)
 and [Spring WebClient](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-webclient)
 based reference implementations as well as allows for custom implementations using other engines, see [client customization](client-customization.md)
-documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin.md)
-and [Maven](../plugins/maven-plugin.md) plugins.
+documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin-tasks.md)
+and [Maven](../plugins/maven-plugin-goals.md) plugins.
 
 Client Features:
 * Supports query and mutation operations
@@ -134,8 +134,8 @@ working examples of Gradle and Maven based projects.
 By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all `*.graphql` files located under
 `src/main/resources`. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
-See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin.md)
-and [Maven Mojos](../plugins/maven-plugin.md).
+See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin-tasks.md)
+and [Maven Mojos](../plugins/maven-plugin-goals.md).
 
 When creating your GraphQL queries make sure to always specify an operation name and name the files accordingly. Each
 one of your query files will generate a corresponding Kotlin file with a class matching your operation

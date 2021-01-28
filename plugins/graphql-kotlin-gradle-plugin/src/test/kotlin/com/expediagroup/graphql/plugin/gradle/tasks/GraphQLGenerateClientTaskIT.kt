@@ -304,7 +304,11 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated2/DeprecatedQuery.kt").exists())
     }
 
-    private fun verifyGenerateClientTaskSuccess(testProjectDirectory: File, tasks: List<String> = listOf(":$GENERATE_CLIENT_TASK_NAME", ":build", ":run"), outputDirectory: String = "build/generated/source/graphql/main") {
+    private fun verifyGenerateClientTaskSuccess(
+        testProjectDirectory: File,
+        tasks: List<String> = listOf(":$GENERATE_CLIENT_TASK_NAME", ":build", ":run"),
+        outputDirectory: String = "build/generated/source/graphql/main"
+    ) {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
