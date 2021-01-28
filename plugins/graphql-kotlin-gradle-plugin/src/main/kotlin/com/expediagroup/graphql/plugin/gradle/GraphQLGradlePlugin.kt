@@ -86,13 +86,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
             generateTestClientTask.finalizedBy(project.tasks.named("compileTestKotlin"))
             configureProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
         }
-        project.tasks.register(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java) { generateSDLTask ->
-            val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
-            val mainSourceSet = sourceSetContainer?.findByName("main")
-            generateSDLTask.source(mainSourceSet?.output)
-            generateSDLTask.projectClasspath.setFrom(mainSourceSet?.runtimeClasspath)
-            generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))
-        }
+        project.tasks.register(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java)
         project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
     }
 
@@ -167,12 +161,19 @@ class GraphQLGradlePlugin : Plugin<Project> {
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             introspectionTask.pluginClasspath.setFrom(configuration)
         }
-        project.tasks.withType(GraphQLGenerateSDLTask::class.java).configureEach { task ->
+        project.tasks.withType(GraphQLGenerateSDLTask::class.java).configureEach { generateSDLTask ->
+            val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
+            val mainSourceSet = sourceSetContainer?.findByName("main")
+            generateSDLTask.source(mainSourceSet?.output)
+            generateSDLTask.projectClasspath.setFrom(mainSourceSet?.runtimeClasspath)
+
             val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
-            if (task.hooksProvider.isPresent) {
-                configuration.dependencies.add(project.dependencies.create(task.hooksProvider.get()))
+            if (generateSDLTask.hooksProvider.isPresent) {
+                configuration.dependencies.add(project.dependencies.create(generateSDLTask.hooksProvider.get()))
             }
-            task.pluginClasspath.setFrom(configuration)
+            generateSDLTask.pluginClasspath.setFrom(configuration)
+
+            generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))
         }
     }
 }
