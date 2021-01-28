@@ -40,7 +40,6 @@ import java.io.File
 import javax.inject.Inject
 
 internal const val GENERATE_CLIENT_TASK_NAME: String = "graphqlGenerateClient"
-internal const val GENERATE_TEST_CLIENT_TASK_NAME: String = "graphqlGenerateTestClient"
 
 /**
  * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
@@ -140,6 +139,8 @@ abstract class GraphQLGenerateClientTask : DefaultTask() {
         allowDeprecatedFields.convention(false)
         customScalars.convention(emptyList())
         clientType.convention(GraphQLClientType.DEFAULT)
+        queryFileDirectory.convention("${project.projectDir}/src/main/resources")
+        outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")

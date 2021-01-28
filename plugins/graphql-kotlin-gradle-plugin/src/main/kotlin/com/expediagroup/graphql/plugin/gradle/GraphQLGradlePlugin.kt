@@ -16,14 +16,11 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.tasks.*
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_TEST_CLIENT_TASK_NAME
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -71,21 +68,8 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
     private fun registerTasks(project: Project) {
         project.tasks.register(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java)
-        project.tasks.register(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { generateClientTask ->
-            generateClientTask.queryFileDirectory.convention("${project.projectDir}/src/main/resources")
-            generateClientTask.outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
-
-            generateClientTask.finalizedBy(project.tasks.named("compileKotlin"))
-            configureProjectSourceSet(project = project, outputDirectory = generateClientTask.outputDirectory)
-        }
-        project.tasks.register(GENERATE_TEST_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java) { generateTestClientTask ->
-            generateTestClientTask.description = "Generate HTTP test client from the specified GraphQL queries."
-            generateTestClientTask.queryFileDirectory.convention("${project.projectDir}/src/test/resources")
-            generateTestClientTask.outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/test"))
-
-            generateTestClientTask.finalizedBy(project.tasks.named("compileTestKotlin"))
-            configureProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
-        }
+        project.tasks.register(GENERATE_CLIENT_TASK_NAME, GraphQLGenerateClientTask::class.java)
+        project.tasks.register(GENERATE_TEST_CLIENT_TASK_NAME, GraphQLGenerateTestClientTask::class.java)
         project.tasks.register(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java)
         project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
     }
@@ -156,6 +140,16 @@ class GraphQLGradlePlugin : Plugin<Project> {
         project.tasks.withType(GraphQLGenerateClientTask::class.java).configureEach { generateClientTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             generateClientTask.pluginClasspath.setFrom(configuration)
+
+            generateClientTask.finalizedBy(project.tasks.named("compileKotlin"))
+            configureProjectSourceSet(project = project, outputDirectory = generateClientTask.outputDirectory)
+        }
+        project.tasks.withType(GraphQLGenerateTestClientTask::class.java).configureEach { generateTestClientTask ->
+            val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
+            generateTestClientTask.pluginClasspath.setFrom(configuration)
+
+            generateTestClientTask.finalizedBy(project.tasks.named("compileTestKotlin"))
+            configureProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
         }
         project.tasks.withType(GraphQLIntrospectSchemaTask::class.java).configureEach { introspectionTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
