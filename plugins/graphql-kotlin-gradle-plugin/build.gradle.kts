@@ -9,10 +9,6 @@ val kotlinCoroutinesVersion: String by project
 val wireMockVersion: String by project
 val mustacheVersion: String by project
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     implementation(kotlin("gradle-plugin-api"))
 

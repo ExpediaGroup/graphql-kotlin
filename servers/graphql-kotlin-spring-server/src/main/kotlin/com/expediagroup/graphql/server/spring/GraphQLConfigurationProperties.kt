@@ -26,7 +26,6 @@ import org.springframework.core.annotation.Order
  */
 @ConstructorBinding
 @ConfigurationProperties("graphql")
-@Order(Ordered.HIGHEST_PRECEDENCE)
 data class GraphQLConfigurationProperties(
     /** GraphQL server endpoint, defaults to 'graphql' */
     val endpoint: String = "graphql",
