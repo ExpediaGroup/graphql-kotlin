@@ -55,8 +55,8 @@
               }
             });
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/client/client-overview.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Client Overview</h1></header><article><div><span><p><code>graphql-kotlin-client</code> is a lightweight type-safe GraphQL HTTP client. Type-safe data models are generated at build time
-by the GraphQL Kotlin <a href="/graphql-kotlin/docs/3.6.1/plugins/gradle-plugin">Gradle</a> and
-<a href="/graphql-kotlin/docs/3.6.1/plugins/maven-plugin">Maven</a> plugins.</p>
+by the GraphQL Kotlin <a href="../plugins/gradle-plugin.md">Gradle</a> and
+<a href="../plugins/maven-plugin.md">Maven</a> plugins.</p>
 <p><code>GraphQLClient</code> is a thin wrapper on top of <a href="https://ktor.io/clients/index.html">Ktor HTTP Client</a> and supports fully
 asynchronous non-blocking communication. It is highly customizable and can be configured with any supported Ktor HTTP
 <a href="https://ktor.io/clients/http-client/engines.html">engine</a> and <a href="https://ktor.io/clients/http-client/features.html">features</a>.</p>
@@ -134,8 +134,8 @@ working examples of Gradle and Maven based projects.</p>
 <p>By default, GraphQL Kotlin build plugins will attempt to generate GraphQL clients from all <code>*.graphql</code> files located under
 <code>src/main/resources</code>. Queries are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
-See our documentation for more details on supported <a href="/graphql-kotlin/docs/3.6.1/plugins/gradle-plugin">Gradle tasks</a>
-and <a href="/graphql-kotlin/docs/3.6.1/plugins/maven-plugin">Maven Mojos</a>.</p>
+See our documentation for more details on supported <a href="../plugins/gradle-plugin.md">Gradle tasks</a>
+and <a href="../plugins/maven-plugin.md">Maven Mojos</a>.</p>
 <p>When creating your GraphQL queries make sure to always specify an operation name and name the files accordingly. Each
 one of your query files will generate a corresponding Kotlin file with a class matching your operation
 name that will act as a wrapper for all corresponding data classes. For example, given <code>HelloWorldQuery.graphql</code> with
