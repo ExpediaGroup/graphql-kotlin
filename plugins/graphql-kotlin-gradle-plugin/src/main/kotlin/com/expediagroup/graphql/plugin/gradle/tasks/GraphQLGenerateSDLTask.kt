@@ -20,7 +20,6 @@ import com.expediagroup.graphql.plugin.gradle.actions.GenerateSDLAction
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -51,14 +50,6 @@ abstract class GraphQLGenerateSDLTask : SourceTask() {
     @Optional
     @Option(option = "packages", description = "List of supported packages that can be scanned to generate SDL")
     val packages: ListProperty<String> = project.objects.listProperty(String::class.java)
-
-    /**
-     * Optional fully qualified artifact name that contains SchemaGeneratorHooks service provider.
-     */
-    @Input
-    @Optional
-    @Option(option = "hooksProvider", description = "Artifact name containing hooks provider")
-    val hooksProvider: Property<String> = project.objects.property(String::class.java)
 
     /**
      * Target GraphQL schema file to be generated.

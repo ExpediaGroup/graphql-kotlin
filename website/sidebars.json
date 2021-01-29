@@ -83,10 +83,22 @@
       "client/client-customization"
     ],
     "Build Plugins": [
-      "plugins/gradle-plugin",
-      "plugins/gradle-plugin-examples",
-      "plugins/maven-plugin",
-      "plugins/maven-plugin-examples",
+      {
+        "type": "subcategory",
+        "label": "Gradle Plugin",
+        "ids": [
+          "plugins/gradle-plugin-tasks",
+          "plugins/gradle-plugin-usage"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Maven Plugin",
+        "ids": [
+          "plugins/maven-plugin-goals",
+          "plugins/maven-plugin-usage"
+        ]
+      },
       "plugins/hooks-provider"
     ],
     "Contributors": [

@@ -162,10 +162,10 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             val graphqlGenerateSDL by tasks.getting(com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask::class) {
                 packages.set(listOf("com.example"))
-                hooksProvider.set("com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION")
             }
             """.trimIndent()
-        testProjectDirectory.generateBuildFileForServer(buildFileContents)
+        val generateSDLDependencies = "graphqlSDL(\"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\")"
+        testProjectDirectory.generateBuildFileForServer(buildFileContents, generateSDLDependencies)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("ServerApplication", mapOf("customScalarsEnabled" to false)))
@@ -223,10 +223,10 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             graphqlGenerateSDL {
                 packages = ["com.example"]
-                hooksProvider = "com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION"
             }
             """.trimIndent()
-        testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents)
+        val generateSDLDependencies = "graphqlSDL \"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\""
+        testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents, generateSDLDependencies)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(loadTemplate("ServerApplication", emptyMap()))

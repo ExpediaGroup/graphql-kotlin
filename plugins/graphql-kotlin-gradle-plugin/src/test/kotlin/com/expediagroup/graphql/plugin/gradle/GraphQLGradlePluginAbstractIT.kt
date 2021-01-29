@@ -101,7 +101,7 @@ abstract class GraphQLGradlePluginAbstractIT {
         this.generateBuildFile(plugins, dependencies, contents)
     }
 
-    internal fun File.generateBuildFileForServer(contents: String) {
+    internal fun File.generateBuildFileForServer(contents: String, additionalDependencies: String = "") {
         val plugins =
             """
             plugins {
@@ -117,6 +117,7 @@ abstract class GraphQLGradlePluginAbstractIT {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib")
                 implementation("com.expediagroup", "graphql-kotlin-spring-server", "$DEFAULT_PLUGIN_VERSION")
                 implementation("com.expediagroup", "graphql-kotlin-hooks-provider", "$DEFAULT_PLUGIN_VERSION")
+                $additionalDependencies
             }
             """.trimIndent()
         this.generateBuildFile(plugins, dependencies, contents)
@@ -181,7 +182,7 @@ abstract class GraphQLGradlePluginAbstractIT {
         return this.generateGroovyBuildFile(plugins, dependencies, contents)
     }
 
-    internal fun File.generateGroovyBuildFileForServer(contents: String) {
+    internal fun File.generateGroovyBuildFileForServer(contents: String, additionalDependencies: String = "") {
         val plugins =
             """
             plugins {
@@ -198,6 +199,7 @@ abstract class GraphQLGradlePluginAbstractIT {
                 implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
                 implementation "com.expediagroup:graphql-kotlin-spring-server:$DEFAULT_PLUGIN_VERSION"
                 implementation "com.expediagroup:graphql-kotlin-hooks-provider:$DEFAULT_PLUGIN_VERSION"
+                $additionalDependencies
             }
             """.trimIndent()
         return this.generateGroovyBuildFile(plugins, dependencies, contents)
