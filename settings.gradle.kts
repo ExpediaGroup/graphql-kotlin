@@ -28,6 +28,7 @@ rootProject.name = "graphql-kotlin"
 
 // Clients
 include(":graphql-kotlin-client")
+include(":graphql-kotlin-client-multiplatform")
 include(":graphql-kotlin-ktor-client")
 include(":graphql-kotlin-spring-client")
 
@@ -49,6 +50,7 @@ include(":graphql-kotlin-spring-server")
 
 // Types
 include(":graphql-kotlin-types")
+include(":graphql-kotlin-types-multiplatform")
 
 //
 // Project mappings so we don't need to create projects that group subprojects
@@ -56,6 +58,7 @@ include(":graphql-kotlin-types")
 
 // Clients
 project(":graphql-kotlin-client").projectDir = file("clients/graphql-kotlin-client")
+project(":graphql-kotlin-client-multiplatform").projectDir = file("clients/graphql-kotlin-client-multiplatform")
 project(":graphql-kotlin-ktor-client").projectDir = file("clients/graphql-kotlin-ktor-client")
 project(":graphql-kotlin-spring-client").projectDir = file("clients/graphql-kotlin-spring-client")
 
@@ -73,6 +76,7 @@ project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/s
 
 // Types
 project(":graphql-kotlin-types").projectDir = file("types/graphql-kotlin-types")
+project(":graphql-kotlin-types-multiplatform").projectDir = file("types/graphql-kotlin-types-multiplatform")
 
 // Servers
 project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
