@@ -138,7 +138,6 @@ abstract class GraphQLGradlePluginAbstractIT {
 
             repositories {
                 mavenCentral()
-                jcenter()
                 mavenLocal {
                     content {
                         includeGroup("com.expediagroup")
@@ -220,7 +219,6 @@ abstract class GraphQLGradlePluginAbstractIT {
 
             repositories {
                 mavenCentral()
-                jcenter()
                 mavenLocal {
                     content {
                         includeGroup "com.expediagroup"
