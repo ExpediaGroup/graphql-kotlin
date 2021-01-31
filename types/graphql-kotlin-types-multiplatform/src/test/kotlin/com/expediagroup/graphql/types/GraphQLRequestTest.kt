@@ -16,13 +16,10 @@
 
 package com.expediagroup.graphql.types
 
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -31,15 +28,7 @@ class GraphQLRequestTest {
 
     private val objectMapper = Json {
         ignoreUnknownKeys = true
-        serializersModule = SerializersModule {
-            contextual(String.serializer())
-            contextual(Int.serializer())
-            contextual(Double.serializer())
-            contextual(Long.serializer())
-            contextual(Boolean.serializer())
-        }
     }
-
 
     @Test
     fun `verify simple serialization`() {

@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.types
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 

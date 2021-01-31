@@ -30,6 +30,7 @@ rootProject.name = "graphql-kotlin"
 include(":graphql-kotlin-client")
 include(":graphql-kotlin-client-multiplatform")
 include(":graphql-kotlin-ktor-client")
+include(":graphql-kotlin-ktor-client-multiplatform")
 include(":graphql-kotlin-spring-client")
 
 // Generator
@@ -60,6 +61,7 @@ include(":graphql-kotlin-types-multiplatform")
 project(":graphql-kotlin-client").projectDir = file("clients/graphql-kotlin-client")
 project(":graphql-kotlin-client-multiplatform").projectDir = file("clients/graphql-kotlin-client-multiplatform")
 project(":graphql-kotlin-ktor-client").projectDir = file("clients/graphql-kotlin-ktor-client")
+project(":graphql-kotlin-ktor-client-multiplatform").projectDir = file("clients/graphql-kotlin-ktor-client-multiplatform")
 project(":graphql-kotlin-spring-client").projectDir = file("clients/graphql-kotlin-spring-client")
 
 // Generator

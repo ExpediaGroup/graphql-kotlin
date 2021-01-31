@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client
 
 import com.expediagroup.graphql.types.GraphQLResponse
+import kotlin.reflect.KClass
 
 /**
  * A lightweight typesafe GraphQL HTTP client.
@@ -30,8 +31,8 @@ interface GraphQLClient {
      * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
      * manually deserialize using passed in result type Class information.
      */
-    suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>): GraphQLResponse<T>
+    suspend fun <T : Any> execute(query: String, operationName: String?, variables: Any?, resultType: KClass<T>): GraphQLResponse<T>
 }
 
-suspend inline fun <reified T> GraphQLClient.execute(query: String, operationName: String? = null, variables: Any? = null): GraphQLResponse<T> =
-    this.execute(query, operationName, variables, T::class.java)
+suspend inline fun <reified T : Any> GraphQLClient.execute(query: String, operationName: String? = null, variables: Any? = null): GraphQLResponse<T> =
+    this.execute(query, operationName, variables, T::class)
