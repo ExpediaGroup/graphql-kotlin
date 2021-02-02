@@ -12,6 +12,7 @@ together with one of the GraphQL Kotlin build plugins to auto-generate type safe
 ## Features
 
 * Supports query and mutation operations
+* Supports batch operations
 * Automatic generation of type-safe Kotlin models
 * Custom scalar support - defaults to String but can be configured to deserialize to specific types
 * Supports default enum values to gracefully handle new/unknown server values

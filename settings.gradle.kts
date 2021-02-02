@@ -12,6 +12,7 @@ pluginManagement {
     plugins {
         kotlin("jvm") version kotlinVersion
         kotlin("kapt") version kotlinVersion
+        kotlin("plugin.serialization") version kotlinVersion
         kotlin("plugin.spring") version kotlinVersion
         id("com.gradle.plugin-publish") version pluginPublishPluginVersion
         id("de.benediktritter.maven-plugin-development") version mavenPluginDevelopmentVersion

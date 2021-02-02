@@ -1,14 +1,14 @@
 package com.example
 
 import com.example.generated.JUnitQuery
+import com.example.generated.executeJUnitQuery
 {{#webClient}}
-    import com.expediagroup.graphql.client.spring.GraphQLWebClient
-    import org.springframework.web.reactive.function.client.WebClient
+import com.expediagroup.graphql.client.spring.GraphQLWebClient
+import org.springframework.web.reactive.function.client.WebClient
 {{/webClient}}
 {{^webClient}}
-    import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
+import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 {{/webClient}}
-import com.expediagroup.graphql.client.execute
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.header
 import kotlinx.coroutines.runBlocking
@@ -16,36 +16,37 @@ import java.net.URL
 
 fun main() {
     {{^defaultHeader}}
-        val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint")))
+    val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint")))
     {{/defaultHeader}}
     {{#defaultHeader}}
         {{#webClient}}
-            val webClientBuilder = WebClient.builder()
-                .defaultHeader("{{name}}", "{{value}}")
-            val client = GraphQLWebClient(
-                url = System.getProperty("graphQLEndpoint"),
-                builder = webClientBuilder
-            )
+    val webClientBuilder = WebClient.builder()
+        .defaultHeader("{{name}}", "{{value}}")
+    val client = GraphQLWebClient(
+        url = System.getProperty("graphQLEndpoint"),
+        builder = webClientBuilder
+    )
         {{/webClient}}
         {{^webClient}}
-            val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint"))) {
-                defaultRequest {
-                    header("{{name}}", "{{value}}")
-                }
-            }
+    val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint"))) {
+        defaultRequest {
+            header("{{name}}", "{{value}}")
+        }
+    }
         {{/webClient}}
     {{/defaultHeader}}
-    val query = JUnitQuery(client)
-
     val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
+    val query = JUnitQuery(variables)
+
+
     runBlocking {
         {{^requestHeader}}
-            val response = query.execute(variables = variables)
+        val response = client.executeJUnitQuery(query)
         {{/requestHeader}}
         {{#requestHeader}}
-            val response = query.execute(variables = variables) {
-                header("{{name}}", "{{value}}")
-            }
+        val response = client.executeJUnitQuery(query) {
+            header("{{name}}", "{{value}}")
+        }
         {{/requestHeader}}
 
         val data = response.data
@@ -55,10 +56,10 @@ fun main() {
         assert(scalarResult != null)
         assert(scalarResult?.count is Int)
         {{#customScalarsEnabled}}
-            assert(scalarResult?.custom is JUnitQuery.UUID)
+        assert(scalarResult?.custom is JUnitQuery.UUID)
         {{/customScalarsEnabled}}
         {{^customScalarsEnabled}}
-            assert(scalarResult?.custom is String)
+        assert(scalarResult?.custom is String)
         {{/customScalarsEnabled}}
         assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
         val interfaceResult = data?.interfaceQuery

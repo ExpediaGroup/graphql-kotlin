@@ -1,6 +1,7 @@
 package com.example
 
 import com.example.generated.JUnitQuery
+import com.example.generated.executeJUnitQuery
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,12 +26,13 @@ class GraphQLMavenPluginTest {
     fun `verify client code was generated and can execute query`() {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
         val client = GraphQLKtorClient(URL(graphQLEndpoint))
-        val query = JUnitQuery(client)
 
         val variables = JUnitQuery.Variables(simpleCriteria = JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
+        val query = JUnitQuery(variables)
+
         assertDoesNotThrow {
             runBlocking {
-                val response = query.execute(variables = variables)
+                val response = client.executeJUnitQuery(query)
                 assertTrue(response.errors == null)
                 val data = response.data
                 assertNotNull(data)
@@ -39,10 +41,10 @@ class GraphQLMavenPluginTest {
                 assertNotNull(scalarResult)
                 assertTrue(scalarResult?.count is Int)
                 {{#customScalarsEnabled}}
-                    assertTrue(scalarResult?.custom is JUnitQuery.UUID)
+                assertTrue(scalarResult?.custom is JUnitQuery.UUID)
                 {{/customScalarsEnabled}}
                 {{^customScalarsEnabled}}
-                    assertTrue(scalarResult?.custom is String)
+                assertTrue(scalarResult?.custom is String)
                 {{/customScalarsEnabled}}
                 assertEquals(JUnitQuery.CustomEnum.ONE, data?.enumQuery)
                 val interfaceResult = data?.interfaceQuery

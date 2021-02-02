@@ -17,9 +17,11 @@
 package com.expediagroup.graphql.client.ktor
 
 import com.expediagroup.graphql.client.GraphQLClient
+import com.expediagroup.graphql.client.GraphQLClientRequest
 import com.expediagroup.graphql.types.GraphQLResponse
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
@@ -43,12 +45,12 @@ import java.util.concurrent.ConcurrentHashMap
  * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
  */
 @KtorExperimentalAPI
-open class GraphQLKtorClient<in T : HttpClientEngineConfig>(
+open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
     private val url: URL,
-    engineFactory: HttpClientEngineFactory<T>,
+    engineFactory: HttpClientEngineFactory<E>,
     private val mapper: ObjectMapper = jacksonObjectMapper(),
-    configuration: HttpClientConfig<T>.() -> Unit = {}
-) : GraphQLClient, Closeable {
+    configuration: HttpClientConfig<E>.() -> Unit = {}
+) : GraphQLClient<HttpRequestBuilder>, Closeable {
 
     private val typeCache = ConcurrentHashMap<Class<*>, JavaType>()
 
@@ -65,40 +67,46 @@ open class GraphQLKtorClient<in T : HttpClientEngineConfig>(
         }
     }
 
-    /**
-     * Executes specified GraphQL query or mutation.
-     *
-     * NOTE: explicit result type Class parameter is required due to the type erasure at runtime, i.e. since generic type is erased at runtime our
-     * default serialization would attempt to serialize results back to Any object. As a workaround we get raw results as String which we then
-     * manually deserialize using passed in result type Class information.
-     */
-    open suspend fun <T> execute(query: String, operationName: String? = null, variables: Any? = null, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
-        // Variables are simple data classes which will be serialized as map.
-        // By using map instead of typed object we can eliminate the need to explicitly convert variables to a map
-        val graphQLRequest = mapOf(
-            "query" to query,
-            "operationName" to operationName,
-            "variables" to variables
+    override suspend fun <T> execute(request: GraphQLClientRequest, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
+        val rawRequest = mapOf(
+            "query" to request.query,
+            "operationName" to request.operationName,
+            "variables" to request.variables
         )
 
         val rawResult = client.post<String>(url) {
-            apply(requestBuilder)
+            apply(requestCustomizer)
             contentType(ContentType.Application.Json)
-            body = graphQLRequest
+            body = rawRequest
         }
 
         @Suppress("BlockingMethodInNonBlockingContext")
-        return mapper.readValue(rawResult, parameterizedType(resultType))
+        return mapper.readValue(rawResult, parameterizedType(request.responseType()))
     }
 
-    override suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>): GraphQLResponse<T> =
-        execute(query, operationName, variables, resultType, {})
+    override suspend fun execute(requests: List<GraphQLClientRequest>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLResponse<*>> {
+        val rawRequests = requests.map { request ->
+            mapOf(
+                "query" to request.query,
+                "operationName" to request.operationName,
+                "variables" to request.variables
+            )
+        }
+        val rawResult = client.post<JsonNode>(url) {
+            apply(requestCustomizer)
+            contentType(ContentType.Application.Json)
+            body = rawRequests
+        }
 
-    /**
-     * Executes specified GraphQL query or mutation operation.
-     */
-    suspend inline fun <reified T> execute(query: String, operationName: String? = null, variables: Any? = null, noinline requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> =
-        execute(query, operationName, variables, T::class.java, requestBuilder)
+        return if (rawResult.isArray) {
+            rawResult.withIndex().map { (index, element) ->
+                val singleResponse: GraphQLResponse<*> = mapper.convertValue(element, parameterizedType(requests[index].responseType()))
+                singleResponse
+            }
+        } else {
+            listOf(mapper.convertValue(rawResult, parameterizedType(requests.first().responseType())))
+        }
+    }
 
     private fun <T> parameterizedType(resultType: Class<T>): JavaType =
         typeCache.computeIfAbsent(resultType) {

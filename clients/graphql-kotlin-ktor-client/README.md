@@ -46,8 +46,8 @@ CLI:
 ```
 
 This runs an introspection query against the target GraphQL server and saves the resulting schema in the `schema.graphql` file
-under the build directory. GraphQL schemas can change over time so you should configure this task to run
-as part of your build/release process.
+under the build directory. GraphQL schemas can change over time, so you should configure this task to run as part of your
+build/release process.
 
 ```kotlin
 // build.gradle.kts
@@ -92,15 +92,19 @@ Additional information about Gradle and Maven plugins as well as their respectiv
 
 ### Execute Queries
 
-Your auto generated classes accept an instance of `GraphQLKtorClient` which requires the target URL to be specified. `GraphQLKtorClient`
-uses the Ktor HTTP client to execute the underlying queries and allows you to specify different engines (defaults to CIO) and
-HTTP client features. Please refer to [Ktor HTTP client documentation](https://ktor.io/clients/index.html) for additional
-details.
+Your auto generated classes are simple POJOs that optionally accept variables (only if underlying operation uses variables)
+as a constructor parameter. While `GraphQLClient` exposes generic methods that allow you to execute either a single or batch
+request, plugins will also automatically generate a convenient `execute<OperationName>` extension function that returns
+target operation result type.
+
+`GraphQLKtorClient` uses the Ktor HTTP client to execute the underlying queries and allows you to specify different engines
+(defaults to CIO) and HTTP client features. Please refer to [Ktor HTTP client documentation](https://ktor.io/clients/index.html)
+for additional details.
 
 ```kotlin
 val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
-val query = MyAwesomeQuery(client)
-val result = query.execute()
+val query = MyAwesomeQuery()
+val result = client.executeMyAwesomeQuery(query)
 ```
 
 The result of your query is a type safe object that corresponds to your GraphQL query.

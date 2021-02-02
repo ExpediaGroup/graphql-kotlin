@@ -11,18 +11,16 @@ class GenerateGraphQLDocsIT {
                 package com.expediagroup.graphql.plugin.generator.integration
 
                 import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.execute
+                import com.expediagroup.graphql.client.GraphQLClientRequest
                 import com.expediagroup.graphql.types.GraphQLResponse
+                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
 
-                const val TEST_QUERY: String = "query TestQuery {\n  docQuery {\n    id\n  }\n}"
+                const val DOCS_QUERY: String = "query DocsQuery {\n  docQuery {\n    id\n  }\n}"
 
-                class TestQuery(
-                  private val graphQLClient: GraphQLClient
-                ) {
-                  suspend fun execute(): GraphQLResponse<TestQuery.Result> = graphQLClient.execute(TEST_QUERY,
-                      "TestQuery", null)
+                class DocsQuery : GraphQLClientRequest(DOCS_QUERY, "DocsQuery") {
+                  override fun responseType(): Class<DocsQuery.Result> = DocsQuery.Result::class.java
 
                   /**
                    * Doc object with % and $ floating around
@@ -38,13 +36,16 @@ class GenerateGraphQLDocsIT {
                     /**
                      * Query to test doc strings
                      */
-                    val docQuery: TestQuery.DocObject
+                    val docQuery: DocsQuery.DocObject
                   )
                 }
+
+                suspend fun GraphQLClient<*>.executeDocsQuery(request: DocsQuery): GraphQLResponse<DocsQuery.Result>
+                    = execute(request)
             """.trimIndent()
         val query =
             """
-                query TestQuery {
+                query DocsQuery {
                   docQuery {
                     id
                   }

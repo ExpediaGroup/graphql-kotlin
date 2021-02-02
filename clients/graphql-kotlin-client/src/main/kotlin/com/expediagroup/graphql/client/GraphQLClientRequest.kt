@@ -16,20 +16,19 @@
 
 package com.expediagroup.graphql.client
 
-import com.expediagroup.graphql.types.GraphQLResponse
-
 /**
- * A lightweight typesafe GraphQL HTTP client.
+ * Abstract class representing GraphQL request that follows the common GraphQL HTTP request format.
+ *
+ * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
  */
-interface GraphQLClient<RequestCustomizer> {
+abstract class GraphQLClientRequest(
+    val query: String,
+    val operationName: String? = null,
+    val variables: Any? = null
+) {
 
     /**
-     * Executes [GraphQLClientRequest] and returns corresponding [GraphQLResponse].
+     * Parameterized type of a corresponding GraphQLResponse.
      */
-    suspend fun <T> execute(request: GraphQLClientRequest, requestCustomizer: RequestCustomizer.() -> Unit = {}): GraphQLResponse<T>
-
-    /**
-     * Executes batch requests that contains a number of [GraphQLClientRequest]s and returns a list of corresponding [GraphQLResponse]s.
-     */
-    suspend fun execute(requests: List<GraphQLClientRequest>, requestCustomizer: RequestCustomizer.() -> Unit = {}): List<GraphQLResponse<*>>
+    abstract fun responseType(): Class<*>
 }
