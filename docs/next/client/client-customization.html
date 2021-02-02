@@ -90,14 +90,11 @@ header to all requests, and enables basic logging of the requests.</p>
 }
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="per-request-customization"></a><a href="#per-request-customization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Per Request Customization</h3>
-<p>In order to be able to customize individual GraphQL requests you need to configure GraphQL Kotlin plugin to generate Ktor
-specific client code. See <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin">Gradle</a> and <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin">Maven</a>
-plugin documentation for additional details.</p>
 <p>Individual GraphQL requests can be customized through <a href="https://api.ktor.io/1.3.2/io.ktor.client.request/-http-request-builder/">HttpRequestBuilder</a>.
 You can use this mechanism to specify custom headers, update target url to include custom query parameters, configure
 attributes that can be accessed from the pipeline features as well specify timeouts per request.</p>
-<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> helloWorldQuery = HelloWorldQuery(client)
-<span class="hljs-keyword">val</span> result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = <span class="hljs-literal">null</span>)) {
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables(name = <span class="hljs-string">"John Doe"</span>))
+<span class="hljs-keyword">val</span> result = client.execute(helloWorldQuery) {
     header(<span class="hljs-string">"X-B3-TraceId"</span>, <span class="hljs-string">"0123456789abcdef"</span>)
 }
 </code></pre>
@@ -125,14 +122,10 @@ for additional details.</p>
 )
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="per-request-customization-1"></a><a href="#per-request-customization-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Per Request Customization</h3>
-<p>In order to be able to customize individual GraphQL requests you need to configure GraphQL Kotlin plugin to generate Spring
-WebClient specific client code. See <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin">Gradle</a>
-and <a href="https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin">Maven</a> plugin documentation for additional
-details.</p>
 <p>Individual GraphQL requests can be customized by providing <code>WebClient.RequestBodyUriSpec</code> lambda. You can use this mechanism
 to specify custom headers or include custom attributes or query parameters.</p>
-<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> helloWorldQuery = HelloWorldQuery(client)
-<span class="hljs-keyword">val</span> result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = <span class="hljs-literal">null</span>)) {
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">val</span> helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables(name = <span class="hljs-string">"John Doe"</span>))
+<span class="hljs-keyword">val</span> result = client.execute(helloWorldQuery) {
     header(<span class="hljs-string">"X-B3-TraceId"</span>, <span class="hljs-string">"0123456789abcdef"</span>)
 }
 </code></pre>
@@ -142,20 +135,14 @@ reference implementations. Both <code>GraphQLKtorClient</code> and <code>GraphQL
 extend them to provide some custom <code>execute</code> logic.</p>
 <pre><code class="hljs css language-kotlin"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomGraphQLClient</span></span>(url: URL) : GraphQLKtorClient&lt;CIOEngineConfig&gt;(url = url, engineFactory = CIO) {
 
-    <span class="hljs-keyword">override</span> <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-type">&lt;T&gt;</span> <span class="hljs-title">execute</span><span class="hljs-params">(query: <span class="hljs-type">String</span>, operationName: <span class="hljs-type">String</span>?, variables: <span class="hljs-type">Any</span>?, resultType: <span class="hljs-type">Class</span>&lt;<span class="hljs-type">T</span>&gt;, requestBuilder: <span class="hljs-type">HttpRequestBuilder</span>.() -&gt; <span class="hljs-type">Unit</span>)</span></span>: GraphQLResponse&lt;T&gt; {
+    <span class="hljs-keyword">override</span> <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-type">&lt;T&gt;</span> <span class="hljs-title">execute</span><span class="hljs-params">(request: <span class="hljs-type">GraphQLClientRequest</span>, requestCustomizer: <span class="hljs-type">HttpRequestBuilder</span>.() -&gt; <span class="hljs-type">Unit</span>)</span></span>: GraphQLResponse&lt;T&gt; {
         <span class="hljs-comment">// custom init logic</span>
-        <span class="hljs-keyword">val</span> result = <span class="hljs-keyword">super</span>.execute(query, operationName, variables, resultType, requestBuilder)
+        <span class="hljs-keyword">val</span> result = <span class="hljs-keyword">super</span>.execute(request, requestCustomizer)
         <span class="hljs-comment">// custom finalize logic</span>
         <span class="hljs-keyword">return</span> result
     }
 }
 </code></pre>
-<blockquote>
-<p>NOTE: When implementing custom <code>GraphQLClient</code> make sure to select proper client type when generating your client code.
-By default, generated client code is targeting generic interface which allows you to use any client implementations. If
-you are using Ktor or Spring WebClient based implementations make sure to select corresponding type as that will provide
-customization options.</p>
-</blockquote>
 <h2><a class="anchor" aria-hidden="true" id="jackson-customization"></a><a href="#jackson-customization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Jackson Customization</h2>
 <p><code>GraphQLClient</code> relies on Jackson to handle polymorphic types and default enum values. You can specify your own custom
 object mapper configured with some additional serialization/deserialization features but due to the necessary logic to
