@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.server.spring.dataloader.SpringDataLoaderConfiguration
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
@@ -26,7 +25,6 @@ import org.springframework.context.annotation.Import
  */
 @Configuration
 @Import(
-    SpringDataLoaderConfiguration::class,
     GraphQLRoutesConfiguration::class,
     SubscriptionAutoConfiguration::class,
     PlaygroundRouteConfiguration::class,
