@@ -19,18 +19,17 @@ package com.expediagroup.graphql.examples.server.spring.dataloaders
 import com.expediagroup.graphql.examples.server.spring.model.Company
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import org.dataloader.DataLoader
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
-@Configuration
-class DataLoaderConfiguration {
+@Component
+class CompanyDataLoader(service: CompanyService): KotlinDataLoader<Int, Company> {
+    companion object {
+        const val name = "CompanyDataLoader"
+    }
 
-    @Bean
-    fun companyDataLoader(service: CompanyService) = object : KotlinDataLoader<Int, Company> {
-        override val dataLoaderName = "CompanyDataLoader"
-        override val dataLoader = DataLoader<Int, Company> { ids ->
-            CompletableFuture.supplyAsync { service.getCompanies(ids) }
-        }
+    override val dataLoaderName = name
+    override val dataLoader = DataLoader<Int, Company> { ids ->
+        CompletableFuture.supplyAsync { service.getCompanies(ids) }
     }
 }
