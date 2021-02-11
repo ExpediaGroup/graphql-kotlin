@@ -19,6 +19,7 @@ package com.expediagroup.graphql.examples.server.spring.query
 import com.expediagroup.graphql.examples.server.spring.model.Company
 import com.expediagroup.graphql.examples.server.spring.model.Employee
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.types.operations.Query
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -42,12 +43,14 @@ class DataLoaderQuery : Query {
     }
 }
 
+/**
+ * Register a custom [DataFetcher] to get a [Company] any time it appears in the schema
+ */
 @Component("CompanyDataFetcher")
 class CompanyDataFetcher : DataFetcher<CompletableFuture<Company>> {
 
     override fun get(environment: DataFetchingEnvironment): CompletableFuture<Company> {
         val companyId = environment.getSource<Employee>().companyId
-
-        return environment.getDataLoader<Int, Company>("companyLoader").load(companyId)
+        return environment.getValueFromDataLoader("CompanyDataLoader", companyId)
     }
 }
