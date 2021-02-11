@@ -14,19 +14,6 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.spring.dataloaders
+package com.expediagroup.graphql.server.exception
 
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
-import org.dataloader.DataLoader
-import org.dataloader.DataLoaderRegistry
-
-class SpringDataLoaderRegistryFactory(
-    private val companyLoader: DataLoader<*, *>
-) : DataLoaderRegistryFactory {
-
-    override fun generate(): DataLoaderRegistry {
-        val registry = DataLoaderRegistry()
-        registry.register("companyLoader", companyLoader)
-        return registry
-    }
-}
+class MissingDataLoaderException(dataLoaderName: String) : IllegalArgumentException("No data loader called $dataLoaderName was found")

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.spring.execution
+package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
-import org.dataloader.DataLoaderRegistry
+import org.dataloader.DataLoader
 
 /**
- * Default [DataLoaderRegistryFactory] that generates empty data loader registry.
+ * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
+ * by return type and loading values in the data fetchers.
  */
-class EmptyDataLoaderRegistryFactory : DataLoaderRegistryFactory {
-    override fun generate() = DataLoaderRegistry()
+interface KotlinDataLoader<K, V> {
+    val dataLoader: DataLoader<K, V>
+    val dataLoaderName: String
 }

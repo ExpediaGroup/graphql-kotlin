@@ -28,3 +28,16 @@ interface DataLoaderRegistryFactory {
      */
     fun generate(): DataLoaderRegistry
 }
+
+/**
+ * Default [DataLoaderRegistryFactory] that generates a [DataLoaderRegistry] with all the names from the [KotlinDataLoader]s.
+ */
+class DefaultDataLoaderRegistryFactory(
+    private val dataLoaders: List<KotlinDataLoader<*, *>>
+) : DataLoaderRegistryFactory {
+    override fun generate(): DataLoaderRegistry {
+        val registry = DataLoaderRegistry()
+        dataLoaders.forEach { registry.register(it.dataLoaderName, it.dataLoader) }
+        return registry
+    }
+}

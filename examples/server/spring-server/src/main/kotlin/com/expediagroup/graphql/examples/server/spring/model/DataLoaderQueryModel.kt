@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.model
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 
 data class Employee(
@@ -23,6 +24,7 @@ data class Employee(
     @GraphQLIgnore
     val companyId: Int
 ) {
+    @GraphQLDescription("This value will be populated by a custom data fetcher using data loaders")
     lateinit var company: Company
 }
 
