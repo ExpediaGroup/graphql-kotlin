@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
 @Component
-class CompanyDataLoader(service: CompanyService): KotlinDataLoader<Int, Company> {
+class CompanyDataLoader(service: CompanyService) : KotlinDataLoader<Int, Company> {
     companion object {
         const val name = "CompanyDataLoader"
     }
