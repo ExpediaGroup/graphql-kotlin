@@ -17,17 +17,6 @@
 package com.expediagroup.graphql.examples.server.ktor.schema.models
 
 import graphql.GraphQLException
-import kotlinx.coroutines.runBlocking
-import org.dataloader.DataLoader
-import java.util.concurrent.CompletableFuture
-
-const val UNIVERSITY_LOADER_NAME = "UNIVERSITY_LOADER"
-
-val batchUniversityLoader = DataLoader<Long, University?> { ids ->
-    CompletableFuture.supplyAsync {
-        runBlocking { University.search(ids).toMutableList() }
-    }
-}
 
 class University(val id: Long, val name: String? = null) {
     companion object {

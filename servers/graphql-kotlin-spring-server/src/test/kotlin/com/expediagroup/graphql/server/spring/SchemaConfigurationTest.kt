@@ -18,12 +18,14 @@ package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.types.operations.Query
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -31,15 +33,19 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.tracing.TracingInstrumentation
+import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -71,7 +77,7 @@ class SchemaConfigurationTest {
                 val schema = ctx.getBean(GraphQLSchema::class.java)
                 val query = schema.queryType
                 val fields = query.fieldDefinitions
-                assertEquals(1, fields.size)
+                assertEquals(2, fields.size)
                 val helloWorldQuery = fields.firstOrNull { it.name == "hello" }
                 assertNotNull(helloWorldQuery)
                 assertEquals("String", GraphQLTypeUtil.unwrapAll(helloWorldQuery.type).name)
@@ -85,7 +91,10 @@ class SchemaConfigurationTest {
                 assertNull(result["errors"])
                 assertNotNull(result["extensions"])
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
+                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
+                val registry = ctx.getBean(DataLoaderRegistry::class.java)
+                assertEquals(1, registry.dataLoaders.size)
+                assertEquals(FooDataLoader.name, registry.keys.first())
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLContextFactory::class.java)
             }
@@ -111,9 +120,9 @@ class SchemaConfigurationTest {
                 assertThat(ctx).getBean(GraphQL::class.java)
                     .isSameAs(customConfiguration.myGraphQL())
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
-                assertThat(ctx).getBean(DataLoaderRegistryFactory::class.java)
-                    .isSameAs(customConfiguration.myDataLoaderRegistryFactory())
+                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
+                assertThat(ctx).getBean(DataLoaderRegistry::class.java)
+                    .isSameAs(customConfiguration.myDataLoaderRegistry())
 
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
@@ -135,6 +144,9 @@ class SchemaConfigurationTest {
 
         @Bean
         fun instrumentation(): Instrumentation = TracingInstrumentation()
+
+        @Bean
+        fun dataLoader(): FooDataLoader = FooDataLoader()
     }
 
     @Configuration
@@ -164,11 +176,31 @@ class SchemaConfigurationTest {
         fun myCustomContextFactory(): SpringGraphQLContextFactory<*> = mockk()
 
         @Bean
-        fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
+        fun myDataLoaderRegistry(): DataLoaderRegistry = mockk()
     }
 
     class BasicQuery : Query {
         @Suppress("FunctionOnlyReturningConstant")
         fun hello(): String = "Hello"
+
+        @GraphQLDescription("Basic implementation of how to use data loaders to return some value based off keys")
+        fun createFoo(value: String, dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<Foo> {
+            return dataFetchingEnvironment.getValueFromDataLoader(FooDataLoader.name, value)
+        }
+    }
+
+    class Foo(val value: String)
+
+    class FooDataLoader : KotlinDataLoader<String, Foo> {
+        companion object {
+            const val name = "FooDataLoader"
+        }
+
+        override val dataLoaderName = name
+        override val dataLoader = DataLoader<String, Foo> { keys ->
+            CompletableFuture.supplyAsync {
+                keys.mapNotNull { Foo(it) }
+            }
+        }
     }
 }

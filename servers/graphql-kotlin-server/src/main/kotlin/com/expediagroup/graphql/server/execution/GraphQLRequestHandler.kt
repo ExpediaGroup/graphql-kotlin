@@ -25,10 +25,11 @@ import com.expediagroup.graphql.types.GraphQLRequest
 import com.expediagroup.graphql.types.GraphQLResponse
 import graphql.GraphQL
 import kotlinx.coroutines.future.await
+import org.dataloader.DataLoaderRegistry
 
 open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
-    private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
+    private val dataLoaderRegistry: DataLoaderRegistry? = null
 ) {
 
     /**
@@ -37,8 +38,6 @@ open class GraphQLRequestHandler(
      * Subscriptions require more specific server logic and will need to be handled separately.
      */
     open suspend fun executeRequest(request: GraphQLRequest, context: GraphQLContext? = null): GraphQLResponse<*> {
-        // We should generate a new registry for every request
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
         val executionInput = request.toExecutionInput(context, dataLoaderRegistry)
 
         return try {

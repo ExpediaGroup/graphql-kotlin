@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
@@ -33,6 +32,7 @@ import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
+import org.dataloader.DataLoaderRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -110,8 +110,8 @@ class GraphQLSchemaConfiguration {
     @ConditionalOnMissingBean
     fun graphQLRequestHandler(
         graphql: GraphQL,
-        dataLoaderRegistryFactory: DataLoaderRegistryFactory
-    ): GraphQLRequestHandler = GraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
+        dataLoaderRegistry: DataLoaderRegistry
+    ): GraphQLRequestHandler = GraphQLRequestHandler(graphql, dataLoaderRegistry)
 
     @Bean
     @ConditionalOnMissingBean

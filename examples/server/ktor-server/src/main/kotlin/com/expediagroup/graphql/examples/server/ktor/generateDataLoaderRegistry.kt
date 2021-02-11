@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.examples.server.ktor
 
-import org.dataloader.DataLoader
+import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import org.dataloader.DataLoaderRegistry
 
 /**
- * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
- * by return type and loading values in the data fetchers.
+ * Example of how to register the various DataLoaders using [KotlinDataLoader]
  */
-interface KotlinDataLoader<K, V> {
-    val dataLoaderName: String
-    val dataLoader: DataLoader<K, V>
+fun generateDataLoaderRegistry(dataLoaders: List<KotlinDataLoader<*, *>>): DataLoaderRegistry {
+    val registry = DataLoaderRegistry()
+    dataLoaders.forEach { registry.register(it.dataLoaderName, it.dataLoader) }
+    return registry
 }

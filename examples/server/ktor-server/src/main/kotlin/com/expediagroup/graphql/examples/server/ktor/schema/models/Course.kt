@@ -16,19 +16,11 @@
 
 package com.expediagroup.graphql.examples.server.ktor.schema.models
 
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
-import org.dataloader.DataLoader
-import java.util.concurrent.CompletableFuture.supplyAsync
-
-const val COURSE_LOADER_NAME = "COURSE_LOADER"
-
-val batchCourseLoader = DataLoader<Long, Course?> { ids ->
-    supplyAsync {
-        runBlocking { Course.search(ids).toMutableList() }
-    }
-}
+import java.util.concurrent.CompletableFuture
 
 data class Course(
     val id: Long,
@@ -36,15 +28,14 @@ data class Course(
     val universityId: Long? = null,
     val bookIds: List<Long> = listOf()
 ) {
-    suspend fun university(dataFetchingEnvironment: DataFetchingEnvironment): University? {
-        return dataFetchingEnvironment.getDataLoader<Long, University>(UNIVERSITY_LOADER_NAME)
-            .load(universityId).await()
+    fun university(dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<University?> {
+        return if (universityId != null) {
+            dataFetchingEnvironment.getValueFromDataLoader(UniversityDataLoader.dataLoaderName, universityId)
+        } else CompletableFuture.completedFuture(null)
     }
 
-    suspend fun books(dataFetchingEnvironment: DataFetchingEnvironment): List<Book>? {
-        val books = dataFetchingEnvironment.getDataLoader<List<Long>, List<Book>>(BATCH_BOOK_LOADER_NAME)
-            .load(bookIds).await()
-        return books
+    fun books(dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<List<Book>> {
+        return dataFetchingEnvironment.getValueFromDataLoader(BookDataLoader.dataLoaderName, bookIds)
     }
 
     companion object {
