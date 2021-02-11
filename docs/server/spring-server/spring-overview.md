@@ -54,7 +54,7 @@ graphql:
 ```
 
 ## Writing Schema Code
-In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you simply need to implement
+In order to expose your queries, mutations, and/or subscriptions in the GraphQL schema, implement
 corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
 auto-configuration library.
 
@@ -77,7 +77,7 @@ class MyAwesomeSubscription : Subscription {
 data class Widget(val id: Int, val value: String)
 ```
 
-will result in a Spring Boot reactive GraphQL web application with following schema.
+The above code will result in a GraphQL server with following schema:
 
 ```graphql
 schema {

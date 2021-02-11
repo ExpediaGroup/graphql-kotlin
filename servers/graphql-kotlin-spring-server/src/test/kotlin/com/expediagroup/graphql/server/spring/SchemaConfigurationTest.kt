@@ -39,6 +39,7 @@ import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
@@ -197,10 +198,13 @@ class SchemaConfigurationTest {
         }
 
         override val dataLoaderName = name
-        override val dataLoader = DataLoader<String, Foo> { keys ->
-            CompletableFuture.supplyAsync {
-                keys.mapNotNull { Foo(it) }
-            }
-        }
+        override val dataLoader = DataLoader<String, Foo>(
+            { keys ->
+                CompletableFuture.supplyAsync {
+                    keys.mapNotNull { Foo(it) }
+                }
+            },
+            DataLoaderOptions.newOptions().setCachingEnabled(false)
+        )
     }
 }
