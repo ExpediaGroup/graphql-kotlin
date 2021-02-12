@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
@@ -40,7 +41,6 @@ import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions
-import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
@@ -92,8 +92,9 @@ class SchemaConfigurationTest {
                 assertNull(result["errors"])
                 assertNotNull(result["extensions"])
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
-                val registry = ctx.getBean(DataLoaderRegistry::class.java)
+                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
+                val registryFactory = ctx.getBean(DataLoaderRegistryFactory::class.java)
+                val registry = registryFactory.generate()
                 assertEquals(1, registry.dataLoaders.size)
                 assertEquals(FooDataLoader.name, registry.keys.first())
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
@@ -121,9 +122,9 @@ class SchemaConfigurationTest {
                 assertThat(ctx).getBean(GraphQL::class.java)
                     .isSameAs(customConfiguration.myGraphQL())
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistry::class.java)
-                assertThat(ctx).getBean(DataLoaderRegistry::class.java)
-                    .isSameAs(customConfiguration.myDataLoaderRegistry())
+                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
+                assertThat(ctx).getBean(DataLoaderRegistryFactory::class.java)
+                    .isSameAs(customConfiguration.myDataLoaderRegistryFactory())
 
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
 
@@ -177,7 +178,7 @@ class SchemaConfigurationTest {
         fun myCustomContextFactory(): SpringGraphQLContextFactory<*> = mockk()
 
         @Bean
-        fun myDataLoaderRegistry(): DataLoaderRegistry = mockk()
+        fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
     }
 
     class BasicQuery : Query {
@@ -198,7 +199,7 @@ class SchemaConfigurationTest {
         }
 
         override val dataLoaderName = name
-        override val dataLoader = DataLoader<String, Foo>(
+        override fun getDataLoader() = DataLoader<String, Foo>(
             { keys ->
                 CompletableFuture.supplyAsync {
                     keys.mapNotNull { Foo(it) }

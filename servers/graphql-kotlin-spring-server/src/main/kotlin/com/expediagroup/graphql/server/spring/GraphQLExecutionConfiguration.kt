@@ -17,12 +17,13 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import com.expediagroup.graphql.server.spring.exception.KotlinDataFetcherExceptionHandler
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
-import org.dataloader.DataLoaderRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -52,9 +53,6 @@ class GraphQLExecutionConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataLoaderRegistry(dataLoaders: Optional<List<KotlinDataLoader<*, *>>>): DataLoaderRegistry {
-        val registry = DataLoaderRegistry()
-        dataLoaders.orElse(emptyList()).forEach { registry.register(it.dataLoaderName, it.dataLoader) }
-        return registry
-    }
+    fun dataLoaderRegistryFactory(dataLoaders: Optional<List<KotlinDataLoader<*, *>>>): DataLoaderRegistryFactory =
+        DefaultDataLoaderRegistryFactory(dataLoaders.orElse(emptyList()))
 }

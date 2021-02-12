@@ -24,6 +24,6 @@ import org.dataloader.DataLoaderRegistry
  */
 fun generateDataLoaderRegistry(dataLoaders: List<KotlinDataLoader<*, *>>): DataLoaderRegistry {
     val registry = DataLoaderRegistry()
-    dataLoaders.forEach { registry.register(it.dataLoaderName, it.dataLoader) }
+    dataLoaders.forEach { registry.register(it.dataLoaderName, it.getDataLoader()) }
     return registry
 }

@@ -25,8 +25,8 @@ If you still want to use data loaders though, they are supported through the com
 
 ## `KotlinDataLoader`
 
-The [GraphQLRequestHandler](./graphql-request-handler.md) accepts an optional `DataLoaderRegistry` that will be used on every request.
-The `DataLoaderRegistry` is a map of a unique data loader names to a `DataLoader` object that handles the cache for an output type in your graph.
+The [GraphQLRequestHandler](./graphql-request-handler.md) accepts an optional `DataLoaderRegistryFactory` that will be used on every request.
+The `DataLoaderRegistryFactory` generates a new `DataLoaderRegistry` on every request. The registry is a map of a unique data loader names to a `DataLoader` object that handles the cache for an output type in your graph.
 A `DataLoader` caches the types by some unique value, usually by the type id, and can handle different types of batch requests.
 
 To help in the registration of these various `DataLoaders`, we have created a basic interface `KotlinDataLoader`:
@@ -34,17 +34,17 @@ To help in the registration of these various `DataLoaders`, we have created a ba
 ```kotlin
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    val dataLoader: DataLoader<K, V>
+    fun getDataLoader(): DataLoader<K, V>
 }
 ```
 
 This allows for library users to still have full control over the creation of the `DataLoader` and its various configuraiton options,
-but then allows common server code to handle the registration and execution for you.
+but then allows common server code to handle the registration, generation on request, and execution.
 
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
-    override val dataLoader = DataLoader<ID, User>({ ids ->
+    override fun getDataLoader() = DataLoader<ID, User>({ ids ->
         CompletableFuture.supplyAsync {
             ids.map { id -> userService.getUser(id) }
         }
@@ -53,7 +53,7 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
 
 class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
     override val dataLoaderName = "FriendsDataLoader"
-    override val dataLoader = DataLoader<ID, List<User>> { ids ->
+    override fun getDataLoader() = DataLoader<ID, List<User>> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id ->
                 val friends: List<ID> = friendService.getFriends(id)
@@ -81,6 +81,6 @@ class User(val id: ID) {
 
 
 
-> NOTE: Because the execution of data loaders is handled by `graphql-java`, which runs using `CompletionStage`, currently we do not support `suspend` functions when envoking data loaders.
+> NOTE: Because the execution of data loaders is handled by `graphql-java`, which runs using `CompletionStage`, currently we can not support `suspend` functions when envoking data loaders.
 > Instead, return the `CompletableFuture` directly from the `DataLoader` response in your schema functions.
 > See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).

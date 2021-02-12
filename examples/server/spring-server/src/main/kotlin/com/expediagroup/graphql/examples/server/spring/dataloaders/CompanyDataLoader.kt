@@ -23,13 +23,13 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
 @Component
-class CompanyDataLoader(service: CompanyService) : KotlinDataLoader<Int, Company> {
+class CompanyDataLoader(private val service: CompanyService) : KotlinDataLoader<Int, Company> {
     companion object {
         const val name = "CompanyDataLoader"
     }
 
     override val dataLoaderName = name
-    override val dataLoader = DataLoader<Int, Company> { ids ->
+    override fun getDataLoader() = DataLoader<Int, Company> { ids ->
         CompletableFuture.supplyAsync { service.getCompanies(ids) }
     }
 }

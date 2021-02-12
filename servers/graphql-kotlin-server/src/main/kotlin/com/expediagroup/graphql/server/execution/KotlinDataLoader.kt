@@ -24,5 +24,5 @@ import org.dataloader.DataLoader
  */
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    val dataLoader: DataLoader<K, V>
+    fun getDataLoader(): DataLoader<K, V>
 }

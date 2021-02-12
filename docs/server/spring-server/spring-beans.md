@@ -12,7 +12,7 @@ Many of the beans are conditionally created and the default behavior can be cust
 | DataFetcherExceptionHandler      | GraphQL exception handler used from the various execution strategies, defaults to [KotlinDataFetcherExceptionHandler](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/exception/KotlinDataFetcherExceptionHandler.kt). |
 | KotlinDataFetcherFactoryProvider | Factory used during schema construction to obtain `DataFetcherFactory` that should be used for target function (using Spring aware `SpringDataFetcher`) and property resolution. |
 | KotlinDataLoader (optional)      | Any number of beans created that implement `KotlinDataLoader`. See [Data Loaders](../data-loaders.md) for more details. |
-| DataLoaderRegistry               | A registry of all the `KotlinDataLoaders`. Defaults to empty registry. |
+| DataLoaderRegistryFactory        | A factory class that creates a `DataLoaderRegistry` of all the `KotlinDataLoaders`. Defaults to empty registry. |
 
 
 ## Non-Federated Schema

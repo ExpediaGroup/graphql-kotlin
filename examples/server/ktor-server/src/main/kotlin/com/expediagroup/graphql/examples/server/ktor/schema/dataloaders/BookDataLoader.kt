@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture
 
 val BookDataLoader = object : KotlinDataLoader<List<Long>, List<Book>> {
     override val dataLoaderName = "BATCH_BOOK_LOADER"
-    override val dataLoader = DataLoader<List<Long>, List<Book>> { ids ->
+    override fun getDataLoader() = DataLoader<List<Long>, List<Book>> { ids ->
         CompletableFuture.supplyAsync {
             val allBooks = runBlocking { Book.search(ids.flatten()).toMutableList() }
             // produce lists of results from returned books
