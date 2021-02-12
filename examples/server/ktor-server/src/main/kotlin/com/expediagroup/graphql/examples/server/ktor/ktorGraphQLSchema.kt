@@ -21,9 +21,6 @@ import com.expediagroup.graphql.examples.server.ktor.schema.CourseQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.HelloQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
 import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
-import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
-import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
-import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.toSchema
@@ -45,4 +42,3 @@ private val mutations = listOf(TopLevelObject(LoginMutationService()))
 private val graphQLSchema = toSchema(config, queries, mutations)
 
 val graphQL: GraphQL = GraphQL.newGraphQL(graphQLSchema).build()
-val dataLoaderRegistry = generateDataLoaderRegistry(listOf(BookDataLoader, CourseDataLoader, UniversityDataLoader))
