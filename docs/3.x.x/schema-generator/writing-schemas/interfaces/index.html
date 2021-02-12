@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Interfaces · GraphQL Kotlin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Functions returning interfaces will automatically expose all the types implementing this interface that are available on"/><meta name="docsearch:version" content="3.x.x"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Interfaces · GraphQL Kotlin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://expediagroup.github.io/graphql-kotlin/"/><meta property="og:description" content="Functions returning interfaces will automatically expose all the types implementing this interface that are available on"/><meta property="og:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://expediagroup.github.io/graphql-kotlin/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/graphql-kotlin/img/favicon.ico"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/graphql-kotlin/js/scrollSpy.js"></script><link rel="stylesheet" href="/graphql-kotlin/css/main.css"/><script src="/graphql-kotlin/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/graphql-kotlin/"><img class="logo" src="/graphql-kotlin/img/EG_Icon_White_on_Blue.png" alt="GraphQL Kotlin"/><h2 class="headerTitleWithLogo">GraphQL Kotlin</h2></a><a href="/graphql-kotlin/versions"><h3>3.x.x</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class="siteNavGroupActive"><a href="/graphql-kotlin/docs/3.x.x/getting-started" target="_self">Docs</a></li><li class=""><a href="https://github.com/ExpediaGroup/graphql-kotlin" target="_self">GitHub</a></li><li class=""><a href=" https://github.com/ExpediaGroup/graphql-kotlin#-contact" target="_self">Contact</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Writing schemas with Kotlin</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Introduction<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/getting-started">Getting Started</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/examples">Examples</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/blogs-and-videos">Blogs &amp; Videos</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Schema Generator<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/schema-generator-getting-started">Getting Started with the Schema Generator</a></li><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Writing schemas with Kotlin</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/nullability">Nullability</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/arguments">Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/scalars">Scalars</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/enums">Enums</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/lists">Lists</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/interfaces">Interfaces</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/unions">Unions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/annotations">Annotations</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/nested-arguments">Nested Resolvers and Shared Arguments</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Customizing Schema</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/generator-config">Generator Configuration</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/documenting-fields">Documenting Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/excluding-fields">Excluding Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/renaming-fields">Renaming Fields</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/directives">Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/deprecating-schema">Deprecating Schema</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/customizing-schemas/advanced-features">Advanced Features</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">Execution</h4><ul><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/fetching-data">Fetching Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/async-models">Async Models</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/exceptions">Exceptions and Partial Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/data-fetching-environment">Data Fetching Environment</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/contextual-data">Contextual Data</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/optional-undefined-arguments">Optional Undefined Arguments</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/subscriptions">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/schema-generator/execution/introspection">Introspection</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Federation<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/federated/apollo-federation">Apollo Federation</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/federated/federated-schemas">Federated Schemas</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/federated/federated-directives">Federated Directives</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/federated/type-resolution">Federated Type Resolution</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Spring Server<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/spring-overview">Spring Server Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/spring-beans">Automatically Created Beans</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/spring-properties">Configuration Properties</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/spring-schema">Writing Schemas with Spring</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/spring-graphql-context">Generating GraphQL Context</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/http-request-response">Access the HTTP Request-Response</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/spring-server/subscriptions">Subscriptions</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">HTTP Client<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/client/client-overview">Client Overview</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/client/client-features">Client Features</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/client/client-customization">Client Customization</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Build Plugins<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/plugins/gradle-plugin">Gradle Plugin</a></li><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/plugins/maven-plugin">Maven Plugin</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Contributors<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/graphql-kotlin/docs/3.x.x/contributors/release-proc">Releasing a new version</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/schema-generator/writing-schemas/interfaces.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Interfaces</h1></header><article><div><span><p>Functions returning interfaces will automatically expose all the types implementing this interface that are available on
+the classpath. Due to the GraphQL distinction between interface and a union type, interfaces need to specify at least
+one common field (property or a function).</p>
+<p>Abstract and sealed classes will also be converted to a GraphQL Interface.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Animal</span> </span>{
+    <span class="hljs-keyword">val</span> type: AnimalType
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">sound</span><span class="hljs-params">()</span></span>: String
+}
+
+<span class="hljs-keyword">enum</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AnimalType</span> </span>{
+    CAT,
+    DOG
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dog</span> : <span class="hljs-type">Animal {</span></span>
+    <span class="hljs-keyword">override</span> <span class="hljs-keyword">val</span> type = AnimalType.DOG
+
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">sound</span><span class="hljs-params">()</span></span> = <span class="hljs-string">"bark"</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">barkAtEveryone</span><span class="hljs-params">()</span></span>: String = <span class="hljs-string">"bark at everyone"</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cat</span> : <span class="hljs-type">Animal {</span></span>
+    <span class="hljs-keyword">override</span> <span class="hljs-keyword">val</span> type = AnimalType.CAT
+
+    <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">sound</span><span class="hljs-params">()</span></span> = <span class="hljs-string">"meow"</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">ignoreEveryone</span><span class="hljs-params">()</span></span>: String = <span class="hljs-string">"ignore everyone"</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PolymorphicQuery</span> </span>{
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">animal</span><span class="hljs-params">(type: <span class="hljs-type">AnimalType</span>)</span></span>: Animal? = <span class="hljs-keyword">when</span> (type) {
+        AnimalType.CAT -&gt; Cat()
+        AnimalType.DOG -&gt; Dog()
+        <span class="hljs-keyword">else</span> -&gt; <span class="hljs-literal">null</span>
+    }
+}
+</code></pre>
+<p>The above code will produce the following GraphQL schema:</p>
+<pre><code class="hljs css language-graphql">interface Animal {
+  type: AnimalType!
+  sound: String!
+}
+
+enum AnimalType {
+  CAT
+  DOG
+}
+<span class="hljs-built_in">
+type </span>Cat implements Animal {
+  type: AnimalType!
+  ignoreEveryone: String!
+  sound: String!
+}
+<span class="hljs-built_in">
+type </span>Dog implements Animal {
+  type: AnimalType!
+  barkAtEveryone: String!
+  sound: String!
+}
+<span class="hljs-built_in">
+type </span>TopLevelQuery {
+  animal(type: AnimalType!): Animal
+}
+
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="abstract-and-sealed-classes"></a><a href="#abstract-and-sealed-classes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Abstract and Sealed Classes</h2>
+<p><a href="https://kotlinlang.org/docs/reference/classes.html#abstract-classes">Abstract</a> and <a href="https://kotlinlang.org/docs/reference/sealed-classes.html">sealed</a> classes can also be used for interface types.</p>
+<pre><code class="hljs css language-kotlin"><span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Shape</span></span>(<span class="hljs-keyword">val</span> area: <span class="hljs-built_in">Double</span>)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Circle</span></span>(radius: <span class="hljs-built_in">Double</span>) : Shape(PI * radius * radius)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Square</span></span>(sideLength: <span class="hljs-built_in">Double</span>) : Shape(sideLength * sideLength)
+
+<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Pet</span></span>(<span class="hljs-keyword">val</span> name: String) {
+    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dog</span></span>(name: String, <span class="hljs-keyword">val</span> goodBoysReceived: <span class="hljs-built_in">Int</span>) : Pet(name)
+    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cat</span></span>(name: String, <span class="hljs-keyword">val</span> livesRemaining: <span class="hljs-built_in">Int</span>) : Pet(name)
+}
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/lists"><span class="arrow-prev">← </span><span>Lists</span></a><a class="docs-next button" href="/graphql-kotlin/docs/3.x.x/schema-generator/writing-schemas/unions"><span>Unions</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#abstract-and-sealed-classes">Abstract and Sealed Classes</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/graphql-kotlin/" class="nav-home"><img src="/graphql-kotlin/img/Expedia-Group-Logo_E-Stacked.png" alt="GraphQL Kotlin"/></a><div><h5>Docs</h5><a href="/graphql-kotlin/docs/getting-started.html">Getting Started</a></div></section><section class="copyright">Copyright © 2021 Expedia, Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: 'b23761059e66eefd46f5f665a2d4537a',
+                indexName: 'graphql-kotlin',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
