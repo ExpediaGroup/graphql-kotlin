@@ -16,12 +16,9 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
-import com.expediagroup.graphql.examples.server.ktor.schema.models.BATCH_BOOK_LOADER_NAME
-import com.expediagroup.graphql.examples.server.ktor.schema.models.COURSE_LOADER_NAME
-import com.expediagroup.graphql.examples.server.ktor.schema.models.UNIVERSITY_LOADER_NAME
-import com.expediagroup.graphql.examples.server.ktor.schema.models.batchBookLoader
-import com.expediagroup.graphql.examples.server.ktor.schema.models.batchCourseLoader
-import com.expediagroup.graphql.examples.server.ktor.schema.models.batchUniversityLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import org.dataloader.DataLoaderRegistry
 
@@ -32,9 +29,9 @@ class KtorDataLoaderRegistryFactory : DataLoaderRegistryFactory {
 
     override fun generate(): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
-        registry.register(UNIVERSITY_LOADER_NAME, batchUniversityLoader)
-        registry.register(COURSE_LOADER_NAME, batchCourseLoader)
-        registry.register(BATCH_BOOK_LOADER_NAME, batchBookLoader)
+        registry.register(UniversityDataLoader.dataLoaderName, UniversityDataLoader.getDataLoader())
+        registry.register(CourseDataLoader.dataLoaderName, CourseDataLoader.getDataLoader())
+        registry.register(BookDataLoader.dataLoaderName, BookDataLoader.getDataLoader())
         return registry
     }
 }

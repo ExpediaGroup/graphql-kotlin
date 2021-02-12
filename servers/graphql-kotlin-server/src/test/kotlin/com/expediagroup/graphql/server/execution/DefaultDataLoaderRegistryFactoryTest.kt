@@ -34,7 +34,7 @@ class DefaultDataLoaderRegistryFactoryTest {
     fun `generate registry with basic loader`() {
         val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "MockDataLoader"
-            override val dataLoader: DataLoader<String, String> = mockk()
+            override fun getDataLoader(): DataLoader<String, String> = mockk()
         }
 
         val registry = DefaultDataLoaderRegistryFactory(listOf(mockLoader)).generate()

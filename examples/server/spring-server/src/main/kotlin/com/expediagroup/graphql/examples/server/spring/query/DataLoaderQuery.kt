@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
+import com.expediagroup.graphql.examples.server.spring.dataloaders.CompanyDataLoader
 import com.expediagroup.graphql.examples.server.spring.model.Company
 import com.expediagroup.graphql.examples.server.spring.model.Employee
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
@@ -51,6 +52,6 @@ class CompanyDataFetcher : DataFetcher<CompletableFuture<Company>> {
 
     override fun get(environment: DataFetchingEnvironment): CompletableFuture<Company> {
         val companyId = environment.getSource<Employee>().companyId
-        return environment.getValueFromDataLoader("CompanyDataLoader", companyId)
+        return environment.getValueFromDataLoader(CompanyDataLoader.name, companyId)
     }
 }

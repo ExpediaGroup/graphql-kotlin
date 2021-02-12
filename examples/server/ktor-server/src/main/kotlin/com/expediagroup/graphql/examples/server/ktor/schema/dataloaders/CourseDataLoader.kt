@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.examples.server.ktor.schema.dataloaders
 
+import com.expediagroup.graphql.examples.server.ktor.schema.models.Course
+import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
+import java.util.concurrent.CompletableFuture
 
-/**
- * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
- * by return type and loading values in the data fetchers.
- */
-interface KotlinDataLoader<K, V> {
-    val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+val CourseDataLoader = object : KotlinDataLoader<Long, Course?> {
+    override val dataLoaderName = "COURSE_LOADER"
+    override fun getDataLoader() = DataLoader<Long, Course?> { ids ->
+        CompletableFuture.supplyAsync {
+            runBlocking { Course.search(ids).toMutableList() }
+        }
+    }
 }

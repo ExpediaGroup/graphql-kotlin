@@ -37,7 +37,7 @@ class DefaultDataLoaderRegistryFactory(
 ) : DataLoaderRegistryFactory {
     override fun generate(): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
-        dataLoaders.forEach { registry.register(it.dataLoaderName, it.dataLoader) }
+        dataLoaders.forEach { registry.register(it.dataLoaderName, it.getDataLoader()) }
         return registry
     }
 }

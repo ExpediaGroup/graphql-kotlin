@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.spring.dataloaders
+package com.expediagroup.graphql.examples.server.ktor.schema.dataloaders
 
-import com.expediagroup.graphql.examples.server.spring.model.Company
+import com.expediagroup.graphql.examples.server.ktor.schema.models.University
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import java.util.concurrent.CompletableFuture
 
-@Configuration
-class DataLoaderConfiguration {
-
-    @Bean
-    fun companyDataLoader(service: CompanyService) = object : KotlinDataLoader<Int, Company> {
-        override val dataLoaderName = "CompanyDataLoader"
-        override val dataLoader = DataLoader<Int, Company> { ids ->
-            CompletableFuture.supplyAsync { service.getCompanies(ids) }
+val UniversityDataLoader = object : KotlinDataLoader<Long, University?> {
+    override val dataLoaderName = "UNIVERSITY_LOADER"
+    override fun getDataLoader() = DataLoader<Long, University?> { ids ->
+        CompletableFuture.supplyAsync {
+            runBlocking { University.search(ids).toMutableList() }
         }
     }
 }
