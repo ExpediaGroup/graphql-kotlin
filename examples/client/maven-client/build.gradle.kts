@@ -7,6 +7,16 @@ val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val reactorVersion: String by project
 
+repositories {
+    mavenCentral()
+    jcenter()
+    mavenLocal {
+        content {
+            includeGroup("com.expediagroup")
+        }
+    }
+}
+
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-client")
 }
