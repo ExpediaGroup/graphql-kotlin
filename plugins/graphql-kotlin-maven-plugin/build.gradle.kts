@@ -16,6 +16,16 @@ val mavenPluginApiVersion: String = "3.6.3"
 val mavenPluginAnnotationVersion: String = "3.6.0"
 val mavenProjectVersion: String = "2.2.1"
 
+repositories {
+    mavenCentral()
+    jcenter()
+    mavenLocal {
+        content {
+            includeGroup("com.expediagroup")
+        }
+    }
+}
+
 buildscript {
     // cannot access project at this time
     val wireMockVersion: String = "2.26.2"
