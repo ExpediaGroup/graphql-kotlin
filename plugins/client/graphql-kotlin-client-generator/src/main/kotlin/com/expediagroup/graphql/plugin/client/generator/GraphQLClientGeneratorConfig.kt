@@ -26,8 +26,8 @@ data class GraphQLClientGeneratorConfig(
     val allowDeprecated: Boolean = false,
     /** Custom scalar type to converter mapping. */
     val customScalarMap: Map<String, GraphQLScalar> = emptyMap(),
-    /** Supported client type to be generated. */
-    val clientType: GraphQLClientType = GraphQLClientType.DEFAULT
+    /** Type of JSON serializer to be used. */
+    val serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
 )
 
 /**
@@ -43,13 +43,9 @@ data class GraphQLScalar(
 )
 
 /**
- * Type of GraphQL HTTP client to generate.
+ * Type of JSON serializer that will be used to generate the data classes.
  */
-enum class GraphQLClientType {
-    /** Generic GraphQL client. */
-    DEFAULT,
-    /** Ktor based GraphQL client. */
-    KTOR,
-    /** Spring WebClient based GraphQL client. */
-    WEBCLIENT
+enum class GraphQLSerializer {
+    KOTLINX,
+    JACKSON
 }

@@ -33,11 +33,13 @@ data class GraphQLClientGeneratorContext(
     val rootType: String,
     val queryDocument: Document,
     val allowDeprecated: Boolean = false,
-    val customScalarMap: Map<String, GraphQLScalar> = mapOf()
+    val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
+    val serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
 ) {
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeSpecs: MutableMap<String, TypeSpec> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
 
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
+    val enums: MutableSet<ClassName> = mutableSetOf()
 }

@@ -20,30 +20,22 @@ import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOpera
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
 import com.expediagroup.graphql.plugin.client.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asTypeName
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
 import graphql.schema.idl.TypeDefinitionRegistry
-import io.ktor.client.request.HttpRequestBuilder
+import kotlinx.serialization.Serializable
 import java.io.File
 
-private const val LIBRARY_CLIENT_PACKAGE = "com.expediagroup.graphql.client"
-private const val LIBRARY_CLIENT_KTOR_PACKAGE = "com.expediagroup.graphql.client.ktor"
-private const val LIBRARY_CLIENT_SPRING_PACKAGE = "com.expediagroup.graphql.client.spring"
-private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.types"
+private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
 
 /**
  * GraphQL client code generator that uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate Kotlin classes based on the specified GraphQL queries.
@@ -95,7 +87,8 @@ class GraphQLClientGenerator(
                 rootType = operationTypeName,
                 queryDocument = queryDocument,
                 allowDeprecated = config.allowDeprecated,
-                customScalarMap = config.customScalarMap
+                customScalarMap = config.customScalarMap,
+                serializer = config.serializer
             )
             val queryConstName = operationTypeName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
@@ -110,29 +103,43 @@ class GraphQLClientGenerator(
             val graphQLResponseTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
             val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResponseTypeSpec.name}")
 
+            val queryProperty = PropertySpec.builder("query", STRING, KModifier.OVERRIDE)
+                .initializer("%N", queryConstProp)
+                .build()
             val operationTypeSpec = TypeSpec.classBuilder(operationTypeName)
-            operationTypeSpec.superclass(ClassName(LIBRARY_CLIENT_PACKAGE, "GraphQLClientRequest"))
-            operationTypeSpec.addSuperclassConstructorParameter("%N", queryConstProp)
-            if (operationDefinition.name != null) {
-                operationTypeSpec.addSuperclassConstructorParameter("%S", operationDefinition.name)
-            }
+                .addSuperinterface(ClassName(CORE_TYPES_PACKAGE, "GraphQLClientRequest").parameterizedBy(kotlinResultTypeName))
+                .addProperty(queryProperty)
 
+            if (config.serializer == GraphQLSerializer.KOTLINX) {
+                operationTypeSpec.addAnnotation(Serializable::class)
+            }
+            if (operationDefinition.name != null) {
+                val operationNameProperty = PropertySpec.builder("operationName", STRING, KModifier.OVERRIDE)
+                    .initializer("%S", operationDefinition.name)
+                    .build()
+                operationTypeSpec.addProperty(operationNameProperty)
+            }
             if (variableType != null) {
                 operationTypeSpec.addType(variableType)
 
+                val variablesClassName = ClassName(config.packageName, "$operationTypeName.Variables")
+                val variablesProperty = PropertySpec.builder("variables", variablesClassName, KModifier.OVERRIDE)
+                    .initializer("variables")
+                    .build()
+                operationTypeSpec.addProperty(variablesProperty)
+
                 val constructor = FunSpec.constructorBuilder()
-                    .addParameter("variables", ClassName(config.packageName, "$operationTypeName.Variables"))
+                    .addParameter("variables", variablesClassName, KModifier.OVERRIDE)
                     .build()
                 operationTypeSpec.primaryConstructor(constructor)
-                operationTypeSpec.addSuperclassConstructorParameter("%L", "variables")
             }
 
-            val parameterizedReturnType = ClassName("java.lang", "Class").parameterizedBy(kotlinResultTypeName)
+            val parameterizedReturnType = ClassName("kotlin.reflect", "KClass").parameterizedBy(kotlinResultTypeName)
             operationTypeSpec.addFunction(
                 FunSpec.builder("responseType")
                     .addModifiers(KModifier.OVERRIDE)
                     .returns(parameterizedReturnType)
-                    .addStatement("return %T::class.java", kotlinResultTypeName)
+                    .addStatement("return %T::class", kotlinResultTypeName)
                     .build()
             )
 
@@ -140,51 +147,6 @@ class GraphQLClientGenerator(
                 operationTypeSpec.addType(it.value)
             }
             fileSpec.addType(operationTypeSpec.build())
-
-            val clientExtensionFunction = FunSpec.builder("execute$operationTypeName")
-                .addParameter("request", ClassName(config.packageName, operationTypeName))
-                .returns(ClassName(CORE_TYPES_PACKAGE, "GraphQLResponse").parameterizedBy(kotlinResultTypeName))
-                .addModifiers(KModifier.SUSPEND)
-
-            when (config.clientType) {
-                GraphQLClientType.KTOR -> {
-                    val ktorRequestCustomizer: ParameterSpec = ParameterSpec.builder(
-                        "requestCustomizer",
-                        LambdaTypeName.get(
-                            HttpRequestBuilder::class.asTypeName(),
-                            emptyList(),
-                            Unit::class.asTypeName()
-                        )
-                    )
-                        .defaultValue(CodeBlock.of("{}"))
-                        .build()
-
-                    clientExtensionFunction.receiver(ClassName(LIBRARY_CLIENT_KTOR_PACKAGE, "GraphQLKtorClient").parameterizedBy(STAR))
-                        .addParameter(ktorRequestCustomizer)
-                        .addStatement("return execute(request, requestCustomizer)")
-                }
-                GraphQLClientType.WEBCLIENT -> {
-                    val webClientRequestCustomizer: ParameterSpec = ParameterSpec.builder(
-                        "requestCustomizer",
-                        LambdaTypeName.get(
-                            ClassName("org.springframework.web.reactive.function.client", "WebClient", "RequestBodyUriSpec"),
-                            emptyList(),
-                            Unit::class.asTypeName()
-                        )
-                    )
-                        .defaultValue(CodeBlock.of("{}"))
-                        .build()
-                    clientExtensionFunction.receiver(ClassName(LIBRARY_CLIENT_SPRING_PACKAGE, "GraphQLWebClient"))
-                        .addParameter(webClientRequestCustomizer)
-                        .addStatement("return execute(request, requestCustomizer)")
-                }
-                else -> {
-                    clientExtensionFunction.receiver(ClassName(LIBRARY_CLIENT_PACKAGE, "GraphQLClient").parameterizedBy(STAR))
-                        .addStatement("return execute(request)")
-                }
-            }
-            fileSpec.addFunction(clientExtensionFunction.build())
-
             typeAliases.putAll(context.typeAliases)
         }
         return fileSpec.build()

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.MustacheFactory
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -34,9 +35,9 @@ abstract class GraphQLGradlePluginAbstractIT {
 
     // unsure if there is a better way - correct values are set from Gradle build
     // when running directly from IDE you will need to manually update those to correct values
-    private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.3.72"
-    private val junitVersion = System.getProperty("junitVersion") ?: "5.6.2"
-    private val springBootVersion = System.getProperty("springBootVersion") ?: "2.3.4.RELEASE"
+    private val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.4.21"
+    private val junitVersion = System.getProperty("junitVersion") ?: "5.7.0"
+    private val springBootVersion = System.getProperty("springBootVersion") ?: "2.4.2.RELEASE"
 
     val testSchema = loadResource("mocks/schema.graphql")
     val introspectionResult = loadResource("mocks/IntrospectionResult.json")
@@ -79,11 +80,18 @@ abstract class GraphQLGradlePluginAbstractIT {
         return testApplicationMustache.execute(StringWriter(), configuration).toString()
     }
 
-    internal fun File.generateBuildFileForClient(contents: String) {
+    internal fun File.generateBuildFileForClient(contents: String, serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX) {
+        val kotlinxSerializerPlugin = if (serializer == GraphQLSerializer.KOTLINX) {
+            """kotlin("plugin.serialization") version "$kotlinVersion""""
+        } else {
+            ""
+        }
+
         val plugins =
             """
             plugins {
-              id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
+              kotlin("jvm") version "$kotlinVersion"
+              $kotlinxSerializerPlugin
               id("com.expediagroup.graphql")
               application
             }
@@ -126,8 +134,8 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
             import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+            import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
             import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
             import com.expediagroup.graphql.plugin.gradle.graphql
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
@@ -208,8 +216,8 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateGroovyBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
             import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+            import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
             import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask

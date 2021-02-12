@@ -18,7 +18,7 @@ package com.expediagroup.graphql.plugin.gradle.actions
 
 import com.expediagroup.graphql.plugin.client.downloadSchema
 import com.expediagroup.graphql.plugin.gradle.parameters.RetrieveSchemaParameters
-import io.ktor.util.KtorExperimentalAPI
+// import io.ktor.util.KtorExperimentalAPI
 import org.gradle.workers.WorkAction
 
 /**
@@ -29,7 +29,7 @@ import org.gradle.workers.WorkAction
 @Suppress("UnstableApiUsage")
 abstract class DownloadSDLAction : WorkAction<RetrieveSchemaParameters> {
 
-    @KtorExperimentalAPI
+//    @KtorExperimentalAPI
     override fun execute() {
         val endpoint = parameters.endpoint.get()
         val headers = parameters.headers.get()

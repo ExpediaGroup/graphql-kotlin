@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.examples.client.gradle
 
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.expediagroup.graphql.generated.AddObjectMutation
 import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
@@ -24,8 +25,10 @@ import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
 import com.expediagroup.graphql.generated.executeAddObjectMutation
 import com.expediagroup.graphql.generated.executeExampleQuery
+import com.expediagroup.graphql.generated.executeHelloWorldQuery
 import com.expediagroup.graphql.generated.executeRetrieveObjectQuery
 import com.expediagroup.graphql.generated.executeUpdateObjectMutation
+import com.expediagroup.graphql.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.features.logging.DEFAULT
@@ -41,7 +44,6 @@ fun main() {
     val client = GraphQLKtorClient(
         url = URL("http://localhost:8080/graphql"),
         engineFactory = OkHttp,
-        mapper = jackson
     ) {
         engine {
             config {
@@ -57,6 +59,10 @@ fun main() {
     }
     println("HelloWorld examples")
     runBlocking {
+        val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables())
+        val helloWorldResult = client.executeHelloWorldQuery(helloWorldQuery)
+        val helloWorldResultImplicit: GraphQLClientResponse<HelloWorldQuery.Result> = client.execute(helloWorldQuery)
+
         val results = client.execute(
             listOf(
                 HelloWorldQuery(variables = HelloWorldQuery.Variables(name = null)),

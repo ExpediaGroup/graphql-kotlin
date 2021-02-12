@@ -1,16 +1,17 @@
 package com.example
 
 import com.example.generated.JUnitQuery
-import com.example.generated.executeJUnitQuery
 {{#webClient}}
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import org.springframework.web.reactive.function.client.WebClient
 {{/webClient}}
 {{^webClient}}
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
-{{/webClient}}
+{{#defaultHeader}}
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.header
+{{/defaultHeader}}
+{{/webClient}}
 import kotlinx.coroutines.runBlocking
 import java.net.URL
 
@@ -41,7 +42,7 @@ fun main() {
 
     runBlocking {
         {{^requestHeader}}
-        val response = client.executeJUnitQuery(query)
+        val response = client.execute(query)
         {{/requestHeader}}
         {{#requestHeader}}
         val response = client.executeJUnitQuery(query) {

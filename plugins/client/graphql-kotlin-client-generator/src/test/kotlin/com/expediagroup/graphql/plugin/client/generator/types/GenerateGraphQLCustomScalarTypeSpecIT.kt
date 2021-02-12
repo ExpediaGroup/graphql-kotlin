@@ -18,35 +18,133 @@ package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateGraphQLCustomScalarTypeSpecIT {
 
     @Test
-    fun `verify can generate custom scalar with converter mapping`() {
+    fun `verify can generate custom scalar with converter mapping using kotlinx-serialization`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.plugin.generator.UUIDScalarConverter
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonCreator
-                import com.fasterxml.jackson.annotation.JsonValue
-                import java.lang.Class
-                import kotlin.Any
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import com.expediagroup.graphql.converter.UUIDScalarConverter
                 import kotlin.String
-                import kotlin.jvm.JvmStatic
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.KSerializer
+                import kotlinx.serialization.Serializable
+                import kotlinx.serialization.descriptors.PrimitiveKind.STRING
+                import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+                import kotlinx.serialization.descriptors.SerialDescriptor
+                import kotlinx.serialization.encoding.Decoder
+                import kotlinx.serialization.encoding.Encoder
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
                     "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
 
-                class CustomScalarTestQuery : GraphQLClientRequest(CUSTOM_SCALAR_TEST_QUERY,
-                    "CustomScalarTestQuery") {
-                  override fun responseType(): Class<CustomScalarTestQuery.Result> =
-                      CustomScalarTestQuery.Result::class.java
+                @Serializable
+                class CustomScalarTestQuery : GraphQLClientRequest<CustomScalarTestQuery.Result> {
+                  override val query: String = CUSTOM_SCALAR_TEST_QUERY
+
+                  override val operationName: String = "CustomScalarTestQuery"
+
+                  override fun responseType(): KClass<CustomScalarTestQuery.Result> =
+                      CustomScalarTestQuery.Result::class
+
+                  /**
+                   * Custom scalar representing UUID
+                   */
+                  @Serializable(with = CustomScalarTestQuery.UUIDSerializer::class)
+                  data class UUID(
+                    val value: java.util.UUID
+                  )
+
+                  class UUIDSerializer : KSerializer<CustomScalarTestQuery.UUID> {
+                    private val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+                    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", STRING)
+
+                    override fun serialize(encoder: Encoder, value: CustomScalarTestQuery.UUID) {
+                      val encoded = converter.toJson(value.value)
+                      encoder.encodeString(encoded.toString())
+                    }
+
+                    override fun deserialize(decoder: Decoder): CustomScalarTestQuery.UUID {
+                      val jsonDecoder = decoder as JsonDecoder
+                      val element = jsonDecoder.decodeJsonElement()
+                      val rawContent = element.jsonPrimitive.content
+                      return CustomScalarTestQuery.UUID(value = converter.toScalar(rawContent))
+                    }
+                  }
+
+                  /**
+                   * Wrapper that holds all supported scalar types
+                   */
+                  @Serializable
+                  data class ScalarWrapper(
+                    /**
+                     * Custom scalar
+                     */
+                    val custom: CustomScalarTestQuery.UUID
+                  )
+
+                  @Serializable
+                  data class Result(
+                    /**
+                     * Query that returns wrapper object with all supported scalar types
+                     */
+                    val scalarQuery: CustomScalarTestQuery.ScalarWrapper
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+            query CustomScalarTestQuery {
+              scalarQuery {
+                custom
+              }
+            }
+            """.trimIndent()
+
+        verifyGeneratedFileSpecContents(
+            query,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.converter.UUIDScalarConverter"))
+            )
+        )
+    }
+
+    @Test
+    fun `verify can generate custom scalar with converter mapping using jackson`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import com.expediagroup.graphql.converter.UUIDScalarConverter
+                import com.fasterxml.jackson.annotation.JsonCreator
+                import com.fasterxml.jackson.annotation.JsonValue
+                import kotlin.Any
+                import kotlin.String
+                import kotlin.jvm.JvmStatic
+                import kotlin.reflect.KClass
+
+                const val CUSTOM_SCALAR_TEST_QUERY: String =
+                    "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
+
+                class CustomScalarTestQuery : GraphQLClientRequest<CustomScalarTestQuery.Result> {
+                  override val query: String = CUSTOM_SCALAR_TEST_QUERY
+
+                  override val operationName: String = "CustomScalarTestQuery"
+
+                  override fun responseType(): KClass<CustomScalarTestQuery.Result> =
+                      CustomScalarTestQuery.Result::class
 
                   /**
                    * Custom scalar representing UUID
@@ -83,9 +181,6 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                     val scalarQuery: CustomScalarTestQuery.ScalarWrapper
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeCustomScalarTestQuery(request: CustomScalarTestQuery):
-                    GraphQLResponse<CustomScalarTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -102,58 +197,73 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             expected,
             GraphQLClientGeneratorConfig(
                 packageName = "com.expediagroup.graphql.plugin.generator.integration",
-                customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.generator.UUIDScalarConverter"))
+                customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.converter.UUIDScalarConverter")),
+                serializer = GraphQLSerializer.JACKSON
             )
         )
     }
 
     @Test
-    fun `verify selection sets can reference custom scalars`() {
+    fun `verify selection sets can reference same custom scalars`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.expediagroup.graphql.plugin.generator.UUIDScalarConverter
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonCreator
-                import com.fasterxml.jackson.annotation.JsonValue
-                import java.lang.Class
-                import kotlin.Any
                 import kotlin.Int
                 import kotlin.String
-                import kotlin.jvm.JvmStatic
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.KSerializer
+                import kotlinx.serialization.Serializable
+                import kotlinx.serialization.descriptors.PrimitiveKind.STRING
+                import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+                import kotlinx.serialization.descriptors.SerialDescriptor
+                import kotlinx.serialization.encoding.Decoder
+                import kotlinx.serialization.encoding.Encoder
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
                     "query CustomScalarTestQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  count\n  custom\n  id\n}"
 
-                class CustomScalarTestQuery : GraphQLClientRequest(CUSTOM_SCALAR_TEST_QUERY,
-                    "CustomScalarTestQuery") {
-                  override fun responseType(): Class<CustomScalarTestQuery.Result> =
-                      CustomScalarTestQuery.Result::class.java
+                @Serializable
+                class CustomScalarTestQuery : GraphQLClientRequest<CustomScalarTestQuery.Result> {
+                  override val query: String = CUSTOM_SCALAR_TEST_QUERY
+
+                  override val operationName: String = "CustomScalarTestQuery"
+
+                  override fun responseType(): KClass<CustomScalarTestQuery.Result> =
+                      CustomScalarTestQuery.Result::class
 
                   /**
                    * Custom scalar representing UUID
                    */
+                  @Serializable(with = CustomScalarTestQuery.UUIDSerializer::class)
                   data class UUID(
                     val value: java.util.UUID
-                  ) {
-                    @JsonValue
-                    fun rawValue() = converter.toJson(value)
+                  )
 
-                    companion object {
-                      val converter: UUIDScalarConverter = UUIDScalarConverter()
+                  class UUIDSerializer : KSerializer<CustomScalarTestQuery.UUID> {
+                    private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-                      @JsonCreator
-                      @JvmStatic
-                      fun create(rawValue: Any) = UUID(converter.toScalar(rawValue))
+                    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", STRING)
+
+                    override fun serialize(encoder: Encoder, value: CustomScalarTestQuery.UUID) {
+                      val encoded = converter.toJson(value.value)
+                      encoder.encodeString(encoded.toString())
+                    }
+
+                    override fun deserialize(decoder: Decoder): CustomScalarTestQuery.UUID {
+                      val jsonDecoder = decoder as JsonDecoder
+                      val element = jsonDecoder.decodeJsonElement()
+                      val rawContent = element.jsonPrimitive.content
+                      return CustomScalarTestQuery.UUID(value = converter.toScalar(rawContent))
                     }
                   }
 
                   /**
                    * Wrapper that holds all supported scalar types
                    */
+                  @Serializable
                   data class ScalarWrapper(
                     /**
                      * A signed 32-bit nullable integer value
@@ -169,6 +279,7 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                     val id: ID
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query that returns wrapper object with all supported scalar types
@@ -180,9 +291,6 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                     val second: CustomScalarTestQuery.ScalarWrapper
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeCustomScalarTestQuery(request: CustomScalarTestQuery):
-                    GraphQLResponse<CustomScalarTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =

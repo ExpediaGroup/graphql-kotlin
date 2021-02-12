@@ -31,8 +31,6 @@ import kotlin.test.assertTrue
 
 class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
-    // build dir = /Users/DKuc/Development/graphql-kotlin/plugins/graphql-kotlin-gradle-plugin/build
-
     @Test
     @Tag("kts")
     fun `verify downloadSDL task (kts)`(@TempDir tempDir: Path) {

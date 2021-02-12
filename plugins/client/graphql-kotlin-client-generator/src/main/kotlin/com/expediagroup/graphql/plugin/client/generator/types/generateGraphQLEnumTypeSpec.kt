@@ -17,12 +17,15 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.Directives.DeprecatedDirective
 import graphql.language.EnumTypeDefinition
 import graphql.language.StringValue
+
+internal const val UNKNOWN_VALUE = "__UNKNOWN_VALUE"
 
 /**
  * Generate enum [TypeSpec] from the specified GraphQL enum definition. Adds default `__UNKNOWN_VALUE` relying on Jackson annotation to handle new/unknown enum values.
@@ -52,10 +55,11 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
 
     val unkownTypeSpec = TypeSpec.anonymousClassBuilder()
         .addKdoc("%L", "This is a default enum value that will be used when attempting to deserialize unknown value.")
-        .addAnnotation(JsonEnumDefaultValue::class)
-        .build()
+    if (context.serializer == GraphQLSerializer.JACKSON) {
+        unkownTypeSpec.addAnnotation(JsonEnumDefaultValue::class)
+    }
 
-    enumTypeSpecBuilder.addEnumConstant("__UNKNOWN_VALUE", unkownTypeSpec)
+    enumTypeSpecBuilder.addEnumConstant(UNKNOWN_VALUE, unkownTypeSpec.build())
 
     val enumTypeSpec = enumTypeSpecBuilder.build()
     context.typeSpecs[enumDefinition.name] = enumTypeSpec

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import org.gradle.api.Action
@@ -71,8 +71,8 @@ open class GraphQLPluginClientExtension {
     var queryFiles: List<File> = emptyList()
     /** Directory containing GraphQL query files. */
     var queryFileDirectory: String? = null
-    /** Type of GraphQL client implementation to generate. */
-    var clientType: GraphQLClientType = GraphQLClientType.DEFAULT
+    /** JSON serializer that will be used to generate the data classes. */
+    var serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
 
     /** Connect and read timeout configuration for executing introspection query/download schema */
     internal val timeoutConfig: TimeoutConfiguration = TimeoutConfiguration()

@@ -10,21 +10,26 @@ class GenerateGraphQLDocsIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val DOCS_QUERY: String = "query DocsQuery {\n  docQuery {\n    id\n  }\n}"
 
-                class DocsQuery : GraphQLClientRequest(DOCS_QUERY, "DocsQuery") {
-                  override fun responseType(): Class<DocsQuery.Result> = DocsQuery.Result::class.java
+                @Serializable
+                class DocsQuery : GraphQLClientRequest<DocsQuery.Result> {
+                  override val query: String = DOCS_QUERY
+
+                  override val operationName: String = "DocsQuery"
+
+                  override fun responseType(): KClass<DocsQuery.Result> = DocsQuery.Result::class
 
                   /**
                    * Doc object with % and $ floating around
                    */
+                  @Serializable
                   data class DocObject(
                     /**
                      * An id with a comment containing % and $ as well
@@ -32,6 +37,7 @@ class GenerateGraphQLDocsIT {
                     val id: Int
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query to test doc strings
@@ -39,9 +45,6 @@ class GenerateGraphQLDocsIT {
                     val docQuery: DocsQuery.DocObject
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDocsQuery(request: DocsQuery): GraphQLResponse<DocsQuery.Result>
-                    = execute(request)
             """.trimIndent()
         val query =
             """

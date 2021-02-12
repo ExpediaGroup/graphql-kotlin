@@ -33,7 +33,8 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
     @Test
     @Tag("kts")
     fun `verify generateClient task with defaults (kts)`(@TempDir tempDir: Path) {
-        val testProjectDirectory = tempDir.toFile()
+//        val testProjectDirectory = tempDir.toFile()
+        val testProjectDirectory = File("/Users/DKuc/Development/test-client")
         /*
         project setup
         ----

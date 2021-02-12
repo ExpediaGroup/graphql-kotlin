@@ -16,10 +16,11 @@
 
 package com.expediagroup.graphql.client.spring
 
-import com.expediagroup.graphql.client.GraphQLClientRequest
-import com.expediagroup.graphql.types.GraphQLError
-import com.expediagroup.graphql.types.GraphQLResponse
-import com.expediagroup.graphql.types.SourceLocation
+import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
+import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
+import com.expediagroup.graphql.client.jackson.types.JacksonSourceLocation
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
@@ -41,6 +42,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
 import java.time.Duration
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -57,12 +59,12 @@ class GraphQLWebClientTest {
 
     @Test
     fun `verifies spring web client can retrieve data`() {
-        val expectedResponse = GraphQLResponse<HelloWorldResult>(
+        val expectedResponse = JacksonGraphQLResponse(
             data = HelloWorldResult("Hello World!"),
             errors = listOf(
-                GraphQLError(
+                JacksonGraphQLError(
                     message = "helloWorld is also throwing an exception",
-                    locations = listOf(SourceLocation(1, 1)),
+                    locations = listOf(JacksonSourceLocation(1, 1)),
                     path = listOf("helloWorld"),
                     extensions = mapOf("exceptionExtensionKey" to "JunitCustomValue")
                 )
@@ -73,7 +75,7 @@ class GraphQLWebClientTest {
 
         val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
         runBlocking {
-            val result: GraphQLResponse<HelloWorldResult> = client.execute(HelloWorldRequest)
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldRequest)
 
             assertNotNull(result)
             assertNotNull(result.data)
@@ -97,7 +99,7 @@ class GraphQLWebClientTest {
 
     @Test
     fun `verifies spring web client instance can be customized`() {
-        val expectedResponse = GraphQLResponse(data = HelloWorldResult("Hello World!"))
+        val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
         WireMock.stubFor(stubResponse(response = expectedResponse, delayMillis = 50))
 
         val httpClient: HttpClient = HttpClient.create()
@@ -113,7 +115,7 @@ class GraphQLWebClientTest {
         )
         runBlocking {
             val exception = assertFailsWith(WebClientRequestException::class) {
-                client.execute<GraphQLResponse<HelloWorldResult>>(HelloWorldRequest)
+                client.execute(HelloWorldRequest)
             }
             assertTrue(exception.cause is ReadTimeoutException)
         }
@@ -121,14 +123,14 @@ class GraphQLWebClientTest {
 
     @Test
     fun `verifies individual spring web client requests can be customized`() {
-        val expectedResponse = GraphQLResponse(data = HelloWorldResult("Hello World!"))
+        val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
         val customHeaderName = "X-Custom-Header"
         val customHeaderValue = "My-Custom-Header-Value"
         WireMock.stubFor(stubResponse(expectedResponse).withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
 
         val client = GraphQLWebClient(url = "${wireMockServer.baseUrl()}/graphql")
         runBlocking {
-            val result: GraphQLResponse<HelloWorldResult> = client.execute(HelloWorldRequest) {
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldRequest) {
                 header(customHeaderName, customHeaderValue)
             }
 
@@ -172,7 +174,7 @@ class GraphQLWebClientTest {
         }
     }
 
-    private fun stubResponse(response: GraphQLResponse<*>, delayMillis: Int = 0): MappingBuilder =
+    private fun stubResponse(response: JacksonGraphQLResponse<*>, delayMillis: Int = 0): MappingBuilder =
         WireMock.post("/graphql")
             .willReturn(
                 WireMock.aResponse()
@@ -184,12 +186,11 @@ class GraphQLWebClientTest {
 
     data class HelloWorldResult(val helloWorld: String)
 
-    object HelloWorldRequest : GraphQLClientRequest(
-        query = "query HelloWorldQuery { helloWorld }",
-        operationName = "HelloWorld"
-    ) {
+    object HelloWorldRequest : GraphQLClientRequest<HelloWorldResult> {
+        override val query: String = "query HelloWorldQuery { helloWorld }"
+        override val operationName: String = "HelloWorld"
 
-        override fun responseType(): Class<HelloWorldResult> = HelloWorldResult::class.java
+        override fun responseType(): KClass<HelloWorldResult> = HelloWorldResult::class
     }
 
     companion object {

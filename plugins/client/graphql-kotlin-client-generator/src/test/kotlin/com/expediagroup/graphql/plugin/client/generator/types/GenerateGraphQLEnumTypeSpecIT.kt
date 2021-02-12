@@ -16,29 +16,101 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateGraphQLEnumTypeSpecIT {
 
     @Test
-    fun `verify enum types are correctly generated`() {
+    fun `verify enum types are correctly generated using kotlinx-serialization`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Deprecated
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
 
-                class EnumTestQuery : GraphQLClientRequest(ENUM_TEST_QUERY, "EnumTestQuery") {
-                  override fun responseType(): Class<EnumTestQuery.Result> = EnumTestQuery.Result::class.java
+                @Serializable
+                class EnumTestQuery : GraphQLClientRequest<EnumTestQuery.Result> {
+                  override val query: String = ENUM_TEST_QUERY
+
+                  override val operationName: String = "EnumTestQuery"
+
+                  override fun responseType(): KClass<EnumTestQuery.Result> = EnumTestQuery.Result::class
+
+                  /**
+                   * Custom enum description
+                   */
+                  enum class CustomEnum {
+                    /**
+                     * First enum value
+                     */
+                    ONE,
+
+                    /**
+                     * Third enum value
+                     */
+                    @Deprecated(message = "only goes up to two")
+                    THREE,
+
+                    /**
+                     * Second enum value
+                     */
+                    TWO,
+
+                    /**
+                     * This is a default enum value that will be used when attempting to deserialize unknown value.
+                     */
+                    __UNKNOWN_VALUE
+                  }
+
+                  @Serializable
+                  data class Result(
+                    /**
+                     * Query that returns enum value
+                     */
+                    val enumQuery: EnumTestQuery.CustomEnum = EnumTestQuery.CustomEnum.__UNKNOWN_VALUE
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+            query EnumTestQuery {
+              enumQuery
+            }
+            """.trimIndent()
+
+        verifyGeneratedFileSpecContents(query, expected)
+    }
+
+    @Test
+    fun `verify enum types are correctly generated using jackson`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+                import kotlin.Deprecated
+                import kotlin.String
+                import kotlin.reflect.KClass
+
+                const val ENUM_TEST_QUERY: String = "query EnumTestQuery {\n  enumQuery\n}"
+
+                class EnumTestQuery : GraphQLClientRequest<EnumTestQuery.Result> {
+                  override val query: String = ENUM_TEST_QUERY
+
+                  override val operationName: String = "EnumTestQuery"
+
+                  override fun responseType(): KClass<EnumTestQuery.Result> = EnumTestQuery.Result::class
 
                   /**
                    * Custom enum description
@@ -71,12 +143,9 @@ class GenerateGraphQLEnumTypeSpecIT {
                     /**
                      * Query that returns enum value
                      */
-                    val enumQuery: EnumTestQuery.CustomEnum
+                    val enumQuery: EnumTestQuery.CustomEnum = EnumTestQuery.CustomEnum.__UNKNOWN_VALUE
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeEnumTestQuery(request: EnumTestQuery):
-                    GraphQLResponse<EnumTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -86,6 +155,13 @@ class GenerateGraphQLEnumTypeSpecIT {
             }
             """.trimIndent()
 
-        verifyGeneratedFileSpecContents(query, expected)
+        verifyGeneratedFileSpecContents(
+            query,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                serializer = GraphQLSerializer.JACKSON
+            )
+        )
     }
 }

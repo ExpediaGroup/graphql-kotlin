@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidPolymorphicQueryException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.client.generator.verifyGeneratedFileSpecContents
@@ -28,35 +30,37 @@ import org.junit.jupiter.api.assertThrows
 class GenerateGraphQLInterfaceTypeSpecIT {
 
     @Test
-    fun `verify we can generate valid interface type spec with inline fragments`() {
+    fun `verify we can generate valid interface type spec with inline fragments using kotlinx-serialization`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY: String =
                     "query InterfaceWithInlineFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
+                @Serializable
                 class InterfaceWithInlineFragmentsTestQuery :
-                    GraphQLClientRequest(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
-                    "InterfaceWithInlineFragmentsTestQuery") {
-                  override fun responseType(): Class<InterfaceWithInlineFragmentsTestQuery.Result> =
-                      InterfaceWithInlineFragmentsTestQuery.Result::class.java
+                    GraphQLClientRequest<InterfaceWithInlineFragmentsTestQuery.Result> {
+                  override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY
+
+                  override val operationName: String = "InterfaceWithInlineFragmentsTestQuery"
+
+                  override fun responseType(): KClass<InterfaceWithInlineFragmentsTestQuery.Result> =
+                      InterfaceWithInlineFragmentsTestQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
                    */
+                  @Serializable
+                  @SerialName(value = "FirstInterfaceImplementation")
                   data class FirstInterfaceImplementation(
                     /**
                      * Unique identifier of the first implementation
@@ -70,11 +74,13 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field integer value
                      */
                     val intValue: Int
-                  ) : InterfaceWithInlineFragmentsTestQuery.BasicInterface
+                  ) : InterfaceWithInlineFragmentsTestQuery.BasicInterface()
 
                   /**
                    * Example interface implementation where value is a float
                    */
+                  @Serializable
+                  @SerialName(value = "SecondInterfaceImplementation")
                   data class SecondInterfaceImplementation(
                     /**
                      * Unique identifier of the second implementation
@@ -88,33 +94,25 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field float value
                      */
                     val floatValue: Float
-                  ) : InterfaceWithInlineFragmentsTestQuery.BasicInterface
+                  ) : InterfaceWithInlineFragmentsTestQuery.BasicInterface()
 
                   /**
                    * Very basic interface
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      InterfaceWithInlineFragmentsTestQuery.FirstInterfaceImplementation::class,
-                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-                      = InterfaceWithInlineFragmentsTestQuery.SecondInterfaceImplementation::class,
-                      name="SecondInterfaceImplementation")])
-                  interface BasicInterface {
+                  @Serializable
+                  sealed class BasicInterface {
                     /**
                      * Unique identifier of an interface
                      */
-                    val id: Int
+                    abstract val id: Int
 
                     /**
                      * Name field
                      */
-                    val name: String
+                    abstract val name: String
                   }
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an interface
@@ -122,10 +120,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val interfaceQuery: InterfaceWithInlineFragmentsTestQuery.BasicInterface
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeInterfaceWithInlineFragmentsTestQuery(request: InterfaceWithInlineFragmentsTestQuery):
-                    GraphQLResponse<InterfaceWithInlineFragmentsTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -153,30 +147,32 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY: String =
                     "query InterfaceWithNamedFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... firstInterfaceImplFields\n    ... secondInterfaceImplFields\n  }\n}\n\nfragment firstInterfaceImplFields on FirstInterfaceImplementation {\n  id\n  name\n  intValue\n}\nfragment secondInterfaceImplFields on SecondInterfaceImplementation {\n  id\n  name\n  floatValue\n}"
 
+                @Serializable
                 class InterfaceWithNamedFragmentsTestQuery :
-                    GraphQLClientRequest(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
-                    "InterfaceWithNamedFragmentsTestQuery") {
-                  override fun responseType(): Class<InterfaceWithNamedFragmentsTestQuery.Result> =
-                      InterfaceWithNamedFragmentsTestQuery.Result::class.java
+                    GraphQLClientRequest<InterfaceWithNamedFragmentsTestQuery.Result> {
+                  override val query: String = INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY
+
+                  override val operationName: String = "InterfaceWithNamedFragmentsTestQuery"
+
+                  override fun responseType(): KClass<InterfaceWithNamedFragmentsTestQuery.Result> =
+                      InterfaceWithNamedFragmentsTestQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
                    */
+                  @Serializable
+                  @SerialName(value = "FirstInterfaceImplementation")
                   data class FirstInterfaceImplementation(
                     /**
                      * Unique identifier of the first implementation
@@ -190,11 +186,13 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field integer value
                      */
                     val intValue: Int
-                  ) : InterfaceWithNamedFragmentsTestQuery.BasicInterface
+                  ) : InterfaceWithNamedFragmentsTestQuery.BasicInterface()
 
                   /**
                    * Example interface implementation where value is a float
                    */
+                  @Serializable
+                  @SerialName(value = "SecondInterfaceImplementation")
                   data class SecondInterfaceImplementation(
                     /**
                      * Unique identifier of the second implementation
@@ -208,33 +206,25 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field float value
                      */
                     val floatValue: Float
-                  ) : InterfaceWithNamedFragmentsTestQuery.BasicInterface
+                  ) : InterfaceWithNamedFragmentsTestQuery.BasicInterface()
 
                   /**
                    * Very basic interface
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      InterfaceWithNamedFragmentsTestQuery.FirstInterfaceImplementation::class,
-                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-                      = InterfaceWithNamedFragmentsTestQuery.SecondInterfaceImplementation::class,
-                      name="SecondInterfaceImplementation")])
-                  interface BasicInterface {
+                  @Serializable
+                  sealed class BasicInterface {
                     /**
                      * Unique identifier of an interface
                      */
-                    val id: Int
+                    abstract val id: Int
 
                     /**
                      * Name field
                      */
-                    val name: String
+                    abstract val name: String
                   }
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an interface
@@ -242,10 +232,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val interfaceQuery: InterfaceWithNamedFragmentsTestQuery.BasicInterface
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeInterfaceWithNamedFragmentsTestQuery(request: InterfaceWithNamedFragmentsTestQuery):
-                    GraphQLResponse<InterfaceWithNamedFragmentsTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val queryWithNamedFragments =
@@ -335,29 +321,31 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                @Serializable
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
                    */
+                  @Serializable
+                  @SerialName(value = "FirstInterfaceImplementation")
                   data class FirstInterfaceImplementation(
                     /**
                      * Unique identifier of the first implementation
@@ -371,11 +359,13 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field integer value
                      */
                     val intValue: Int
-                  ) : DifferentSelectionSetQuery.BasicInterface
+                  ) : DifferentSelectionSetQuery.BasicInterface()
 
                   /**
                    * Example interface implementation where value is a float
                    */
+                  @Serializable
+                  @SerialName(value = "SecondInterfaceImplementation")
                   data class SecondInterfaceImplementation(
                     /**
                      * Unique identifier of the second implementation
@@ -389,36 +379,29 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field float value
                      */
                     val floatValue: Float
-                  ) : DifferentSelectionSetQuery.BasicInterface
+                  ) : DifferentSelectionSetQuery.BasicInterface()
 
                   /**
                    * Very basic interface
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.FirstInterfaceImplementation::class,
-                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-                      = DifferentSelectionSetQuery.SecondInterfaceImplementation::class,
-                      name="SecondInterfaceImplementation")])
-                  interface BasicInterface {
+                  @Serializable
+                  sealed class BasicInterface {
                     /**
                      * Unique identifier of an interface
                      */
-                    val id: Int
+                    abstract val id: Int
 
                     /**
                      * Name field
                      */
-                    val name: String
+                    abstract val name: String
                   }
 
                   /**
                    * Example interface implementation where value is an integer
                    */
+                  @Serializable
+                  @SerialName(value = "FirstInterfaceImplementation")
                   data class FirstInterfaceImplementation2(
                     /**
                      * Name of the first implementation
@@ -428,11 +411,13 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field integer value
                      */
                     val intValue: Int
-                  ) : DifferentSelectionSetQuery.BasicInterface2
+                  ) : DifferentSelectionSetQuery.BasicInterface2()
 
                   /**
                    * Example interface implementation where value is a float
                    */
+                  @Serializable
+                  @SerialName(value = "SecondInterfaceImplementation")
                   data class SecondInterfaceImplementation2(
                     /**
                      * Name of the second implementation
@@ -442,28 +427,20 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field float value
                      */
                     val floatValue: Float
-                  ) : DifferentSelectionSetQuery.BasicInterface2
+                  ) : DifferentSelectionSetQuery.BasicInterface2()
 
                   /**
                    * Very basic interface
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.FirstInterfaceImplementation2::class,
-                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-                      = DifferentSelectionSetQuery.SecondInterfaceImplementation2::class,
-                      name="SecondInterfaceImplementation")])
-                  interface BasicInterface2 {
+                  @Serializable
+                  sealed class BasicInterface2 {
                     /**
                      * Name field
                      */
-                    val name: String
+                    abstract val name: String
                   }
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an interface
@@ -475,9 +452,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val second: DifferentSelectionSetQuery.BasicInterface2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """
@@ -514,29 +488,31 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      name\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      name\n      floatValue\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                @Serializable
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
                    */
+                  @Serializable
+                  @SerialName(value = "FirstInterfaceImplementation")
                   data class FirstInterfaceImplementation(
                     /**
                      * Unique identifier of the first implementation
@@ -546,11 +522,13 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field integer value
                      */
                     val intValue: Int
-                  ) : DifferentSelectionSetQuery.BasicInterface
+                  ) : DifferentSelectionSetQuery.BasicInterface()
 
                   /**
                    * Example interface implementation where value is a float
                    */
+                  @Serializable
+                  @SerialName(value = "SecondInterfaceImplementation")
                   data class SecondInterfaceImplementation(
                     /**
                      * Unique identifier of the second implementation
@@ -560,31 +538,24 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field float value
                      */
                     val floatValue: Float
-                  ) : DifferentSelectionSetQuery.BasicInterface
+                  ) : DifferentSelectionSetQuery.BasicInterface()
 
                   /**
                    * Very basic interface
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.FirstInterfaceImplementation::class,
-                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-                      = DifferentSelectionSetQuery.SecondInterfaceImplementation::class,
-                      name="SecondInterfaceImplementation")])
-                  interface BasicInterface {
+                  @Serializable
+                  sealed class BasicInterface {
                     /**
                      * Unique identifier of an interface
                      */
-                    val id: Int
+                    abstract val id: Int
                   }
 
                   /**
                    * Example interface implementation where value is an integer
                    */
+                  @Serializable
+                  @SerialName(value = "FirstInterfaceImplementation")
                   data class FirstInterfaceImplementation2(
                     /**
                      * Unique identifier of the first implementation
@@ -598,11 +569,13 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field integer value
                      */
                     val intValue: Int
-                  ) : DifferentSelectionSetQuery.BasicInterface2
+                  ) : DifferentSelectionSetQuery.BasicInterface2()
 
                   /**
                    * Example interface implementation where value is a float
                    */
+                  @Serializable
+                  @SerialName(value = "SecondInterfaceImplementation")
                   data class SecondInterfaceImplementation2(
                     /**
                      * Unique identifier of the second implementation
@@ -616,28 +589,20 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                      * Custom field float value
                      */
                     val floatValue: Float
-                  ) : DifferentSelectionSetQuery.BasicInterface2
+                  ) : DifferentSelectionSetQuery.BasicInterface2()
 
                   /**
                    * Very basic interface
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.FirstInterfaceImplementation2::class,
-                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-                      = DifferentSelectionSetQuery.SecondInterfaceImplementation2::class,
-                      name="SecondInterfaceImplementation")])
-                  interface BasicInterface2 {
+                  @Serializable
+                  sealed class BasicInterface2 {
                     /**
                      * Unique identifier of an interface
                      */
-                    val id: Int
+                    abstract val id: Int
                   }
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an interface
@@ -649,9 +614,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val second: DifferentSelectionSetQuery.BasicInterface2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """
@@ -681,5 +643,129 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                 }
             """.trimIndent()
         verifyGeneratedFileSpecContents(differentSelectionQuery, expected)
+    }
+
+    @Test
+    fun `verify we can generate valid interface type spec with inline fragments using jackson`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import com.fasterxml.jackson.annotation.JsonSubTypes
+                import com.fasterxml.jackson.annotation.JsonTypeInfo
+                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+                import kotlin.Float
+                import kotlin.Int
+                import kotlin.String
+                import kotlin.reflect.KClass
+
+                const val INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY: String =
+                    "query InterfaceWithInlineFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
+
+                class InterfaceWithInlineFragmentsTestQuery :
+                    GraphQLClientRequest<InterfaceWithInlineFragmentsTestQuery.Result> {
+                  override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY
+
+                  override val operationName: String = "InterfaceWithInlineFragmentsTestQuery"
+
+                  override fun responseType(): KClass<InterfaceWithInlineFragmentsTestQuery.Result> =
+                      InterfaceWithInlineFragmentsTestQuery.Result::class
+
+                  /**
+                   * Example interface implementation where value is an integer
+                   */
+                  data class FirstInterfaceImplementation(
+                    /**
+                     * Unique identifier of the first implementation
+                     */
+                    override val id: Int,
+                    /**
+                     * Name of the first implementation
+                     */
+                    override val name: String,
+                    /**
+                     * Custom field integer value
+                     */
+                    val intValue: Int
+                  ) : InterfaceWithInlineFragmentsTestQuery.BasicInterface
+
+                  /**
+                   * Example interface implementation where value is a float
+                   */
+                  data class SecondInterfaceImplementation(
+                    /**
+                     * Unique identifier of the second implementation
+                     */
+                    override val id: Int,
+                    /**
+                     * Name of the second implementation
+                     */
+                    override val name: String,
+                    /**
+                     * Custom field float value
+                     */
+                    val floatValue: Float
+                  ) : InterfaceWithInlineFragmentsTestQuery.BasicInterface
+
+                  /**
+                   * Very basic interface
+                   */
+                  @JsonTypeInfo(
+                    use = JsonTypeInfo.Id.NAME,
+                    include = JsonTypeInfo.As.PROPERTY,
+                    property = "__typename"
+                  )
+                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                      InterfaceWithInlineFragmentsTestQuery.FirstInterfaceImplementation::class,
+                      name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+                      = InterfaceWithInlineFragmentsTestQuery.SecondInterfaceImplementation::class,
+                      name="SecondInterfaceImplementation")])
+                  interface BasicInterface {
+                    /**
+                     * Unique identifier of an interface
+                     */
+                    abstract val id: Int
+
+                    /**
+                     * Name field
+                     */
+                    abstract val name: String
+                  }
+
+                  data class Result(
+                    /**
+                     * Query returning an interface
+                     */
+                    val interfaceQuery: InterfaceWithInlineFragmentsTestQuery.BasicInterface
+                  )
+                }
+            """.trimIndent()
+
+        val query =
+            """
+                query InterfaceWithInlineFragmentsTestQuery {
+                  interfaceQuery {
+                    __typename
+                    id
+                    name
+                    ... on FirstInterfaceImplementation {
+                      intValue
+                    }
+                    ... on SecondInterfaceImplementation {
+                      floatValue
+                    }
+                  }
+                }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(
+            query,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                serializer = GraphQLSerializer.JACKSON
+            )
+        )
     }
 }

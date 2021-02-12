@@ -16,12 +16,11 @@
 
 package com.expediagroup.graphql.client.ktor
 
-import com.expediagroup.graphql.client.GraphQLClientRequest
-import com.expediagroup.graphql.types.GraphQLError
-import com.expediagroup.graphql.types.GraphQLResponse
-import com.expediagroup.graphql.types.SourceLocation
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
+import com.expediagroup.graphql.client.serialization.types.KotlinXGraphQLError
+import com.expediagroup.graphql.client.serialization.types.KotlinXGraphQLResponse
+import com.expediagroup.graphql.client.serialization.types.KotlinXSourceLocation
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -37,12 +36,17 @@ import io.ktor.client.request.header
 import io.ktor.client.statement.readText
 import io.ktor.network.sockets.SocketTimeoutException
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -51,7 +55,7 @@ import kotlin.test.assertNull
 @Suppress("EXPERIMENTAL_API_USAGE")
 class GraphQLKtorClientTest {
 
-    private val jacksonObjectMapper = jacksonObjectMapper()
+    private val json = Json { }
 
     @BeforeEach
     fun setUp() {
@@ -60,12 +64,12 @@ class GraphQLKtorClientTest {
 
     @Test
     fun `verifies ktor client can retrieve data`() {
-        val expectedResponse = GraphQLResponse<HelloWorldResult>(
+        val expectedResponse = KotlinXGraphQLResponse(
             data = HelloWorldResult("Hello World!"),
             errors = listOf(
-                GraphQLError(
+                KotlinXGraphQLError(
                     message = "helloWorld is also throwing an exception",
-                    locations = listOf(SourceLocation(1, 1)),
+                    locations = listOf(KotlinXSourceLocation(1, 1)),
                     path = listOf("helloWorld"),
                     extensions = mapOf("exceptionExtensionKey" to "JunitCustomValue")
                 )
@@ -76,7 +80,7 @@ class GraphQLKtorClientTest {
 
         val client = GraphQLKtorClient(URL("${wireMockServer.baseUrl()}/graphql"))
         runBlocking {
-            val result: GraphQLResponse<HelloWorldResult> = client.execute(HelloWorldRequest)
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldRequest())
 
             assertNotNull(result)
             assertNotNull(result.data)
@@ -100,7 +104,7 @@ class GraphQLKtorClientTest {
 
     @Test
     fun `verifies ktor client instance can be customized`() {
-        val expectedResponse = GraphQLResponse(data = HelloWorldResult("Hello World!"))
+        val expectedResponse = KotlinXGraphQLResponse(data = HelloWorldResult("Hello World!"))
         WireMock.stubFor(stubResponse(response = expectedResponse, delayMillis = 50))
 
         val client = GraphQLKtorClient(
@@ -121,21 +125,21 @@ class GraphQLKtorClientTest {
         }
         runBlocking {
             assertFailsWith(SocketTimeoutException::class) {
-                client.execute<GraphQLResponse<HelloWorldResult>>(HelloWorldRequest)
+                client.execute(HelloWorldRequest())
             }
         }
     }
 
     @Test
     fun `verifies individual ktor client requests can be customized`() {
-        val expectedResponse = GraphQLResponse(data = HelloWorldResult("Hello World!"))
+        val expectedResponse = KotlinXGraphQLResponse(data = HelloWorldResult("Hello World!"))
         val customHeaderName = "X-Custom-Header"
         val customHeaderValue = "My-Custom-Header-Value"
         WireMock.stubFor(stubResponse(expectedResponse).withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
 
         val client = GraphQLKtorClient(URL("${wireMockServer.baseUrl()}/graphql"))
         runBlocking {
-            val result: GraphQLResponse<HelloWorldResult> = client.execute(HelloWorldRequest) {
+            val result: GraphQLClientResponse<HelloWorldResult> = client.execute(HelloWorldRequest()) {
                 header(customHeaderName, customHeaderValue)
             }
 
@@ -157,7 +161,7 @@ class GraphQLKtorClientTest {
         val client = GraphQLKtorClient(URL("${wireMockServer.baseUrl()}/graphql"))
         val error = assertFailsWith<ServerResponseException> {
             runBlocking {
-                client.execute<HelloWorldResult>(HelloWorldRequest)
+                client.execute(HelloWorldRequest())
             }
         }
         assertEquals(500, error.response.status.value)
@@ -172,30 +176,31 @@ class GraphQLKtorClientTest {
         )
 
         val client = GraphQLKtorClient(URL("${wireMockServer.baseUrl()}/graphql"))
-        assertFailsWith<MismatchedInputException> {
+        assertFailsWith<SerializationException> {
             runBlocking {
-                client.execute<HelloWorldResult>(HelloWorldRequest)
+                client.execute(HelloWorldRequest())
             }
         }
     }
 
-    private fun stubResponse(response: GraphQLResponse<*>, delayMillis: Int = 0): MappingBuilder =
+    private fun stubResponse(response: KotlinXGraphQLResponse<HelloWorldResult>, delayMillis: Int = 0): MappingBuilder =
         WireMock.post("/graphql")
             .willReturn(
                 WireMock.aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody(jacksonObjectMapper.writeValueAsString(response))
+                    .withBody(json.encodeToString(response))
                     .withFixedDelay(delayMillis)
             )
 
+    @Serializable
     data class HelloWorldResult(val helloWorld: String)
 
-    object HelloWorldRequest : GraphQLClientRequest(
-        query = "query HelloWorldQuery { helloWorld }",
-        operationName = "HelloWorld"
-    ) {
-        override fun responseType(): Class<HelloWorldResult> = HelloWorldResult::class.java
+    @Serializable
+    class HelloWorldRequest : GraphQLClientRequest<HelloWorldResult> {
+        override val query: String = "query HelloWorldQuery { helloWorld }"
+        override val operationName: String = "HelloWorld"
+        override fun responseType(): KClass<HelloWorldResult> = HelloWorldResult::class
     }
 
     companion object {

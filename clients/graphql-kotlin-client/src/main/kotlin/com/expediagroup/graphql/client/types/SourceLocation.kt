@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client
+package com.expediagroup.graphql.client.types
 
 /**
- * Abstract class representing GraphQL request that follows the common GraphQL HTTP request format.
+ * Location describing which part of GraphQL document caused an exception.
  *
- * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
+ * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
  */
-abstract class GraphQLClientRequest(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Any? = null
-) {
-
-    /**
-     * Parameterized type of a corresponding GraphQLResponse.
-     */
-    abstract fun responseType(): Class<*>
+interface SourceLocation {
+    val line: Int
+    val column: Int
 }

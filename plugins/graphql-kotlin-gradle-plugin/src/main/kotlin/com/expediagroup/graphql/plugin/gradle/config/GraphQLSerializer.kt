@@ -17,17 +17,13 @@
 package com.expediagroup.graphql.plugin.gradle.config
 
 /**
- * Type of GraphQL HTTP client to generate.
+ * JSON serializer that will be used to generate the data classes.
  *
- * In order to limit the amount of plugin dependencies, we cannot use client-generator GraphQLClientType enum directly as it is declared
+ * In order to limit the amount of plugin dependencies, we cannot use client-generator GraphQLSerializer enum directly as it is declared
  * as a compileOnly dependency (which will be available on the worker classpath only). We need to re-define the same object here so it will
  * be accessible from build file configurations.
  */
-enum class GraphQLClientType {
-    /** Generic GraphQL client. */
-    DEFAULT,
-    /** Ktor based GraphQL client. */
-    KTOR,
-    /** Spring WebClient based GraphQL client. */
-    WEBCLIENT
+enum class GraphQLSerializer {
+    KOTLINX,
+    JACKSON
 }

@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragmentException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.client.generator.verifyGeneratedFileSpecContents
@@ -28,30 +30,34 @@ import org.junit.jupiter.api.assertThrows
 class GenerateGraphQLObjectTypeSpecIT {
 
     @Test
-    fun `verify we can generate valid object type spec`() {
+    fun `verify we can generate valid object type spec using kotlinx-serialization`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Boolean
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val COMPLEX_OBJECT_TEST_QUERY: String =
                     "query ComplexObjectTestQuery {\n  complexObjectQuery {\n    id\n    name\n    optional\n    details {\n      id\n      flag\n      value\n    }\n  }\n}"
 
-                class ComplexObjectTestQuery : GraphQLClientRequest(COMPLEX_OBJECT_TEST_QUERY,
-                    "ComplexObjectTestQuery") {
-                  override fun responseType(): Class<ComplexObjectTestQuery.Result> =
-                      ComplexObjectTestQuery.Result::class.java
+                @Serializable
+                class ComplexObjectTestQuery : GraphQLClientRequest<ComplexObjectTestQuery.Result> {
+                  override val query: String = COMPLEX_OBJECT_TEST_QUERY
+
+                  override val operationName: String = "ComplexObjectTestQuery"
+
+                  override fun responseType(): KClass<ComplexObjectTestQuery.Result> =
+                      ComplexObjectTestQuery.Result::class
 
                   /**
                    * Inner type object description
                    */
+                  @Serializable
                   data class DetailsObject(
                     /**
                      * Unique identifier
@@ -72,6 +78,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -92,6 +99,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val details: ComplexObjectTestQuery.DetailsObject
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an object that references another object
@@ -99,9 +107,6 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val complexObjectQuery: ComplexObjectTestQuery.ComplexObject
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeComplexObjectTestQuery(request: ComplexObjectTestQuery):
-                    GraphQLResponse<ComplexObjectTestQuery.Result> = execute(request)
             """.trimIndent()
         val query =
             """
@@ -127,25 +132,29 @@ class GenerateGraphQLObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT: String =
                     "query ComplexObjectQueryWithNamedFragment {\n  complexObjectQuery {\n    ...complexObjectFields\n  }\n}\n\nfragment complexObjectFields on ComplexObject {\n  id\n  name\n  details {\n    ...detailObjectFields\n  }\n}\n\nfragment detailObjectFields on DetailsObject {\n  value\n}"
 
+                @Serializable
                 class ComplexObjectQueryWithNamedFragment :
-                    GraphQLClientRequest(COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT,
-                    "ComplexObjectQueryWithNamedFragment") {
-                  override fun responseType(): Class<ComplexObjectQueryWithNamedFragment.Result> =
-                      ComplexObjectQueryWithNamedFragment.Result::class.java
+                    GraphQLClientRequest<ComplexObjectQueryWithNamedFragment.Result> {
+                  override val query: String = COMPLEX_OBJECT_QUERY_WITH_NAMED_FRAGMENT
+
+                  override val operationName: String = "ComplexObjectQueryWithNamedFragment"
+
+                  override fun responseType(): KClass<ComplexObjectQueryWithNamedFragment.Result> =
+                      ComplexObjectQueryWithNamedFragment.Result::class
 
                   /**
                    * Inner type object description
                    */
+                  @Serializable
                   data class DetailsObject(
                     /**
                      * Actual detail value
@@ -158,6 +167,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -173,6 +183,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val details: ComplexObjectQueryWithNamedFragment.DetailsObject
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an object that references another object
@@ -180,10 +191,6 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val complexObjectQuery: ComplexObjectQueryWithNamedFragment.ComplexObject
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeComplexObjectQueryWithNamedFragment(request: ComplexObjectQueryWithNamedFragment):
-                    GraphQLResponse<ComplexObjectQueryWithNamedFragment.Result> = execute(request)
             """.trimIndent()
 
         val queryWithNamedFragment =
@@ -260,23 +267,28 @@ class GenerateGraphQLObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
                 import kotlin.collections.List
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val J_UNIT_TEST_QUERY: String =
                     "query JUnitTestQuery {\n  listQuery {\n    id\n    name\n  }\n}"
 
-                class JUnitTestQuery : GraphQLClientRequest(J_UNIT_TEST_QUERY, "JUnitTestQuery") {
-                  override fun responseType(): Class<JUnitTestQuery.Result> = JUnitTestQuery.Result::class.java
+                @Serializable
+                class JUnitTestQuery : GraphQLClientRequest<JUnitTestQuery.Result> {
+                  override val query: String = J_UNIT_TEST_QUERY
+
+                  override val operationName: String = "JUnitTestQuery"
+
+                  override fun responseType(): KClass<JUnitTestQuery.Result> = JUnitTestQuery.Result::class
 
                   /**
                    * Some basic description
                    */
+                  @Serializable
                   data class BasicObject(
                     val id: Int,
                     /**
@@ -285,6 +297,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val name: String
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning list of simple objects
@@ -292,9 +305,6 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val listQuery: List<JUnitTestQuery.BasicObject>
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeJUnitTestQuery(request: JUnitTestQuery):
-                    GraphQLResponse<JUnitTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -315,23 +325,28 @@ class GenerateGraphQLObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
                 import kotlin.collections.List
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val NESTED_QUERY: String =
                     "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      name\n      children {\n        id\n        name\n        children {\n          id\n          name\n        }\n      }\n    }\n  }\n}"
 
-                class NestedQuery : GraphQLClientRequest(NESTED_QUERY, "NestedQuery") {
-                  override fun responseType(): Class<NestedQuery.Result> = NestedQuery.Result::class.java
+                @Serializable
+                class NestedQuery : GraphQLClientRequest<NestedQuery.Result> {
+                  override val query: String = NESTED_QUERY
+
+                  override val operationName: String = "NestedQuery"
+
+                  override fun responseType(): KClass<NestedQuery.Result> = NestedQuery.Result::class
 
                   /**
                    * Example of an object self-referencing itself
                    */
+                  @Serializable
                   data class NestedObject4(
                     /**
                      * Unique identifier
@@ -346,6 +361,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                   /**
                    * Example of an object self-referencing itself
                    */
+                  @Serializable
                   data class NestedObject3(
                     /**
                      * Unique identifier
@@ -364,6 +380,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                   /**
                    * Example of an object self-referencing itself
                    */
+                  @Serializable
                   data class NestedObject2(
                     /**
                      * Name of the object
@@ -378,6 +395,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                   /**
                    * Example of an object self-referencing itself
                    */
+                  @Serializable
                   data class NestedObject(
                     /**
                      * Unique identifier
@@ -393,6 +411,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val children: List<NestedQuery.NestedObject2>
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning object referencing itself
@@ -400,9 +419,6 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val nestedObjectQuery: NestedQuery.NestedObject
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeNestedQuery(request: NestedQuery):
-                    GraphQLResponse<NestedQuery.Result> = execute(request)
             """.trimIndent()
         val nestedQuery =
             """
@@ -433,26 +449,30 @@ class GenerateGraphQLObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val DIFFERENT_SELECTIONS_QUERY: String =
                     "query DifferentSelectionsQuery {\n  first: complexObjectQuery {\n    id\n    name\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
 
-                class DifferentSelectionsQuery : GraphQLClientRequest(DIFFERENT_SELECTIONS_QUERY,
-                    "DifferentSelectionsQuery") {
-                  override fun responseType(): Class<DifferentSelectionsQuery.Result> =
-                      DifferentSelectionsQuery.Result::class.java
+                @Serializable
+                class DifferentSelectionsQuery : GraphQLClientRequest<DifferentSelectionsQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTIONS_QUERY
+
+                  override val operationName: String = "DifferentSelectionsQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionsQuery.Result> =
+                      DifferentSelectionsQuery.Result::class
 
                   /**
                    * Multi line description of a complex type.
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -467,6 +487,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                   /**
                    * Inner type object description
                    */
+                  @Serializable
                   data class DetailsObject(
                     /**
                      * Unique identifier
@@ -483,6 +504,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject2(
                     /**
                      * Some unique identifier
@@ -498,6 +520,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val details: DifferentSelectionsQuery.DetailsObject
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an object that references another object
@@ -509,9 +532,6 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val second: DifferentSelectionsQuery.ComplexObject2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionsQuery(request: DifferentSelectionsQuery):
-                    GraphQLResponse<DifferentSelectionsQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionsQuery =
             """
@@ -539,25 +559,29 @@ class GenerateGraphQLObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Boolean
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
 
                 const val DIFFERENT_SELECTIONS_QUERY: String =
                     "query DifferentSelectionsQuery {\n  first: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n      flag\n    }\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
 
-                class DifferentSelectionsQuery : GraphQLClientRequest(DIFFERENT_SELECTIONS_QUERY,
-                    "DifferentSelectionsQuery") {
-                  override fun responseType(): Class<DifferentSelectionsQuery.Result> =
-                      DifferentSelectionsQuery.Result::class.java
+                @Serializable
+                class DifferentSelectionsQuery : GraphQLClientRequest<DifferentSelectionsQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTIONS_QUERY
+
+                  override val operationName: String = "DifferentSelectionsQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionsQuery.Result> =
+                      DifferentSelectionsQuery.Result::class
 
                   /**
                    * Inner type object description
                    */
+                  @Serializable
                   data class DetailsObject(
                     /**
                      * Unique identifier
@@ -578,6 +602,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -596,6 +621,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                   /**
                    * Inner type object description
                    */
+                  @Serializable
                   data class DetailsObject2(
                     /**
                      * Unique identifier
@@ -612,6 +638,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject2(
                     /**
                      * Some unique identifier
@@ -627,6 +654,7 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val details: DifferentSelectionsQuery.DetailsObject2
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning an object that references another object
@@ -638,9 +666,6 @@ class GenerateGraphQLObjectTypeSpecIT {
                     val second: DifferentSelectionsQuery.ComplexObject2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionsQuery(request: DifferentSelectionsQuery):
-                    GraphQLResponse<DifferentSelectionsQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionsQuery =
             """
@@ -684,5 +709,104 @@ class GenerateGraphQLObjectTypeSpecIT {
         assertThrows<InvalidFragmentException> {
             verifyGeneratedFileSpecContents(invalidFragmentQuery, "will throw exception")
         }
+    }
+
+    @Test
+    fun `verify we can generate valid object type spec using jackson`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import kotlin.Boolean
+                import kotlin.Int
+                import kotlin.String
+                import kotlin.reflect.KClass
+
+                const val COMPLEX_OBJECT_TEST_QUERY: String =
+                    "query ComplexObjectTestQuery {\n  complexObjectQuery {\n    id\n    name\n    optional\n    details {\n      id\n      flag\n      value\n    }\n  }\n}"
+
+                class ComplexObjectTestQuery : GraphQLClientRequest<ComplexObjectTestQuery.Result> {
+                  override val query: String = COMPLEX_OBJECT_TEST_QUERY
+
+                  override val operationName: String = "ComplexObjectTestQuery"
+
+                  override fun responseType(): KClass<ComplexObjectTestQuery.Result> =
+                      ComplexObjectTestQuery.Result::class
+
+                  /**
+                   * Inner type object description
+                   */
+                  data class DetailsObject(
+                    /**
+                     * Unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Boolean flag
+                     */
+                    val flag: Boolean,
+                    /**
+                     * Actual detail value
+                     */
+                    val value: String
+                  )
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String,
+                    /**
+                     * Optional value
+                     * Second line of the description
+                     */
+                    val optional: String?,
+                    /**
+                     * Some additional details
+                     */
+                    val details: ComplexObjectTestQuery.DetailsObject
+                  )
+
+                  data class Result(
+                    /**
+                     * Query returning an object that references another object
+                     */
+                    val complexObjectQuery: ComplexObjectTestQuery.ComplexObject
+                  )
+                }
+            """.trimIndent()
+        val query =
+            """
+                query ComplexObjectTestQuery {
+                  complexObjectQuery {
+                    id
+                    name
+                    optional
+                    details {
+                      id
+                      flag
+                      value
+                    }
+                  }
+                }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(
+            query,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                serializer = GraphQLSerializer.JACKSON
+            )
+        )
     }
 }

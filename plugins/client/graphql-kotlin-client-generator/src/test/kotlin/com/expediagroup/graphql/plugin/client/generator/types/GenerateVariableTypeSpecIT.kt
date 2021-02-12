@@ -16,34 +16,108 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.verifyGeneratedFileSpecContents
 import org.junit.jupiter.api.Test
 
 class GenerateVariableTypeSpecIT {
 
     @Test
-    fun `verify query with variables is correctly generated`() {
+    fun `verify query with variables is correctly generated using kotlinx-serialization`() {
         // KT-2425 workaround to escape $ in string templates - we need to escape the escaped $
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Boolean
                 import kotlin.Float
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.Serializable
+
+                const val TEST_QUERY_WITH_VARIABLES: String =
+                    "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
+
+                @Serializable
+                class TestQueryWithVariables(
+                  override val variables: TestQueryWithVariables.Variables
+                ) : GraphQLClientRequest<TestQueryWithVariables.Result> {
+                  override val query: String = TEST_QUERY_WITH_VARIABLES
+
+                  override val operationName: String = "TestQueryWithVariables"
+
+                  override fun responseType(): KClass<TestQueryWithVariables.Result> =
+                      TestQueryWithVariables.Result::class
+
+                  @Serializable
+                  data class Variables(
+                    val criteria: TestQueryWithVariables.SimpleArgumentInput? = null
+                  )
+
+                  /**
+                   * Test input object
+                   */
+                  @Serializable
+                  data class SimpleArgumentInput(
+                    /**
+                     * Maximum value for test criteria
+                     */
+                    val max: Float? = null,
+                    /**
+                     * Minimum value for test criteria
+                     */
+                    val min: Float? = null,
+                    /**
+                     * New value to be set
+                     */
+                    val newName: String? = null
+                  )
+
+                  @Serializable
+                  data class Result(
+                    /**
+                     * Query that accepts some input arguments
+                     */
+                    val inputObjectQuery: Boolean
+                  )
+                }
+            """.trimIndent()
+        val query =
+            """
+                query TestQueryWithVariables(${'$'}criteria: SimpleArgumentInput) {
+                  inputObjectQuery(criteria: ${'$'}criteria)
+                }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(query, expected)
+    }
+
+    @Test
+    fun `verify query with variables is correctly generated using jackson`() {
+        // KT-2425 workaround to escape $ in string templates - we need to escape the escaped $
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import kotlin.Boolean
+                import kotlin.Float
+                import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val TEST_QUERY_WITH_VARIABLES: String =
                     "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
 
                 class TestQueryWithVariables(
-                  variables: TestQueryWithVariables.Variables
-                ) : GraphQLClientRequest(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables) {
-                  override fun responseType(): Class<TestQueryWithVariables.Result> =
-                      TestQueryWithVariables.Result::class.java
+                  override val variables: TestQueryWithVariables.Variables
+                ) : GraphQLClientRequest<TestQueryWithVariables.Result> {
+                  override val query: String = TEST_QUERY_WITH_VARIABLES
+
+                  override val operationName: String = "TestQueryWithVariables"
+
+                  override fun responseType(): KClass<TestQueryWithVariables.Result> =
+                      TestQueryWithVariables.Result::class
 
                   data class Variables(
                     val criteria: TestQueryWithVariables.SimpleArgumentInput? = null
@@ -74,9 +148,6 @@ class GenerateVariableTypeSpecIT {
                     val inputObjectQuery: Boolean
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeTestQueryWithVariables(request: TestQueryWithVariables):
-                    GraphQLResponse<TestQueryWithVariables.Result> = execute(request)
             """.trimIndent()
         val query =
             """
@@ -84,6 +155,13 @@ class GenerateVariableTypeSpecIT {
                   inputObjectQuery(criteria: ${'$'}criteria)
                 }
             """.trimIndent()
-        verifyGeneratedFileSpecContents(query, expected)
+        verifyGeneratedFileSpecContents(
+            query,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                serializer = GraphQLSerializer.JACKSON
+            )
+        )
     }
 }

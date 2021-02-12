@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.UnknownGraphQLTypeException
 import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentDefinition
 import com.squareup.kotlinpoet.BOOLEAN
@@ -88,10 +89,20 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             when (graphQLTypeDefinition) {
                 is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is InputObjectTypeDefinition -> generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
-                is EnumTypeDefinition -> generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
+                is EnumTypeDefinition -> {
+                    generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
+                    context.enums.add(className)
+                }
                 is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
-                is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition)
+                is ScalarTypeDefinition -> {
+                    // its not possible to enter this clause if converter is not available
+                    val graphQLScalarMapping = context.customScalarMap[graphQLTypeName]!!
+                    generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition, graphQLScalarMapping)
+                    if (context.serializer == GraphQLSerializer.KOTLINX) {
+                        generateGraphQLCustomScalarKSerializer(context, graphQLTypeDefinition, graphQLScalarMapping.converter, className)
+                    }
+                }
                 // should never happen as above list covers all graphql types
                 else -> throw UnknownGraphQLTypeException(graphQLType)
             }

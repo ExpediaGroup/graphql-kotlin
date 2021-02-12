@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidPolymorphicQueryException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.client.generator.verifyGeneratedFileSpecContents
@@ -28,46 +30,50 @@ import org.junit.jupiter.api.assertThrows
 class GenerateGraphQLUnionTypeSpecIT {
 
     @Test
-    fun `verify we can generate union type using inline fragments`() {
+    fun `verify we can generate union type using inline fragments using kotlinx-serialization`() {
         val expected =
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
                     "query UnionQueryWithInlineFragments {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n}"
 
-                class UnionQueryWithInlineFragments : GraphQLClientRequest(UNION_QUERY_WITH_INLINE_FRAGMENTS,
-                    "UnionQueryWithInlineFragments") {
-                  override fun responseType(): Class<UnionQueryWithInlineFragments.Result> =
-                      UnionQueryWithInlineFragments.Result::class.java
+                @Serializable
+                class UnionQueryWithInlineFragments : GraphQLClientRequest<UnionQueryWithInlineFragments.Result> {
+                  override val query: String = UNION_QUERY_WITH_INLINE_FRAGMENTS
+
+                  override val operationName: String = "UnionQueryWithInlineFragments"
+
+                  override fun responseType(): KClass<UnionQueryWithInlineFragments.Result> =
+                      UnionQueryWithInlineFragments.Result::class
 
                   /**
                    * Some basic description
                    */
+                  @Serializable
+                  @SerialName(value = "BasicObject")
                   data class BasicObject(
                     val id: Int,
                     /**
                      * Object name
                      */
                     val name: String
-                  ) : UnionQueryWithInlineFragments.BasicUnion
+                  ) : UnionQueryWithInlineFragments.BasicUnion()
 
                   /**
                    * Multi line description of a complex type.
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
+                  @SerialName(value = "ComplexObject")
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -82,22 +88,15 @@ class GenerateGraphQLUnionTypeSpecIT {
                      * Second line of the description
                      */
                     val optional: String?
-                  ) : UnionQueryWithInlineFragments.BasicUnion
+                  ) : UnionQueryWithInlineFragments.BasicUnion()
 
                   /**
                    * Very basic union of BasicObject and ComplexObject
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      UnionQueryWithInlineFragments.BasicObject::class,
-                      name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      UnionQueryWithInlineFragments.ComplexObject::class, name="ComplexObject")])
-                  interface BasicUnion
+                  @Serializable
+                  sealed class BasicUnion
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning union
@@ -105,10 +104,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val unionQuery: UnionQueryWithInlineFragments.BasicUnion
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeUnionQueryWithInlineFragments(request: UnionQueryWithInlineFragments):
-                    GraphQLResponse<UnionQueryWithInlineFragments.Result> = execute(request)
             """.trimIndent()
         val queryWithInlineFragments =
             """
@@ -136,41 +131,45 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val UNION_QUERY_WITH_NAMED_FRAGMENTS: String =
                     "query UnionQueryWithNamedFragments {\n  unionQuery {\n    ... basicObjectFields\n    ... complexObjectFields\n  }\n}\n\nfragment basicObjectFields on BasicObject {\n  __typename\n  id\n  name\n}\nfragment complexObjectFields on ComplexObject {\n  __typename\n  id\n  name\n  optional\n}"
 
-                class UnionQueryWithNamedFragments : GraphQLClientRequest(UNION_QUERY_WITH_NAMED_FRAGMENTS,
-                    "UnionQueryWithNamedFragments") {
-                  override fun responseType(): Class<UnionQueryWithNamedFragments.Result> =
-                      UnionQueryWithNamedFragments.Result::class.java
+                @Serializable
+                class UnionQueryWithNamedFragments : GraphQLClientRequest<UnionQueryWithNamedFragments.Result> {
+                  override val query: String = UNION_QUERY_WITH_NAMED_FRAGMENTS
+
+                  override val operationName: String = "UnionQueryWithNamedFragments"
+
+                  override fun responseType(): KClass<UnionQueryWithNamedFragments.Result> =
+                      UnionQueryWithNamedFragments.Result::class
 
                   /**
                    * Some basic description
                    */
+                  @Serializable
+                  @SerialName(value = "BasicObject")
                   data class BasicObject(
                     val id: Int,
                     /**
                      * Object name
                      */
                     val name: String
-                  ) : UnionQueryWithNamedFragments.BasicUnion
+                  ) : UnionQueryWithNamedFragments.BasicUnion()
 
                   /**
                    * Multi line description of a complex type.
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
+                  @SerialName(value = "ComplexObject")
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -185,22 +184,15 @@ class GenerateGraphQLUnionTypeSpecIT {
                      * Second line of the description
                      */
                     val optional: String?
-                  ) : UnionQueryWithNamedFragments.BasicUnion
+                  ) : UnionQueryWithNamedFragments.BasicUnion()
 
                   /**
                    * Very basic union of BasicObject and ComplexObject
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      UnionQueryWithNamedFragments.BasicObject::class,
-                      name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      UnionQueryWithNamedFragments.ComplexObject::class, name="ComplexObject")])
-                  interface BasicUnion
+                  @Serializable
+                  sealed class BasicUnion
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning union
@@ -208,10 +200,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val unionQuery: UnionQueryWithNamedFragments.BasicUnion
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeUnionQueryWithNamedFragments(request: UnionQueryWithNamedFragments):
-                    GraphQLResponse<UnionQueryWithNamedFragments.Result> = execute(request)
             """.trimIndent()
         val queryWithNamedFragments =
             """
@@ -298,41 +286,45 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n  complexObjectQuery {\n    id\n    name\n    details {\n      value\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                @Serializable
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Some basic description
                    */
+                  @Serializable
+                  @SerialName(value = "BasicObject")
                   data class BasicObject(
                     val id: Int,
                     /**
                      * Object name
                      */
                     val name: String
-                  ) : DifferentSelectionSetQuery.BasicUnion
+                  ) : DifferentSelectionSetQuery.BasicUnion()
 
                   /**
                    * Multi line description of a complex type.
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
+                  @SerialName(value = "ComplexObject")
                   data class ComplexObject(
                     /**
                      * Some unique identifier
@@ -347,25 +339,18 @@ class GenerateGraphQLUnionTypeSpecIT {
                      * Second line of the description
                      */
                     val optional: String?
-                  ) : DifferentSelectionSetQuery.BasicUnion
+                  ) : DifferentSelectionSetQuery.BasicUnion()
 
                   /**
                    * Very basic union of BasicObject and ComplexObject
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.BasicObject::class,
-                      name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.ComplexObject::class, name="ComplexObject")])
-                  interface BasicUnion
+                  @Serializable
+                  sealed class BasicUnion
 
                   /**
                    * Inner type object description
                    */
+                  @Serializable
                   data class DetailsObject(
                     /**
                      * Actual detail value
@@ -378,6 +363,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
                   data class ComplexObject2(
                     /**
                      * Some unique identifier
@@ -393,6 +379,7 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val details: DifferentSelectionSetQuery.DetailsObject
                   )
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning union
@@ -404,9 +391,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val complexObjectQuery: DifferentSelectionSetQuery.ComplexObject2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """
@@ -441,94 +425,87 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import com.fasterxml.jackson.annotation.JsonSubTypes
-                import com.fasterxml.jackson.annotation.JsonTypeInfo
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
+                import kotlinx.serialization.SerialName
+                import kotlinx.serialization.Serializable
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n    }\n    ... on ComplexObject {\n      id\n    }\n  }\n  second: unionQuery {\n    __typename\n    ... on BasicObject {\n      name\n    }\n    ... on ComplexObject {\n      name\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                @Serializable
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Some basic description
                    */
+                  @Serializable
+                  @SerialName(value = "BasicObject")
                   data class BasicObject(
                     val id: Int
-                  ) : DifferentSelectionSetQuery.BasicUnion
+                  ) : DifferentSelectionSetQuery.BasicUnion()
 
                   /**
                    * Multi line description of a complex type.
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
+                  @SerialName(value = "ComplexObject")
                   data class ComplexObject(
                     /**
                      * Some unique identifier
                      */
                     val id: Int
-                  ) : DifferentSelectionSetQuery.BasicUnion
+                  ) : DifferentSelectionSetQuery.BasicUnion()
 
                   /**
                    * Very basic union of BasicObject and ComplexObject
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.BasicObject::class,
-                      name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.ComplexObject::class, name="ComplexObject")])
-                  interface BasicUnion
+                  @Serializable
+                  sealed class BasicUnion
 
                   /**
                    * Some basic description
                    */
+                  @Serializable
+                  @SerialName(value = "BasicObject")
                   data class BasicObject2(
                     /**
                      * Object name
                      */
                     val name: String
-                  ) : DifferentSelectionSetQuery.BasicUnion2
+                  ) : DifferentSelectionSetQuery.BasicUnion2()
 
                   /**
                    * Multi line description of a complex type.
                    * This is a second line of the paragraph.
                    * This is final line of the description.
                    */
+                  @Serializable
+                  @SerialName(value = "ComplexObject")
                   data class ComplexObject2(
                     /**
                      * Some object name
                      */
                     val name: String
-                  ) : DifferentSelectionSetQuery.BasicUnion2
+                  ) : DifferentSelectionSetQuery.BasicUnion2()
 
                   /**
                    * Very basic union of BasicObject and ComplexObject
                    */
-                  @JsonTypeInfo(
-                    use = JsonTypeInfo.Id.NAME,
-                    include = JsonTypeInfo.As.PROPERTY,
-                    property = "__typename"
-                  )
-                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.BasicObject2::class,
-                      name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-                      DifferentSelectionSetQuery.ComplexObject2::class, name="ComplexObject")])
-                  interface BasicUnion2
+                  @Serializable
+                  sealed class BasicUnion2
 
+                  @Serializable
                   data class Result(
                     /**
                      * Query returning union
@@ -540,9 +517,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val second: DifferentSelectionSetQuery.BasicUnion2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """
@@ -568,5 +542,112 @@ class GenerateGraphQLUnionTypeSpecIT {
                 }
             """.trimIndent()
         verifyGeneratedFileSpecContents(differentSelectionQuery, expected)
+    }
+
+    @Test
+    fun `verify we can generate union type using inline fragments using jackson`() {
+        val expected =
+            """
+                package com.expediagroup.graphql.plugin.generator.integration
+
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
+                import com.fasterxml.jackson.annotation.JsonSubTypes
+                import com.fasterxml.jackson.annotation.JsonTypeInfo
+                import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+                import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+                import kotlin.Int
+                import kotlin.String
+                import kotlin.reflect.KClass
+
+                const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
+                    "query UnionQueryWithInlineFragments {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n}"
+
+                class UnionQueryWithInlineFragments : GraphQLClientRequest<UnionQueryWithInlineFragments.Result> {
+                  override val query: String = UNION_QUERY_WITH_INLINE_FRAGMENTS
+
+                  override val operationName: String = "UnionQueryWithInlineFragments"
+
+                  override fun responseType(): KClass<UnionQueryWithInlineFragments.Result> =
+                      UnionQueryWithInlineFragments.Result::class
+
+                  /**
+                   * Some basic description
+                   */
+                  data class BasicObject(
+                    val id: Int,
+                    /**
+                     * Object name
+                     */
+                    val name: String
+                  ) : UnionQueryWithInlineFragments.BasicUnion
+
+                  /**
+                   * Multi line description of a complex type.
+                   * This is a second line of the paragraph.
+                   * This is final line of the description.
+                   */
+                  data class ComplexObject(
+                    /**
+                     * Some unique identifier
+                     */
+                    val id: Int,
+                    /**
+                     * Some object name
+                     */
+                    val name: String,
+                    /**
+                     * Optional value
+                     * Second line of the description
+                     */
+                    val optional: String?
+                  ) : UnionQueryWithInlineFragments.BasicUnion
+
+                  /**
+                   * Very basic union of BasicObject and ComplexObject
+                   */
+                  @JsonTypeInfo(
+                    use = JsonTypeInfo.Id.NAME,
+                    include = JsonTypeInfo.As.PROPERTY,
+                    property = "__typename"
+                  )
+                  @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                      UnionQueryWithInlineFragments.BasicObject::class,
+                      name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+                      UnionQueryWithInlineFragments.ComplexObject::class, name="ComplexObject")])
+                  interface BasicUnion
+
+                  data class Result(
+                    /**
+                     * Query returning union
+                     */
+                    val unionQuery: UnionQueryWithInlineFragments.BasicUnion
+                  )
+                }
+            """.trimIndent()
+        val queryWithInlineFragments =
+            """
+                query UnionQueryWithInlineFragments {
+                  unionQuery {
+                    __typename
+                    ... on BasicObject {
+                      id
+                      name
+                    }
+                    ... on ComplexObject {
+                      id
+                      name
+                      optional
+                    }
+                  }
+                }
+            """.trimIndent()
+        verifyGeneratedFileSpecContents(
+            queryWithInlineFragments,
+            expected,
+            GraphQLClientGeneratorConfig(
+                packageName = "com.expediagroup.graphql.plugin.generator.integration",
+                serializer = GraphQLSerializer.JACKSON
+            )
+        )
     }
 }

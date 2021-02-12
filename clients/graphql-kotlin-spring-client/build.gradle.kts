@@ -7,6 +7,7 @@ val wireMockVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-client"))
+    api(project(path = ":graphql-kotlin-client-jackson"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinCoroutinesVersion")
     api("org.springframework:spring-webflux:$springVersion")
     api("org.springframework.boot:spring-boot-starter-reactor-netty:$springBootVersion")
