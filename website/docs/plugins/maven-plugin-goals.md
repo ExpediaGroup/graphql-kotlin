@@ -42,7 +42,7 @@ input for the subsequent `generate-client` goal.
     ```xml
 
     <timeoutConfiguration>
-        <!-- timeout values in milliseconds 
+        <!-- timeout values in milliseconds
         connect1000
         read30000
     --&gt;
@@ -78,13 +78,13 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 
     ```xml
 
-    
+
             UUID
-            
+
             java.util.UUID
-            
+
             com.example.UUIDScalarConverter
-        
+
     --&gt;
 
     ```
@@ -99,7 +99,7 @@ GraphQL types.
 This MOJO utilizes [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
 mechanism to dynamically load available `SchemaGeneratorHooksProvider` service providers from the classpath. Service provider
 can be provided as part of your project, included in one of your project dependencies or through explicitly provided artifact.
-See [Schema Generator Hooks Provider](./hooks-provider.md) for additional details on how to create custom hooks service
+See [Schema Generator Hooks Provider](./hooks-provider.mdx) for additional details on how to create custom hooks service
 provider. Configuration below shows how to configure GraphQL Kotlin plugin with explicitly provided artifact.
 
 **Attributes**
@@ -143,13 +143,13 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 
     ```xml
 
-    
+
             UUID
-            
+
             java.util.UUID
-            
+
             com.example.UUIDScalarConverter
-        
+
     --&gt;
 
     ```
@@ -179,7 +179,7 @@ instead should be used to generate input for the subsequent `` goal.
 
     ```xml
 
-    
+
         1000
         30000
     --&gt;

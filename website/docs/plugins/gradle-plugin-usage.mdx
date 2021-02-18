@@ -3,6 +3,10 @@ id: gradle-plugin-usage
 title: Gradle Plugin Usage
 sidebar_label: Usage
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## Downloading Schema SDL
 
 GraphQL endpoints are often public and as such many servers might disable introspection queries in production environment.
@@ -19,9 +23,15 @@ $ gradle graphqlDownloadSDL --endpoint="http://localhost:8080/sdl"
 
 Task can also be explicitly configured in your Gradle build file
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+}>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -34,7 +44,8 @@ val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -45,7 +56,8 @@ graphqlDownloadSDL {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 &gt; NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 &gt; invoke it OR configure it as a dependency of some other task.
@@ -63,9 +75,15 @@ $ gradle graphqlIntrospectSchema --endpoint="http://localhost:8080/graphql"
 
 Task can also be explicitly configured in your Gradle build file
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+}>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -78,7 +96,8 @@ val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class)
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -89,7 +108,8 @@ graphqlIntrospectSchema {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 &gt; NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 &gt; invoke it OR configure it as a dependency of some other task.
@@ -109,9 +129,15 @@ $ gradle graphqlGenerateClient --schemaFileName"mySchema.graphql" --packageName=
 
 Task can also be explicitly configured in your Gradle build file
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+}>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -125,7 +151,8 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -137,7 +164,8 @@ graphqlGenerateClient {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project compile sources.
@@ -151,9 +179,15 @@ type of client that can be used for your queries.
 For example in order to generate Ktor based HTTP client we need to specify `GraphQLClientType.KTOR` client type. Alternatively,
 if you would like to use WebClient implementation instead you need to specify `GraphQLClientType.WEBCLIENT` instead.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+}>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -169,7 +203,8 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -184,7 +219,8 @@ graphqlGenerateClient {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Generating Client with Custom Scalars
 
@@ -217,9 +253,15 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
 
 Afterwards we need to configure our plugin to use this custom converter
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -235,7 +277,8 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -250,7 +293,8 @@ graphqlGenerateClient {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Generating Test Client
 
@@ -267,9 +311,15 @@ $ gradle graphqlGenerateTestClient --schemaFileName"mySchema.graphql" --packageN
 
 Task can also be explicitly configured in your Gradle build file
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -283,7 +333,8 @@ val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class)
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -295,7 +346,8 @@ graphqlGenerateTestClient {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project test compile sources.
@@ -308,9 +360,15 @@ Following is the minimal configuration that runs introspection query against a t
 corresponding schema. This generated schema is subsequently used to generate GraphQL client code based on the queries
 provided under `src/main/resources` directory.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -345,7 +403,8 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -374,16 +433,23 @@ graphqlGenerateClient {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Complete Client Configuration Example
 
 Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
 the GraphQL Ktor client code based on the provided query.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -441,7 +507,8 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -496,16 +563,23 @@ graphqlGenerateClient {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Generating Multiple Clients
 
 GraphQL Kotlin Gradle Plugin registers tasks for generation of a client queries targeting single GraphQL endpoint. You
 can generate queries targeting additional endpoints by explicitly creating and configuring additional tasks.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -535,7 +609,8 @@ val graphqlGenerateOtherClient by tasks.creating(GraphQLGenerateClientTask::clas
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -567,7 +642,8 @@ task graphqlGenerateOtherClient(type: GraphQLGenerateClientTask) {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Generating SDL Example
 
@@ -577,9 +653,15 @@ corresponding GraphQL schema using `graphql-kotlin-schema-generator` and default
 limit the amount of packages to scan, this task requires users to provide a list of `packages` that can contain GraphQL
 types.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -607,7 +689,8 @@ val graphqlGenerateSDL by tasks.getting(GraphQLGenerateSDLTask::class) {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -631,7 +714,8 @@ graphqlGenerateSDL {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 &gt; NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 &gt; invoke it OR configure it as a dependency of some other task.
@@ -645,13 +729,19 @@ service provider that will be used to create an instance of your custom hooks.
 `graphqlGenerateSDL` utilizes [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
 mechanism to dynamically load available `SchemaGeneratorHooksProvider` service providers from the classpath. Service provider
 can be provided as part of your project, included in one of your project dependencies or through explicitly provided artifact.
-See [Schema Generator Hooks Provider](./hooks-provider.md) for additional details on how to create custom hooks service provider.
+See [Schema Generator Hooks Provider](./hooks-provider.mdx) for additional details on how to create custom hooks service provider.
 Configuration below shows how to configure GraphQL Kotlin plugin with explicitly provided artifact to generate federated
 GraphQL schema.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -687,7 +777,8 @@ dependencies {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -719,7 +810,8 @@ dependencies {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 &gt; NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
 &gt; invoke it OR configure it as a dependency of some other task.

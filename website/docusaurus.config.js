@@ -30,6 +30,10 @@ module.exports = {
   ],
   plugins: [],
   themeConfig: {
+    image: "img/undraw_online.svg",
+    prism: {
+      additionalLanguages: ['kotlin'],
+    },
     navbar: {
       title: "GraphQL Kotlin",
       logo: {
@@ -47,7 +51,6 @@ module.exports = {
         }
       ]
     },
-    image: "img/undraw_online.svg",
     footer: {
       links: [],
       copyright: "Copyright © 2021 Expedia, Inc.",

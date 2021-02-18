@@ -3,6 +3,10 @@ id: gradle-plugin-tasks
 title: Gradle Plugin Tasks
 sidebar_label: Tasks
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 GraphQL Kotlin Gradle Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL
 schema directly from your source code.
 
@@ -13,26 +17,27 @@ schema directly from your source code.
 `graphql-kotlin-gradle-plugin` is published on Gradle [Plugin Portal](https://plugins.gradle.org/plugin/com.expediagroup.graphql).
 In order to execute any of the provided tasks you need to first apply the plugin on your project.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+}>
 
-Kotlin
+<TabItem value="kotlin">
 
 Using plugins DSL syntax
 
 ```kotlin
-
-// build.gradle.kts
 plugins {
     id("com.expediagroup.graphql") version $graphQLKotlinVersion
 }
-
 ```
 
 Or by using legacy plugin application
 
 ```kotlin
-
-// build.gradle.kts
 buildscript {
   repositories {
     maven {
@@ -45,10 +50,10 @@ buildscript {
 }
 
 apply(plugin = "com.expediagroup.graphql")
-
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 Using plugins DSL syntax
 
@@ -81,7 +86,8 @@ apply plugin: "com.expediagroup.graphql"
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Extension
 
@@ -92,9 +98,15 @@ is configured, it will automatically download SDL/run introspection to generate 
 all GraphQL clients. GraphQL Extension should be used by default, except for cases where you need to only run individual
 tasks.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+}>
 
-Kotlin
+<TabItem value="kotlin">
 
 ```kotlin
 
@@ -139,7 +151,8 @@ graphql {
 
 ```
 
-Groovy
+</TabItem>
+<TabItem value="groovy">
 
 ```groovy
 
@@ -181,7 +194,8 @@ graphql {
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Tasks
 

@@ -3,6 +3,10 @@ id: hooks-provider
 title: Schema Generator Hooks Provider
 original_id: hooks-provider
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 GraphQL Kotlin plugins can generate GraphQL schema as your build artifact directly from your source code. Plugins will scan
 your classpath for classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces
 and then generate corresponding GraphQL schema using `graphql-kotlin-schema-generator`. By default, plugins will generate
@@ -23,30 +27,38 @@ on the classpath.
 
 `SchemaGeneratorHooksProvider` interface is defined in `graphql-kotlin-hooks-provider` module.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
 
-Gradle
+  <TabItem value="gradle">
 
-```kotlin
+    ```kotlin
 
-// build.gradle.kts
-implementation("com.expediagroup", "graphql-kotlin-hooks-provider", latestVersion)
+    // build.gradle.kts
+    implementation("com.expediagroup", "graphql-kotlin-hooks-provider", latestVersion)
 
-```
+    ```
 
-Maven
+  </TabItem>
+  <TabItem value="mavem">
 
-```xml
+    ```xml
 
-<dependency>
-    <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-hooks-provider</artifactId>
-    <version>${latestVersion}</version>
-</dependency>
+    <dependency>
+      <groupId>com.expediagroup</groupId>
+      <artifactId>graphql-kotlin-hooks-provider</artifactId>
+      <version>${latestVersion}</version>
+    </dependency>
 
-```
+    ```
 
-END_DOCUSAURUS_CODE_TABS
+  </TabItem>
+</Tabs>
 
 ### Create new SchemaGeneratorHooksProvider implementation
 

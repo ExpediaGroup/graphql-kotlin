@@ -1,8 +1,12 @@
 ---
 id: getting-started
 title: Getting Started
+original_id: getting-started
 slug: /
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 GraphQL Kotlin is a collection of libraries, built on top of [graphql-java](https://www.graphql-java.com/), that aim to simplify running GraphQL in Kotlin.
 
@@ -10,29 +14,33 @@ GraphQL Kotlin is a collection of libraries, built on top of [graphql-java](http
 
 Using a JVM dependency manager, simply link any `graphql-kotlin-*` library to your project.
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+defaultValue="gradle"
+values={[
+{ label: 'Gradle Kotlin', value: 'gradle' },
+{ label: 'Maven', value: 'maven' }
+]
+}>
 
-Gradle Kotlin
+<TabItem value="gradle">
 
 ```kotlin
-
 implementation("com.expediagroup", "graphql-kotlin-spring-server", latestVersion)
-
 ```
 
-Maven
+</TabItem>
+<TabItem value="maven">
 
 ```xml
-
 <dependency>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-spring-server</artifactId>
     <version>${latestVersion}</version>
 </dependency>
-
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 ## Generating a Schema
 
@@ -56,7 +64,7 @@ See the docs in [GraphQL Kotlin Server](./server/graphql-server.md).
 
 `graphql-kotlin-plugins` can be used to generate a `graphql-kotlin-client` from an existing schema that is easy to use and type-safe.
 
-See the docs in [Client Overview](./client/client-overview.md).
+See the docs in [Client Overview](./client/client-overview.mdx).
 
 ## Examples
 

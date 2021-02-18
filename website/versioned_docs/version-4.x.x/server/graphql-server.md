@@ -7,7 +7,7 @@ original_id: graphql-server
 
 The official reference implementations are:
 
--   [graphql-kotlin-spring-server](./spring-server/spring-overview.md)
+- [graphql-kotlin-spring-server](./spring-server/spring-overview.mdx)
 
 We reccomend using one of the implementations as the common code has very little logic but you can still use the common
 package to create implementation for other libraries (Ktor, Spark, etc).

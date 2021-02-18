@@ -1,11 +1,16 @@
 ---
 id: client-overview
 title: Client Overview
+original_id: client-overview
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. The library provides [Ktor HTTP client](https://ktor.io/clients/index.html)
 and [Spring WebClient](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-webclient)
 based reference implementations as well as allows for custom implementations using other engines, see [client customization](client-customization.md)
-documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin-tasks.md)
+documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin-tasks.mdx)
 and [Maven](../plugins/maven-plugin-goals.md) plugins.
 
 Client Features:
@@ -46,15 +51,20 @@ Example below configures the project to use introspection query to obtain the sc
 
 ### Build Configuration
 
-DOCUSAURUS_CODE_TABS
+<Tabs
+defaultValue="gradle"
+values={[
+{ label: 'Gradle', value: 'gradle' },
+{ label: 'Maven', value: 'maven' }
+]
+}>
 
-Gradle
+<TabItem value="gradle">
 
 Basic `build.gradle.kts` Gradle configuration that executes introspection query against specified endpoint to obtain target
 schema and then generate the clients under `com.example.generated` package name:
 
 ```kotlin
-
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.graphql
 
@@ -73,10 +83,10 @@ graphql {
         clientType = GraphQLClientType.KTOR
     }
 }
-
 ```
 
-Maven
+</TabItem>
+<TabItem value="maven">
 
 Basic Maven `pom.xml` configuration that executes introspection query against specified endpoint to obtain target
 schema and then generate the clients under `com.example.generated` package name:
@@ -131,7 +141,8 @@ schema and then generate the clients under `com.example.generated` package name:
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
+</TabItem>
+</Tabs>
 
 See [graphql-kotlin-client-example](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client) project for complete
 working examples of Gradle and Maven based projects.
@@ -141,7 +152,7 @@ working examples of Gradle and Maven based projects.
 By default, GraphQL Kotlin build plugins will attempt to generate GraphQL operations from all `*.graphql` files located under
 `src/main/resources`. Operations are validated against the target GraphQL schema, which can be manually provided, retrieved by
 the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
-See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin-tasks.md)
+See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin-tasks.mdx)
 and [Maven Mojos](../plugins/maven-plugin-goals.md).
 
 When creating your GraphQL operations make sure to always specify an operation name and name the files accordingly. Each

@@ -193,20 +193,20 @@ Afterwards we need to configure our plugin to use this custom converter
                 <allowDeprecatedFields>false</allowDeprecatedFields>
                 <customScalars>
                     <customScalar>
-                        <!-- custom scalar UUID type 
+                        <!-- custom scalar UUID type
                         scalarUUID
-                         fully qualified Java class name of a custom scalar type 
+                         fully qualified Java class name of a custom scalar type
                         typejava.util.UUID
                          fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-                           used to convert to/from raw JSON and scalar type 
+                           used to convert to/from raw JSON and scalar type
                         convertercom.example.UUIDScalarConverter
-                    
-                
+
+
                 packagenamecom.example.generated
                 schemafilemySchema.graphql
-            
-        
-    
+
+
+
 --&gt;
 
 ```
@@ -304,33 +304,33 @@ the GraphQL client code based on the provided query.
             <configuration>
                 <endpoint>http://localhost:8080/sdl</endpoint>
                 <packageName>com.example.generated</packageName>
-                <!-- optional configuration below 
+                <!-- optional configuration below
                 schemafile${"{"}project.build.directory{"}"}/mySchema.graphql
                 allowdeprecatedfieldstrue
                 customscalars
-                    
-                        
+
+
                         UUID
-                        
+
                         java.util.UUID
-                        
+
                         com.example.UUIDScalarConverter
-                    
-                
+
+
                 headers
                     My-Custom-Header
-                
+
                 timeoutconfiguration
-                    
+
                     1000
                     30000
-                
+
                 queryfiles
                     ${"{"}project.basedir{"}"}/src/main/resources/queries/MyQuery.graphql
-                
-            
-        
-    
+
+
+
+
 --&gt;
 
 ```
@@ -419,7 +419,7 @@ service provider that will be used to create an instance of your custom hooks.
 `generate-sdl` mojo utilizes [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
 mechanism to dynamically load available `SchemaGeneratorHooksProvider` service providers from the classpath. Service provider
 can be provided as part of your project, included in one of your project dependencies or through explicitly provided artifact.
-See [Schema Generator Hooks Provider](./hooks-provider.md) for additional details on how to create custom hooks service provider.
+See [Schema Generator Hooks Provider](./hooks-provider.mdx) for additional details on how to create custom hooks service provider.
 Configuration below shows how to configure GraphQL Kotlin plugin with explicitly provided artifact to generate federated
 GraphQL schema.
 

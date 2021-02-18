@@ -187,4 +187,4 @@ graphql {
 
 ```
 
-See [Gradle](../plugins/gradle-plugin-tasks.md) and [Maven](../plugins/maven-plugin-goals.md) plugin documentation for additional details.
+See [Gradle](../plugins/gradle-plugin-tasks.mdx) and [Maven](../plugins/maven-plugin-goals.md) plugin documentation for additional details.
