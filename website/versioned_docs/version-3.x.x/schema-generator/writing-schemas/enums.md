@@ -28,13 +28,11 @@ enum MyEnumType {
 ### Converting a Java enum to a GraphQL Enum
 
 If you want to use Java enums from another package, but you **don't** want
-include everything from that package using [`supportedPackages`][sp] or you want
-to customize the GraphQL type, you can use [schema generator hooks][hooks] to
+include everything from that package using [`supportedPackages`][config] or you want
+to customize the GraphQL type, you can use [schema generator hooks][config] to
 associate the Java enum with a runtime [`GraphQLEnumType`][javadoc].
 
-[sp]: customizing-schemas/generator-config
-
-[hooks]: customizing-schemas/generator-config#schema-generator-hooks
+[config]: ../customizing-schemas/generator-config.md
 
 [javadoc]: https://javadoc.io/doc/com.graphql-java/graphql-java/latest/index.html
 

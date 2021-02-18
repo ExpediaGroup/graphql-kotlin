@@ -12,8 +12,9 @@ module.exports = {
   customFields: {
     repoUrl: "https://github.com/ExpediaGroup/graphql-kotlin"
   },
-  onBrokenLinks: "log",
-  onBrokenMarkdownLinks: "log",
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
+  onDuplicateRoutes: 'throw',
   presets: [
     [
       "@docusaurus/preset-classic",

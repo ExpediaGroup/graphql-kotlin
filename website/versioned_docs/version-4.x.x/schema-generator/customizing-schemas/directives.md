@@ -13,7 +13,7 @@ spec](https://graphql.github.io/graphql-spec/draft/#sec-Type-System.Directives) 
 ## Default Directives
 
 `@deprecated` - schema directive used to represent deprecated portion of the schema.
-See [@Deprecated](customizing-schemas/deprecating-schema) annotation documentation for more details
+See [@Deprecated](./deprecating-schema.md) annotation documentation for more details
 
 ```graphql
 

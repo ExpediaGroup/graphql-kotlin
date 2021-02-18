@@ -5,7 +5,7 @@ original_id: subscriptions
 ---
 
 ## Schema
-To see more details of how to implement subscriptions in your schema, see [executing subscriptions](../execution/subscriptions).
+To see more details of how to implement subscriptions in your schema, see [executing subscriptions](../schema-generator/execution/subscriptions.md).
 
 ## `graphql-ws` subprotocol
 ### Overview

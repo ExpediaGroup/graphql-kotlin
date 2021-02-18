@@ -46,4 +46,4 @@ To effectively use this hook, you should also override the `` hook, and if you a
 
 The server that runs your GraphQL schema will have to support some method for subscriptions, like WebSockets.
 `` provides a default WebSocket based implementation. See more details in the
-[server documentation](../../spring-server/subscriptions).
+[server documentation](../../server/server-subscriptions.md).
