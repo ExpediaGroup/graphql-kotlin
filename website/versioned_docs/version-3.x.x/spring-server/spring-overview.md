@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-spring-overview
+id: spring-overview
 title: Spring Server Overview
 original_id: spring-overview
 ---
@@ -18,7 +18,7 @@ When building a GraphQL server using `graphql-kotlin-spring-server` all your que
 
 The simplest way to create a new Kotlin Spring Boot app is by generating one using [Spring Initializr.](https://start.spring.io/)
 
-![Image of https://start.spring.io/](assets/spring-initializer.png)
+![Image of https://start.spring.io/](../assets/spring-initializer.png)
 
 Once you get the sample application setup locally, you will need to add `graphql-kotlin-spring-server` dependency:
 

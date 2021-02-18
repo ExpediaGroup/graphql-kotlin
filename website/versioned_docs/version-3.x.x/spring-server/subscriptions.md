@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-subscriptions
+id: subscriptions
 title: Subscriptions
 original_id: subscriptions
 ---

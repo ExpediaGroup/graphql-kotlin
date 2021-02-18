@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-client-customization
+id: client-customization
 title: Client Customization
 original_id: client-customization
 ---
-
 ## Ktor HTTP Client Customization
 
 `GraphQLClient` uses the Ktor HTTP Client to execute the underlying queries. Clients can be customized with different
@@ -23,6 +22,7 @@ The below example configures a new `GraphQLClient` to use the `OkHttp` engine wi
 header to all requests, and enables basic logging of the requests.
 
 ```kotlin
+
 val client = GraphQLClient(
         url = URL("http://localhost:8080/graphql"),
         engineFactory = OkHttp
@@ -42,6 +42,7 @@ val client = GraphQLClient(
         level = LogLevel.INFO
     }
 }
+
 ```
 
 ### Per Request Customization
@@ -51,10 +52,12 @@ You can use this mechanism to specify custom headers, update target url to inclu
 attributes that can be accessed from the pipeline features as well specify timeouts per request.
 
 ```kotlin
+
 val helloWorldQuery = HelloWorldQuery(client)
 val result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name = null)) {
     header("X-B3-TraceId", "0123456789abcdef")
 }
+
 ```
 
 ### Custom GraphQL client
@@ -62,6 +65,7 @@ val result = helloWorldQuery.execute(variables = HelloWorldQuery.Variables(name 
 `GraphQLClient` is an open class which means you can also extend it to provide custom `execute` logic.
 
 ```kotlin
+
 class CustomGraphQLClient(url: URL) : GraphQLClient<CIOEngineConfig>(url = url, engineFactory = CIO) {
 
     override suspend fun <T> execute(query: String, operationName: String?, variables: Any?, resultType: Class<T>, requestBuilder: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
@@ -71,6 +75,7 @@ class CustomGraphQLClient(url: URL) : GraphQLClient<CIOEngineConfig>(url = url, 
         return result
     }
 }
+
 ```
 
 ## Jackson Customization
@@ -80,8 +85,10 @@ object mapper configured with some additional serialization/deserialization feat
 handle the above, currently we don't support other JSON libraries.
 
 ```kotlin
+
 val customObjectMapper = jacksonObjectMapper()
 val client = GraphQLClient(url = URL("http://localhost:8080/graphql"), mapper = customObjectMapper)
+
 ```
 
 ## Deprecated Field Usage
@@ -99,6 +106,7 @@ In order to automatically convert between custom GraphQL `UUID` scalar type and 
 our custom `ScalarConverter`.
 
 ```kotlin
+
 package com.example.client
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
@@ -108,19 +116,23 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
     override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
     override fun toJson(value: UUID): String = value.toString()
 }
+
 ```
 
 And then configure build plugin by specifying
-* Custom GraphQL scalar name
-* Target class name
-* Converter that provides logic to map between GraphQL and Kotlin type
+
+-   Custom GraphQL scalar name
+-   Target class name
+-   Converter that provides logic to map between GraphQL and Kotlin type
 
 ```kotlin
+
 graphql {
     packageName = "com.example.generated"
     endpoint = "http://localhost:8080/graphql"
     converters.put("UUID", ScalarConverterMapping("java.util.UUID", "com.example.UUIDScalarConverter"))
 }
+
 ```
 
 See [Gradle](../plugins/gradle-plugin.md)

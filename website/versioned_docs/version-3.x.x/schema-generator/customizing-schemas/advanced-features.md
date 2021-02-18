@@ -1,14 +1,12 @@
 ---
-id: version-3.x.x-advanced-features
+id: advanced-features
 title: Advanced Features
 original_id: advanced-features
 ---
-
 ## Adding Custom Additional Types
 
 There are a couple ways you can add more types to the schema without having them be directly consumed by a type in your schema.
 This may be required for [Apollo Federation](federated/apollo-federation), or maybe adding other interface implementations that are not picked up.
-
 
 ### `SchemaGenerator::addAdditionalTypesWithAnnotation`
 
@@ -23,6 +21,7 @@ To change the behaviour, you can update the set and then call the super method w
 Example:
 
 ```kotlin
+
 class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
 
     override fun generateAdditionalTypes(types: Set<KType>): Set<GraphQLType> {
@@ -30,4 +29,5 @@ class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(con
         return super.generateAdditionalTypes(newTypes)
     }
 }
+
 ```

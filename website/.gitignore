@@ -1,5 +1,6 @@
 translated_docs/
 build/
 node_modules/
-i18n/*
+.docusaurus/
+i18n/
 yarn.lock

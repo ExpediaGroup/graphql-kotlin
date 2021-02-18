@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-async-models
+id: async-models
 title: Async Models
 original_id: async-models
 ---
@@ -18,6 +18,7 @@ by `graphql-java`.
 Example
 
 ```kotlin
+
 data class User(val id: String, val name: String)
 
 class Query {
@@ -25,11 +26,13 @@ class Query {
         // Your coroutine logic to get user data
     }
 }
+
 ```
 
 will produce the following schema
 
 ```graphql
+
 type Query {
   getUser(id: String!): User
 }
@@ -38,6 +41,7 @@ type User {
   id: String!
   name: String!
 }
+
 ```
 
 ## CompletableFuture
@@ -47,6 +51,7 @@ interop with `graphql-java`, `graphql-kotlin-schema-generator` has a built-in ho
 `CompletableFuture` and use the inner class as the return type in the schema.
 
 ```kotlin
+
 data class User(val id: String, val name: String)
 
 class Query {
@@ -54,6 +59,7 @@ class Query {
         // Your logic to get data asynchronously
     }
 }
+
 ```
 
 will result in the exactly the same schema as in the coroutine example above.
@@ -63,21 +69,24 @@ will result in the exactly the same schema as in the coroutine example above.
 If you want to use a different monad type, like `Single` from [RxJava](https://github.com/ReactiveX/RxJava) or `Mono` from
 [Project Reactor](https://projectreactor.io/), you have to:
 
-1. Create custom `SchemaGeneratorHook` that implements `willResolveMonad` to provide the necessary logic
-to correctly unwrap the monad and return the inner class to generate valid schema
+1.  Create custom `SchemaGeneratorHook` that implements `willResolveMonad` to provide the necessary logic
+    to correctly unwrap the monad and return the inner class to generate valid schema
 
 ```kotlin
+
 class MonadHooks : SchemaGeneratorHooks {
     override fun willResolveMonad(type: KType): KType = when (type.classifier) {
         Mono::class -> type.arguments.firstOrNull()?.type
         else -> type
     } ?: type
 }
+
 ```
 
-2. Provide custom data fetcher that will properly process those monad types.
+2.  Provide custom data fetcher that will properly process those monad types.
 
 ```kotlin
+
 class CustomFunctionDataFetcher(target: Any?, fn: KFunction<*>, objectMapper: ObjectMapper) : FunctionDataFetcher(target, fn, objectMapper) {
   override fun get(environment: DataFetchingEnvironment): Any? = when (val result = super.get(environment)) {
     is Mono<*> -> result.toFuture()
@@ -96,11 +105,13 @@ class CustomDataFetcherFactoryProvider(
       objectMapper = objectMapper)
   }
 }
+
 ```
 
 With the above you can then create your schema as follows:
 
 ```kotlin
+
 class ReactorQuery {
     fun asynchronouslyDo(): Mono<Int> = Mono.just(1)
 }
@@ -111,14 +122,17 @@ val configWithReactorMonoMonad = SchemaGeneratorConfig(
   dataFetcherFactoryProvider = CustomDataFetcherFactoryProvider())
 
 toSchema(queries = listOf(TopLevelObject(ReactorQuery())), config = configWithReactorMonoMonad)
+
 ```
 
 This will produce
 
 ```graphql
+
 type Query {
   asynchronouslyDo(): Int
 }
+
 ```
 
 You can find additional example on how to configure the hooks in our [unit

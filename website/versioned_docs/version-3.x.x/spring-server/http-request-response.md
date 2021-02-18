@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-http-request-response
+id: http-request-response
 title: Access the HTTP Request-Response
 original_id: http-request-response
 ---

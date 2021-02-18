@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-contextual-data
+id: contextual-data
 title: Contextual Data
 original_id: contextual-data
 ---
-
 All GraphQL servers have a concept of a "context". A GraphQL context contains metadata that is useful to the GraphQL
 server, but shouldn't necessarily be part of the GraphQL schema. A prime example of something that is appropriate
 for the GraphQL context would be trace headers for an OpenTracing system such as
@@ -25,23 +24,28 @@ The easiest way to specify a context class is to use the `GraphQLContext` marker
 it is just used to inform the schema generator that this is the class that should be used as the context for every request.
 
 ```kotlin
+
 class MyGraphQLContext(val customValue: String) : GraphQLContext
+
 ```
 
 Then you can just use the class as an argument and it will be automatically injected during execution time.
 
 ```kotlin
+
 class ContextualQuery {
     fun contextualQuery(
         context: MyGraphQLContext,
         value: Int
     ): String = "The custom value was ${context.customValue} and the value was $value"
 }
+
 ```
 
 The above query would produce the following GraphQL schema:
 
 ```graphql
+
 schema {
   query: Query
 }
@@ -49,12 +53,15 @@ schema {
 type Query {
   contextualQuery(value: Int!): String!
 }
+
 ```
 
 Note that the argument that implements `GraphQLContext` is not reflected in the GraphQL schema.
 
 ## Spring Server
+
 For more details on how to create the context while using `graphql-kotlin-spring-server` see the [spring graphql context page](../../spring-server/spring-graphql-context.md).
 
 ### Customization
+
 The context is injected into the execution through the `FunctionDataFetcher` class. If you want to customize the logic on how the context is determined, that is possible to override. See more details on the [Fetching Data documentation](./fetching-data)

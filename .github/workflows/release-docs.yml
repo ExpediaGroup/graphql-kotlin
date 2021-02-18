@@ -28,10 +28,12 @@ jobs:
       - name: Build website with version
         run: |
           NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
-          echo "New version: ${NEW_VERSION}"
+          MAJOR_VERSION=$(echo "${NEW_VERSION}" | cut -d "." -f1)
+          DOCS_VERSION="${MAJOR_VERSION}.x.x"
+          echo "Doc version: ${DOCS_VERSION}"
           cd website
           npm install
-          npm run version $NEW_VERSION
+          npm run version $DOCS_VERSION
           npm run build
 
       - name: Commit new files

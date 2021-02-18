@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-spring-schema
+id: spring-schema
 title: Writing Schemas with Spring
 original_id: spring-schema
 ---
