@@ -38,7 +38,10 @@ import org.springframework.web.reactive.function.server.ServerRequest
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["graphql.packages=com.expediagroup.graphql.server.spring.routes"]
+    properties = [
+        "graphql.packages=com.expediagroup.graphql.server.spring.routes",
+        "graphql.sdl.enabled=true"
+    ]
 )
 @EnableAutoConfiguration
 class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
@@ -50,7 +53,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
         @Bean
         fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
-            override fun generateContext(request: ServerRequest): CustomContext = CustomContext(
+            override suspend fun generateContext(request: ServerRequest): CustomContext = CustomContext(
                 value = request.headers().firstHeader("X-Custom-Header") ?: "default"
             )
         }

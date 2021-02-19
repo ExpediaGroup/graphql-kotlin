@@ -16,14 +16,13 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
 import io.mockk.mockk
 import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 class RequestExtensionsKtTest {
 
@@ -32,7 +31,7 @@ class RequestExtensionsKtTest {
         val request = GraphQLRequest(query = "query { whatever }")
         val executionInput = request.toExecutionInput()
         assertEquals(request.query, executionInput.query)
-        assertTrue(executionInput.context is GraphQLContext)
+        assertNull(executionInput.context)
         assertNotNull(executionInput.dataLoaderRegistry)
     }
 

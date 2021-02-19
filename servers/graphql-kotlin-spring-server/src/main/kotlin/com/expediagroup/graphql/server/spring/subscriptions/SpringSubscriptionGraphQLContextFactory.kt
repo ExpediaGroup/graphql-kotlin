@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -26,6 +25,9 @@ import org.springframework.web.reactive.socket.WebSocketSession
  */
 abstract class SpringSubscriptionGraphQLContextFactory<out T : GraphQLContext> : GraphQLContextFactory<T, WebSocketSession>
 
-object DefaultSpringSubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory<DefaultGraphQLContext>() {
-    override fun generateContext(request: WebSocketSession) = DefaultGraphQLContext()
+/**
+ * Basic implementation of [SpringSubscriptionGraphQLContextFactory] that just returns null
+ */
+class DefaultSpringSubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory<GraphQLContext>() {
+    override suspend fun generateContext(request: WebSocketSession): GraphQLContext? = null
 }

@@ -32,21 +32,23 @@ internal class ApolloSubscriptionSessionState {
     internal val activeOperations = ConcurrentHashMap<String, ConcurrentHashMap<String, Subscription>>()
 
     // OnConnect hooks are saved by web socket session id, then operation id
-    private val onConnectHooks = ConcurrentHashMap<String, Mono<GraphQLContext>>()
+    private val onConnectHooks = ConcurrentHashMap<String, GraphQLContext?>()
 
     /**
      * Save the context created from the factory and possibly updated in the onConnect hook.
      * This allows us to include some intial state to be used when handling all the messages.
      * This will be removed in [terminateSession].
      */
-    fun saveContext(session: WebSocketSession, onConnect: Mono<GraphQLContext>) {
-        onConnectHooks[session.id] = onConnect
+    fun saveContext(session: WebSocketSession, graphQLContext: GraphQLContext?) {
+        if (graphQLContext != null) {
+            onConnectHooks[session.id] = graphQLContext
+        }
     }
 
     /**
      * Return the onConnect mono so that the operation can wait to start until it has been resolved.
      */
-    fun getContext(session: WebSocketSession): Mono<GraphQLContext>? = onConnectHooks[session.id]
+    fun getContext(session: WebSocketSession): GraphQLContext? = onConnectHooks[session.id]
 
     /**
      * Save the session that is sending keep alive messages.

@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.spring.execution
 
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -27,8 +26,8 @@ import org.springframework.web.reactive.function.server.ServerRequest
 abstract class SpringGraphQLContextFactory<out T : GraphQLContext> : GraphQLContextFactory<T, ServerRequest>
 
 /**
- * Basic implementation of [SpringGraphQLContextFactory] that just returns a [DefaultGraphQLContext]
+ * Basic implementation of [SpringGraphQLContextFactory] that just returns null
  */
-class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<DefaultGraphQLContext>() {
-    override fun generateContext(request: ServerRequest) = DefaultGraphQLContext()
+class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<GraphQLContext>() {
+    override suspend fun generateContext(request: ServerRequest): GraphQLContext? = null
 }

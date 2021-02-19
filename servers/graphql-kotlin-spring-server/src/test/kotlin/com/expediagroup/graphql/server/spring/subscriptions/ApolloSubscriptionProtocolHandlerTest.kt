@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
@@ -25,6 +24,7 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ACK
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_ERROR
+import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_KEEP_ALIVE
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_DATA
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
 import com.expediagroup.graphql.types.GraphQLError
@@ -37,11 +37,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.mono
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.time.Duration
 import kotlin.test.assertEquals
@@ -146,7 +144,6 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
 
         val initFlux = handler.handle(operationMessage, session)
-
         val message = initFlux.blockFirst(Duration.ofSeconds(2))
         assertNotNull(message)
         assertEquals(expected = GQL_CONNECTION_ACK.type, actual = message.type)
@@ -235,8 +232,8 @@ class ApolloSubscriptionProtocolHandlerTest {
 
         StepVerifier.create(initFlux)
             .expectSubscription()
-            .expectNextMatches { it.type == "connection_ack" }
-            .expectNextMatches { it.type == "ka" }
+            .expectNextMatches { it.type == GQL_CONNECTION_ACK.type }
+            .expectNextMatches { it.type == GQL_CONNECTION_KEEP_ALIVE.type }
             .thenCancel()
             .verify()
 
@@ -465,12 +462,12 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnect(any(), any(), any()) } returns mono { null }
+            every { onConnect(any(), any(), any()) } returns mockk()
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(simpleInitMessage.toJson(), session)
-        flux.blockFirst(Duration.ofSeconds(2))
-        verify(exactly = 1) { subscriptionHooks.onConnect(any(), session, any()) }
+        flux.then().subscribe()
+        verify(exactly = 1) { subscriptionHooks.onConnect(any(), any(), any()) }
     }
 
     @Test
@@ -487,7 +484,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnect(any(), any(), any()) } returns mono { null }
+            every { onConnect(any(), any(), any()) } returns mockk()
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
@@ -512,12 +509,21 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { executeSubscription(eq(graphQLRequest), any()) } returns Flux.just(expectedResponse)
         }
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnect(any(), any(), any()) } returns Mono.just(DefaultGraphQLContext())
+            every { onConnect(any(), any(), any()) } returns null
             every { onOperation(any(), any(), any()) } returns Unit
             every { onOperationComplete(any()) } returns Unit
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
-        handler.handle(simpleInitMessage.toJson(), session)
+        val initFlux = handler.handle(simpleInitMessage.toJson(), session)
+        StepVerifier.create(initFlux)
+            .expectNextCount(1)
+            .expectComplete()
+            .verify()
+
+        verify(exactly = 1) {
+            subscriptionHooks.onConnect(any(), any(), any())
+        }
+
         val startFlux = handler.handle(startMessage, session)
         StepVerifier.create(startFlux)
             .expectNextMatches { it.type == GQL_DATA.type && it.payload == expectedResponse }
@@ -526,9 +532,9 @@ class ApolloSubscriptionProtocolHandlerTest {
             .verify()
 
         verify(exactly = 1) {
-            subscriptionHooks.onConnect(any(), any(), any())
             subscriptionHooks.onOperation(any(), any(), any())
         }
+
         verifyOrder {
             subscriptionHooks.onConnect(any(), any(), any())
             subscriptionHooks.onOperation(any(), any(), any())
@@ -555,8 +561,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val initFlux = handler.handle(initMessage, session)
         val startFlux = handler.handle(startMessage, session)
-        initFlux.blockFirst(Duration.ofSeconds(2))
-        StepVerifier.create(startFlux)
+
+        StepVerifier.create(initFlux.thenMany(startFlux))
             .expectNextMatches {
                 it.type == GQL_CONNECTION_ERROR.type && it.payload == null
             }

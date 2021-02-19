@@ -17,7 +17,6 @@ package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import org.springframework.web.reactive.socket.WebSocketSession
-import reactor.core.publisher.Mono
 
 /**
  * Implementation of Apollo Subscription Server Lifecycle Events
@@ -33,8 +32,8 @@ interface ApolloSubscriptionHooks {
     fun onConnect(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: GraphQLContext
-    ): Mono<GraphQLContext> = Mono.just(graphQLContext)
+        graphQLContext: GraphQLContext?
+    ): GraphQLContext? = graphQLContext
 
     /**
      * Called when the client executes a GraphQL operation.
@@ -43,7 +42,7 @@ interface ApolloSubscriptionHooks {
     fun onOperation(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
-        graphQLContext: GraphQLContext
+        graphQLContext: GraphQLContext?
     ): Unit = Unit
 
     /**
