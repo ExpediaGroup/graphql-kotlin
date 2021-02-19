@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-directives
+id: directives
 title: Directives
 original_id: directives
 ---
-
 GraphQL directives can be used to transform the schema types, fields and arguments as well as modify the runtime
 behavior of the query (e.g. implement access control, etc). Common use cases involve limiting functionality based on the
 user authentication and authorization. While [GraphQL
@@ -14,28 +13,34 @@ spec](https://graphql.github.io/graphql-spec/draft/#sec-Type-System.Directives) 
 ## Default Directives
 
 `@deprecated` - schema directive used to represent deprecated portion of the schema.
-See [@Deprecated](customizing-schemas/deprecating-schema) annotation documentation for more details
+See [@Deprecated](deprecating-schema.md) annotation documentation for more details
 
 ```graphql
+
 type Query {
   deprecatedQuery: Boolean! @deprecated(reason: "No longer supported")
 }
+
 ```
 
 `@skip` - query directive that allows for conditional exclusion of fields or fragments
 
 ```graphql
+
 query myQuery($shouldSkip: Boolean) {
   myField @skip(if: $shouldSkip)
 }
+
 ```
 
 `@include` - query directive that allows for conditional inclusion of fields or fragments
 
 ```graphql
+
 query myQuery($shouldInclude: Boolean) {
   myField @include(if: $shouldInclude)
 }
+
 ```
 
 ## Custom Directives
@@ -43,6 +48,7 @@ query myQuery($shouldInclude: Boolean) {
 Custom directives can be added to the schema using custom annotations:
 
 ```kotlin
+
 @GraphQLDirective(
         name = "awesome",
         description = "This element is great",
@@ -54,17 +60,20 @@ class MyQuery {
     @AwesomeDirective("cool stuff")
     val somethingGreat: String = "Hello World"
 }
+
 ```
 
 The directive will then added to the schema as:
 
 ```graphql
+
 # This element is great
 directive @awesome(value: String) on FIELD_DEFINITION
 
 type MyQuery {
    somethingGreat: String @awesome("cool stuff")
 }
+
 ```
 
 Directives can be added to various places in the schema. See the
@@ -92,6 +101,7 @@ modify the default behavior of your GraphQLTypes is by providing your custom `Ko
 Example of a directive that converts field to lowercase
 
 ```kotlin
+
 @GraphQLDirective(name = "lowercase", description = "Modifies the string field to lowercase")
 annotation class LowercaseDirective
 
@@ -109,6 +119,7 @@ class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
         return field
     }
 }
+
 ```
 
 While you can manually apply all the runtime wirings to the corresponding GraphQL types directly in
@@ -119,6 +130,7 @@ could be extended to provide the wirings through `KotlinDirectiveWiringFactory#g
 `KotlinSchemaDirectiveEnvironment`.
 
 ```kotlin
+
 val queries = ...
 val customWiringFactory = KotlinDirectiveWiringFactory(
     manualWiring = mapOf<String, KotlinSchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring()))
@@ -128,6 +140,7 @@ val customHooks = object : SchemaGeneratorHooks {
 }
 val schemaGeneratorConfig = SchemaGeneratorConfig(hooks = customHooks)
 val schema = toSchema(queries = queries, config = schemaGeneratorConfig)
+
 ```
 
 While providing directives on different schema elements you will be able to modify the underlying GraphQL types. Keep in
@@ -146,11 +159,13 @@ app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring)
 Directives are applied in the order annotations are declared on the given object. Given
 
 ```kotlin
+
   @Directive1
   @Directive2
   fun doSomething(): String {
     // does something
   }
+
 ```
 
 `Directive1` will be applied first followed by the `Directive2`.
@@ -164,6 +179,7 @@ This is easily fixable though using the [`@get:` target prefix](https://kotlinla
 See [graphql-kotlin#763](https://github.com/ExpediaGroup/graphql-kotlin/pull/763) for more details.
 
 ```kotlin
+
 @GraphQLDirective
 annotation class DirectiveWithIgnoredArgs(
     val string: String,
@@ -171,12 +187,15 @@ annotation class DirectiveWithIgnoredArgs(
     @get:GraphQLIgnore
     val ignoreMe: String
 )
+
 ```
 
 This will generate the following schema
 
 ```graphql
+
 directive @directiveWithIgnoredArgs(
   string: String!
 ) on ...
+
 ```

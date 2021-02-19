@@ -1,23 +1,26 @@
 ---
-id: version-3.x.x-arguments
+id: arguments
 title: Arguments
 original_id: arguments
 ---
-
 Method arguments are automatically exposed as part of the arguments to the corresponding GraphQL fields.
 
 ```kotlin
+
 class SimpleQuery{
   fun doSomething(value: Int): Boolean = true
 }
+
 ```
 
 The above Kotlin code will generate following GraphQL schema:
 
 ```graphql
+
 type Query {
   doSomething(value: Int!): Boolean!
 }
+
 ```
 
 This behavior is true for all arguments except for the special classes for the [GraphQLContext](../execution/contextual-data) and the [DataFetchingEnvironment](../execution/data-fetching-environment)
@@ -32,6 +35,7 @@ an `Input` suffix to the query input objects.
 For example, the following code:
 
 ```kotlin
+
 class WidgetMutation {
     fun processWidget(widget: Widget): Widget {
         if (null == widget.value) {
@@ -44,11 +48,13 @@ class WidgetMutation {
 data class Widget(var value: Int? = nul) {
     fun multiplyValueBy(multiplier: Int) = value?.times(multiplier)
 }
+
 ```
 
 Will generate the following schema:
 
 ```graphql
+
 type Mutation {
   processWidget(widget: WidgetInput!): Widget!
 }
@@ -61,6 +67,7 @@ type Widget {
 input WidgetInput {
   value: Int
 }
+
 ```
 
 Please note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output
@@ -77,7 +84,9 @@ defaults (even if they are marked as nullable). Therefore in order for a GraphQL
 nullable and also specify a default Kotlin value.
 
 ```kotlin
+
 fun doSomethingWithOptionalInput(requiredValue: Int, optionalValue: Int?) = "required value=$requiredValue, optional value=$optionalValue"
+
 ```
 
 NOTE: Non nullable input fields will always require users to specify the value regardless of whether a default Kotlin value

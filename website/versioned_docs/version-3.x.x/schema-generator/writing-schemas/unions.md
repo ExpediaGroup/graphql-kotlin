@@ -1,14 +1,14 @@
 ---
-id: version-3.x.x-unions
+id: unions
 title: Unions
 original_id: unions
 ---
-
 Marker interfaces (i.e. interfaces without any common fields or methods) are exposed as GraphQL union types. All the
 types that are implementing this marker interface and are available on the classpath will be automatically exposed as
 objects in the target schema.
 
 ```kotlin
+
 interface BodyPart
 
 data class LeftHand(val field: String): BodyPart
@@ -21,11 +21,13 @@ class PolymorphicQuery {
         else -> LeftHand("hello world")
     }
 }
+
 ```
 
 The above will generate following GraphQL schema
 
 ```graphql
+
 union BodyPart = LeftHand | RightHand
 
 type LeftHand {
@@ -39,4 +41,5 @@ type RightHand {
 type Query {
   whichHand(whichHand: String!): BodyPart!
 }
+
 ```

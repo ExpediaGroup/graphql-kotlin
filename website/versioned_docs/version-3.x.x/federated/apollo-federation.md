@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-apollo-federation
+id: apollo-federation
 title: Apollo Federation
 original_id: apollo-federation
 ---
-
 In many cases, exposing single GraphQL API that exposes unified view of all the available data provides tremendous value
 to their clients. As the underlying graph scales, managing single monolithic GraphQL server might become less and less
 feasible making it much harder to manage and leading to unnecessary bottlenecks. Migrating towards federated model with
@@ -18,24 +17,28 @@ stitching approach where relationships between individual services, i.e. linking
 Gateway level.
 
 ## Install
+
 Using a JVM dependency manager, simply link `graphql-kotlin-federation` to your project.
 
 With Maven:
 
 ```xml
+
 <dependency>
   <groupId>com.expediagroup</groupId>
   <artifactId>graphql-kotlin-federation</artifactId>
   <version>${latestVersion}</version>
 </dependency>
+
 ```
 
 With Gradle:
 
 ```kotlin
-implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
-```
 
+implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
+
+```
 
 ## Usage
 
@@ -43,7 +46,6 @@ implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
 compliant schemas.
 
 ### `toFederatedSchema`
-
 
 Just like the basic [toSchema](../schema-generator/schema-generator-getting-started.md), `toFederatedSchema` accepts four parameters: `config`, `queries`, `mutations` and `subscriptions`.
 The difference is that the `config` class is of type [FederatedSchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/FederatedSchemaGeneratorConfig.kt).
@@ -55,6 +57,7 @@ source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotli
 ## Example
 
 ```kotlin
+
 @KeyDirective(fields = FieldSet("id"))
 data class User(
   val id: ID,
@@ -73,17 +76,20 @@ toFederatedSchema(
   config = config,
   queries = listOf(TopLevelObject(Query()))
 )
+
 ```
 
 will generate
 
- ```graphql
+```graphql
+
 type Query {
-  getUsers: [User!]!
+ getUsers: [User!]!
 }
 
 type User @key(fields : "id") {
-  id: ID!
-  name: String!
+ id: ID!
+ name: String!
 }
+
 ```

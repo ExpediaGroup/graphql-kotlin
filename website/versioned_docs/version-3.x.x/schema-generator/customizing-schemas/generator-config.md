@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-generator-config
+id: generator-config
 title: Generator Configuration
 original_id: generator-config
 ---
-
 `graphql-kotlin-schema-generator` provides a single function, `toSchema,` to generate a schema from Kotlin objects. This
 function accepts four arguments: config, queries, mutations and subscriptions. The queries, mutations and subscriptions
 are a list of
@@ -14,13 +13,13 @@ contains all the extra information you need to pass, including custom hooks, sup
 `SchemaGeneratorConfig` has some default settings but you can override them and add custom behaviors for generating your
 schema.
 
-* `supportedPackages` **[Required]** - List of Kotlin packages that can contain schema objects. Limits the scope of
-  packages that can be scanned using reflections.
-* `topLevelNames` _[Optional]_ - Set the name of the top level GraphQL fields, defaults to `Query`, `Mutation` and
-  `Subscription`
-* `hooks` _[Optional]_ - Set custom behaviors for generating the schema, see below for details.
-* `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
-* `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
+-   `supportedPackages` **[Required]** - List of Kotlin packages that can contain schema objects. Limits the scope of
+    packages that can be scanned using reflections.
+-   `topLevelNames` _[Optional]_ - Set the name of the top level GraphQL fields, defaults to `Query`, `Mutation` and
+    `Subscription`
+-   `hooks` _[Optional]_ - Set custom behaviors for generating the schema, see below for details.
+-   `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
+-   `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
 
 ## Schema generator hooks
 
@@ -34,6 +33,7 @@ For exact names and details of every hook, see the comments and descriptions in 
 As an example here is how you would write a custom hook and provide it through the configuration
 
 ```kotlin
+
 class MyCustomHooks : SchemaGeneratorHooks {
   // Only generate functions that start with "dog"
   // This would probably be better just to use @GraphQLIgnore, but this is just an example
@@ -51,11 +51,13 @@ val config = SchemaGeneratorConfig(supportedPackages = listOf("org.example"), ho
 val queries = listOf(TopLevelObject(Query()))
 
 toSchema(queries = queries, config = config)
+
 ```
 
 will generate
 
 ```graphql
+
 
 schema {
   query: Query
@@ -64,6 +66,7 @@ schema {
 type Query {
   dogSound: String!
 }
+
 ```
 
 Notice there is no `catSound` function.

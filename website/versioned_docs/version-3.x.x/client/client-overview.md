@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-client-overview
+id: client-overview
 title: Client Overview
 original_id: client-overview
 ---
-
 `graphql-kotlin-client` is a lightweight type-safe GraphQL HTTP client. Type-safe data models are generated at build time
 by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin.md) and
 [Maven](../plugins/maven-plugin.md) plugins.
@@ -21,6 +20,7 @@ runtime dependency.
 Basic `build.gradle.kts` Gradle configuration:
 
 ```kotlin
+
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 plugins {
@@ -37,11 +37,13 @@ graphql {
         packageName = "com.example.generated"
     }
 }
+
 ```
 
 Equivalent `pom.xml` Maven configuration
 
 ```xml
+
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -86,6 +88,7 @@ Equivalent `pom.xml` Maven configuration
         </plugins>
     </build>
 </project>
+
 ```
 
 See [graphql-kotlin-client-example](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client) project for complete
@@ -108,22 +111,27 @@ with a `HelloWorldQuery` class under the configured package.
 For example, given a simple schema
 
 ```graphql
+
 type Query {
   helloWorld: String
 }
+
 ```
 
 And a corresponding `HelloWorldQuery.graphql` query
 
 ```graphql
+
 query HelloWorldQuery {
   helloWorld
 }
+
 ```
 
 Plugins will generate following client code
 
 ```kotlin
+
 package com.example.generated
 
 import com.expediagroup.graphql.client.GraphQLClient
@@ -142,6 +150,7 @@ class HelloWorldQuery(
     val helloWorld: String
   )
 }
+
 ```
 
 Generated classes requires an instance of `GraphQLClient` and exposes a single `execute` suspendable method that executes
@@ -154,6 +163,7 @@ ensures proper serialization and deserialization of your GraphQL objects. `Graph
 specified and defaults to fully asynchronous non-blocking [Coroutine-based IO engine](https://ktor.io/clients/http-client/engines.html#cio).
 
 ```kotlin
+
 package com.example.client
 
 import com.expediagroup.graphql.client.GraphQLClient
@@ -170,4 +180,5 @@ fun main() {
     }
     client.close()
 }
+
 ```

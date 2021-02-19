@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-client-features
+id: client-features
 title: Client Features
 original_id: client-features
 ---
-
 ## Polymorphic Types Support
 
 GraphQL supports polymorphic types through unions and interfaces which can be represented in Kotlin as marker and
@@ -14,6 +13,7 @@ field so it can be used to Jackson correctly distinguish between different imple
 Given example schema
 
 ```graphql
+
 type Query {
   interfaceQuery: BasicInterface!
 }
@@ -34,11 +34,13 @@ type SecondInterfaceImplementation implements BasicInterface {
   id: Int!
   name: String!
 }
+
 ```
 
 We can query interface field as
 
 ```graphql
+
 query PolymorphicQuery {
   interfaceQuery {
     __typename
@@ -52,11 +54,13 @@ query PolymorphicQuery {
     }
   }
 }
+
 ```
 
 Which will generate following data model
 
 ```kotlin
+
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
@@ -82,6 +86,7 @@ data class SecondInterfaceImplementation(
   override val name: String,
   val floatValue: Float
 ) : PolymorphicQuery.BasicInterface
+
 ```
 
 ## Default Enum Values
@@ -98,6 +103,7 @@ add it as KDoc to corresponding data models.
 Given simple GraphQL object definition
 
 ```graphql
+
 "Some basic description"
 type BasicObject {
   "Unique identifier"
@@ -105,11 +111,13 @@ type BasicObject {
   "Object name"
   name: String!
 }
+
 ```
 
 Will result in a corresponding auto generated data class
 
 ```kotlin
+
 /**
  * Some basic description
  */
@@ -123,6 +131,7 @@ data class BasicObject(
    */
   val name: String
 )
+
 ```
 
 ## Native Support for Coroutines

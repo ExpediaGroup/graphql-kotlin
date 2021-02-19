@@ -1,9 +1,8 @@
 ---
-id: version-3.x.x-fetching-data
+id: fetching-data
 title: Fetching Data
 original_id: fetching-data
 ---
-
 Each field exposed through a GraphQL query has a corresponding resolver (aka data fetcher) associated with it. `graphql-kotlin-schema-generator` generates GraphQL schema
 directly from the source code automatically mapping all the fields either to use
 [FunctionDataFetcher](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/execution/FunctionDataFetcher.kt)
@@ -13,6 +12,7 @@ While all the fields in a GraphQL query are resolved independently to produce a 
 performance repercussions. For example, given the following schema:
 
 ```graphql
+
 type Query {
   product(id: Int!): Product
 }
@@ -27,22 +27,27 @@ type Review {
   id: Int!
   text: String!
 }
+
 ```
 
 We can define `Product` as
 
 ```kotlin
+
 data class Product(val id: Int, val name: String, reviews: List<Review>)
+
 ```
 
 or
 
 ```kotlin
+
 class Product(val id: Int, val name: String) {
   suspend fun reviews(): List<Reviews> {
      // logic to fetch reviews here
   }
 }
+
 ```
 
 If we expose the `reviews` field as a property it will always be populated regardless whether or not your client actually asks for it. On the other hand if `reviews` is backed

@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-spring-properties
+id: spring-properties
 title: Configuration Properties
 original_id: spring-properties
 ---

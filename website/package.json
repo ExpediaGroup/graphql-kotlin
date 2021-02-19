@@ -3,25 +3,25 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/ExpediaGroup/graphql-kotlin",
   "engines": {
-    "node": "12",
-    "npm": "6"
+    "node": ">=12",
+    "npm": ">=6"
   },
   "scripts": {
-    "examples": "docusaurus-examples",
-    "start": "docusaurus-start",
-    "build": "docusaurus-build",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
     "publish-gh-pages": "docusaurus-publish",
-    "write-translations": "docusaurus-write-translations",
-    "version": "docusaurus-version",
+    "version": "docusaurus docs:version",
     "rename-version": "docusaurus-rename-version",
-    "clean": "rimraf build i18n"
+    "clean": "docusaurus clear",
+    "deploy": "docusaurus deploy",
+    "swizzle": "docusaurus swizzle",
+    "docusaurus": "docusaurus"
   },
-  "devDependencies": {
-    "docusaurus": "1.14.6",
-    "rimraf": "3.0.2",
-    "bl": ">=1.2.3"
-  },
-  "@comments devDependencies": {
-    "bl": "only included for dependabot security alerts"
+  "dependencies": {
+    "@docusaurus/core": "2.0.0-alpha.70",
+    "@docusaurus/preset-classic": "2.0.0-alpha.70",
+    "clsx": "^1.1.1",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2"
   }
 }

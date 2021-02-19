@@ -1,5 +1,5 @@
 ---
-id: version-3.x.x-federated-directives
+id: federated-directives
 title: Federated Directives
 original_id: federated-directives
 ---
@@ -8,7 +8,9 @@ original_id: federated-directives
 ## `@extends` directive
 
 ```graphql
+
 directive @extends on OBJECT | INTERFACE
+
 ```
 
 `@extends` directive is used to represent type extensions in the schema. Native type extensions are currently
@@ -18,26 +20,32 @@ defined that specifies primary key required to fetch the underlying object.
 Example
 
 ```kotlin
+
 @KeyDirective(FieldSet("id"))
 @ExtendsDirective
 class Product(@property:ExternalDirective val id: String) {
    fun newFunctionality(): String = "whatever"
 }
+
 ```
 
 will generate
 
 ```graphql
+
 type Product @extends @key(fields : "id") {
   id: String! @external
   newFunctionality: String!
 }
+
 ```
 
 ## `@external` directive
 
 ```graphql
+
 directive @external on FIELD_DEFINITION
+
 ```
 
 The `@external` directive is used to mark a field as owned by another service. This allows service A to use fields from
@@ -48,26 +56,32 @@ directives field sets.
 Example
 
 ```kotlin
+
 @KeyDirective(FieldSet("id"))
 @ExtendsDirective
 class Product(@property:ExternalDirective val id: String) {
   fun newFunctionality(): String = "whatever"
 }
+
 ```
 
 will generate
 
 ```graphql
+
 type Product @extends @key(fields : "id") {
   id: String! @external
   newFunctionality: String!
 }
+
 ```
 
 ## `@key` directive
 
 ```graphql
+
 directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+
 ```
 
 The `@key` directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an
@@ -79,29 +93,35 @@ types. Key fields specified in the directive field set should correspond to a va
 interface/object. Federated extended types should also instrument all the referenced key fields with `@external`
 directive.
 
-> NOTE: The Federation spec specifies that multiple @key directives can be applied on the field. The GraphQL spec has been recently changed to allow this behavior,
-> but we are currently blocked and are tracking progress in [this issue](https://github.com/ExpediaGroup/graphql-kotlin/issues/590).
+&gt; NOTE: The Federation spec specifies that multiple @key directives can be applied on the field. The GraphQL spec has been recently changed to allow this behavior,
+&gt; but we are currently blocked and are tracking progress in [this issue](https://github.com/ExpediaGroup/graphql-kotlin/issues/590).
 
 Example
 
 ```kotlin
+
 @KeyDirective(FieldSet("id"))
 class Product(val id: String, val name: String)
+
 ```
 
 will generate
 
 ```graphql
+
 type Product @key(fields: "id") {
   id: String!
   name: String!
 }
+
 ```
 
 ## `@provides` directive
 
 ```graphql
+
 directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
 ```
 
 The `@provides` directive is used to annotate the expected returned field set from a field on a base type that is
@@ -114,6 +134,7 @@ Example:
 We might want to expose only name of the user that submitted a review.
 
 ```kotlin
+
 @KeyDirective(FieldSet("id"))
 class Review(val id: String) {
   @ProvidesDirective(FieldSet("name"))
@@ -126,11 +147,13 @@ class User(
   @property:ExternalDirective val userId: String,
   @property:ExternalDirective val name: String
 )
+
 ```
 
 will generate
 
 ```graphql
+
 type Review @key(fields : "id") {
   id: String!
   user: User! @provides(fields : "name")
@@ -140,12 +163,15 @@ type User @extends @key(fields : "userId") {
   userId: String! @external
   name: String! @external
 }
+
 ```
 
 ## `@requires` directive
 
 ```graphql
+
 directive @requires(fields: _FieldSet!) on FIELD_DEFINITON
+
 ```
 
 The `@requires` directive is used to annotate the required input field set from a base type for a resolver. It is used
@@ -166,6 +192,7 @@ that exception will be thrown if queries attempt to resolve fields that referenc
 Example:
 
 ```kotlin
+
 @KeyDirective(FieldSet("id"))
 @ExtendsDirective
 class Product(@property:ExternalDirective val id: String) {
@@ -177,15 +204,18 @@ class Product(@property:ExternalDirective val id: String) {
 
   fun additionalInfo(): String { ... }
 }
+
 ```
 
 will generate
 
 ```graphql
+
 type Product @extends @key(fields : "id") {
   additionalInfo: String!
   id: String! @external
   shippingCost: String! @requires(fields : "weight")
   weight: Float! @external
 }
+
 ```
