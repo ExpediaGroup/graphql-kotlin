@@ -6,7 +6,6 @@ on:
       - master
       - '*.x.x'
     paths-ignore:
-      - 'docs/**'
       - 'website/**'
 
 jobs:

@@ -4,9 +4,7 @@ on:
   pull_request:
     branches:
       - master
-      - '*.x.x'
     paths:
-      - 'docs/**'
       - 'website/**'
 
 jobs:

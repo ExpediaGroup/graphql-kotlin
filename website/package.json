@@ -9,18 +9,14 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",
-    "publish-gh-pages": "docusaurus-publish",
     "version": "docusaurus docs:version",
-    "rename-version": "docusaurus-rename-version",
     "clean": "docusaurus clear",
-    "deploy": "docusaurus deploy",
-    "swizzle": "docusaurus swizzle",
-    "docusaurus": "docusaurus"
+    "serve": "docusaurus serve",
+    "swizzle": "docusaurus swizzle"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.70",
     "@docusaurus/preset-classic": "2.0.0-alpha.70",
-    "clsx": "^1.1.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2"
   }
