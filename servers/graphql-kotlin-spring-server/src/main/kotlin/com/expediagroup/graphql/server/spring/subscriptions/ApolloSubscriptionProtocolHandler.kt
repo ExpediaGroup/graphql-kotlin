@@ -114,7 +114,7 @@ class ApolloSubscriptionProtocolHandler(
             return Flux.just(basicConnectionErrorMessage)
         }
 
-        if (sessionState.operationExists(session, operationMessage)) {
+        if (sessionState.doesOperationExist(session, operationMessage)) {
             logger.info("Already subscribed to operation ${operationMessage.id} for session ${session.id}")
             return Flux.empty()
         }
