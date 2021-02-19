@@ -189,7 +189,7 @@ class SubscriptionWebSocketHandlerIT(
             .delayElements(Duration.ofMillis(100))
 
         @Suppress("unused")
-        fun ticker(ctx: SubscriptionContext?): Flux<String> = Flux.just("${ctx?.value}:${Random.nextInt()}")
+        fun ticker(ctx: SubscriptionContext): Flux<String> = Flux.just("${ctx.value}:${Random.nextInt()}")
     }
 
     data class SubscriptionContext(val value: String) : GraphQLContext

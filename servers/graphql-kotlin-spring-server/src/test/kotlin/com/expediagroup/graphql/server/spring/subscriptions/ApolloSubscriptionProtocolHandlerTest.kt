@@ -462,12 +462,13 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnect(any(), any(), any()) } returns mockk()
+            every { onConnect(any(), any(), any()) } returns null
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(simpleInitMessage.toJson(), session)
-        flux.then().subscribe()
+        val disposable = flux.subscribe()
         verify(exactly = 1) { subscriptionHooks.onConnect(any(), any(), any()) }
+        disposable.dispose()
     }
 
     @Test
@@ -484,12 +485,13 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnect(any(), any(), any()) } returns mockk()
+            every { onConnect(any(), any(), any()) } returns null
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        flux.blockFirst(Duration.ofSeconds(2))
+        val disposable = flux.subscribe()
         verify(exactly = 1) { subscriptionHooks.onConnect(payload, session, any()) }
+        disposable.dispose()
     }
 
     @Test
@@ -587,8 +589,9 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        flux.blockFirst(Duration.ofSeconds(2))
+        val disposable = flux.subscribe()
         verify(exactly = 1) { subscriptionHooks.onOperationComplete(session) }
+        disposable.dispose()
     }
 
     @Test
