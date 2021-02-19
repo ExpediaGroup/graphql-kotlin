@@ -31,8 +31,8 @@ internal class ApolloSubscriptionSessionState {
     // Operations are saved by web socket session id, then operation id
     internal val activeOperations = ConcurrentHashMap<String, ConcurrentHashMap<String, Subscription>>()
 
-    // OnConnect hooks are saved by web socket session id, then operation id
-    private val onConnectHooks = ConcurrentHashMap<String, GraphQLContext?>()
+    // The context is saved by web socket session id, then operation id
+    private val onConnectHooks = ConcurrentHashMap<String, GraphQLContext>()
 
     /**
      * Save the context created from the factory and possibly updated in the onConnect hook.
