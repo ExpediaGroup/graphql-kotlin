@@ -109,27 +109,7 @@ class ApolloSubscriptionProtocolHandlerTest {
     }
 
     @Test
-    fun `Return only GQL_CONNECTION_ACK when sending GQL_CONNECTION_INIT and keep alive is on but no id is sent`() {
-        val config: GraphQLConfigurationProperties = mockk {
-            every { subscriptions } returns mockk {
-                every { keepAliveInterval } returns 500
-            }
-        }
-        val session: WebSocketSession = mockk {
-            every { id } returns "123"
-        }
-        val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
-
-        val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
-        val flux = handler.handle(simpleInitMessage.toJson(), session)
-
-        val message = flux.blockFirst(Duration.ofSeconds(2))
-        assertNotNull(message)
-        assertEquals(expected = GQL_CONNECTION_ACK.type, actual = message.type)
-    }
-
-    @Test
-    fun `Return GQL_CONNECTION_ACK + GQL_CONNECTION_KEEP_ALIVE when sent type is GQL_CONNECTION_INIT and keep alive is on and id is sent`() {
+    fun `Return GQL_CONNECTION_ACK + GQL_CONNECTION_KEEP_ALIVE when sending GQL_CONNECTION_INIT and keep alive is on`() {
         val config: GraphQLConfigurationProperties = mockk {
             every { subscriptions } returns mockk {
                 every { keepAliveInterval } returns 500
@@ -144,10 +124,9 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
 
         val initFlux = handler.handle(operationMessage, session)
-        val message = initFlux.blockFirst(Duration.ofSeconds(2))
-        assertNotNull(message)
-        assertEquals(expected = GQL_CONNECTION_ACK.type, actual = message.type)
-        initFlux.subscribe().dispose()
+        StepVerifier.create(initFlux)
+            .expectNextMatches { it.type == GQL_CONNECTION_ACK.type }
+            .expectNextMatches { it.type == GQL_CONNECTION_KEEP_ALIVE.type }
     }
 
     @Test
@@ -273,10 +252,12 @@ class ApolloSubscriptionProtocolHandlerTest {
         handler.handle(simpleInitMessage.toJson(), session)
         val flux = handler.handle(operationMessage, session)
 
-        val message = flux.blockFirst(Duration.ofSeconds(2))
-        assertNotNull(message)
-        assertEquals(expected = GQL_CONNECTION_ERROR.type, actual = message.type)
-        assertEquals(expected = "abc", actual = message.id)
+        StepVerifier.create(flux)
+            .expectNextMatches {
+                it.type == GQL_CONNECTION_ERROR.type && it.payload == null
+            }
+            .expectComplete()
+            .verify()
     }
 
     @Test
@@ -544,14 +525,13 @@ class ApolloSubscriptionProtocolHandlerTest {
     }
 
     @Test
-    fun `Do not send any messages when onConnect throws error`() {
+    fun `Return GQL_CONNECTION_ERROR when onConnect throws error`() {
         val config: GraphQLConfigurationProperties = mockk {
             every { subscriptions } returns mockk {
                 every { keepAliveInterval } returns null
             }
         }
         val initMessage = simpleInitMessage.toJson()
-        val startMessage = SubscriptionOperationMessage(GQL_START.type).toJson()
         val session: WebSocketSession = mockk {
             every { id } returns "123"
         }
@@ -562,9 +542,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val initFlux = handler.handle(initMessage, session)
-        val startFlux = handler.handle(startMessage, session)
 
-        StepVerifier.create(initFlux.thenMany(startFlux))
+        StepVerifier.create(initFlux)
             .expectNextMatches {
                 it.type == GQL_CONNECTION_ERROR.type && it.payload == null
             }

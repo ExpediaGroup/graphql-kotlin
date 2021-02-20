@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
@@ -149,17 +149,21 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
-        saveContext(operationMessage, session)
+        val updateContext = saveContext(operationMessage, session)
         val acknowledgeMessage = Mono.just(acknowledgeMessage)
         val keepAliveFlux = getKeepAliveFlux(session)
-        return acknowledgeMessage.concatWith(keepAliveFlux)
+        return updateContext.then(acknowledgeMessage)
+            .thenMany(keepAliveFlux)
+            .onErrorReturn(getConnectionErrorMessage(operationMessage))
     }
 
-    private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
-        val connectionParams = getConnectionParams(operationMessage.payload)
-        val context = runBlocking { contextFactory.generateContext(session) }
-        val onConnect = subscriptionHooks.onConnect(connectionParams, session, context)
-        sessionState.saveContext(session, onConnect)
+    private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Mono<Unit> {
+        return mono {
+            val connectionParams = getConnectionParams(operationMessage.payload)
+            val context = contextFactory.generateContext(session)
+            val onConnect = subscriptionHooks.onConnect(connectionParams, session, context)
+            sessionState.saveContext(session, onConnect)
+        }
     }
 
     /**
