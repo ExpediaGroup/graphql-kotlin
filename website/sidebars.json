@@ -54,10 +54,10 @@
         "type": "category",
         "label": "Federation",
         "items": [
-          "federated/apollo-federation",
-          "federated/federated-schemas",
-          "federated/federated-directives",
-          "federated/type-resolution"
+          "schema-generator/federation/apollo-federation",
+          "schema-generator/federation/federated-schemas",
+          "schema-generator/federation/federated-directives",
+          "schema-generator/federation/type-resolution"
         ]
       }
     ],
