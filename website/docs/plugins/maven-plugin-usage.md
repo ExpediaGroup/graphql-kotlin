@@ -3,21 +3,19 @@ id: maven-plugin-usage
 title: Maven Plugin Usage
 sidebar_label: Usage
 ---
+
 ## Downloading Schema SDL
 
 Download SDL Mojo requires target GraphQL server `endpoint` to be specified. Task can be executed directly from the
 command line by explicitly specifying `graphql.endpoint` property.
 
 ```shell script
-
 $ mvn com.expediagroup:graphql-kotlin-maven-plugin:download-sdl -Dgraphql.endpoint="http://localhost:8080/sdl"
-
 ```
 
 Mojo can also be configured in your Maven build file
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -33,7 +31,6 @@ Mojo can also be configured in your Maven build file
         </execution>
     </executions>
 </plugin>
-
 ```
 
 By default, `download-sdl` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
@@ -44,15 +41,12 @@ Introspection Mojo requires target GraphQL server `endpoint` to be specified. Ta
 command line by explicitly specifying `graphql.endpoint` property
 
 ```shell script
-
 $ mvn com.expediagroup:graphql-kotlin-maven-plugin:introspect-schema -Dgraphql.endpoint="http://localhost:8080/graphql"
-
 ```
 
 Mojo can also be configured in your Maven build file
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -68,7 +62,6 @@ Mojo can also be configured in your Maven build file
         </execution>
     </executions>
 </plugin>
-
 ```
 
 By default, `introspect-schema` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
@@ -80,16 +73,13 @@ generated under specified `packageName`. When using default configuration and st
 directories, task can be executed directly from the command line by explicitly providing required properties.
 
 ```shell script
-
 $ mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-client -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
-
 ```
 
 Mojo can also be configured in your Maven build file to become part of your build lifecycle. Plugin also provides additional
 configuration options that are not available on command line.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -106,14 +96,13 @@ configuration options that are not available on command line.
         </execution>
     </executions>
 </plugin>
-
 ```
 
 This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project compile sources.
 
-&gt; NOTE: You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
-&gt; [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+>NOTE: You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
+>[build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
 
 ## Generating Ktor or WebClient Based Client
 
@@ -125,7 +114,6 @@ For example in order to generate Ktor based HTTP client we need to specify `Grap
 if you would like to use WebClient implementation instead you need to specify `GraphQLClientType.WEBCLIENT` instead.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -143,7 +131,6 @@ if you would like to use WebClient implementation instead you need to specify `G
         </execution>
     </executions>
 </plugin>
-
 ```
 
 ## Generating Client with Custom Scalars
@@ -154,15 +141,12 @@ custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/ma
 For example given following custom scalar in our GraphQL schema
 
 ```graphql
-
 scalar UUID
-
 ```
 
 We can create a custom converter to automatically convert this custom scalar to `java.util.UUID`
 
 ```kotlin
-
 package com.example
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
@@ -172,13 +156,11 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
     override fun toScalar(rawValue: String): UUID = UUID.fromString(rawValue)
     override fun toJson(value: UUID): String = value.toString()
 }
-
 ```
 
 Afterwards we need to configure our plugin to use this custom converter
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -192,22 +174,21 @@ Afterwards we need to configure our plugin to use this custom converter
                 <allowDeprecatedFields>false</allowDeprecatedFields>
                 <customScalars>
                     <customScalar>
-                        <!-- custom scalar UUID type
-                        scalarUUID
-                         fully qualified Java class name of a custom scalar type
-                        typejava.util.UUID
-                         fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-                           used to convert to/from raw JSON and scalar type
-                        convertercom.example.UUIDScalarConverter
-
-
-                packagenamecom.example.generated
-                schemafilemySchema.graphql
-
-
-
---&gt;
-
+                        <!-- custom scalar UUID type -->
+                        <scalar>UUID</scalar>
+                        <!-- fully qualified Java class name of a custom scalar type -->
+                        <type>java.util.UUID</type>
+                        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                           used to convert to/from raw JSON and scalar type -->
+                        <converter>com.example.UUIDScalarConverter</converter>
+                    </customScalar>
+                </customScalars>
+                <packageName>com.example.generated</packageName>
+                <schemaFile>mySchema.graphql</schemaFile>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 ## Generating Test Client
@@ -217,16 +198,13 @@ are generated under specified `packageName`. When using default configuration an
 directories, task can be executed directly from the command line by explicitly providing required properties.
 
 ```shell script
-
 $ mvn com.expediagroup:graphql-kotlin-maven-plugin:generate-test-client -Dgraphql.schemaFile="mySchema.graphql" -Dgraphql.packageName="com.example.generated"
-
 ```
 
 Mojo can also be configured in your Maven build file to become part of your build lifecycle. Plugin also provides additional
 configuration options that are not available on command line.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -243,14 +221,13 @@ configuration options that are not available on command line.
         </execution>
     </executions>
 </plugin>
-
 ```
 
 This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin test clients.
 Generated classes will be automatically added to the project test compile sources.
 
-&gt; NOTE: You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
-&gt; See [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+>NOTE: You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
+>See [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
 
 ## Minimal Configuration Example
 
@@ -258,7 +235,6 @@ Following is the minimal configuration that runs introspection query against a t
 This generated schema is subsequently used to generate GraphQL client code based on the queries provided under `src/main/resources` directory.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -276,12 +252,11 @@ This generated schema is subsequently used to generate GraphQL client code based
         </execution>
     </executions>
 </plugin>
-
 ```
 
-&gt; NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
-&gt; As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
-&gt; Mojos will be executed in the order they are defined in your `pom.xml` build file.
+>NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
+>As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
+>Mojos will be executed in the order they are defined in your `pom.xml` build file.
 
 ## Complete Configuration Example
 
@@ -289,7 +264,6 @@ Following is a configuration example that downloads schema SDL from a target Gra
 the GraphQL client code based on the provided query.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -303,35 +277,35 @@ the GraphQL client code based on the provided query.
             <configuration>
                 <endpoint>http://localhost:8080/sdl</endpoint>
                 <packageName>com.example.generated</packageName>
-                <!-- optional configuration below
-                schemafile${"{"}project.build.directory{"}"}/mySchema.graphql
-                allowdeprecatedfieldstrue
-                customscalars
-
-
-                        UUID
-
-                        java.util.UUID
-
-                        com.example.UUIDScalarConverter
-
-
-                headers
-                    My-Custom-Header
-
-                timeoutconfiguration
-
-                    1000
-                    30000
-
-                queryfiles
-                    ${"{"}project.basedir{"}"}/src/main/resources/queries/MyQuery.graphql
-
-
-
-
---&gt;
-
+                <!-- optional configuration below -->
+                <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
+                <allowDeprecatedFields>true</allowDeprecatedFields>
+                <customScalars>
+                    <customScalar>
+                        <!-- custom scalar UUID type -->
+                        <scalar>UUID</scalar>
+                        <!-- fully qualified Java class name of a custom scalar type -->
+                        <type>java.util.UUID</type>
+                        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                           used to convert to/from raw JSON and scalar type -->
+                        <converter>com.example.UUIDScalarConverter</converter>
+                    </customScalar>
+                </customScalars>
+                <headers>
+                    <X-Custom-Header>My-Custom-Header</X-Custom-Header>
+                </headers>
+                <timeoutConfiguration>
+                    <!-- timeout values in milliseconds -->
+                    <connect>1000</connect>
+                    <read>30000</read>
+                </timeoutConfiguration>
+                <queryFiles>
+                    <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
+                </queryFiles>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 ## Generating Multiple Clients
@@ -340,7 +314,6 @@ In order to generate GraphQL clients targeting multiple endpoints, we need to co
 different endpoints.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -376,7 +349,6 @@ different endpoints.
         </execution>
     </executions>
 </plugin>
-
 ```
 
 ## Generating SDL Example
@@ -388,7 +360,6 @@ limit the amount of packages to scan, this mojo requires users to provide a list
 types.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -406,7 +377,6 @@ types.
         </execution>
     </executions>
 </plugin>
-
 ```
 
 ## Generating SDL with Custom Hooks Provider Example
@@ -423,7 +393,6 @@ Configuration below shows how to configure GraphQL Kotlin plugin with explicitly
 GraphQL schema.
 
 ```xml
-
 <plugin>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin</artifactId>
@@ -448,5 +417,4 @@ GraphQL schema.
         </dependency>
     </dependencies>
 </plugin>
-
 ```

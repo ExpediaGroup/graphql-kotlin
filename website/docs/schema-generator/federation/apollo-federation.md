@@ -46,9 +46,9 @@ compliant schemas.
 
 ### `toFederatedSchema`
 
-Just like the basic [toSchema](../schema-generator/schema-generator-getting-started.md), `toFederatedSchema` accepts four parameters: `config`, `queries`, `mutations` and `subscriptions`.
+Just like the basic [toSchema](../schema-generator-getting-started.md), `toFederatedSchema` accepts four parameters: `config`, `queries`, `mutations` and `subscriptions`.
 The difference is that the `config` class is of type [FederatedSchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/FederatedSchemaGeneratorConfig.kt).
-This class extends the [base configuration class](../schema-generator/customizing-schemas/generator-config.md) and adds some default logic. You can override the logic if needed, but do so with caution as you may no longer generate a spec compliant schema.
+This class extends the [base configuration class](../customizing-schemas/generator-config.md) and adds some default logic. You can override the logic if needed, but do so with caution as you may no longer generate a spec compliant schema.
 
 You can see the definition for `toFederatedSchema` [in the
 source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt)

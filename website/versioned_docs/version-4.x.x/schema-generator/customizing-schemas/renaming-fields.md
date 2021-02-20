@@ -39,7 +39,7 @@ data class MyInputClass(
 
 // GraphQL enums should use UPPER_CASE naming if possible, but any case is supported
 enum class Selection {
-  
+
   @JsonProperty("first")
   @GraphQLName("first")
   ONE,

@@ -38,7 +38,7 @@ goal provides limited functionality by itself and instead should be used to gene
     ```xml
 
     <timeoutConfiguration>
-        <!-- timeout values in milliseconds 
+        <!-- timeout values in milliseconds
         connect1000
         read30000
     --&gt;
@@ -73,13 +73,13 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 
     ```xml
 
-    
-      
-        
+
+
+
         java.util.UUID
-        
+
         com.example.UUIDScalarConverter
-      
+
     --&gt;
 
     ```
@@ -112,13 +112,13 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 
     ```xml
 
-    
-      
-        
+
+
+
         java.util.UUID
-        
+
         com.example.UUIDScalarConverter
-      
+
     --&gt;
 
     ```
@@ -147,7 +147,7 @@ should be used to generate input for the subsequent `` goal.
 
     ```xml
 
-    
+
         1000
         30000
     --&gt;
@@ -251,18 +251,18 @@ Afterwards we need to configure our plugin to use this custom converter
 ```xml
 
 
-                    
-                        
+
+
                         java.util.UUID
-                        
+
                         com.example.UUIDScalarConverter
-                    
-                
+
+
                 com.example.generated
                 mySchema.graphql
-            
-        
-    
+
+
+
 --&gt;
 
 ```
@@ -318,29 +318,29 @@ the GraphQL client code based on the provided query.
 
 
                 true
-                
-                    
-                    
-                        
+
+
+
+
                         java.util.UUID
-                        
+
                         com.example.UUIDScalarConverter
-                    
-                
-                
+
+
+
                     My-Custom-Header
-                
-                
-                    
+
+
+
                     1000
                     30000
-                
-                
+
+
                     ${"{"}project.basedir{"}"}/src/main/resources/queries/MyQuery.graphql
-                
-            
-        
-    
+
+
+
+
 --&gt;
 
 ```

@@ -5,7 +5,7 @@ title: Advanced Features
 ## Adding Custom Additional Types
 
 There are a couple ways you can add more types to the schema without having them be directly consumed by a type in your schema.
-This may be required for [Apollo Federation](../../federated/apollo-federation.md), or maybe adding other interface implementations that are not picked up.
+This may be required for [Apollo Federation](../federation/apollo-federation.md), or maybe adding other interface implementations that are not picked up.
 
 ### `SchemaGenerator::generateSchema`
 
