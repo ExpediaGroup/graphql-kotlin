@@ -1,0 +1,57 @@
+name: Release Docs
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release-docs:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    if: github.repository == 'ExpediaGroup/graphql-kotlin'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Build website with version
+        run: |
+          NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
+          MAJOR_VERSION=$(echo "${NEW_VERSION}" | cut -d "." -f1)
+          DOCS_VERSION="${MAJOR_VERSION}.x.x"
+          echo "Doc version: ${DOCS_VERSION}"
+          cd website
+          npm install
+          npm run version $DOCS_VERSION
+          npm run build
+
+      - name: Commit new files
+        run: |
+          git config --local user.email "oss@expediagroup.com"
+          git config --local user.name "eg-oss-ci"
+          git add website docs
+          git commit -m "Add new docs version"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
+          user_name: eg-oss-ci
+          user_email: oss@expediagroup.com
