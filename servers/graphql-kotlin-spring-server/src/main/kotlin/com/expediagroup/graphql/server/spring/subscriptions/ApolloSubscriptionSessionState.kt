@@ -31,22 +31,24 @@ internal class ApolloSubscriptionSessionState {
     // Operations are saved by web socket session id, then operation id
     internal val activeOperations = ConcurrentHashMap<String, ConcurrentHashMap<String, Subscription>>()
 
-    // OnConnect hooks are saved by web socket session id, then operation id
-    private val onConnectHooks = ConcurrentHashMap<String, Mono<GraphQLContext>>()
+    // The context is saved by web socket session id
+    private val cachedContext = ConcurrentHashMap<String, GraphQLContext>()
 
     /**
      * Save the context created from the factory and possibly updated in the onConnect hook.
      * This allows us to include some intial state to be used when handling all the messages.
      * This will be removed in [terminateSession].
      */
-    fun saveContext(session: WebSocketSession, onConnect: Mono<GraphQLContext>) {
-        onConnectHooks[session.id] = onConnect
+    fun saveContext(session: WebSocketSession, graphQLContext: GraphQLContext?) {
+        if (graphQLContext != null) {
+            cachedContext[session.id] = graphQLContext
+        }
     }
 
     /**
-     * Return the onConnect mono so that the operation can wait to start until it has been resolved.
+     * Return the context for this session.
      */
-    fun getContext(session: WebSocketSession): Mono<GraphQLContext>? = onConnectHooks[session.id]
+    fun getContext(session: WebSocketSession): GraphQLContext? = cachedContext[session.id]
 
     /**
      * Save the session that is sending keep alive messages.
@@ -119,7 +121,7 @@ internal class ApolloSubscriptionSessionState {
     fun terminateSession(session: WebSocketSession) {
         activeOperations[session.id]?.forEach { (_, subscription) -> subscription.cancel() }
         activeOperations.remove(session.id)
-        onConnectHooks.remove(session.id)
+        cachedContext.remove(session.id)
         activeKeepAliveSessions[session.id]?.cancel()
         activeKeepAliveSessions.remove(session.id)
         session.close()
@@ -128,6 +130,6 @@ internal class ApolloSubscriptionSessionState {
     /**
      * Looks up the operation for the client, to check if it already exists
      */
-    fun operationExists(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Boolean =
+    fun doesOperationExist(session: WebSocketSession, operationMessage: SubscriptionOperationMessage): Boolean =
         activeOperations[session.id]?.containsKey(operationMessage.id) ?: false
 }

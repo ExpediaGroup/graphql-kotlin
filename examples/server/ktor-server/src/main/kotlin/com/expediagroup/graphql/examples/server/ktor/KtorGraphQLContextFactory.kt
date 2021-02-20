@@ -25,7 +25,7 @@ import io.ktor.request.ApplicationRequest
  */
 class KtorGraphQLContextFactory : GraphQLContextFactory<AuthorizedContext, ApplicationRequest> {
 
-    override fun generateContext(request: ApplicationRequest): AuthorizedContext {
+    override suspend fun generateContext(request: ApplicationRequest): AuthorizedContext {
         val loggedInUser = User(
             email = "fake@site.com",
             firstName = "Someone",

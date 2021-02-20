@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 
 /**
@@ -28,12 +27,5 @@ interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
      * Generate GraphQL context based on the incoming request and the corresponding response.
      * If no context should be generated and used in the request, return null.
      */
-    fun generateContext(request: Request): Context?
-}
-
-/**
- * Default context factory that generates GraphQL context with empty concurrent map that can store any elements.
- */
-class DefaultGraphQLContextFactory<T> : GraphQLContextFactory<DefaultGraphQLContext, T> {
-    override fun generateContext(request: T) = DefaultGraphQLContext()
+    suspend fun generateContext(request: Request): Context?
 }

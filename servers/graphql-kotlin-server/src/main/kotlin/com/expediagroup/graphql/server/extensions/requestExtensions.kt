@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.generator.execution.DefaultGraphQLContext
 import com.expediagroup.graphql.types.GraphQLRequest
 import graphql.ExecutionInput
 import org.dataloader.DataLoaderRegistry
@@ -29,6 +28,6 @@ fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegis
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
-        .context(graphQLContext ?: DefaultGraphQLContext())
+        .context(graphQLContext)
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()

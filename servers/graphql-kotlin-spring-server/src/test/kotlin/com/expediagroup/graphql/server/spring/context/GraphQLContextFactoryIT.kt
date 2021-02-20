@@ -62,7 +62,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         @Bean
         @ExperimentalCoroutinesApi
         fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
-            override fun generateContext(request: ServerRequest): CustomContext {
+            override suspend fun generateContext(request: ServerRequest): CustomContext {
                 return CustomContext(
                     first = request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST",
                     second = request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND"

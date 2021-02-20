@@ -59,7 +59,7 @@ open class FunctionDataFetcher(
      * Invoke a suspend function or blocking function, passing in the [target] if not null or default to using the source from the environment.
      */
     override fun get(environment: DataFetchingEnvironment): Any? {
-        val instance = target ?: environment.getSource<Any?>()
+        val instance: Any? = target ?: environment.getSource<Any?>()
         val instanceParameter = fn.instanceParameter
 
         return if (instance != null && instanceParameter != null) {

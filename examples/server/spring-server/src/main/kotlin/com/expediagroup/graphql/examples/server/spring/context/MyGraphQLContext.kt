@@ -24,8 +24,8 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * Simple [GraphQLContext] that holds extra value and the [ServerRequest]
  */
 class MyGraphQLContext(
-    val myCustomValue: String,
-    val request: ServerRequest
+    val request: ServerRequest,
+    val myCustomValue: String
 ) : GraphQLContext
 
 /**
@@ -33,5 +33,5 @@ class MyGraphQLContext(
  */
 class MySubscriptionGraphQLContext(
     val request: WebSocketSession,
-    var subscriptionValue: String? = null
+    var auth: String? = null
 ) : GraphQLContext

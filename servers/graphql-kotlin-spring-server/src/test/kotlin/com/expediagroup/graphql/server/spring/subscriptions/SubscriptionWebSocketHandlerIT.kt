@@ -61,12 +61,11 @@ class SubscriptionWebSocketHandlerIT(
     fun `verify subscription`() {
         val request = GraphQLRequest("subscription { characters }")
         val messageId = "1"
-        val initMessage = getInitMessage(messageId)
         val startMessage = getStartMessage(messageId, request)
         val dataOutput = TestPublisher.create<String>()
 
         val response = client.execute(uri) { session ->
-            executeSubsciption(session, initMessage, startMessage, dataOutput)
+            executeSubsciption(session, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -86,12 +85,11 @@ class SubscriptionWebSocketHandlerIT(
     fun `verify subscription to counter`() {
         val request = GraphQLRequest("subscription { counter }")
         val messageId = "2"
-        val initMessage = getInitMessage(messageId)
         val startMessage = getStartMessage(messageId, request)
         val dataOutput = TestPublisher.create<String>()
 
         val response = client.execute(uri) { session ->
-            executeSubsciption(session, initMessage, startMessage, dataOutput)
+            executeSubsciption(session, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -111,14 +109,13 @@ class SubscriptionWebSocketHandlerIT(
     fun `verify subscription with context`() {
         val request = GraphQLRequest("subscription { ticker }")
         val messageId = "3"
-        val initMessage = getInitMessage(messageId)
         val startMessage = getStartMessage(messageId, request)
         val dataOutput = TestPublisher.create<String>()
         val headers = HttpHeaders()
         headers.set("X-Custom-Header", "junit")
 
         val response = client.execute(uri, headers) { session ->
-            executeSubsciption(session, initMessage, startMessage, dataOutput)
+            executeSubsciption(session, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -131,11 +128,10 @@ class SubscriptionWebSocketHandlerIT(
 
     private fun executeSubsciption(
         session: WebSocketSession,
-        initMessage: String,
         startMessage: String,
         dataOutput: TestPublisher<String>
     ): Mono<Void> {
-        val firstMessage = session.textMessage(initMessage).toMono()
+        val firstMessage = session.textMessage(basicInitMessage).toMono()
             .concatWith(session.textMessage(startMessage).toMono())
 
         return session.send(firstMessage)
@@ -164,11 +160,7 @@ class SubscriptionWebSocketHandlerIT(
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory<SubscriptionContext> = object : SpringSubscriptionGraphQLContextFactory<SubscriptionContext>() {
-            override fun generateContext(request: WebSocketSession): SubscriptionContext = SubscriptionContext(
-                value = request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default"
-            )
-        }
+        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory<SubscriptionContext> = CustomContextFactory()
     }
 
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
@@ -194,7 +186,13 @@ class SubscriptionWebSocketHandlerIT(
 
     data class SubscriptionContext(val value: String) : GraphQLContext
 
+    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory<SubscriptionContext>() {
+        override suspend fun generateContext(request: WebSocketSession): SubscriptionContext = SubscriptionContext(
+            value = request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default"
+        )
+    }
+
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
-    private fun getInitMessage(id: String) = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type, id).toJson()
+    private val basicInitMessage = SubscriptionOperationMessage(ClientMessages.GQL_CONNECTION_INIT.type).toJson()
     private fun getStartMessage(id: String, payload: Any) = SubscriptionOperationMessage(ClientMessages.GQL_START.type, id, payload).toJson()
 }

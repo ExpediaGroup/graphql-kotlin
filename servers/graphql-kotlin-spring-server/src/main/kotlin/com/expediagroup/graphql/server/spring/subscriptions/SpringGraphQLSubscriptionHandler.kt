@@ -34,7 +34,7 @@ import reactor.kotlin.core.publisher.toFlux
  */
 open class SpringGraphQLSubscriptionHandler(private val graphQL: GraphQL) {
 
-    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flux<GraphQLResponse<*>> = Flux.deferContextual {
+    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flux<GraphQLResponse<*>> =
         graphQL.execute(graphQLRequest.toExecutionInput(graphQLContext))
             .getData<Publisher<ExecutionResult>>()
             .toFlux()
@@ -43,5 +43,4 @@ open class SpringGraphQLSubscriptionHandler(private val graphQL: GraphQL) {
                 val error = KotlinGraphQLError(throwable).toGraphQLKotlinType()
                 Flux.just(GraphQLResponse<Any>(errors = listOf(error)))
             }
-    }
 }
