@@ -82,5 +82,5 @@ class SimpleSubscription : Subscription {
 
     @GraphQLDescription("Returns a value from the subscription context")
     fun subscriptionContext(myGraphQLContext: MySubscriptionGraphQLContext): Flux<String> =
-        Flux.just(myGraphQLContext.subscriptionValue ?: "", "value 2", "value3")
+        Flux.just(myGraphQLContext.auth ?: "no-auth")
 }

@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
@@ -32,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.mono
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Flux
@@ -66,7 +65,7 @@ class ApolloSubscriptionProtocolHandler(
         return try {
             when (operationMessage.type) {
                 GQL_CONNECTION_INIT.type -> onInit(operationMessage, session)
-                GQL_START.type -> onStart(operationMessage, session)
+                GQL_START.type -> startSubscription(operationMessage, session)
                 GQL_STOP.type -> onStop(operationMessage, session)
                 GQL_CONNECTION_TERMINATE.type -> onDisconnect(session)
                 else -> onUnknownOperation(operationMessage, session)
@@ -104,9 +103,10 @@ class ApolloSubscriptionProtocolHandler(
     @Suppress("Detekt.TooGenericExceptionCaught")
     private fun startSubscription(
         operationMessage: SubscriptionOperationMessage,
-        session: WebSocketSession,
-        context: GraphQLContext?
+        session: WebSocketSession
     ): Flux<SubscriptionOperationMessage> {
+        val context = sessionState.getContext(session)
+
         subscriptionHooks.onOperation(operationMessage, session, context)
 
         if (operationMessage.id == null) {
@@ -149,16 +149,18 @@ class ApolloSubscriptionProtocolHandler(
     }
 
     private fun onInit(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Flux<SubscriptionOperationMessage> {
-        val updateContext = saveContext(operationMessage, session)
+        saveContext(operationMessage, session)
         val acknowledgeMessage = Mono.just(acknowledgeMessage)
         val keepAliveFlux = getKeepAliveFlux(session)
-        return updateContext.then(acknowledgeMessage)
-            .thenMany(keepAliveFlux)
+        return acknowledgeMessage.concatWith(keepAliveFlux)
             .onErrorReturn(getConnectionErrorMessage(operationMessage))
     }
 
-    private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession): Mono<Unit> {
-        return mono {
+    /**
+     * Generate the context and save it for all future messages.
+     */
+    private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
+        runBlocking {
             val connectionParams = getConnectionParams(operationMessage.payload)
             val context = contextFactory.generateContext(session)
             val onConnect = subscriptionHooks.onConnect(connectionParams, session, context)
@@ -178,18 +180,6 @@ class ApolloSubscriptionProtocolHandler(
         }
 
         return emptyMap()
-    }
-
-    /**
-     * Called when the client sends the start message.
-     * It triggers the specific hooks first, runs the operation, and appends it with a complete message.
-     */
-    private fun onStart(
-        operationMessage: SubscriptionOperationMessage,
-        session: WebSocketSession
-    ): Flux<SubscriptionOperationMessage> {
-        val context = sessionState.getContext(session)
-        return startSubscription(operationMessage, session, context)
     }
 
     /**

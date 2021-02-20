@@ -30,16 +30,19 @@ import org.springframework.web.reactive.socket.WebSocketSession
 class MyGraphQLContextFactory : SpringGraphQLContextFactory<MyGraphQLContext>() {
 
     override suspend fun generateContext(request: ServerRequest): MyGraphQLContext = MyGraphQLContext(
-        myCustomValue = request.headers().firstHeader("MyHeader") ?: "defaultContext",
-        request = request
+        request = request,
+        myCustomValue = request.headers().firstHeader("MyHeader") ?: "defaultContext"
     )
 }
 
+/**
+ * [GraphQLContextFactory] that generates [MySubscriptionGraphQLContext] that will be available when processing subscription operations.
+ */
 @Component
 class MySubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory<MySubscriptionGraphQLContext>() {
 
     override suspend fun generateContext(request: WebSocketSession): MySubscriptionGraphQLContext = MySubscriptionGraphQLContext(
         request = request,
-        subscriptionValue = null
+        auth = null
     )
 }

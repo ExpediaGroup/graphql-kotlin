@@ -131,34 +131,23 @@ class SubscriptionWebSocketHandlerIT(
         startMessage: String,
         dataOutput: TestPublisher<String>
     ): Mono<Void> {
-        return initConnection(session).thenMany(
-            session.send(session.textMessage(startMessage).toMono())
-                .thenMany(
-                    session.receive()
-                        .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
-                        .doOnNext {
-                            if (it.type == ServerMessages.GQL_DATA.type) {
-                                val data = objectMapper.writeValueAsString(it.payload)
-                                dataOutput.next(data)
-                            } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
-                                dataOutput.complete()
-                            }
-                        }
-                )
-        ).then()
-    }
+        val firstMessage = session.textMessage(basicInitMessage).toMono()
+            .concatWith(session.textMessage(startMessage).toMono())
 
-    private fun initConnection(session: WebSocketSession): Mono<Void> {
-        return session.send(session.textMessage(basicInitMessage).toMono())
+        return session.send(firstMessage)
             .thenMany(
                 session.receive()
                     .map { objectMapper.readValue<SubscriptionOperationMessage>(it.payloadAsText) }
                     .doOnNext {
-                        if (it.type != ServerMessages.GQL_CONNECTION_ERROR.type) {
-                            throw Exception("Error connecting to the server")
+                        if (it.type == ServerMessages.GQL_DATA.type) {
+                            val data = objectMapper.writeValueAsString(it.payload)
+                            dataOutput.next(data)
+                        } else if (it.type == ServerMessages.GQL_COMPLETE.type) {
+                            dataOutput.complete()
                         }
                     }
-            ).then()
+            )
+            .then()
     }
 
     @Configuration

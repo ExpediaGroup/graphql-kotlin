@@ -103,9 +103,9 @@ class ApolloSubscriptionProtocolHandlerTest {
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(simpleInitMessage.toJson(), session)
 
-        val message = flux.blockFirst(Duration.ofSeconds(2))
-        assertNotNull(message)
-        assertEquals(expected = GQL_CONNECTION_ACK.type, actual = message.type)
+        StepVerifier.create(flux)
+            .expectNextMatches { it.type == GQL_CONNECTION_ACK.type }
+            .verifyComplete()
     }
 
     @Test
@@ -127,6 +127,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         StepVerifier.create(initFlux)
             .expectNextMatches { it.type == GQL_CONNECTION_ACK.type }
             .expectNextMatches { it.type == GQL_CONNECTION_KEEP_ALIVE.type }
+            .thenCancel()
+            .verify()
     }
 
     @Test
@@ -447,9 +449,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(simpleInitMessage.toJson(), session)
-        val disposable = flux.subscribe()
+        flux.subscribe().dispose()
         verify(exactly = 1) { subscriptionHooks.onConnect(any(), any(), any()) }
-        disposable.dispose()
     }
 
     @Test
@@ -470,9 +471,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        val disposable = flux.subscribe()
+        flux.subscribe().dispose()
         verify(exactly = 1) { subscriptionHooks.onConnect(payload, session, any()) }
-        disposable.dispose()
     }
 
     @Test
@@ -568,9 +568,8 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
-        val disposable = flux.subscribe()
+        flux.subscribe().dispose()
         verify(exactly = 1) { subscriptionHooks.onOperationComplete(session) }
-        disposable.dispose()
     }
 
     @Test

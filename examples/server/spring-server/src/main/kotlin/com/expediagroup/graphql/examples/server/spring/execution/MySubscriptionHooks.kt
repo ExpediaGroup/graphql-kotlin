@@ -32,8 +32,7 @@ class MySubscriptionHooks : ApolloSubscriptionHooks {
         graphQLContext: GraphQLContext?
     ): GraphQLContext? {
         if (graphQLContext != null && graphQLContext is MySubscriptionGraphQLContext) {
-            val bearer = connectionParams["Authorization"] ?: "none"
-            graphQLContext.subscriptionValue = bearer
+            graphQLContext.auth = connectionParams["Authorization"]
         }
         return graphQLContext
     }
