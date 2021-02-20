@@ -20,7 +20,7 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          routeBasePath: '/',
+          routeBasePath: '/docs',
           editUrl: "https://github.com/ExpediaGroup/graphql-kotlin/tree/master/docs/",
           showLastUpdateAuthor: true,
           showLastUpdateTime: true
