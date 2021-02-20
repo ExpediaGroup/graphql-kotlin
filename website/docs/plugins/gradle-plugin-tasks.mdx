@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 GraphQL Kotlin Gradle Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL
 schema directly from your source code.
 
-&gt; NOTE: This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
+> NOTE: This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
 
 ## Usage
 
@@ -232,10 +232,10 @@ and could be used as an alternative to `graphqlIntrospectSchema` to generate inp
 
 | Property               | Type                | Required | Description                                                                                                                                                                                      |
 | ---------------------- | ------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `endpoint`      | String              | yes      | Target GraphQL server SDL endpoint that will be used to download schema.<br />**Command line property is**: `endpoint`.                                                                    |
-| `headers`       | Map&lt;String, Any&gt; |          | Optional HTTP headers to be specified on a SDL request.                                                                                                                                          |
-| `outputFile`    | File                |          | Target GraphQL schema file to be generated.<br />**Default value is:** `${project.buildDir}/schema.graphql`                                                                                |
-| `timeoutConfig` | TimeoutConfig       |          | Timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.<br />**Default value are:**<br />connect timeout = 5_000<br />read timeout = 15_000.<br /> |
+| `endpoint`      | String              | yes      | Target GraphQL server SDL endpoint that will be used to download schema.<br/>**Command line property is**: `endpoint`.                                                                                  |
+| `headers`       | `Map<String, Any>`  |          | Optional HTTP headers to be specified on a SDL request.                                                                                                                                                 |
+| `outputFile`    | File                |          | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql`                                                                                              |
+| `timeoutConfig` | TimeoutConfig       |          | Timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:**<br/>connect timeout = 5_000<br/>read timeout = 15_000.<br/>       |
 
 ### graphqlGenerateClient
 
@@ -247,39 +247,41 @@ resulting generated code will be automatically added to the project main source 
 
 **Properties**
 
-| Property                       | Type                | Required                                                          | Description                                                                                                                                                                                                                                                                               |
-| ------------------------------ | ------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `allowDeprecatedFields` | Boolean             |                                                                   | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br />**Default value is:** `false`.<br />**Command line property is**: `allowDeprecatedFields`.                                                                                             |
-| `clientType`            | GraphQLClientType   |                                                                   | Enum value that specifies target GraphQL client type implementation.<br />**Default value is:** `GraphQLClientType.DEFAULT`.                                                                                                                                                        |
-| `customScalars`         | Listgraphqlscalar |                                                                   | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.                                                                                                               |
-| ``           | String              | yes                                                               | Target package name for generated code.**Command line property is**: ``.                                                                                                                                                                                           |
-| ``            | FileCollection      |                                                                   | List of query files to be processed. Instead of a list of files to be processed you can specify `` directory instead. If this property is specified it will take precedence over the corresponding directory property.                                           |
-| ``    | String              |                                                                   | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `` property instead.**Default value is:** ``.**Command line property is**: ``. |
-| ``            | File                | `` or `` has to be provided | GraphQL schema file that will be used to generate client code.                                                                                                                                                                                                                            |
-| ``        | String              | `` or `` has to be provided | Path to GraphQL schema file that will be used to generate client code.**Command line property is**: ``.                                                                                                                                                         |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
+| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
+| `customScalars` | `List<GraphQLScalar>` | | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
+| `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
+| `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
+| `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |                                                                                                                                                     |
 
 ### graphqlGenerateSDL
 
-Task that generates GraphQL schema in SDL format from your source code using reflections. Utilizes ``
-to generate the schema from classes implementing `` marker ``, `` and `` interfaces.
-In order to limit the amount of packages to scan, this task requires users to provide a list of `` that can contain
+Task that generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
+to generate the schema from classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces.
+In order to limit the amount of packages to scan, this task requires users to provide a list of `packages` that can contain
 GraphQL types.
 
 **Properties**
 
-| Property            | Type         | Required | Description                                                                                                       |
-| ------------------- | ------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
-| ``   | List | yes      | List of supported packages that can be scanned to generate SDL.                                                   |
-| `` | File         |          | Target GraphQL schema file to be generated.**Default value is:** `` |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `packages` | `List<String>` | yes | List of supported packages that can be scanned to generate SDL. |
+| `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
 
-By default, this task will attempt to generate the schema using ``. If you need to customize your
-schema generation process, you will need to provide your custom instance of `` service provider.
+By default, this task will attempt to generate the schema using `NoopSchemaGeneratorHooks`. If you need to customize your
+schema generation process, you will need to provide your custom instance of `SchemaGeneratorHooksProvider` service provider.
 Service provider can be provided as part of your project, included in one of your project dependencies or through explicitly
-provided artifact to the `` configuration.
+provided artifact to the `graphqlSDL` configuration.
 
 ```kotlin
 
-
+dependencies {
+    graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
+}
 
 ```
 
@@ -287,34 +289,34 @@ provided artifact to the `` configuration.
 
 Task that generates GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries that are
 evaluated against target Graphql schema. Individual test clients with their specific data models are generated for each query
-file and are placed under specified ``. When this task is added to the project it will automatically configure
-itself as a dependency of a `` task and resulting generated code will be automatically added to the project
+file and are placed under specified `packageName`. When this task is added to the project it will automatically configure
+itself as a dependency of a `compileTestKotlin` task and resulting generated code will be automatically added to the project
 test source set.
 
 **Properties**
 
-| Property                       | Type                | Required                                                          | Description                                                                                                                                                                                                                                                                               |
-| ------------------------------ | ------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `` | Boolean             |                                                                   | Boolean flag indicating whether selection of deprecated fields is allowed or not.**Default value is:** ``.**Command line property is**: ``.                                                                                             |
-| ``            | GraphQLClientType   |                                                                   | Enum value that specifies target GraphQL client type implementation.**Default value is:** ``.                                                                                                                                                        |
-| ``         | List |                                                                   | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.                                                                                                               |
-| ``           | String              | yes                                                               | Target package name for generated code.**Command line property is**: ``.                                                                                                                                                                                           |
-| ``            | FileCollection      |                                                                   | List of query files to be processed. Instead of a list of files to be processed you can specify `` directory instead. If this property is specified it will take precedence over the corresponding directory property.                                           |
-| ``    | String              |                                                                   | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `` property instead.**Default value is:** ``.**Command line property is**: ``. |
-| ``            | File                | `` or `` has to be provided | GraphQL schema file that will be used to generate client code.                                                                                                                                                                                                                            |
-| ``        | String              | `` or `` has to be provided | Path to GraphQL schema file that will be used to generate client code.**Command line property is**: ``.                                                                                                                                                         |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
+| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
+| `customScalars` | `List<GraphQLScalar>` | | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
+| `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
+| `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
+| `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
 
 ### graphqlIntrospectSchema
 
-Task that executes GraphQL introspection query against specified `` and saves the underlying schema file as
-`` under build directory. In general, this task provides limited functionality by itself and instead
-should be used to generate input for the subsequent `` task.
+Task that executes GraphQL introspection query against specified `endpoint` and saves the underlying schema file as
+`schema.graphql` under build directory. In general, this task provides limited functionality by itself and instead
+should be used to generate input for the subsequent `graphqlGenerateClient` task.
 
 **Properties**
 
-| Property               | Type                | Required | Description                                                                                                                                                                                      |
-| ---------------------- | ------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ``      | String              | yes      | Target GraphQL server endpoint that will be used to execute introspection queries.**Command line property is**: ``.                                                          |
-| ``       | Map&lt;String, Any&gt; |          | Optional HTTP headers to be specified on an introspection query.                                                                                                                                 |
-| ``    | File                |          | Target GraphQL schema file to be generated.**Default value is:** ``                                                                                |
-| `` | TimeoutConfig       |          | Timeout configuration(in milliseconds) to download schema from SDL endpoint before we cancel the request.**Default value are:**connect timeout = 5_000read timeout = 15_000. |
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
+| `headers` | `Map<String, Any>` | | Optional HTTP headers to be specified on an introspection query. |
+| `outputFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+| `timeoutConfig` | TimeoutConfig | | Timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:**<br/>connect timeout = 5_000<br/>read timeout = 15_000.<br/>|
