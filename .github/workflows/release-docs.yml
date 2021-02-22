@@ -40,7 +40,7 @@ jobs:
         run: |
           git config --local user.email "oss@expediagroup.com"
           git config --local user.name "eg-oss-ci"
-          git add website docs
+          git add website
           git commit -m "Add new docs version"
 
       - name: Push changes
