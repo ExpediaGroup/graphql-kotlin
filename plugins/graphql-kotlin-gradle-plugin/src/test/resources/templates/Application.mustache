@@ -3,9 +3,7 @@ package com.example
 import com.example.generated.JUnitQuery
 import com.example.generated.enums.CustomEnum
 import com.example.generated.inputs.SimpleArgumentInput
-{{#customScalarsEnabled}}
-import com.example.generated.scalars.UUID
-{{/customScalarsEnabled}}
+{{#customScalarsEnabled}}import com.example.generated.scalars.UUID{{/customScalarsEnabled}}
 import com.example.generated.junitquery.BasicObject2
 import com.example.generated.junitquery.ScalarWrapper
 import com.example.generated.junitquery.SecondInterfaceImplementation
@@ -47,13 +45,12 @@ fun main() {
     val variables = JUnitQuery.Variables(SimpleArgumentInput(min = null, max = null, newName = "blah"))
     val query = JUnitQuery(variables)
 
-
     runBlocking {
         {{^requestHeader}}
         val response = client.execute(query)
         {{/requestHeader}}
         {{#requestHeader}}
-        val response = client.executeJUnitQuery(query) {
+        val response = client.execute(query) {
             header("{{name}}", "{{value}}")
         }
         {{/requestHeader}}
@@ -65,7 +62,7 @@ fun main() {
         assert(scalarResult != null)
         assert(scalarResult?.count is Int)
         {{#customScalarsEnabled}}
-        assert(scalarResult?.custom is JUnitQuery.UUID)
+        assert(scalarResult?.custom is UUID)
         {{/customScalarsEnabled}}
         {{^customScalarsEnabled}}
         assert(scalarResult?.custom is String)

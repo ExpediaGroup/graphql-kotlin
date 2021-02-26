@@ -33,8 +33,8 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
     @Test
     @Tag("kts")
     fun `verify generateClient task with defaults (kts)`(@TempDir tempDir: Path) {
-//        val testProjectDirectory = tempDir.toFile()
-        val testProjectDirectory = File("/Users/DKuc/Development/test-client")
+        val testProjectDirectory = tempDir.toFile()
+
         /*
         project setup
         ----
@@ -78,11 +78,11 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
-              packageName.set("com.example.generated")
-              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-            }
-            """.trimIndent()
+            |val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+            |  packageName.set("com.example.generated")
+            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
@@ -120,24 +120,24 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
         val customOutputDirectory = "/custom/output"
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
-              packageName.set("com.example.generated")
-              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-              // optional config
-              customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
-              allowDeprecatedFields.set(true)
-              queryFiles.from(
-                "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
-                "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"
-              )
-              outputDirectory.set(File("${'$'}{project.layout.projectDirectory}/$customOutputDirectory"))
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+            |  packageName.set("com.example.generated")
+            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  // optional config
+            |  customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
+            |  allowDeprecatedFields.set(true)
+            |  queryFiles.from(
+            |    "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
+            |    "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"
+            |  )
+            |  outputDirectory.set(File("${'$'}{project.layout.projectDirectory}/$customOutputDirectory"))
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
@@ -174,17 +174,17 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
          */
         val buildFileContents =
             """
-            val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class) {
-              packageName.set("com.example.generated")
-              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-            }
-
-            tasks {
-              test {
-                systemProperty("graphQLEndpoint", "${wireMockServer.baseUrl()}/graphql")
-              }
-            }
-            """.trimIndent()
+            |val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class) {
+            |  packageName.set("com.example.generated")
+            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |}
+            |
+            |tasks {
+            |  test {
+            |    systemProperty("graphQLEndpoint", "${wireMockServer.baseUrl()}/graphql")
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)
@@ -209,23 +209,24 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
     @Tag("groovy")
     fun `verify generateClient task (groovy)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
+
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = ["-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql"]
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            graphqlGenerateClient {
-              packageName = "com.example.generated"
-              schemaFileName = "${'$'}{project.projectDir}/schema.graphql"
-              // optional config
-              allowDeprecatedFields = true
-              customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
-              queryFiles.from("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
-                "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = ["-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql"]
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphqlGenerateClient {
+            |  packageName = "com.example.generated"
+            |  schemaFileName = "${'$'}{project.projectDir}/schema.graphql"
+            |  // optional config
+            |  allowDeprecatedFields = true
+            |  customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
+            |  queryFiles.from("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql",
+            |    "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
 
         testProjectDirectory.createTestFile("schema.graphql")
@@ -263,31 +264,31 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
          */
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            tasks.create("generateClient1", GraphQLGenerateClientTask::class) {
-              packageName.set("com.example.generated")
-              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-              // optional config
-              customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
-              queryFiles.from(
-                "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"
-              )
-            }
-
-            tasks.create("generateClient2", GraphQLGenerateClientTask::class) {
-              packageName.set("com.example.generated2")
-              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-              // optional config
-              allowDeprecatedFields.set(true)
-              queryFiles.from(
-                "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"
-              )
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |tasks.create("generateClient1", GraphQLGenerateClientTask::class) {
+            |  packageName.set("com.example.generated")
+            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  // optional config
+            |  customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
+            |  queryFiles.from(
+            |    "${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"
+            |  )
+            |}
+            |
+            |tasks.create("generateClient2", GraphQLGenerateClientTask::class) {
+            |  packageName.set("com.example.generated2")
+            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  // optional config
+            |  allowDeprecatedFields.set(true)
+            |  queryFiles.from(
+            |    "${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql"
+            |  )
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)

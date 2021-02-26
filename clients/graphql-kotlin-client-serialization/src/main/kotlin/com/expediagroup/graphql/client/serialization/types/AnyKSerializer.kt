@@ -9,8 +9,10 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.reflect.full.memberProperties
 
 object AnyKSerializer : KSerializer<Any> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Any")
@@ -22,6 +24,7 @@ object AnyKSerializer : KSerializer<Any> {
     }
 
     private fun serializeAny(value: Any?): JsonElement = when (value) {
+        null -> JsonNull
         is Map<*, *> -> {
             val mapContents = value.entries.associate { mapEntry ->
                 mapEntry.key.toString() to serializeAny(mapEntry.value)
@@ -34,7 +37,13 @@ object AnyKSerializer : KSerializer<Any> {
         }
         is Number -> JsonPrimitive(value)
         is Boolean -> JsonPrimitive(value)
-        else -> JsonPrimitive(value.toString())
+        is String -> JsonPrimitive(value)
+        else -> {
+            val contents = value::class.memberProperties.associate { property ->
+                property.name to serializeAny(property.getter.call(value))
+            }
+            JsonObject(contents)
+        }
     }
 
     override fun deserialize(decoder: Decoder): Any {

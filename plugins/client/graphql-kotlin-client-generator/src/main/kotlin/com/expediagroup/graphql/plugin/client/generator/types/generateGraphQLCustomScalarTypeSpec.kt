@@ -39,6 +39,7 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Generate [TypeSpec] data class with single typed value for the target custom scalar. In order to simplify the serialization/deserialization we are using single value wrapper class that uses
@@ -139,13 +140,15 @@ internal fun generateGraphQLCustomScalarKSerializer(
         .build()
     serializerTypeSpec.addFunction(serializeFun)
 
+    val jsonDecoder = ClassName("kotlinx.serialization.json", "JsonDecoder")
+    val jsonPrimitive = ClassName("kotlinx.serialization.json", "jsonPrimitive")
     val deserializeFun = FunSpec.builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
         .returns(scalarWrapperClassName)
         .addParameter("decoder", Decoder::class)
-        .addStatement("val jsonDecoder = decoder as JsonDecoder")
+        .addStatement("val jsonDecoder = decoder as %T", jsonDecoder)
         .addStatement("val element = jsonDecoder.decodeJsonElement()")
-        .addStatement("val rawContent = element.jsonPrimitive.content")
+        .addStatement("val rawContent = element.%T.content", jsonPrimitive)
         .addStatement("return %T(value = converter.toScalar(rawContent))", scalarWrapperClassName)
         .build()
     serializerTypeSpec.addFunction(deserializeFun)

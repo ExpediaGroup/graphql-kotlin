@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.client.spring
 
 import com.expediagroup.graphql.client.GraphQLClient
-import com.expediagroup.graphql.client.serializer.GraphQLClientDeserializer
-import com.expediagroup.graphql.client.serializer.defaultDeserializer
+import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
+import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import kotlinx.coroutines.reactive.awaitSingle
@@ -30,7 +30,7 @@ import org.springframework.web.reactive.function.client.WebClient
  */
 open class GraphQLWebClient(
     url: String,
-    private val deserializer: GraphQLClientDeserializer = defaultDeserializer(),
+    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer(),
     builder: WebClient.Builder = WebClient.builder()
 ) : GraphQLClient<WebClient.RequestBodyUriSpec> {
 
@@ -45,7 +45,7 @@ open class GraphQLWebClient(
             .retrieve()
             .bodyToMono(String::class.java)
             .awaitSingle()
-        return deserializer.deserialize(rawResult, request.responseType())
+        return serializer.deserialize(rawResult, request.responseType())
     }
 
     override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit): List<GraphQLClientResponse<*>> {
@@ -58,6 +58,6 @@ open class GraphQLWebClient(
             .bodyToMono(String::class.java)
             .awaitSingle()
 
-        return deserializer.deserialize(rawResult, requests.map { it.responseType() })
+        return serializer.deserialize(rawResult, requests.map { it.responseType() })
     }
 }
