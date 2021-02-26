@@ -13,7 +13,7 @@ From the root examples directory you can run the following:
 ./gradlew build
 
 # only build spring-example project
-./gradlew :spring-example:build
+./gradlew :spring-server:build
 ```
 
 > NOTE: in order to ensure you use the right version of Gradle we highly recommend to use the provided wrapper scripts
@@ -24,7 +24,7 @@ Then to start the server:
 * Alternatively you can also use the spring boot plugin from the command line in the root examples directory.
 
 ```shell script
-./gradlew :spring-example:bootRun
+./gradlew :spring-server:bootRun
 ```
 
 Once the app has started you can explore the example schema by opening the GraphQL Playground endpoint at http://localhost:8080/playground.

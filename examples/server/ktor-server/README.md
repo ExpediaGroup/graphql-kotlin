@@ -7,7 +7,7 @@ Build the application by running the following from examples root directory:
 
 ```bash
 # build example
-./gradlew ktor-example:build
+./gradlew ktor-server:build
 ```
 
 > NOTE: in order to ensure you use the right version of Gradle we highly recommend that you use the provided wrapper scripts
@@ -17,7 +17,7 @@ Alternatively, you can start the server using Gradle.
 
 ```bash
 cd /path/to/graphql-kotlin/examples
-./gradlew ktor-example:run
+./gradlew ktor-server:run
 ```
 
 Once the app has started you can explore the example schema by opening Playground endpoint at http://localhost:5000/graphql
