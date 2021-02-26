@@ -66,7 +66,7 @@ internal fun generateGraphQLObjectTypeSpec(
 
         val constructorParameter = ParameterSpec.builder(propertySpec.name, propertySpec.type)
         val className = propertySpec.type as? ClassName
-        if (context.enums.contains(className)) {
+        if (context.enumClassToTypeSpecs.keys.contains(className)) {
             val unknownValue = MemberName(context.packageName, "${className?.simpleName}.$UNKNOWN_VALUE")
             constructorParameter.defaultValue("%M", unknownValue)
         }
@@ -90,7 +90,5 @@ internal fun generateGraphQLObjectTypeSpec(
 
     objectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
-    val objectTypeSpec = objectTypeSpecBuilder.build()
-    context.typeSpecs[typeName] = objectTypeSpec
-    return objectTypeSpec
+    return objectTypeSpecBuilder.build()
 }

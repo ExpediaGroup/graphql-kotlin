@@ -1,0 +1,20 @@
+query DifferentSelectionSetQuery {
+  first: unionQuery {
+    __typename
+    ... on BasicObject {
+      id
+    }
+    ... on ComplexObject {
+      id
+    }
+  }
+  second: unionQuery {
+    __typename
+    ... on BasicObject {
+      name
+    }
+    ... on ComplexObject {
+      name
+    }
+  }
+}

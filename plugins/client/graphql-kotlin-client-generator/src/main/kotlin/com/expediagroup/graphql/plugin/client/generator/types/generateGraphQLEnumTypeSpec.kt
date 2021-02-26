@@ -53,15 +53,13 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
         enumTypeSpecBuilder.addEnumConstant(enumValueDefinition.name, enumValueTypeSpecBuilder.build())
     }
 
-    val unkownTypeSpec = TypeSpec.anonymousClassBuilder()
+    val unknownTypeSpec = TypeSpec.anonymousClassBuilder()
         .addKdoc("%L", "This is a default enum value that will be used when attempting to deserialize unknown value.")
     if (context.serializer == GraphQLSerializer.JACKSON) {
-        unkownTypeSpec.addAnnotation(JsonEnumDefaultValue::class)
+        unknownTypeSpec.addAnnotation(JsonEnumDefaultValue::class)
     }
 
-    enumTypeSpecBuilder.addEnumConstant(UNKNOWN_VALUE, unkownTypeSpec.build())
+    enumTypeSpecBuilder.addEnumConstant(UNKNOWN_VALUE, unknownTypeSpec.build())
 
-    val enumTypeSpec = enumTypeSpecBuilder.build()
-    context.typeSpecs[enumDefinition.name] = enumTypeSpec
-    return enumTypeSpec
+    return enumTypeSpecBuilder.build()
 }

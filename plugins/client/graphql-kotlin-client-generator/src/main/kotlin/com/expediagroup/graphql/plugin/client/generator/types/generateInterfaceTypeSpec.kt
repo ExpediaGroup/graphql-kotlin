@@ -131,10 +131,11 @@ internal fun generateInterfaceTypeSpec(
         if (!verifyTypeNameIsSelected(distinctSelections)) {
             throw InvalidPolymorphicQueryException("invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
         }
-        val implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build()) as ClassName
-        val simpleName = implementationClassName.simpleName.substringAfter('.')
-        val implementationTypeSpec = context.typeSpecs[simpleName]!!
-        updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationName, implementationTypeSpec, commonProperties)
+        var implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
+        if (implementationClassName.isNullable) {
+            implementationClassName = implementationClassName.copy(nullable = false)
+        }
+        updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationName, implementationClassName as ClassName, commonProperties)
 
         if (jsonSubTypesCodeBlock.isNotEmpty()) {
             jsonSubTypesCodeBlock.add(",")
@@ -173,15 +174,17 @@ private fun updateImplementationTypeSpecWithSuperInformation(
     context: GraphQLClientGeneratorContext,
     interfaceName: String,
     implementationName: String,
-    implementationTypeSpec: TypeSpec,
+    implementationClassName: ClassName,
     commonProperties: List<PropertySpec>
 ) {
     val commonPropertyNames = commonProperties.map { it.name }
+    val implementationTypeSpec = context.typeSpecs[implementationClassName]!!
 
     val builder = TypeSpec.classBuilder(implementationTypeSpec.name!!)
         .addModifiers(implementationTypeSpec.modifiers)
         .addKdoc("%L", implementationTypeSpec.kdoc)
 
+    val superClassName = ClassName("${context.packageName}.${context.rootType.toLowerCase()}", interfaceName)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
         builder.addAnnotation(Serializable::class)
             .addAnnotation(
@@ -189,9 +192,9 @@ private fun updateImplementationTypeSpecWithSuperInformation(
                     .addMember("value = %S", implementationName)
                     .build()
             )
-            .superclass(ClassName(context.packageName, "${context.rootType}.$interfaceName"))
+            .superclass(superClassName)
     } else {
-        builder.addSuperinterface(ClassName(context.packageName, "${context.rootType}.$interfaceName"))
+        builder.addSuperinterface(superClassName)
     }
 
     if (implementationTypeSpec.propertySpecs.isNotEmpty()) {
@@ -209,5 +212,6 @@ private fun updateImplementationTypeSpecWithSuperInformation(
     }
 
     val updatedType = builder.build()
-    context.typeSpecs[implementationTypeSpec.name!!] = updatedType
+    context.polymorphicTypes[superClassName]?.add(implementationClassName)
+    context.typeSpecs[implementationClassName] = updatedType
 }

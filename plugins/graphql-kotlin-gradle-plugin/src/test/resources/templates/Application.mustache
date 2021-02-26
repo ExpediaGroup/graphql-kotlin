@@ -1,6 +1,14 @@
 package com.example
 
 import com.example.generated.JUnitQuery
+import com.example.generated.enums.CustomEnum
+import com.example.generated.inputs.SimpleArgumentInput
+{{#customScalarsEnabled}}
+import com.example.generated.scalars.UUID
+{{/customScalarsEnabled}}
+import com.example.generated.junitquery.BasicObject2
+import com.example.generated.junitquery.ScalarWrapper
+import com.example.generated.junitquery.SecondInterfaceImplementation
 {{#webClient}}
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import org.springframework.web.reactive.function.client.WebClient
@@ -36,7 +44,7 @@ fun main() {
     }
         {{/webClient}}
     {{/defaultHeader}}
-    val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
+    val variables = JUnitQuery.Variables(SimpleArgumentInput(min = null, max = null, newName = "blah"))
     val query = JUnitQuery(variables)
 
 
@@ -53,7 +61,7 @@ fun main() {
         val data = response.data
         assert(data != null)
         val scalarResult = data?.scalarQuery
-        assert(scalarResult is JUnitQuery.ScalarWrapper)
+        assert(scalarResult is ScalarWrapper)
         assert(scalarResult != null)
         assert(scalarResult?.count is Int)
         {{#customScalarsEnabled}}
@@ -62,11 +70,11 @@ fun main() {
         {{^customScalarsEnabled}}
         assert(scalarResult?.custom is String)
         {{/customScalarsEnabled}}
-        assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
+        assert(CustomEnum.ONE == data?.enumQuery)
         val interfaceResult = data?.interfaceQuery
-        assert(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
+        assert(interfaceResult is SecondInterfaceImplementation)
         val unionResult = data?.unionQuery
-        assert(unionResult is JUnitQuery.BasicObject2)
+        assert(unionResult is BasicObject2)
         assert(response.errors == null)
         assert(response.extensions == null)
     }

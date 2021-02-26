@@ -70,7 +70,7 @@ internal fun generateGraphQLCustomScalarTypeSpec(
     scalarTypeSpec.primaryConstructor(constructor)
 
     if (context.serializer == GraphQLSerializer.KOTLINX) {
-        val serializerClassName = ClassName(context.packageName, "${context.rootType}.${customScalarName}Serializer")
+        val serializerClassName = ClassName("${context.packageName}.scalars", "${customScalarName}Serializer")
         scalarTypeSpec.addAnnotation(
             AnnotationSpec.builder(Serializable::class)
                 .addMember("with = %T::class", serializerClassName)
@@ -102,13 +102,10 @@ internal fun generateGraphQLCustomScalarTypeSpec(
         )
     }
 
-    val scalar = scalarTypeSpec.build()
-    context.typeSpecs[customScalarName] = scalar
-    return scalar
+    return scalarTypeSpec.build()
 }
 
 internal fun generateGraphQLCustomScalarKSerializer(
-    context: GraphQLClientGeneratorContext,
     scalarTypeDefinition: ScalarTypeDefinition,
     converterType: String,
     scalarWrapperClassName: ClassName
@@ -153,9 +150,7 @@ internal fun generateGraphQLCustomScalarKSerializer(
         .build()
     serializerTypeSpec.addFunction(deserializeFun)
 
-    val serializer = serializerTypeSpec.build()
-    context.typeSpecs[serializerName] = serializer
-    return serializer
+    return serializerTypeSpec.build()
 }
 
 private fun String.toClassName(): ClassName {

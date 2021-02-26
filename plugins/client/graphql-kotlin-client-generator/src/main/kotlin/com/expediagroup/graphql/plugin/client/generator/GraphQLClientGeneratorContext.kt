@@ -36,10 +36,16 @@ data class GraphQLClientGeneratorContext(
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
     val serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
 ) {
-    val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
-    val typeSpecs: MutableMap<String, TypeSpec> = mutableMapOf()
+    val typeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
+    val polymorphicTypes: MutableMap<ClassName, MutableList<ClassName>> = mutableMapOf()
+
+    // shared types
+    val enumClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
+    val inputClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
+    val scalarsClassToTypeSpec: MutableMap<ClassName, MutableList<TypeSpec>> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
 
+    // class name and type selection caches
+    val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
-    val enums: MutableSet<ClassName> = mutableSetOf()
 }

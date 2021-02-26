@@ -1,0 +1,20 @@
+query InterfaceWithNamedFragmentsQuery {
+  interfaceQuery {
+    __typename
+    id
+    name
+    ... firstInterfaceImplFields
+    ... secondInterfaceImplFields
+  }
+}
+
+fragment firstInterfaceImplFields on FirstInterfaceImplementation {
+  id
+  name
+  intValue
+}
+fragment secondInterfaceImplFields on SecondInterfaceImplementation {
+  id
+  name
+  floatValue
+}

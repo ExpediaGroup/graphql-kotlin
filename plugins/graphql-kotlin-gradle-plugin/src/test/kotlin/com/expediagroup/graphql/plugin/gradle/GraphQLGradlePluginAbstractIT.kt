@@ -89,23 +89,22 @@ abstract class GraphQLGradlePluginAbstractIT {
 
         val plugins =
             """
-            plugins {
-              kotlin("jvm") version "$kotlinVersion"
-              $kotlinxSerializerPlugin
-              id("com.expediagroup.graphql")
-              application
-            }
-            """.trimIndent()
+            |plugins {
+            |  kotlin("jvm") version "$kotlinVersion"
+            |  $kotlinxSerializerPlugin
+            |  id("com.expediagroup.graphql")
+            |  application
+            |}
+            """.trimMargin()
         val dependencies =
             """
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-                implementation("com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION")
-                implementation("com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION")
-                testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-                testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-            }
-            """.trimIndent()
+            |dependencies {
+            |  implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+            |  implementation("com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION")
+            |  testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+            |  testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+            |}
+            """.trimMargin()
         this.generateBuildFile(plugins, dependencies, contents)
     }
 
@@ -134,35 +133,35 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
-            import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
-            import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
-            import com.expediagroup.graphql.plugin.gradle.graphql
-            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
-            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
-            import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
-
-            $plugins
-
-            repositories {
-                mavenCentral()
-                mavenLocal {
-                    content {
-                        includeGroup("com.expediagroup")
-                    }
-                }
-            }
-
-            tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-                kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
-
-            $dependencies
-
-            $contents
-            """.trimIndent()
+            |import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+            |import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
+            |import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
+            |import com.expediagroup.graphql.plugin.gradle.graphql
+            |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+            |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+            |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
+            |
+            |$plugins
+            |
+            |repositories {
+            |  mavenCentral()
+            |  mavenLocal {
+            |    content {
+            |      includeGroup("com.expediagroup")
+            |    }
+            |  }
+            |}
+            |
+            |tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+            |  kotlinOptions {
+            |    jvmTarget = "1.8"
+            |  }
+            |}
+            |
+            |$dependencies
+            |
+            |$contents
+            """.trimMargin()
 
         val buildFile = File(this, "build.gradle.kts")
         buildFile.writeText(buildFileContents)

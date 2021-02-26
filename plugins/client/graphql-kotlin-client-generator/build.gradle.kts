@@ -1,6 +1,7 @@
 description = "GraphQL Kotlin common utilities to generate a client."
 
 val graphQLJavaVersion: String by project
+val junitVersion: String by project
 val kotlinPoetVersion: String by project
 val kotlinxSerializationVersion: String by project
 val ktorVersion: String by project
@@ -16,6 +17,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }
 
 tasks {

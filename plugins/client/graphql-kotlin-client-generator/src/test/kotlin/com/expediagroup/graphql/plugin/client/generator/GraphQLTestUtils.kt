@@ -17,11 +17,30 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
-import com.squareup.kotlinpoet.FileSpec
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
+import org.junit.jupiter.params.provider.Arguments
+import java.io.File
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+internal val defaultConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.generated")
+
+internal fun locateTestCaseArguments(directory: String) = File(directory)
+    .listFiles()
+    ?.filter { it.isDirectory }
+    ?.map {
+        Arguments.of(it)
+    } ?: emptyList()
+
+internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File>> {
+    val testInput = directory.walkTopDown()
+    val queries = testInput.filter { it.name.endsWith(".graphql") }.toList()
+    val expectedFiles = testInput.filter { it.name.endsWith(".kt") }.associateBy { it.name.removeSuffix(".kt") }
+
+    return queries to expectedFiles
+}
 
 internal fun testSchema(): TypeDefinitionRegistry {
     val schemaFileStream = ClassLoader.getSystemClassLoader().getResourceAsStream("testSchema.graphql") ?: throw RuntimeException("unable to locate test schema")
@@ -30,27 +49,20 @@ internal fun testSchema(): TypeDefinitionRegistry {
     }
 }
 
-internal fun generateTestFileSpec(
-    query: String,
-    graphQLConfig: GraphQLClientGeneratorConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.plugin.generator.integration")
-): List<FileSpec> {
-    val queryFile = createTempFile(suffix = ".graphql")
-    queryFile.deleteOnExit()
-    queryFile.writeText(query)
+internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDirectory: File) {
+    val (queries, expectedFiles) = locateTestFiles(testDirectory)
 
-    val generator = GraphQLClientGenerator(testSchema(), graphQLConfig)
-    return generator.generate(listOf(queryFile))
+    val generator = GraphQLClientGenerator(testSchema(), config)
+    val fileSpecs = generator.generate(queries)
+    assertTrue(fileSpecs.isNotEmpty())
+    assertEquals(expectedFiles.size, fileSpecs.size)
+    for (spec in fileSpecs) {
+        val expected = expectedFiles[spec.name]?.readText()
+        assertEquals(expected, spec.toString())
+    }
 }
 
-internal fun verifyGeneratedFileSpecContents(
-    query: String,
-    expected: String,
-    graphQLConfig: GraphQLClientGeneratorConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.plugin.generator.integration")
-) {
-    val fileSpecs = generateTestFileSpec(query, graphQLConfig)
-    assertEquals(expected, fileSpecs.first().toString().trim())
-}
-
+// used by integration tests
 class UUIDScalarConverter : ScalarConverter<UUID> {
     override fun toScalar(rawValue: Any): UUID = UUID.fromString(rawValue.toString())
     override fun toJson(value: UUID): String = value.toString()

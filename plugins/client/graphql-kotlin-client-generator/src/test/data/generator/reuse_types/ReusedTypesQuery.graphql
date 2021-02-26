@@ -1,0 +1,33 @@
+query ReusedTypesQuery {
+  first: complexObjectQuery {
+    id
+    name
+  }
+  second: complexObjectQuery {
+    id
+    name
+    details {
+      id
+      value
+    }
+  }
+  third: complexObjectQuery {
+    id
+    name
+    details {
+      id
+    }
+  }
+  fourth: complexObjectQuery {
+    id
+    name
+  }
+  fifth: complexObjectQuery {
+    id
+    name
+    details {
+      id
+      value
+    }
+  }
+}

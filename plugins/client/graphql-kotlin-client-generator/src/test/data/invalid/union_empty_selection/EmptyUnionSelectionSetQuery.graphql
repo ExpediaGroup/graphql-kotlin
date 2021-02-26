@@ -1,0 +1,3 @@
+query EmptyUnionSelectionSetQuery {
+  unionQuery
+}

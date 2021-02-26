@@ -49,16 +49,16 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
          */
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
-              packageName.set("com.example.generated")
-              schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+            |  packageName.set("com.example.generated")
+            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("schema.graphql")
             .writeText(testSchema)

@@ -1,0 +1,12 @@
+query ComplexObjectQuery {
+  complexObjectQuery {
+    id
+    name
+    optional
+    details {
+      id
+      flag
+      value
+    }
+  }
+}
