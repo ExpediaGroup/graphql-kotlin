@@ -24,13 +24,11 @@ allprojects {
         repositories {
             mavenLocal()
             mavenCentral()
-            jcenter()
         }
     }
 
     repositories {
         mavenCentral()
-        jcenter()
         mavenLocal {
             content {
                 includeGroup("com.expediagroup")
