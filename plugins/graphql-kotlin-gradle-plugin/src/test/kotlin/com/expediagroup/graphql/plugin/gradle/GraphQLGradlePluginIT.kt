@@ -144,8 +144,6 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
     }
 
     private fun verifyCustomizedClient(testProjectDirectory: File, serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX) {
-        val testProjectDirectory = File("/Users/dkuc/Development/test-client")
-
         // default global header
         val defaultHeaderName = "X-Default-Header"
         val defaultHeaderValue = "default"

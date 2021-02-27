@@ -31,7 +31,6 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
-import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import java.io.Closeable
 import java.net.URL
@@ -54,7 +53,6 @@ open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
     override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
         val rawResult = client.post<String>(url) {
             apply(requestCustomizer)
-//            contentType(ContentType.Application.Json)
             body = TextContent(serializer.serialize(request), ContentType.Application.Json)
         }
         return serializer.deserialize(rawResult, request.responseType())
@@ -63,7 +61,6 @@ open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
     override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLClientResponse<*>> {
         val rawResult = client.post<String>(url) {
             apply(requestCustomizer)
-//            contentType(ContentType.Application.Json)
             body = TextContent(serializer.serialize(requests), ContentType.Application.Json)
         }
         return serializer.deserialize(rawResult, requests.map { it.responseType() })

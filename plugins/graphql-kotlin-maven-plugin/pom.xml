@@ -20,6 +20,7 @@
         <kotlin.version>${kotlinVersion}</kotlin.version>
         <kotlin.jvmTarget>${kotlinJvmTarget}</kotlin.jvmTarget>
         <kotlin-coroutines.version>${kotlinCoroutinesVersion}</kotlin-coroutines.version>
+        <kotlin-serialization.version>${kotlinxSerializationVersion}</kotlin-serialization.version>
         <kotlinpoet.version>${kotlinPoetVersion}</kotlinpoet.version>
         <ktor.version>${ktorVersion}</ktor.version>
     </properties>
@@ -55,6 +56,16 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>${kotlin-coroutines.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-serialization</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlin-serialization.version}</version>
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>
@@ -126,6 +137,7 @@
                         <kotlin.version>${kotlin.version}</kotlin.version>
                         <kotlin-coroutines.version>${kotlin-coroutines.version}</kotlin-coroutines.version>
                         <kotlin-poet.version>${kotlinpoet.version}</kotlin-poet.version>
+                        <kotlin-serialization.version>${kotlin-serialization.version}</kotlin-serialization.version>
                         <ktor.version>${ktor.version}</ktor.version>
                     </filterProperties>
                     <localRepositoryPath>${project.build.outputDirectory}/local-repo</localRepositoryPath>

@@ -9,6 +9,7 @@ val kotlinJvmVersion: String by project
 val kotlinVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val kotlinPoetVersion: String by project
+val kotlinxSerializationVersion: String by project
 val ktorVersion: String by project
 
 // maven dependencies
@@ -59,6 +60,7 @@ tasks {
         "kotlinVersion" to kotlinVersion,
         "kotlinCoroutinesVersion" to kotlinCoroutinesVersion,
         "kotlinPoetVersion" to kotlinPoetVersion,
+        "kotlinxSerializationVersion" to kotlinxSerializationVersion,
         "ktorVersion" to ktorVersion,
         "junitVersion" to junitVersion
     )

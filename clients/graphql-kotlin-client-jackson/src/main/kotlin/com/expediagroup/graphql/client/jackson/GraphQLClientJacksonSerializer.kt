@@ -2,7 +2,6 @@ package com.expediagroup.graphql.client.jackson
 
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
-import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper

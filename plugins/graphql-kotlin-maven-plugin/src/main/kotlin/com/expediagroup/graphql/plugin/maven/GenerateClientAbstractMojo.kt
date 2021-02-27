@@ -70,7 +70,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
      * </customScalars>
      * ```
      */
-    @Parameter(name = "converters")
+    @Parameter(name = "customScalars")
     private var customScalars: List<CustomScalar> = mutableListOf()
 
     /**
