@@ -37,7 +37,14 @@ internal fun locateTestCaseArguments(directory: String) = File(directory)
 internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File>> {
     val testInput = directory.walkTopDown()
     val queries = testInput.filter { it.name.endsWith(".graphql") }.toList()
-    val expectedFiles = testInput.filter { it.name.endsWith(".kt") }.associateBy { it.name.removeSuffix(".kt") }
+    val expectedFiles = testInput.filter { it.name.endsWith(".kt") }.associateBy {
+        val subpackage = if (it.parentFile != directory) {
+            "${it.parentFile.name}."
+        } else {
+            ""
+        }
+        "com.expediagroup.graphql.generated.$subpackage${it.name.removeSuffix(".kt")}"
+    }
 
     return queries to expectedFiles
 }
@@ -57,7 +64,7 @@ internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDi
     assertTrue(fileSpecs.isNotEmpty())
     assertEquals(expectedFiles.size, fileSpecs.size)
     for (spec in fileSpecs) {
-        val expected = expectedFiles[spec.name]?.readText()
+        val expected = expectedFiles[spec.packageName + "." + spec.name]?.readText()
         assertEquals(expected, spec.toString())
     }
 }
