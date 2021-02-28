@@ -11,6 +11,7 @@ val kotlinCoroutinesVersion: String by project
 val kotlinPoetVersion: String by project
 val kotlinxSerializationVersion: String by project
 val ktorVersion: String by project
+val reactorVersion: String by project
 
 // maven dependencies
 val mavenPluginApiVersion: String = "3.6.3"
@@ -62,6 +63,7 @@ tasks {
         "kotlinPoetVersion" to kotlinPoetVersion,
         "kotlinxSerializationVersion" to kotlinxSerializationVersion,
         "ktorVersion" to ktorVersion,
+        "reactorVersion" to reactorVersion,
         "junitVersion" to junitVersion
     )
     var wireMockServer: WireMockServerRunner? = null

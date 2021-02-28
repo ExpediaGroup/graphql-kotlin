@@ -23,6 +23,7 @@
         <kotlin-serialization.version>${kotlinxSerializationVersion}</kotlin-serialization.version>
         <kotlinpoet.version>${kotlinPoetVersion}</kotlinpoet.version>
         <ktor.version>${ktorVersion}</ktor.version>
+        <reactor.version>${reactorVersion}</reactor.version>
     </properties>
 
     <!-- below dependencies will be copied to local repo by maven-invoker-plugin -->
@@ -92,6 +93,11 @@
             <artifactId>kotlinpoet</artifactId>
             <version>${kotlinpoet.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>${reactor.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,6 +145,7 @@
                         <kotlin-poet.version>${kotlinpoet.version}</kotlin-poet.version>
                         <kotlin-serialization.version>${kotlin-serialization.version}</kotlin-serialization.version>
                         <ktor.version>${ktor.version}</ktor.version>
+                        <reactor.version>${reactor.version}</reactor.version>
                     </filterProperties>
                     <localRepositoryPath>${project.build.outputDirectory}/local-repo</localRepositoryPath>
                     <pomIncludes>

@@ -89,7 +89,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     /**
      * JSON serializer that will be used to generate the data classes..
      */
-    @Parameter(name = "clientType")
+    @Parameter(name = "serializer")
     private var serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
 
     /**
