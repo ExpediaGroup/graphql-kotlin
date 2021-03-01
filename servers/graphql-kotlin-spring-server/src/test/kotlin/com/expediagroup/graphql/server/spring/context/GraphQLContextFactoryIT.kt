@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.context
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.types.GraphQLRequest
 import com.expediagroup.graphql.types.operations.Query
@@ -31,7 +31,10 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.server.ServerRequest
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = ["graphql.packages=com.expediagroup.graphql.server.spring.context"])
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["graphql.packages=com.expediagroup.graphql.server.spring.context"]
+)
 @EnableAutoConfiguration
 class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) {
 
@@ -43,12 +46,11 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
             .header("X-Second-Header", "JUNIT_SECOND")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(GraphQLRequest("query { context { first second } }"))
+            .bodyValue(GraphQLRequest("query { context }"))
             .exchange()
             .expectBody()
             .jsonPath("$.data.context").exists()
-            .jsonPath("$.data.context.first").isEqualTo("JUNIT_FIRST")
-            .jsonPath("$.data.context.second").isEqualTo("JUNIT_SECOND")
+            .jsonPath("$.data.context").isEqualTo("JUNIT_FIRST,JUNIT_SECOND")
             .jsonPath("$.errors").doesNotExist()
             .jsonPath("$.extensions").doesNotExist()
     }
@@ -65,15 +67,20 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
             override suspend fun generateContext(request: ServerRequest): CustomContext {
                 return CustomContext(
                     first = request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST",
-                    second = request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND"
+                    second = request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND",
+                    request = request
                 )
             }
         }
     }
 
     class ContextualQuery : Query {
-        fun context(ctx: CustomContext): CustomContext = ctx
+        fun context(ctx: CustomContext): String = "${ctx.first},${ctx.second}"
     }
 
-    data class CustomContext(val first: String?, val second: String?) : GraphQLContext
+    class CustomContext(
+        val first: String?,
+        val second: String?,
+        request: ServerRequest
+    ) : SpringGraphQLContext(request)
 }
