@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.extensions.print
@@ -43,7 +44,9 @@ import java.util.Optional
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "true")
 @Configuration
 @Import(GraphQLExecutionConfiguration::class)
-class FederatedSchemaAutoConfiguration {
+class FederatedSchemaAutoConfiguration(
+    private val config: GraphQLConfigurationProperties
+) {
 
     private val logger = LoggerFactory.getLogger(FederatedSchemaAutoConfiguration::class.java)
 
@@ -55,7 +58,6 @@ class FederatedSchemaAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun federatedSchemaConfig(
-        config: GraphQLConfigurationProperties,
         hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
         dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
@@ -86,4 +88,13 @@ class FederatedSchemaAutoConfiguration {
 
         return schema
     }
+
+    /**
+     * Instrumentation is automatically added to the schema if it is registered as a spring component.
+     * This registers the federation tracing instrumentation for federated services.
+     */
+    @Bean
+    @ConditionalOnProperty(value = ["graphql.federation.tracing.enabled"], havingValue = "true", matchIfMissing = true)
+    fun federatedTracing(): FederatedTracingInstrumentation =
+        FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug))
 }

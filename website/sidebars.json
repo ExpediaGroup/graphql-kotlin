@@ -57,7 +57,8 @@
           "schema-generator/federation/apollo-federation",
           "schema-generator/federation/federated-schemas",
           "schema-generator/federation/federated-directives",
-          "schema-generator/federation/type-resolution"
+          "schema-generator/federation/type-resolution",
+          "schema-generator/federation/federation-tracing"
         ]
       }
     ],

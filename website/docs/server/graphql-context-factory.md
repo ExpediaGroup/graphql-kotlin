@@ -66,3 +66,9 @@ abstract class SpringGraphQLContextFactory<out T : GraphQLContext> : GraphQLCont
 
 For common use cases around authorization, authentication, or tracing you may need to read HTTP headers and cookies.
 This should be done in the `GraphQLContextFactory` and relevant data should be added to the context to be accessible during schema exectuion.
+
+## Federated Tracing
+
+If you need [federation tracing support](../schema-generator/federation/federation-tracing.md), the context must implement the separate `FederatedGraphQLContext` interface from `graphql-kotlin-federation`.
+
+The reference server implementation `graphql-kotlin-spring-server` [supports federated tracing in the context](./spring-server/spring-graphql-context.md).

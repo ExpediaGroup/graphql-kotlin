@@ -16,18 +16,27 @@
 
 package com.expediagroup.graphql.server.spring.execution
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
+import com.expediagroup.graphql.generator.federation.execution.FederatedGraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import org.springframework.web.reactive.function.server.ServerRequest
 
 /**
  * Wrapper class for specifically handling the Spring [ServerRequest]
  */
-abstract class SpringGraphQLContextFactory<out T : GraphQLContext> : GraphQLContextFactory<T, ServerRequest>
+abstract class SpringGraphQLContextFactory<out T : SpringGraphQLContext> : GraphQLContextFactory<T, ServerRequest>
 
 /**
- * Basic implementation of [SpringGraphQLContextFactory] that just returns null
+ * Implements the [FederatedGraphQLContext] to provide support for federation tracing.
+ * The class can be extended if other custom fields are needed.
  */
-class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<GraphQLContext>() {
-    override suspend fun generateContext(request: ServerRequest): GraphQLContext? = null
+open class SpringGraphQLContext(private val request: ServerRequest) : FederatedGraphQLContext {
+    override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
+        request.headers().firstHeader(caseInsensitiveHeaderName)
+}
+
+/**
+ * Basic implementation of [SpringGraphQLContextFactory] that returns [SpringGraphQLContext]
+ */
+class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
+    override suspend fun generateContext(request: ServerRequest) = SpringGraphQLContext(request)
 }
