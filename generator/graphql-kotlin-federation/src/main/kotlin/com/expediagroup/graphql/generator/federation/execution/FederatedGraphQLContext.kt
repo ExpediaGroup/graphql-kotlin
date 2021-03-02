@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.spring.context
+package com.expediagroup.graphql.generator.federation.execution
 
+import com.apollographql.federation.graphqljava.tracing.HTTPRequestHeaders
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
- * Simple [GraphQLContext] that holds extra value and the [ServerRequest]
+ * Apollo federation needs access to the HTTP headers to inspect if the
+ * request came from the Apollo Gateway. That means we need a special interface
+ * for the federation context.
  */
-class MyGraphQLContext(
-    request: ServerRequest,
-    val myCustomValue: String
-) : SpringGraphQLContext(request)
-
-/**
- * Simple [GraphQLContext] that holds extra value and the [WebSocketSession]
- */
-class MySubscriptionGraphQLContext(
-    val request: WebSocketSession,
-    var auth: String? = null
-) : GraphQLContext
+interface FederatedGraphQLContext : GraphQLContext, HTTPRequestHeaders

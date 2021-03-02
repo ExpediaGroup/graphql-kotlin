@@ -27,12 +27,13 @@ _Created only if federation is disabled_
 
 _Created only if federation is enabled_
 
-| Bean                           | Description                                                                                                                                                                                                               |
-| :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| FederatedTypeResolvers         | List of `FederatedTypeResolvers` marked as beans that should be added to hooks. See [Federated Type Resolution](../../schema-generator/federation/type-resolution.md) for more details                                               |
-| FederatedSchemaGeneratorHooks  | Schema generator hooks used to build federated schema                                                                                                                                                                     |
-| FederatedSchemaGeneratorConfig | Federated schema generator configuration information. You can customize the configuration by providing `TopLevelNames`, `FederatedSchemaGeneratorHooks` and `KotlinDataFetcherFactoryProvider` beans |
-| GraphQLSchema                  | GraphQL schema generated based on the federated schema generator configuration and  `Query`, `Mutation` and `Subscription` objects available in the application context.                             |
+| Bean                            | Description                                                                                                                                                                                                               |
+| :------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| FederatedTypeResolvers          | List of `FederatedTypeResolvers` marked as beans that should be added to hooks. See [Federated Type Resolution](../../schema-generator/federation/type-resolution.md) for more details                                               |
+| FederatedSchemaGeneratorHooks   | Schema generator hooks used to build federated schema                                                                                                                                                                     |
+| FederatedSchemaGeneratorConfig  | Federated schema generator configuration information. You can customize the configuration by providing `TopLevelNames`, `FederatedSchemaGeneratorHooks` and `KotlinDataFetcherFactoryProvider` beans |
+| FederatedTracingInstrumentation | If `graphql.federation.tracing.enabled` is true, it adds tracing info to the response via the [apollo federation-jvm](https://github.com/apollographql/federation-jvm) library. |
+| GraphQLSchema                   | GraphQL schema generated based on the federated schema generator configuration and  `Query`, `Mutation` and `Subscription` objects available in the application context.                             |
 
 ## GraphQL Configuration
 

@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.server.spring.routes
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_VARIABLES
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.types.GraphQLRequest
@@ -54,7 +54,8 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         @Bean
         fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
             override suspend fun generateContext(request: ServerRequest): CustomContext = CustomContext(
-                value = request.headers().firstHeader("X-Custom-Header") ?: "default"
+                value = request.headers().firstHeader("X-Custom-Header") ?: "default",
+                request = request
             )
         }
     }
@@ -65,7 +66,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         fun context(ctx: CustomContext) = ctx.value
     }
 
-    data class CustomContext(val value: String) : GraphQLContext
+    class CustomContext(val value: String, request: ServerRequest) : SpringGraphQLContext(request)
 
     val expectedSchema =
         """

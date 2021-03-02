@@ -2,37 +2,32 @@
 id: spring-graphql-context
 title: Generating GraphQL Context
 ---
-`graphql-kotlin-spring-server` provides a simple mechanism to build a [GraphQL context](../../schema-generator/execution/contextual-data.md) per query execution through
-[GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
-Once a context factory bean is available, it will then be used in
-[ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
-to populate the GraphQL context based on the incoming request and make it available during query execution.
+`graphql-kotlin-spring-server` provides a Spring specific implementation [GraphQLContextFactory](../graphql-context-factory.md) and the context.
 
-For example if we define our custom context as follows:
+* `SpringGraphQLContext` - Implements the Spring `ServerRequest` and federation tracing `HTTPRequestHeaders`
+* `SpringGraphQLContextFactory` - Generates a `SpringGraphQLContext` per request
 
-```kotlin
-
-class MyGraphQLContext(val myCustomValue: String) : GraphQLContext
-
-```
-
-We can generate the corresponding `GraphQLContextFactory` bean:
+If you need a custom context and you are using `graphql-kotlin-spring-server`, it is recommmended you extend these two classes
+so you maintain support with all the other features
 
 ```kotlin
+class MyGraphQLContext(val myCustomValue: String, request: ServerRequest) : SpringGraphQLContext(request)
 
 @Component
-class MyGraphQLContextFactory: GraphQLContextFactory<MyGraphQLContext> {
-    override suspend fun generateContext(
-        request: ServerHttpRequest,
-        response: ServerHttpResponse
-    ): MyGraphQLContext = MyGraphQLContext(
-        myCustomValue = request.headers.getFirst("MyHeader") ?: "defaultValue"
-    )
+class MyGraphQLContextFactory : SpringGraphQLContextFactory<MyGraphQLContext>() {
+    override suspend fun generateContext(request: ServerRequest): MyGraphQLContext {
+        val customVal = request.headers().firstHeader("MyHeader") ?: "defaultValue"
+        return MyGraphQLContext(customVal, request)
+    }
 }
-
 ```
 
 Once your application is configured to build your custom `MyGraphQLContext`, we can then specify it as function argument but it will not be included in the schema.
 While executing the query, the corresponding GraphQL context will be read from the environment and automatically injected to the function input arguments.
 
 For more details see the [Contextual Data documentation](../../schema-generator/execution/contextual-data.md).
+
+## Federated Context
+
+If you need [federation tracing support](../../schema-generator/federation/federation-tracing.md), you can set the appropiate [configuration properties](./spring-properties.md).
+The provided `SpringGraphQLContext` implements the required federation methods for tracing, so as long as you extend this context class you will maintain feature support.
