@@ -27,14 +27,12 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
-import io.ktor.util.KtorExperimentalAPI
 import java.io.Closeable
 import java.net.URL
 
 /**
  * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
  */
-@KtorExperimentalAPI
 open class GraphQLKtorClient(
     private val url: URL,
     private val httpClient: HttpClient = HttpClient(engineFactory = CIO),

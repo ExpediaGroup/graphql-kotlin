@@ -1,4 +1,3 @@
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.graphql
 
@@ -6,6 +5,7 @@ description = "Example usage of Gradle plugin to generate GraphQL Kotlin Client"
 
 plugins {
     application
+    kotlin("plugin.serialization")
     id("com.expediagroup.graphql")
 }
 
@@ -31,7 +31,6 @@ graphql {
         allowDeprecatedFields = true
         headers = mapOf("X-Custom-Header" to "My-Custom-Header")
         customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.examples.client.gradle.UUIDScalarConverter"))
-        clientType = GraphQLClientType.KTOR
     }
 }
 ktlint {
