@@ -22,11 +22,7 @@ import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
-import io.ktor.client.engine.HttpClientEngineConfig
-import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.cio.CIOEngineConfig
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
@@ -39,19 +35,14 @@ import java.net.URL
  * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
  */
 @KtorExperimentalAPI
-open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
+open class GraphQLKtorClient(
     private val url: URL,
-    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer(),
-    engineFactory: HttpClientEngineFactory<E>,
-    configuration: HttpClientConfig<E>.() -> Unit = {}
+    private val httpClient: HttpClient = HttpClient(engineFactory = CIO),
+    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer()
 ) : GraphQLClient<HttpRequestBuilder>, Closeable {
 
-    private val client = HttpClient(engineFactory = engineFactory) {
-        apply(configuration)
-    }
-
     override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
-        val rawResult = client.post<String>(url) {
+        val rawResult = httpClient.post<String>(url) {
             apply(requestCustomizer)
             body = TextContent(serializer.serialize(request), ContentType.Application.Json)
         }
@@ -59,7 +50,7 @@ open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
     }
 
     override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLClientResponse<*>> {
-        val rawResult = client.post<String>(url) {
+        val rawResult = httpClient.post<String>(url) {
             apply(requestCustomizer)
             body = TextContent(serializer.serialize(requests), ContentType.Application.Json)
         }
@@ -67,11 +58,6 @@ open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
     }
 
     override fun close() {
-        client.close()
-    }
-
-    companion object {
-        operator fun invoke(url: URL, serializer: GraphQLClientSerializer = defaultGraphQLSerializer(), config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {}) =
-            GraphQLKtorClient(url = url, engineFactory = CIO, configuration = config, serializer = serializer)
+        httpClient.close()
     }
 }
