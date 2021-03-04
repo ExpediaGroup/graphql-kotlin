@@ -14,6 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient
 {{^webClient}}
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 {{#defaultHeader}}
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.header
 {{/defaultHeader}}
@@ -35,11 +37,15 @@ fun main() {
     )
         {{/webClient}}
         {{^webClient}}
-    val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint"))) {
+    val httpClient = HttpClient(engineFactory = CIO) {
         defaultRequest {
             header("{{name}}", "{{value}}")
         }
     }
+    val client = GraphQLKtorClient(
+        url = URL(System.getProperty("graphQLEndpoint")),
+        httpClient = httpClient
+    )
         {{/webClient}}
     {{/defaultHeader}}
     val variables = JUnitQuery.Variables(SimpleArgumentInput(min = null, max = null, newName = "blah"))
