@@ -72,7 +72,7 @@ open class GraphQLPluginClientExtension {
     /** Directory containing GraphQL query files. */
     var queryFileDirectory: String? = null
     /** JSON serializer that will be used to generate the data classes. */
-    var serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
+    var serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
 
     /** Connect and read timeout configuration for executing introspection query/download schema */
     internal val timeoutConfig: TimeoutConfiguration = TimeoutConfiguration()

@@ -3,12 +3,10 @@ package com.expediagroup.graphql.generated.differentsubselectionquery
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
-import kotlinx.serialization.Serializable
 
 /**
  * Inner type object description
  */
-@Serializable
 data class DetailsObject(
   /**
    * Unique identifier

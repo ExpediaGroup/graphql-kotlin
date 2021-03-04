@@ -34,7 +34,7 @@ data class GraphQLClientGeneratorContext(
     val queryDocument: Document,
     val allowDeprecated: Boolean = false,
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
-    val serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
+    val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
 ) {
     val typeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val polymorphicTypes: MutableMap<ClassName, MutableList<ClassName>> = mutableMapOf()

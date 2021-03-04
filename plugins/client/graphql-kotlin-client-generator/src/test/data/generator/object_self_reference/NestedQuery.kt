@@ -4,12 +4,10 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.nestedquery.NestedObject
 import kotlin.String
 import kotlin.reflect.KClass
-import kotlinx.serialization.Serializable
 
 const val NESTED_QUERY: String =
     "query NestedQuery {\n  nestedObjectQuery {\n    id\n    name\n    children {\n      name\n      children {\n        id\n        name\n        children {\n          id\n          name\n        }\n      }\n    }\n  }\n}"
 
-@Serializable
 class NestedQuery : GraphQLClientRequest<NestedQuery.Result> {
   override val query: String = NESTED_QUERY
 
@@ -17,7 +15,6 @@ class NestedQuery : GraphQLClientRequest<NestedQuery.Result> {
 
   override fun responseType(): KClass<NestedQuery.Result> = NestedQuery.Result::class
 
-  @Serializable
   data class Result(
     /**
      * Query returning object referencing itself

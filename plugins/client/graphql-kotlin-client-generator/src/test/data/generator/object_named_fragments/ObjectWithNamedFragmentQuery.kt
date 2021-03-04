@@ -4,12 +4,10 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.objectwithnamedfragmentquery.ComplexObject
 import kotlin.String
 import kotlin.reflect.KClass
-import kotlinx.serialization.Serializable
 
 const val OBJECT_WITH_NAMED_FRAGMENT_QUERY: String =
     "query ObjectWithNamedFragmentQuery {\n  complexObjectQuery {\n    ...complexObjectFields\n  }\n}\n\nfragment complexObjectFields on ComplexObject {\n  id\n  name\n  details {\n    ...detailObjectFields\n  }\n}\n\nfragment detailObjectFields on DetailsObject {\n  value\n}"
 
-@Serializable
 class ObjectWithNamedFragmentQuery : GraphQLClientRequest<ObjectWithNamedFragmentQuery.Result> {
   override val query: String = OBJECT_WITH_NAMED_FRAGMENT_QUERY
 
@@ -18,7 +16,6 @@ class ObjectWithNamedFragmentQuery : GraphQLClientRequest<ObjectWithNamedFragmen
   override fun responseType(): KClass<ObjectWithNamedFragmentQuery.Result> =
       ObjectWithNamedFragmentQuery.Result::class
 
-  @Serializable
   data class Result(
     /**
      * Query returning an object that references another object

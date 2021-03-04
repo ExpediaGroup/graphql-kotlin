@@ -138,7 +138,7 @@ abstract class GraphQLGenerateClientTask : DefaultTask() {
 
         allowDeprecatedFields.convention(false)
         customScalars.convention(emptyList())
-        serializer.convention(GraphQLSerializer.KOTLINX)
+        serializer.convention(GraphQLSerializer.JACKSON)
         queryFileDirectory.convention("${project.projectDir}/src/main/resources")
         outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
     }

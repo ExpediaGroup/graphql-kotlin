@@ -22,7 +22,7 @@ import com.expediagroup.graphql.plugin.generated.examplequery.BasicObject2
 import com.expediagroup.graphql.plugin.generated.examplequery.SecondInterfaceImplementation
 import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
 import com.expediagroup.graphql.plugin.generated.inputs.SimpleArgumentInput
-import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
+import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.io.File
-import java.net.URL
 import java.nio.file.Paths
 
 class GraphQLMavenPluginTest {
@@ -52,7 +51,7 @@ class GraphQLMavenPluginTest {
     @Test
     fun `verify client code was generated and can execute query`() {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
-        val client = GraphQLKtorClient(URL(graphQLEndpoint))
+        val client = GraphQLWebClient(graphQLEndpoint)
 
         val variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "whatever", min = null, max = null))
         val query = ExampleQuery(variables)
@@ -74,7 +73,5 @@ class GraphQLMavenPluginTest {
                 assertTrue(unionResult is BasicObject2)
             }
         }
-
-        client.close()
     }
 }

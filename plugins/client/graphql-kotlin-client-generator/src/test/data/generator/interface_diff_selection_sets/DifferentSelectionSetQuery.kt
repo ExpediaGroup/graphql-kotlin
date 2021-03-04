@@ -5,12 +5,10 @@ import com.expediagroup.graphql.generated.differentselectionsetquery.BasicInterf
 import com.expediagroup.graphql.generated.differentselectionsetquery.BasicInterface2
 import kotlin.String
 import kotlin.reflect.KClass
-import kotlinx.serialization.Serializable
 
 const val DIFFERENT_SELECTION_SET_QUERY: String =
     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
-@Serializable
 class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
   override val query: String = DIFFERENT_SELECTION_SET_QUERY
 
@@ -19,7 +17,6 @@ class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQue
   override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
       DifferentSelectionSetQuery.Result::class
 
-  @Serializable
   data class Result(
     /**
      * Query returning an interface

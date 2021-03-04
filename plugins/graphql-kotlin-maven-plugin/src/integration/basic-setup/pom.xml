@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-ktor-client</artifactId>
+            <artifactId>graphql-kotlin-spring-client</artifactId>
             <version>@graphql-kotlin.version@</version>
         </dependency>
         <dependency>
@@ -27,24 +27,9 @@
             <version>@kotlin-coroutines.version@</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-json</artifactId>
-            <version>@kotlin-serialization.version@</version>
-        </dependency>
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-cio</artifactId>
-            <version>@ktor.version@</version>
-        </dependency>
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-json</artifactId>
-            <version>@ktor.version@</version>
-        </dependency>
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-jackson</artifactId>
-            <version>@ktor.version@</version>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>@reactor.version@</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -64,9 +49,6 @@
                 <version>@kotlin.version@</version>
                 <configuration>
                     <jvmTarget>@kotlin.jvmTarget@</jvmTarget>
-                    <compilerPlugins>
-                        <plugin>kotlinx-serialization</plugin>
-                    </compilerPlugins>
                 </configuration>
                 <executions>
                     <execution>
@@ -83,13 +65,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-maven-serialization</artifactId>
-                        <version>@kotlin.version@</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>com.expediagroup</groupId>

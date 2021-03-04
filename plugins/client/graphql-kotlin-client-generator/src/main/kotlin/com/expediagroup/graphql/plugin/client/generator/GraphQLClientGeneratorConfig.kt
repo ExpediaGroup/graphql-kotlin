@@ -27,7 +27,7 @@ data class GraphQLClientGeneratorConfig(
     /** Custom scalar type to converter mapping. */
     val customScalarMap: Map<String, GraphQLScalar> = emptyMap(),
     /** Type of JSON serializer to be used. */
-    val serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
+    val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
 )
 
 /**

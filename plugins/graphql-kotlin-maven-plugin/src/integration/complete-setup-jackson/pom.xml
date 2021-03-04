@@ -81,9 +81,6 @@
                             <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
                             <!-- optional configuration below -->
                             <allowDeprecatedFields>true</allowDeprecatedFields>
-                            <headers>
-                                <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
-                            </headers>
                             <customScalars>
                                 <customScalar>
                                     <!-- custom scalar UUID type -->
@@ -95,11 +92,14 @@
                                     <converter>com.example.UUIDScalarConverter</converter>
                                 </customScalar>
                             </customScalars>
-                            <serializer>JACKSON</serializer>
+                            <headers>
+                                <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
+                            </headers>
                             <queryFiles>
                                 <queryFile>${project.basedir}/src/main/resources/ExampleQuery.graphql</queryFile>
                                 <queryFile>${project.basedir}/src/main/resources/DeprecatedQuery.graphql</queryFile>
                             </queryFiles>
+                            <serializer>JACKSON</serializer>
                         </configuration>
                     </execution>
                 </executions>

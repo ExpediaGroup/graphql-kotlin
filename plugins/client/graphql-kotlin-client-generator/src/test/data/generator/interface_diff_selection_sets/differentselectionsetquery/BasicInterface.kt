@@ -1,16 +1,26 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
 import kotlin.Float
 import kotlin.Int
 import kotlin.String
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
 /**
  * Very basic interface
  */
-@Serializable
-sealed class BasicInterface {
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.PROPERTY,
+  property = "__typename"
+)
+@JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+    FirstInterfaceImplementation::class,
+    name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+    SecondInterfaceImplementation::class, name="SecondInterfaceImplementation")])
+interface BasicInterface {
   /**
    * Unique identifier of an interface
    */
@@ -25,8 +35,6 @@ sealed class BasicInterface {
 /**
  * Example interface implementation where value is an integer
  */
-@Serializable
-@SerialName(value = "FirstInterfaceImplementation")
 data class FirstInterfaceImplementation(
   /**
    * Unique identifier of the first implementation
@@ -40,13 +48,11 @@ data class FirstInterfaceImplementation(
    * Custom field integer value
    */
   val intValue: Int
-) : BasicInterface()
+) : BasicInterface
 
 /**
  * Example interface implementation where value is a float
  */
-@Serializable
-@SerialName(value = "SecondInterfaceImplementation")
 data class SecondInterfaceImplementation(
   /**
    * Unique identifier of the second implementation
@@ -60,4 +66,4 @@ data class SecondInterfaceImplementation(
    * Custom field float value
    */
   val floatValue: Float
-) : BasicInterface()
+) : BasicInterface

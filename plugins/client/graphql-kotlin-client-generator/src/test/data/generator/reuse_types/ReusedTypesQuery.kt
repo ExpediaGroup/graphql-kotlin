@@ -6,12 +6,10 @@ import com.expediagroup.graphql.generated.reusedtypesquery.ComplexObject2
 import com.expediagroup.graphql.generated.reusedtypesquery.ComplexObject3
 import kotlin.String
 import kotlin.reflect.KClass
-import kotlinx.serialization.Serializable
 
 const val REUSED_TYPES_QUERY: String =
     "query ReusedTypesQuery {\n  first: complexObjectQuery {\n    id\n    name\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n  third: complexObjectQuery {\n    id\n    name\n    details {\n      id\n    }\n  }\n  fourth: complexObjectQuery {\n    id\n    name\n  }\n  fifth: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
 
-@Serializable
 class ReusedTypesQuery : GraphQLClientRequest<ReusedTypesQuery.Result> {
   override val query: String = REUSED_TYPES_QUERY
 
@@ -19,7 +17,6 @@ class ReusedTypesQuery : GraphQLClientRequest<ReusedTypesQuery.Result> {
 
   override fun responseType(): KClass<ReusedTypesQuery.Result> = ReusedTypesQuery.Result::class
 
-  @Serializable
   data class Result(
     /**
      * Query returning an object that references another object

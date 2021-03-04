@@ -134,16 +134,16 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
     @Test
     @Tag("kts")
     fun `apply the plugin extension to generate client using kotlinx-serialization (kts)`(@TempDir tempDir: Path) {
-        verifyCustomizedClient(tempDir.toFile())
+        verifyCustomizedClient(tempDir.toFile(), GraphQLSerializer.KOTLINX)
     }
 
     @Test
     @Tag("kts")
     fun `apply the plugin extension to generate client using jackson (kts)`(@TempDir tempDir: Path) {
-        verifyCustomizedClient(tempDir.toFile(), GraphQLSerializer.JACKSON)
+        verifyCustomizedClient(tempDir.toFile())
     }
 
-    private fun verifyCustomizedClient(testProjectDirectory: File, serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX) {
+    private fun verifyCustomizedClient(testProjectDirectory: File, serializer: GraphQLSerializer = GraphQLSerializer.JACKSON) {
         // default global header
         val defaultHeaderName = "X-Default-Header"
         val defaultHeaderValue = "default"
@@ -181,13 +181,13 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         testProjectDirectory.generateBuildFileForClient(buildFileContents, clientDependency, serializer)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
-        val useWebClient = serializer == GraphQLSerializer.JACKSON
+        val useKtorClient = serializer == GraphQLSerializer.KOTLINX
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(
                 loadTemplate(
                     "Application",
                     mapOf(
-                        "webClient" to useWebClient,
+                        "ktorClient" to useKtorClient,
                         "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
                         "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue)
                     )
@@ -237,7 +237,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             |            file("$testProjectDirectory/src/main/resources/queries/JUnitQuery.graphql"),
             |            file("$testProjectDirectory/src/main/resources/queries/DeprecatedQuery.graphql")
             |        ]
-            |        serializer = GraphQLSerializer.KOTLINX
+            |        serializer = GraphQLSerializer.JACKSON
             |        timeout { t ->
             |            t.connect = 10000
             |            t.read = 30000

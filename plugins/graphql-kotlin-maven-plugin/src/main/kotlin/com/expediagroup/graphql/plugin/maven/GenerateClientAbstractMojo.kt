@@ -90,7 +90,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
      * JSON serializer that will be used to generate the data classes..
      */
     @Parameter(name = "serializer")
-    private var serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
+    private var serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
 
     /**
      * Target directory where to store generated files.

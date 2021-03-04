@@ -31,7 +31,7 @@ fun generateClient(
     packageName: String,
     allowDeprecated: Boolean = false,
     customScalarsMap: List<GraphQLScalar> = emptyList(),
-    serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX,
+    serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     schema: File,
     queries: List<File>
 ): List<FileSpec> {

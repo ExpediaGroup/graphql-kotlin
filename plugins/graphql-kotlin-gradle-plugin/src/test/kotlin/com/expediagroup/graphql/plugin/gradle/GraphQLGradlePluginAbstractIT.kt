@@ -82,8 +82,8 @@ abstract class GraphQLGradlePluginAbstractIT {
 
     internal fun File.generateBuildFileForClient(
         contents: String,
-        graphQLClientDependency: String = "implementation(\"com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION\")",
-        serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
+        graphQLClientDependency: String = "implementation(\"com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION\")",
+        serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
     ) {
         val kotlinxSerializerPlugin = if (serializer == GraphQLSerializer.KOTLINX) {
             """kotlin("plugin.serialization") version "$kotlinVersion""""
@@ -173,8 +173,8 @@ abstract class GraphQLGradlePluginAbstractIT {
 
     internal fun File.generateGroovyBuildFileForClient(
         contents: String,
-        graphQLClientDependency: String = "implementation \"com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION\"",
-        serializer: GraphQLSerializer = GraphQLSerializer.KOTLINX
+        graphQLClientDependency: String = "implementation \"com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION\"",
+        serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
     ) {
         val kotlinxSerializerPlugin = if (serializer == GraphQLSerializer.KOTLINX) {
             """id 'org.jetbrains.kotlin.plugin.serialization' version '$kotlinVersion'"""
