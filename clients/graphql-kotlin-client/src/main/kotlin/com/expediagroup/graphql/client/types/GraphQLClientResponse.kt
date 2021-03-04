@@ -26,6 +26,6 @@ interface GraphQLClientResponse<T> {
         get() = null
     val errors: List<GraphQLError>?
         get() = null
-    val extensions: Map<String, Any>?
+    val extensions: Map<String, Any?>?
         get() = null
 }

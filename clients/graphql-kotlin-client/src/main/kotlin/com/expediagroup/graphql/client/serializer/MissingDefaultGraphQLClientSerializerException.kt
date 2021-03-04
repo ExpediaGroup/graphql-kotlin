@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.jackson.types
+package com.expediagroup.graphql.client.serializer
 
-import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class JacksonGraphQLResponse<T>(
-    override val data: T? = null,
-    override val errors: List<JacksonGraphQLError>? = null,
-    override val extensions: Map<String, Any?>? = null
-) : GraphQLClientResponse<T>
+/**
+ * Exception thrown when unable to locate the default GraphQL Kotlin client serializer.
+ */
+object MissingDefaultGraphQLClientSerializerException : IllegalStateException(
+    "Unable to find default GraphQL Kotlin client serializer. Verify graphql-kotlin-client-jackson or graphql-kotlin-client-serialization is available on the classpath."
+)
