@@ -16,23 +16,28 @@
 
 package com.expediagroup.graphql.client.jackson
 
+import com.expediagroup.graphql.client.jackson.data.EnumQuery
+import com.expediagroup.graphql.client.jackson.data.FirstQuery
+import com.expediagroup.graphql.client.jackson.data.OtherQuery
+import com.expediagroup.graphql.client.jackson.data.PolymorphicQuery
+import com.expediagroup.graphql.client.jackson.data.ScalarQuery
+import com.expediagroup.graphql.client.jackson.data.polymorphicquery.SecondInterfaceImplementation
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
-import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
-import kotlin.reflect.KClass
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class GraphQLClientJacksonSerializerTest {
 
     @Test
     fun `verify we can serialize GraphQLClientRequest`() {
-        val testQuery = TestQuery(TestQuery.Variables(input = 1.0f))
+        val testQuery = FirstQuery(FirstQuery.Variables(input = 1.0f))
         val expected =
             """{
-            |  "query": "TEST_QUERY",
-            |  "operationName": "TestQuery",
+            |  "query": "FIRST_QUERY",
+            |  "operationName": "FirstQuery",
             |  "variables": { "input": 1.0 }
             |}
         """.trimMargin()
@@ -45,15 +50,15 @@ class GraphQLClientJacksonSerializerTest {
 
     @Test
     fun `verify we can serialize batch GraphQLClientRequest`() {
-        val queries = listOf(TestQuery(TestQuery.Variables(input = 1.0f)), TestOtherQuery())
+        val queries = listOf(FirstQuery(FirstQuery.Variables(input = 1.0f)), OtherQuery())
         val expected =
             """[{
-            |  "query": "TEST_QUERY",
-            |  "operationName": "TestQuery",
+            |  "query": "FIRST_QUERY",
+            |  "operationName": "FirstQuery",
             |  "variables": { "input": 1.0 }
             |},{
             |  "query": "OTHER_QUERY",
-            |  "operationName": "TestOtherQuery",
+            |  "operationName": "OtherQuery",
             |  "variables": null
             |}]
         """.trimMargin()
@@ -66,9 +71,9 @@ class GraphQLClientJacksonSerializerTest {
 
     @Test
     fun `verify we can deserialize JacksonGraphQLResponse`() {
-        val testQuery = TestQuery(variables = TestQuery.Variables())
+        val testQuery = FirstQuery(variables = FirstQuery.Variables())
         val expected = JacksonGraphQLResponse(
-            data = TestQuery.Result("hello world"),
+            data = FirstQuery.Result("hello world"),
             errors = listOf(JacksonGraphQLError(message = "test error message")),
             extensions = mapOf("extVal" to 123, "extList" to listOf("ext1", "ext2"), "extMap" to mapOf("1" to 1, "2" to 2))
         )
@@ -87,16 +92,16 @@ class GraphQLClientJacksonSerializerTest {
 
     @Test
     fun `verify we can deserialize batch JacksonGraphQLResponse`() {
-        val testQuery = TestQuery(variables = TestQuery.Variables())
-        val otherQuery = TestOtherQuery()
+        val testQuery = FirstQuery(variables = FirstQuery.Variables())
+        val otherQuery = OtherQuery()
         val expected = listOf(
             JacksonGraphQLResponse(
-                data = TestQuery.Result("hello world"),
+                data = FirstQuery.Result("hello world"),
                 errors = listOf(JacksonGraphQLError(message = "test error message")),
                 extensions = mapOf("extVal" to 123, "extList" to listOf("ext1", "ext2"), "extMap" to mapOf("1" to 1, "2" to 2))
             ),
             JacksonGraphQLResponse(
-                data = TestOtherQuery.Result(stringResult = "goodbye world", integerResult = 42)
+                data = OtherQuery.Result(stringResult = "goodbye world", integerResult = 42)
             )
         )
         val rawResponses =
@@ -114,34 +119,51 @@ class GraphQLClientJacksonSerializerTest {
         assertEquals(expected, result)
     }
 
-    class TestQuery(
-        override val variables: Variables
-    ) : GraphQLClientRequest<TestQuery.Result> {
-        override val query: String = "TEST_QUERY"
-
-        override val operationName: String = "TestQuery"
-
-        override fun responseType(): KClass<Result> = Result::class
-
-        data class Variables(
-            val input: Float? = null
-        )
-
-        data class Result(
-            val stringResult: String
-        )
+    @Test
+    fun `verify we can deserialize polymorphic response`() {
+        val polymorphicResponse =
+            """{
+            |  "data": {
+            |    "polymorphicResult": {
+            |      "__typename": "SecondInterfaceImplementation",
+            |      "id": 123,
+            |      "floatValue": 1.2
+            |    }
+            |  }
+            |}
+        """.trimMargin()
+        val serializer = GraphQLClientJacksonSerializer()
+        val result = serializer.deserialize(polymorphicResponse, PolymorphicQuery().responseType())
+        assertEquals(SecondInterfaceImplementation(123, 1.2f), result.data?.polymorphicResult)
     }
 
-    class TestOtherQuery : GraphQLClientRequest<TestOtherQuery.Result> {
-        override val query: String = "OTHER_QUERY"
+    @Test
+    fun `verify we can deserialize custom scalars`() {
+        val expectedUUID = UUID.randomUUID()
+        val scalarResponse =
+            """{
+            |  "data": {
+            |    "scalarAlias": "1234",
+            |    "customScalar": "$expectedUUID"
+            |  }
+            |}
+        """.trimMargin()
+        val serializer = GraphQLClientJacksonSerializer()
+        val result = serializer.deserialize(scalarResponse, ScalarQuery().responseType())
+        assertEquals("1234", result.data?.scalarAlias)
+        assertEquals(expectedUUID, result.data?.customScalar?.value)
+    }
 
-        override val operationName: String = "TestOtherQuery"
+    @Test
+    fun `verify we can deserialize unknown enums`() {
+        val unknownResponse =
+            """{
+            |  "data": { "enumResult": "INVALID" }
+            |}
+        """.trimMargin()
 
-        override fun responseType(): KClass<Result> = Result::class
-
-        data class Result(
-            val stringResult: String,
-            val integerResult: Int
-        )
+        val serializer = GraphQLClientJacksonSerializer()
+        val result = serializer.deserialize(unknownResponse, EnumQuery().responseType())
+        assertEquals(EnumQuery.TestEnum.__UNKNOWN, result.data?.enumResult)
     }
 }

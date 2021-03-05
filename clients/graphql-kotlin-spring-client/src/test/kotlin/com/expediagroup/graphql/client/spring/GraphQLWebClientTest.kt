@@ -111,7 +111,7 @@ class GraphQLWebClientTest {
     }
 
     @Test
-    fun `verifies spring web client can execute query using kotlinx.serialization`() {
+    fun `verifies spring web client can execute query using kotlinx serialization`() {
         val expectedResponse = KotlinXGraphQLResponse(
             data = HelloWorldResult("Hello World!"),
             errors = listOf(
@@ -137,7 +137,7 @@ class GraphQLWebClientTest {
     }
 
     @Test
-    fun `verifies spring web client can execute batch requests using kotlinx.serialization`() {
+    fun `verifies spring web client can execute batch requests using kotlinx serialization`() {
         val expectedResponse = listOf(
             KotlinXGraphQLResponse(
                 data = HelloWorldResult("Hello World!"),

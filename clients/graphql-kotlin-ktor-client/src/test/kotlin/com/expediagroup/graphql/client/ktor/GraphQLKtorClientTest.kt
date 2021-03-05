@@ -72,7 +72,7 @@ class GraphQLKtorClientTest {
     }
 
     @Test
-    fun `verifies ktor client can execute queries using kotlinx.serialization`() {
+    fun `verifies ktor client can execute queries using kotlinx serialization`() {
         val expectedResponse = KotlinXGraphQLResponse(
             data = HelloWorldResult("Hello World!"),
             errors = listOf(
@@ -124,7 +124,7 @@ class GraphQLKtorClientTest {
     }
 
     @Test
-    fun `verifies ktor client can execute batch requests using kotlinx.serialization`() {
+    fun `verifies ktor client can execute batch requests using kotlinx serialization`() {
         val expectedResponse = listOf(
             KotlinXGraphQLResponse(
                 data = HelloWorldResult("Hello World!"),
