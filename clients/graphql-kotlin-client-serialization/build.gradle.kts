@@ -1,3 +1,5 @@
+description = "GraphQL client serializer based on kotlinx.serialization"
+
 plugins {
     kotlin("plugin.serialization")
 }

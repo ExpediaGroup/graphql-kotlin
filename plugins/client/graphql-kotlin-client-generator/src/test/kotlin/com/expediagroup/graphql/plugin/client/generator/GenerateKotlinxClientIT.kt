@@ -25,7 +25,7 @@ class GenerateKotlinxClientIT {
 
     @ParameterizedTest
     @MethodSource("kotlinxTests")
-    fun `verify generation of client code using kotlinx-serialization`(testDirectory: File) {
+    fun `verify generation of client code using kotlinx serialization`(testDirectory: File) {
         val config = defaultConfig.copy(
             allowDeprecated = true,
             customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter")),

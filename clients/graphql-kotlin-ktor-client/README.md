@@ -75,9 +75,9 @@ GraphQL Kotlin build plugins will auto-generate your data classes based on your 
 In order to generate your client you will need to specify the target package name, schema file, and queries. If the queries
 parameter is omitted, it will default to using `*.graphql` files under your resources directory.
 
-`graphql-kotlin-ktor-client` defaults to use `kotlinx-serialization` whereas the build plugins default to use `Jackson`.
-In order to generate `kotlinx-serialization` specific data models you have to configure build plugins to use `kotlinx-serialization`
-serializer. See our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-serialization)
+`graphql-kotlin-ktor-client` defaults to use `kotlinx.serialization` whereas the build plugins default to use `Jackson`.
+In order to generate `kotlinx.serialization` specific data models you have to explicitly configure build plugins to use
+`kotlinx.serialization` serializer. See our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-serialization)
 for information on how to customize this behavior.
 
 ```kotlin

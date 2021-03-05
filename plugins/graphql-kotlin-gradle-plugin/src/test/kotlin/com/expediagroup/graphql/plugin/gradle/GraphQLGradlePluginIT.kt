@@ -133,7 +133,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
     @Tag("kts")
-    fun `apply the plugin extension to generate client using kotlinx-serialization (kts)`(@TempDir tempDir: Path) {
+    fun `apply the plugin extension to generate client using kotlinx serialization (kts)`(@TempDir tempDir: Path) {
         verifyCustomizedClient(tempDir.toFile(), GraphQLSerializer.KOTLINX)
     }
 

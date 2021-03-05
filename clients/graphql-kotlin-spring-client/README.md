@@ -75,7 +75,7 @@ In order to generate your client you will need to specify the target package nam
 parameter is omitted, it will default to using `*.graphql` files under your resources directory. In order to generate Spring
 WebClient based client implementation you also need to specify client type.
 
-`graphql-kotlin-spring-client` defaults to use `Jasckson` which is also the default serializer used by the build plugins.
+`graphql-kotlin-spring-client` defaults to use `Jackson` which is also the default serializer used by the build plugins.
 See our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-serialization) for information
 on how to customize this behavior.
 

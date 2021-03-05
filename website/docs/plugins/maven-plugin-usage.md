@@ -66,7 +66,7 @@ Mojo can also be configured in your Maven build file
 
 By default, `introspect-schema` goal will be executed as part of the `generate-sources` [build lifecycle phase](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html).
 
-## Generating Generic Client
+## Generating Client
 
 This Mojo generates GraphQL client code based on the provided queries using target GraphQL `schemaFile`. Classes are
 generated under specified `packageName`. When using default configuration and storing GraphQL queries under `src/main/resources`
@@ -98,40 +98,11 @@ configuration options that are not available on command line.
 </plugin>
 ```
 
-This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin clients.
-Generated classes will be automatically added to the project compile sources.
+This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin client
+data models. Generated classes will be automatically added to the project compile sources.
 
 >NOTE: You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
 >[build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
-
-## Generating Ktor or WebClient Based Client
-
-By default, GraphQL Kotlin plugins will generate client code that uses generic `GraphQLClient` interface. Additional
-configuration options are available if you generate type specific client code but it will also put a restriction on
-type of client that can be used for your queries.
-
-For example in order to generate Ktor based HTTP client we need to specify `GraphQLClientType.KTOR` client type. Alternatively,
-if you would like to use WebClient implementation instead you need to specify `GraphQLClientType.WEBCLIENT` instead.
-
-```xml
-<plugin>
-    <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-maven-plugin</artifactId>
-    <version>${graphql-kotlin.version}</version>
-    <executions>
-        <execution>
-            <goals>
-                <goal>generate-client</goal>
-            </goals>
-            <configuration>
-                <clientType>KTOR</clientType>
-                <packageName>com.example.generated</packageName>
-                <schemaFile>mySchema.graphql</schemaFile>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
-```
 
 ## Generating Client with Custom Scalars
 
@@ -189,6 +160,81 @@ Afterwards we need to configure our plugin to use this custom converter
         </execution>
     </executions>
 </plugin>
+```
+
+## Generating Client using Kotlinx Serialization
+
+GraphQL Kotlin plugins default to generate client data models that are compatible with [Jackson](https://github.com/FasterXML/jackson).
+We can change this default behavior by explicitly specifying serializer type and configuring `kotlinx.serialization` compiler
+plugin. See [kotlinx.serialization documentation](https://github.com/Kotlin/kotlinx.serialization) for details.
+
+```xml
+<project>
+    <dependencies>
+        <!-- other dependencies omitted for clarity -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlinx-serialization.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- other plugins omitted for clarity -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <packageName>com.example.generated</packageName>
+                            <schemaFile>mySchema.graphql</schemaFile>
+                            <!-- optional configuration below -->
+                            <serializer>KOTLINX</serializer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
 ```
 
 ## Generating Test Client
@@ -261,51 +307,100 @@ This generated schema is subsequently used to generate GraphQL client code based
 ## Complete Configuration Example
 
 Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
-the GraphQL client code based on the provided query.
+the GraphQL client data modles using `kotlinx.serialization` that are based on the provided query.
 
 ```xml
-<plugin>
-    <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-maven-plugin</artifactId>
-    <version>${graphql-kotlin.version}</version>
-    <executions>
-        <execution>
-            <goals>
-                <goal>download-sdl</goal>
-                <goal>generate-client</goal>
-            </goals>
-            <configuration>
-                <endpoint>http://localhost:8080/sdl</endpoint>
-                <packageName>com.example.generated</packageName>
-                <!-- optional configuration below -->
-                <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
-                <allowDeprecatedFields>true</allowDeprecatedFields>
-                <customScalars>
-                    <customScalar>
-                        <!-- custom scalar UUID type -->
-                        <scalar>UUID</scalar>
-                        <!-- fully qualified Java class name of a custom scalar type -->
-                        <type>java.util.UUID</type>
-                        <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
-                           used to convert to/from raw JSON and scalar type -->
-                        <converter>com.example.UUIDScalarConverter</converter>
-                    </customScalar>
-                </customScalars>
-                <headers>
-                    <X-Custom-Header>My-Custom-Header</X-Custom-Header>
-                </headers>
-                <timeoutConfiguration>
-                    <!-- timeout values in milliseconds -->
-                    <connect>1000</connect>
-                    <read>30000</read>
-                </timeoutConfiguration>
-                <queryFiles>
-                    <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
-                </queryFiles>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
+<project>
+    <dependencies>
+        <!-- other dependencies omitted for clarity -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlinx-serialization.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- other plugins omitted for clarity -->
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>download-sdl</goal>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <endpoint>http://localhost:8080/sdl</endpoint>
+                            <packageName>com.example.generated</packageName>
+                            <!-- optional configuration below -->
+                            <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
+                            <allowDeprecatedFields>true</allowDeprecatedFields>
+                            <customScalars>
+                                <customScalar>
+                                    <!-- custom scalar UUID type -->
+                                    <scalar>UUID</scalar>
+                                    <!-- fully qualified Java class name of a custom scalar type -->
+                                    <type>java.util.UUID</type>
+                                    <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                                       used to convert to/from raw JSON and scalar type -->
+                                    <converter>com.example.UUIDScalarConverter</converter>
+                                </customScalar>
+                            </customScalars>
+                            <headers>
+                                <X-Custom-Header>My-Custom-Header</X-Custom-Header>
+                            </headers>
+                            <timeoutConfiguration>
+                                <!-- timeout values in milliseconds -->
+                                <connect>1000</connect>
+                                <read>30000</read>
+                            </timeoutConfiguration>
+                            <queryFiles>
+                                <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
+                            </queryFiles>
+                            <serializer>KOTLINX</serializer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
 ```
 
 ## Generating Multiple Clients

@@ -33,7 +33,7 @@ import kotlin.reflect.full.memberProperties
 /**
  * Generic KSerializer that can serialize/deserialize Any object.
  *
- * This is a workaround to kotlinx-serialization limitation that cannot process arbitrary maps (required for handling extensions in GraphQL responses) as
+ * This is a workaround to kotlinx.serialization limitation that cannot process arbitrary maps (required for handling extensions in GraphQL responses) as
  * it relies on compiler to generate appropriate serializers and cannot determine appropriate one to process generic Any object at runtime.
  *
  * During serialization AnyKSerializer relies on Kotlin reflections to find all object member properties.

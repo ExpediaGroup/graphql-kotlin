@@ -20,19 +20,16 @@ import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
 import com.expediagroup.graphql.client.serialization.types.KotlinXGraphQLResponse
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonBuilder
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.serializer
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 /**
- * GraphQL client serializer that uses kotlinx-serialization for serializing requests and deserializing responses.
+ * GraphQL client serializer that uses kotlinx.serialization for serializing requests and deserializing responses.
  */
 class GraphQLClientKotlinxSerializer(private val jsonBuilder: JsonBuilder.() -> Unit = {}) : GraphQLClientSerializer {
 
@@ -41,12 +38,9 @@ class GraphQLClientKotlinxSerializer(private val jsonBuilder: JsonBuilder.() -> 
     private val json = Json {
         ignoreUnknownKeys = true
         apply(jsonBuilder)
-        encodeDefaults = true
         classDiscriminator = "__typename"
-        serializersModule = SerializersModule {
-            contextual(String.serializer())
-            contextual(Int.serializer())
-        }
+        coerceInputValues = true
+        encodeDefaults = true
     }
 
     override fun serialize(request: Any): String = json.encodeToString(AnyKSerializer, request)

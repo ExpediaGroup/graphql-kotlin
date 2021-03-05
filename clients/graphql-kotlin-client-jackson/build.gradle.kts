@@ -1,3 +1,5 @@
+description = "GraphQL client serializer based on Jackson"
+
 val jacksonVersion: String by project
 
 dependencies {

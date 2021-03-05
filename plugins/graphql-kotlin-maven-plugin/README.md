@@ -114,7 +114,8 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 
 **Parameter Details**
 
-  * *customScalars* - List of custom GraphQL scalars. Objects contain target GraphQL scalar name, corresponding Java type and converter that should be used to serialize/deserialize values.
+  * *customScalars* - List of custom GraphQL scalars. Objects contain target GraphQL scalar name, corresponding Java type
+    and converter that should be used to serialize/deserialize values.
 
     ```xml
     <customScalars>

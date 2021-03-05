@@ -27,7 +27,7 @@ on the classpath.
 `SchemaGeneratorHooksProvider` interface is defined in `graphql-kotlin-hooks-provider` module.
 
 <Tabs
-  defaultValue="kotlin"
+  defaultValue="gradle"
   values={[
     { label: 'Gradle', value: 'gradle' },
     { label: 'Maven', value: 'maven' }
@@ -37,23 +37,19 @@ on the classpath.
 <TabItem value="gradle">
 
 ```kotlin
-
 // build.gradle.kts
 implementation("com.expediagroup", "graphql-kotlin-hooks-provider", latestVersion)
-
 ```
 
 </TabItem>
 <TabItem value="mavem">
 
 ```xml
-
 <dependency>
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-hooks-provider</artifactId>
     <version>${latestVersion}</version>
 </dependency>
-
 ```
 
 </TabItem>
@@ -65,13 +61,11 @@ Service provider implementation has to implement `SchemaGeneratorHooksProvider` 
 schema generator hooks that will be used to generate the GraphQL schema.
 
 ```kotlin
-
 package com.example
 
 class MyCustomSchemaGeneratorHooksProvider : SchemaGeneratorHooksProvider {
     override fun hooks(): SchemaGeneratorHooks = MyCustomHooks()
 }
-
 ```
 
 ### Create provider configuration file
@@ -84,7 +78,6 @@ name of the service provider implementation.
 Using the example service provider implementation from the above, our project structure should look like
 
 ```
-
 my-project
 |- src
   |- main
@@ -98,13 +91,10 @@ my-project
           |- SchemaGeneratorHooksProvider
 
 ```
-
 Our service provider configuration file should have following content
 
 ```text
-
 com.example.MyCustomSchemaGeneratorHooksProvider
-
 ```
 
 ## Limitations

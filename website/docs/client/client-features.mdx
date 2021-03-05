@@ -2,6 +2,18 @@
 id: client-features
 title: Client Features
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Jackson and Kotlinx Serialization Support
+
+GraphQL Kotlin supports generation of client data models that are compatible with both `Jackson` (default) and `kotlinx.serialization`
+formats. Build plugins and `graphql-kotlin-spring-client` default to use `Jackson` whereas `graphql-kotlin-ktor-client`
+defaults to `kotlinx.serialization`.
+
+See [client serialization documentation](./client-serialization.md) for additional details.
+
 ## Polymorphic Types Support
 
 GraphQL supports polymorphic types through unions and interfaces which can be represented in Kotlin as marker and
@@ -12,7 +24,6 @@ field so it can be used to Jackson correctly distinguish between different imple
 Given example schema
 
 ```graphql
-
 type Query {
   interfaceQuery: BasicInterface!
 }
@@ -33,13 +44,11 @@ type SecondInterfaceImplementation implements BasicInterface {
   id: Int!
   name: String!
 }
-
 ```
 
 We can query interface field as
 
 ```graphql
-
 query PolymorphicQuery {
   interfaceQuery {
     __typename
@@ -53,42 +62,81 @@ query PolymorphicQuery {
     }
   }
 }
-
 ```
 
-Which will generate following data model
+Which will generate following data models
+
+<Tabs
+  defaultValue="jackson"
+  values={[
+    { label: 'Jackson', value: 'jackson' },
+    { label: 'kotlinx.serialization', value: 'kotlinx' }
+  ]
+}>
+
+<TabItem value="jackson">
 
 ```kotlin
-
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
   property = "__typename"
 )
 @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
-    PolymorphicQuery.FirstInterfaceImplementation::class,
+    FirstInterfaceImplementation::class,
     name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
-    = PolymorphicQuery.SecondInterfaceImplementation::class, name="SecondInterfaceImplementation")])
+    = SecondInterfaceImplementation::class, name="SecondInterfaceImplementation")])
 interface BasicInterface {
-  val id: Int
-  val name: String
+  abstract val id: Int
+  abstract val name: String
 }
 
 data class FirstInterfaceImplementation(
   override val id: Int,
   override val name: String,
   val intValue: Int
-) : PolymorphicQuery.BasicInterface
+) : BasicInterface
 
 data class SecondInterfaceImplementation(
   override val id: Int,
   override val name: String,
   val floatValue: Float
-) : PolymorphicQuery.BasicInterface
-
+) : BasicInterface
 ```
 
+</TabItem>
+<TabItem value="kotlinx">
+
+```kotlin
+@Serializable
+sealed class BasicInterface {
+  abstract val id: Int
+  abstract val name: String
+}
+
+@Serializable
+@SerialName(value = "FirstInterfaceImplementation")
+data class FirstInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val intValue: Int
+) : BasicInterface()
+
+@Serializable
+@SerialName(value = "SecondInterfaceImplementation")
+data class SecondInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val floatValue: Float
+) : BasicInterface()
+```
+
+</TabItem>
+</Tabs>
+
 ## Default Enum Values
+
+TODO kotlinx
 
 Enums represent predefined set of values. Adding additional enum values could be a potentially breaking change as your
 clients may not be able to process it. GraphQL Kotlin Client automatically adds default `@JsonEnumDefaultValue __UNKNOWN_VALUE`
@@ -102,7 +150,6 @@ add it as KDoc to corresponding data models.
 Given simple GraphQL object definition
 
 ```graphql
-
 "Some basic description"
 type BasicObject {
   "Unique identifier"
@@ -110,13 +157,11 @@ type BasicObject {
   "Object name"
   name: String!
 }
-
 ```
 
 Will result in a corresponding auto generated data class
 
 ```kotlin
-
 /**
  * Some basic description
  */
@@ -130,7 +175,6 @@ data class BasicObject(
    */
   val name: String
 )
-
 ```
 
 ## Native Support for Coroutines
