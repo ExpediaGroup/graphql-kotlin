@@ -133,17 +133,29 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
     @Tag("kts")
-    fun `apply the plugin extension to generate client using kotlinx serialization (kts)`(@TempDir tempDir: Path) {
-        verifyCustomizedClient(tempDir.toFile(), GraphQLSerializer.KOTLINX)
+    fun `apply the plugin extension to generate client using ktor and kotlinx serialization (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), true, GraphQLSerializer.KOTLINX)
     }
 
     @Test
     @Tag("kts")
-    fun `apply the plugin extension to generate client using jackson (kts)`(@TempDir tempDir: Path) {
-        verifyCustomizedClient(tempDir.toFile())
+    fun `apply the plugin extension to generate client using ktor and jackson (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), true, GraphQLSerializer.JACKSON)
     }
 
-    private fun verifyCustomizedClient(testProjectDirectory: File, serializer: GraphQLSerializer = GraphQLSerializer.JACKSON) {
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate client using spring webclient and jackson (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), false, GraphQLSerializer.JACKSON)
+    }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate client using spring webclient and kotlinx serialization (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), false, GraphQLSerializer.KOTLINX)
+    }
+
+    private fun verifyCustomizedClient(testProjectDirectory: File, useKtorClient: Boolean = false, serializer: GraphQLSerializer = GraphQLSerializer.JACKSON) {
         // default global header
         val defaultHeaderName = "X-Default-Header"
         val defaultHeaderValue = "default"
@@ -173,15 +185,33 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             |  }
             |}
             """.trimMargin()
-        val clientDependency = if (serializer == GraphQLSerializer.KOTLINX) {
-            "implementation(\"com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION\")"
-        } else {
-            "implementation(\"com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION\")"
+        val clientDependencies = when {
+            useKtorClient && serializer == GraphQLSerializer.KOTLINX -> {
+                "implementation(\"com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION\")"
+            }
+            useKtorClient -> {
+                """
+                    |implementation("com.expediagroup", "graphql-kotlin-ktor-client", "$DEFAULT_PLUGIN_VERSION") {
+                    |  exclude("com.expediagroup", "graphql-kotlin-client-serialization")
+                    |}
+                    |implementation("com.expediagroup", "graphql-kotlin-client-jackson", "$DEFAULT_PLUGIN_VERSION")
+                """.trimMargin()
+            }
+            serializer == GraphQLSerializer.KOTLINX -> {
+                """
+                    |implementation("com.expediagroup", "graphql-kotlin-spring-client", "$DEFAULT_PLUGIN_VERSION") {
+                    |  exclude("com.expediagroup", "graphql-kotlin-client-jackson")
+                    |}
+                    |implementation("com.expediagroup", "graphql-kotlin-client-serialization", "$DEFAULT_PLUGIN_VERSION")
+                """.trimMargin()
+            }
+            else -> {
+                "implementation(\"com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION\")"
+            }
         }
-        testProjectDirectory.generateBuildFileForClient(buildFileContents, clientDependency, serializer)
+        testProjectDirectory.generateBuildFileForClient(buildFileContents, clientDependencies, serializer)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
-        val useKtorClient = serializer == GraphQLSerializer.KOTLINX
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(
                 loadTemplate(
