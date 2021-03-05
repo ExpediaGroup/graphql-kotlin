@@ -51,7 +51,7 @@ fun main() {
     }
     val client = GraphQLKtorClient(
         url = URL("http://localhost:8080/graphql"),
-        httpClient = httpClient,
+        httpClient = httpClient
     )
     println("HelloWorld examples")
     runBlocking {
