@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import org.junit.jupiter.params.provider.Arguments
@@ -24,6 +26,7 @@ import java.io.File
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 internal val defaultConfig = GraphQLClientGeneratorConfig(packageName = "com.expediagroup.graphql.generated")
 
@@ -66,6 +69,19 @@ internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDi
     for (spec in fileSpecs) {
         val expected = expectedFiles[spec.packageName + "." + spec.name]?.readText()
         assertEquals(expected, spec.toString())
+    }
+
+    val generatedSources: List<SourceFile> = fileSpecs.map { spec ->
+        val fileName = spec.packageName + "." + spec.name + ".kt"
+        SourceFile.kotlin(fileName, spec.toString())
+    }
+    val compilationResult = KotlinCompilation().apply {
+        jvmTarget = "1.8"
+        sources = generatedSources
+        inheritClassPath = true
+    }.compile()
+    if (compilationResult.exitCode != KotlinCompilation.ExitCode.OK) {
+        fail("failed to compile generated files: ${compilationResult.messages}")
     }
 }
 
