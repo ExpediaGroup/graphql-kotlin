@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
-import com.expediagroup.graphql.plugin.generated.executeExampleQuery
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -54,7 +53,7 @@ class GraphQLMavenPluginTest {
         val query = ExampleQuery(variables)
         assertDoesNotThrow {
             runBlocking {
-                val response = client.executeExampleQuery(query)
+                val response = client.execute(query)
                 assertTrue(response.errors == null)
                 val data = response.data
                 assertNotNull(data)

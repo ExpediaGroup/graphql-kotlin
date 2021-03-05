@@ -27,19 +27,21 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Boolean
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val INPUT_OBJECT_TEST_QUERY: String =
                     "query InputObjectTestQuery {\n  inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n}"
 
-                class InputObjectTestQuery : GraphQLClientRequest(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery") {
-                  override fun responseType(): Class<InputObjectTestQuery.Result> =
-                      InputObjectTestQuery.Result::class.java
+                class InputObjectTestQuery : GraphQLClientRequest<InputObjectTestQuery.Result> {
+                  override val query: String = INPUT_OBJECT_TEST_QUERY
+
+                  override val operationName: String = "InputObjectTestQuery"
+
+                  override fun responseType(): KClass<InputObjectTestQuery.Result> =
+                      InputObjectTestQuery.Result::class
 
                   data class Result(
                     /**
@@ -48,9 +50,6 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                     val inputObjectQuery: Boolean
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeInputObjectTestQuery(request: InputObjectTestQuery):
-                    GraphQLResponse<InputObjectTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -68,25 +67,34 @@ class GenerateGraphQLInputObjectTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Boolean
                 import kotlin.Float
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val INPUT_OBJECT_TEST_QUERY: String =
                     "query InputObjectTestQuery(${'$'}{'${'$'}'}input: ComplexArgumentInput) {\n  complexInputObjectQuery(criteria: ${'$'}{'${'$'}'}input)\n}"
 
                 class InputObjectTestQuery(
-                  variables: InputObjectTestQuery.Variables
-                ) : GraphQLClientRequest(INPUT_OBJECT_TEST_QUERY, "InputObjectTestQuery", variables) {
-                  override fun responseType(): Class<InputObjectTestQuery.Result> =
-                      InputObjectTestQuery.Result::class.java
+                  override val variables: InputObjectTestQuery.Variables
+                ) : GraphQLClientRequest<InputObjectTestQuery.Result> {
+                  override val query: String = INPUT_OBJECT_TEST_QUERY
+
+                  override val operationName: String = "InputObjectTestQuery"
+
+                  override fun responseType(): KClass<InputObjectTestQuery.Result> =
+                      InputObjectTestQuery.Result::class
 
                   data class Variables(
                     val input: InputObjectTestQuery.ComplexArgumentInput? = null
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that accepts self referencing input object
+                     */
+                    val complexInputObjectQuery: Boolean
                   )
 
                   /**
@@ -106,17 +114,7 @@ class GenerateGraphQLInputObjectTypeSpecIT {
                      */
                     val next: InputObjectTestQuery.ComplexArgumentInput? = null
                   )
-
-                  data class Result(
-                    /**
-                     * Query that accepts self referencing input object
-                     */
-                    val complexInputObjectQuery: Boolean
-                  )
                 }
-
-                suspend fun GraphQLClient<*>.executeInputObjectTestQuery(request: InputObjectTestQuery):
-                    GraphQLResponse<InputObjectTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =

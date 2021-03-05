@@ -33,24 +33,25 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
                     "query UnionQueryWithInlineFragments {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n}"
 
-                class UnionQueryWithInlineFragments : GraphQLClientRequest(UNION_QUERY_WITH_INLINE_FRAGMENTS,
-                    "UnionQueryWithInlineFragments") {
-                  override fun responseType(): Class<UnionQueryWithInlineFragments.Result> =
-                      UnionQueryWithInlineFragments.Result::class.java
+                class UnionQueryWithInlineFragments : GraphQLClientRequest<UnionQueryWithInlineFragments.Result> {
+                  override val query: String = UNION_QUERY_WITH_INLINE_FRAGMENTS
+
+                  override val operationName: String = "UnionQueryWithInlineFragments"
+
+                  override fun responseType(): KClass<UnionQueryWithInlineFragments.Result> =
+                      UnionQueryWithInlineFragments.Result::class
 
                   /**
                    * Some basic description
@@ -105,10 +106,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val unionQuery: UnionQueryWithInlineFragments.BasicUnion
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeUnionQueryWithInlineFragments(request: UnionQueryWithInlineFragments):
-                    GraphQLResponse<UnionQueryWithInlineFragments.Result> = execute(request)
             """.trimIndent()
         val queryWithInlineFragments =
             """
@@ -136,24 +133,25 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val UNION_QUERY_WITH_NAMED_FRAGMENTS: String =
                     "query UnionQueryWithNamedFragments {\n  unionQuery {\n    ... basicObjectFields\n    ... complexObjectFields\n  }\n}\n\nfragment basicObjectFields on BasicObject {\n  __typename\n  id\n  name\n}\nfragment complexObjectFields on ComplexObject {\n  __typename\n  id\n  name\n  optional\n}"
 
-                class UnionQueryWithNamedFragments : GraphQLClientRequest(UNION_QUERY_WITH_NAMED_FRAGMENTS,
-                    "UnionQueryWithNamedFragments") {
-                  override fun responseType(): Class<UnionQueryWithNamedFragments.Result> =
-                      UnionQueryWithNamedFragments.Result::class.java
+                class UnionQueryWithNamedFragments : GraphQLClientRequest<UnionQueryWithNamedFragments.Result> {
+                  override val query: String = UNION_QUERY_WITH_NAMED_FRAGMENTS
+
+                  override val operationName: String = "UnionQueryWithNamedFragments"
+
+                  override fun responseType(): KClass<UnionQueryWithNamedFragments.Result> =
+                      UnionQueryWithNamedFragments.Result::class
 
                   /**
                    * Some basic description
@@ -208,10 +206,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val unionQuery: UnionQueryWithNamedFragments.BasicUnion
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeUnionQueryWithNamedFragments(request: UnionQueryWithNamedFragments):
-                    GraphQLResponse<UnionQueryWithNamedFragments.Result> = execute(request)
             """.trimIndent()
         val queryWithNamedFragments =
             """
@@ -298,24 +292,25 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n      name\n    }\n    ... on ComplexObject {\n      id\n      name\n      optional\n    }\n  }\n  complexObjectQuery {\n    id\n    name\n    details {\n      value\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Some basic description
@@ -404,9 +399,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val complexObjectQuery: DifferentSelectionSetQuery.ComplexObject2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """
@@ -441,24 +433,25 @@ class GenerateGraphQLUnionTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n    }\n    ... on ComplexObject {\n      id\n    }\n  }\n  second: unionQuery {\n    __typename\n    ... on BasicObject {\n      name\n    }\n    ... on ComplexObject {\n      name\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Some basic description
@@ -540,9 +533,6 @@ class GenerateGraphQLUnionTypeSpecIT {
                     val second: DifferentSelectionSetQuery.BasicUnion2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """

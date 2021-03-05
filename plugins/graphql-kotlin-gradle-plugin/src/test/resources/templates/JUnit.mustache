@@ -1,7 +1,6 @@
 package com.example
 
 import com.example.generated.JUnitQuery
-import com.example.generated.executeJUnitQuery
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -32,7 +31,7 @@ class GraphQLMavenPluginTest {
 
         assertDoesNotThrow {
             runBlocking {
-                val response = client.executeJUnitQuery(query)
+                val response = client.execute(query)
                 assertTrue(response.errors == null)
                 val data = response.data
                 assertNotNull(data)

@@ -33,26 +33,27 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY: String =
                     "query InterfaceWithInlineFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
                 class InterfaceWithInlineFragmentsTestQuery :
-                    GraphQLClientRequest(INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY,
-                    "InterfaceWithInlineFragmentsTestQuery") {
-                  override fun responseType(): Class<InterfaceWithInlineFragmentsTestQuery.Result> =
-                      InterfaceWithInlineFragmentsTestQuery.Result::class.java
+                    GraphQLClientRequest<InterfaceWithInlineFragmentsTestQuery.Result> {
+                  override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_TEST_QUERY
+
+                  override val operationName: String = "InterfaceWithInlineFragmentsTestQuery"
+
+                  override fun responseType(): KClass<InterfaceWithInlineFragmentsTestQuery.Result> =
+                      InterfaceWithInlineFragmentsTestQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
@@ -122,10 +123,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val interfaceQuery: InterfaceWithInlineFragmentsTestQuery.BasicInterface
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeInterfaceWithInlineFragmentsTestQuery(request: InterfaceWithInlineFragmentsTestQuery):
-                    GraphQLResponse<InterfaceWithInlineFragmentsTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -153,26 +150,27 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY: String =
                     "query InterfaceWithNamedFragmentsTestQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... firstInterfaceImplFields\n    ... secondInterfaceImplFields\n  }\n}\n\nfragment firstInterfaceImplFields on FirstInterfaceImplementation {\n  id\n  name\n  intValue\n}\nfragment secondInterfaceImplFields on SecondInterfaceImplementation {\n  id\n  name\n  floatValue\n}"
 
                 class InterfaceWithNamedFragmentsTestQuery :
-                    GraphQLClientRequest(INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY,
-                    "InterfaceWithNamedFragmentsTestQuery") {
-                  override fun responseType(): Class<InterfaceWithNamedFragmentsTestQuery.Result> =
-                      InterfaceWithNamedFragmentsTestQuery.Result::class.java
+                    GraphQLClientRequest<InterfaceWithNamedFragmentsTestQuery.Result> {
+                  override val query: String = INTERFACE_WITH_NAMED_FRAGMENTS_TEST_QUERY
+
+                  override val operationName: String = "InterfaceWithNamedFragmentsTestQuery"
+
+                  override fun responseType(): KClass<InterfaceWithNamedFragmentsTestQuery.Result> =
+                      InterfaceWithNamedFragmentsTestQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
@@ -242,10 +240,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val interfaceQuery: InterfaceWithNamedFragmentsTestQuery.BasicInterface
                   )
                 }
-
-                suspend
-                    fun GraphQLClient<*>.executeInterfaceWithNamedFragmentsTestQuery(request: InterfaceWithNamedFragmentsTestQuery):
-                    GraphQLResponse<InterfaceWithNamedFragmentsTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val queryWithNamedFragments =
@@ -335,25 +329,26 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
@@ -475,9 +470,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val second: DifferentSelectionSetQuery.BasicInterface2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """
@@ -514,25 +506,26 @@ class GenerateGraphQLInterfaceTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.fasterxml.jackson.annotation.JsonSubTypes
                 import com.fasterxml.jackson.annotation.JsonTypeInfo
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
                 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
-                import java.lang.Class
                 import kotlin.Float
                 import kotlin.Int
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val DIFFERENT_SELECTION_SET_QUERY: String =
                     "query DifferentSelectionSetQuery {\n  first: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  second: interfaceQuery {\n    __typename\n    id\n    ... on FirstInterfaceImplementation {\n      name\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      name\n      floatValue\n    }\n  }\n}"
 
-                class DifferentSelectionSetQuery : GraphQLClientRequest(DIFFERENT_SELECTION_SET_QUERY,
-                    "DifferentSelectionSetQuery") {
-                  override fun responseType(): Class<DifferentSelectionSetQuery.Result> =
-                      DifferentSelectionSetQuery.Result::class.java
+                class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+                  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+
+                  override val operationName: String = "DifferentSelectionSetQuery"
+
+                  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+                      DifferentSelectionSetQuery.Result::class
 
                   /**
                    * Example interface implementation where value is an integer
@@ -649,9 +642,6 @@ class GenerateGraphQLInterfaceTypeSpecIT {
                     val second: DifferentSelectionSetQuery.BasicInterface2
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeDifferentSelectionSetQuery(request: DifferentSelectionSetQuery):
-                    GraphQLResponse<DifferentSelectionSetQuery.Result> = execute(request)
             """.trimIndent()
         val differentSelectionQuery =
             """

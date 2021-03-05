@@ -17,92 +17,47 @@
 package com.expediagroup.graphql.client.spring
 
 import com.expediagroup.graphql.client.GraphQLClient
-import com.expediagroup.graphql.client.GraphQLClientRequest
-import com.expediagroup.graphql.types.GraphQLResponse
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
+import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.MediaType
-import org.springframework.http.codec.json.Jackson2JsonDecoder
-import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.WebClient
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A lightweight typesafe GraphQL HTTP client using Spring WebClient engine.
  */
 open class GraphQLWebClient(
     url: String,
-    private val mapper: ObjectMapper = jacksonObjectMapper(),
+    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer(),
     builder: WebClient.Builder = WebClient.builder()
 ) : GraphQLClient<WebClient.RequestBodyUriSpec> {
 
-    private val typeCache = ConcurrentHashMap<Class<*>, JavaType>()
-
-    init {
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-
-        builder.codecs { codecConfigurer ->
-            codecConfigurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(mapper, MediaType.APPLICATION_JSON))
-            codecConfigurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(mapper, MediaType.APPLICATION_JSON))
-        }
-    }
-
     private val client: WebClient = builder.baseUrl(url).build()
 
-    override suspend fun <T> execute(request: GraphQLClientRequest, requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit): GraphQLResponse<T> {
-        val rawRequest = mapOf(
-            "query" to request.query,
-            "operationName" to request.operationName,
-            "variables" to request.variables
-        )
-
+    override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit): GraphQLClientResponse<T> {
         val rawResult = client.post()
             .apply(requestCustomizer)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(rawRequest)
+            .bodyValue(serializer.serialize(request))
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .awaitSingle()
+        return serializer.deserialize(rawResult, request.responseType())
+    }
+
+    override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit): List<GraphQLClientResponse<*>> {
+        val rawResult = client.post()
+            .apply(requestCustomizer)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(serializer.serialize(requests))
             .retrieve()
             .bodyToMono(String::class.java)
             .awaitSingle()
 
-        @Suppress("BlockingMethodInNonBlockingContext")
-        return mapper.readValue(rawResult, parameterizedType(request.responseType()))
+        return serializer.deserialize(rawResult, requests.map { it.responseType() })
     }
-
-    override suspend fun execute(requests: List<GraphQLClientRequest>, requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit): List<GraphQLResponse<*>> {
-        val rawRequests = requests.map { request ->
-            mapOf(
-                "query" to request.query,
-                "operationName" to request.operationName,
-                "variables" to request.variables
-            )
-        }
-
-        val rawResult = client.post()
-            .apply(requestCustomizer)
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(rawRequests)
-            .retrieve()
-            .bodyToMono(JsonNode::class.java)
-            .awaitSingle()
-
-        return if (rawResult.isArray) {
-            rawResult.withIndex().map { (index, element) ->
-                val singleResponse: GraphQLResponse<*> = mapper.convertValue(element, parameterizedType(requests[index].responseType()))
-                singleResponse
-            }
-        } else {
-            listOf(mapper.convertValue(rawResult, parameterizedType(requests.first().responseType())))
-        }
-    }
-
-    private fun <T> parameterizedType(resultType: Class<T>): JavaType =
-        typeCache.computeIfAbsent(resultType) {
-            mapper.typeFactory.constructParametricType(GraphQLResponse::class.java, resultType)
-        }
 }

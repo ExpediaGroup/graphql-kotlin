@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.client
 
-import com.expediagroup.graphql.types.GraphQLResponse
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 
 /**
  * A lightweight typesafe GraphQL HTTP client.
@@ -24,12 +25,12 @@ import com.expediagroup.graphql.types.GraphQLResponse
 interface GraphQLClient<RequestCustomizer> {
 
     /**
-     * Executes [GraphQLClientRequest] and returns corresponding [GraphQLResponse].
+     * Executes [GraphQLClientRequest] and returns corresponding [GraphQLClientResponse].
      */
-    suspend fun <T> execute(request: GraphQLClientRequest, requestCustomizer: RequestCustomizer.() -> Unit = {}): GraphQLResponse<T>
+    suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: RequestCustomizer.() -> Unit = {}): GraphQLClientResponse<T>
 
     /**
-     * Executes batch requests that contains a number of [GraphQLClientRequest]s and returns a list of corresponding [GraphQLResponse]s.
+     * Executes batch requests that contains a number of [GraphQLClientRequest]s and returns a list of corresponding [GraphQLClientResponse]s.
      */
-    suspend fun execute(requests: List<GraphQLClientRequest>, requestCustomizer: RequestCustomizer.() -> Unit = {}): List<GraphQLResponse<*>>
+    suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: RequestCustomizer.() -> Unit = {}): List<GraphQLClientResponse<*>>
 }

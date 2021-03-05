@@ -17,108 +17,45 @@
 package com.expediagroup.graphql.client.ktor
 
 import com.expediagroup.graphql.client.GraphQLClient
-import com.expediagroup.graphql.client.GraphQLClientRequest
-import com.expediagroup.graphql.types.GraphQLResponse
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
+import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
-import io.ktor.client.engine.HttpClientEngineConfig
-import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.cio.CIOEngineConfig
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.http.content.TextContent
 import java.io.Closeable
 import java.net.URL
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A lightweight typesafe GraphQL HTTP client using Ktor HTTP client engine.
  */
-@KtorExperimentalAPI
-open class GraphQLKtorClient<in E : HttpClientEngineConfig>(
+open class GraphQLKtorClient(
     private val url: URL,
-    engineFactory: HttpClientEngineFactory<E>,
-    private val mapper: ObjectMapper = jacksonObjectMapper(),
-    configuration: HttpClientConfig<E>.() -> Unit = {}
+    private val httpClient: HttpClient = HttpClient(engineFactory = CIO),
+    private val serializer: GraphQLClientSerializer = defaultGraphQLSerializer()
 ) : GraphQLClient<HttpRequestBuilder>, Closeable {
 
-    private val typeCache = ConcurrentHashMap<Class<*>, JavaType>()
-
-    init {
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-    }
-
-    private val client = HttpClient(engineFactory = engineFactory) {
-        apply(configuration)
-
-        // install default JSON serializer
-        install(JsonFeature) {
-            serializer = JacksonSerializer(mapper)
-        }
-    }
-
-    override suspend fun <T> execute(request: GraphQLClientRequest, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLResponse<T> {
-        val rawRequest = mapOf(
-            "query" to request.query,
-            "operationName" to request.operationName,
-            "variables" to request.variables
-        )
-
-        val rawResult = client.post<String>(url) {
+    override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
+        val rawResult = httpClient.post<String>(url) {
             apply(requestCustomizer)
-            contentType(ContentType.Application.Json)
-            body = rawRequest
+            body = TextContent(serializer.serialize(request), ContentType.Application.Json)
         }
-
-        @Suppress("BlockingMethodInNonBlockingContext")
-        return mapper.readValue(rawResult, parameterizedType(request.responseType()))
+        return serializer.deserialize(rawResult, request.responseType())
     }
 
-    override suspend fun execute(requests: List<GraphQLClientRequest>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLResponse<*>> {
-        val rawRequests = requests.map { request ->
-            mapOf(
-                "query" to request.query,
-                "operationName" to request.operationName,
-                "variables" to request.variables
-            )
-        }
-        val rawResult = client.post<JsonNode>(url) {
+    override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLClientResponse<*>> {
+        val rawResult = httpClient.post<String>(url) {
             apply(requestCustomizer)
-            contentType(ContentType.Application.Json)
-            body = rawRequests
+            body = TextContent(serializer.serialize(requests), ContentType.Application.Json)
         }
-
-        return if (rawResult.isArray) {
-            rawResult.withIndex().map { (index, element) ->
-                val singleResponse: GraphQLResponse<*> = mapper.convertValue(element, parameterizedType(requests[index].responseType()))
-                singleResponse
-            }
-        } else {
-            listOf(mapper.convertValue(rawResult, parameterizedType(requests.first().responseType())))
-        }
+        return serializer.deserialize(rawResult, requests.map { it.responseType() })
     }
-
-    private fun <T> parameterizedType(resultType: Class<T>): JavaType =
-        typeCache.computeIfAbsent(resultType) {
-            mapper.typeFactory.constructParametricType(GraphQLResponse::class.java, resultType)
-        }
 
     override fun close() {
-        client.close()
-    }
-
-    companion object {
-        operator fun invoke(url: URL, mapper: ObjectMapper = jacksonObjectMapper(), config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {}) =
-            GraphQLKtorClient(url = url, engineFactory = CIO, mapper = mapper, configuration = config)
+        httpClient.close()
     }
 }

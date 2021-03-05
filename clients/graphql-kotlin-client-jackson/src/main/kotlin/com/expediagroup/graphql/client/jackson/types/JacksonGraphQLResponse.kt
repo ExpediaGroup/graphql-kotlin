@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client
+package com.expediagroup.graphql.client.jackson.types
 
-/**
- * Abstract class representing GraphQL request that follows the common GraphQL HTTP request format.
- *
- * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
- */
-abstract class GraphQLClientRequest(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Any? = null
-) {
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 
-    /**
-     * Parameterized type of a corresponding GraphQLResponse.
-     */
-    abstract fun responseType(): Class<*>
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class JacksonGraphQLResponse<T>(
+    override val data: T? = null,
+    override val errors: List<JacksonGraphQLError>? = null,
+    override val extensions: Map<String, Any?>? = null
+) : GraphQLClientResponse<T>

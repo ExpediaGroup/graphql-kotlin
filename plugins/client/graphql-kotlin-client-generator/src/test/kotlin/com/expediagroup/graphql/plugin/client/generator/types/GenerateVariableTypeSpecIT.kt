@@ -28,25 +28,34 @@ class GenerateVariableTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
-                import com.expediagroup.graphql.types.GraphQLResponse
-                import java.lang.Class
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import kotlin.Boolean
                 import kotlin.Float
                 import kotlin.String
+                import kotlin.reflect.KClass
 
                 const val TEST_QUERY_WITH_VARIABLES: String =
                     "query TestQueryWithVariables(${'$'}{'${'$'}'}criteria: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}{'${'$'}'}criteria)\n}"
 
                 class TestQueryWithVariables(
-                  variables: TestQueryWithVariables.Variables
-                ) : GraphQLClientRequest(TEST_QUERY_WITH_VARIABLES, "TestQueryWithVariables", variables) {
-                  override fun responseType(): Class<TestQueryWithVariables.Result> =
-                      TestQueryWithVariables.Result::class.java
+                  override val variables: TestQueryWithVariables.Variables
+                ) : GraphQLClientRequest<TestQueryWithVariables.Result> {
+                  override val query: String = TEST_QUERY_WITH_VARIABLES
+
+                  override val operationName: String = "TestQueryWithVariables"
+
+                  override fun responseType(): KClass<TestQueryWithVariables.Result> =
+                      TestQueryWithVariables.Result::class
 
                   data class Variables(
                     val criteria: TestQueryWithVariables.SimpleArgumentInput? = null
+                  )
+
+                  data class Result(
+                    /**
+                     * Query that accepts some input arguments
+                     */
+                    val inputObjectQuery: Boolean
                   )
 
                   /**
@@ -66,17 +75,7 @@ class GenerateVariableTypeSpecIT {
                      */
                     val newName: String? = null
                   )
-
-                  data class Result(
-                    /**
-                     * Query that accepts some input arguments
-                     */
-                    val inputObjectQuery: Boolean
-                  )
                 }
-
-                suspend fun GraphQLClient<*>.executeTestQueryWithVariables(request: TestQueryWithVariables):
-                    GraphQLResponse<TestQueryWithVariables.Result> = execute(request)
             """.trimIndent()
         val query =
             """
