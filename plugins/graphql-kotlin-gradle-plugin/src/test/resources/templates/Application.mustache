@@ -1,16 +1,17 @@
 package com.example
 
 import com.example.generated.JUnitQuery
-import com.example.generated.executeJUnitQuery
 {{#webClient}}
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import org.springframework.web.reactive.function.client.WebClient
 {{/webClient}}
 {{^webClient}}
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
-{{/webClient}}
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.header
+{{/webClient}}
 import kotlinx.coroutines.runBlocking
 import java.net.URL
 
@@ -28,11 +29,15 @@ fun main() {
     )
         {{/webClient}}
         {{^webClient}}
-    val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint"))) {
+    val httpClient = HttpClient(engineFactory = CIO) {
         defaultRequest {
             header("{{name}}", "{{value}}")
         }
     }
+    val client = GraphQLKtorClient(
+        url = URL(System.getProperty("graphQLEndpoint")),
+        httpClient = httpClient
+    )
         {{/webClient}}
     {{/defaultHeader}}
     val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
@@ -41,10 +46,10 @@ fun main() {
 
     runBlocking {
         {{^requestHeader}}
-        val response = client.executeJUnitQuery(query)
+        val response = client.execute(query)
         {{/requestHeader}}
         {{#requestHeader}}
-        val response = client.executeJUnitQuery(query) {
+        val response = client.execute(query) {
             header("{{name}}", "{{value}}")
         }
         {{/requestHeader}}

@@ -22,10 +22,6 @@ import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
-import com.expediagroup.graphql.generated.executeAddObjectMutation
-import com.expediagroup.graphql.generated.executeExampleQuery
-import com.expediagroup.graphql.generated.executeRetrieveObjectQuery
-import com.expediagroup.graphql.generated.executeUpdateObjectMutation
 import io.netty.channel.ChannelOption
 import kotlinx.coroutines.runBlocking
 import org.springframework.http.client.reactive.ClientHttpConnector
@@ -65,19 +61,19 @@ fun main() {
     // mutation examples
     println("simple mutation examples")
     runBlocking {
-        val retrieveNonExistentObject = client.executeRetrieveObjectQuery(RetrieveObjectQuery(variables = RetrieveObjectQuery.Variables(id = 1)))
+        val retrieveNonExistentObject = client.execute(RetrieveObjectQuery(variables = RetrieveObjectQuery.Variables(id = 1)))
         println("\tretrieve non existent object: ${retrieveNonExistentObject.data?.retrieveBasicObject}")
 
-        val addResult = client.executeAddObjectMutation(AddObjectMutation(variables = AddObjectMutation.Variables(newObject = AddObjectMutation.BasicObjectInput(1, "first"))))
+        val addResult = client.execute(AddObjectMutation(variables = AddObjectMutation.Variables(newObject = AddObjectMutation.BasicObjectInput(1, "first"))))
         println("\tadd new object: ${addResult.data?.addBasicObject}")
 
-        val updateResult = client.executeUpdateObjectMutation(UpdateObjectMutation(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated"))))
+        val updateResult = client.execute(UpdateObjectMutation(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated"))))
         println("\tupdate new object: ${updateResult.data?.updateBasicObject}")
     }
 
     println("additional examples")
     runBlocking {
-        val exampleData = client.executeExampleQuery(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f))))
+        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f))))
         println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")

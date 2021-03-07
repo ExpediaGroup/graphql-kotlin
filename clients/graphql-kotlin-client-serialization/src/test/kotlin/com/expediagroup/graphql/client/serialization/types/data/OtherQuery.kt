@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client
+package com.expediagroup.graphql.client.serialization.types.data
 
-/**
- * Abstract class representing GraphQL request that follows the common GraphQL HTTP request format.
- *
- * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
- */
-abstract class GraphQLClientRequest(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Any? = null
-) {
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
 
-    /**
-     * Parameterized type of a corresponding GraphQLResponse.
-     */
-    abstract fun responseType(): Class<*>
+@Serializable
+class OtherQuery : GraphQLClientRequest<OtherQuery.Result> {
+    override val query: String = "OTHER_QUERY"
+
+    override val operationName: String = "OtherQuery"
+
+    override fun responseType(): KClass<Result> = Result::class
+
+    @Serializable
+    data class Result(
+        val stringResult: String,
+        val integerResult: Int
+    )
 }

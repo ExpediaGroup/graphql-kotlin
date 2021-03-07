@@ -29,24 +29,25 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.expediagroup.graphql.plugin.generator.UUIDScalarConverter
-                import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
-                import java.lang.Class
                 import kotlin.Any
                 import kotlin.String
                 import kotlin.jvm.JvmStatic
+                import kotlin.reflect.KClass
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
                     "query CustomScalarTestQuery {\n  scalarQuery {\n    custom\n  }\n}"
 
-                class CustomScalarTestQuery : GraphQLClientRequest(CUSTOM_SCALAR_TEST_QUERY,
-                    "CustomScalarTestQuery") {
-                  override fun responseType(): Class<CustomScalarTestQuery.Result> =
-                      CustomScalarTestQuery.Result::class.java
+                class CustomScalarTestQuery : GraphQLClientRequest<CustomScalarTestQuery.Result> {
+                  override val query: String = CUSTOM_SCALAR_TEST_QUERY
+
+                  override val operationName: String = "CustomScalarTestQuery"
+
+                  override fun responseType(): KClass<CustomScalarTestQuery.Result> =
+                      CustomScalarTestQuery.Result::class
 
                   /**
                    * Custom scalar representing UUID
@@ -83,9 +84,6 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                     val scalarQuery: CustomScalarTestQuery.ScalarWrapper
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeCustomScalarTestQuery(request: CustomScalarTestQuery):
-                    GraphQLResponse<CustomScalarTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
@@ -113,25 +111,26 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
             """
                 package com.expediagroup.graphql.plugin.generator.integration
 
-                import com.expediagroup.graphql.client.GraphQLClient
-                import com.expediagroup.graphql.client.GraphQLClientRequest
+                import com.expediagroup.graphql.client.types.GraphQLClientRequest
                 import com.expediagroup.graphql.plugin.generator.UUIDScalarConverter
-                import com.expediagroup.graphql.types.GraphQLResponse
                 import com.fasterxml.jackson.annotation.JsonCreator
                 import com.fasterxml.jackson.annotation.JsonValue
-                import java.lang.Class
                 import kotlin.Any
                 import kotlin.Int
                 import kotlin.String
                 import kotlin.jvm.JvmStatic
+                import kotlin.reflect.KClass
 
                 const val CUSTOM_SCALAR_TEST_QUERY: String =
                     "query CustomScalarTestQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  count\n  custom\n  id\n}"
 
-                class CustomScalarTestQuery : GraphQLClientRequest(CUSTOM_SCALAR_TEST_QUERY,
-                    "CustomScalarTestQuery") {
-                  override fun responseType(): Class<CustomScalarTestQuery.Result> =
-                      CustomScalarTestQuery.Result::class.java
+                class CustomScalarTestQuery : GraphQLClientRequest<CustomScalarTestQuery.Result> {
+                  override val query: String = CUSTOM_SCALAR_TEST_QUERY
+
+                  override val operationName: String = "CustomScalarTestQuery"
+
+                  override fun responseType(): KClass<CustomScalarTestQuery.Result> =
+                      CustomScalarTestQuery.Result::class
 
                   /**
                    * Custom scalar representing UUID
@@ -180,9 +179,6 @@ class GenerateGraphQLCustomScalarTypeSpecIT {
                     val second: CustomScalarTestQuery.ScalarWrapper
                   )
                 }
-
-                suspend fun GraphQLClient<*>.executeCustomScalarTestQuery(request: CustomScalarTestQuery):
-                    GraphQLResponse<CustomScalarTestQuery.Result> = execute(request)
             """.trimIndent()
 
         val query =
