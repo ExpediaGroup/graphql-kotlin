@@ -27,6 +27,5 @@ using [square/kotlinpoet](https://github.com/square/kotlinpoet) library.
 
 ## Code Generation Limitations
 
-* Due to the custom logic required for deserialization of polymorphic types and default enum values only Jackson is currently supported.
 * Only a single operation per GraphQL query file is supported.
 * Subscriptions are currently NOT supported.

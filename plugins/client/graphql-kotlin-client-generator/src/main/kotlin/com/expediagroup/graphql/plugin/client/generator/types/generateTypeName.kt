@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.UnknownGraphQLTypeException
 import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentDefinition
 import com.squareup.kotlinpoet.BOOLEAN
@@ -83,15 +84,41 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
             context.classNameCache[graphQLTypeName] = mutableListOf(className)
             className
         } else {
-            val className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+            lateinit var className: ClassName
             // generate corresponding type spec
             when (graphQLTypeDefinition) {
-                is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
-                is InputObjectTypeDefinition -> generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
-                is EnumTypeDefinition -> generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
-                is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
-                is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
-                is ScalarTypeDefinition -> generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition)
+                is ObjectTypeDefinition -> {
+                    className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+                    context.typeSpecs[className] = generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                }
+                is InputObjectTypeDefinition -> {
+                    className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.inputs")
+                    context.inputClassToTypeSpecs[className] = generateGraphQLInputObjectTypeSpec(context, graphQLTypeDefinition)
+                }
+                is EnumTypeDefinition -> {
+                    className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.enums")
+                    context.enumClassToTypeSpecs[className] = generateGraphQLEnumTypeSpec(context, graphQLTypeDefinition)
+                }
+                is InterfaceTypeDefinition -> {
+                    className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+                    context.polymorphicTypes[className] = mutableListOf(className)
+                    context.typeSpecs[className] = generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                }
+                is UnionTypeDefinition -> {
+                    className = generateClassName(context, graphQLTypeDefinition, selectionSet)
+                    context.polymorphicTypes[className] = mutableListOf(className)
+                    context.typeSpecs[className] = generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
+                }
+                is ScalarTypeDefinition -> {
+                    className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.scalars")
+                    // its not possible to enter this clause if converter is not available
+                    val graphQLScalarMapping = context.customScalarMap[graphQLTypeName]!!
+                    val typeSpecs = mutableListOf(generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition, graphQLScalarMapping))
+                    if (context.serializer == GraphQLSerializer.KOTLINX) {
+                        typeSpecs.add(generateGraphQLCustomScalarKSerializer(graphQLTypeDefinition, graphQLScalarMapping.converter, className))
+                    }
+                    context.scalarsClassToTypeSpec[className] = typeSpecs
+                }
                 // should never happen as above list covers all graphql types
                 else -> throw UnknownGraphQLTypeException(graphQLType)
             }
@@ -112,13 +139,20 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
         val className = generateClassName(context, graphQLTypeDefinition, selectionSet, overriddenName)
 
         // generate new type spec
-        when (graphQLTypeDefinition) {
+        val typeSpec = when (graphQLTypeDefinition) {
             is ObjectTypeDefinition -> generateGraphQLObjectTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
-            is InterfaceTypeDefinition -> generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
-            is UnionTypeDefinition -> generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
+            is InterfaceTypeDefinition -> {
+                context.polymorphicTypes[className] = mutableListOf(className)
+                generateGraphQLInterfaceTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
+            }
+            is UnionTypeDefinition -> {
+                context.polymorphicTypes[className] = mutableListOf(className)
+                generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet, overriddenName)
+            }
             // should never happen as we can only generate different object, interface or union type
             else -> throw UnknownGraphQLTypeException(graphQLType)
         }
+        context.typeSpecs[className] = typeSpec
         className
     }
 }
@@ -130,10 +164,11 @@ internal fun generateClassName(
     context: GraphQLClientGeneratorContext,
     graphQLType: NamedNode<*>,
     selectionSet: SelectionSet? = null,
-    nameOverride: String? = null
+    nameOverride: String? = null,
+    packageName: String = "${context.packageName}.${context.rootType.toLowerCase()}"
 ): ClassName {
     val typeName = nameOverride ?: graphQLType.name
-    val className = ClassName(context.packageName, "${context.rootType}.$typeName")
+    val className = ClassName(packageName, typeName)
     val classNames = context.classNameCache.getOrDefault(graphQLType.name, mutableListOf())
     classNames.add(className)
     context.classNameCache[graphQLType.name] = classNames

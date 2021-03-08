@@ -1,0 +1,3 @@
+query EmptyObjectSelectionSetQuery {
+  complexObjectQuery
+}

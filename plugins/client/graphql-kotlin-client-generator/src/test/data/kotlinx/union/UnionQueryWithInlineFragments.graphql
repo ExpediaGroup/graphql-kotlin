@@ -1,0 +1,14 @@
+query UnionQueryWithInlineFragments {
+  unionQuery {
+    __typename
+    ... on BasicObject {
+      id
+      name
+    }
+    ... on ComplexObject {
+      id
+      name
+      optional
+    }
+  }
+}

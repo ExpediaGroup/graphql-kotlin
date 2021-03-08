@@ -17,21 +17,27 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InputObjectTypeDefinition
+import kotlinx.serialization.Serializable
 
 /**
  * Generate [TypeSpec] data class from the specified input object definition where are fields are mapped to corresponding Kotlin property.
  */
 internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorContext, inputObjectDefinition: InputObjectTypeDefinition): TypeSpec {
     val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputObjectDefinition.name)
-    inputObjectTypeSpecBuilder.modifiers.add(KModifier.DATA)
+        .addModifiers(KModifier.DATA)
     inputObjectDefinition.description?.content?.let { kdoc ->
         inputObjectTypeSpecBuilder.addKdoc("%L", kdoc)
+    }
+
+    if (context.serializer == GraphQLSerializer.KOTLINX) {
+        inputObjectTypeSpecBuilder.addAnnotation(Serializable::class)
     }
 
     val constructorBuilder = FunSpec.constructorBuilder()
@@ -56,7 +62,5 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
     }
     inputObjectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
-    val inputTypeObjectTypeSpec = inputObjectTypeSpecBuilder.build()
-    context.typeSpecs[inputObjectDefinition.name] = inputTypeObjectTypeSpec
-    return inputTypeObjectTypeSpec
+    return inputObjectTypeSpecBuilder.build()
 }

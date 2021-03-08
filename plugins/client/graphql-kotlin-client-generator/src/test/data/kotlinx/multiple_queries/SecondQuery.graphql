@@ -1,0 +1,24 @@
+query SecondQuery($input: ComplexArgumentInput) {
+  complexInputObjectQuery(criteria: $input)
+  complexObjectQuery {
+    id
+    name
+  }
+  enumQuery
+  interfaceQuery {
+    __typename
+    id
+    name
+    ... on FirstInterfaceImplementation {
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      floatValue
+    }
+  }
+  scalarQuery {
+    count
+    custom
+    id
+  }
+}

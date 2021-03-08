@@ -1,0 +1,19 @@
+query DifferentSubselectionQuery {
+  first: complexObjectQuery {
+    id
+    name
+    details {
+      id
+      value
+      flag
+    }
+  }
+  second: complexObjectQuery {
+    id
+    name
+    details {
+      id
+      value
+    }
+  }
+}

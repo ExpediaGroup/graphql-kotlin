@@ -40,7 +40,8 @@ internal fun generateGraphQLInterfaceTypeSpec(
 
     val interfaceName = interfaceNameOverride ?: interfaceDefinition.name
     val implementations = context.graphQLSchema.getImplementationsOf(interfaceDefinition).map { it.name }
-    val interfaceType = generateInterfaceTypeSpec(
+
+    return generateInterfaceTypeSpec(
         context = context,
         interfaceName = interfaceName,
         kdoc = interfaceDefinition.description?.content,
@@ -48,7 +49,4 @@ internal fun generateGraphQLInterfaceTypeSpec(
         selectionSet = selectionSet,
         implementations = implementations
     )
-
-    context.typeSpecs[interfaceName] = interfaceType
-    return interfaceType
 }

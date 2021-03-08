@@ -1,0 +1,42 @@
+query ReusedListTypesQuery {
+  first: listQuery {
+    id
+    name
+  }
+  second: listQuery {
+    name
+  }
+  third: listQuery {
+    id
+    name
+  }
+  firstComplex: complexObjectQuery {
+    id
+    name
+    basicList {
+      id
+      name
+    }
+  }
+  secondComplex: complexObjectQuery {
+    id
+    name
+    basicList {
+      id
+      name
+    }
+  }
+  thirdComplex: complexObjectQuery {
+    id
+    name
+    basicList {
+      name
+    }
+  }
+  fourthComplex: complexObjectQuery {
+    id
+    basicList {
+      id
+    }
+  }
+}

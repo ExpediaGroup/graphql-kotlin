@@ -22,6 +22,8 @@ import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
+import com.expediagroup.graphql.generated.inputs.BasicObjectInput
+import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.features.logging.DEFAULT
@@ -71,16 +73,16 @@ fun main() {
         val retrieveNonExistentObject = client.execute(RetrieveObjectQuery(variables = RetrieveObjectQuery.Variables(id = 1)))
         println("\tretrieve non existent object: ${retrieveNonExistentObject.data?.retrieveBasicObject}")
 
-        val addResult = client.execute(AddObjectMutation(variables = AddObjectMutation.Variables(newObject = AddObjectMutation.BasicObjectInput(1, "first"))))
+        val addResult = client.execute(AddObjectMutation(variables = AddObjectMutation.Variables(newObject = BasicObjectInput(1, "first"))))
         println("\tadd new object: ${addResult.data?.addBasicObject}")
 
-        val updateResult = client.execute(UpdateObjectMutation(variables = UpdateObjectMutation.Variables(updatedObject = UpdateObjectMutation.BasicObjectInput(1, "updated"))))
+        val updateResult = client.execute(UpdateObjectMutation(variables = UpdateObjectMutation.Variables(updatedObject = BasicObjectInput(1, "updated"))))
         println("\tupdate new object: ${updateResult.data?.updateBasicObject}")
     }
 
     println("additional examples")
     runBlocking {
-        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(max = 1.0f))))
+        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(max = 1.0f))))
         println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")

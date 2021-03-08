@@ -95,7 +95,6 @@ class GraphQLGradlePlugin : Plugin<Project> {
                     generateClientTask.queryFileDirectory.convention(queryFileDirectory)
                 }
                 generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
-                generateClientTask.clientType.convention(extension.clientExtension.clientType)
 
                 when {
                     extension.clientExtension.endpoint != null -> {

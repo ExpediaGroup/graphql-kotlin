@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragmentException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidPolymorphicQueryException
 import com.fasterxml.jackson.annotation.JsonSubTypes
@@ -36,6 +37,8 @@ import graphql.language.FragmentSpread
 import graphql.language.InlineFragment
 import graphql.language.Selection
 import graphql.language.SelectionSet
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Generate interface [TypeSpec] based on the available field definitions and selection set. Generates all implementing classes as well.
@@ -56,7 +59,13 @@ internal fun generateInterfaceTypeSpec(
     selectionSet: SelectionSet,
     implementations: List<String>
 ): TypeSpec {
-    val interfaceTypeSpec = TypeSpec.interfaceBuilder(interfaceName)
+    val interfaceTypeSpec = if (context.serializer == GraphQLSerializer.KOTLINX) {
+        TypeSpec.classBuilder(interfaceName)
+            .addModifiers(KModifier.SEALED)
+            .addAnnotation(Serializable::class)
+    } else {
+        TypeSpec.interfaceBuilder(interfaceName)
+    }
     if (kdoc != null) {
         interfaceTypeSpec.addKdoc("%L", kdoc)
     }
@@ -122,10 +131,11 @@ internal fun generateInterfaceTypeSpec(
         if (!verifyTypeNameIsSelected(distinctSelections)) {
             throw InvalidPolymorphicQueryException("invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
         }
-        val implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build()) as ClassName
-        val simpleName = implementationClassName.simpleName.substringAfter('.')
-        val implementationTypeSpec = context.typeSpecs[simpleName]!!
-        updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationTypeSpec, commonProperties)
+        var implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
+        if (implementationClassName.isNullable) {
+            implementationClassName = implementationClassName.copy(nullable = false)
+        }
+        updateImplementationTypeSpecWithSuperInformation(context, interfaceName, implementationName, implementationClassName as ClassName, commonProperties)
 
         if (jsonSubTypesCodeBlock.isNotEmpty()) {
             jsonSubTypesCodeBlock.add(",")
@@ -137,37 +147,55 @@ internal fun generateInterfaceTypeSpec(
         jsonSubTypesCodeBlock.add("com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = %T::class, name=%S)", unwrappedClassName, implementationName)
     }
 
-    // add jackson annotations to handle deserialization
-    val jsonTypeInfoIdName = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.Id.NAME")
-    val jsonTypeInfoAsProperty = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.As.PROPERTY")
-    interfaceTypeSpec.addAnnotation(
-        AnnotationSpec.builder(JsonTypeInfo::class.java)
-            .addMember("use = %M", jsonTypeInfoIdName)
-            .addMember("include = %M", jsonTypeInfoAsProperty)
-            .addMember("property = %S", "__typename")
-            .build()
-    )
-    interfaceTypeSpec.addAnnotation(
-        AnnotationSpec.builder(JsonSubTypes::class.java)
-            .addMember("value = [%L]", jsonSubTypesCodeBlock.build())
-            .build()
-    )
+    if (context.serializer == GraphQLSerializer.JACKSON) {
+        // add jackson annotations to handle deserialization
+        val jsonTypeInfoIdName = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.Id.NAME")
+        val jsonTypeInfoAsProperty = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.As.PROPERTY")
+        interfaceTypeSpec.addAnnotation(
+            AnnotationSpec.builder(JsonTypeInfo::class.java)
+                .addMember("use = %M", jsonTypeInfoIdName)
+                .addMember("include = %M", jsonTypeInfoAsProperty)
+                .addMember("property = %S", "__typename")
+                .build()
+        )
+        interfaceTypeSpec.addAnnotation(
+            AnnotationSpec.builder(JsonSubTypes::class.java)
+                .addMember("value = [%L]", jsonSubTypesCodeBlock.build())
+                .build()
+        )
+    }
 
     return interfaceTypeSpec.build()
 }
 
 private fun verifyTypeNameIsSelected(selections: List<Selection<*>>) = selections.filterIsInstance(Field::class.java).any { it.name == "__typename" }
 
-private fun updateImplementationTypeSpecWithSuperInformation(context: GraphQLClientGeneratorContext, interfaceName: String, implementationTypeSpec: TypeSpec, commonProperties: List<PropertySpec>) {
+private fun updateImplementationTypeSpecWithSuperInformation(
+    context: GraphQLClientGeneratorContext,
+    interfaceName: String,
+    implementationName: String,
+    implementationClassName: ClassName,
+    commonProperties: List<PropertySpec>
+) {
     val commonPropertyNames = commonProperties.map { it.name }
+    val implementationTypeSpec = context.typeSpecs[implementationClassName]!!
 
     val builder = TypeSpec.classBuilder(implementationTypeSpec.name!!)
-    builder.addModifiers(implementationTypeSpec.modifiers)
-    builder.addKdoc("%L", implementationTypeSpec.kdoc)
+        .addModifiers(implementationTypeSpec.modifiers)
+        .addKdoc("%L", implementationTypeSpec.kdoc)
 
-    // TODO is there a better way to lookup interface class name?
-    //  - cannot use typeNameCache as it was not populated yet
-    builder.addSuperinterface(ClassName(context.packageName, "${context.rootType}.$interfaceName"))
+    val superClassName = ClassName("${context.packageName}.${context.rootType.toLowerCase()}", interfaceName)
+    if (context.serializer == GraphQLSerializer.KOTLINX) {
+        builder.addAnnotation(Serializable::class)
+            .addAnnotation(
+                AnnotationSpec.builder(SerialName::class)
+                    .addMember("value = %S", implementationName)
+                    .build()
+            )
+            .superclass(superClassName)
+    } else {
+        builder.addSuperinterface(superClassName)
+    }
 
     if (implementationTypeSpec.propertySpecs.isNotEmpty()) {
         val constructor = FunSpec.constructorBuilder()
@@ -184,5 +212,6 @@ private fun updateImplementationTypeSpecWithSuperInformation(context: GraphQLCli
     }
 
     val updatedType = builder.build()
-    context.typeSpecs[implementationTypeSpec.name!!] = updatedType
+    context.polymorphicTypes[superClassName]?.add(implementationClassName)
+    context.typeSpecs[implementationClassName] = updatedType
 }

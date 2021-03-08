@@ -126,7 +126,6 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
             import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
             import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
             import com.expediagroup.graphql.plugin.gradle.graphql
@@ -208,7 +207,6 @@ abstract class GraphQLGradlePluginAbstractIT {
     private fun File.generateGroovyBuildFile(plugins: String, dependencies: String, contents: String) {
         val buildFileContents =
             """
-            import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
             import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
             import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
             import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask

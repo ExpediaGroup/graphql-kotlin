@@ -1,0 +1,18 @@
+query UnionQueryWithNamedFragments {
+  unionQuery {
+    ... basicObjectFields
+    ... complexObjectFields
+  }
+}
+
+fragment basicObjectFields on BasicObject {
+  __typename
+  id
+  name
+}
+fragment complexObjectFields on ComplexObject {
+  __typename
+  id
+  name
+  optional
+}

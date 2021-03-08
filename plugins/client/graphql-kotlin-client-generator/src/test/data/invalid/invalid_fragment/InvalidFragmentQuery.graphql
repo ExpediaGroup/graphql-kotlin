@@ -1,0 +1,9 @@
+query InvalidFragmentQuery {
+  complexObjectQuery {
+    ... complexObjectFields
+  }
+}
+fragment complexObjectFields on complex {
+  id
+  name
+}

@@ -1,0 +1,17 @@
+query NestedQuery {
+  nestedObjectQuery {
+    id
+    name
+    children {
+      name
+      children {
+        id
+        name
+        children {
+          id
+          name
+        }
+      }
+    }
+  }
+}

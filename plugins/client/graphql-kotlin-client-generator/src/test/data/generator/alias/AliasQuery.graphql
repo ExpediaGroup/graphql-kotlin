@@ -1,0 +1,4 @@
+query AliasQuery {
+  first: inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )
+  second: inputObjectQuery(criteria: { min: 5.0, max: 10.0 } )
+}

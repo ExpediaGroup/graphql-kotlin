@@ -20,6 +20,7 @@ import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorCo
 import com.expediagroup.graphql.plugin.client.generator.exceptions.DeprecatedFieldsSelectedException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import graphql.Directives.DeprecatedDirective
 import graphql.language.Field
@@ -50,6 +51,8 @@ internal fun generatePropertySpecs(
         val propertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType.copy(nullable = nullable))
         if (!abstract) {
             propertySpecBuilder.initializer(fieldName)
+        } else {
+            propertySpecBuilder.addModifiers(KModifier.ABSTRACT)
         }
         val deprecatedDirective = fieldDefinition.getDirectives(DeprecatedDirective.name).firstOrNull()
         if (deprecatedDirective != null) {

@@ -1,0 +1,13 @@
+query InterfaceWithInlineFragmentsQuery {
+  interfaceQuery {
+    __typename
+    id
+    name
+    ... on FirstInterfaceImplementation {
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      floatValue
+    }
+  }
+}

@@ -17,14 +17,19 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
 import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentDefinition
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.FragmentSpread
 import graphql.language.ObjectTypeDefinition
 import graphql.language.SelectionSet
+import kotlinx.serialization.Serializable
 
 /**
  * Generate [TypeSpec] data class from the GraphQL object definition based on the selection set.
@@ -41,9 +46,13 @@ internal fun generateGraphQLObjectTypeSpec(
 
     val typeName = objectNameOverride ?: objectDefinition.name
     val objectTypeSpecBuilder = TypeSpec.classBuilder(typeName)
-    objectTypeSpecBuilder.modifiers.add(KModifier.DATA)
+        .addModifiers(KModifier.DATA)
     objectDefinition.description?.content?.let { kdoc ->
         objectTypeSpecBuilder.addKdoc("%L", kdoc)
+    }
+
+    if (context.serializer == GraphQLSerializer.KOTLINX) {
+        objectTypeSpecBuilder.addAnnotation(Serializable::class)
     }
 
     val constructorBuilder = FunSpec.constructorBuilder()
@@ -54,7 +63,14 @@ internal fun generateGraphQLObjectTypeSpec(
         fieldDefinitions = objectDefinition.fieldDefinitions
     ).forEach { propertySpec ->
         objectTypeSpecBuilder.addProperty(propertySpec)
-        constructorBuilder.addParameter(propertySpec.name, propertySpec.type)
+
+        val constructorParameter = ParameterSpec.builder(propertySpec.name, propertySpec.type)
+        val className = propertySpec.type as? ClassName
+        if (context.enumClassToTypeSpecs.keys.contains(className)) {
+            val unknownValue = MemberName(context.packageName, "${className?.simpleName}.$UNKNOWN_VALUE")
+            constructorParameter.defaultValue("%M", unknownValue)
+        }
+        constructorBuilder.addParameter(constructorParameter.build())
     }
 
     selectionSet.getSelectionsOfType(FragmentSpread::class.java)
@@ -74,7 +90,5 @@ internal fun generateGraphQLObjectTypeSpec(
 
     objectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
-    val objectTypeSpec = objectTypeSpecBuilder.build()
-    context.typeSpecs[typeName] = objectTypeSpec
-    return objectTypeSpec
+    return objectTypeSpecBuilder.build()
 }
