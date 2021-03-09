@@ -1,0 +1,13 @@
+query InvalidQueryMissingTypename {
+  unionQuery {
+    ... on BasicObject {
+      id
+      name
+    }
+    ... on ComplexObject {
+      id
+      name
+      optional
+    }
+  }
+}

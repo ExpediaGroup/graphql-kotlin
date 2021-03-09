@@ -1,0 +1,12 @@
+query InvalidQueryMissingTypeNameSelection {
+  interfaceQuery {
+    id
+    name
+    ... on FirstInterfaceImplementation {
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      floatValue
+    }
+  }
+}

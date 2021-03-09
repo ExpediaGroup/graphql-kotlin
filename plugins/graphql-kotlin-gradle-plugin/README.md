@@ -22,7 +22,6 @@ GraphQL Kotlin Gradle Plugin uses an extension on the project named `graphql` of
 This extension can be used to configure global options instead of explicitly configuring individual tasks.
 
 ```kotlin
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.graphql
 
@@ -30,8 +29,6 @@ graphql {
   client {
       // Boolean flag indicating whether or not selection of deprecated fields is allowed.
       allowDeprecatedFields = false
-      // Type of GraphQL client implementation to generate.
-      clientType = GraphQLClientType.DEFAULT
       // List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
       customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
       // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
@@ -96,7 +93,6 @@ resulting generated code will be automatically added to the project main source 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
-| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
 | `customScalars` | List<GraphQLScalar> | | List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
 | `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
@@ -143,7 +139,6 @@ test source set.
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
-| `clientType` | GraphQLClientType | | Enum value that specifies target GraphQL client type implementation.<br/>**Default value is:** `GraphQLClientType.DEFAULT`. |
 | `customScalars` | List<GraphQLScalar> | | List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
 | `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |

@@ -23,14 +23,12 @@ import io.ktor.client.engine.cio.endpoint
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 
 /**
  * Downloads GraphQL SDL from the specified endpoint and verifies whether the result is a valid GraphQL schema.
  */
-@KtorExperimentalAPI
 fun downloadSchema(
     endpoint: String,
     httpHeaders: Map<String, Any> = emptyMap(),

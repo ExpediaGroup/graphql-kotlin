@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.plugin.gradle.parameters
 
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -34,8 +33,6 @@ interface GenerateClientParameters : WorkParameters {
     val allowDeprecated: Property<Boolean>
     /** Optional list of custom scalars and their mappings to Kotlin types and a target converter. */
     val customScalars: ListProperty<GraphQLScalar>
-    /** HTTP client type to be generated. */
-    val clientType: Property<GraphQLClientType>
     /** GraphQL schema file that will be used to generate client code. */
     val schemaFile: Property<File>
     /** List of query files that will be processed to generate HTTP clients. */

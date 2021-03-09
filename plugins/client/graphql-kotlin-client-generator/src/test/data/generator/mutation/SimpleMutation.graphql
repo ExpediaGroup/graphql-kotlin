@@ -1,0 +1,6 @@
+mutation SimpleMutation($input: SimpleArgumentInput!) {
+  simpleMutation(update: $input) {
+    id
+    name
+  }
+}

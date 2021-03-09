@@ -1,34 +1,34 @@
 package com.example
 
 import com.example.generated.JUnitQuery
-{{#webClient}}
-import com.expediagroup.graphql.client.spring.GraphQLWebClient
-import org.springframework.web.reactive.function.client.WebClient
-{{/webClient}}
-{{^webClient}}
+import com.example.generated.enums.CustomEnum
+import com.example.generated.inputs.SimpleArgumentInput
+{{#customScalarsEnabled}}import com.example.generated.scalars.UUID{{/customScalarsEnabled}}
+import com.example.generated.junitquery.BasicObject2
+import com.example.generated.junitquery.ScalarWrapper
+import com.example.generated.junitquery.SecondInterfaceImplementation
+{{#ktorClient}}
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
+{{#defaultHeader}}
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.defaultRequest
 import io.ktor.client.request.header
-{{/webClient}}
-import kotlinx.coroutines.runBlocking
 import java.net.URL
+{{/defaultHeader}}
+{{/ktorClient}}
+{{^ktorClient}}
+import com.expediagroup.graphql.client.spring.GraphQLWebClient
+import org.springframework.web.reactive.function.client.WebClient
+{{/ktorClient}}
+import kotlinx.coroutines.runBlocking
 
 fun main() {
     {{^defaultHeader}}
-    val client = GraphQLKtorClient(URL(System.getProperty("graphQLEndpoint")))
+    val client = GraphQLWebClient(System.getProperty("graphQLEndpoint"))
     {{/defaultHeader}}
     {{#defaultHeader}}
-        {{#webClient}}
-    val webClientBuilder = WebClient.builder()
-        .defaultHeader("{{name}}", "{{value}}")
-    val client = GraphQLWebClient(
-        url = System.getProperty("graphQLEndpoint"),
-        builder = webClientBuilder
-    )
-        {{/webClient}}
-        {{^webClient}}
+        {{#ktorClient}}
     val httpClient = HttpClient(engineFactory = CIO) {
         defaultRequest {
             header("{{name}}", "{{value}}")
@@ -38,11 +38,18 @@ fun main() {
         url = URL(System.getProperty("graphQLEndpoint")),
         httpClient = httpClient
     )
-        {{/webClient}}
+        {{/ktorClient}}
+        {{^ktorClient}}
+    val webClientBuilder = WebClient.builder()
+        .defaultHeader("{{name}}", "{{value}}")
+    val client = GraphQLWebClient(
+        url = System.getProperty("graphQLEndpoint"),
+        builder = webClientBuilder
+    )
+        {{/ktorClient}}
     {{/defaultHeader}}
-    val variables = JUnitQuery.Variables(JUnitQuery.SimpleArgumentInput(min = null, max = null, newName = "blah"))
+    val variables = JUnitQuery.Variables(SimpleArgumentInput(min = null, max = null, newName = "blah"))
     val query = JUnitQuery(variables)
-
 
     runBlocking {
         {{^requestHeader}}
@@ -57,21 +64,25 @@ fun main() {
         val data = response.data
         assert(data != null)
         val scalarResult = data?.scalarQuery
-        assert(scalarResult is JUnitQuery.ScalarWrapper)
+        assert(scalarResult is ScalarWrapper)
         assert(scalarResult != null)
         assert(scalarResult?.count is Int)
         {{#customScalarsEnabled}}
-        assert(scalarResult?.custom is JUnitQuery.UUID)
+        assert(scalarResult?.custom is UUID)
         {{/customScalarsEnabled}}
         {{^customScalarsEnabled}}
         assert(scalarResult?.custom is String)
         {{/customScalarsEnabled}}
-        assert(JUnitQuery.CustomEnum.ONE == data?.enumQuery)
+        assert(CustomEnum.ONE == data?.enumQuery)
         val interfaceResult = data?.interfaceQuery
-        assert(interfaceResult is JUnitQuery.SecondInterfaceImplementation)
+        assert(interfaceResult is SecondInterfaceImplementation)
         val unionResult = data?.unionQuery
-        assert(unionResult is JUnitQuery.BasicObject2)
+        assert(unionResult is BasicObject2)
         assert(response.errors == null)
         assert(response.extensions == null)
     }
+
+    {{#ktorClient}}
+    client.close()
+    {{/ktorClient}}
 }

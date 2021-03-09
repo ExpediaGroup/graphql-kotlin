@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.gradle.actions.GenerateClientAction
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -121,11 +120,6 @@ abstract class GraphQLGenerateClientTask : DefaultTask() {
     @Optional
     val queryFiles: ConfigurableFileCollection = project.objects.fileCollection()
 
-    @Input
-    @Optional
-    @Option(option = "clientType", description = "Type of GraphQL client implementation to generate")
-    val clientType: Property<GraphQLClientType> = project.objects.property(GraphQLClientType::class.java)
-
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -138,7 +132,6 @@ abstract class GraphQLGenerateClientTask : DefaultTask() {
 
         allowDeprecatedFields.convention(false)
         customScalars.convention(emptyList())
-        clientType.convention(GraphQLClientType.DEFAULT)
         queryFileDirectory.convention("${project.projectDir}/src/main/resources")
         outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
     }
@@ -186,7 +179,6 @@ abstract class GraphQLGenerateClientTask : DefaultTask() {
             parameters.packageName.set(targetPackage)
             parameters.allowDeprecated.set(allowDeprecatedFields)
             parameters.customScalars.set(customScalars)
-            parameters.clientType.set(clientType)
             parameters.schemaFile.set(graphQLSchema)
             parameters.queryFiles.set(targetQueryFiles)
             parameters.targetDirectory.set(targetDirectory)

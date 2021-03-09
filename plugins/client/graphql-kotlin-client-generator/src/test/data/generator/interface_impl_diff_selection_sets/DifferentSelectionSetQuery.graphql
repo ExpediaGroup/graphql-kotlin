@@ -1,0 +1,24 @@
+query DifferentSelectionSetQuery {
+  first: interfaceQuery {
+    __typename
+    id
+    ... on FirstInterfaceImplementation {
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      floatValue
+    }
+  }
+  second: interfaceQuery {
+    __typename
+    id
+    ... on FirstInterfaceImplementation {
+      name
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      name
+      floatValue
+    }
+  }
+}

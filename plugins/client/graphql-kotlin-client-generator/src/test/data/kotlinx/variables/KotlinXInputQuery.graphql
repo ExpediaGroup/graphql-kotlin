@@ -1,0 +1,3 @@
+query KotlinXInputQuery($input: SimpleArgumentInput) {
+  inputObjectQuery(criteria: $input)
+}

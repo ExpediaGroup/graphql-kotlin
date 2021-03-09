@@ -17,7 +17,12 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
-import com.expediagroup.graphql.plugin.generated.UUID
+import com.expediagroup.graphql.plugin.generated.enums.CustomEnum
+import com.expediagroup.graphql.plugin.generated.examplequery.BasicObject2
+import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
+import com.expediagroup.graphql.plugin.generated.examplequery.SecondInterfaceImplementation
+import com.expediagroup.graphql.plugin.generated.inputs.SimpleArgumentInput
+import com.expediagroup.graphql.plugin.generated.scalars.UUID
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -50,7 +55,7 @@ class GraphQLMavenPluginTest {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
         val client = GraphQLKtorClient(URL(graphQLEndpoint))
 
-        val variables = ExampleQuery.Variables(simpleCriteria = ExampleQuery.SimpleArgumentInput(newName = "whatever", min = null, max = null))
+        val variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "whatever", min = null, max = null))
         val query = ExampleQuery(variables)
         assertDoesNotThrow {
             runBlocking {
@@ -59,15 +64,15 @@ class GraphQLMavenPluginTest {
                 val data = response.data
                 assertNotNull(data)
                 val scalarResult = data?.scalarQuery
-                assertTrue(scalarResult is ExampleQuery.ScalarWrapper)
+                assertTrue(scalarResult is ScalarWrapper)
                 assertNotNull(scalarResult)
                 assertTrue(scalarResult?.count is Int)
                 assertTrue(scalarResult?.custom is UUID)
-                assertEquals(ExampleQuery.CustomEnum.ONE, data?.enumQuery)
+                assertEquals(CustomEnum.ONE, data?.enumQuery)
                 val interfaceResult = data?.interfaceQuery
-                assertTrue(interfaceResult is ExampleQuery.SecondInterfaceImplementation)
+                assertTrue(interfaceResult is SecondInterfaceImplementation)
                 val unionResult = data?.unionQuery
-                assertTrue(unionResult is ExampleQuery.BasicObject2)
+                assertTrue(unionResult is BasicObject2)
             }
         }
     }

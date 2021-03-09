@@ -1,0 +1,14 @@
+query DifferentSelectionsQuery {
+  first: complexObjectQuery {
+    id
+    name
+  }
+  second: complexObjectQuery {
+    id
+    name
+    details {
+      id
+      value
+    }
+  }
+}

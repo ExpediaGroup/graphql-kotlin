@@ -32,6 +32,7 @@ import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
 import graphql.schema.idl.TypeDefinitionRegistry
+import kotlinx.serialization.Serializable
 import java.io.File
 
 private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
@@ -45,6 +46,7 @@ class GraphQLClientGenerator(
 ) {
     private val documentParser: Parser = Parser()
     private val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
+    private val sharedTypes: MutableMap<ClassName, List<TypeSpec>> = mutableMapOf()
 
     /**
      * Generate GraphQL clients for the specified queries.
@@ -52,7 +54,15 @@ class GraphQLClientGenerator(
     fun generate(queries: List<File>): List<FileSpec> {
         val result = mutableListOf<FileSpec>()
         for (query in queries) {
-            result.add(generate(query))
+            result.addAll(generate(query))
+        }
+
+        for ((className, typeSpecs) in sharedTypes) {
+            val fileSpec = FileSpec.builder(className.packageName, className.simpleName)
+            for (type in typeSpecs) {
+                fileSpec.addType(type)
+            }
+            result.add(fileSpec.build())
         }
         if (typeAliases.isNotEmpty()) {
             val typeAliasSpec = FileSpec.builder(packageName = config.packageName, fileName = "GraphQLTypeAliases")
@@ -67,7 +77,7 @@ class GraphQLClientGenerator(
     /**
      * Generate GraphQL client wrapper class and data classes that match the specified query.
      */
-    internal fun generate(queryFile: File): FileSpec {
+    internal fun generate(queryFile: File): List<FileSpec> {
         val queryConst = queryFile.readText().trim()
         val queryDocument = documentParser.parseDocument(queryConst)
 
@@ -76,8 +86,8 @@ class GraphQLClientGenerator(
             throw MultipleOperationsInFileException
         }
 
-        val fileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
-
+        val fileSpecs = mutableListOf<FileSpec>()
+        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
         operationDefinitions.forEach { operationDefinition ->
             val operationTypeName = operationDefinition.name?.capitalize() ?: queryFile.nameWithoutExtension.capitalize()
             val context = GraphQLClientGeneratorContext(
@@ -86,14 +96,15 @@ class GraphQLClientGenerator(
                 rootType = operationTypeName,
                 queryDocument = queryDocument,
                 allowDeprecated = config.allowDeprecated,
-                customScalarMap = config.customScalarMap
+                customScalarMap = config.customScalarMap,
+                serializer = config.serializer
             )
             val queryConstName = operationTypeName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
                 .addModifiers(KModifier.CONST)
                 .initializer("%S", queryConst)
                 .build()
-            fileSpec.addProperty(queryConstProp)
+            operationFileSpec.addProperty(queryConstProp)
 
             val rootType = findRootType(operationDefinition)
             val graphQLResponseTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
@@ -106,6 +117,9 @@ class GraphQLClientGenerator(
                 .addSuperinterface(ClassName(CORE_TYPES_PACKAGE, "GraphQLClientRequest").parameterizedBy(kotlinResultTypeName))
                 .addProperty(queryProperty)
 
+            if (config.serializer == GraphQLSerializer.KOTLINX) {
+                operationTypeSpec.addAnnotation(Serializable::class)
+            }
             if (operationDefinition.name != null) {
                 val operationNameProperty = PropertySpec.builder("operationName", STRING, KModifier.OVERRIDE)
                     .initializer("%S", operationDefinition.name)
@@ -137,15 +151,36 @@ class GraphQLClientGenerator(
                     .addStatement("return %T::class", kotlinResultTypeName)
                     .build()
             )
+            operationTypeSpec.addType(graphQLResponseTypeSpec)
 
-            context.typeSpecs.forEach {
-                operationTypeSpec.addType(it.value)
+            val polymorphicTypes = mutableListOf<ClassName>()
+            for ((superClassName, implementations) in context.polymorphicTypes) {
+                polymorphicTypes.add(superClassName)
+                val polymorphicTypeSpec = FileSpec.builder(superClassName.packageName, superClassName.simpleName)
+                for (implementation in implementations) {
+                    polymorphicTypes.add(implementation)
+                    context.typeSpecs[implementation]?.let { typeSpec ->
+                        polymorphicTypeSpec.addType(typeSpec)
+                    }
+                }
+                fileSpecs.add(polymorphicTypeSpec.build())
             }
-            fileSpec.addType(operationTypeSpec.build())
+            context.typeSpecs.minus(polymorphicTypes).forEach { (className, typeSpec) ->
+                val outputTypeFileSpec = FileSpec.builder(className.packageName, className.simpleName)
+                    .addType(typeSpec)
+                    .build()
+                fileSpecs.add(outputTypeFileSpec)
+            }
+            operationFileSpec.addType(operationTypeSpec.build())
+            fileSpecs.add(operationFileSpec.build())
 
+            // shared types
+            sharedTypes.putAll(context.enumClassToTypeSpecs.mapValues { listOf(it.value) })
+            sharedTypes.putAll(context.inputClassToTypeSpecs.mapValues { listOf(it.value) })
+            sharedTypes.putAll(context.scalarsClassToTypeSpec)
             typeAliases.putAll(context.typeAliases)
         }
-        return fileSpec.build()
+        return fileSpecs
     }
 
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {

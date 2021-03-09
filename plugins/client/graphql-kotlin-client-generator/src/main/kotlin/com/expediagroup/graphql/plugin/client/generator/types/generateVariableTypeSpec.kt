@@ -17,12 +17,14 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.VariableDefinition
+import kotlinx.serialization.Serializable
 
 /**
  * Generate [TypeSpec] data class wrapper for variables used within the target query.
@@ -30,6 +32,9 @@ import graphql.language.VariableDefinition
 internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, variableDefinitions: List<VariableDefinition>): TypeSpec? {
     val variableTypeSpec = TypeSpec.classBuilder("Variables")
         .addModifiers(KModifier.DATA)
+    if (context.serializer == GraphQLSerializer.KOTLINX) {
+        variableTypeSpec.addAnnotation(Serializable::class)
+    }
 
     val constructorSpec = FunSpec.constructorBuilder()
     variableDefinitions.forEach { variableDef ->

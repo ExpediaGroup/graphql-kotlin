@@ -28,7 +28,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 
@@ -127,7 +126,6 @@ private const val INTROSPECTION_QUERY =
 /**
  * Runs introspection query against specified GraphQL endpoint and returns underlying schema.
  */
-@KtorExperimentalAPI
 fun introspectSchema(
     endpoint: String,
     httpHeaders: Map<String, Any> = emptyMap(),

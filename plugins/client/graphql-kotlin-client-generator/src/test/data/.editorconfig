@@ -1,0 +1,8 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# override space indentation for generated Kotlin code
+[*.{kt,kts}]
+indent_size = 2
+
+[*.graphql]
+indent_size = 2

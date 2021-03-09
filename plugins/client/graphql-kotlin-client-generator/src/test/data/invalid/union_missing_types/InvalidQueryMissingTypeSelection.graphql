@@ -1,0 +1,9 @@
+query InvalidQueryMissingTypeSelection {
+  unionQuery {
+    ... on BasicObject {
+      __typename
+      id
+      name
+    }
+  }
+}

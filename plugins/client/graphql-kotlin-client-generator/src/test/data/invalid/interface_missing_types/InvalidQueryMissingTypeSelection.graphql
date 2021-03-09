@@ -1,0 +1,10 @@
+query InvalidQueryMissingTypeSelection {
+  interfaceQuery {
+    __typename
+    id
+    name
+    ... on FirstInterfaceImplementation {
+      value
+    }
+  }
+}

@@ -1,0 +1,6 @@
+query ScalarAliasQuery {
+  scalarQuery {
+    id
+    custom
+  }
+}

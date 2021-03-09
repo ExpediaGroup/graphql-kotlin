@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import com.expediagroup.graphql.plugin.gradle.tasks.DEFAULT_SCHEMA
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.FEDERATED_SCHEMA
@@ -135,16 +134,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
     @Test
     @Tag("kts")
     fun `apply the plugin extension to generate client and execute customized ktor client (kts)`(@TempDir tempDir: Path) {
-        verifyCustomizedClient(tempDir.toFile())
-    }
+        val testProjectDirectory = tempDir.toFile()
 
-    @Test
-    @Tag("kts")
-    fun `apply the plugin extension to generate client and execute customized spring web client (kts)`(@TempDir tempDir: Path) {
-        verifyCustomizedClient(tempDir.toFile(), GraphQLClientType.WEBCLIENT)
-    }
-
-    private fun verifyCustomizedClient(testProjectDirectory: File, clientType: GraphQLClientType = GraphQLClientType.KTOR) {
         // default global header
         val defaultHeaderName = "X-Default-Header"
         val defaultHeaderValue = "default"
@@ -170,20 +161,18 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
               client {
                 sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
                 packageName = "com.example.generated"
-                clientType = GraphQLClientType.$clientType
               }
             }
             """.trimIndent()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
-        val useWebClient = clientType == GraphQLClientType.WEBCLIENT
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
             .writeText(
                 loadTemplate(
                     "Application",
                     mapOf(
-                        "webClient" to useWebClient,
+                        "ktorClient" to true,
                         "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
                         "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue)
                     )
@@ -227,7 +216,6 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     packageName = "com.example.generated"
                     // optional configuration
                     allowDeprecatedFields = true
-                    clientType = GraphQLClientType.KTOR
                     customScalars = [new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter")]
                     headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
                     queryFiles = [
