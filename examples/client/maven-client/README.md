@@ -1,8 +1,10 @@
 # Example usage GraphQL Kotlin Client using Maven
 
 This project is a simple application that use [GraphQL Kotlin Maven plugin](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin)
-to auto-generate GraphQL client and then use it to communicate with the target GraphQL server. See [documentation](https://expediagroup.github.io/graphql-kotlin/)
-for details.
+to auto-generate GraphQL client data model compatible with `Jackson` and then use Spring Webclient based client to communicate
+with the target GraphQL server.
+
+See [client documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview) for additional details.
 
 ## Building locally
 

@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.client.generateClient
-import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.project.MavenProject
@@ -87,6 +87,12 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var queryFiles: List<File>? = null
 
     /**
+     * JSON serializer that will be used to generate the data classes..
+     */
+    @Parameter(name = "serializer")
+    private var serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
+
+    /**
      * Target directory where to store generated files.
      */
     abstract var outputDirectory: File
@@ -104,7 +110,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 
         logConfiguration(graphQLSchemaFile, targetQueryFiles)
         val customGraphQLScalars = customScalars.map { GraphQLScalar(it.scalar, it.type, it.converter) }
-        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, GraphQLSerializer.JACKSON, graphQLSchemaFile, targetQueryFiles).forEach {
+        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, graphQLSchemaFile, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)
         }
 

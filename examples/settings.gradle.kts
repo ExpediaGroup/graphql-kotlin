@@ -10,6 +10,7 @@ pluginManagement {
     plugins {
         kotlin("jvm") version kotlinVersion
         kotlin("plugin.spring") version kotlinVersion
+        kotlin("plugin.serialization") version kotlinVersion
         id("io.gitlab.arturbosch.detekt") version detektVersion
         id("org.jlleitschuh.gradle.ktlint") version ktlintPluginVersion
         id("org.springframework.boot") version springBootVersion

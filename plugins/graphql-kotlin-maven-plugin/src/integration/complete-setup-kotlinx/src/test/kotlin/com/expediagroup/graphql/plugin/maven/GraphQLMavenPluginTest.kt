@@ -19,8 +19,8 @@ package com.expediagroup.graphql.plugin.maven
 import com.expediagroup.graphql.plugin.generated.ExampleQuery
 import com.expediagroup.graphql.plugin.generated.enums.CustomEnum
 import com.expediagroup.graphql.plugin.generated.examplequery.BasicObject2
-import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
 import com.expediagroup.graphql.plugin.generated.examplequery.SecondInterfaceImplementation
+import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
 import com.expediagroup.graphql.plugin.generated.inputs.SimpleArgumentInput
 import com.expediagroup.graphql.plugin.generated.scalars.UUID
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
@@ -75,5 +75,6 @@ class GraphQLMavenPluginTest {
                 assertTrue(unionResult is BasicObject2)
             }
         }
+        client.close()
     }
 }

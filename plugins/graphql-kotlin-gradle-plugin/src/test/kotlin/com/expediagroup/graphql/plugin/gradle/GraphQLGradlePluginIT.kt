@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.tasks.DEFAULT_SCHEMA
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.FEDERATED_SCHEMA
@@ -42,18 +43,18 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            graphql {
-              client {
-                endpoint = "${wireMockServer.baseUrl()}/graphql"
-                packageName = "com.example.generated"
-              }
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphql {
+            |  client {
+            |    endpoint = "${wireMockServer.baseUrl()}/graphql"
+            |    packageName = "com.example.generated"
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
@@ -86,27 +87,26 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            graphql {
-              client {
-                sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
-                packageName = "com.example.generated"
-
-                // optional
-                allowDeprecatedFields = true
-                headers = mapOf("$customHeaderName" to "$customHeaderValue")
-                customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
-                queryFiles = listOf(
-                    file("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"),
-                    file("${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
-                )
-              }
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphql {
+            |  client {
+            |    sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
+            |    packageName = "com.example.generated"
+            |    // optional
+            |    allowDeprecatedFields = true
+            |    headers = mapOf("$customHeaderName" to "$customHeaderValue")
+            |    customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
+            |    queryFiles = listOf(
+            |        file("${'$'}{project.projectDir}/src/main/resources/queries/JUnitQuery.graphql"),
+            |        file("${'$'}{project.projectDir}/src/main/resources/queries/DeprecatedQuery.graphql")
+            |    )
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)
@@ -133,9 +133,29 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
     @Tag("kts")
-    fun `apply the plugin extension to generate client and execute customized ktor client (kts)`(@TempDir tempDir: Path) {
-        val testProjectDirectory = tempDir.toFile()
+    fun `apply the plugin extension to generate client using ktor and kotlinx serialization (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), true, GraphQLSerializer.KOTLINX)
+    }
 
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate client using ktor and jackson (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), true, GraphQLSerializer.JACKSON)
+    }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate client using spring webclient and jackson (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), false, GraphQLSerializer.JACKSON)
+    }
+
+    @Test
+    @Tag("kts")
+    fun `apply the plugin extension to generate client using spring webclient and kotlinx serialization (kts)`(@TempDir tempDir: Path) {
+        verifyCustomizedClient(tempDir.toFile(), false, GraphQLSerializer.KOTLINX)
+    }
+
+    private fun verifyCustomizedClient(testProjectDirectory: File, useKtorClient: Boolean = false, serializer: GraphQLSerializer = GraphQLSerializer.JACKSON) {
         // default global header
         val defaultHeaderName = "X-Default-Header"
         val defaultHeaderValue = "default"
@@ -152,19 +172,44 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphql {
+            |  client {
+            |    sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
+            |    packageName = "com.example.generated"
+            |    serializer = GraphQLSerializer.$serializer
+            |  }
+            |}
+            """.trimMargin()
+        val clientDependencies = when {
+            useKtorClient && serializer == GraphQLSerializer.KOTLINX -> {
+                "implementation(\"com.expediagroup:graphql-kotlin-ktor-client:$DEFAULT_PLUGIN_VERSION\")"
             }
-
-            graphql {
-              client {
-                sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
-                packageName = "com.example.generated"
-              }
+            useKtorClient -> {
+                """
+                    |implementation("com.expediagroup", "graphql-kotlin-ktor-client", "$DEFAULT_PLUGIN_VERSION") {
+                    |  exclude("com.expediagroup", "graphql-kotlin-client-serialization")
+                    |}
+                    |implementation("com.expediagroup", "graphql-kotlin-client-jackson", "$DEFAULT_PLUGIN_VERSION")
+                """.trimMargin()
             }
-            """.trimIndent()
-        testProjectDirectory.generateBuildFileForClient(buildFileContents)
+            serializer == GraphQLSerializer.KOTLINX -> {
+                """
+                    |implementation("com.expediagroup", "graphql-kotlin-spring-client", "$DEFAULT_PLUGIN_VERSION") {
+                    |  exclude("com.expediagroup", "graphql-kotlin-client-jackson")
+                    |}
+                    |implementation("com.expediagroup", "graphql-kotlin-client-serialization", "$DEFAULT_PLUGIN_VERSION")
+                """.trimMargin()
+            }
+            else -> {
+                "implementation(\"com.expediagroup:graphql-kotlin-spring-client:$DEFAULT_PLUGIN_VERSION\")"
+            }
+        }
+        testProjectDirectory.generateBuildFileForClient(buildFileContents, clientDependencies, serializer)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
             .writeText(testQuery)
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
@@ -172,7 +217,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                 loadTemplate(
                     "Application",
                     mapOf(
-                        "ktorClient" to true,
+                        "ktorClient" to useKtorClient,
                         "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
                         "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue)
                     )
@@ -205,30 +250,31 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = ["-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql"]
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            graphql {
-                client {
-                    sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
-                    packageName = "com.example.generated"
-                    // optional configuration
-                    allowDeprecatedFields = true
-                    customScalars = [new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter")]
-                    headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
-                    queryFiles = [
-                        file("$testProjectDirectory/src/main/resources/queries/JUnitQuery.graphql"),
-                        file("$testProjectDirectory/src/main/resources/queries/DeprecatedQuery.graphql")
-                    ]
-                    timeout { t ->
-                        t.connect = 10000
-                        t.read = 30000
-                    }
-                }
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = ["-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql"]
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphql {
+            |    client {
+            |        sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
+            |        packageName = "com.example.generated"
+            |        // optional configuration
+            |        allowDeprecatedFields = true
+            |        customScalars = [new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter")]
+            |        headers = ["X-Custom-Header" : "My-Custom-Header-Value"]
+            |        queryFiles = [
+            |            file("$testProjectDirectory/src/main/resources/queries/JUnitQuery.graphql"),
+            |            file("$testProjectDirectory/src/main/resources/queries/DeprecatedQuery.graphql")
+            |        ]
+            |        serializer = GraphQLSerializer.JACKSON
+            |        timeout { t ->
+            |            t.connect = 10000
+            |            t.read = 30000
+            |        }
+            |    }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)
@@ -259,22 +305,22 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            application {
-              applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
-              mainClassName = "com.example.ApplicationKt"
-            }
-
-            graphql {
-              client {
-                sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
-                packageName = "com.example.generated"
-
-                // optional
-                allowDeprecatedFields = true
-                queryFileDirectory = "${'$'}{project.projectDir}/src/main/resources/queries"
-              }
-            }
-            """.trimIndent()
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphql {
+            |  client {
+            |    sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
+            |    packageName = "com.example.generated"
+            |
+            |    // optional
+            |    allowDeprecatedFields = true
+            |    queryFileDirectory = "${'$'}{project.projectDir}/src/main/resources/queries"
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources/queries")
             .writeText(testQuery)
@@ -303,12 +349,12 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            graphql {
-              schema {
-                packages = listOf("com.example")
-              }
-            }
-            """.trimIndent()
+            |graphql {
+            |  schema {
+            |    packages = listOf("com.example")
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForServer(buildFileContents)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
@@ -334,12 +380,12 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            graphql {
-              schema {
-                packages = ["com.example"]
-              }
-            }
-            """.trimIndent()
+            |graphql {
+            |  schema {
+            |    packages = ["com.example"]
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
@@ -365,12 +411,12 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            graphql {
-              schema {
-                packages = listOf("com.example")
-              }
-            }
-            """.trimIndent()
+            |graphql {
+            |  schema {
+            |    packages = listOf("com.example")
+            |  }
+            |}
+            """.trimMargin()
         val generateSDLDependencies = "graphqlSDL(\"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\")"
         testProjectDirectory.generateBuildFileForServer(buildFileContents, generateSDLDependencies)
 
@@ -397,12 +443,12 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            graphql {
-              schema {
-                packages = ["com.example"]
-              }
-            }
-            """.trimIndent()
+            |graphql {
+            |  schema {
+            |    packages = ["com.example"]
+            |  }
+            |}
+            """.trimMargin()
         val generateSDLDependencies = "graphqlSDL \"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\""
         testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents, generateSDLDependencies)
 
@@ -491,12 +537,12 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             """.trimIndent()
         val buildFileContents =
             """
-            graphql {
-              schema {
-                packages = listOf("com.example")
-              }
-            }
-            """.trimIndent()
+            |graphql {
+            |  schema {
+            |    packages = listOf("com.example")
+            |  }
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForServer(buildFileContents)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")

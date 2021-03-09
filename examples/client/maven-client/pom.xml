@@ -80,6 +80,7 @@
                                     <converter>com.expediagroup.graphql.examples.client.maven.UUIDScalarConverter</converter>
                                 </customScalar>
                             </customScalars>
+                            <serializer>JACKSON</serializer>
                         </configuration>
                     </execution>
                 </executions>

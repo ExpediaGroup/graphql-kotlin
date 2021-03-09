@@ -37,10 +37,10 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
-              endpoint.set("${wireMockServer.baseUrl()}/graphql")
-            }
-            """.trimIndent()
+            |val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+            |  endpoint.set("${wireMockServer.baseUrl()}/graphql")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
@@ -55,11 +55,11 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         WireMock.stubFor(stubIntrospectionResult().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
         val buildFileContents =
             """
-            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
-              endpoint.set("${wireMockServer.baseUrl()}/graphql")
-              headers.put("$customHeaderName", "$customHeaderValue")
-            }
-            """.trimIndent()
+            |val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+            |  endpoint.set("${wireMockServer.baseUrl()}/graphql")
+            |  headers.put("$customHeaderName", "$customHeaderValue")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
@@ -73,11 +73,11 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
-              endpoint.set("${wireMockServer.baseUrl()}/graphql")
-              timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
-            }
-            """.trimIndent()
+            |val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+            |  endpoint.set("${wireMockServer.baseUrl()}/graphql")
+            |  timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskTimeout(testProjectDirectory)
     }
@@ -88,10 +88,10 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            graphqlIntrospectSchema {
-              endpoint = "${wireMockServer.baseUrl()}/graphql"
-            }
-            """.trimIndent()
+            |graphqlIntrospectSchema {
+            |  endpoint = "${wireMockServer.baseUrl()}/graphql"
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
@@ -106,11 +106,11 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
         WireMock.stubFor(stubIntrospectionResult().withHeader(customHeaderName, EqualToPattern(customHeaderValue)))
         val buildFileContents =
             """
-            graphqlIntrospectSchema {
-              endpoint = "${wireMockServer.baseUrl()}/graphql"
-              headers["$customHeaderName"] = "$customHeaderValue"
-            }
-            """.trimIndent()
+            |graphqlIntrospectSchema {
+            |  endpoint = "${wireMockServer.baseUrl()}/graphql"
+            |  headers["$customHeaderName"] = "$customHeaderValue"
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskSuccess(testProjectDirectory)
     }
@@ -124,11 +124,11 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            graphqlIntrospectSchema {
-              endpoint = "${wireMockServer.baseUrl()}/graphql"
-              timeoutConfig = new com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(100, 100)
-            }
-            """.trimIndent()
+            |graphqlIntrospectSchema {
+            |  endpoint = "${wireMockServer.baseUrl()}/graphql"
+            |  timeoutConfig = new com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(100, 100)
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyIntrospectionTaskTimeout(testProjectDirectory)
     }

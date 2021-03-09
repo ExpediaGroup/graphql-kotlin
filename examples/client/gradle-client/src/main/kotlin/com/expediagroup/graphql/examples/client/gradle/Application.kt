@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.examples.client.gradle
 
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.expediagroup.graphql.generated.AddObjectMutation
 import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
@@ -50,10 +51,14 @@ fun main() {
     }
     val client = GraphQLKtorClient(
         url = URL("http://localhost:8080/graphql"),
-        httpClient = httpClient,
+        httpClient = httpClient
     )
     println("HelloWorld examples")
     runBlocking {
+        val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables())
+        val helloWorldResult = client.execute(helloWorldQuery)
+        val helloWorldResultImplicit: GraphQLClientResponse<HelloWorldQuery.Result> = client.execute(helloWorldQuery)
+
         val results = client.execute(
             listOf(
                 HelloWorldQuery(variables = HelloWorldQuery.Variables(name = null)),

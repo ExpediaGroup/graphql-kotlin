@@ -9,10 +9,10 @@ val wireMockVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-client"))
-    api(project(path = ":graphql-kotlin-client-jackson"))
+    api(project(path = ":graphql-kotlin-client-serialization"))
     api("io.ktor:ktor-client-cio:$ktorVersion")
-    api("io.ktor:ktor-client-jackson:$ktorVersion")
-    testImplementation(project(path = ":graphql-kotlin-client-serialization"))
+    api("io.ktor:ktor-client-serialization:$ktorVersion")
+    testImplementation(project(path = ":graphql-kotlin-client-jackson"))
     testImplementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     testImplementation("io.ktor:ktor-client-logging:$ktorVersion")
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")

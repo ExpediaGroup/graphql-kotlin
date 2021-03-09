@@ -130,10 +130,10 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            val graphqlGenerateSDL by tasks.getting(com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask::class) {
-                packages.set(listOf("com.example"))
-            }
-            """.trimIndent()
+            |val graphqlGenerateSDL by tasks.getting(com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask::class) {
+            |    packages.set(listOf("com.example"))
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForServer(buildFileContents)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
@@ -160,10 +160,10 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            val graphqlGenerateSDL by tasks.getting(com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask::class) {
-                packages.set(listOf("com.example"))
-            }
-            """.trimIndent()
+            |val graphqlGenerateSDL by tasks.getting(com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask::class) {
+            |    packages.set(listOf("com.example"))
+            |}
+            """.trimMargin()
         val generateSDLDependencies = "graphqlSDL(\"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\")"
         testProjectDirectory.generateBuildFileForServer(buildFileContents, generateSDLDependencies)
 
@@ -191,10 +191,10 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            graphqlGenerateSDL {
-                packages = ["com.example"]
-            }
-            """.trimIndent()
+            |graphqlGenerateSDL {
+            |    packages = ["com.example"]
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents)
 
         testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
@@ -221,10 +221,10 @@ class GraphQLGenerateSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            graphqlGenerateSDL {
-                packages = ["com.example"]
-            }
-            """.trimIndent()
+            |graphqlGenerateSDL {
+            |    packages = ["com.example"]
+            |}
+            """.trimMargin()
         val generateSDLDependencies = "graphqlSDL \"com.expediagroup:graphql-kotlin-federated-hooks-provider:$DEFAULT_PLUGIN_VERSION\""
         testProjectDirectory.generateGroovyBuildFileForServer(buildFileContents, generateSDLDependencies)
 

@@ -85,7 +85,8 @@
     "Client": [
       "client/client-overview",
       "client/client-features",
-      "client/client-customization"
+      "client/client-customization",
+      "client/client-serialization"
     ],
     "Build Plugins": [
       {

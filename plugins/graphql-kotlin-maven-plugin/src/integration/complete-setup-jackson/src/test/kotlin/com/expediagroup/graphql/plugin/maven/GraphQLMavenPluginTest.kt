@@ -22,6 +22,7 @@ import com.expediagroup.graphql.plugin.generated.examplequery.BasicObject2
 import com.expediagroup.graphql.plugin.generated.examplequery.SecondInterfaceImplementation
 import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
 import com.expediagroup.graphql.plugin.generated.inputs.SimpleArgumentInput
+import com.expediagroup.graphql.plugin.generated.scalars.UUID
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.io.File
+import java.net.URL
 import java.nio.file.Paths
 
 class GraphQLMavenPluginTest {
@@ -37,7 +39,7 @@ class GraphQLMavenPluginTest {
     @Test
     fun `verify introspection query run and schema file was downloaded`() {
         val buildDirectory = System.getProperty("buildDirectory")
-        val schemaFile = File(buildDirectory, "schema.graphql")
+        val schemaFile = File(buildDirectory, "mySchema.graphql")
         assertTrue(schemaFile.exists(), "schema file was downloaded")
     }
 
@@ -65,7 +67,7 @@ class GraphQLMavenPluginTest {
                 assertTrue(scalarResult is ScalarWrapper)
                 assertNotNull(scalarResult)
                 assertTrue(scalarResult?.count is Int)
-                assertTrue(scalarResult?.custom is String)
+                assertTrue(scalarResult?.custom is UUID)
                 assertEquals(CustomEnum.ONE, data?.enumQuery)
                 val interfaceResult = data?.interfaceQuery
                 assertTrue(interfaceResult is SecondInterfaceImplementation)

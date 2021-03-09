@@ -20,8 +20,10 @@
         <kotlin.version>${kotlinVersion}</kotlin.version>
         <kotlin.jvmTarget>${kotlinJvmTarget}</kotlin.jvmTarget>
         <kotlin-coroutines.version>${kotlinCoroutinesVersion}</kotlin-coroutines.version>
+        <kotlin-serialization.version>${kotlinxSerializationVersion}</kotlin-serialization.version>
         <kotlinpoet.version>${kotlinPoetVersion}</kotlinpoet.version>
         <ktor.version>${ktorVersion}</ktor.version>
+        <reactor.version>${reactorVersion}</reactor.version>
     </properties>
 
     <!-- below dependencies will be copied to local repo by maven-invoker-plugin -->
@@ -57,6 +59,16 @@
             <version>${kotlin-coroutines.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-serialization</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlin-serialization.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-client-cio</artifactId>
             <version>${ktor.version}</version>
@@ -80,6 +92,11 @@
             <groupId>com.squareup</groupId>
             <artifactId>kotlinpoet</artifactId>
             <version>${kotlinpoet.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>${reactor.version}</version>
         </dependency>
     </dependencies>
 
@@ -126,7 +143,9 @@
                         <kotlin.version>${kotlin.version}</kotlin.version>
                         <kotlin-coroutines.version>${kotlin-coroutines.version}</kotlin-coroutines.version>
                         <kotlin-poet.version>${kotlinpoet.version}</kotlin-poet.version>
+                        <kotlin-serialization.version>${kotlin-serialization.version}</kotlin-serialization.version>
                         <ktor.version>${ktor.version}</ktor.version>
+                        <reactor.version>${reactor.version}</reactor.version>
                     </filterProperties>
                     <localRepositoryPath>${project.build.outputDirectory}/local-repo</localRepositoryPath>
                     <pomIncludes>
