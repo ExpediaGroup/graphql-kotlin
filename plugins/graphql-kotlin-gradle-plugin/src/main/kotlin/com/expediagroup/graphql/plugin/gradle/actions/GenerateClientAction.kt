@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.plugin.gradle.actions
 
 import com.expediagroup.graphql.plugin.client.generateClient
-import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.parameters.GenerateClientParameters
 import org.gradle.workers.WorkAction
 
@@ -34,11 +34,12 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
         val targetPackage = parameters.packageName.get()
         val allowDeprecated = parameters.allowDeprecated.get()
         val customScalarMap = parameters.customScalars.get().map { GraphQLScalar(it.scalar, it.type, it.converter) }
+        val serializer = GraphQLSerializer.valueOf(parameters.serializer.get().name)
         val schemaFile = parameters.schemaFile.get()
         val queryFiles = parameters.queryFiles.get()
         val targetDirectory = parameters.targetDirectory.get()
 
-        generateClient(targetPackage, allowDeprecated, customScalarMap, GraphQLSerializer.JACKSON, schemaFile, queryFiles).forEach {
+        generateClient(targetPackage, allowDeprecated, customScalarMap, serializer, schemaFile, queryFiles).forEach {
             it.writeTo(targetDirectory)
         }
     }

@@ -6,14 +6,14 @@
 
     <!-- this pom is only used to test maven plugin and won't be published -->
     <groupId>com.expediagroup</groupId>
-    <artifactId>graphql-kotlin-generate-client-mojo-test</artifactId>
+    <artifactId>graphql-kotlin-maven-plugin-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.expediagroup</groupId>
-            <artifactId>graphql-kotlin-spring-client</artifactId>
+            <artifactId>graphql-kotlin-ktor-client</artifactId>
             <version>@graphql-kotlin.version@</version>
         </dependency>
         <dependency>
@@ -27,9 +27,24 @@
             <version>@kotlin-coroutines.version@</version>
         </dependency>
         <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>@reactor.version@</version>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>@kotlin-serialization.version@</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-cio</artifactId>
+            <version>@ktor.version@</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-json</artifactId>
+            <version>@ktor.version@</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-jackson</artifactId>
+            <version>@ktor.version@</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -49,13 +64,15 @@
                 <version>@kotlin.version@</version>
                 <configuration>
                     <jvmTarget>@kotlin.jvmTarget@</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
                 </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>
                         <goals>
-                            <goal>compile
-                            </goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -65,6 +82,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>@kotlin.version@</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>com.expediagroup</groupId>
@@ -73,11 +97,34 @@
                 <executions>
                     <execution>
                         <goals>
+                            <goal>download-sdl</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
+                            <endpoint>@graphql.endpoint@/sdlWithHeaders</endpoint>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>
-                            <schemaFile>schema.graphql</schemaFile>
+                            <schemaFile>${project.build.directory}/mySchema.graphql</schemaFile>
+                            <!-- optional configuration below -->
+                            <allowDeprecatedFields>true</allowDeprecatedFields>
+                            <customScalars>
+                                <customScalar>
+                                    <!-- custom scalar UUID type -->
+                                    <scalar>UUID</scalar>
+                                    <!-- fully qualified Java class name of a custom scalar type -->
+                                    <type>java.util.UUID</type>
+                                    <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                                       used to convert to/from raw JSON and scalar type -->
+                                    <converter>com.example.UUIDScalarConverter</converter>
+                                </customScalar>
+                            </customScalars>
+                            <headers>
+                                <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
+                            </headers>
+                            <queryFiles>
+                                <queryFile>${project.basedir}/src/main/resources/ExampleQuery.graphql</queryFile>
+                                <queryFile>${project.basedir}/src/main/resources/DeprecatedQuery.graphql</queryFile>
+                            </queryFiles>
+                            <serializer>KOTLINX</serializer>
                         </configuration>
                     </execution>
                 </executions>

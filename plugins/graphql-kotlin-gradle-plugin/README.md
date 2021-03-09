@@ -23,6 +23,7 @@ This extension can be used to configure global options instead of explicitly con
 
 ```kotlin
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.graphql
 
 graphql {
@@ -41,6 +42,8 @@ graphql {
       queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
       // Optional list of query files to be processed, takes precedence over queryFileDirectory
       queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+      // JSON serializer that will be used to generate the data classes.
+      serializer = GraphQLSerializer.JACKSON
       // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
       sdlEndpoint = "http://localhost:8080/sdl"
       // Timeout configuration for introspection query/downloading SDL
@@ -97,6 +100,7 @@ resulting generated code will be automatically added to the project main source 
 | `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
 | `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
 | `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
 | `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
 
@@ -143,6 +147,7 @@ test source set.
 | `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
 | `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
 | `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
 | `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
 

@@ -31,18 +31,16 @@ import kotlin.test.assertTrue
 
 class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
-    // build dir = /Users/DKuc/Development/graphql-kotlin/plugins/graphql-kotlin-gradle-plugin/build
-
     @Test
     @Tag("kts")
     fun `verify downloadSDL task (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
-              endpoint.set("${wireMockServer.baseUrl()}/sdl")
-            }
-            """.trimIndent()
+            |val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+            |  endpoint.set("${wireMockServer.baseUrl()}/sdl")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
@@ -58,11 +56,11 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
-              endpoint.set("${wireMockServer.baseUrl()}/sdl")
-              headers.put("$customHeaderName", "$customHeaderValue")
-            }
-            """.trimIndent()
+            |val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+            |  endpoint.set("${wireMockServer.baseUrl()}/sdl")
+            |  headers.put("$customHeaderName", "$customHeaderValue")
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
@@ -76,11 +74,11 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
-              endpoint.set("${wireMockServer.baseUrl()}/sdl")
-              timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
-            }
-            """.trimIndent()
+            |val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
+            |  endpoint.set("${wireMockServer.baseUrl()}/sdl")
+            |  timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
+            |}
+            """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskTimeout(testProjectDirectory)
     }
@@ -91,10 +89,10 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
         val testProjectDirectory = tempDir.toFile()
         val buildFileContents =
             """
-            graphqlDownloadSDL {
-              endpoint = "${wireMockServer.baseUrl()}/sdl"
-            }
-            """.trimIndent()
+            |graphqlDownloadSDL {
+            |  endpoint = "${wireMockServer.baseUrl()}/sdl"
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
@@ -110,11 +108,11 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            graphqlDownloadSDL {
-                endpoint = "${wireMockServer.baseUrl()}/sdl"
-                headers["$customHeaderName"] = "$customHeaderValue"
-            }
-            """.trimIndent()
+            |graphqlDownloadSDL {
+            |    endpoint = "${wireMockServer.baseUrl()}/sdl"
+            |    headers["$customHeaderName"] = "$customHeaderValue"
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskSuccess(testProjectDirectory)
     }
@@ -129,11 +127,11 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         val buildFileContents =
             """
-            graphqlDownloadSDL {
-                endpoint = "${wireMockServer.baseUrl()}/sdl"
-                timeoutConfig = new com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(100, 100)
-            }
-            """.trimIndent()
+            |graphqlDownloadSDL {
+            |    endpoint = "${wireMockServer.baseUrl()}/sdl"
+            |    timeoutConfig = new com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(100, 100)
+            |}
+            """.trimMargin()
         testProjectDirectory.generateGroovyBuildFileForClient(buildFileContents)
         verifyDownloadSDLTaskTimeout(testProjectDirectory)
     }
