@@ -50,9 +50,6 @@ include(":graphql-kotlin-federated-hooks-provider")
 include(":graphql-kotlin-server")
 include(":graphql-kotlin-spring-server")
 
-// Types
-include(":graphql-kotlin-types")
-
 //
 // Project mappings so we don't need to create projects that group subprojects
 //
@@ -75,9 +72,6 @@ project(":graphql-kotlin-client-generator").projectDir = file("plugins/client/gr
 project(":graphql-kotlin-sdl-generator").projectDir = file("plugins/schema/graphql-kotlin-sdl-generator")
 project(":graphql-kotlin-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-hooks-provider")
 project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-federated-hooks-provider")
-
-// Types
-project(":graphql-kotlin-types").projectDir = file("types/graphql-kotlin-types")
 
 // Servers
 project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")

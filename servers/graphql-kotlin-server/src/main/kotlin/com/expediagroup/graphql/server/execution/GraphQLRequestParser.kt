@@ -16,11 +16,13 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
+
 /**
  * A generic server interface that handles parsing the specific server implementation request to a [GraphQLServerRequest].
  * If the request is not valid return null.
  */
 interface GraphQLRequestParser<Request> {
 
-    suspend fun parseRequest(request: Request): GraphQLServerRequest<*>?
+    suspend fun parseRequest(request: Request): GraphQLServerRequest?
 }

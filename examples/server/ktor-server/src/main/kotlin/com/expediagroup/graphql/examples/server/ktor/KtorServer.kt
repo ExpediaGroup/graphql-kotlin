@@ -39,7 +39,7 @@ class KtorServer {
 
         if (result != null) {
             // write response as json
-            val json = mapper.writeValueAsString(result.response)
+            val json = mapper.writeValueAsString(result)
             applicationCall.response.call.respond(json)
         } else {
             applicationCall.response.call.respond(HttpStatusCode.BadRequest, "Invalid request")

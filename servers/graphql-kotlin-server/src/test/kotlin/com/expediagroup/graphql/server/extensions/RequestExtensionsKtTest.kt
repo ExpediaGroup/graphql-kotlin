@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.mockk
 import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test

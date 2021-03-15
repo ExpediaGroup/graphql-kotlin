@@ -16,7 +16,10 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLBatchRequest
+import com.expediagroup.graphql.server.types.GraphQLBatchResponse
+import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLServerResponse
 
 /**
  * A basic server implementation that parses the incoming request and returns a [GraphQLResponse].
@@ -29,24 +32,22 @@ open class GraphQLServer<Request>(
 ) {
 
     /**
-     * Default execution logic for handling a [Request] and returning a [GraphQLResponse].
+     * Default execution logic for handling a [Request] and returning a [GraphQLServerResponse].
      *
      * If null is returned, that indicates a problem parsing the request or context.
-     * If the request is valid, a [GraphQLResponse] should always be retuned.
-     * In the case of errors or exceptions, return a response with [GraphQLResponse.errors] populated.
+     * If the request is valid, a [GraphQLServerResponse] should always be returned.
+     * In the case of errors or exceptions, return a response with GraphQLErrors populated.
      * If you need custom logic inside this method you can override this class or choose not to use it.
      */
-    open suspend fun execute(request: Request): GraphQLServerResponse<*>? {
+    open suspend fun execute(request: Request): GraphQLServerResponse? {
         val graphQLRequest = requestParser.parseRequest(request)
 
         return if (graphQLRequest != null) {
             val context = contextFactory.generateContext(request)
             when (graphQLRequest) {
-                is GraphQLSingleRequest -> GraphQLSingleResponse(
-                    requestHandler.executeRequest(graphQLRequest.request, context)
-                )
+                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, context)
                 is GraphQLBatchRequest -> GraphQLBatchResponse(
-                    graphQLRequest.request.map {
+                    graphQLRequest.requests.map {
                         requestHandler.executeRequest(it, context)
                     }
                 )

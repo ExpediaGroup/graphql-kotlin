@@ -21,8 +21,8 @@ import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
 import com.expediagroup.graphql.server.extensions.toGraphQLResponse
-import com.expediagroup.graphql.types.GraphQLRequest
-import com.expediagroup.graphql.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.GraphQL
 import kotlinx.coroutines.future.await
 

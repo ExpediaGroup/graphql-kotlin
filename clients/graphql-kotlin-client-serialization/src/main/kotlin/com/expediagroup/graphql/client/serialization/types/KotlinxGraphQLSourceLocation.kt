@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types.operations
+package com.expediagroup.graphql.client.serialization.types
 
-/**
- * Marker interface to indicate what classes should be used for GraphQL mutations.
- */
-interface Mutation
+import com.expediagroup.graphql.client.types.GraphQLClientSourceLocation
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class KotlinxGraphQLSourceLocation(
+    override val line: Int,
+    override val column: Int
+) : GraphQLClientSourceLocation

@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.types
+package com.expediagroup.graphql.server.types
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
- * Location describing which part of GraphQL document caused an exception.
+ * GraphQL error representation that is spec complaint with serialization and deserialization.
  *
  * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
  */
-interface SourceLocation {
-    val line: Int
-    val column: Int
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class GraphQLServerError(
+    val message: String,
+    val locations: List<GraphQLSourceLocation>? = null,
+    val path: List<Any>? = null,
+    val extensions: Map<String, Any?>? = null
+)

@@ -30,7 +30,7 @@ import com.expediagroup.graphql.examples.client.server.model.SimpleArgument
 import com.expediagroup.graphql.examples.client.server.repository.BasicObjectRepository
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 import java.util.UUID
 import kotlin.random.Random

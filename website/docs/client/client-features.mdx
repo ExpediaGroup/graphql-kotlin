@@ -136,11 +136,9 @@ data class SecondInterfaceImplementation(
 
 ## Default Enum Values
 
-TODO kotlinx
-
 Enums represent predefined set of values. Adding additional enum values could be a potentially breaking change as your
-clients may not be able to process it. GraphQL Kotlin Client automatically adds default `@JsonEnumDefaultValue __UNKNOWN_VALUE`
-to all generated enums as a catch all safeguard for handling new enum values.
+clients may not be able to process it. GraphQL Kotlin Client automatically adds default `__UNKNOWN_VALUE` to all generated
+enums as a catch all safeguard for handling new enum values.
 
 ## Auto Generated Documentation
 

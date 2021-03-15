@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
+import com.expediagroup.graphql.examples.server.spring.model.Person
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
-import com.expediagroup.graphql.types.operations.Mutation
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.util.UUID
@@ -45,13 +45,3 @@ class ScalarQuery : Query {
     @GraphQLDescription("generates random BigDecimal")
     fun generateRandomBigDecimal(): BigDecimal = BigDecimal(Random.nextLong())
 }
-
-@Component
-class ScalarMutation : Mutation {
-    fun addPerson(person: Person): Person = person
-}
-
-data class Person(
-    val id: ID,
-    val name: String
-)

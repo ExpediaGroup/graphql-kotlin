@@ -16,35 +16,37 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.types.GraphQLError
-import com.expediagroup.graphql.types.GraphQLResponse
-import com.expediagroup.graphql.types.SourceLocation
+import com.expediagroup.graphql.server.types.GraphQLServerError
+import com.expediagroup.graphql.server.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLSourceLocation
 import graphql.ExecutionResult
+import graphql.GraphQLError as GraphQLJavaError
+import graphql.language.SourceLocation
 
 /**
  * Convert a graphql-java result to the common serializable type [GraphQLResponse]
  */
 fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
     val data: Any? = getData<Any?>()
-    val filteredErrors: List<GraphQLError>? = if (errors?.isNotEmpty() == true) errors?.map { it.toGraphQLKotlinType() } else null
-    val filteredExtensions: MutableMap<Any, Any>? = if (extensions?.isNotEmpty() == true) extensions else null
+    val filteredErrors: List<GraphQLServerError>? = if (errors?.isNotEmpty() == true) errors?.map { it.toGraphQLKotlinType() } else null
+    val filteredExtensions: Map<Any, Any>? = if (extensions?.isNotEmpty() == true) extensions else null
     return GraphQLResponse(data, filteredErrors, filteredExtensions)
 }
 
 /**
- * Convert the graphql-java type to the common serializable type [GraphQLError]
+ * Convert the graphql-java type to the common serializable type [GraphQLServerError]
  */
-fun graphql.GraphQLError.toGraphQLKotlinType() = GraphQLError(
-    this.message.orEmpty(),
-    this.locations?.map { it.toGraphQLKotlinType() },
-    this.path,
-    this.extensions
+fun GraphQLJavaError.toGraphQLKotlinType() = GraphQLServerError(
+    message.orEmpty(),
+    locations?.map { it.toGraphQLKotlinType() },
+    path,
+    extensions
 )
 
 /**
- * Convert the graphql-java type to the common serializable type [SourceLocation]
+ * Convert the graphql-java type to the common serializable type [GraphQLSourceLocation]
  */
-internal fun graphql.language.SourceLocation.toGraphQLKotlinType() = SourceLocation(
-    this.line,
-    this.column
+internal fun SourceLocation.toGraphQLKotlinType() = GraphQLSourceLocation(
+    line,
+    column
 )

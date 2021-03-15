@@ -16,13 +16,9 @@
 
 package com.expediagroup.graphql.server.spring.execution
 
-import com.expediagroup.graphql.server.execution.GraphQLBatchRequest
-import com.expediagroup.graphql.server.execution.GraphQLSingleRequest
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
-import com.expediagroup.graphql.server.execution.GraphQLServerRequest
-import com.expediagroup.graphql.types.GraphQLRequest
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.JsonNode
+import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
@@ -42,15 +38,14 @@ open class SpringGraphQLRequestParser(
 ) : GraphQLRequestParser<ServerRequest> {
 
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
-    private val graphQLRequestListTypeReference: TypeReference<List<GraphQLRequest>> = object : TypeReference<List<GraphQLRequest>>() {}
 
-    override suspend fun parseRequest(request: ServerRequest): GraphQLServerRequest<*>? = when {
+    override suspend fun parseRequest(request: ServerRequest): GraphQLServerRequest? = when {
         request.queryParam(REQUEST_PARAM_QUERY).isPresent -> { getRequestFromGet(request) }
         request.method() == HttpMethod.POST -> { getRequestFromPost(request) }
         else -> null
     }
 
-    private fun getRequestFromGet(serverRequest: ServerRequest): GraphQLServerRequest<*> {
+    private fun getRequestFromGet(serverRequest: ServerRequest): GraphQLServerRequest {
         val query = serverRequest.queryParam(REQUEST_PARAM_QUERY).get()
         val operationName: String? = serverRequest.queryParam(REQUEST_PARAM_OPERATION_NAME).orElseGet { null }
         val variables: String? = serverRequest.queryParam(REQUEST_PARAM_VARIABLES).orElseGet { null }
@@ -58,7 +53,7 @@ open class SpringGraphQLRequestParser(
             objectMapper.readValue(it, mapTypeReference)
         }
 
-        return GraphQLSingleRequest(GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables))
+        return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
     }
 
     /**
@@ -66,18 +61,11 @@ open class SpringGraphQLRequestParser(
      * https://github.com/FasterXML/jackson-module-kotlin/issues/221
      */
     @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLServerRequest<*>? {
+    private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLServerRequest? {
         val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
         return when {
-            contentType.includes(MediaType.APPLICATION_JSON) -> {
-                val jsonNode = serverRequest.bodyToMono(JsonNode::class.java).awaitFirst()
-                if (jsonNode.isArray) {
-                    GraphQLBatchRequest(objectMapper.convertValue(jsonNode, graphQLRequestListTypeReference))
-                } else {
-                    GraphQLSingleRequest(objectMapper.treeToValue(jsonNode, GraphQLRequest::class.java))
-                }
-            }
-            contentType.includes(graphQLMediaType) -> GraphQLSingleRequest(GraphQLRequest(query = serverRequest.awaitBody()))
+            contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.bodyToMono(GraphQLServerRequest::class.java).awaitFirst()
+            contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
             else -> null
         }
     }

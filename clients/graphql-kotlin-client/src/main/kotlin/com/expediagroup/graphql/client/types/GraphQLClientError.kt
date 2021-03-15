@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
+package com.expediagroup.graphql.client.types
 
 /**
  * GraphQL error representation that is spec complaint with serialization and deserialization.
  *
  * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class GraphQLError(
+interface GraphQLClientError {
     /**
      * Description of the error.
      */
-    val message: String,
+    val message: String
 
     /**
      * List of locations within the GraphQL document at which the exception occurred.
      */
-    val locations: List<SourceLocation>? = null,
+    val locations: List<GraphQLClientSourceLocation>?
+        get() = null
 
     /**
      * Path of the the response field that encountered the error.
@@ -43,10 +39,12 @@ data class GraphQLError(
      * Path segments that represent fields should be strings, and path segments that represent list indices should be 0‐indexed integers. If the error happens in an aliased field, the path to the
      * error should use the aliased name, since it represents a path in the response, not in the query.
      */
-    val path: List<Any>? = null,
+    val path: List<Any>?
+        get() = null
 
     /**
      * Additional information about the error.
      */
-    val extensions: Map<String, Any?>? = null
-)
+    val extensions: Map<String, Any?>?
+        get() = null
+}

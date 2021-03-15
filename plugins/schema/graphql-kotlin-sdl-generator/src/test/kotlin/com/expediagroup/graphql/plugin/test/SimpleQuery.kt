@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.test
 
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 
 @Component

@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.examples.server.spring.query
 
 import com.expediagroup.graphql.server.exception.KotlinGraphQLError
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import graphql.execution.DataFetcherResult
 import graphql.execution.ResultPath
 import graphql.language.SourceLocation

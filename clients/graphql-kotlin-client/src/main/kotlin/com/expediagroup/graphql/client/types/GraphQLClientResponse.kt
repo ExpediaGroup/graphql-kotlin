@@ -24,7 +24,7 @@ package com.expediagroup.graphql.client.types
 interface GraphQLClientResponse<T> {
     val data: T?
         get() = null
-    val errors: List<GraphQLError>?
+    val errors: List<GraphQLClientError>?
         get() = null
     val extensions: Map<String, Any?>?
         get() = null

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2020 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.jackson.types
+package com.expediagroup.graphql.server.operations
 
-import com.expediagroup.graphql.client.types.SourceLocation
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class JacksonSourceLocation(
-    override val line: Int,
-    override val column: Int
-) : SourceLocation
+/**
+ * Marker interface to indicate what classes should be used for GraphQL subscriptions.
+ */
+interface Subscription

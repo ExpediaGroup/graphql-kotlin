@@ -20,7 +20,7 @@ import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.execution.AbortExecutionException

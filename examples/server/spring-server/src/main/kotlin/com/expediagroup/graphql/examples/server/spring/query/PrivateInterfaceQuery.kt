@@ -18,7 +18,7 @@ package com.expediagroup.graphql.examples.server.spring.query
 
 import com.expediagroup.graphql.examples.server.spring.model.HidesInheritance
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 
 @Component

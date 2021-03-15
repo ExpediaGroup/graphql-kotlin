@@ -93,7 +93,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 ### generate-sdl
 
 Generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
-to generate the schema from classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces.
+to generate the schema from classes implementing `graphql-kotlin-server` marker `Query`, `Mutation` and `Subscription` interfaces.
 In order to limit the amount of packages to scan, this mojo requires users to provide a list of `packages` that can contain
 GraphQL types.
 

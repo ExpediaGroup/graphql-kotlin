@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 GraphQL Kotlin plugins can generate GraphQL schema as your build artifact directly from your source code. Plugins will scan
-your classpath for classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces
+your classpath for classes implementing `graphql-kotlin-server` marker `Query`, `Mutation` and `Subscription` interfaces
 and then generate corresponding GraphQL schema using `graphql-kotlin-schema-generator`. By default, plugins will generate
 the schema using `NoopSchemaGeneratorHooks`. If your project uses custom hooks or needs to generate the federated GraphQL
 schema, you will need to provide an instance of `SchemaGeneratorHooksProvider` that will be used to create an instance of

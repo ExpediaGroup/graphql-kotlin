@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types
+package com.expediagroup.graphql.server.types
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -29,7 +29,7 @@ class GraphQLErrorTest {
 
     @Test
     fun `Simple error is spec compliant with serialization`() {
-        val error = GraphQLError(
+        val error = GraphQLServerError(
             message = "error thrown"
         )
 
@@ -41,9 +41,9 @@ class GraphQLErrorTest {
 
     @Test
     fun `Error with path & locations is spec compliant with serialization`() {
-        val error = GraphQLError(
+        val error = GraphQLServerError(
             message = "error thrown",
-            locations = listOf(SourceLocation(6, 7)),
+            locations = listOf(GraphQLSourceLocation(6, 7)),
             path = listOf("path", 1, "field")
         )
 
@@ -55,7 +55,7 @@ class GraphQLErrorTest {
 
     @Test
     fun `Error with extensions is spec compliant with serialization`() {
-        val error = GraphQLError(
+        val error = GraphQLServerError(
             message = "error thrown",
             extensions = mapOf("foo" to "bar")
         )
@@ -68,9 +68,9 @@ class GraphQLErrorTest {
 
     @Test
     fun `Full error is spec compliant with serialization`() {
-        val error = GraphQLError(
+        val error = GraphQLServerError(
             message = "error thrown",
-            locations = listOf(SourceLocation(6, 7)),
+            locations = listOf(GraphQLSourceLocation(6, 7)),
             path = listOf("path", 1, "field"),
             extensions = mapOf("foo" to "bar")
         )
@@ -86,7 +86,7 @@ class GraphQLErrorTest {
         val input =
             """{"message":"error thrown"}"""
 
-        val error: GraphQLError = mapper.readValue(input)
+        val error: GraphQLServerError = mapper.readValue(input)
 
         assertEquals("error thrown", error.message)
         assertNull(error.locations)
@@ -99,7 +99,7 @@ class GraphQLErrorTest {
         val input =
             """{"message":"error thrown","locations":[{"line":6,"column":7}],"path":["path",1,"field"],"extensions":{"foo":"bar"}}"""
 
-        val error: GraphQLError = mapper.readValue(input)
+        val error: GraphQLServerError = mapper.readValue(input)
 
         assertEquals("error thrown", error.message)
         assertNotNull(error.locations) { locations ->

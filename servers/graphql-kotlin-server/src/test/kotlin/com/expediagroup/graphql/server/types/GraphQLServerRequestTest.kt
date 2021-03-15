@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types
+package com.expediagroup.graphql.server.types
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
-class GraphQLRequestTest {
+class GraphQLServerRequestTest {
 
     private val mapper = jacksonObjectMapper()
 
@@ -53,12 +54,32 @@ class GraphQLRequestTest {
     }
 
     @Test
+    fun `verify batch request serialization`() {
+        val request = GraphQLBatchRequest(
+            listOf(
+                GraphQLRequest(
+                    query = "query FooQuery(\$input: Int) { foo(\$input) }",
+                    operationName = "FooQuery",
+                    variables = mapOf("input" to 1)
+                ),
+                GraphQLRequest(
+                    query = "query BarQuery { bar }"
+                )
+            )
+        )
+        val expectedJson =
+            """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
+        assertEquals(expectedJson, mapper.writeValueAsString(request))
+    }
+
+    @Test
     fun `verify simple deserialization`() {
         val input =
             """{"query":"{ foo }"}"""
 
-        val request = mapper.readValue<GraphQLRequest>(input)
+        val request = mapper.readValue<GraphQLServerRequest>(input)
 
+        assertTrue(request is GraphQLRequest)
         assertEquals("{ foo }", request.query)
         assertNull(request.operationName)
         assertNull(request.variables)
@@ -69,10 +90,28 @@ class GraphQLRequestTest {
         val input =
             """{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}}"""
 
-        val request = mapper.readValue<GraphQLRequest>(input)
+        val request = mapper.readValue<GraphQLServerRequest>(input)
 
+        assertTrue(request is GraphQLRequest)
         assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", request.query)
         assertEquals("FooQuery", request.operationName)
         assertEquals(mapOf("input" to 1), request.variables)
+    }
+
+    @Test
+    fun `verify batch request deserialization`() {
+        val input =
+            """[{"query":"query FooQuery(${'$'}input: Int) { foo(${'$'}input) }","operationName":"FooQuery","variables":{"input":1}},{"query":"query BarQuery { bar }"}]"""
+
+        val request = mapper.readValue<GraphQLServerRequest>(input)
+
+        assertTrue(request is GraphQLBatchRequest)
+        assertEquals(2, request.requests.size)
+        val first = request.requests[0]
+        assertEquals("query FooQuery(\$input: Int) { foo(\$input) }", first.query)
+        assertEquals("FooQuery", first.operationName)
+        assertEquals(mapOf("input" to 1), first.variables)
+        val second = request.requests[1]
+        assertEquals("query BarQuery { bar }", second.query)
     }
 }

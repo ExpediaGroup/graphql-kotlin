@@ -164,8 +164,6 @@ graphql {
     client {
         // Boolean flag indicating whether or not selection of deprecated fields is allowed.
         allowDeprecatedFields = false
-        // Type of GraphQL client implementation to generate.
-        clientType = GraphQLClientType.DEFAULT
         // List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
         customScalars = [new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter")]
         // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
@@ -266,7 +264,7 @@ for details on how to update this process to use `kotlinx.serialization` instead
 ### graphqlGenerateSDL
 
 Task that generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
-to generate the schema from classes implementing `graphql-kotlin-types` marker `Query`, `Mutation` and `Subscription` interfaces.
+to generate the schema from classes implementing `graphql-kotlin-server` marker `Query`, `Mutation` and `Subscription` interfaces.
 In order to limit the amount of packages to scan, this task requires users to provide a list of `packages` that can contain
 GraphQL types.
 

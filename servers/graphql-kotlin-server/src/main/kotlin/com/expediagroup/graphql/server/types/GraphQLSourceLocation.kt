@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.serialization.types
+package com.expediagroup.graphql.server.types
 
-import com.expediagroup.graphql.client.types.SourceLocation
-import kotlinx.serialization.Serializable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
-@Serializable
-data class KotlinXSourceLocation(
-    override val line: Int,
-    override val column: Int
-) : SourceLocation
+/**
+ * Location describing which part of GraphQL document caused an exception.
+ *
+ * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class GraphQLSourceLocation(
+    val line: Int,
+    val column: Int
+)
