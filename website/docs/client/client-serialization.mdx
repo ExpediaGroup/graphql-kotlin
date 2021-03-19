@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 GraphQL Kotlin build plugins can generate GraphQL client data classes that are compatible with [`Jackson`](https://github.com/FasterXML/jackson)
 (default) or [`kotlinx.serialization`](https://github.com/Kotlin/kotlinx.serialization) data models. By default, GraphQL
-clients will attempt to pick up the appropriate serializer from a classpath - `graphql-kotlins-spring-client` defines implicit
+clients will attempt to pick up the appropriate serializer from a classpath - `graphql-kotlin-spring-client` defines implicit
 dependency on `Jackson` based serializer and `graphql-kotlin-ktor-client` define a dependency on a `kotlinx.serialization`.
 
 `GraphQLClientSerializer` is a service provider interface that expose generic serialize/deserialize methods that are used
@@ -42,7 +42,7 @@ dependencies {
 
 graphql {
   client {
-    sdlEndpoint = "http://localhost:8080/sdl"
+    endpoint = "http://localhost:8080/graphql"
     packageName = "com.example.generated"
   }
 }
@@ -72,11 +72,11 @@ graphql {
                 <executions>
                     <execution>
                         <goals>
-                            <goal>download-sdl</goal>
+                            <goal>introspect-schema</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
-                            <endpoint>http://localhost:8080/sdl</endpoint>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
                             <packageName>com.example.generated</packageName>
                         </configuration>
                     </execution>
@@ -136,7 +136,7 @@ dependencies {
 
 graphql {
   client {
-    sdlEndpoint = "http://localhost:8080/sdl"
+    endpoint = "http://localhost:8080/graphql"
     packageName = "com.example.generated"
     serializer = GraphQLSerializer.KOTLINX
   }
@@ -215,11 +215,11 @@ graphql {
                 <executions>
                     <execution>
                         <goals>
-                            <goal>download-sdl</goal>
+                            <goal>introspect-schema</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
-                            <endpoint>http://localhost:8080/sdl</endpoint>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
                             <packageName>com.example.generated</packageName>
                             <serializer>KOTLINX</serializer>
                         </configuration>
@@ -276,7 +276,7 @@ dependencies {
 
 graphql {
   client {
-    sdlEndpoint = "http://localhost:8080/sdl"
+    endpoint = "http://localhost:8080/graphql"
     packageName = "com.example.generated"
     serializer = GraphQLSerializer.KOTLINX
   }
@@ -344,11 +344,11 @@ graphql {
                 <executions>
                     <execution>
                         <goals>
-                            <goal>download-sdl</goal>
+                            <goal>introspect-schema</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
-                            <endpoint>http://localhost:8080/sdl</endpoint>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
                             <packageName>com.example.generated</packageName>
                             <serializer>KOTLINX</serializer>
                         </configuration>
@@ -402,7 +402,7 @@ dependencies {
 
 graphql {
   client {
-    sdlEndpoint = "http://localhost:8080/sdl"
+    endpoint = "http://localhost:8080/graphql"
     packageName = "com.example.generated"
   }
 }
@@ -443,11 +443,11 @@ graphql {
                 <executions>
                     <execution>
                         <goals>
-                            <goal>download-sdl</goal>
+                            <goal>introspect-schema</goal>
                             <goal>generate-client</goal>
                         </goals>
                         <configuration>
-                            <endpoint>http://localhost:8080/sdl</endpoint>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
                             <packageName>com.example.generated</packageName>
                         </configuration>
                     </execution>
