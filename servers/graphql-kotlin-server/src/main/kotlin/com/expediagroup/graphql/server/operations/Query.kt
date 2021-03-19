@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
+package com.expediagroup.graphql.server.operations
 
 /**
- * GraphQL response that is spec complaint with serialization and deserialization.
- *
- * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Data) for additional details
+ * Marker interface to indicate what classes should be used for GraphQL queries.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class GraphQLResponse<T>(
-    val data: T? = null,
-    val errors: List<GraphQLError>? = null,
-    val extensions: Map<Any, Any>? = null
-)
+interface Query

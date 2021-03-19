@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.examples.server.spring.query
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.time.delay
 import org.springframework.stereotype.Component

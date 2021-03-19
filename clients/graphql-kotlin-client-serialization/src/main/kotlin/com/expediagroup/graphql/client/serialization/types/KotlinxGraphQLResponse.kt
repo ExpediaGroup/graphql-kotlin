@@ -17,14 +17,12 @@
 package com.expediagroup.graphql.client.serialization.types
 
 import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
-import com.expediagroup.graphql.client.serialization.serializers.GraphQLErrorPathSerializer
-import com.expediagroup.graphql.client.types.GraphQLError
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class KotlinXGraphQLError(
-    override val message: String,
-    override val locations: List<KotlinXSourceLocation>? = null,
-    override val path: List<@Serializable(with = GraphQLErrorPathSerializer::class) Any>? = null,
+data class KotlinxGraphQLResponse<T>(
+    override val data: T? = null,
+    override val errors: List<KotlinxGraphQLError>? = null,
     override val extensions: Map<String, @Serializable(with = AnyKSerializer::class) Any?>? = null
-) : GraphQLError
+) : GraphQLClientResponse<T>

@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.server.spring.instrumentation
 
+import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.DEFAULT_INSTRUMENTATION_ORDER
-import com.expediagroup.graphql.types.GraphQLRequest
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionResult
 import graphql.ExecutionResultImpl
 import graphql.execution.instrumentation.Instrumentation

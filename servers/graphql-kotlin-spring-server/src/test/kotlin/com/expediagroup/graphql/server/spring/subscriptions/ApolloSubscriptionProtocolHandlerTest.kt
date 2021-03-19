@@ -27,9 +27,9 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_KEEP_ALIVE
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_DATA
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
-import com.expediagroup.graphql.types.GraphQLError
-import com.expediagroup.graphql.types.GraphQLRequest
-import com.expediagroup.graphql.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLServerError
+import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.coEvery
 import io.mockk.every
@@ -243,7 +243,9 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Return GQL_CONNECTION_ERROR when sending GQL_START but payload is null`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = null).toJson()
         val session: WebSocketSession = mockk {
             every { id } returns "abc"
@@ -264,7 +266,9 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Return GQL_CONNECTION_ERROR when sending GQL_START but payload is invalid GraphQLRequest`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = "").toJson()
         val session: WebSocketSession = mockk {
             every { id } returns "abc"
@@ -283,7 +287,9 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Return GQL_DATA when sending GQL_START with valid GraphQLRequest`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val graphQLRequest = GraphQLRequest("{ message }")
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = graphQLRequest).toJson()
         val session: WebSocketSession = mockk {
@@ -312,7 +318,9 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Return empty flux when sending GQL_START and already connected operation`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val graphQLRequest = GraphQLRequest("{ message }")
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "123", payload = graphQLRequest).toJson()
         val session: WebSocketSession = mockk {
@@ -341,7 +349,9 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Return GQL_COMPLETE when sending GQL_STOP with GraphQLRequest having operation id of running operation`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val graphQLRequest = GraphQLRequest("{ message }")
         val startRequest = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = graphQLRequest).toJson()
         val stopRequest = SubscriptionOperationMessage(type = GQL_STOP.type, id = "abc").toJson()
@@ -374,7 +384,9 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Dont start second subscription when operation id is already in activeOperations`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val graphQLRequest = GraphQLRequest("{ message }")
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = graphQLRequest).toJson()
         val session: WebSocketSession = mockk {
@@ -404,14 +416,16 @@ class ApolloSubscriptionProtocolHandlerTest {
 
     @Test
     fun `Return GQL_ERROR when sending GQL_START with valid GraphQLRequest but response has errors`() {
-        val config: GraphQLConfigurationProperties = mockk()
+        val config: GraphQLConfigurationProperties = mockk {
+            every { subscriptions } returns GraphQLConfigurationProperties.SubscriptionConfigurationProperties()
+        }
         val graphQLRequest = GraphQLRequest("{ message }")
         val operationMessage = SubscriptionOperationMessage(type = GQL_START.type, id = "abc", payload = graphQLRequest).toJson()
         val session: WebSocketSession = mockk {
             every { close() } returns mockk()
             every { id } returns "123"
         }
-        val errors = listOf(GraphQLError("My GraphQL Error"))
+        val errors = listOf(GraphQLServerError("My GraphQL Error"))
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk {
             every { executeSubscription(eq(graphQLRequest), any()) } returns Flux.just(GraphQLResponse<Any>(errors = errors))
         }

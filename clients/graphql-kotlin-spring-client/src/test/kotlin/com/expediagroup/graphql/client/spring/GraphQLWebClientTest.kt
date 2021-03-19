@@ -19,12 +19,12 @@ package com.expediagroup.graphql.client.spring
 import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
-import com.expediagroup.graphql.client.jackson.types.JacksonSourceLocation
+import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLSourceLocation
 import com.expediagroup.graphql.client.serialization.GraphQLClientKotlinxSerializer
 import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
-import com.expediagroup.graphql.client.serialization.types.KotlinXGraphQLError
-import com.expediagroup.graphql.client.serialization.types.KotlinXGraphQLResponse
-import com.expediagroup.graphql.client.serialization.types.KotlinXSourceLocation
+import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
+import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
+import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -74,7 +74,7 @@ class GraphQLWebClientTest {
             errors = listOf(
                 JacksonGraphQLError(
                     message = "helloWorld is also throwing an exception",
-                    locations = listOf(JacksonSourceLocation(1, 1)),
+                    locations = listOf(JacksonGraphQLSourceLocation(1, 1)),
                     path = listOf("helloWorld"),
                     extensions = mapOf("exceptionExtensionKey" to "JunitCustomValue")
                 )
@@ -112,12 +112,12 @@ class GraphQLWebClientTest {
 
     @Test
     fun `verifies spring web client can execute query using kotlinx serialization`() {
-        val expectedResponse = KotlinXGraphQLResponse(
+        val expectedResponse = KotlinxGraphQLResponse(
             data = HelloWorldResult("Hello World!"),
             errors = listOf(
-                KotlinXGraphQLError(
+                KotlinxGraphQLError(
                     message = "helloWorld is also throwing an exception",
-                    locations = listOf(KotlinXSourceLocation(1, 1)),
+                    locations = listOf(KotlinxGraphQLSourceLocation(1, 1)),
                     path = listOf("helloWorld"),
                     extensions = mapOf("exceptionExtensionKey" to "JunitCustomValue")
                 )
@@ -139,19 +139,19 @@ class GraphQLWebClientTest {
     @Test
     fun `verifies spring web client can execute batch requests using kotlinx serialization`() {
         val expectedResponse = listOf(
-            KotlinXGraphQLResponse(
+            KotlinxGraphQLResponse(
                 data = HelloWorldResult("Hello World!"),
                 errors = listOf(
-                    KotlinXGraphQLError(
+                    KotlinxGraphQLError(
                         message = "helloWorld is also throwing an exception",
-                        locations = listOf(KotlinXSourceLocation(1, 1)),
+                        locations = listOf(KotlinxGraphQLSourceLocation(1, 1)),
                         path = listOf("helloWorld"),
                         extensions = mapOf("exceptionExtensionKey" to "JunitCustomValue")
                     )
                 ),
                 extensions = mapOf("extensionKey" to "JUnitValue")
             ),
-            KotlinXGraphQLResponse(
+            KotlinxGraphQLResponse(
                 data = GoodbyeWorldResult("Goodbye World!")
             )
         )
@@ -175,7 +175,7 @@ class GraphQLWebClientTest {
                 errors = listOf(
                     JacksonGraphQLError(
                         message = "helloWorld is also throwing an exception",
-                        locations = listOf(JacksonSourceLocation(1, 1)),
+                        locations = listOf(JacksonGraphQLSourceLocation(1, 1)),
                         path = listOf("helloWorld"),
                         extensions = mapOf("exceptionExtensionKey" to "JunitCustomValue")
                     )
@@ -295,10 +295,10 @@ class GraphQLWebClientTest {
                     .withFixedDelay(delayMillis)
             )
 
-    private fun stubKotlinxResponse(response: KotlinXGraphQLResponse<HelloWorldResult>, delayMillis: Int = 0): MappingBuilder =
+    private fun stubKotlinxResponse(response: KotlinxGraphQLResponse<HelloWorldResult>, delayMillis: Int = 0): MappingBuilder =
         stubResponse(json.encodeToString(response), delayMillis)
 
-    private fun stubKotlinxResponses(responses: List<KotlinXGraphQLResponse<*>>, delayMillis: Int = 0): MappingBuilder =
+    private fun stubKotlinxResponses(responses: List<KotlinxGraphQLResponse<*>>, delayMillis: Int = 0): MappingBuilder =
         stubResponse(json.encodeToString(AnyKSerializer, responses), delayMillis)
 
     private fun stubJacksonResponse(response: Any, delayMillis: Int = 0): MappingBuilder =

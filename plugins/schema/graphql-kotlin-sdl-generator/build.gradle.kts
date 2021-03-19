@@ -4,9 +4,8 @@ val classGraphVersion: String by project
 val slf4jVersion: String by project
 
 dependencies {
-    implementation(project(path = ":graphql-kotlin-types"))
     implementation(project(path = ":graphql-kotlin-hooks-provider"))
-    implementation(project(path = ":graphql-kotlin-schema-generator"))
+    implementation(project(path = ":graphql-kotlin-server"))
     implementation(project(path = ":graphql-kotlin-federation"))
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")

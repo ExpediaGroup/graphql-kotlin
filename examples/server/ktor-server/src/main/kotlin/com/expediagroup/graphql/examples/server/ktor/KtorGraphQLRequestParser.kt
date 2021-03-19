@@ -16,12 +16,8 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
-import com.expediagroup.graphql.server.execution.GraphQLBatchRequest
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
-import com.expediagroup.graphql.server.execution.GraphQLServerRequest
-import com.expediagroup.graphql.server.execution.GraphQLSingleRequest
-import com.expediagroup.graphql.types.GraphQLRequest
-import com.fasterxml.jackson.core.type.TypeReference
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.request.ApplicationRequest
 import io.ktor.request.receiveText
@@ -34,17 +30,10 @@ class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper
 ) : GraphQLRequestParser<ApplicationRequest> {
 
-    private val graphQLBatchRequestTypeReference: TypeReference<List<GraphQLRequest>> = object : TypeReference<List<GraphQLRequest>>() {}
-
     @Suppress("BlockingMethodInNonBlockingContext")
-    override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest<*> = try {
+    override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest = try {
         val rawRequest = request.call.receiveText()
-        val jsonNode = mapper.readTree(rawRequest)
-        if (jsonNode.isArray) {
-            GraphQLBatchRequest(mapper.convertValue(jsonNode, graphQLBatchRequestTypeReference))
-        } else {
-            GraphQLSingleRequest(mapper.treeToValue(jsonNode, GraphQLRequest::class.java))
-        }
+        mapper.readValue(rawRequest, GraphQLServerRequest::class.java)
     } catch (e: IOException) {
         throw IOException("Unable to parse GraphQL payload.")
     }

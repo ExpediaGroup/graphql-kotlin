@@ -22,7 +22,7 @@ import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
-import com.expediagroup.graphql.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQL
 import graphql.schema.GraphQLSchema
 import io.mockk.mockk

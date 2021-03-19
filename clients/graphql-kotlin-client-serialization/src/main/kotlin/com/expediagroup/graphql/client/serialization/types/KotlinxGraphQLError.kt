@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.jackson.types
+package com.expediagroup.graphql.client.serialization.types
 
+import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
+import com.expediagroup.graphql.client.serialization.serializers.GraphQLErrorPathSerializer
 import com.expediagroup.graphql.client.types.GraphQLClientError
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
+import kotlinx.serialization.Serializable
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class JacksonGraphQLError(
+@Serializable
+data class KotlinxGraphQLError(
     override val message: String,
-    override val locations: List<JacksonGraphQLSourceLocation>? = null,
-    override val path: List<Any>? = null,
-    override val extensions: Map<String, Any?>? = null
+    override val locations: List<KotlinxGraphQLSourceLocation>? = null,
+    override val path: List<@Serializable(with = GraphQLErrorPathSerializer::class) Any>? = null,
+    override val extensions: Map<String, @Serializable(with = AnyKSerializer::class) Any?>? = null
 ) : GraphQLClientError

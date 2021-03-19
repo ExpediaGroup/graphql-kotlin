@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types.operations
+package com.expediagroup.graphql.examples.server.spring.mutation
 
-/**
- * Marker interface to indicate what classes should be used for GraphQL subscriptions.
- */
-interface Subscription
+import com.expediagroup.graphql.examples.server.spring.model.Person
+import com.expediagroup.graphql.server.operations.Mutation
+import org.springframework.stereotype.Component
+
+@Component
+class ScalarMutation : Mutation {
+    fun addPerson(person: Person): Person = person
+}

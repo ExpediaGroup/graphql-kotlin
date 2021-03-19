@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.client.server
 import com.expediagroup.graphql.examples.client.server.model.BasicObject
 import com.expediagroup.graphql.examples.client.server.repository.BasicObjectRepository
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Mutation
+import com.expediagroup.graphql.server.operations.Mutation
 import org.springframework.stereotype.Component
 
 @Component

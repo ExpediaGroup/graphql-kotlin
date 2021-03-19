@@ -54,12 +54,12 @@ class GraphQLClientKotlinXSerializerTest {
     @Test
     fun `verify we can deserialize JacksonGraphQLResponse`() {
         val testQuery = FirstQuery(variables = FirstQuery.Variables())
-        val expected = KotlinXGraphQLResponse(
+        val expected = KotlinxGraphQLResponse(
             data = FirstQuery.Result("hello world"),
             errors = listOf(
-                KotlinXGraphQLError(
+                KotlinxGraphQLError(
                     message = "test error message",
-                    locations = listOf(KotlinXSourceLocation(1, 1)),
+                    locations = listOf(KotlinxGraphQLSourceLocation(1, 1)),
                     path = listOf("stringResult", 1, "leaf"),
                     extensions = mapOf("errorExt" to 123)
                 )
@@ -122,12 +122,12 @@ class GraphQLClientKotlinXSerializerTest {
         val testQuery = FirstQuery(variables = FirstQuery.Variables())
         val otherQuery = OtherQuery()
         val expected = listOf(
-            KotlinXGraphQLResponse(
+            KotlinxGraphQLResponse(
                 data = FirstQuery.Result("hello world"),
-                errors = listOf(KotlinXGraphQLError(message = "test error message")),
+                errors = listOf(KotlinxGraphQLError(message = "test error message")),
                 extensions = mapOf("extVal" to 123, "extList" to listOf("ext1", "ext2"), "extMap" to mapOf("1" to 1, "2" to 2))
             ),
-            KotlinXGraphQLResponse(
+            KotlinxGraphQLResponse(
                 data = OtherQuery.Result(stringResult = "goodbye world", integerResult = 42)
             )
         )

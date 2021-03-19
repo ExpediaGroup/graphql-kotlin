@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -40,15 +39,14 @@ class GraphQLRoutesConfiguration(
 ) {
 
     @Bean
-    @ExperimentalCoroutinesApi
     fun graphQLRoutes() = coRouter {
         val isEndpointRequest = POST(config.endpoint) or GET(config.endpoint)
-        val isNotWebsocketRequest = headers { isWebSocketHeaders(it) }.not()
+        val isNotWebSocketRequest = headers { isWebSocketHeaders(it) }.not()
 
-        (isEndpointRequest and isNotWebsocketRequest).invoke { serverRequest ->
+        (isEndpointRequest and isNotWebSocketRequest).invoke { serverRequest ->
             val graphQLResponse = graphQLServer.execute(serverRequest)
             if (graphQLResponse != null) {
-                ok().json().bodyValueAndAwait(graphQLResponse.response)
+                ok().json().bodyValueAndAwait(graphQLResponse)
             } else {
                 badRequest().buildAndAwait()
             }

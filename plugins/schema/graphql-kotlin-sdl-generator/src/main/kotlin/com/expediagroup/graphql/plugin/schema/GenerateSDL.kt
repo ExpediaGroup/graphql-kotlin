@@ -25,9 +25,9 @@ import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
-import com.expediagroup.graphql.types.operations.Mutation
-import com.expediagroup.graphql.types.operations.Query
-import com.expediagroup.graphql.types.operations.Subscription
+import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ScanResult
 import org.slf4j.Logger

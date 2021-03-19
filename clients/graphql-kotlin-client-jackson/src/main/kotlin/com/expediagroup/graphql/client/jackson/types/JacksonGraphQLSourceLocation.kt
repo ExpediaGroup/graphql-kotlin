@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types
+package com.expediagroup.graphql.client.jackson.types
 
+import com.expediagroup.graphql.client.types.GraphQLClientSourceLocation
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
-/**
- * GraphQL request that follows the common GraphQL HTTP request format and works with serialization and deserialization.
- *
- * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class GraphQLRequest(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Map<String, Any>? = null
-)
+data class JacksonGraphQLSourceLocation(
+    override val line: Int,
+    override val column: Int
+) : GraphQLClientSourceLocation

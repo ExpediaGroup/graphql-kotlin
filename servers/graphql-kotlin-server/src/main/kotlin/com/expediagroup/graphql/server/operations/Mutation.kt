@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.types
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+package com.expediagroup.graphql.server.operations
 
 /**
- * Location describing which part of GraphQL document caused an exception.
- *
- * @see [GraphQL Specification](http://spec.graphql.org/June2018/#sec-Errors) for additional details
+ * Marker interface to indicate what classes should be used for GraphQL mutations.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class SourceLocation(
-    val line: Int,
-    val column: Int
-)
+interface Mutation

@@ -23,10 +23,10 @@ import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.extensions.toTopLevelObjects
-import com.expediagroup.graphql.types.operations.Mutation
-import com.expediagroup.graphql.types.operations.Query
-import com.expediagroup.graphql.types.operations.Subscription
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

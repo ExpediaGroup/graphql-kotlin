@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionProtocolHandler
 import com.expediagroup.graphql.server.spring.subscriptions.DefaultSpringSubscriptionGraphQLContextFactory
@@ -23,7 +24,6 @@ import com.expediagroup.graphql.server.spring.subscriptions.SimpleSubscriptionHo
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.spring.subscriptions.SpringSubscriptionGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionWebSocketHandler
-import com.expediagroup.graphql.types.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

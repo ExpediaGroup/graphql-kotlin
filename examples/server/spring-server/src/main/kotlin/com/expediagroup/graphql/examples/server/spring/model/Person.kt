@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.serialization.types
+package com.expediagroup.graphql.examples.server.spring.model
 
-import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
-import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import kotlinx.serialization.Serializable
+import com.expediagroup.graphql.generator.scalars.ID
 
-@Serializable
-data class KotlinXGraphQLResponse<T>(
-    override val data: T? = null,
-    override val errors: List<KotlinXGraphQLError>? = null,
-    override val extensions: Map<String, @Serializable(with = AnyKSerializer::class) Any?>? = null
-) : GraphQLClientResponse<T>
+data class Person(
+    val id: ID,
+    val name: String
+)

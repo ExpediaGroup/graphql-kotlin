@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
+import com.expediagroup.graphql.server.types.GraphQLBatchRequest
+import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -57,7 +59,7 @@ class GraphQLServerTest {
     @Test
     fun `null context is used and passed to the request handler`() {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
-            coEvery { parseRequest(any()) } returns GraphQLSingleRequest(graphQLRequest = mockk())
+            coEvery { parseRequest(any()) } returns mockk<GraphQLRequest>()
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns null

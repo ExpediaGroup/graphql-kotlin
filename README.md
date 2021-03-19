@@ -16,7 +16,6 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 * [generator](/generator) - Code-First schema generator and extensions to build Apollo Federation schemas
 * [plugins](/plugins) - Gradle and Maven plugins
 * [servers](/servers) - Common and library specific modules for running a GraphQL server
-* [types](/types) - Core types used by both client and server
 
 ## ⌨️ Usage
 

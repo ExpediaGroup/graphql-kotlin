@@ -2,11 +2,11 @@
 id: graphql-request-parser
 title: GraphQLRequestParser
 ---
-The `GraphQLRequestParser` interface is requrired to parse the library-specific HTTP request object into the common `GraphQLRequest` class.
+The `GraphQLRequestParser` interface is required to parse the library-specific HTTP request object into the common `GraphQLServerRequest` class.
 
 ```kotlin
 interface GraphQLRequestParser<Request> {
-    suspend fun parseRequest(request: Request): GraphQLServerRequest<*>?
+    suspend fun parseRequest(request: Request): GraphQLServerRequest?
 }
 ```
 

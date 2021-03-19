@@ -19,7 +19,7 @@
 package com.expediagroup.graphql.examples.server.spring.query
 
 import com.expediagroup.graphql.examples.server.spring.directives.TrackTimesInvoked
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import io.netty.util.internal.ThreadLocalRandom
 import org.springframework.stereotype.Component
 import java.util.UUID

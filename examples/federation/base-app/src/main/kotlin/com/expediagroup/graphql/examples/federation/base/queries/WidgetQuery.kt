@@ -18,7 +18,7 @@ package com.expediagroup.graphql.examples.federation.base.queries
 
 import com.expediagroup.graphql.examples.federation.base.schema.Widget
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import com.expediagroup.graphql.types.operations.Query
+import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 
 /**
