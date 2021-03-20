@@ -24,6 +24,7 @@ import com.expediagroup.graphql.server.extensions.toGraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.GraphQL
+import graphql.GraphQLError
 import kotlinx.coroutines.future.await
 
 open class GraphQLRequestHandler(
@@ -44,8 +45,13 @@ open class GraphQLRequestHandler(
         return try {
             graphQL.executeAsync(executionInput).await().toGraphQLResponse()
         } catch (exception: Exception) {
-            val graphKotlinQLError = KotlinGraphQLError(exception)
-            GraphQLResponse<Any?>(errors = listOf(graphKotlinQLError.toGraphQLKotlinType()))
+            val graphKotlinQLError = if (exception is GraphQLError) {
+                exception.toGraphQLKotlinType()
+            } else {
+                KotlinGraphQLError(exception).toGraphQLKotlinType()
+            }
+
+            GraphQLResponse<Any?>(errors = listOf(graphKotlinQLError))
         }
     }
 }

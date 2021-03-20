@@ -40,7 +40,7 @@ class DataAndErrorsQueryIT(@Autowired private val testClient: WebTestClient) {
     @ValueSource(strings = ["returnDataAndErrors", "completableFutureDataAndErrors"])
     fun `verify data and errors queries`(query: String) {
         val expectedData = "Hello from data fetcher"
-        val expectedError = "Exception while fetching data () : data and errors"
+        val expectedError = "data and errors"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)

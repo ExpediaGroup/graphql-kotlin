@@ -22,31 +22,30 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-internal class KotlinGraphQLErrorTest {
+class KotlinGraphQLErrorTest {
 
     @Test
     fun `Verify default values on contstructor`() {
         val error = KotlinGraphQLError(Throwable())
-        assertNotNull(error.message)
+        assertNull(error.message)
         assertNull(error.locations)
         assertNull(error.path)
         assertEquals(expected = ErrorType.DataFetchingException, actual = error.errorType)
     }
 
     @Test
-    fun `Message defaults to value if it is not set in the exception`() {
+    fun `Message defaults exception message`() {
         val error = KotlinGraphQLError(Throwable())
-        assertNotNull(error.message)
+        assertNull(error.message)
     }
 
     @Test
     fun `Message comes from the exception if set`() {
         val error = KotlinGraphQLError(exception = Throwable("foo"), path = listOf("/foo"))
-        assertEquals(expected = "Exception while fetching data (/foo) : foo", actual = error.message)
+        assertEquals(expected = "foo", actual = error.message)
     }
 
     @Test
@@ -65,11 +64,8 @@ internal class KotlinGraphQLErrorTest {
     }
 
     @Test
-    fun `extensions are populated if exception is a GraphQLError and extensions are set`() {
-        val graphQLError: AbortExecutionException = mockk {
-            every { extensions } returns mapOf("foo" to "bar")
-        }
-        val error = KotlinGraphQLError(graphQLError)
+    fun `extensions are populated`() {
+        val error = KotlinGraphQLError(Throwable(), extensions = mapOf("foo" to "bar"))
         assertEquals(expected = "bar", actual = error.extensions["foo"])
     }
 }

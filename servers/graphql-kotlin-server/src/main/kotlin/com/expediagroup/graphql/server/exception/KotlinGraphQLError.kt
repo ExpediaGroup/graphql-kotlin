@@ -22,26 +22,25 @@ import graphql.GraphQLError
 import graphql.language.SourceLocation
 
 /**
- * Generic implementation of [GraphQLError].
+ * Generic implementation of [GraphQLError] to be used if an exception is thrown and it is not a [GraphQLError].
+ *
+ * You can extend this class if you would like to create your own [GraphQLError]
+ * or just throw an existing [GraphQLError] implementation from your data fetcher.
  */
 open class KotlinGraphQLError(
     private val exception: Throwable,
     private val locations: List<SourceLocation>? = null,
     private val path: List<Any>? = null,
-    private val errorType: ErrorClassification = ErrorType.DataFetchingException
+    private val errorType: ErrorClassification = ErrorType.DataFetchingException,
+    private val extensions: Map<String, Any> = emptyMap()
 ) : GraphQLError {
     override fun getErrorType(): ErrorClassification = errorType
 
-    override fun getExtensions(): Map<String, Any> =
-        if (exception is GraphQLError && exception.extensions != null) {
-            exception.extensions
-        } else {
-            emptyMap()
-        }
+    override fun getExtensions(): Map<String, Any> = extensions
 
     override fun getLocations(): List<SourceLocation>? = locations
 
-    override fun getMessage(): String = "Exception while fetching data (${path?.joinToString("/").orEmpty()}) : ${exception.message}"
+    override fun getMessage(): String? = exception.message
 
     override fun getPath(): List<Any>? = path
 }

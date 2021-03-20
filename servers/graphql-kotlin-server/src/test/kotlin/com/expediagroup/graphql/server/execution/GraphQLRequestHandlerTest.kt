@@ -101,7 +101,7 @@ class GraphQLRequestHandlerTest {
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
             val error = errors.first()
-            assertEquals("Exception while fetching data (/alwaysThrows) : JUNIT Failure", error.message)
+            assertEquals("JUNIT Failure", error.message)
         }
         assertNull(response.extensions)
     }
@@ -134,7 +134,7 @@ class GraphQLRequestHandlerTest {
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
             val error = errors.first()
-            assertEquals("Exception while fetching data () : Uncaught JUNIT", error.message)
+            assertEquals("Uncaught JUNIT", error.message)
         }
         assertNull(response.extensions)
     }
@@ -151,7 +151,7 @@ class GraphQLRequestHandlerTest {
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
             val error = errors.first()
-            assertEquals("Exception while fetching data () : Uncaught abort exception", error.message)
+            assertEquals("Uncaught abort exception", error.message)
         }
         assertNull(response.extensions)
     }

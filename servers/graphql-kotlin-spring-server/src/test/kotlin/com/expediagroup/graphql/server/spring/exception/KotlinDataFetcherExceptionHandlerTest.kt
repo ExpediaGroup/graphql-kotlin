@@ -45,7 +45,7 @@ class KotlinDataFetcherExceptionHandlerTest {
         assertEquals(expected = 1, actual = result.errors.size)
         val error = result.errors.first()
         assertTrue(error is KotlinGraphQLError)
-        assertEquals("Exception while fetching data (foo) : my exception", error.message)
+        assertEquals("my exception", error.message)
     }
 
     @Test
@@ -63,6 +63,6 @@ class KotlinDataFetcherExceptionHandlerTest {
         assertEquals(expected = 1, actual = result.errors.size)
         val error = result.errors.first()
         assertTrue(error is KotlinGraphQLError)
-        assertEquals("Exception while fetching data (foo) : generic exception", error.message)
+        assertEquals("generic exception", error.message)
     }
 }
