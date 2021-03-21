@@ -101,7 +101,7 @@ class GraphQLRequestHandlerTest {
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
             val error = errors.first()
-            assertEquals("JUNIT Failure", error.message)
+            assertEquals("Exception while fetching data (/alwaysThrows) : JUNIT Failure", error.message)
         }
         assertNull(response.extensions)
     }

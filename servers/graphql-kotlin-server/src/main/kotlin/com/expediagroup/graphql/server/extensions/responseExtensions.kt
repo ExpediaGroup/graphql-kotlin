@@ -16,11 +16,10 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLSourceLocation
 import graphql.ExecutionResult
-import graphql.GraphQLError as GraphQLJavaError
 import graphql.language.SourceLocation
 
 /**
