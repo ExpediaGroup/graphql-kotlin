@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionProtocolHandler
@@ -55,7 +56,10 @@ class SubscriptionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun subscriptionHandler(graphQL: GraphQL) = SpringGraphQLSubscriptionHandler(graphQL)
+    fun subscriptionHandler(
+        graphQL: GraphQL,
+        dataLoaderRegistryFactory: DataLoaderRegistryFactory
+    ) = SpringGraphQLSubscriptionHandler(graphQL, dataLoaderRegistryFactory)
 
     @Bean
     @ConditionalOnMissingBean
