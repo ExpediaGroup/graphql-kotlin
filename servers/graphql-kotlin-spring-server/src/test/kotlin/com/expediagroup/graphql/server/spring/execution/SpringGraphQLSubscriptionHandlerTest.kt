@@ -21,15 +21,23 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQL
+import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.mockk
+import org.dataloader.DataLoader
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
+import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 import reactor.test.StepVerifier
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -44,7 +52,16 @@ class SpringGraphQLSubscriptionHandlerTest {
         subscriptions = listOf(TopLevelObject(BasicSubscription()))
     )
     private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()
-    private val subscriptionHandler = SpringGraphQLSubscriptionHandler(testGraphQL)
+    private val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
+        override val dataLoaderName: String = "MockDataLoader"
+        override fun getDataLoader(): DataLoader<String, String> = DataLoader<String, String> { ids ->
+            CompletableFuture.supplyAsync {
+                ids.map { "$it:value" }
+            }
+        }
+    }
+    private val dataLoaderRegistryFactory = DefaultDataLoaderRegistryFactory(listOf(mockLoader))
+    private val subscriptionHandler = SpringGraphQLSubscriptionHandler(testGraphQL, dataLoaderRegistryFactory)
 
     @Test
     fun `verify subscription`() {
@@ -55,6 +72,26 @@ class SpringGraphQLSubscriptionHandlerTest {
             .thenConsumeWhile { response ->
                 assertNotNull(response.data as? Map<*, *>) { data ->
                     assertNotNull(data["ticker"] as? Int)
+                }
+                assertNull(response.errors)
+                assertNull(response.extensions)
+                true
+            }
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun `verify subscription with data loader`() {
+        val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk())
+
+        StepVerifier.create(responseFlux)
+            .thenConsumeWhile { response ->
+                assertNotNull(response.data as? Map<*, *>) { data ->
+                    assertNotNull(data["dataLoaderValue"] as? String) { value ->
+                        assertEquals("foo:value", value)
+                    }
                 }
                 assertNull(response.errors)
                 assertNull(response.extensions)
@@ -122,6 +159,8 @@ class SpringGraphQLSubscriptionHandlerTest {
         fun contextualTicker(context: SubscriptionContext): Flux<String> = Flux.range(1, 5)
             .delayElements(Duration.ofMillis(100))
             .map { "${context.value}:${Random.nextInt(100)}" }
+
+        fun dataLoaderValue(dfe: DataFetchingEnvironment): Flux<String> = dfe.getValueFromDataLoader<String, String>("MockDataLoader", "foo").toMono().toFlux()
     }
 
     data class SubscriptionContext(val value: String) : GraphQLContext
