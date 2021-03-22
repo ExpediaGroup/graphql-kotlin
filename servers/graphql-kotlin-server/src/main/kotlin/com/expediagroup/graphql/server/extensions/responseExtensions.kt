@@ -20,6 +20,8 @@ import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLSourceLocation
 import graphql.ExecutionResult
+import graphql.GraphQLError
+import graphql.GraphqlErrorException
 import graphql.language.SourceLocation
 
 /**
@@ -33,9 +35,23 @@ fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
 }
 
 /**
+ * Turn a thrown exception into a graphql-java [GraphQLError] that we can return in the response
+ */
+fun Throwable.toGraphQLError(): GraphQLError {
+    return if (this is GraphQLError) {
+        this
+    } else {
+        GraphqlErrorException.newErrorException()
+            .cause(this)
+            .message(this.message)
+            .build()
+    }
+}
+
+/**
  * Convert the graphql-java type to the common serializable type [GraphQLServerError]
  */
-fun graphql.GraphQLError.toGraphQLKotlinType(): GraphQLServerError {
+fun GraphQLError.toGraphQLKotlinType(): GraphQLServerError {
     val locations = this.locations?.map { it.toGraphQLKotlinType() }
     val newExtensions = this.extensions?.toMutableMap() ?: mutableMapOf()
     this.errorType?.toSpecification(this)?.let {

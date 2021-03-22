@@ -118,6 +118,23 @@ class ResponseExtensionsKtTest {
     }
 
     @Test
+    fun `throwables can be mapped to GraphQLError`() {
+        val throwable = Throwable("foo")
+
+        val result = throwable.toGraphQLError()
+        assertEquals("foo", result.message)
+        assertEquals(ErrorType.DataFetchingException, result.errorType)
+    }
+
+    @Test
+    fun `exceptions that are GraphQLErrors are not remapped`() {
+        val throwable: Throwable = AbortExecutionException()
+
+        val result = throwable.toGraphQLError()
+        assertTrue(result is AbortExecutionException)
+    }
+
+    @Test
     fun `the error type is set as the classification`() {
         val executionResult: ExecutionResult = mockk {
             every { getData<Any>() } returns mockk()

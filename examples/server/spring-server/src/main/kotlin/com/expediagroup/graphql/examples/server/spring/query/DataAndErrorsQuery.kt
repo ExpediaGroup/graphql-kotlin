@@ -16,11 +16,10 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
-import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.server.operations.Query
+import graphql.GraphQLError
+import graphql.GraphqlErrorException
 import graphql.execution.DataFetcherResult
-import graphql.execution.ResultPath
-import graphql.language.SourceLocation
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -28,19 +27,22 @@ import java.util.concurrent.CompletableFuture
 class DataAndErrorsQuery : Query {
 
     fun returnDataAndErrors(): DataFetcherResult<String?> {
-        val error = KotlinGraphQLError(RuntimeException("data and errors"), listOf(SourceLocation(1, 1)), ResultPath.rootPath().toList())
         return DataFetcherResult.newResult<String>()
             .data("Hello from data fetcher")
-            .error(error)
+            .error(getError())
             .build()
     }
 
     fun completableFutureDataAndErrors(): CompletableFuture<DataFetcherResult<String?>> {
-        val error = KotlinGraphQLError(RuntimeException("data and errors"), listOf(SourceLocation(1, 1)), ResultPath.rootPath().toList())
         val dataFetcherResult = DataFetcherResult.newResult<String>()
             .data("Hello from data fetcher")
-            .error(error)
+            .error(getError())
             .build()
         return CompletableFuture.completedFuture(dataFetcherResult)
     }
+
+    private fun getError(): GraphQLError = GraphqlErrorException.newErrorException()
+        .cause(RuntimeException("data and errors"))
+        .message("data and errors")
+        .build()
 }
