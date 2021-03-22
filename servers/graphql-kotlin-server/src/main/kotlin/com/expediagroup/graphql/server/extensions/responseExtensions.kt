@@ -36,12 +36,15 @@ fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
  * Convert the graphql-java type to the common serializable type [GraphQLServerError]
  */
 fun graphql.GraphQLError.toGraphQLKotlinType(): GraphQLServerError {
+    val locations = this.locations?.map { it.toGraphQLKotlinType() }
     val newExtensions = this.extensions?.toMutableMap() ?: mutableMapOf()
-    newExtensions.putIfAbsent("classification", this.errorType.toSpecification(this))
+    this.errorType?.toSpecification(this)?.let {
+        newExtensions.putIfAbsent("classification", it)
+    }
 
     return GraphQLServerError(
         this.message.orEmpty(),
-        this.locations?.map { it.toGraphQLKotlinType() },
+        locations,
         this.path,
         newExtensions
     )
