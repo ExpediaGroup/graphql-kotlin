@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.extensions
 
 import graphql.ErrorType
 import graphql.ExecutionResult
-import graphql.GraphQLError
 import graphql.execution.AbortExecutionException
 import io.mockk.every
 import io.mockk.mockk
@@ -132,66 +131,5 @@ class ResponseExtensionsKtTest {
 
         val result = throwable.toGraphQLError()
         assertTrue(result is AbortExecutionException)
-    }
-
-    @Test
-    fun `the error type is set as the classification`() {
-        val executionResult: ExecutionResult = mockk {
-            every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(AbortExecutionException())
-            every { extensions } returns emptyMap()
-        }
-
-        val result = executionResult.toGraphQLResponse()
-
-        val error = assertNotNull(result.errors?.firstOrNull())
-        val extensions = assertNotNull(error.extensions)
-        assertEquals(expected = "ExecutionAborted", actual = extensions["classification"])
-    }
-
-    @Test
-    fun `does not throw when error type is null`() {
-        val mockError = mockk<GraphQLError> {
-            every { message } returns ""
-            every { path } returns null
-            every { locations } returns null
-            every { extensions } returns emptyMap()
-            every { errorType } returns null
-        }
-        val executionResult: ExecutionResult = mockk {
-            every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(mockError)
-            every { extensions } returns emptyMap()
-        }
-
-        val result = executionResult.toGraphQLResponse()
-
-        assertNotNull(result.data)
-        val error = assertNotNull(result.errors?.firstOrNull())
-        val extenstions = assertNotNull(error.extensions)
-        assertTrue(extenstions.isEmpty())
-    }
-
-    @Test
-    fun `the error classification is not overriden`() {
-        val mockError = mockk<GraphQLError> {
-            every { message } returns ""
-            every { path } returns null
-            every { locations } returns null
-            every { extensions } returns mapOf("classification" to "foo")
-            every { errorType } returns ErrorType.ExecutionAborted
-        }
-        val executionResult: ExecutionResult = mockk {
-            every { getData<Any>() } returns mockk()
-            every { errors } returns listOf(mockError)
-            every { extensions } returns emptyMap()
-        }
-
-        val result = executionResult.toGraphQLResponse()
-
-        assertNotNull(result.data)
-        val error = assertNotNull(result.errors?.firstOrNull())
-        val extensions = assertNotNull(error.extensions)
-        assertEquals(expected = "foo", actual = extensions["classification"])
     }
 }
