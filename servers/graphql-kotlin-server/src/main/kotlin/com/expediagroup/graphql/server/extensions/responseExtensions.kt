@@ -37,8 +37,8 @@ fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
 /**
  * Turn a thrown exception into a graphql-java [GraphQLError] that we can return in the response
  */
-fun Throwable.toGraphQLError(): GraphQLError {
-    return if (this is GraphQLError) {
+fun Throwable.toGraphQLError(): GraphQLError =
+    if (this is GraphQLError) {
         this
     } else {
         GraphqlErrorException.newErrorException()
@@ -46,7 +46,6 @@ fun Throwable.toGraphQLError(): GraphQLError {
             .message(this.message)
             .build()
     }
-}
 
 /**
  * Convert the graphql-java type to the common serializable type [GraphQLServerError]
