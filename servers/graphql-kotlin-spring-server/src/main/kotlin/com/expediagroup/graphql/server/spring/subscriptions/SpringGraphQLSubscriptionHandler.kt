@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.toExecutionInput
+import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
 import com.expediagroup.graphql.server.extensions.toGraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -47,8 +47,8 @@ open class SpringGraphQLSubscriptionHandler(
             .toFlux()
             .map { result -> result.toGraphQLResponse() }
             .onErrorResume { throwable ->
-                val error = KotlinGraphQLError(throwable).toGraphQLKotlinType()
-                Flux.just(GraphQLResponse<Any?>(errors = listOf(error)))
+                val error = throwable.toGraphQLError()
+                Flux.just(GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType())))
             }
     }
 }

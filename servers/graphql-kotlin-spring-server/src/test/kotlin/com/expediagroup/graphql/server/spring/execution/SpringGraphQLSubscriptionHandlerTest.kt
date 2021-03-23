@@ -134,7 +134,7 @@ class SpringGraphQLSubscriptionHandlerTest {
                 assertNotNull(response.errors) { errors ->
                     assertEquals(1, errors.size)
                     val error = errors.first()
-                    assertEquals("Exception while fetching data () : JUNIT subscription failure", error.message)
+                    assertEquals("JUNIT subscription failure", error.message)
                 }
                 assertNull(response.extensions)
             }

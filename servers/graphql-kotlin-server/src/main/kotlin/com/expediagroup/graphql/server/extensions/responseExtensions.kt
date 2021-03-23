@@ -16,11 +16,12 @@
 
 package com.expediagroup.graphql.server.extensions
 
-import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLSourceLocation
 import graphql.ExecutionResult
-import graphql.GraphQLError as GraphQLJavaError
+import graphql.GraphQLError
+import graphql.GraphqlErrorException
 import graphql.language.SourceLocation
 
 /**
@@ -34,13 +35,26 @@ fun ExecutionResult.toGraphQLResponse(): GraphQLResponse<*> {
 }
 
 /**
+ * Turn a thrown exception into a graphql-java [GraphQLError] that we can return in the response
+ */
+fun Throwable.toGraphQLError(): GraphQLError =
+    if (this is GraphQLError) {
+        this
+    } else {
+        GraphqlErrorException.newErrorException()
+            .cause(this)
+            .message(this.message)
+            .build()
+    }
+
+/**
  * Convert the graphql-java type to the common serializable type [GraphQLServerError]
  */
-fun GraphQLJavaError.toGraphQLKotlinType() = GraphQLServerError(
-    message.orEmpty(),
-    locations?.map { it.toGraphQLKotlinType() },
-    path,
-    extensions
+fun GraphQLError.toGraphQLKotlinType() = GraphQLServerError(
+    this.message.orEmpty(),
+    this.locations?.map { it.toGraphQLKotlinType() },
+    this.path,
+    this.extensions
 )
 
 /**

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.extensions
 
+import graphql.ErrorType
 import graphql.ExecutionResult
 import graphql.execution.AbortExecutionException
 import io.mockk.every
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ResponseExtensionsKtTest {
 
@@ -112,5 +114,22 @@ class ResponseExtensionsKtTest {
         val extensions = result.extensions
         assertNotNull(extensions)
         assertEquals(expected = "bar", actual = extensions["foo"])
+    }
+
+    @Test
+    fun `throwables can be mapped to GraphQLError`() {
+        val throwable = Throwable("foo")
+
+        val result = throwable.toGraphQLError()
+        assertEquals("foo", result.message)
+        assertEquals(ErrorType.DataFetchingException, result.errorType)
+    }
+
+    @Test
+    fun `exceptions that are GraphQLErrors are not remapped`() {
+        val throwable: Throwable = AbortExecutionException()
+
+        val result = throwable.toGraphQLError()
+        assertTrue(result is AbortExecutionException)
     }
 }

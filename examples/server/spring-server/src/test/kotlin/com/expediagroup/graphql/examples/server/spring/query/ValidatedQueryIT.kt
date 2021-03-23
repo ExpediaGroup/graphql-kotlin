@@ -54,8 +54,7 @@ class ValidatedQueryIT(@Autowired private val testClient: WebTestClient) {
     @ValueSource(strings = ["", " ", "Hello", "1234", "!@#$"])
     fun `verify argumentWithValidation query when argument is not valid`(argument: String) {
         val query = "argumentWithValidation"
-        val expectedError = "Exception while fetching data (argumentWithValidation) : " +
-            "argumentWithValidation.arg.lowerCaseOnly: Argument must be lowercase"
+        val expectedError = "argumentWithValidation.arg.lowerCaseOnly: Argument must be lowercase"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)

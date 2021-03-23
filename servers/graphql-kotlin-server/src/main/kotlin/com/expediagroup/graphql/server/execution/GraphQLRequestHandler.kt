@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.exception.KotlinGraphQLError
 import com.expediagroup.graphql.server.extensions.toExecutionInput
+import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
 import com.expediagroup.graphql.server.extensions.toGraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -44,8 +44,8 @@ open class GraphQLRequestHandler(
         return try {
             graphQL.executeAsync(executionInput).await().toGraphQLResponse()
         } catch (exception: Exception) {
-            val graphKotlinQLError = KotlinGraphQLError(exception)
-            GraphQLResponse<Any?>(errors = listOf(graphKotlinQLError.toGraphQLKotlinType()))
+            val error = exception.toGraphQLError()
+            GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType()))
         }
     }
 }

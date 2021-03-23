@@ -84,8 +84,7 @@ class CustomDirectiveQueryIT(@Autowired private val testClient: WebTestClient) {
     @MethodSource("specificValueOnlyQueries")
     fun `verify specific value only queries with another value`(query: String, expectedValue: String) {
         val anotherValue = "hello"
-        val expectedError = "Exception while fetching data ($query) : " +
-            "Unsupported value, expected=$expectedValue actual=$anotherValue"
+        val expectedError = "Unsupported value, expected=$expectedValue actual=$anotherValue"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
