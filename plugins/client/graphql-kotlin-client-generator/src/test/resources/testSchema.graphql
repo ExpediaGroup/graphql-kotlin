@@ -144,6 +144,8 @@ enum CustomEnum {
   THREE @deprecated(reason : "only goes up to two")
   "Second enum value"
   TWO
+  "Lowercase enum value"
+  four
 }
 "Custom scalar representing UUID"
 scalar UUID

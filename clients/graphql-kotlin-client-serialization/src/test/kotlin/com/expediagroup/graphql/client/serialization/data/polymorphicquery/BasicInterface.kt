@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.serialization.types.data.polymorphicquery
+package com.expediagroup.graphql.client.serialization.data.polymorphicquery
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.client.serialization
 
-import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -33,7 +33,8 @@ import kotlin.reflect.full.createType
  */
 class GraphQLClientKotlinxSerializer(private val jsonBuilder: JsonBuilder.() -> Unit = {}) : GraphQLClientSerializer {
 
-    private val serializerCache = ConcurrentHashMap<KClass<*>, KSerializer<KotlinxGraphQLResponse<Any?>>>()
+    private val responseSerializerCache = ConcurrentHashMap<KClass<*>, KSerializer<KotlinxGraphQLResponse<Any?>>>()
+    private val requestSerializerCache = ConcurrentHashMap<KClass<*>, KSerializer<Any?>>()
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -43,7 +44,14 @@ class GraphQLClientKotlinxSerializer(private val jsonBuilder: JsonBuilder.() -> 
         encodeDefaults = true
     }
 
-    override fun serialize(request: Any): String = json.encodeToString(AnyKSerializer, request)
+    override fun serialize(request: GraphQLClientRequest<*>): String = json.encodeToString(requestSerializer(request), request)
+
+    override fun serialize(requests: List<GraphQLClientRequest<*>>): String {
+        val serializedRequests = requests.map { request ->
+            json.encodeToString(requestSerializer(request), request)
+        }
+        return "[${serializedRequests.joinToString(",")}]"
+    }
 
     override fun <T : Any> deserialize(rawResponse: String, responseType: KClass<T>): KotlinxGraphQLResponse<T> = json.decodeFromString(
         responseSerializer(responseType) as KSerializer<KotlinxGraphQLResponse<T>>,
@@ -64,9 +72,14 @@ class GraphQLClientKotlinxSerializer(private val jsonBuilder: JsonBuilder.() -> 
         }
     }
 
+    private fun requestSerializer(request: GraphQLClientRequest<*>): KSerializer<Any?> =
+        requestSerializerCache.computeIfAbsent(request::class) {
+            json.serializersModule.serializer(request::class.createType())
+        }
+
     private fun <T : Any> responseSerializer(resultType: KClass<T>): KSerializer<KotlinxGraphQLResponse<Any?>> =
-        serializerCache.computeIfAbsent(resultType) {
-            val resultTypeSerializer = serializer(resultType.createType())
+        responseSerializerCache.computeIfAbsent(resultType) {
+            val resultTypeSerializer = json.serializersModule.serializer(resultType.createType())
             KotlinxGraphQLResponse.serializer(
                 resultTypeSerializer
             )

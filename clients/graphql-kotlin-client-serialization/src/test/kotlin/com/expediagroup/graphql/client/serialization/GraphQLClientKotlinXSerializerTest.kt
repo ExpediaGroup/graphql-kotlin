@@ -14,45 +14,54 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.serialization.types
+package com.expediagroup.graphql.client.serialization
 
-import com.expediagroup.graphql.client.serialization.GraphQLClientKotlinxSerializer
-import com.expediagroup.graphql.client.serialization.types.data.EnumQuery
-import com.expediagroup.graphql.client.serialization.types.data.FirstQuery
-import com.expediagroup.graphql.client.serialization.types.data.OtherQuery
-import com.expediagroup.graphql.client.serialization.types.data.PolymorphicQuery
-import com.expediagroup.graphql.client.serialization.types.data.ScalarQuery
-import com.expediagroup.graphql.client.serialization.types.data.polymorphicquery.SecondInterfaceImplementation
+import com.expediagroup.graphql.client.serialization.data.EnumQuery
+import com.expediagroup.graphql.client.serialization.data.FirstQuery
+import com.expediagroup.graphql.client.serialization.data.OtherQuery
+import com.expediagroup.graphql.client.serialization.data.PolymorphicQuery
+import com.expediagroup.graphql.client.serialization.data.ScalarQuery
+import com.expediagroup.graphql.client.serialization.data.enums.TestEnum
+import com.expediagroup.graphql.client.serialization.data.polymorphicquery.SecondInterfaceImplementation
+import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
+import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
+import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
 
 class GraphQLClientKotlinXSerializerTest {
 
+    private val serializer = GraphQLClientKotlinxSerializer()
+    private val json = Json
+
     @Test
     fun `verify we can serialize GraphQLClientRequest`() {
         val testQuery = FirstQuery(FirstQuery.Variables(input = 1.0f))
-        val expected =
-            """{"operationName":"FirstQuery","query":"FIRST_QUERY","variables":{"input":1.0}}"""
-
-        val serializer = GraphQLClientKotlinxSerializer()
         val result = serializer.serialize(testQuery)
-        assertEquals(expected, result)
+        val deserialized: FirstQuery = json.decodeFromString(result)
+        assertEquals(testQuery.variables, deserialized.variables)
     }
 
     @Test
     fun `verify we can serialize batch GraphQLClientRequest`() {
         val queries = listOf(FirstQuery(FirstQuery.Variables(input = 1.0f)), OtherQuery())
-        val expected =
-            """[{"operationName":"FirstQuery","query":"FIRST_QUERY","variables":{"input":1.0}},{"operationName":"OtherQuery","query":"OTHER_QUERY","variables":null}]"""
 
-        val serializer = GraphQLClientKotlinxSerializer()
         val result = serializer.serialize(queries)
-        assertEquals(expected, result)
+        val serializedQueries = result.substring(1, result.length - 1).split(Regex("(?<=\\}),(?=\\{)"))
+        assertEquals(2, serializedQueries.size)
+
+        val first: FirstQuery = json.decodeFromString(serializedQueries[0])
+        assertEquals(queries[0].variables, first.variables)
+
+        val second: OtherQuery = json.decodeFromString(serializedQueries[1])
+        assertEquals(queries[1].variables, second.variables)
     }
 
     @Test
-    fun `verify we can deserialize JacksonGraphQLResponse`() {
+    fun `verify we can deserialize KotlinxGraphQLResponse`() {
         val testQuery = FirstQuery(variables = FirstQuery.Variables())
         val expected = KotlinxGraphQLResponse(
             data = FirstQuery.Result("hello world"),
@@ -60,65 +69,49 @@ class GraphQLClientKotlinXSerializerTest {
                 KotlinxGraphQLError(
                     message = "test error message",
                     locations = listOf(KotlinxGraphQLSourceLocation(1, 1)),
-                    path = listOf("stringResult", 1, "leaf"),
+                    path = listOf("firstQuery", 0),
                     extensions = mapOf("errorExt" to 123)
                 )
             ),
             extensions = mapOf(
-                "booleanVal" to false,
-                "doubleVal" to 1.234,
-                "intVal" to 1234,
-                "listVal" to listOf("val1", 2),
-                "mapVal" to mapOf("first" to 42, "second" to "whatever", "third" to null),
-                "nullVal" to null
+                "extBool" to true,
+                "extDouble" to 1.5,
+                "extInt" to 123,
+                "extList" to listOf("ext1", "ext2"),
+                "extMap" to mapOf("1" to 1, "2" to 2.0),
+                "extNull" to null,
+                "extString" to "extra"
             )
         )
-
         val rawResponse =
             """{
-            |  "data": {
-            |    "stringResult": "hello world"
-            |  },
+            |  "data": { "stringResult" : "hello world" },
             |  "errors": [{
             |    "message": "test error message",
-            |    "locations": [{
-            |      "line": 1,
-            |      "column": 1
-            |    }],
-            |    "path": [
-            |      "stringResult",
-            |      1,
-            |      "leaf"
-            |    ],
+            |    "locations": [{ "line": 1, "column": 1 }],
+            |    "path": [ "firstQuery", 0 ],
             |    "extensions": {
             |      "errorExt": 123
             |    }
             |  }],
-            |  "extensions": {
-            |    "booleanVal": false,
-            |    "doubleVal": 1.234,
-            |    "intVal": 1234,
-            |    "listVal": [
-            |      "val1",
-            |      2
-            |    ],
-            |    "mapVal": {
-            |      "first": 42,
-            |      "second": "whatever",
-            |      "third": null
-            |    },
-            |    "nullVal": null
+            |  "extensions" : {
+            |    "extBool": true,
+            |    "extDouble": 1.5,
+            |    "extInt": 123,
+            |    "extList": ["ext1", "ext2"],
+            |    "extMap": { "1" : 1, "2" : 2.0 },
+            |    "extNull": null,
+            |    "extString": "extra"
             |  }
             |}
         """.trimMargin()
 
-        val serializer = GraphQLClientKotlinxSerializer()
         val result = serializer.deserialize(rawResponse, testQuery.responseType())
         assertEquals(expected, result)
     }
 
     @Test
-    fun `verify we can deserialize batch JacksonGraphQLResponse`() {
+    fun `verify we can deserialize batch KotlinxGraphQLResponse`() {
         val testQuery = FirstQuery(variables = FirstQuery.Variables())
         val otherQuery = OtherQuery()
         val expected = listOf(
@@ -141,7 +134,6 @@ class GraphQLClientKotlinXSerializerTest {
             |}]
         """.trimMargin()
 
-        val serializer = GraphQLClientKotlinxSerializer()
         val result = serializer.deserialize(rawResponses, listOf(testQuery.responseType(), otherQuery.responseType()))
         assertEquals(expected, result)
     }
@@ -159,9 +151,19 @@ class GraphQLClientKotlinXSerializerTest {
             |  }
             |}
         """.trimMargin()
-        val serializer = GraphQLClientKotlinxSerializer()
+
         val result = serializer.deserialize(polymorphicResponse, PolymorphicQuery().responseType())
         assertEquals(SecondInterfaceImplementation(123, 1.2f), result.data?.polymorphicResult)
+    }
+
+    @Test
+    fun `verify we can serialize custom scalars`() {
+        val randomUUID = UUID.randomUUID()
+        val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = com.expediagroup.graphql.client.serialization.data.scalars.UUID(randomUUID)))
+
+        val serialized = serializer.serialize(scalarQuery)
+        val deserialized: ScalarQuery = json.decodeFromString(serialized)
+        assertEquals(scalarQuery.variables, deserialized.variables)
     }
 
     @Test
@@ -175,8 +177,8 @@ class GraphQLClientKotlinXSerializerTest {
             |  }
             |}
         """.trimMargin()
-        val serializer = GraphQLClientKotlinxSerializer()
-        val result = serializer.deserialize(scalarResponse, ScalarQuery().responseType())
+
+        val result = serializer.deserialize(scalarResponse, ScalarQuery(ScalarQuery.Variables()).responseType())
         assertEquals("1234", result.data?.scalarAlias)
         assertEquals(expectedUUID, result.data?.customScalar?.value)
     }
@@ -189,8 +191,27 @@ class GraphQLClientKotlinXSerializerTest {
             |}
         """.trimMargin()
 
-        val serializer = GraphQLClientKotlinxSerializer()
-        val result = serializer.deserialize(unknownResponse, EnumQuery().responseType())
-        assertEquals(EnumQuery.TestEnum.__UNKNOWN, result.data?.enumResult)
+        val result = serializer.deserialize(unknownResponse, EnumQuery(EnumQuery.Variables()).responseType())
+        assertEquals(TestEnum.__UNKNOWN, result.data?.enumResult)
+    }
+
+    @Test
+    fun `verify we can serialize enums with custom names`() {
+        val query = EnumQuery(variables = EnumQuery.Variables(enum = TestEnum.THREE))
+
+        val serialized = serializer.serialize(query)
+        val deserialized: EnumQuery = json.decodeFromString(serialized)
+        assertEquals(query.variables, deserialized.variables)
+    }
+
+    @Test
+    fun `verify we can deserialize enums with custom names`() {
+        val rawResponse =
+            """{
+            |  "data": { "enumResult": "three" }
+            |}
+        """.trimMargin()
+        val deserialized = serializer.deserialize(rawResponse, EnumQuery(EnumQuery.Variables()).responseType())
+        assertEquals(TestEnum.THREE, deserialized.data?.enumResult)
     }
 }

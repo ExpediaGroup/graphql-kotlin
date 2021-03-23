@@ -19,11 +19,15 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.Directives.DeprecatedDirective
 import graphql.language.EnumTypeDefinition
 import graphql.language.StringValue
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.util.Locale
 
 internal const val UNKNOWN_VALUE = "__UNKNOWN_VALUE"
 
@@ -50,13 +54,31 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
                     .build()
             )
         }
-        enumTypeSpecBuilder.addEnumConstant(enumValueDefinition.name, enumValueTypeSpecBuilder.build())
+        val enumName = enumValueDefinition.name.toUpperCase(Locale.US)
+        if (enumName != enumValueDefinition.name) {
+            if (context.serializer == GraphQLSerializer.JACKSON) {
+                enumValueTypeSpecBuilder.addAnnotation(
+                    AnnotationSpec.builder(JsonProperty::class.java)
+                        .addMember("%S", enumValueDefinition.name)
+                        .build()
+                )
+            } else {
+                enumValueTypeSpecBuilder.addAnnotation(
+                    AnnotationSpec.builder(SerialName::class.java)
+                        .addMember("%S", enumValueDefinition.name)
+                        .build()
+                )
+            }
+        }
+        enumTypeSpecBuilder.addEnumConstant(enumName, enumValueTypeSpecBuilder.build())
     }
 
     val unknownTypeSpec = TypeSpec.anonymousClassBuilder()
         .addKdoc("%L", "This is a default enum value that will be used when attempting to deserialize unknown value.")
     if (context.serializer == GraphQLSerializer.JACKSON) {
         unknownTypeSpec.addAnnotation(JsonEnumDefaultValue::class)
+    } else {
+        enumTypeSpecBuilder.addAnnotation(Serializable::class)
     }
 
     enumTypeSpecBuilder.addEnumConstant(UNKNOWN_VALUE, unknownTypeSpec.build())

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.jackson
 
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -35,7 +36,9 @@ class GraphQLClientJacksonSerializer(private val mapper: ObjectMapper = jacksonO
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
     }
 
-    override fun serialize(request: Any): String = mapper.writeValueAsString(request)
+    override fun serialize(request: GraphQLClientRequest<*>): String = mapper.writeValueAsString(request)
+
+    override fun serialize(requests: List<GraphQLClientRequest<*>>): String = mapper.writeValueAsString(requests)
 
     override fun <T : Any> deserialize(rawResponse: String, responseType: KClass<T>): JacksonGraphQLResponse<T> =
         mapper.readValue(rawResponse, parameterizedType(responseType))

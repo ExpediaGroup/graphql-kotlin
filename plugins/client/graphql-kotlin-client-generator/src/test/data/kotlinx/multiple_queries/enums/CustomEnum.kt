@@ -1,10 +1,13 @@
 package com.expediagroup.graphql.generated.enums
 
 import kotlin.Deprecated
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Custom enum description
  */
+@Serializable
 enum class CustomEnum {
   /**
    * First enum value
@@ -21,6 +24,12 @@ enum class CustomEnum {
    * Second enum value
    */
   TWO,
+
+  /**
+   * Lowercase enum value
+   */
+  @SerialName("four")
+  FOUR,
 
   /**
    * This is a default enum value that will be used when attempting to deserialize unknown value.
