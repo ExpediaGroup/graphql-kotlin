@@ -27,12 +27,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 @JsonSubTypes(
     value = [
         com.fasterxml.jackson.annotation.JsonSubTypes.Type(
-            value =
-                FirstInterfaceImplementation::class,
+            value = FirstInterfaceImplementation::class,
             name = "FirstInterfaceImplementation"
         ), com.fasterxml.jackson.annotation.JsonSubTypes.Type(
-            value =
-                SecondInterfaceImplementation::class,
+            value = SecondInterfaceImplementation::class,
             name = "SecondInterfaceImplementation"
         )
     ]
