@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.serialization.types.data
+package com.expediagroup.graphql.client.serialization.data
 
-import com.expediagroup.graphql.client.serialization.types.data.polymorphicquery.BasicInterface
+import com.expediagroup.graphql.client.serialization.data.enums.TestEnum
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
 @Serializable
-class PolymorphicQuery : GraphQLClientRequest<PolymorphicQuery.Result> {
-    override val query: String = "POLYMORPHIC_QUERY"
+class EnumQuery(
+    override val variables: Variables
+) : GraphQLClientRequest<EnumQuery.Result> {
+    override val query: String = "ENUM_QUERY"
 
-    override val operationName: String = "PolymorphicQuery"
+    override val operationName: String = "EnumQuery"
 
     override fun responseType(): KClass<Result> = Result::class
 
     @Serializable
+    data class Variables(
+        val enum: TestEnum? = null
+    )
+
+    @Serializable
     data class Result(
-        val polymorphicResult: BasicInterface
+        val enumResult: TestEnum = TestEnum.__UNKNOWN
     )
 }

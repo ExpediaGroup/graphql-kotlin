@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.client.serializer
 
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import java.util.ServiceLoader
 import kotlin.reflect.KClass
@@ -34,7 +35,12 @@ interface GraphQLClientSerializer {
     /**
      * Serialize GraphQLClientRequest (or batch request) to a raw String representation.
      */
-    fun serialize(request: Any): String
+    fun serialize(request: GraphQLClientRequest<*>): String
+
+    /**
+     * Serialize GraphQLClientRequest (or batch request) to a raw String representation.
+     */
+    fun serialize(requests: List<GraphQLClientRequest<*>>): String
 
     /**
      * Deserialize raw response String to a target GraphQLClientResponse.

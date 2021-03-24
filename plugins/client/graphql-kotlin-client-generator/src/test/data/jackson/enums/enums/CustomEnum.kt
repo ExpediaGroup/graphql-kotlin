@@ -1,6 +1,7 @@
 package com.expediagroup.graphql.generated.enums
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlin.Deprecated
 
 /**
@@ -22,6 +23,12 @@ enum class CustomEnum {
    * Second enum value
    */
   TWO,
+
+  /**
+   * Lowercase enum value
+   */
+  @JsonProperty("four")
+  FOUR,
 
   /**
    * This is a default enum value that will be used when attempting to deserialize unknown value.

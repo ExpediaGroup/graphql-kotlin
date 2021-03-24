@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.serialization.types.data.scalars
+package com.expediagroup.graphql.client.serialization.data.scalars
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
 import kotlinx.serialization.KSerializer

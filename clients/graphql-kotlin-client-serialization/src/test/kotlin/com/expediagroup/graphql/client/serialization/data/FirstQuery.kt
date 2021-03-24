@@ -14,31 +14,29 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.jackson.data
+package com.expediagroup.graphql.client.serialization.data
 
-import com.expediagroup.graphql.client.jackson.data.scalars.UUID
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
-// typealiases would be in separate file
-typealias ID = String
-
-class ScalarQuery(
+@Serializable
+class FirstQuery(
     override val variables: Variables
-) : GraphQLClientRequest<ScalarQuery.Result> {
-    override val query: String = "SCALAR_QUERY"
+) : GraphQLClientRequest<FirstQuery.Result> {
+    override val query: String = "FIRST_QUERY"
 
-    override val operationName: String = "ScalarQuery"
+    override val operationName: String = "FirstQuery"
 
     override fun responseType(): KClass<Result> = Result::class
 
+    @Serializable
     data class Variables(
-        val alias: ID? = null,
-        val custom: UUID? = null
+        val input: Float? = null
     )
 
+    @Serializable
     data class Result(
-        val scalarAlias: ID,
-        val customScalar: UUID
+        val stringResult: String
     )
 }
