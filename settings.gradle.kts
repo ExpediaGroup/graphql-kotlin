@@ -7,7 +7,6 @@ pluginManagement {
     val nexusPublishPluginVersion: String by settings
     val pluginPublishPluginVersion: String by settings
     val springBootVersion: String by settings
-    val stagingPluginVersion: String by settings
 
     plugins {
         kotlin("jvm") version kotlinVersion
@@ -16,8 +15,7 @@ pluginManagement {
         kotlin("plugin.spring") version kotlinVersion
         id("com.gradle.plugin-publish") version pluginPublishPluginVersion
         id("de.benediktritter.maven-plugin-development") version mavenPluginDevelopmentVersion
-        id("de.marcphilipp.nexus-publish") version nexusPublishPluginVersion
-        id("io.codearte.nexus-staging") version stagingPluginVersion
+        id("io.github.gradle-nexus.publish-plugin") version nexusPublishPluginVersion
         id("io.gitlab.arturbosch.detekt") version detektVersion
         id("org.jetbrains.dokka") version dokkaVersion
         id("org.jlleitschuh.gradle.ktlint") version ktlintPluginVersion
