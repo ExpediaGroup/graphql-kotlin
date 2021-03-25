@@ -6,13 +6,13 @@ import kotlin.String
 /**
  * Example of an object self-referencing itself
  */
-data class NestedObject4(
+public data class NestedObject4(
   /**
    * Unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Name of the object
    */
-  val name: String
+  public val name: String
 )

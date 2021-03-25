@@ -1,9 +1,9 @@
 package com.expediagroup.graphql.generated.unionquerywithinlinefragments
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+import com.fasterxml.jackson.`annotation`.JsonSubTypes
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo.Id.NAME
 import kotlin.Int
 import kotlin.String
 
@@ -18,17 +18,17 @@ import kotlin.String
 @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     BasicObject::class, name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
     = ComplexObject::class, name="ComplexObject")])
-interface BasicUnion
+public interface BasicUnion
 
 /**
  * Some basic description
  */
-data class BasicObject(
-  val id: Int,
+public data class BasicObject(
+  public val id: Int,
   /**
    * Object name
    */
-  val name: String
+  public val name: String
 ) : BasicUnion
 
 /**
@@ -36,18 +36,18 @@ data class BasicObject(
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
-data class ComplexObject(
+public data class ComplexObject(
   /**
    * Some unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Some object name
    */
-  val name: String,
+  public val name: String,
   /**
    * Optional value
    * Second line of the description
    */
-  val optional: String?
+  public val optional: String?
 ) : BasicUnion

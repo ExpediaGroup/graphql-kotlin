@@ -7,17 +7,17 @@ import kotlin.collections.List
 /**
  * Example of an object self-referencing itself
  */
-data class NestedObject(
+public data class NestedObject(
   /**
    * Unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Name of the object
    */
-  val name: String,
+  public val name: String,
   /**
    * Children elements
    */
-  val children: List<NestedObject2>
+  public val children: List<NestedObject2>
 )

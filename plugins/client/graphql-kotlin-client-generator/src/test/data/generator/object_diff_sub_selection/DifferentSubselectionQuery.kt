@@ -6,25 +6,25 @@ import com.expediagroup.graphql.generated.differentsubselectionquery.ComplexObje
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val DIFFERENT_SUBSELECTION_QUERY: String =
+public const val DIFFERENT_SUBSELECTION_QUERY: String =
     "query DifferentSubselectionQuery {\n  first: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n      flag\n    }\n  }\n  second: complexObjectQuery {\n    id\n    name\n    details {\n      id\n      value\n    }\n  }\n}"
 
-class DifferentSubselectionQuery : GraphQLClientRequest<DifferentSubselectionQuery.Result> {
-  override val query: String = DIFFERENT_SUBSELECTION_QUERY
+public class DifferentSubselectionQuery : GraphQLClientRequest<DifferentSubselectionQuery.Result> {
+  public override val query: String = DIFFERENT_SUBSELECTION_QUERY
 
-  override val operationName: String = "DifferentSubselectionQuery"
+  public override val operationName: String = "DifferentSubselectionQuery"
 
-  override fun responseType(): KClass<DifferentSubselectionQuery.Result> =
+  public override fun responseType(): KClass<DifferentSubselectionQuery.Result> =
       DifferentSubselectionQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query returning an object that references another object
      */
-    val first: ComplexObject,
+    public val first: ComplexObject,
     /**
      * Query returning an object that references another object
      */
-    val second: ComplexObject2
+    public val second: ComplexObject2
   )
 }

@@ -8,17 +8,17 @@ import kotlinx.serialization.Serializable
  * Test input object
  */
 @Serializable
-data class SimpleArgumentInput(
+public data class SimpleArgumentInput(
   /**
    * Maximum value for test criteria
    */
-  val max: Float? = null,
+  public val max: Float? = null,
   /**
    * Minimum value for test criteria
    */
-  val min: Float? = null,
+  public val min: Float? = null,
   /**
    * New value to be set
    */
-  val newName: String? = null
+  public val newName: String? = null
 )

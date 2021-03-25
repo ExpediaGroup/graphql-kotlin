@@ -1,9 +1,9 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+import com.fasterxml.jackson.`annotation`.JsonSubTypes
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo.Id.NAME
 import kotlin.String
 
 /**
@@ -18,16 +18,16 @@ import kotlin.String
     BasicObject2::class,
     name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     ComplexObject2::class, name="ComplexObject")])
-interface BasicUnion2
+public interface BasicUnion2
 
 /**
  * Some basic description
  */
-data class BasicObject2(
+public data class BasicObject2(
   /**
    * Object name
    */
-  val name: String
+  public val name: String
 ) : BasicUnion2
 
 /**
@@ -35,9 +35,9 @@ data class BasicObject2(
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
-data class ComplexObject2(
+public data class ComplexObject2(
   /**
    * Some object name
    */
-  val name: String
+  public val name: String
 ) : BasicUnion2

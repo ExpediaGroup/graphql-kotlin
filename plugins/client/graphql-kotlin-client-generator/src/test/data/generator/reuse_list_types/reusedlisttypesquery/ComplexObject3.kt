@@ -8,13 +8,13 @@ import kotlin.collections.List
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
-data class ComplexObject3(
+public data class ComplexObject3(
   /**
    * Some unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * List of objects
    */
-  val basicList: List<BasicObject3>
+  public val basicList: List<BasicObject3>
 )

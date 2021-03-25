@@ -5,19 +5,21 @@ import com.expediagroup.graphql.generated.documentationquery.DocObject
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val DOCUMENTATION_QUERY: String = "query DocumentationQuery {\n  docQuery {\n    id\n  }\n}"
+public const val DOCUMENTATION_QUERY: String =
+    "query DocumentationQuery {\n  docQuery {\n    id\n  }\n}"
 
-class DocumentationQuery : GraphQLClientRequest<DocumentationQuery.Result> {
-  override val query: String = DOCUMENTATION_QUERY
+public class DocumentationQuery : GraphQLClientRequest<DocumentationQuery.Result> {
+  public override val query: String = DOCUMENTATION_QUERY
 
-  override val operationName: String = "DocumentationQuery"
+  public override val operationName: String = "DocumentationQuery"
 
-  override fun responseType(): KClass<DocumentationQuery.Result> = DocumentationQuery.Result::class
+  public override fun responseType(): KClass<DocumentationQuery.Result> =
+      DocumentationQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query to test doc strings
      */
-    val docQuery: DocObject
+    public val docQuery: DocObject
   )
 }

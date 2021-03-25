@@ -9,17 +9,17 @@ import kotlin.collections.List
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
-data class ComplexObject(
+public data class ComplexObject(
   /**
    * Some unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Some object name
    */
-  val name: String,
+  public val name: String,
   /**
    * List of objects
    */
-  val basicList: List<BasicObject>
+  public val basicList: List<BasicObject>
 )

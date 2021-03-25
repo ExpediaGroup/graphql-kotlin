@@ -5,9 +5,9 @@ import kotlin.Int
 /**
  * Inner type object description
  */
-data class DetailsObject2(
+public data class DetailsObject2(
   /**
    * Unique identifier
    */
-  val id: Int
+  public val id: Int
 )

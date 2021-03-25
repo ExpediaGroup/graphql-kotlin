@@ -6,13 +6,13 @@ import kotlin.collections.List
 /**
  * Example of an object self-referencing itself
  */
-data class NestedObject2(
+public data class NestedObject2(
   /**
    * Name of the object
    */
-  val name: String,
+  public val name: String,
   /**
    * Children elements
    */
-  val children: List<NestedObject3>
+  public val children: List<NestedObject3>
 )

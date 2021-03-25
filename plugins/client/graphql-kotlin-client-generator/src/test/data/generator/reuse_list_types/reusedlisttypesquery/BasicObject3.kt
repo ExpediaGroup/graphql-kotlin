@@ -5,6 +5,6 @@ import kotlin.Int
 /**
  * Some basic description
  */
-data class BasicObject3(
-  val id: Int
+public data class BasicObject3(
+  public val id: Int
 )

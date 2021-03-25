@@ -6,10 +6,10 @@ import kotlin.String
 /**
  * Some basic description
  */
-data class BasicObject(
-  val id: Int,
+public data class BasicObject(
+  public val id: Int,
   /**
    * Object name
    */
-  val name: String
+  public val name: String
 )

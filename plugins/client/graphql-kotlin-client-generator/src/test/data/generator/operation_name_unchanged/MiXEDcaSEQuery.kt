@@ -5,19 +5,20 @@ import com.expediagroup.graphql.generated.mixedcasequery.ScalarWrapper
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val MI_XE_DCA_SE_QUERY: String = "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
+public const val MI_XE_DCA_SE_QUERY: String =
+    "query miXEDcaSEQuery {\n  scalarQuery {\n    name\n  }\n}"
 
-class MiXEDcaSEQuery : GraphQLClientRequest<MiXEDcaSEQuery.Result> {
-  override val query: String = MI_XE_DCA_SE_QUERY
+public class MiXEDcaSEQuery : GraphQLClientRequest<MiXEDcaSEQuery.Result> {
+  public override val query: String = MI_XE_DCA_SE_QUERY
 
-  override val operationName: String = "miXEDcaSEQuery"
+  public override val operationName: String = "miXEDcaSEQuery"
 
-  override fun responseType(): KClass<MiXEDcaSEQuery.Result> = MiXEDcaSEQuery.Result::class
+  public override fun responseType(): KClass<MiXEDcaSEQuery.Result> = MiXEDcaSEQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    val scalarQuery: ScalarWrapper
+    public val scalarQuery: ScalarWrapper
   )
 }

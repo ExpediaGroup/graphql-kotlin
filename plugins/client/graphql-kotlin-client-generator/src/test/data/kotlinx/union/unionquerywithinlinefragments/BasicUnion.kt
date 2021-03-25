@@ -9,19 +9,19 @@ import kotlinx.serialization.Serializable
  * Very basic union of BasicObject and ComplexObject
  */
 @Serializable
-sealed class BasicUnion
+public sealed class BasicUnion
 
 /**
  * Some basic description
  */
 @Serializable
 @SerialName(value = "BasicObject")
-data class BasicObject(
-  val id: Int,
+public data class BasicObject(
+  public val id: Int,
   /**
    * Object name
    */
-  val name: String
+  public val name: String
 ) : BasicUnion()
 
 /**
@@ -31,18 +31,18 @@ data class BasicObject(
  */
 @Serializable
 @SerialName(value = "ComplexObject")
-data class ComplexObject(
+public data class ComplexObject(
   /**
    * Some unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Some object name
    */
-  val name: String,
+  public val name: String,
   /**
    * Optional value
    * Second line of the description
    */
-  val optional: String?
+  public val optional: String?
 ) : BasicUnion()
