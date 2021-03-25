@@ -117,14 +117,12 @@ subprojects {
             archiveClassifier.set("sources")
             from(sourceSets.main.get().allSource)
         }
-        val dokka by getting(DokkaTask::class) {
-            outputFormat = "javadoc"
-            outputDirectory = "$buildDir/javadoc"
-        }
+
+        val dokka = named("dokkaJavadoc", DokkaTask::class)
         val javadocJar by registering(Jar::class) {
             archiveClassifier.set("javadoc")
             from("$buildDir/javadoc")
-            dependsOn(dokka.path)
+            dependsOn(dokka)
         }
         publishing {
             publications {
