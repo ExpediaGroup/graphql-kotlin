@@ -28,7 +28,7 @@ jobs:
         run: |
           NEW_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3)
           echo "New version: ${NEW_VERSION}"
-          ./gradlew :initializeSonatypeStagingRepository publish :closeAndReleaseRepository publishPlugins -Pversion=${NEW_VERSION}
+          ./gradlew publishToSonatype closeSonatypeStagingRepository -Pversion=${NEW_VERSION}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

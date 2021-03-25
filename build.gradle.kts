@@ -1,7 +1,7 @@
-import de.marcphilipp.gradle.nexus.NexusPublishExtension
 import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.Duration
 import java.time.Instant
 
 description = "Libraries for running a GraphQL server in Kotlin"
@@ -15,16 +15,15 @@ plugins {
     jacoco
     signing
     `maven-publish`
-    id("de.marcphilipp.nexus-publish")
-    id("io.codearte.nexus-staging")
+    id("io.github.gradle-nexus.publish-plugin")
 }
 
 allprojects {
     buildscript {
         repositories {
-            mavenLocal()
             mavenCentral()
             jcenter()
+            mavenLocal()
         }
     }
 
@@ -34,17 +33,6 @@ allprojects {
         mavenLocal {
             content {
                 includeGroup("com.expediagroup")
-            }
-        }
-    }
-
-    apply(plugin = "de.marcphilipp.nexus-publish")
-
-    configure<NexusPublishExtension> {
-        repositories {
-            sonatype {
-                username.set(System.getenv("SONATYPE_USERNAME"))
-                password.set(System.getenv("SONATYPE_PASSWORD"))
             }
         }
     }
@@ -198,15 +186,21 @@ tasks {
     jar {
         enabled = false
     }
-    nexusStaging {
-        username = System.getenv("SONATYPE_USERNAME")
-        password = System.getenv("SONATYPE_PASSWORD")
-        packageGroup = rootProject.group.toString()
-        numberOfRetries = 60
-        delayBetweenRetriesInMillis = 5000
+    nexusPublishing {
+        repositories {
+            sonatype {
+                username.set(System.getenv("SONATYPE_USERNAME"))
+                password.set(System.getenv("SONATYPE_PASSWORD"))
+            }
+        }
+
+        transitionCheckOptions {
+            maxRetries.set(60)
+            delayBetween.set(Duration.ofMillis(5000))
+        }
     }
 
-    val resolveIntegrationTestDependencies by register("resolveIntegrationTestDependencies") {
+    register("resolveIntegrationTestDependencies") {
         // our Gradle and Maven integration tests run in separate VMs that will need access to the generated artifacts
         // we will need to run them after artifacts are published to local m2 repo
         for (graphQLKotlinProject in project.childProjects) {
