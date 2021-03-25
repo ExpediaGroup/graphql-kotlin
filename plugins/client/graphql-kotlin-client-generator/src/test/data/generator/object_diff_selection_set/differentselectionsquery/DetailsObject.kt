@@ -6,13 +6,13 @@ import kotlin.String
 /**
  * Inner type object description
  */
-data class DetailsObject(
+public data class DetailsObject(
   /**
    * Unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Actual detail value
    */
-  val value: String
+  public val value: String
 )

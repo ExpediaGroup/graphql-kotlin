@@ -5,21 +5,22 @@ import com.expediagroup.graphql.generated.unionquerywithnamedfragments.BasicUnio
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val UNION_QUERY_WITH_NAMED_FRAGMENTS: String =
+public const val UNION_QUERY_WITH_NAMED_FRAGMENTS: String =
     "query UnionQueryWithNamedFragments {\n  unionQuery {\n    ... basicObjectFields\n    ... complexObjectFields\n  }\n}\n\nfragment basicObjectFields on BasicObject {\n  __typename\n  id\n  name\n}\nfragment complexObjectFields on ComplexObject {\n  __typename\n  id\n  name\n  optional\n}"
 
-class UnionQueryWithNamedFragments : GraphQLClientRequest<UnionQueryWithNamedFragments.Result> {
-  override val query: String = UNION_QUERY_WITH_NAMED_FRAGMENTS
+public class UnionQueryWithNamedFragments :
+    GraphQLClientRequest<UnionQueryWithNamedFragments.Result> {
+  public override val query: String = UNION_QUERY_WITH_NAMED_FRAGMENTS
 
-  override val operationName: String = "UnionQueryWithNamedFragments"
+  public override val operationName: String = "UnionQueryWithNamedFragments"
 
-  override fun responseType(): KClass<UnionQueryWithNamedFragments.Result> =
+  public override fun responseType(): KClass<UnionQueryWithNamedFragments.Result> =
       UnionQueryWithNamedFragments.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query returning union
      */
-    val unionQuery: BasicUnion
+    public val unionQuery: BasicUnion
   )
 }

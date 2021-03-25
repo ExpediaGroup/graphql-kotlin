@@ -5,9 +5,9 @@ import com.expediagroup.graphql.generated.scalars.UUID
 /**
  * Wrapper that holds all supported scalar types
  */
-data class ScalarWrapper(
+public data class ScalarWrapper(
   /**
    * Custom scalar
    */
-  val custom: UUID
+  public val custom: UUID
 )

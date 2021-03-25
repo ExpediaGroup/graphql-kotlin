@@ -6,24 +6,24 @@ import kotlin.String
 import kotlin.reflect.KClass
 import kotlinx.serialization.Serializable
 
-const val INTERFACE_WITH_INLINE_FRAGMENTS_QUERY: String =
+public const val INTERFACE_WITH_INLINE_FRAGMENTS_QUERY: String =
     "query InterfaceWithInlineFragmentsQuery {\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n}"
 
 @Serializable
-class InterfaceWithInlineFragmentsQuery :
+public class InterfaceWithInlineFragmentsQuery :
     GraphQLClientRequest<InterfaceWithInlineFragmentsQuery.Result> {
-  override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_QUERY
+  public override val query: String = INTERFACE_WITH_INLINE_FRAGMENTS_QUERY
 
-  override val operationName: String = "InterfaceWithInlineFragmentsQuery"
+  public override val operationName: String = "InterfaceWithInlineFragmentsQuery"
 
-  override fun responseType(): KClass<InterfaceWithInlineFragmentsQuery.Result> =
+  public override fun responseType(): KClass<InterfaceWithInlineFragmentsQuery.Result> =
       InterfaceWithInlineFragmentsQuery.Result::class
 
   @Serializable
-  data class Result(
+  public data class Result(
     /**
      * Query returning an interface
      */
-    val interfaceQuery: BasicInterface
+    public val interfaceQuery: BasicInterface
   )
 }

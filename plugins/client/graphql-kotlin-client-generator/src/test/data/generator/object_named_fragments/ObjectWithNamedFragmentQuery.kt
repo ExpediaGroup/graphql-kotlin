@@ -5,21 +5,22 @@ import com.expediagroup.graphql.generated.objectwithnamedfragmentquery.ComplexOb
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val OBJECT_WITH_NAMED_FRAGMENT_QUERY: String =
+public const val OBJECT_WITH_NAMED_FRAGMENT_QUERY: String =
     "query ObjectWithNamedFragmentQuery {\n  complexObjectQuery {\n    ...complexObjectFields\n  }\n}\n\nfragment complexObjectFields on ComplexObject {\n  id\n  name\n  details {\n    ...detailObjectFields\n  }\n}\n\nfragment detailObjectFields on DetailsObject {\n  value\n}"
 
-class ObjectWithNamedFragmentQuery : GraphQLClientRequest<ObjectWithNamedFragmentQuery.Result> {
-  override val query: String = OBJECT_WITH_NAMED_FRAGMENT_QUERY
+public class ObjectWithNamedFragmentQuery :
+    GraphQLClientRequest<ObjectWithNamedFragmentQuery.Result> {
+  public override val query: String = OBJECT_WITH_NAMED_FRAGMENT_QUERY
 
-  override val operationName: String = "ObjectWithNamedFragmentQuery"
+  public override val operationName: String = "ObjectWithNamedFragmentQuery"
 
-  override fun responseType(): KClass<ObjectWithNamedFragmentQuery.Result> =
+  public override fun responseType(): KClass<ObjectWithNamedFragmentQuery.Result> =
       ObjectWithNamedFragmentQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query returning an object that references another object
      */
-    val complexObjectQuery: ComplexObject
+    public val complexObjectQuery: ComplexObject
   )
 }

@@ -1,9 +1,9 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME
+import com.fasterxml.jackson.`annotation`.JsonSubTypes
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
+import com.fasterxml.jackson.`annotation`.JsonTypeInfo.Id.NAME
 import kotlin.Float
 import kotlin.Int
 import kotlin.String
@@ -20,45 +20,45 @@ import kotlin.String
     FirstInterfaceImplementation2::class,
     name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     SecondInterfaceImplementation2::class, name="SecondInterfaceImplementation")])
-interface BasicInterface2 {
+public interface BasicInterface2 {
   /**
    * Unique identifier of an interface
    */
-  abstract val id: Int
+  public abstract val id: Int
 }
 
 /**
  * Example interface implementation where value is an integer
  */
-data class FirstInterfaceImplementation2(
+public data class FirstInterfaceImplementation2(
   /**
    * Unique identifier of the first implementation
    */
-  override val id: Int,
+  public override val id: Int,
   /**
    * Name of the first implementation
    */
-  val name: String,
+  public val name: String,
   /**
    * Custom field integer value
    */
-  val intValue: Int
+  public val intValue: Int
 ) : BasicInterface2
 
 /**
  * Example interface implementation where value is a float
  */
-data class SecondInterfaceImplementation2(
+public data class SecondInterfaceImplementation2(
   /**
    * Unique identifier of the second implementation
    */
-  override val id: Int,
+  public override val id: Int,
   /**
    * Name of the second implementation
    */
-  val name: String,
+  public val name: String,
   /**
    * Custom field float value
    */
-  val floatValue: Float
+  public val floatValue: Float
 ) : BasicInterface2

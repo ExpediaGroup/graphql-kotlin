@@ -6,26 +6,27 @@ import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val JACKSON_INPUT_QUERY: String =
+public const val JACKSON_INPUT_QUERY: String =
     "query JacksonInputQuery(${'$'}input: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}input)\n}"
 
-class JacksonInputQuery(
-  override val variables: JacksonInputQuery.Variables
+public class JacksonInputQuery(
+  public override val variables: JacksonInputQuery.Variables
 ) : GraphQLClientRequest<JacksonInputQuery.Result> {
-  override val query: String = JACKSON_INPUT_QUERY
+  public override val query: String = JACKSON_INPUT_QUERY
 
-  override val operationName: String = "JacksonInputQuery"
+  public override val operationName: String = "JacksonInputQuery"
 
-  override fun responseType(): KClass<JacksonInputQuery.Result> = JacksonInputQuery.Result::class
+  public override fun responseType(): KClass<JacksonInputQuery.Result> =
+      JacksonInputQuery.Result::class
 
-  data class Variables(
-    val input: SimpleArgumentInput? = null
+  public data class Variables(
+    public val input: SimpleArgumentInput? = null
   )
 
-  data class Result(
+  public data class Result(
     /**
      * Query that accepts some input arguments
      */
-    val inputObjectQuery: Boolean
+    public val inputObjectQuery: Boolean
   )
 }

@@ -10,22 +10,22 @@ import kotlinx.serialization.Serializable
  * This is final line of the description.
  */
 @Serializable
-data class ComplexObject(
+public data class ComplexObject(
   /**
    * Some unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Some object name
    */
-  val name: String,
+  public val name: String,
   /**
    * Optional value
    * Second line of the description
    */
-  val optional: String?,
+  public val optional: String?,
   /**
    * Some additional details
    */
-  val details: DetailsObject
+  public val details: DetailsObject
 )

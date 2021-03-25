@@ -5,17 +5,17 @@ import com.expediagroup.graphql.generated.anonymousquery.ScalarWrapper
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val ANONYMOUS_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
+public const val ANONYMOUS_QUERY: String = "query {\n  scalarQuery {\n    name\n  }\n}"
 
-class AnonymousQuery : GraphQLClientRequest<AnonymousQuery.Result> {
-  override val query: String = ANONYMOUS_QUERY
+public class AnonymousQuery : GraphQLClientRequest<AnonymousQuery.Result> {
+  public override val query: String = ANONYMOUS_QUERY
 
-  override fun responseType(): KClass<AnonymousQuery.Result> = AnonymousQuery.Result::class
+  public override fun responseType(): KClass<AnonymousQuery.Result> = AnonymousQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    val scalarQuery: ScalarWrapper
+    public val scalarQuery: ScalarWrapper
   )
 }

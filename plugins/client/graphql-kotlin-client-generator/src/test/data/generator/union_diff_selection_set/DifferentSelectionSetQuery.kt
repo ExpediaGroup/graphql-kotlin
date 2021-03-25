@@ -6,25 +6,25 @@ import com.expediagroup.graphql.generated.differentselectionsetquery.BasicUnion2
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val DIFFERENT_SELECTION_SET_QUERY: String =
+public const val DIFFERENT_SELECTION_SET_QUERY: String =
     "query DifferentSelectionSetQuery {\n  first: unionQuery {\n    __typename\n    ... on BasicObject {\n      id\n    }\n    ... on ComplexObject {\n      id\n    }\n  }\n  second: unionQuery {\n    __typename\n    ... on BasicObject {\n      name\n    }\n    ... on ComplexObject {\n      name\n    }\n  }\n}"
 
-class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
-  override val query: String = DIFFERENT_SELECTION_SET_QUERY
+public class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectionSetQuery.Result> {
+  public override val query: String = DIFFERENT_SELECTION_SET_QUERY
 
-  override val operationName: String = "DifferentSelectionSetQuery"
+  public override val operationName: String = "DifferentSelectionSetQuery"
 
-  override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
+  public override fun responseType(): KClass<DifferentSelectionSetQuery.Result> =
       DifferentSelectionSetQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query returning union
      */
-    val first: BasicUnion,
+    public val first: BasicUnion,
     /**
      * Query returning union
      */
-    val second: BasicUnion2
+    public val second: BasicUnion2
   )
 }

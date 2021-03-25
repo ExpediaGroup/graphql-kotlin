@@ -8,17 +8,17 @@ import kotlin.String
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
-data class ComplexObject3(
+public data class ComplexObject3(
   /**
    * Some unique identifier
    */
-  val id: Int,
+  public val id: Int,
   /**
    * Some object name
    */
-  val name: String,
+  public val name: String,
   /**
    * Some additional details
    */
-  val details: DetailsObject2
+  public val details: DetailsObject2
 )

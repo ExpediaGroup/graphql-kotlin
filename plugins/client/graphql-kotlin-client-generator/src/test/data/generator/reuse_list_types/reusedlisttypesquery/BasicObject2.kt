@@ -5,9 +5,9 @@ import kotlin.String
 /**
  * Some basic description
  */
-data class BasicObject2(
+public data class BasicObject2(
   /**
    * Object name
    */
-  val name: String
+  public val name: String
 )

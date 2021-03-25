@@ -5,9 +5,9 @@ import kotlin.String
 /**
  * Inner type object description
  */
-data class DetailsObject(
+public data class DetailsObject(
   /**
    * Actual detail value
    */
-  val value: String
+  public val value: String
 )

@@ -6,27 +6,27 @@ import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val SELF_REFERENCING_INPUT_QUERY: String =
+public const val SELF_REFERENCING_INPUT_QUERY: String =
     "query SelfReferencingInputQuery(${'$'}input: ComplexArgumentInput) {\n  complexInputObjectQuery(criteria: ${'$'}input)\n}"
 
-class SelfReferencingInputQuery(
-  override val variables: SelfReferencingInputQuery.Variables
+public class SelfReferencingInputQuery(
+  public override val variables: SelfReferencingInputQuery.Variables
 ) : GraphQLClientRequest<SelfReferencingInputQuery.Result> {
-  override val query: String = SELF_REFERENCING_INPUT_QUERY
+  public override val query: String = SELF_REFERENCING_INPUT_QUERY
 
-  override val operationName: String = "SelfReferencingInputQuery"
+  public override val operationName: String = "SelfReferencingInputQuery"
 
-  override fun responseType(): KClass<SelfReferencingInputQuery.Result> =
+  public override fun responseType(): KClass<SelfReferencingInputQuery.Result> =
       SelfReferencingInputQuery.Result::class
 
-  data class Variables(
-    val input: ComplexArgumentInput? = null
+  public data class Variables(
+    public val input: ComplexArgumentInput? = null
   )
 
-  data class Result(
+  public data class Result(
     /**
      * Query that accepts self referencing input object
      */
-    val complexInputObjectQuery: Boolean
+    public val complexInputObjectQuery: Boolean
   )
 }

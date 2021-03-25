@@ -5,21 +5,21 @@ import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
 
-const val HARD_CODED_INPUT_QUERY: String =
+public const val HARD_CODED_INPUT_QUERY: String =
     "query HardCodedInputQuery {\n  inputObjectQuery(criteria: { min: 1.0, max: 5.0 } )\n}"
 
-class HardCodedInputQuery : GraphQLClientRequest<HardCodedInputQuery.Result> {
-  override val query: String = HARD_CODED_INPUT_QUERY
+public class HardCodedInputQuery : GraphQLClientRequest<HardCodedInputQuery.Result> {
+  public override val query: String = HARD_CODED_INPUT_QUERY
 
-  override val operationName: String = "HardCodedInputQuery"
+  public override val operationName: String = "HardCodedInputQuery"
 
-  override fun responseType(): KClass<HardCodedInputQuery.Result> =
+  public override fun responseType(): KClass<HardCodedInputQuery.Result> =
       HardCodedInputQuery.Result::class
 
-  data class Result(
+  public data class Result(
     /**
      * Query that accepts some input arguments
      */
-    val inputObjectQuery: Boolean
+    public val inputObjectQuery: Boolean
   )
 }

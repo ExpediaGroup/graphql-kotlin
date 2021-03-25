@@ -6,26 +6,27 @@ import kotlin.String
 import kotlin.reflect.KClass
 import kotlinx.serialization.Serializable
 
-const val CUSTOM_SCALAR_QUERY: String =
+public const val CUSTOM_SCALAR_QUERY: String =
     "query CustomScalarQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  count\n  custom\n  id\n}"
 
 @Serializable
-class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
-  override val query: String = CUSTOM_SCALAR_QUERY
+public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
+  public override val query: String = CUSTOM_SCALAR_QUERY
 
-  override val operationName: String = "CustomScalarQuery"
+  public override val operationName: String = "CustomScalarQuery"
 
-  override fun responseType(): KClass<CustomScalarQuery.Result> = CustomScalarQuery.Result::class
+  public override fun responseType(): KClass<CustomScalarQuery.Result> =
+      CustomScalarQuery.Result::class
 
   @Serializable
-  data class Result(
+  public data class Result(
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    val first: ScalarWrapper,
+    public val first: ScalarWrapper,
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    val second: ScalarWrapper
+    public val second: ScalarWrapper
   )
 }

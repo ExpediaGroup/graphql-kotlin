@@ -10,16 +10,16 @@ import kotlinx.serialization.Serializable
  * Very basic interface
  */
 @Serializable
-sealed class BasicInterface {
+public sealed class BasicInterface {
   /**
    * Unique identifier of an interface
    */
-  abstract val id: Int
+  public abstract val id: Int
 
   /**
    * Name field
    */
-  abstract val name: String
+  public abstract val name: String
 }
 
 /**
@@ -27,19 +27,19 @@ sealed class BasicInterface {
  */
 @Serializable
 @SerialName(value = "FirstInterfaceImplementation")
-data class FirstInterfaceImplementation(
+public data class FirstInterfaceImplementation(
   /**
    * Unique identifier of the first implementation
    */
-  override val id: Int,
+  public override val id: Int,
   /**
    * Name of the first implementation
    */
-  override val name: String,
+  public override val name: String,
   /**
    * Custom field integer value
    */
-  val intValue: Int
+  public val intValue: Int
 ) : BasicInterface()
 
 /**
@@ -47,17 +47,17 @@ data class FirstInterfaceImplementation(
  */
 @Serializable
 @SerialName(value = "SecondInterfaceImplementation")
-data class SecondInterfaceImplementation(
+public data class SecondInterfaceImplementation(
   /**
    * Unique identifier of the second implementation
    */
-  override val id: Int,
+  public override val id: Int,
   /**
    * Name of the second implementation
    */
-  override val name: String,
+  public override val name: String,
   /**
    * Custom field float value
    */
-  val floatValue: Float
+  public val floatValue: Float
 ) : BasicInterface()
