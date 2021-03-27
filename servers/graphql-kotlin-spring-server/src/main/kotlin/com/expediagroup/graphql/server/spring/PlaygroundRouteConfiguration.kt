@@ -33,15 +33,10 @@ import org.springframework.web.reactive.function.server.html
 class PlaygroundRouteConfiguration(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource,
-    @Value("server.servlet.context-path") private val servletContextPath: String?,
-    @Value("spring.webflux.base-path") private val reactiveContextPath: String?
+    @Value("spring.webflux.base-path") private val contextPath: String?
 ) {
 
     private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
-        val contextPath = when {
-            servletContextPath.isNullOrBlank() -> reactiveContextPath?.let { if (it.isNotBlank()) it else null }
-            else -> servletContextPath
-        }
         val graphQLEndpoint = if (contextPath.isNullOrBlank()) config.endpoint else "$contextPath/${config.endpoint}"
         val subscriptionsEndpoint = if (contextPath.isNullOrBlank()) config.subscriptions.endpoint else "$contextPath/${config.subscriptions.endpoint}"
 
