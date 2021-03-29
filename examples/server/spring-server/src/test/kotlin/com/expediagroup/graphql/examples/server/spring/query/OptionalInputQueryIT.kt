@@ -25,7 +25,7 @@ class OptionalInputQueryIT(@Autowired private val testClient: WebTestClient) {
             .accept(MediaType.APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
             .bodyValue(
-                """query { $query(patient: [{
+                """query { $query(optionalInput: [{
                 |   number: 111111,
                 |   }]
                 |) }""".trimMargin()
