@@ -3,6 +3,10 @@ id: graphql-context-factory
 title: GraphQLContextFactory
 ---
 
+:::note
+If you are using `graphql-kotlin-spring-server`, see the [Spring specific documentation](./spring-server/spring-graphql-context.md).
+:::
+
 `GraphQLContextFactory` is a generic method for generating a `GraphQLContext` for each request.
 
 ```kotlin
