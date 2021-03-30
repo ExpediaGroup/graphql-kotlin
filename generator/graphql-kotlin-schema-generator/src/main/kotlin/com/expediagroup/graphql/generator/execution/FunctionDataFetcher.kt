@@ -19,6 +19,8 @@ package com.expediagroup.graphql.generator.execution
 import com.expediagroup.graphql.generator.internal.extensions.getJavaClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
+import com.expediagroup.graphql.generator.internal.extensions.getWrappedType
+import com.expediagroup.graphql.generator.internal.extensions.isArray
 import com.expediagroup.graphql.generator.internal.extensions.isDataFetchingEnvironment
 import com.expediagroup.graphql.generator.internal.extensions.isGraphQLContext
 import com.expediagroup.graphql.generator.internal.extensions.isList
@@ -36,6 +38,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KType
 import kotlin.reflect.full.callSuspendBy
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.valueParameters
@@ -125,24 +128,36 @@ open class FunctionDataFetcher(
         argumentName: String,
         argumentValue: Any?
     ): Any? = when {
-        param.isList() -> {
-            val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
-            val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
-            objectMapper.convertValue(argumentValue, jacksonCollectionType)
-        }
         param.type.isOptionalInputType() -> {
             when {
                 !environment.containsArgument(argumentName) -> OptionalInput.Undefined
                 argumentValue == null -> OptionalInput.Defined(null)
                 else -> {
-                    val argumentClass = param.type.getTypeOfFirstArgument().getJavaClass()
-                    val value = objectMapper.convertValue(argumentValue, argumentClass)
+                    val paramType = param.type.getTypeOfFirstArgument()
+                    val value = convertValue(paramType, argumentValue)
                     OptionalInput.Defined(value)
                 }
             }
         }
+        else -> convertValue(param.type, argumentValue)
+    }
+
+    private fun convertValue(
+        paramType: KType,
+        argumentValue: Any?
+    ): Any? = when {
+        paramType.isList() -> {
+            val argumentClass = paramType.getTypeOfFirstArgument().getJavaClass()
+            val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
+            objectMapper.convertValue(argumentValue, jacksonCollectionType)
+        }
+        paramType.isArray() -> {
+            val argumentClass = paramType.getWrappedType().getJavaClass()
+            val jacksonCollectionType = objectMapper.typeFactory.constructArrayType(argumentClass)
+            objectMapper.convertValue(argumentValue, jacksonCollectionType)
+        }
         else -> {
-            val javaClass = param.type.getJavaClass()
+            val javaClass = paramType.getJavaClass()
             objectMapper.convertValue(argumentValue, javaClass)
         }
     }

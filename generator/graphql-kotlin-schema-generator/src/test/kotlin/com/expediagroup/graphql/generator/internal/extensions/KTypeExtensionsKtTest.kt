@@ -106,7 +106,31 @@ class KTypeExtensionsKtTest {
     }
 
     @Test
-    fun getArrayType() {
+    fun isList() {
+        assertTrue(List::class.starProjectedType.isList())
+        assertFalse(Array::class.starProjectedType.isList())
+        assertFalse(IntArray::class.starProjectedType.isList())
+        assertFalse(MyClass::class.starProjectedType.isList())
+    }
+
+    @Test
+    fun isArray() {
+        assertTrue(Array::class.starProjectedType.isArray())
+        assertTrue(IntArray::class.starProjectedType.isArray())
+        assertFalse(List::class.starProjectedType.isArray())
+        assertFalse(MyClass::class.starProjectedType.isArray())
+    }
+
+    @Test
+    fun isListType() {
+        assertTrue(List::class.starProjectedType.isListType())
+        assertTrue(Array::class.starProjectedType.isListType())
+        assertTrue(IntArray::class.starProjectedType.isListType())
+        assertFalse(MyClass::class.starProjectedType.isListType())
+    }
+
+    @Test
+    fun getWrappedType() {
         assertEquals(Int::class.starProjectedType, IntArray::class.starProjectedType.getWrappedType())
         assertEquals(Long::class.starProjectedType, LongArray::class.starProjectedType.getWrappedType())
         assertEquals(Short::class.starProjectedType, ShortArray::class.starProjectedType.getWrappedType())

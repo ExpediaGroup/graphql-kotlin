@@ -41,7 +41,11 @@ internal fun KType.getJavaClass(): Class<*> = this.getKClass().java
 
 internal fun KType.isSubclassOf(kClass: KClass<*>) = this.getKClass().isSubclassOf(kClass)
 
-internal fun KType.isListType() = this.isSubclassOf(List::class) || this.getJavaClass().isArray
+internal fun KType.isList() = this.isSubclassOf(List::class)
+
+internal fun KType.isArray() = this.getJavaClass().isArray
+
+internal fun KType.isListType() = this.isList() || this.isArray()
 
 internal fun KType.isOptionalInputType() = this.isSubclassOf(OptionalInput::class)
 

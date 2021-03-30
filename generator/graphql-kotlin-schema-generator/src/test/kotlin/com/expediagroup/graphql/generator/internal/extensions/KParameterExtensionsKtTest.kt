@@ -126,19 +126,4 @@ class KParameterExtensionsKtTest {
         val param = Container::interfaceInput.findParameterByName("myInterface")
         assertFalse(param?.isDataFetchingEnvironment().isTrue())
     }
-
-    @Test
-    fun isList() {
-        assertTrue(Container::listInput.findParameterByName("myList")?.isList() == true)
-        assertTrue(Container::arrayInput.findParameterByName("myArray")?.isList() == false)
-        assertTrue(Container::interfaceInput.findParameterByName("myInterface")?.isList() == false)
-    }
-
-    @Test
-    fun isListType() {
-        assertTrue(Container::listInput.findParameterByName("myList")?.isListType() == true)
-        assertTrue(Container::arrayListInput.findParameterByName("myList")?.isListType() == true)
-        assertTrue(Container::arrayInput.findParameterByName("myArray")?.isListType() == true)
-        assertTrue(Container::interfaceInput.findParameterByName("myInterface")?.isListType() == false)
-    }
 }
