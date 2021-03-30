@@ -231,7 +231,7 @@ class GenerateArgumentTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Optional list of input objets is valid`() {
+    fun `Optional list of input objects is valid`() {
         val kParameter = ArgumentTestClass::optionalListClass.findParameterByName("input")
         assertNotNull(kParameter)
 
