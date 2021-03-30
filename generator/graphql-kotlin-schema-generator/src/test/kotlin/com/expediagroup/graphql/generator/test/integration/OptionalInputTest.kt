@@ -41,6 +41,12 @@ class OptionalInputTest {
             Arguments.of("{ optionalObjectInput }", "input object was not specified"),
             Arguments.of("{ optionalObjectInput(input: null) }", "input object value: null"),
             Arguments.of("{ optionalObjectInput(input: { id: 1, name: \"ABC\" } )  }", "input object value: SimpleArgument(id=1, name=ABC)"),
+            Arguments.of("{ optionaListScalarInput }", "input was not specified"),
+            Arguments.of("{ optionaListScalarInput(input: null) }", "input value: null"),
+            Arguments.of("{ optionaListScalarInput(input: [\"ABC\"] )  }", "input value: [ABC]"),
+            Arguments.of("{ optionaListInputObject }", "input was not specified"),
+            Arguments.of("{ optionaListInputObject(input: null) }", "input value: null"),
+            Arguments.of("{ optionaListInputObject(input: [{id: 1, name: \"ABC\"}] )  }", "input value: [{id=1, name=ABC}]"),
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" }) }", "argument with optional scalar was not specified"),
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" optional: null }) }", "argument scalar value: null"),
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" optional: 1 }) }", "argument scalar value: 1"),
@@ -92,6 +98,16 @@ class OptionalInputQuery {
     fun optionalObjectInput(input: OptionalInput<SimpleArgument>): String = when (input) {
         is OptionalInput.Undefined -> "input object was not specified"
         is OptionalInput.Defined<SimpleArgument> -> "input object value: ${input.value}"
+    }
+
+    fun optionaListScalarInput(input: OptionalInput<List<String>>): String = when (input) {
+        is OptionalInput.Undefined -> "input was not specified"
+        is OptionalInput.Defined -> "input value: ${input.value}"
+    }
+
+    fun optionaListInputObject(input: OptionalInput<List<SimpleArgument>>): String = when (input) {
+        is OptionalInput.Undefined -> "input was not specified"
+        is OptionalInput.Defined -> "input value: ${input.value}"
     }
 
     fun inputWithOptionalScalarValues(input: HasOptionalScalarArguments): String = when (input.optional) {
