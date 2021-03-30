@@ -161,25 +161,11 @@ class ApolloSubscriptionProtocolHandler(
      */
     private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
         runBlocking {
-            val connectionParams = getConnectionParams(operationMessage.payload)
+            val connectionParams = castToMapOfStringString(operationMessage.payload)
             val context = contextFactory.generateContext(session)
             val onConnect = subscriptionHooks.onConnect(connectionParams, session, context)
             sessionState.saveContext(session, onConnect)
         }
-    }
-
-    /**
-     * This is the best cast saftey we can get with the generics
-     */
-    @Suppress("UNCHECKED_CAST")
-    private fun getConnectionParams(payload: Any?): Map<String, String> {
-        if (payload != null && payload is Map<*, *> && payload.isNotEmpty()) {
-            if (payload.keys.first() is String && payload.values.first() is String) {
-                return payload as Map<String, String>
-            }
-        }
-
-        return emptyMap()
     }
 
     /**

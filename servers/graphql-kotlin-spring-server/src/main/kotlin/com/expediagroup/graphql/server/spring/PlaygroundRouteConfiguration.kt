@@ -33,7 +33,7 @@ import org.springframework.web.reactive.function.server.html
 class PlaygroundRouteConfiguration(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource,
-    @Value("\${spring.webflux.base-path:null}") private val contextPath: String?
+    @Value("\${spring.webflux.base-path:#{null}}") private val contextPath: String?
 ) {
 
     private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
