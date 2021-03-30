@@ -20,10 +20,12 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.InvalidInputFieldTypeException
 import com.expediagroup.graphql.generator.execution.OptionalInput
+import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.Scalars
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
@@ -39,6 +41,8 @@ class GenerateArgumentTest : TypeTestHelper() {
     }
 
     interface MyUnion
+
+    class MyClassInput(val internalValue: String)
 
     class ArgumentTestClass {
         fun description(@GraphQLDescription("Argument description") input: String) = input
@@ -68,6 +72,16 @@ class GenerateArgumentTest : TypeTestHelper() {
         fun optionalArg(input: OptionalInput<String>): String? = when (input) {
             is OptionalInput.Undefined -> null
             is OptionalInput.Defined -> input.value
+        }
+
+        fun optionalListString(input: OptionalInput<List<String>>): List<String>? = when (input) {
+            is OptionalInput.Undefined -> null
+            is OptionalInput.Defined -> input.value
+        }
+
+        fun optionalListClass(input: OptionalInput<List<MyClassInput>>): List<String>? = when (input) {
+            is OptionalInput.Undefined -> null
+            is OptionalInput.Defined -> input.value?.map { it.internalValue }
         }
     }
 
@@ -201,5 +215,31 @@ class GenerateArgumentTest : TypeTestHelper() {
 
         assertEquals(expected = "input", actual = result.name)
         assertEquals(Scalars.GraphQLString, result.type)
+    }
+
+    @Test
+    fun `Optional list of strings is valid`() {
+        val kParameter = ArgumentTestClass::optionalListString.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        val result = generateArgument(generator, kParameter)
+
+        assertEquals(expected = "input", actual = result.name)
+        val list = assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
+        val wrappedType = assertNotNull(list.wrappedType.unwrapType() as? GraphQLNamedType)
+        assertEquals(Scalars.GraphQLString, wrappedType)
+    }
+
+    @Test
+    fun `Optional list of input objects is valid`() {
+        val kParameter = ArgumentTestClass::optionalListClass.findParameterByName("input")
+        assertNotNull(kParameter)
+
+        val result = generateArgument(generator, kParameter)
+
+        assertEquals(expected = "input", actual = result.name)
+        val list = assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
+        val wrappedType = assertNotNull(list.wrappedType.unwrapType() as? GraphQLNamedType)
+        assertEquals("MyClassInput", wrappedType.name)
     }
 }
