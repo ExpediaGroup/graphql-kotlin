@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
-import com.expediagroup.graphql.generator.exceptions.InvalidListTypeException
+import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -58,17 +58,17 @@ class KTypeExtensionsKtTest {
 
         assertEquals(Int::class.starProjectedType, MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedType())
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getTypeOfFirstArgument()
         }
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             val mockType: KType = mockk()
             every { mockType.arguments } returns emptyList()
             mockType.getTypeOfFirstArgument()
         }
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             val mockArgument: KTypeProjection = mockk()
             every { mockArgument.type } returns null
             val mockType: KType = mockk()
@@ -140,7 +140,7 @@ class KTypeExtensionsKtTest {
         assertEquals(Boolean::class.starProjectedType, BooleanArray::class.starProjectedType.getWrappedType())
         assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getWrappedType())
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getWrappedType()
         }
     }
