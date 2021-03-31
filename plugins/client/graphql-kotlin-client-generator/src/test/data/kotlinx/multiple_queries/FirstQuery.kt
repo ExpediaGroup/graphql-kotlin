@@ -2,6 +2,7 @@ package com.expediagroup.graphql.generated
 
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
+import com.expediagroup.graphql.generated.enums.CustomEnum.__UNKNOWN_VALUE
 import com.expediagroup.graphql.generated.firstquery.BasicInterface
 import com.expediagroup.graphql.generated.firstquery.ComplexObject
 import com.expediagroup.graphql.generated.firstquery.ScalarWrapper
