@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
-import com.expediagroup.graphql.generator.exceptions.InvalidListTypeException
+import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -58,17 +58,17 @@ class KTypeExtensionsKtTest {
 
         assertEquals(Int::class.starProjectedType, MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedType())
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getTypeOfFirstArgument()
         }
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             val mockType: KType = mockk()
             every { mockType.arguments } returns emptyList()
             mockType.getTypeOfFirstArgument()
         }
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             val mockArgument: KTypeProjection = mockk()
             every { mockArgument.type } returns null
             val mockType: KType = mockk()
@@ -106,7 +106,31 @@ class KTypeExtensionsKtTest {
     }
 
     @Test
-    fun getArrayType() {
+    fun isList() {
+        assertTrue(List::class.starProjectedType.isList())
+        assertFalse(Array::class.starProjectedType.isList())
+        assertFalse(IntArray::class.starProjectedType.isList())
+        assertFalse(MyClass::class.starProjectedType.isList())
+    }
+
+    @Test
+    fun isArray() {
+        assertTrue(Array::class.starProjectedType.isArray())
+        assertTrue(IntArray::class.starProjectedType.isArray())
+        assertFalse(List::class.starProjectedType.isArray())
+        assertFalse(MyClass::class.starProjectedType.isArray())
+    }
+
+    @Test
+    fun isListType() {
+        assertTrue(List::class.starProjectedType.isListType())
+        assertTrue(Array::class.starProjectedType.isListType())
+        assertTrue(IntArray::class.starProjectedType.isListType())
+        assertFalse(MyClass::class.starProjectedType.isListType())
+    }
+
+    @Test
+    fun getWrappedType() {
         assertEquals(Int::class.starProjectedType, IntArray::class.starProjectedType.getWrappedType())
         assertEquals(Long::class.starProjectedType, LongArray::class.starProjectedType.getWrappedType())
         assertEquals(Short::class.starProjectedType, ShortArray::class.starProjectedType.getWrappedType())
@@ -116,7 +140,7 @@ class KTypeExtensionsKtTest {
         assertEquals(Boolean::class.starProjectedType, BooleanArray::class.starProjectedType.getWrappedType())
         assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getWrappedType())
 
-        assertFailsWith(InvalidListTypeException::class) {
+        assertFailsWith(InvalidWrappedTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getWrappedType()
         }
     }

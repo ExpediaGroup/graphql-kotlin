@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
-import com.expediagroup.graphql.generator.exceptions.InvalidListTypeException
+import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import com.expediagroup.graphql.generator.execution.OptionalInput
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -41,7 +41,11 @@ internal fun KType.getJavaClass(): Class<*> = this.getKClass().java
 
 internal fun KType.isSubclassOf(kClass: KClass<*>) = this.getKClass().isSubclassOf(kClass)
 
-internal fun KType.isListType() = this.isSubclassOf(List::class) || this.getJavaClass().isArray
+internal fun KType.isList() = this.isSubclassOf(List::class)
+
+internal fun KType.isArray() = this.getJavaClass().isArray
+
+internal fun KType.isListType() = this.isList() || this.isArray()
 
 internal fun KType.isOptionalInputType() = this.isSubclassOf(OptionalInput::class)
 
@@ -51,9 +55,9 @@ internal fun KType.unwrapOptionalInputType() = if (this.isOptionalInputType()) {
     this
 }
 
-@Throws(InvalidListTypeException::class)
+@Throws(InvalidWrappedTypeException::class)
 internal fun KType.getTypeOfFirstArgument(): KType =
-    this.arguments.firstOrNull()?.type ?: throw InvalidListTypeException(this)
+    this.arguments.firstOrNull()?.type ?: throw InvalidWrappedTypeException(this)
 
 internal fun KType.getWrappedType(): KType {
     val primitiveClass = primitiveArrayTypes[this.getKClass()]

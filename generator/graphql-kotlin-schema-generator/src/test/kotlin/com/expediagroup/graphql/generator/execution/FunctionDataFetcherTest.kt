@@ -69,6 +69,11 @@ class FunctionDataFetcherTest {
             is OptionalInput.Undefined -> "input was UNDEFINED"
             is OptionalInput.Defined -> "input was ${input.value}"
         }
+
+        fun optionalArrayInputObjects(input: OptionalInput<Array<MyInputClass>>): String = when (input) {
+            is OptionalInput.Undefined -> "input was UNDEFINED"
+            is OptionalInput.Defined -> "first input was ${input.value?.first()?.field1}"
+        }
     }
 
     @GraphQLName("MyInputClassRenamed")
@@ -275,5 +280,16 @@ class FunctionDataFetcherTest {
             every { containsArgument(any()) } returns false
         }
         assertEquals(expected = "input was UNDEFINED", actual = dataFetcher.get(mockEnvironmet))
+    }
+
+    @Test
+    fun `optional array of input objects is deserialized correctly`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalArrayInputObjects)
+        val mockEnvironmet: DataFetchingEnvironment = mockk {
+            every { arguments } returns mapOf("input" to arrayListOf(linkedMapOf("jacksonField" to "foo")))
+            every { containsArgument("input") } returns true
+        }
+        val result = dataFetcher.get(mockEnvironmet)
+        assertEquals(expected = "first input was foo", actual = result)
     }
 }

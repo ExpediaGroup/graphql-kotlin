@@ -46,7 +46,7 @@ class OptionalInputTest {
             Arguments.of("{ optionaListScalarInput(input: [\"ABC\"] )  }", "input value: [ABC]"),
             Arguments.of("{ optionaListInputObject }", "input was not specified"),
             Arguments.of("{ optionaListInputObject(input: null) }", "input value: null"),
-            Arguments.of("{ optionaListInputObject(input: [{id: 1, name: \"ABC\"}] )  }", "input value: [{id=1, name=ABC}]"),
+            Arguments.of("{ optionaListInputObject(input: [{id: 1, name: \"ABC\"}] )  }", "input value: [SimpleArgument(id=1, name=ABC)]"),
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" }) }", "argument with optional scalar was not specified"),
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" optional: null }) }", "argument scalar value: null"),
             Arguments.of("{ inputWithOptionalScalarValues(input: { required: \"ABC\" optional: 1 }) }", "argument scalar value: 1"),

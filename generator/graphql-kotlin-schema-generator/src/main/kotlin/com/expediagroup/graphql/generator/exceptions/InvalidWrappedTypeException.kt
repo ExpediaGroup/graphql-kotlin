@@ -19,7 +19,7 @@ package com.expediagroup.graphql.generator.exceptions
 import kotlin.reflect.KType
 
 /**
- * Thrown on mapping an invalid list type
+ * Thrown on mapping an invalid wrapped type
  */
-class InvalidListTypeException(type: KType) :
-    GraphQLKotlinException("Could not get the type of the first argument for the list $type")
+class InvalidWrappedTypeException(type: KType) :
+    GraphQLKotlinException("Could not get the type of the first argument for the type $type")
