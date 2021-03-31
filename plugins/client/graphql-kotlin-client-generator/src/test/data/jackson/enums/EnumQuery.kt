@@ -2,6 +2,7 @@ package com.expediagroup.graphql.generated
 
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
+import com.expediagroup.graphql.generated.enums.CustomEnum.__UNKNOWN_VALUE
 import kotlin.String
 import kotlin.reflect.KClass
 
