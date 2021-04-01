@@ -35,7 +35,7 @@ class MyCustomSchemaGeneratorHooksProvider : SchemaGeneratorHooksProvider {
 
 Service loader provider configuration file should be created under JAR `/META-INF/services` directory (e.g. `src/main/resources/META-INF/services`
 in default project structure). Name of the provider configuration should be fully qualified service provider interface name, i.e.
-`SchemaGeneratorHooksProvider` and contain single entry - a fully qualified
+`com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider` and contain single entry - a fully qualified
 name of the service provider implementation.
 
 Using the example service provider implementation from the above, our project structure should look like
@@ -51,7 +51,7 @@ my-project
     |- resources
       |- META-INF
         |- services
-          |- SchemaGeneratorHooksProvider
+          |- com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
 ```
 
 Our service provider configuration file should have following content

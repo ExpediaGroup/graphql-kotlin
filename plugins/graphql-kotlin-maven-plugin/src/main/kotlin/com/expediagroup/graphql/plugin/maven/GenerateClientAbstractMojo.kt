@@ -97,7 +97,6 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
      */
     abstract var outputDirectory: File
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
     override fun execute() {
         log.debug("generating GraphQL client")
         val graphQLSchemaFile = schemaFile ?: File(project.build.directory, "schema.graphql")
