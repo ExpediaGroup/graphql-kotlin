@@ -26,7 +26,6 @@ import org.apache.maven.plugins.annotations.Mojo
 @Mojo(name = "introspect-schema", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 class IntrospectSchemaMojo : RetrieveSchemaAbstractMojo() {
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
     override suspend fun retrieveGraphQLSchema(endpoint: String, httpHeaders: Map<String, Any>, timeoutConfiguration: TimeoutConfiguration): String =
         introspectSchema(endpoint = endpoint, httpHeaders = httpHeaders, connectTimeout = timeoutConfiguration.connect, readTimeout = timeoutConfiguration.read)
 }

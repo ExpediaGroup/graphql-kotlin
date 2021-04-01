@@ -26,7 +26,6 @@ import org.apache.maven.plugins.annotations.Mojo
 @Mojo(name = "download-sdl", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 class DownloadSDLMojo : RetrieveSchemaAbstractMojo() {
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
     override suspend fun retrieveGraphQLSchema(endpoint: String, httpHeaders: Map<String, Any>, timeoutConfiguration: TimeoutConfiguration): String =
         downloadSchema(endpoint = endpoint, httpHeaders = httpHeaders, connectTimeout = timeoutConfiguration.connect, readTimeout = timeoutConfiguration.read)
 }
