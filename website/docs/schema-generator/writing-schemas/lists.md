@@ -60,4 +60,14 @@ the `kotlin.Array` of objects the underlying type is automatically mapped to Gra
 Currently GraphQL spec only supports `Lists`. Therefore even though Java and Kotlin support number of other collection
 types, `graphql-kotlin-schema-generator` only explicitly supports `Lists` and primitive arrays. Other collection types
 such as `Sets` (see [#201](https://github.com/ExpediaGroup/graphql-kotlin/issues/201)) and arbitrary `Map` data
-structures are not supported.
+structures are not supported out of the box. We do not reccomend using `Map` or `Set` either as your are not hiding
+schema behaviour which is not part of the spec, however with the use of the schema hooks, you can override schema generation.
+
+```kotlin
+override fun willResolveMonad(type: KType): KType = when (type.classifier) {
+    Set::class -> List::class.createType(type.arguments)
+    else -> type
+}
+```
+
+See [Discussion #1110](https://github.com/ExpediaGroup/graphql-kotlin/discussions/1110) for more details.
