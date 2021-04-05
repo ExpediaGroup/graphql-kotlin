@@ -83,4 +83,6 @@ class SimpleQuery : Query {
         Selection.ONE -> "You chose the first one"
         Selection.TWO -> "You chose the second one"
     }
+
+    fun setList(): Set<String> = setOf("one", "one", "two")
 }

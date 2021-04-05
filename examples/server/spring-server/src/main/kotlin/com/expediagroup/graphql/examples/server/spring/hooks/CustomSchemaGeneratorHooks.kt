@@ -32,6 +32,7 @@ import java.math.BigDecimal
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
 
 /**
@@ -52,9 +53,10 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
      * Register Reactor Mono monad type.
      */
     override fun willResolveMonad(type: KType): KType = when (type.classifier) {
-        Mono::class -> type.arguments.firstOrNull()?.type
+        Mono::class -> type.arguments.first().type ?: type
+        Set::class -> List::class.createType(type.arguments)
         else -> type
-    } ?: type
+    }
 
     /**
      * Exclude the Spring bean factory interface
