@@ -57,7 +57,7 @@ Currently, the GraphQL spec only supports `Lists`. Therefore, even though Java a
 types, `graphql-kotlin-schema-generator` only explicitly supports `Lists` and primitive arrays. Other collection types
 such as `Sets` (see [#201](https://github.com/ExpediaGroup/graphql-kotlin/issues/201)) and arbitrary `Map` data
 structures are not supported out of the box. While we do not reccomend using `Map` or `Set` in the schema,
-they are supported the use of the schema hooks.
+they are supported with the use of the schema hooks.
 
 ```kotlin
 override fun willResolveMonad(type: KType): KType = when (type.classifier) {
