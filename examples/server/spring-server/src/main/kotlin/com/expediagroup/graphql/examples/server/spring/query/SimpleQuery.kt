@@ -84,5 +84,6 @@ class SimpleQuery : Query {
         Selection.TWO -> "You chose the second one"
     }
 
-    fun setList(): Set<String> = setOf("one", "one", "two")
+    @GraphQLDescription("Set exposed as a function")
+    fun setList(): Set<Int> = setOf(1, 1, 2, 3)
 }

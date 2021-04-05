@@ -21,8 +21,12 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 
 data class Employee(
     val name: String,
+
     @GraphQLIgnore
-    val companyId: Int
+    val companyId: Int,
+
+    @GraphQLDescription("A list of unique skills")
+    val skills: Set<String> = emptySet()
 ) {
     @GraphQLDescription("This value will be populated by a custom data fetcher using data loaders")
     lateinit var company: Company

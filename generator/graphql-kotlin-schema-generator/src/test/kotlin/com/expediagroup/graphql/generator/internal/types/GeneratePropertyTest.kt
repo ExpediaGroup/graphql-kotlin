@@ -25,6 +25,7 @@ import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactor
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.PropertyDataFetcher
+import com.expediagroup.graphql.generator.extensions.deepName
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.scalars.ID
@@ -41,6 +42,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -53,7 +56,7 @@ class GeneratePropertyTest : TypeTestHelper() {
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class PropertyDirective(val arg: String)
 
-    private class ClassWithProperties {
+    class ClassWithProperties {
         @GraphQLDescription("It's not a lie")
         @PropertyDirective("trust me")
         val cake: String = "chocolate"
@@ -68,6 +71,8 @@ class GeneratePropertyTest : TypeTestHelper() {
 
         @GraphQLName("pie")
         val renameMe: String = "apple"
+
+        val setList: Set<Int> = setOf(1, 1, 2, 3)
     }
 
     private data class DataClassWithProperties(
@@ -226,5 +231,26 @@ class GeneratePropertyTest : TypeTestHelper() {
         assertFalse(targetDataFetcher is PropertyDataFetcher)
         assertEquals(expected = mockDataFetcher, actual = targetDataFetcher)
         localGenerator.close()
+    }
+
+    @Test
+    fun `hooks are called on properties`() {
+        val hooks: SchemaGeneratorHooks = object : SchemaGeneratorHooks {
+            override fun willResolveMonad(type: KType): KType = when (type.classifier) {
+                Set::class -> List::class.createType(type.arguments)
+                else -> type
+            }
+        }
+
+        val localConfig = SchemaGeneratorConfig(
+            supportedPackages = emptyList(),
+            hooks = hooks
+        )
+        val localGenerator = SchemaGenerator(localConfig)
+
+        val prop = ClassWithProperties::setList
+        val result = generateProperty(localGenerator, prop, ClassWithProperties::class)
+
+        assertEquals("[Int!]!", result.type.deepName)
     }
 }
