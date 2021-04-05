@@ -33,8 +33,8 @@ import java.util.concurrent.CompletableFuture
 @Component
 class DataLoaderQuery : Query {
     private val employees = listOf(
-        Employee(name = "Mike", companyId = 1),
-        Employee(name = "John", companyId = 1),
+        Employee(name = "Mike", companyId = 1, skills = setOf("sales", "sales")),
+        Employee(name = "John", companyId = 1, skills = setOf("management")),
         Employee(name = "Steve", companyId = 2)
     )
 

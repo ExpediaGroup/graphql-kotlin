@@ -68,14 +68,14 @@ interface SchemaGeneratorHooks {
     fun willAddGraphQLTypeToSchema(type: KType, generatedType: GraphQLType): GraphQLType = generatedType
 
     /**
-     * Called before resolving a KType to the GraphQL type.
-     * This allows for a custom resolver on how to extract wrapped values, like in a CompletableFuture.
+     * Called before resolving a return type to the GraphQL type.
+     * This allows for changes in the supported return types or unwrapping of specific classes.
      */
     fun willResolveMonad(type: KType): KType = type
 
     /**
-     * Called before resolving a KType to the input GraphQL type.
-     * This allows resolvers for custom deserialization logic of wrapped input values, like in an Optional.
+     * Called before resolving an input type to the input GraphQL type.
+     * This allows for changes in the supported input values and unwrapping of custom types, like in an Optional.
      */
     fun willResolveInputMonad(type: KType): KType = type
 
