@@ -1,37 +1,48 @@
 ---
 id: schema-generator-getting-started
-title: Getting Started with the Schema Generator
+title: Getting Started
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## Install
 
-Using a JVM dependency manager, simply link `graphql-kotlin-schema-generator` to your project.
+Using a JVM dependency manager, link `graphql-kotlin-schema-generator` to your project.
 
-With Maven:
+<Tabs
+defaultValue="gradle"
+values={[
+{ label: 'Gradle Kotlin', value: 'gradle' },
+{ label: 'Maven', value: 'maven' }
+]
+}>
 
-```xml
-
-<dependency>
-  <groupId>com.expediagroup</groupId>
-  <artifactId>graphql-kotlin-schema-generator</artifactId>
-  <version>${latestVersion}</version>
-</dependency>
-
-```
-
-With Gradle:
+<TabItem value="gradle">
 
 ```kotlin
-
 implementation("com.expediagroup", "graphql-kotlin-schema-generator", latestVersion)
-
 ```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<dependency>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-schema-generator</artifactId>
+    <version>${latestVersion}</version>
+</dependency>
+```
+
+</TabItem>
+</Tabs>
 
 ## Usage
 
 `graphql-kotlin-schema-generator` provides a single function, `toSchema`, to generate a schema from Kotlin objects.
 
 ```kotlin
-
 data class Widget(val id: Int, val value: String)
 
 class WidgetQuery {
@@ -53,13 +64,11 @@ val schema = toSchema(
   queries = listOf(TopLevelObject(widgetQuery)),
   mutations = listOf(TopLevelObject(widgetMutation))
 )
-
 ```
 
 will generate:
 
 ```graphql
-
 schema {
   query: Query
   mutation: Mutation
@@ -77,7 +86,6 @@ type Widget {
   id: Int!
   value: String!
 }
-
 ```
 
 Any `public` functions defined on a query, mutation, or subscription Kotlin class will be translated into GraphQL fields on the object
@@ -96,14 +104,13 @@ custom hooks, supported packages, and name overrides. See the [Generator Configu
 You can see the definition for `toSchema` [in the
 source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/toSchema.kt)
 
-## Class `TopLevelObject`
+## `TopLevelObject`
 
 `toSchema` uses Kotlin reflection to build a GraphQL schema from given classes using `graphql-java`'s schema builder. We
 don't just pass a `KClass` though, we have to actually pass an object, because the functions on the object are
 transformed into the data fetchers. In most cases, a `TopLevelObject` can be constructed with just an object:
 
 ```kotlin
-
 class Query {
   fun getNumber() = 1
 }
@@ -111,21 +118,20 @@ class Query {
 val topLevelObject = TopLevelObject(Query())
 
 toSchema(config = config, queries = listOf(topLevelObject))
-
 ```
 
 In the above case, `toSchema` will use `topLevelObject::class` as the reflection target, and `Query` as the data fetcher
 target.
 
+
+### Dynamic `TopLevelObject`
 In a lot of cases, such as with Spring AOP, the object (or bean) being used to generate a schema is a dynamic proxy. In
 this case, `topLevelObject::class` is not `Query`, but rather a generated class that will confuse the schema generator.
 To specify the `KClass` to use for reflection on a proxy, pass the class to `TopLevelObject`:
 
 ```kotlin
-
 @Component
 class Query {
-  @Timed
   fun getNumber() = 1
 }
 
@@ -133,5 +139,4 @@ val query = getObjectFromBean()
 val customDef = TopLevelObject(query, Query::class)
 
 toSchema(config, listOf(customDef))
-
 ```

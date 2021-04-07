@@ -10,7 +10,7 @@ For information on `graphql-java`, please visit [GraphQL Java](https://www.graph
 
 ## Installation
 
-Using a JVM dependency manager, simply link `graphql-kotlin-schema-generator` to your project.
+Using a JVM dependency manager, link `graphql-kotlin-schema-generator` to your project.
 
 With Maven:
 

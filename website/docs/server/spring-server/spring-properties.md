@@ -2,7 +2,7 @@
 id: spring-properties
 title: Configuration Properties
 ---
-`graphql-kotlin-spring-server` relies on [GraphQLConfigurationProperties](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/GraphQLConfigurationProperties.kt)
+`graphql-kotlin-spring-server` relies on [GraphQLConfigurationProperties](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/servers/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/server/spring/GraphQLConfigurationProperties.kt)
 to provide various customizations of the auto-configuration library. All applicable configuration properties expose [configuration
 metadata](https://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html) that provide
 details on the supported configuration properties.

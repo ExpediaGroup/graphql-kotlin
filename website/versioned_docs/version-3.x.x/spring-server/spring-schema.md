@@ -4,7 +4,7 @@ title: Writing Schemas with Spring
 original_id: spring-schema
 ---
 
-In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you simply need to create beans that
+In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you need to create beans that
 implement corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
 auto-configuration library.
 
