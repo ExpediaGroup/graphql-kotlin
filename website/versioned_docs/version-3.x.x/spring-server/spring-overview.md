@@ -52,7 +52,7 @@ graphql:
 ```
 
 ## Writing Schema Code
-In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you simply need to implement
+In order to expose your queries, mutations and/or subscriptions in the GraphQL schema you need to implement
 corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
 auto-configuration library.
 

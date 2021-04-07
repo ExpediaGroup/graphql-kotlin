@@ -21,7 +21,7 @@ import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
 /**
- * Helper method to simply get a value from a registered DataLoader.
+ * Helper method to get a value from a registered DataLoader.
  * The provided key should be the cache key object used to save the value for that particular data loader.
  */
 fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {

@@ -33,7 +33,7 @@ Additional resources
 
 ## Installation
 
-Using a JVM dependency manager, simply link any `graphql-kotlin-*` library to your project. You can see the latest
+Using a JVM dependency manager, link any `graphql-kotlin-*` library to your project. You can see the latest
 version and other examples in [Sonatype Central
 Repository](https://search.maven.org/artifact/com.expediagroup/graphql-kotlin-spring-server)
 

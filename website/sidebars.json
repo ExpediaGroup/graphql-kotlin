@@ -74,10 +74,11 @@
         "label": "Spring Server",
         "items": [
           "server/spring-server/spring-overview",
-          "server/spring-server/spring-beans",
-          "server/spring-server/spring-properties",
           "server/spring-server/spring-schema",
           "server/spring-server/spring-graphql-context",
+          "server/spring-server/spring-http-request-response",
+          "server/spring-server/spring-beans",
+          "server/spring-server/spring-properties",
           "server/spring-server/spring-subscriptions"
         ]
       }

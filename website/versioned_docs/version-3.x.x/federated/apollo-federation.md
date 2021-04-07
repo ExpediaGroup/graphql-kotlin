@@ -18,7 +18,7 @@ Gateway level.
 
 ## Install
 
-Using a JVM dependency manager, simply link `graphql-kotlin-federation` to your project.
+Using a JVM dependency manager, link `graphql-kotlin-federation` to your project.
 
 With Maven:
 

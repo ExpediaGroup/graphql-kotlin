@@ -13,7 +13,7 @@ web server.
 ## WebFlux vs WebMVC
 
 This library is built on a [Spring WebFlux (reactive)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) stack which is a non-blocking alternative to a traditional [Spring Web MVC (servlet)](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) based stack.
-Since both frameworks utilize different threading models they cannot and should not be intermixed.
+Since the frameworks utilize different threading models they cannot and should not be intermixed.
 When building a GraphQL server using `graphql-kotlin-spring-server` all your queries and mutations should follow one of the supported [asynchronous execution models](../../schema-generator/execution/async-models.md).
 
 ## Setup
@@ -60,72 +60,9 @@ specify a list of supported packages that can be scanned for exposing your schem
 You can do this through the spring application config or by overriding the `SchemaGeneratorConfig` bean. See customization below.
 
 ```yaml
-
 graphql:
   packages:
     - "com.your.package"
-
-```
-
-## Writing Schema Code
-
-In order to expose your queries, mutations, and/or subscriptions in the GraphQL schema, implement
-corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
-auto-configuration library.
-
-```kotlin
-
-@Component
-class MyAwesomeQuery : Query {
-  fun myAwesomeQuery(): Widget { ... }
-}
-
-@Component
-class MyAwesomeMutation : Mutation {
-  fun myAwesomeMutation(widget: Widget): Widget { ... }
-}
-
-@Component
-class MyAwesomeSubscription : Subscription {
-  fun myAwesomeSubscription(): Publisher<Widget> { ... }
-}
-
-data class Widget(val id: Int, val value: String)
-
-```
-
-The above code will result in a GraphQL server with following schema:
-
-```graphql
-
-schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
-}
-
-type Query {
-  myAwesomeQuery: Widget!
-}
-
-type Mutation {
-  myAwesomeMutation(widget: WidgetInput!): Widget!
-}
-
-type Subscription {
-  myAwesomeSubscription: Widget!
-}
-
-type Widget {
-  id: Int!
-  value: String!
-}
-
-input WidgetInput {
-  id: Int!
-  value: String!
-}
-
 ```
 
 ## Default Routes

@@ -3,7 +3,7 @@ id: release-proc
 title: Releasing a new version
 original_id: release-proc
 ---
-In order to [release a new version](https://github.com/ExpediaDotCom/graphql-kotlin/releases) we simply need to draft a new release
+In order to [release a new version](https://github.com/ExpediaDotCom/graphql-kotlin/releases) we need to draft a new release
 and tag the commit. Releases are following [semantic versioning](https://semver.org/) and specify major, minor and patch version.
 
 Once release is published it will trigger corresponding [Github Action](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/.github/workflows/release.yml)

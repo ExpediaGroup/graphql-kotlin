@@ -23,7 +23,7 @@ it is just used to inform the schema generator that this is the class that shoul
 class MyGraphQLContext(val customValue: String) : GraphQLContext
 ```
 
-Then you can just use the class as an argument and it will be automatically injected during execution time.
+Then, you can use the class as an argument and it will be automatically injected during execution time.
 
 ```kotlin
 class ContextualQuery : Query {
