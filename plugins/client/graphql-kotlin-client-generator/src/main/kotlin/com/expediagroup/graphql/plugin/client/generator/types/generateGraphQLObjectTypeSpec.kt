@@ -23,7 +23,7 @@ import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentD
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.FragmentSpread
@@ -67,8 +67,7 @@ internal fun generateGraphQLObjectTypeSpec(
         val constructorParameter = ParameterSpec.builder(propertySpec.name, propertySpec.type)
         val className = propertySpec.type as? ClassName
         if (className != null && context.enumClassToTypeSpecs.keys.contains(className)) {
-            val unknownValue = MemberName(className.packageName, "${className.simpleName}.$UNKNOWN_VALUE")
-            constructorParameter.defaultValue("%M", unknownValue)
+            constructorParameter.defaultValue("%T.%N", className, className.member(UNKNOWN_VALUE))
         }
         constructorBuilder.addParameter(constructorParameter.build())
     }
