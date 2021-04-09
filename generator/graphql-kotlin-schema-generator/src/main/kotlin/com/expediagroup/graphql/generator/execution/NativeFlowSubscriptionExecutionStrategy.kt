@@ -23,44 +23,37 @@ import graphql.execution.ExecutionContext
 import graphql.execution.ExecutionStrategyParameters
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
-import graphql.execution.reactive.CompletionStageMappingPublisher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asPublisher
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.reactive.asFlow
 import org.reactivestreams.Publisher
-import java.util.concurrent.CompletionStage
-import java.util.function.Function
 
 /**
  * [SubscriptionExecutionStrategy] replacement that and allows schema subscription functions
- * to return either a [Flow] or a [Publisher], and converts [Flow]s to [Publisher]s.
+ * to return either a [Flow] or a [Publisher], and converts [Publisher]s to [Flow]s.
  */
-class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : BaseFlowSubscriptionExecutionStrategy<Publisher<out Any>>(dfe) {
+class NativeFlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : BaseFlowSubscriptionExecutionStrategy<Flow<*>>(dfe) {
     constructor() : this(SimpleDataFetcherExceptionHandler())
 
-    override fun convertToSupportedFlow(publisherOrFlow: Any?): Publisher<out Any>? {
+    override fun convertToSupportedFlow(publisherOrFlow: Any?): Flow<*>? {
         return when (publisherOrFlow) {
-            is Publisher<*> -> publisherOrFlow
+            is Publisher<*> -> publisherOrFlow.asFlow()
             // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
-            is Flow<*> -> (publisherOrFlow as? Flow<Any>)?.asPublisher()
+            is Flow<*> -> publisherOrFlow
             else -> null
         }
     }
 
-    override fun getSubscriberAdapter(executionContext: ExecutionContext, parameters: ExecutionStrategyParameters): (Publisher<out Any>?) -> ExecutionResult {
-        return { publisher ->
-            if (publisher == null) {
+    override fun getSubscriberAdapter(executionContext: ExecutionContext, parameters: ExecutionStrategyParameters): (Flow<*>?) -> ExecutionResult {
+        return { sourceFlow ->
+            if (sourceFlow == null) {
                 ExecutionResultImpl(null, executionContext.errors)
             } else {
-                val mapperFunction = Function<Any, CompletionStage<ExecutionResult>> { eventPayload: Any? ->
-                    executeSubscriptionEvent(
-                        executionContext,
-                        parameters,
-                        eventPayload
-                    )
+                val returnFlow = sourceFlow.map {
+                    executeSubscriptionEvent(executionContext, parameters, it).await()
                 }
-                // we need explicit cast as Kotlin Flow is covariant (Flow<out T> vs Publisher<T>)
-                val mapSourceToResponse = CompletionStageMappingPublisher<ExecutionResult, Any>(publisher as Publisher<Any>, mapperFunction)
-                ExecutionResultImpl(mapSourceToResponse, executionContext.errors)
+                ExecutionResultImpl(returnFlow, executionContext.errors)
             }
         }
     }
