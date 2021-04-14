@@ -92,6 +92,8 @@ type Query {
   deprecatedQuery: String! @deprecated(reason : "old query should not be used")
   "Query that returns enum value"
   enumQuery: CustomEnum!
+  "Query that returns other enum value"
+  otherEnumQuery: OtherEnum!
   "Query that accepts some input arguments"
   inputObjectQuery(criteria: SimpleArgumentInput!): Boolean!
   "Query returning an interface"
@@ -146,6 +148,11 @@ enum CustomEnum {
   TWO
   "Lowercase enum value"
   four
+}
+"Other enum description"
+enum OtherEnum {
+    FIRST,
+    SECOND
 }
 "Custom scalar representing UUID"
 scalar UUID

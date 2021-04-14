@@ -1,3 +1,4 @@
 query EnumQuery {
   enumQuery
+  otherEnumQuery
 }
