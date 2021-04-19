@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,14 @@ import graphql.execution.SubscriptionExecutionStrategy
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters
-import graphql.execution.reactive.CompletionStageMappingPublisher
 import graphql.schema.GraphQLObjectType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asPublisher
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.reactive.asFlow
 import org.reactivestreams.Publisher
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
-import java.util.function.Function
 
 /**
  * [SubscriptionExecutionStrategy] replacement that and allows schema subscription functions
@@ -62,20 +61,18 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         //
         // when the upstream source event stream completes, subscribe to it and wire in our adapter
-        val overallResult: CompletableFuture<ExecutionResult> = sourceEventStream.thenApply { publisher ->
-            if (publisher == null) {
+        val overallResult: CompletableFuture<ExecutionResult> = sourceEventStream.thenApply { flow ->
+            if (flow == null) {
                 ExecutionResultImpl(null, executionContext.errors)
             } else {
-                val mapperFunction = Function<Any, CompletionStage<ExecutionResult>> { eventPayload: Any? ->
+                val returnFlow = flow.map { eventPayload: Any? ->
                     executeSubscriptionEvent(
                         executionContext,
                         parameters,
                         eventPayload
-                    )
+                    ).await()
                 }
-                // we need explicit cast as Kotlin Flow is covariant (Flow<out T> vs Publisher<T>)
-                val mapSourceToResponse = CompletionStageMappingPublisher<ExecutionResult, Any>(publisher as Publisher<Any>, mapperFunction)
-                ExecutionResultImpl(mapSourceToResponse, executionContext.errors)
+                ExecutionResultImpl(returnFlow, executionContext.errors)
             }
         }
 
@@ -102,18 +99,18 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
     private fun createSourceEventStream(
         executionContext: ExecutionContext,
         parameters: ExecutionStrategyParameters
-    ): CompletableFuture<Publisher<out Any>?> {
+    ): CompletableFuture<Flow<*>?> {
         val newParameters = firstFieldOfSubscriptionSelection(parameters)
 
         val fieldFetched = fetchField(executionContext, newParameters)
         return fieldFetched.thenApply { fetchedValue ->
-            val publisher = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
-                is Publisher<*> -> publisherOrFlow
+            val flow = when (val publisherOrFlow: Any? = fetchedValue.fetchedValue) {
+                is Publisher<*> -> publisherOrFlow.asFlow()
                 // below explicit cast is required due to the type erasure and Kotlin declaration-site variance vs Java use-site variance
-                is Flow<*> -> (publisherOrFlow as? Flow<Any>)?.asPublisher()
+                is Flow<*> -> publisherOrFlow
                 else -> null
             }
-            publisher
+            flow
         }
     }
 

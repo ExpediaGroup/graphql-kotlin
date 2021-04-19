@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.reactor.asFlux
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -130,7 +131,7 @@ class ApolloSubscriptionProtocolHandler(
         try {
             val request = objectMapper.convertValue<GraphQLRequest>(payload)
             return subscriptionHandler.executeSubscription(request, context)
-                .toFlux()
+                .asFlux()
                 .map {
                     if (it.errors?.isNotEmpty() == true) {
                         SubscriptionOperationMessage(type = GQL_ERROR.type, id = operationMessage.id, payload = it)

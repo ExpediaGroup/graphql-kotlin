@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.ExecutionResult
 import graphql.GraphQL
-import org.reactivestreams.Publisher
-import reactor.core.publisher.Flux
-import reactor.kotlin.core.publisher.toFlux
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 
 /**
  * Default Spring implementation of GraphQL subscription handler.
@@ -38,17 +38,16 @@ open class SpringGraphQLSubscriptionHandler(
     private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
 ) {
 
-    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flux<GraphQLResponse<*>> {
+    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?): Flow<GraphQLResponse<*>> {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
         val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
 
         return graphQL.execute(input)
-            .getData<Publisher<ExecutionResult>>()
-            .toFlux()
+            .getData<Flow<ExecutionResult>>()
             .map { result -> result.toGraphQLResponse() }
-            .onErrorResume { throwable ->
+            .catch { throwable ->
                 val error = throwable.toGraphQLError()
-                Flux.just(GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType())))
+                emit(GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType())))
             }
     }
 }

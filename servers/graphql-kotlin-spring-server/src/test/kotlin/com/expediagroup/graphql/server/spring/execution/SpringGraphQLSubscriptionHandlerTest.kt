@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.expediagroup.graphql.server.spring.execution
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
+import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
@@ -30,6 +31,7 @@ import graphql.GraphQL
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.mockk
+import kotlinx.coroutines.reactor.asFlux
 import org.dataloader.DataLoader
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
@@ -51,7 +53,9 @@ class SpringGraphQLSubscriptionHandlerTest {
         queries = listOf(TopLevelObject(BasicQuery())),
         subscriptions = listOf(TopLevelObject(BasicSubscription()))
     )
-    private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()
+    private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema)
+        .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy())
+        .build()
     private val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
         override val dataLoaderName: String = "MockDataLoader"
         override fun getDataLoader(): DataLoader<String, String> = DataLoader<String, String> { ids ->
@@ -66,7 +70,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest(query = "subscription { ticker }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk())
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -84,7 +88,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription with data loader`() {
         val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk())
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -105,7 +109,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     fun `verify subscription with context`() {
         val request = GraphQLRequest(query = "subscription { contextualTicker }")
         val context = SubscriptionContext("junitHandler")
-        val responseFlux = subscriptionHandler.executeSubscription(request, context)
+        val responseFlux = subscriptionHandler.executeSubscription(request, context).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -126,7 +130,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription to failing publisher`() {
         val request = GraphQLRequest(query = "subscription { alwaysThrows }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk())
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
 
         StepVerifier.create(responseFlux)
             .assertNext { response ->
