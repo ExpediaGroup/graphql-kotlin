@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asPublisher
-import kotlinx.coroutines.reactive.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.reactivestreams.Publisher
@@ -66,9 +66,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { ticker }").build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        publisher.collect {
+        flow.collect {
             list.add(it.getData<Map<String, Int>>().getValue("ticker"))
             assertEquals(it.extensions["testKey"], "testValue")
         }
@@ -82,9 +82,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to datafetcher flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { datafetcher }").build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        publisher.collect {
+        flow.collect {
             val intVal = it.getData<Map<String, Int>>().getValue("datafetcher")
             list.add(intVal)
             assertEquals(it.extensions["testKey"], "testValue")
@@ -99,9 +99,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to publisher`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { publisherTicker }").build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        publisher.collect {
+        flow.collect {
             list.add(it.getData<Map<String, Int>>().getValue("publisherTicker"))
         }
         assertEquals(5, list.size)
@@ -117,9 +117,9 @@ class FlowSubscriptionExecutionStrategyTest {
             .context(SubscriptionContext("junitHandler"))
             .build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        publisher.collect {
+        flow.collect {
             val contextValue = it.getData<Map<String, String>>().getValue("contextualTicker")
             assertTrue(contextValue.startsWith("junitHandler:"))
             list.add(contextValue.substringAfter("junitHandler:").toInt())
@@ -134,11 +134,11 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to failing flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { alwaysThrows }").build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val errors = mutableListOf<GraphQLError>()
         val results = mutableListOf<Int>()
         try {
-            publisher.collect {
+            flow.collect {
                 val dataMap = it.getData<Map<String, Int>>()
                 if (dataMap != null) {
                     results.add(dataMap.getValue("alwaysThrows"))
@@ -161,9 +161,9 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to exploding flow`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { throwsFast }").build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val errors = response.errors
-        assertNull(publisher)
+        assertNull(flow)
         assertEquals(1, errors.size)
         assertEquals("JUNIT flow failure", errors[0].message.substringAfter(" : "))
     }
@@ -172,10 +172,10 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription alias`() = runBlocking {
         val request = ExecutionInput.newExecutionInput().query("subscription { t: ticker }").build()
         val response = testGraphQL.execute(request)
-        val publisher = response.getData<Publisher<ExecutionResult>>()
+        val flow = response.getData<Flow<ExecutionResult>>()
         val list = mutableListOf<Int>()
-        publisher.collect {
-            list.add(it.getData<Map<String, Int>>().getValue("t"))
+        flow.collect { executionResult ->
+            list.add(executionResult.getData<Map<String, Int>>().getValue("t"))
         }
         assertEquals(5, list.size)
         for (i in list.indices) {

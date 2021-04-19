@@ -27,6 +27,7 @@ import graphql.GraphQL
 import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
@@ -125,7 +126,7 @@ class SubscriptionConfigurationTest {
 
         @Bean
         fun subscriptionHandler(): SpringGraphQLSubscriptionHandler = mockk {
-            every { executeSubscription(any(), any()) } returns Flux.empty()
+            every { executeSubscription(any(), any()) } returns flowOf()
         }
 
         @Bean
