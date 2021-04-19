@@ -8,12 +8,10 @@ Exceptions thrown during execution of an operation will result in an empty data 
 See [graphql-java documentation](https://www.graphql-java.com/documentation/v14/execution/) for more details on how to customize your exception handling.
 
 ```kotlin
-
 fun getRandomNumberOrError(): Int {
     val num = Random().nextInt(100)
     return if (num <= 50) num else throw Exception("number is greater than 50")
 }
-
 ```
 
 ## Returning Data and Errors
@@ -23,7 +21,6 @@ default data or use a nullable field, but still include more information in the 
 and errors you have to explicitly return them wrapped in a `DataFetcherResult` object.
 
 ```kotlin
-
 class DataAndErrorsQuery {
   fun returnDataAndErrors(): DataFetcherResult<String?> {
     val data: String? = getData()
@@ -35,7 +32,6 @@ class DataAndErrorsQuery {
       .build()
   }
 }
-
 ```
 
 An example of a query returning partial data is available in our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/DataAndErrorsQuery.kt).

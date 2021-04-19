@@ -6,7 +6,6 @@ Since Javadocs are not available at runtime for introspection, `graphql-kotlin-s
 class `@GraphQLDescription` that can be used to add schema descriptions to _any_ GraphQL schema element. The string value can be in the Markdown format.
 
 ```kotlin
-
 @GraphQLDescription("A useful widget")
 data class Widget(
   @GraphQLDescription("The widget's value that can be `null`")
@@ -17,13 +16,11 @@ class WidgetQuery {
   @GraphQLDescription("Creates new widget for given ID")
   fun widgetById(@GraphQLDescription("The special ingredient") id: Int): Widget? = Widget(id)
 }
-
 ```
 
 The above query would produce the following GraphQL schema:
 
 ```graphql
-
 schema {
   query: Query
 }
@@ -41,5 +38,4 @@ type Widget {
   """The widget's value that can be `null`"""
   value: Int
 }
-
 ```

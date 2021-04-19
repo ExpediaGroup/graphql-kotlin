@@ -19,45 +19,39 @@ values. If the argument is not specified in the request it will be represented a
 value will be wrapped in `OptionalInput.Defined` class.
 
 ```kotlin
-
 fun optionalInput(input: OptionalInput<String>): String = when (input) {
     is OptionalInput.Undefined -> "input was not specified"
     is OptionalInput.Defined<String> -> "input value: ${input.value}"
 }
-
 ```
 
 ```graphql
-
 query OptionalInputQuery {
   undefined: optionalInput # input was not specified
   null: optionalInput(value: null) # input value: null
   foo: optionalInput(value: "foo") # input value: foo
 }
-
 ```
 
-&gt; NOTE: Regardless whether the generic type of `OptionalInput` is specified as nullable or not it will always result in nullable
-&gt; value in `Defined` class, i.e. `OptionalInput<String>` will appear as nullable `String` in the GraphQL schema and in the wrapped value
+:::info
+Regardless whether the generic type of `OptionalInput` is specified as nullable or not it will always result in a nullable
+value in `Defined` class, i.e. `OptionalInput<String>` will appear as nullable `String` in the GraphQL schema and in the wrapped value.
+:::
 
 ## Using DataFetchingEnvironment
 
 Optional input types can be represented as nullable parameters in Kotlin
 
 ```kotlin
-
 fun optionalInput(value: String?): String? = value
-
 ```
 
 ```graphql
-
 query OptionalInputQuery {
   undefined: optionalInput # null
   null: optionalInput(value: null) # null
   foo: optionalInput(value: "foo") # foo
 }
-
 ```
 
 By default, if an optional input value is not specified, then the execution engine will set the argument in Kotlin to `null`.
@@ -67,14 +61,12 @@ explicitly passed in `null`.
 Instead, you can inspect all passed in arguments using the [DataFetchingEnvironment](./data-fetching-environment.md).
 
 ```kotlin
-
 fun optionalInput(value: String?, dataFetchingEnvironment: DataFetchingEnvironment): String =
     if (dataFetchingEnvironment.containsArgument("value")) {
         "The value was $value"
     } else {
         "The value was undefined"
     }
-
 ```
 
 ## Kotlin Default Values

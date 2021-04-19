@@ -5,19 +5,15 @@ title: Arguments
 Method arguments are automatically exposed as part of the arguments to the corresponding GraphQL fields.
 
 ```kotlin
-
 fun doSomething(value: Int): Boolean = true
-
 ```
 
 The above Kotlin code will generate following GraphQL schema:
 
 ```graphql
-
 type Query {
   doSomething(value: Int!): Boolean!
 }
-
 ```
 
 This behavior is true for all arguments except for the special classes for the [GraphQLContext](../execution/contextual-data) and the [DataFetchingEnvironment](../execution/data-fetching-environment)
@@ -32,7 +28,6 @@ an `Input` suffix to the GraphQL name of input objects.
 For example, the following code:
 
 ```kotlin
-
 class WidgetMutation {
     fun processWidget(widget: Widget): Widget {
         if (widget.value == null) {
@@ -45,13 +40,11 @@ class WidgetMutation {
 data class Widget(var value: Int? = nul) {
     fun multiplyValueBy(multiplier: Int): Int? = value?.times(multiplier)
 }
-
 ```
 
 Will generate the following schema:
 
 ```graphql
-
 type Mutation {
   processWidget(widget: WidgetInput!): Widget!
 }
@@ -64,7 +57,6 @@ type Widget {
 input WidgetInput {
   value: Int
 }
-
 ```
 
 Please note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output types.
@@ -80,11 +72,9 @@ defaults (even if they are marked as nullable). Therefore in order for a GraphQL
 nullable.
 
 ```kotlin
-
 fun doSomethingWithOptionalInput(requiredValue: Int, optionalValue: Int?): String {
     return "requiredValue=$requiredValue, optionalValue=$optionalValue"
 }
-
 ```
 
 ## Default values
@@ -93,21 +83,17 @@ Default Kotlin values are supported, however the default value information is no
 The parameters must also be defined as optional (nullable) in the schema, as the only way a default value will be used is when the client does not specify any value in the request.
 
 ```kotlin
-
 fun print(message: String? = "hello"): String? = message
-
 ```
 
 The following operations will return the message in the comments
 
 ```graphql
-
 query PrintMessages {
     first: print(message = "foo") # foo
     second: print(message = null) # null
     third: print # hello
 }
-
 ```
 
 If you need logic to determine when a client passed in a value vs when the default value was used (aka the argument was missing in the request), see [optional undefined arguments](../execution/optional-undefined-arguments.md).

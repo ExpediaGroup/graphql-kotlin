@@ -48,8 +48,9 @@ the `kotlin.Array` of objects the underlying type is automatically mapped to Gra
 | `kotlin.CharArray`    |
 | `kotlin.BooleanArray` |
 
-&gt; NOTE: The underlying GraphQL types of primitive arrays will be corresponding to the built-in scalar types or extended
-&gt; scalar types provided by `graphql-java`.
+:::note
+The underlying GraphQL types of primitive arrays will be corresponding to the built-in scalar types or extended scalar types provided by `graphql-java`.
+:::
 
 ## Unsupported Collection Types
 

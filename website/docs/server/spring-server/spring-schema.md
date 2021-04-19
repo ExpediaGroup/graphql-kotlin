@@ -78,9 +78,7 @@ class SpringQuery : Query {
 ```
 
 :::note
-
 If you are using custom data fetcher make sure that you extend `SpringDataFetcher` instead of the base `FunctionDataFetcher` to keep this functionallity.
-
 :::
 
 We have examples of these techniques implemented in Spring boot in the [example

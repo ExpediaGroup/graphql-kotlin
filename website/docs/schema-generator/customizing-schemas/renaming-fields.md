@@ -7,29 +7,24 @@ You can change this default behavior by annotating the target class/field with `
 will be renamed to `MyCustomName` GraphQL type and its fields will also be renamed.
 
 ```kotlin
-
 @GraphQLName("MyCustomName")
 data class Widget(
     @GraphQLName("myCustomField")
     val value: Int?
 )
-
 ```
 
 ```graphql
-
 type MyCustomName {
   myCustomField: Int
 }
-
 ```
 
 ## Known Issues
 
-&gt; NOTE: Due to how we deserialize input classes, if you rename a field of an input class or an enum value you must also annotate it with the Jackson annotation @JsonProperty. See [issue 493](https://github.com/ExpediaGroup/graphql-kotlin/issues/493) for more info.
+Due to how we deserialize input classes, if you rename a field of an input class or an enum value you must also annotate it with the Jackson annotation @JsonProperty. See [issue 493](https://github.com/ExpediaGroup/graphql-kotlin/issues/493) for more info.
 
 ```kotlin
-
 data class MyInputClass(
     @JsonProperty("renamedField")
     @GraphQLName("renamedField")
@@ -38,7 +33,7 @@ data class MyInputClass(
 
 // GraphQL enums should use UPPER_CASE naming if possible, but any case is supported
 enum class Selection {
-  
+
   @JsonProperty("first")
   @GraphQLName("first")
   ONE,
@@ -56,11 +51,9 @@ class QueryClass {
     Selection.TWO -> "You chose the second value"
   }
 }
-
 ```
 
 ```graphql
-
 input MyInputClassInput {
   # This only works if both @JsonProperty and @GraphQLName are present
   renamedField: String!
@@ -75,5 +68,4 @@ type Query {
   parseData(arg: MyInputClass!): String!
   chooseValue(selection: Selection!): String!
 }
-
 ```

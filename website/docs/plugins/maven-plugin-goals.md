@@ -7,7 +7,9 @@ sidebar_label: Goals
 GraphQL Kotlin Maven Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL
 schema directly from your source code.
 
-> NOTE: This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
+:::info
+This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
+:::
 
 ## Goals
 

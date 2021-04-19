@@ -33,20 +33,20 @@ Using a JVM dependency manager, link `graphql-kotlin-federation` to your project
 
   <TabItem value="gradle">
 
-    ```kotlin
-    implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
-    ```
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
+```
 
   </TabItem>
   <TabItem value="maven">
 
-    ```xml
-    <dependency>
-      <groupId>com.expediagroup</groupId>
-      <artifactId>graphql-kotlin-federation</artifactId>
-      <version>${latestVersion}</version>
-    </dependency>
-    ```
+```xml
+<dependency>
+  <groupId>com.expediagroup</groupId>
+  <artifactId>graphql-kotlin-federation</artifactId>
+  <version>${latestVersion}</version>
+</dependency>
+```
 
   </TabItem>
 </Tabs>
@@ -68,7 +68,6 @@ source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/gra
 ## Example
 
 ```kotlin
-
 @KeyDirective(fields = FieldSet("id"))
 data class User(
   val id: ID,
@@ -87,13 +86,11 @@ toFederatedSchema(
   config = config,
   queries = listOf(TopLevelObject(Query()))
 )
-
 ```
 
 will generate
 
 ```graphql
-
 # Federation spec types
 scalar _Any
 scalar _FieldSet
@@ -122,5 +119,4 @@ type User @key(fields : "id") {
    id: ID!
    name: String!
 }
-
 ```

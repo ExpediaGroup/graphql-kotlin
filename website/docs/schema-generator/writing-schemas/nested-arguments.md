@@ -5,7 +5,6 @@ title: Nested Resolvers and Shared Arguments
 There are a few ways in which shared arguments can be accessed from different resolver levels. Say we have the following schema:
 
 ```graphql
-
 type Query {
   findUser(id: String!): User
 }
@@ -17,7 +16,6 @@ type User {
 type Photo {
   url: String!
 }
-
 ```
 
 In Kotlin code, when we are resolving  `photos`, if we want access to the parent field `findUser` and its arguments there
@@ -29,14 +27,12 @@ You can add the `DataFetchingEnvironment` as an argument. This class will be ign
 you to view the entire query sent to the server. See more in the [DataFetchingEnvironment documentation](../execution/data-fetching-environment.md)
 
 ```kotlin
-
 class User {
     fun photos(environment: DataFetchingEnvironment, numberOfPhotos: Int): List<Photo> {
       val username = environment.executionStepInfo.parent.arguments["id"]
       return getPhotosFromDataSource(username, numberOfPhotos)
     }
 }
-
 ```
 
 ## GraphQL Context
@@ -45,14 +41,12 @@ You can add the `GraphQLContext` as an argument. This class will be ignored by t
 view the context object you set up in the data fetchers. See more in the [GraphQLContext documentation](../execution/contextual-data.md)
 
 ```kotlin
-
 class User {
     fun photos(context: MyContextObject, numberOfPhotos: Int): List<Photo> {
       val userId = context.getDataFromMyCustomFunction()
       return getPhotosFromDataSource(userId, numberOfPhotos)
     }
 }
-
 ```
 
 ## Excluding Arguments from the Schema
@@ -60,7 +54,6 @@ class User {
 You can construct the child objects by passing down arguments as non-public fields or annotate the argument with [@GraphQLIgnore](../customizing-schemas/excluding-fields.md)
 
 ```kotlin
-
 class User(private val userId: String) {
 
     fun photosProperty(numberOfPhotos: Int): List<Photo> {
@@ -71,7 +64,6 @@ class User(private val userId: String) {
       return getPhotosFromDataSource(userId, numberOfPhotos)
     }
 }
-
 ```
 
 ## Spring Integration

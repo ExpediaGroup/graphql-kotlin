@@ -7,26 +7,22 @@ GraphQL schemas can have fields marked as deprecated. Instead of creating a cust
 for the deprecated reason.
 
 ```kotlin
-
 class SimpleQuery {
   @Deprecated(message = "this query is deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
   fun simpleDeprecatedQuery(): Boolean = false
 
   fun shinyNewQuery(): Boolean = true
 }
-
 ```
 
 The above query would produce the following GraphQL schema:
 
 ```graphql
-
 type Query {
   simpleDeprecatedQuery: Boolean! @deprecated(reason: "this query is deprecated, replace with shinyNewQuery")
 
   shinyNewQuery: Boolean!
 }
-
 ```
 
 While you can deprecate any fields/functions/classes in your Kotlin code, GraphQL only supports deprecation directive on

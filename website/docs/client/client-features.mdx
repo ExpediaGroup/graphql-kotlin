@@ -191,11 +191,9 @@ Batch requests are sent as an array of individual GraphQL requests and clients e
 array of GraphQL responses. Each response is then deserialized to a corresponding result type.
 
 ```kotlin
-
 val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
 val firstQuery = FirstQuery(variables = FirstQuery.Variables(foo = "bar"))
 val secondQuery = SecondQuery(variables = SecondQuery.Variables(foo = "baz"))
 
 val results: List<GraphQLResponse<*>> = client.execute(listOf(firstQuery, secondQuery))
-
 ```

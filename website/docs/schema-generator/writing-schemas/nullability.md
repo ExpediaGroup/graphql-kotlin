@@ -6,7 +6,6 @@ Both GraphQL and Kotlin have a concept of `nullable` as a marked typed. As a res
 safe schemas from Kotlin code.
 
 ```kotlin
-
 class SimpleQuery {
 
     fun generateNullableNumber(): Int? {
@@ -16,17 +15,14 @@ class SimpleQuery {
 
     fun generateNumber(): Int = Random().nextInt(100)
 }
-
 ```
 
 The above Kotlin code would produce the following GraphQL schema:
 
 ```graphql
-
 type Query {
   generateNullableNumber: Int
 
   generateNumber: Int!
 }
-
 ```

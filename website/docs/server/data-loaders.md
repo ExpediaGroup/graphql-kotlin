@@ -8,7 +8,6 @@ Data Loaders are a popular caching pattern from the [JavaScript GraphQL implemen
 Since `graphql-kotlin` allows you to abstract the schema generation and data fetching code, you may not even need data loaders if instead you have some persistant cache on your server.
 
 ```kotlin
-
 class User(val id: ID) {
 
     // The friendService and userService, which have nothing to do with GraphQL,
@@ -19,7 +18,6 @@ class User(val id: ID) {
     }
 
 }
-
 ```
 
 If you still want to use data loaders though, they are supported through the common interfaces.
@@ -33,19 +31,16 @@ A `DataLoader` caches the types by some unique value, usually by the type id, an
 To help in the registration of these various `DataLoaders`, we have created a basic interface `KotlinDataLoader`:
 
 ```kotlin
-
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
     fun getDataLoader(): DataLoader<K, V>
 }
-
 ```
 
 This allows for library users to still have full control over the creation of the `DataLoader` and its various configuraiton options,
 but then allows common server code to handle the registration, generation on request, and execution.
 
 ```kotlin
-
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
     override fun getDataLoader() = DataLoader<ID, User>({ ids ->
@@ -66,7 +61,6 @@ class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
         }
     }
 }
-
 ```
 
 ## `getValueFromDataLoader`
@@ -74,7 +68,6 @@ class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
 `graphql-kotlin-server` includes a helpful extension function on the `DataFetchingEnvironment` so that you can easily retrieve values from the data loaders in your schema code.
 
 ```kotlin
-
 class User(val id: ID) {
 
     @GraphQLDescription("Get the users friends using data loader")
@@ -82,9 +75,10 @@ class User(val id: ID) {
         return dataFetchingEnvironment.getValueFromDataLoader("FriendsDataLoader", id)
     }
 }
-
 ```
 
-&gt; NOTE: Because the execution of data loaders is handled by `graphql-java`, which runs using `CompletionStage`, currently we can not support `suspend` functions when envoking data loaders.
-&gt; Instead, return the `CompletableFuture` directly from the `DataLoader` response in your schema functions.
-&gt; See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
+:::info
+Because the execution of data loaders is handled by `graphql-java`, which runs using `CompletionStage`, currently we can
+not support `suspend` functions when envoking data loaders. Instead, return the `CompletableFuture` directly from the `DataLoader`
+response in your schema functions. See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
+:::

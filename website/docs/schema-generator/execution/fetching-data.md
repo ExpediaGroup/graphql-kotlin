@@ -12,7 +12,6 @@ While all the fields in a GraphQL schema are resolved independently to produce a
 performance repercussions. For example, given the following schema:
 
 ```graphql
-
 type Query {
   product(id: ID!): Product
 }
@@ -27,27 +26,22 @@ type Review {
   id: ID!
   text: String!
 }
-
 ```
 
 We can define `Product` as
 
 ```kotlin
-
 data class Product(val id: ID, val name: String, reviews: List<Review>)
-
 ```
 
 or
 
 ```kotlin
-
 class Product(val id: ID, val name: String) {
   suspend fun reviews(): List<Reviews> {
      // logic to fetch reviews here
   }
 }
-
 ```
 
 If we expose the `reviews` field as a property it will always be populated regardless whether or not your client actually asks for it. On the other hand if `reviews` is backed

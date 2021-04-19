@@ -101,8 +101,10 @@ configuration options that are not available on command line.
 This will process all GraphQL queries located under `src/main/resources` and generate corresponding GraphQL Kotlin client
 data models. Generated classes will be automatically added to the project compile sources.
 
->NOTE: You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
->[build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+:::note
+You might need to explicitly add generated clients to your project sources for your IDE to recognize them. See
+[build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+:::
 
 ## Generating Client with Custom Scalars
 
@@ -272,8 +274,10 @@ configuration options that are not available on command line.
 This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin test clients.
 Generated classes will be automatically added to the project test compile sources.
 
->NOTE: You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
->See [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+:::note
+You might need to explicitly add generated test clients to your project test sources for your IDE to recognize them.
+See [build-helper-maven-plugin](https://www.mojohaus.org/build-helper-maven-plugin/) for details.
+:::
 
 ## Minimal Configuration Example
 
@@ -300,9 +304,11 @@ This generated schema is subsequently used to generate GraphQL client code based
 </plugin>
 ```
 
->NOTE: Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
->As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
->Mojos will be executed in the order they are defined in your `pom.xml` build file.
+:::info
+Both `introspect-schema` and `generate-client` goals are bound to the same `generate-sources` Maven lifecycle phase.
+As opposed to Gradle, Maven does not support explicit ordering of different goals bound to the same build phase. Maven
+Mojos will be executed in the order they are defined in your `pom.xml` build file.
+:::
 
 ## Complete Configuration Example
 

@@ -10,15 +10,14 @@ Clients can use introspection to obtain information about all the supported quer
 -   _\_\_schema_ - root level query field that provides information about all entry points (e.g. `queryType`), all types exposed
     by the schema (including built-in scalars and introspection types) as well as all directives supported by the system
 -   _\_\_type(name: String!)_ - root level query field that provides information about the requested type (if it exists)
--   **_typename_ - field that can be added to _ANY_ selection and will return the name of the enclosing type, \`**typename\`
+-   **_typename_** - field that can be added to _ANY_ selection and will return the name of the enclosing type,
     is often used in polymorphic queries in order to easily determine underlying implementation type
--   **_Directive_, \_**DirectiveLocation\_, **_EnumValue_, \_**Field\_, **_InputValue_, \_**Schema\_, **_Type_, \_**TypeKind\_ - built-in
+-   **_Directive, DirectiveLocation, EnumValue, Field, InputValue, Schema, Type, TypeKind_** - built-in
     introspection types that are used to describe the schema.
 
 For example, the query below will return a root Query object name as well as names of all types and all directives.
 
 ```graphql
-
 query {
   __schema {
     queryType {
@@ -32,7 +31,6 @@ query {
     }
   }
 }
-
 ```
 
 Additional information on introspection can be found on [GraphQL.org](https://graphql.org/learn/introspection/).

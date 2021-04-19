@@ -10,7 +10,9 @@ import TabItem from '@theme/TabItem';
 GraphQL Kotlin Gradle Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL
 schema directly from your source code.
 
-> NOTE: This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
+:::info
+This plugin is dependent on Kotlin compiler plugin as it generates Kotlin source code that needs to be compiled.
+:::
 
 ## Usage
 
@@ -58,18 +60,15 @@ apply(plugin = "com.expediagroup.graphql")
 Using plugins DSL syntax
 
 ```groovy
-
 // build.gradle
 plugins {
     id 'com.expediagroup.graphql' version $graphQLKotlinVersion
 }
-
 ```
 
 Or by using legacy plugin application
 
 ```groovy
-
 // build.gradle
 buildscript {
   repositories {
@@ -83,7 +82,6 @@ buildscript {
 }
 
 apply plugin: "com.expediagroup.graphql"
-
 ```
 
 </TabItem>
@@ -109,7 +107,6 @@ tasks.
 <TabItem value="kotlin">
 
 ```kotlin
-
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
@@ -148,14 +145,12 @@ graphql {
     packages = listOf("com.example")
   }
 }
-
 ```
 
 </TabItem>
 <TabItem value="groovy">
 
 ```groovy
-
 // build.gradle
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
@@ -191,7 +186,6 @@ graphql {
         packages = ["com.example"]
     }
 }
-
 ```
 
 </TabItem>
@@ -208,8 +202,7 @@ All `graphql-kotlin-gradle-plugin` tasks are grouped together under `GraphQL` ta
 `graphql`. You can find detailed information about GraphQL kotlin tasks by running Gradle `help --task <taskName>` task.
 
 ```shell
-
- gradle --tasks
+$ gradle --tasks
 
 GraphQL tasks
 -------------
@@ -218,7 +211,6 @@ graphqlGenerateClient - Generate HTTP client from the specified GraphQL queries.
 graphqlGenerateSDL - Generate GraphQL schema in SDL format.
 graphqlGenerateTestClient - Generate HTTP test client from the specified GraphQL queries.
 graphqlIntrospectSchema - Run introspection query against target GraphQL endpoint and save schema locally.--&gt;
-
 ```
 
 ### graphqlDownloadSDL
@@ -281,11 +273,9 @@ Service provider can be provided as part of your project, included in one of you
 provided artifact to the `graphqlSDL` configuration.
 
 ```kotlin
-
 dependencies {
     graphqlSDL("com.expediagroup:graphql-kotlin-federated-hooks-provider:$graphQLKotlinVersion")
 }
-
 ```
 
 ### graphqlGenerateTestClient
