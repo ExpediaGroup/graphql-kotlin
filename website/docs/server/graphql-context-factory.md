@@ -10,11 +10,9 @@ If you are using `graphql-kotlin-spring-server`, see the [Spring specific docume
 `GraphQLContextFactory` is a generic method for generating a `GraphQLContext` for each request.
 
 ```kotlin
-
 interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
     suspend fun generateContext(request: Request): Context?
 }
-
 ```
 
 Given the generic server request, the interface should create a `GraphQLContext` class to be used for every new operation.

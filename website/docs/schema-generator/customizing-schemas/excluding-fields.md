@@ -8,7 +8,6 @@ There are two ways to ensure the GraphQL schema generation omits fields when usi
 -   The second method is by annotating the field with `@GraphQLIgnore`.
 
 ```kotlin
-
 class SimpleQuery {
   @GraphQLIgnore
   fun notPartOfSchema() = "ignore me!"
@@ -17,17 +16,14 @@ class SimpleQuery {
 
   fun doSomething(value: Int): Boolean = true
 }
-
 ```
 
 The above query would produce the following GraphQL schema:
 
 ```graphql
-
 type Query {
   doSomething(value: Int!): Boolean!
 }
-
 ```
 
 Note that the public method `notPartOfSchema` is not included in the schema.

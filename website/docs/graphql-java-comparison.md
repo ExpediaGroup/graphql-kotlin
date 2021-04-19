@@ -11,7 +11,6 @@ has been used and tested by many users.
 The most common way to create the schema in `graphql-java` is to first manually write the SDL file:
 
 ```graphql
-
 schema {
     query: Query
 }
@@ -32,13 +31,11 @@ type Author {
     firstName: String!
     lastName: String!
 }
-
 ```
 
 Then write the runtime code that matches this schema to build the `GraphQLSchema` object.
 
 ```kotlin
-
 // Internal DB class, not schema class
 class Book(
     val id: ID,
@@ -94,7 +91,6 @@ val runtimeWiring = RuntimeWiring.newRuntimeWiring()
 
 // Combine the types and runtime code together to make a schema
 val graphQLSchema: GraphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring)
-
 ```
 
 This means that there are two sources of truth for your schema and changes in either have to be reflected in both locations.
@@ -109,7 +105,6 @@ These errors will hopefully be caught by your build or automated tests, but it i
 All you need to do is write your schema code in a Kotlin class with public functions or properties.
 
 ```kotlin
-
 private val books: List<Book> = booksFromDB()
 private val authors: List<Author> = authorsFromDB()
 
@@ -136,7 +131,6 @@ class Author(
 val config = SchemaGeneratorConfig(supportedPackages = "com.example")
 val queries = listOf(TopLevelObject(Query()))
 val schema: GraphQLSchema = toSchema(config, queries)
-
 ```
 
 This makes changes in code directly reflect to your schema and you can still produce the `GraphQLSchema` to print and export an SDL file.

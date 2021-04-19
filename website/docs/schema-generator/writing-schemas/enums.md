@@ -5,23 +5,19 @@ title: Enums
 Enums are automatically mapped to GraphQL enum type.
 
 ```kotlin
-
 enum class MyEnumType {
   ONE,
   TWO
 }
-
 ```
 
 Above enum will be generated as following GraphQL object
 
 ```graphql
-
 enum MyEnumType {
   ONE
   TWO
 }
-
 ```
 
 ### Converting a Java enum to a GraphQL Enum
@@ -38,17 +34,14 @@ associate the Java enum with a runtime [`GraphQLEnumType`][javadoc].
 Step 1: Create a GraphQLEnumType using the Java enum values
 
 ```java
-
 // in some other package
 public enum Status {
   APPROVED,
   DECLINED
 }
-
 ```
 
 ```kotlin
-
 val statusEnumType = GraphQLEnumType.newEnum()
     .name("Status")
     .values(Status.values().map {
@@ -57,13 +50,11 @@ val statusEnumType = GraphQLEnumType.newEnum()
           .build()
     })
     .build()
-
 ```
 
- Step 2: Add a schema generation hook
+Step 2: Add a schema generation hook
 
 ```kotlin
-
 class CustomSchemaGeneratorHooks : SchemaGeneratorHooks {
 
   override fun willGenerateGraphQLType(type: KType): GraphQLType? {
@@ -73,16 +64,13 @@ class CustomSchemaGeneratorHooks : SchemaGeneratorHooks {
     }
   }
 }
-
 ```
 
 Step 3. Use your Java enum anywhere in your schema
 
 ```kotlin
-
 @Component
 class StatusQuery : Query {
   fun currentStatus: Status = getCurrentStatus()
 }
-
 ```

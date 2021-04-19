@@ -14,16 +14,14 @@ allow you to link to those types from your custom `SchemaGeneratorHooks` impleme
 manually creating the underlying GraphQL type.
 
 ```kotlin
-
 val myConfig = SchemaGeneratorConfig(supportedPackages = listOf("com.example"))
 val generator = SchemaGenerator(myConfig)
 
 val schema = generator.generateSchema(
-        queries = myQueries,
-        additionalTypes = setOf(MyCustomObject::class.createType()),
-        additionalInputTypes = setOf(MyCustomInputObject::class.createType())
+    queries = myQueries,
+    additionalTypes = setOf(MyCustomObject::class.createType()),
+    additionalInputTypes = setOf(MyCustomInputObject::class.createType())
 )
-
 ```
 
 ### `SchemaGenerator::addAdditionalTypesWithAnnotation`

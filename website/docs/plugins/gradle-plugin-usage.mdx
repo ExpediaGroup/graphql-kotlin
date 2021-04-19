@@ -16,9 +16,7 @@ Language (SDL) directly. `graphqlDownloadSDL` task requires target GraphQL serve
 be executed directly from the command line by explicitly passing `endpoint` parameter
 
 ```shell script
-
 $ gradle graphqlDownloadSDL --endpoint="http://localhost:8080/sdl"
-
 ```
 
 Task can also be explicitly configured in your Gradle build file
@@ -55,8 +53,10 @@ graphqlDownloadSDL {
 </TabItem>
 </Tabs>
 
-&gt; NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
-&gt; invoke it OR configure it as a dependency of some other task.
+:::info
+This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+invoke it OR configure it as a dependency of some other task.
+:::
 
 ## Introspecting Schema
 
@@ -64,9 +64,7 @@ Introspection task requires target GraphQL server `endpoint` to be specified. Ta
 command line by explicitly passing endpoint parameter
 
 ```shell script
-
 $ gradle graphqlIntrospectSchema --endpoint="http://localhost:8080/graphql"
-
 ```
 
 Task can also be explicitly configured in your Gradle build file
@@ -103,8 +101,10 @@ graphqlIntrospectSchema {
 </TabItem>
 </Tabs>
 
-&gt; NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
-&gt; invoke it OR configure it as a dependency of some other task.
+:::info
+This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+invoke it OR configure it as a dependency of some other task.
+:::
 
 ## Generating Client
 
@@ -114,9 +114,7 @@ configuration and storing GraphQL queries under `src/main/resources` directories
 command line by explicitly providing required properties.
 
 ```shell script
-
 $ gradle graphqlGenerateClient --schemaFileName"mySchema.graphql" --packageName="com.example.generated"
-
 ```
 
 Task can also be explicitly configured in your Gradle build file
@@ -166,15 +164,12 @@ custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/ma
 For example given following custom scalar in our GraphQL schema
 
 ```graphql
-
 scalar UUID
-
 ```
 
 We can create a custom converter to automatically convert this custom scalar to `java.util.UUID`
 
 ```kotlin
-
 package com.example
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
@@ -184,7 +179,6 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
     override fun toScalar(rawValue: Any): UUID = UUID.fromString(rawValue.toString()
     override fun toJson(value: UUID): String = value.toString()
 }
-
 ```
 
 Afterwards we need to configure our plugin to use this custom converter
@@ -291,9 +285,7 @@ configuration and storing GraphQL queries under `src/test/resources` directories
 command line by explicitly providing required properties.
 
 ```shell script
-
 $ gradle graphqlGenerateTestClient --schemaFileName"mySchema.graphql" --packageName="com.example.generated"
-
 ```
 
 Task can also be explicitly configured in your Gradle build file
@@ -335,7 +327,9 @@ graphqlGenerateTestClient {
 This will process all GraphQL queries located under `src/test/resources` and generate corresponding GraphQL Kotlin clients.
 Generated classes will be automatically added to the project test compile sources.
 
-> NOTE: `graphqlGenerateTestClient` cannot be configured through the `graphql` extension and has to be explicitly configured.
+:::info
+`graphqlGenerateTestClient` cannot be configured through the `graphql` extension and has to be explicitly configured.
+:::
 
 ## Minimal Client Configuration Example
 
@@ -688,8 +682,10 @@ graphqlGenerateSDL {
 </TabItem>
 </Tabs>
 
->NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
->invoke it OR configure it as a dependency of some other task.
+:::info
+This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+invoke it OR configure it as a dependency of some other task.
+:::
 
 ## Generating SDL with Custom Hooks Provider Example
 
@@ -776,5 +772,7 @@ dependencies {
 </TabItem>
 </Tabs>
 
->NOTE: This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
->invoke it OR configure it as a dependency of some other task.
+:::info
+This task does not automatically configure itself to be part of your build lifecycle. You will need to explicitly
+invoke it OR configure it as a dependency of some other task.
+:::

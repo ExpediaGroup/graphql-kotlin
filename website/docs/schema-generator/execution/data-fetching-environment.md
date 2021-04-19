@@ -9,7 +9,6 @@ You can access this info by including the `DataFetchingEnvironment` as one of th
 during the query execution but will not be included in the schema definition.
 
 ```kotlin
-
 class Query {
     fun printEnvironmentInfo(parentField: String): MyObject = MyObject()
 }
@@ -20,13 +19,11 @@ class MyObject {
     return "The parentField was $parentField and the childField was $childField"
   }
 }
-
 ```
 
 This will produce the following schema
 
 ```graphql
-
 type Query {
   printEnvironmentInfo(parentField: String!): MyObject!
 }
@@ -34,21 +31,17 @@ type Query {
 type MyObject {
   printParentField(childField: String!): String!
 }
-
 ```
 
 Then the following query would return `"The parentField was foo and the childField was bar"`
 
 ```graphql
-
 {
   printEnvironmentInfo(parentField: "foo") {
     printParentField(childField: "bar")
   }
 }
-
 ```
 
 You can also use this to retrieve arguments and query information from higher up the query chain. You can see a working
-example in the `graphql-kotlin-spring-example` module
-\[[link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/EnvironmentQuery.kt)].
+example in the `graphql-kotlin-spring-example` module [[link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/EnvironmentQuery.kt)].

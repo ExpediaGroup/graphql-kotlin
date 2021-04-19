@@ -32,7 +32,6 @@ For exact names and details of every hook, see the comments and descriptions in 
 As an example here is how you would write a custom hook and provide it through the configuration
 
 ```kotlin
-
 class MyCustomHooks : SchemaGeneratorHooks {
   // Only generate functions that start with "dog"
   // This would probably be better just to use @GraphQLIgnore, but this is just an example
@@ -50,14 +49,11 @@ val config = SchemaGeneratorConfig(supportedPackages = listOf("org.example"), ho
 val queries = listOf(TopLevelObject(Query()))
 
 toSchema(queries = queries, config = config)
-
 ```
 
 will generate
 
 ```graphql
-
-
 schema {
   query: Query
 }
@@ -65,7 +61,6 @@ schema {
 type Query {
   dogSound: String!
 }
-
 ```
 
 Notice there is no `catSound` function.
