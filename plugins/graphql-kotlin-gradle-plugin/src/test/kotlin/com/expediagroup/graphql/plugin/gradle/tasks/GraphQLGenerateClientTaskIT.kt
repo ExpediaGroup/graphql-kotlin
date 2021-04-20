@@ -174,7 +174,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
          */
         val buildFileContents =
             """
-            |val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class) {
+            |val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateTestClientTask::class) {
             |  packageName.set("com.example.generated")
             |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
             |}

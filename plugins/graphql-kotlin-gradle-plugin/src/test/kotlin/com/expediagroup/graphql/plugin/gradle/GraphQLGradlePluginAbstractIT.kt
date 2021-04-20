@@ -143,6 +143,7 @@ abstract class GraphQLGradlePluginAbstractIT {
             |import com.expediagroup.graphql.plugin.gradle.graphql
             |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
             |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+            |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateTestClientTask
             |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
             |
             |$plugins
@@ -234,6 +235,7 @@ abstract class GraphQLGradlePluginAbstractIT {
             |import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
             |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
             |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+            |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateTestClientTask
             |import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
             |
             |$plugins

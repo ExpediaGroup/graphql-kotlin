@@ -304,7 +304,7 @@ Task can also be explicitly configured in your Gradle build file
 // build.gradle.kts
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
-val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateClientTask::class) {
+val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateTestClientTask::class) {
   packageName.set("com.example.generated")
   schemaFileName.set("mySchema.graphql")
 }
