@@ -22,7 +22,7 @@ internal const val GENERATE_TEST_CLIENT_TASK_NAME: String = "graphqlGenerateTest
  * Generate GraphQL Kotlin test client and corresponding data classes based on the provided GraphQL queries.
  */
 @Suppress("UnstableApiUsage")
-abstract class GraphQLGenerateTestClientTask : GraphQLGenerateClientTask() {
+abstract class GraphQLGenerateTestClientTask : AbstractGenerateClientTask() {
 
     init {
         description = "Generate HTTP test client from the specified GraphQL queries."
