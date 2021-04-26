@@ -24,7 +24,7 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Throws an exception if this KClass was used in an invalid location
  */
-fun validateObjectLocation(kClass: KClass<*>, location: GraphQLValidObjectLocations.Locations) {
+internal fun validateObjectLocation(kClass: KClass<*>, location: GraphQLValidObjectLocations.Locations) {
     kClass.findAnnotation<GraphQLValidObjectLocations>()?.let { annotation ->
         val validLocations = annotation.locations
         if (!validLocations.contains(location)) {
