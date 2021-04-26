@@ -1,7 +1,9 @@
 ---
-id: graphql-java-comparison
-title: GraphQL Java Comparison
+id: framework-comparison
+title: GraphQL Frameworks Comparison
 ---
+
+## GraphQL Java
 [graphql-java](https://graphql-java.com/) is one of the most popular JVM based GraphQL implemenations. GraphQL Kotlin is
 built on top of `grahpql-java` as it can be easily extended with additional functionality and this implementation
 has been used and tested by many users.
@@ -134,3 +136,31 @@ val schema: GraphQLSchema = toSchema(config, queries)
 ```
 
 This makes changes in code directly reflect to your schema and you can still produce the `GraphQLSchema` to print and export an SDL file.
+
+
+## DGS
+[DGS](https://netflix.github.io/dgs/) is a GraphQL server framework for Spring Boot. It works with both Java and Kotlin.
+DGS is also built on top of `graphql-java` and implements many similar features to `graphql-kotlin` and [graphql-java-kickstart/graphql-spring-boot](https://github.com/graphql-java-kickstart/graphql-spring-boot).
+
+* Auto-configuration of server routes and request handling
+* Auto-wiring of data fetchers (resolvers) to the `GraphQLSchema`
+* Apollo Federation support
+* Subscriptions support
+* Client schema-code generation
+
+While both libraries do very similar things, there are some minor differences which may serve different usecases better.
+As with open source library, you can compare and use the right tool for the job.
+
+### Extra Features of DGS
+
+* Support for a SDL-First (Schema-First) approach
+* Included [JsonPath](https://github.com/json-path/JsonPath) testing library
+
+### Extra Features of graphql-kotlin
+
+* Support for a reactive server stack with [Spring Reactor](https://spring.io/reactive)
+* Does not require duplicate implementation of data fetchers, schema classes, and SDL files
+* Does not require code is annotated with extra GraphQL information
+* Simple nesting of data fetchers
+* Client code generation for Ktor and Spring
+* Client plugin support for both Maven and Gradle
