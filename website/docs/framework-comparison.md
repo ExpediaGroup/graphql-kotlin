@@ -159,7 +159,7 @@ As with open source library, you can compare and use the right tool for the job.
 
 ### Extra Features of graphql-kotlin
 
-* Support for a reactive server stack with [Spring Reactor](https://spring.io/reactive)
+* Uses [Spring Reactor](https://spring.io/reactive) for a reactive server stack
 * Does not require duplicate implementation of data fetchers, schema classes, and SDL files
 * Does not require code is annotated with extra GraphQL information
 * Simple nesting of data fetchers
