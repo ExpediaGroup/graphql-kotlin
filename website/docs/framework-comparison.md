@@ -155,6 +155,7 @@ As with open source library, you can compare and use the right tool for the job.
 
 * Support for a SDL-First (Schema-First) approach
 * Included [JsonPath](https://github.com/json-path/JsonPath) testing library
+* Uses Spring MVC
 
 ### Extra Features of graphql-kotlin
 
