@@ -23,10 +23,7 @@ package com.expediagroup.graphql.generator.annotations
  *
  * By default, classes will be allowed as both input and output types.
  */
-annotation class GraphQLValidObjectLocations(
-    @get:GraphQLIgnore
-    val locations: Array<Locations>
-) {
+annotation class GraphQLValidObjectLocations(val locations: Array<Locations>) {
     enum class Locations {
         OBJECT,
         INPUT_OBJECT
