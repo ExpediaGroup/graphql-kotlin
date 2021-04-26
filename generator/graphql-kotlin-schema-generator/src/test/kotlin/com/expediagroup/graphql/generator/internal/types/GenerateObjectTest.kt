@@ -19,32 +19,46 @@ package com.expediagroup.graphql.generator.internal.types
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
+import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class GenerateObjectTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.OBJECT])
-    internal annotation class ObjectDirective(val arg: String)
+    annotation class ObjectDirective(val arg: String)
 
     @GraphQLDescription("The truth")
     @ObjectDirective("Don't worry")
-    private class BeHappy
+    class BeHappy
 
     @GraphQLName("BeHappyRenamed")
-    private class BeHappyCustomName
+    class BeHappyCustomName
 
     interface MyInterface {
         val foo: String
     }
 
     class ClassWithInterface(override val foo: String) : MyInterface
+
+    @GraphQLValidObjectLocations(locations = [GraphQLValidObjectLocations.Locations.INPUT_OBJECT])
+    class InputOnly {
+        val myField: String = "car"
+    }
+
+    @GraphQLValidObjectLocations(locations = [GraphQLValidObjectLocations.Locations.OBJECT])
+    class OutputOnly {
+        val myField: String = "car"
+    }
 
     @Test
     fun `Test naming`() {
@@ -90,5 +104,19 @@ class GenerateObjectTest : TypeTestHelper() {
         assertNotNull(result)
         assertEquals(1, result.interfaces.size)
         assertEquals(1, result.fieldDefinitions.size)
+    }
+
+    @Test
+    fun `input only objects are generated`() {
+        assertDoesNotThrow {
+            generateInputObject(generator, InputOnly::class)
+        }
+    }
+
+    @Test
+    fun `output only objects throw an exception`() {
+        assertFailsWith(InvalidObjectLocationException::class) {
+            generateInputObject(generator, OutputOnly::class)
+        }
     }
 }
