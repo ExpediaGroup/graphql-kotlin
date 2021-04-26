@@ -33,6 +33,7 @@
           "schema-generator/customizing-schemas/renaming-fields",
           "schema-generator/customizing-schemas/directives",
           "schema-generator/customizing-schemas/deprecating-schema",
+          "schema-generator/customizing-schemas/restricting-input-output",
           "schema-generator/customizing-schemas/advanced-features"
         ]
       },

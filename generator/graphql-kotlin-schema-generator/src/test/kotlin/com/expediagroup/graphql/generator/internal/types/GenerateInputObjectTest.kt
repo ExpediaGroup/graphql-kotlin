@@ -18,24 +18,38 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
+import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-internal class GenerateInputObjectTest : TypeTestHelper() {
+class GenerateInputObjectTest : TypeTestHelper() {
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLDescription("The truth")
     @SimpleDirective
-    private class InputClass {
+    class InputClass {
         @SimpleDirective
         val myField: String = "car"
     }
 
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLName("InputClassRenamed")
-    private class InputClassCustomName {
+    class InputClassCustomName {
         @GraphQLName("myFieldRenamed")
+        val myField: String = "car"
+    }
+
+    @GraphQLValidObjectLocations(locations = [GraphQLValidObjectLocations.Locations.INPUT_OBJECT])
+    class InputOnly {
+        val myField: String = "car"
+    }
+
+    @GraphQLValidObjectLocations(locations = [GraphQLValidObjectLocations.Locations.OBJECT])
+    class OutputOnly {
         val myField: String = "car"
     }
 
@@ -76,5 +90,19 @@ internal class GenerateInputObjectTest : TypeTestHelper() {
         val result = generateInputObject(generator, InputClass::class)
         assertEquals(1, result.fields.first().directives.size)
         assertEquals("simpleDirective", result.fields.first().directives.first().name)
+    }
+
+    @Test
+    fun `input only objects are generated`() {
+        assertDoesNotThrow {
+            generateInputObject(generator, InputOnly::class)
+        }
+    }
+
+    @Test
+    fun `output only objects throw an exception`() {
+        assertFailsWith(InvalidObjectLocationException::class) {
+            generateInputObject(generator, OutputOnly::class)
+        }
     }
 }
