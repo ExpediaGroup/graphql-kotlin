@@ -154,7 +154,10 @@ As with open source library, you can compare and use the right tool for the job.
 ### Extra Features of DGS
 
 * Support for a SDL-First (Schema-First) approach
-* Included [JsonPath](https://github.com/json-path/JsonPath) testing library
+* Ability to autogenerate code stubs from the schema
+* Includes [JsonPath](https://github.com/json-path/JsonPath) testing library
+* Includes schema response mocking components
+* Build on top of Spring MVC
 * Included schema response mocking components
 * Uses Spring MVC
 
