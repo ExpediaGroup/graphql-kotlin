@@ -156,17 +156,13 @@ As with open source library, you can compare and use the right tool for the job.
 * Support for a SDL-First (Schema-First) approach
 * Ability to autogenerate code stubs from the schema
 * Includes [JsonPath](https://github.com/json-path/JsonPath) testing library
-* Includes schema response mocking components
 * Build on top of Spring MVC
-* Included schema response mocking components
-* Uses Spring MVC
 
 ### Extra Features of graphql-kotlin
 
-* Ability to use any server framework outside of Spring, like Ktor
-* Uses [Spring Reactor](https://spring.io/reactive) for a reactive server stack
-* Does not require duplicate implementation of data fetchers, schema classes, and SDL files
-* Does not require code is annotated with extra GraphQL information
+* Supports code-first approach (generates schema from source code - does not require duplicate implementation of data fetchers, schema classes, and SDL files)
+* Abstract server logic can be used in any framework, e.g. Ktor
+* Reference server implementation build on top of [Spring Webflux]((https://spring.io/reactive) for a reactive server stack
 * Simple nesting of data fetchers
 * Client code generation for Ktor and Spring
 * Client plugin support for both Maven and Gradle
