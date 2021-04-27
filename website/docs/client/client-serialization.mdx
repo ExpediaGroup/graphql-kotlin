@@ -366,7 +366,7 @@ graphql {
 By default, `ServiceLoader` mechanism will load the first available GraphQL client serializer from the classpath.
 
 ```kotlin
-val client = GraphQLWebClient(
+val client = GraphQLKtorClient(
   url = "http://localhost:8080/graphql"
   serializer = GraphQLClientKotlinxSerializer()
 )
@@ -465,7 +465,7 @@ By default, `ServiceLoader` mechanism will load the first available GraphQL clie
 also explicitly specify serializer during client construction
 
 ```kotlin
-val client = GraphQLWebClient(
+val client = GraphQLKtorClient(
   url = "http://localhost:8080/graphql"
   serializer = GraphQLClientJacksonSerializer()
 )
