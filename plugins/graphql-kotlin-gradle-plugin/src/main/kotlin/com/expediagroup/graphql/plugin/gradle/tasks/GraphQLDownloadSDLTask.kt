@@ -83,7 +83,7 @@ abstract class GraphQLDownloadSDLTask : DefaultTask() {
     }
 
     /**
-     * Download schema in SDL format from the specified endpoint and sve it locally in the target output file.
+     * Download schema in SDL format from the specified endpoint and save it locally in the target output file.
      */
     @TaskAction
     fun downloadSDLAction() {

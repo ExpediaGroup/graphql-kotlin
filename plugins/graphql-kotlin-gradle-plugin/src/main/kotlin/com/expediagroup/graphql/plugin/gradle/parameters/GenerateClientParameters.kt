@@ -37,7 +37,7 @@ interface GenerateClientParameters : WorkParameters {
     /** Type of JSON serializer that will be used to generate the data classes. */
     val serializer: Property<GraphQLSerializer>
     /** GraphQL schema file that will be used to generate client code. */
-    val schemaFile: Property<File>
+    val schemaFile: Property<String>
     /** List of query files that will be processed to generate HTTP clients. */
     val queryFiles: ListProperty<File>
     /** Directory where to save the generated source files. */
