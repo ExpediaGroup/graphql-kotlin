@@ -42,7 +42,7 @@ private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
  * GraphQL client code generator that uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate Kotlin classes based on the specified GraphQL queries.
  */
 class GraphQLClientGenerator(
-    private val schemaPath: String,
+    schemaPath: String,
     private val config: GraphQLClientGeneratorConfig
 ) {
     private val documentParser: Parser = Parser()
@@ -203,7 +203,6 @@ class GraphQLClientGenerator(
         return graphQLSchema.getType(rootType).get() as ObjectTypeDefinition
     }
 
-    // TODO: unit tests
     private fun parseSchema(path: String): TypeDefinitionRegistry {
         val schemaFile = File(path)
         return if (schemaFile.isFile) {
