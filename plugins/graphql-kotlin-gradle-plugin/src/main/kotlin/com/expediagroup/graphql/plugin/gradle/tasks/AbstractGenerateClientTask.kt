@@ -66,7 +66,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
      */
     @InputFile
     @Optional
-    val schemaFile: Property<String> = project.objects.property(String::class.java)
+    val schemaFile: RegularFileProperty = project.objects.fileProperty()
 
     /**
      * Target package name for generated code.
@@ -146,8 +146,8 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     fun generateGraphQLClientAction() {
         logger.debug("generating GraphQL client")
 
-        val graphQLSchema = when {
-            schemaFile.isPresent -> schemaFile.get() as String
+        val graphQLSchemaPath = when {
+            schemaFile.isPresent -> schemaFile.get().asFile.path
             schemaFileName.isPresent -> schemaFileName.get()
             else -> throw RuntimeException("schema not available")
         }
@@ -171,7 +171,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             throw RuntimeException("failed to generate generated source directory = $targetDirectory")
         }
 
-        logConfiguration(graphQLSchema, targetQueryFiles)
+        logConfiguration(graphQLSchemaPath, targetQueryFiles)
         val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
             workerSpec.classpath.from(pluginClasspath)
             logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
@@ -182,7 +182,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             parameters.allowDeprecated.set(allowDeprecatedFields)
             parameters.customScalars.set(customScalars)
             parameters.serializer.set(serializer)
-            parameters.schemaFile.set(graphQLSchema)
+            parameters.schemaPath.set(graphQLSchemaPath)
             parameters.queryFiles.set(targetQueryFiles)
             parameters.targetDirectory.set(targetDirectory)
         }

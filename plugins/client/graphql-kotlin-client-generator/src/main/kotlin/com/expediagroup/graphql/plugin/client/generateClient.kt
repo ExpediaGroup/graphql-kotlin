@@ -21,13 +21,7 @@ import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorCo
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import com.squareup.kotlinpoet.FileSpec
-import graphql.schema.idl.SchemaParser
 import java.io.File
-import java.io.Reader
-import java.io.StringReader
-import java.net.URI
-import java.nio.charset.Charset
-import java.nio.file.Files
 
 /**
  * Generate GraphQL client data classes from specified queries and target schema.
@@ -37,7 +31,7 @@ fun generateClient(
     allowDeprecated: Boolean = false,
     customScalarsMap: List<GraphQLScalar> = emptyList(),
     serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
-    schema: String, // this is the file location, not the contents
+    schemaPath: String, // this is the file location, not the contents
     queries: List<File>
 ): List<FileSpec> {
     val customScalars = customScalarsMap.associateBy { it.scalar }
@@ -47,19 +41,6 @@ fun generateClient(
         customScalarMap = customScalars,
         serializer = serializer
     )
-    val graphQLSchema = SchemaParser().parse(getSchemaReader(schema))
-    val generator = GraphQLClientGenerator(graphQLSchema, config)
+    val generator = GraphQLClientGenerator(schemaPath, config)
     return generator.generate(queries)
 }
-
-private fun getSchemaReader(schemaPath: String): Reader =
-    if (schemaPath.startsWith("classpath://")) {
-        val resource = object {}.javaClass.getResource(URI(schemaPath).path) ?: throw RuntimeException("specified GraphQL schema not found, $schemaPath")
-        StringReader(resource.readText())
-    } else {
-        val file = File(schemaPath)
-        if (!file.isFile) {
-            throw RuntimeException("specified GraphQL schema is not a file, $schemaPath")
-        }
-        Files.newBufferedReader(file.toPath(), Charset.defaultCharset())
-    }
