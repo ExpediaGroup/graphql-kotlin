@@ -31,7 +31,7 @@ fun generateClient(
     allowDeprecated: Boolean = false,
     customScalarsMap: List<GraphQLScalar> = emptyList(),
     serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
-    schemaPath: String, // this is the file location, not the contents
+    schemaPath: String,
     queries: List<File>
 ): List<FileSpec> {
     val customScalars = customScalarsMap.associateBy { it.scalar }

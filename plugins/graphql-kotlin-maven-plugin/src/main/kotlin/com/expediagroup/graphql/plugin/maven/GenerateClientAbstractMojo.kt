@@ -100,12 +100,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     override fun execute() {
         log.debug("generating GraphQL client")
 
-        val schemaPath =
-            if (schemaFile == null) {
-                File(project.build.directory, "schema.graphql").path
-            } else {
-                schemaFile
-            }!!
+        val schemaPath = schemaFile ?: File(project.build.directory, "schema.graphql").path
 
         val targetQueryFiles: List<File> = locateQueryFiles(queryFiles, queryFileDirectory)
 

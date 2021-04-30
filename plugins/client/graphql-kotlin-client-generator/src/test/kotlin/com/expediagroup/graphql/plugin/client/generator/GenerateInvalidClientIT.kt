@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.client.generator
 
+import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -31,11 +33,19 @@ class GenerateInvalidClientIT {
         val (queries, _) = locateTestFiles(testDirectory)
         val expectedException = File(testDirectory, "exception.txt").readText().trim()
 
-        val generator = GraphQLClientGenerator(testSchema(), defaultConfig)
+        val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, defaultConfig)
         val exception = assertFails {
             generator.generate(queries)
         }
         assertEquals(expectedException, exception::class.simpleName)
+    }
+
+    @Test
+    fun `verify an invalid schema path will raise an exception`() {
+        val exception = assertFails {
+            GraphQLClientGenerator("missingSchema.graphql", defaultConfig)
+        }
+        assertEquals(SchemaUnavailableException::class, exception::class)
     }
 
     companion object {

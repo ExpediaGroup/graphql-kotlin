@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOperationsInFileException
+import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
 import com.expediagroup.graphql.plugin.client.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
@@ -208,7 +209,7 @@ class GraphQLClientGenerator(
         return if (schemaFile.isFile) {
             SchemaParser().parse(schemaFile)
         } else {
-            val schemaInputStream = this.javaClass.classLoader.getResourceAsStream(path) ?: throw RuntimeException("specified schema file=$path does not exist")
+            val schemaInputStream = this.javaClass.classLoader.getResourceAsStream(path) ?: throw SchemaUnavailableException(path)
             SchemaParser().parse(schemaInputStream)
         }
     }

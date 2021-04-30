@@ -104,7 +104,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                         introspectSchemaTask.headers.convention(project.provider { extension.clientExtension.headers })
                         introspectSchemaTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
                         generateClientTask.dependsOn(introspectSchemaTask.path)
-                        generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile.get())
+                        generateClientTask.schemaFile.convention(introspectSchemaTask.outputFile)
                     }
                     extension.clientExtension.sdlEndpoint != null -> {
                         val downloadSDLTask = project.tasks.named(DOWNLOAD_SDL_TASK_NAME, GraphQLDownloadSDLTask::class.java).get()
@@ -112,7 +112,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                         downloadSDLTask.headers.convention(project.provider { extension.clientExtension.headers })
                         downloadSDLTask.timeoutConfig.convention(project.provider { extension.clientExtension.timeoutConfig })
                         generateClientTask.dependsOn(downloadSDLTask.path)
-                        generateClientTask.schemaFile.convention(downloadSDLTask.outputFile.get())
+                        generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
                     }
                     else -> {
                         throw RuntimeException("Invalid GraphQL client extension configuration - missing required endpoint/sdlEndpoint property")
