@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.client.generateClient
-import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.project.MavenProject
@@ -39,7 +39,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
      * GraphQL schema file that will be used to generate client code.
      */
     @Parameter(defaultValue = "\${graphql.schemaFile}", name = "schemaFile")
-    private var schemaFile: File? = null
+    private var schemaFile: String? = null
 
     /**
      * Target package name for generated code.
@@ -99,17 +99,18 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 
     override fun execute() {
         log.debug("generating GraphQL client")
-        val graphQLSchemaFile = schemaFile ?: File(project.build.directory, "schema.graphql")
-        validateGraphQLSchemaExists(graphQLSchemaFile)
+
+        val schemaPath = schemaFile ?: File(project.build.directory, "schema.graphql").path
+
         val targetQueryFiles: List<File> = locateQueryFiles(queryFiles, queryFileDirectory)
 
         if (!outputDirectory.isDirectory && !outputDirectory.mkdirs()) {
             throw RuntimeException("failed to generate generated source directory")
         }
 
-        logConfiguration(graphQLSchemaFile, targetQueryFiles)
+        logConfiguration(schemaPath, targetQueryFiles)
         val customGraphQLScalars = customScalars.map { GraphQLScalar(it.scalar, it.type, it.converter) }
-        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, graphQLSchemaFile, targetQueryFiles).forEach {
+        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, schemaPath, targetQueryFiles).forEach {
             it.writeTo(outputDirectory)
         }
 
@@ -125,17 +126,11 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
         return targetQueryFiles
     }
 
-    private fun validateGraphQLSchemaExists(graphQLSchemaFile: File) {
-        if (!graphQLSchemaFile.isFile) {
-            throw RuntimeException("specified GraphQL schema is not a file, ${graphQLSchemaFile.path}")
-        }
-    }
-
     abstract fun configureProjectWithGeneratedSources(mavenProject: MavenProject, generatedSourcesDirectory: File)
 
-    private fun logConfiguration(graphQLSchemaFile: File, queryFiles: List<File>) {
+    private fun logConfiguration(graphQLSchemaFilePath: String, queryFiles: List<File>) {
         log.debug("GraphQL Client generator configuration:")
-        log.debug("  schema file = ${graphQLSchemaFile.path}")
+        log.debug("  schema file = $graphQLSchemaFilePath")
         log.debug("  queries")
         queryFiles.forEach {
             log.debug("    - ${it.name}")

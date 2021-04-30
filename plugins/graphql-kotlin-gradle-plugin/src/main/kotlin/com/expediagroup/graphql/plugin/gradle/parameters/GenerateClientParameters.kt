@@ -36,8 +36,8 @@ interface GenerateClientParameters : WorkParameters {
     val customScalars: ListProperty<GraphQLScalar>
     /** Type of JSON serializer that will be used to generate the data classes. */
     val serializer: Property<GraphQLSerializer>
-    /** GraphQL schema file that will be used to generate client code. */
-    val schemaFile: Property<File>
+    /** GraphQL schema file path that will be used to generate client code. */
+    val schemaPath: Property<String>
     /** List of query files that will be processed to generate HTTP clients. */
     val queryFiles: ListProperty<File>
     /** Directory where to save the generated source files. */

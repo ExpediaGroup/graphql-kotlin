@@ -146,13 +146,10 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     fun generateGraphQLClientAction() {
         logger.debug("generating GraphQL client")
 
-        val graphQLSchema = when {
-            schemaFile.isPresent -> schemaFile.get().asFile
-            schemaFileName.isPresent -> File(schemaFileName.get())
+        val graphQLSchemaPath = when {
+            schemaFile.isPresent -> schemaFile.get().asFile.path
+            schemaFileName.isPresent -> schemaFileName.get()
             else -> throw RuntimeException("schema not available")
-        }
-        if (!graphQLSchema.isFile) {
-            throw RuntimeException("specified schema file does not exist")
         }
 
         val targetPackage = packageName.orNull ?: throw RuntimeException("package not specified")
@@ -174,7 +171,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             throw RuntimeException("failed to generate generated source directory = $targetDirectory")
         }
 
-        logConfiguration(graphQLSchema, targetQueryFiles)
+        logConfiguration(graphQLSchemaPath, targetQueryFiles)
         val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
             workerSpec.classpath.from(pluginClasspath)
             logger.debug("worker classpath: \n${workerSpec.classpath.files.joinToString("\n")}")
@@ -185,7 +182,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             parameters.allowDeprecated.set(allowDeprecatedFields)
             parameters.customScalars.set(customScalars)
             parameters.serializer.set(serializer)
-            parameters.schemaFile.set(graphQLSchema)
+            parameters.schemaPath.set(graphQLSchemaPath)
             parameters.queryFiles.set(targetQueryFiles)
             parameters.targetDirectory.set(targetDirectory)
         }
@@ -193,9 +190,9 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         logger.debug("successfully generated GraphQL HTTP client")
     }
 
-    private fun logConfiguration(schema: File, queryFiles: List<File>) {
+    private fun logConfiguration(schemaPath: String, queryFiles: List<File>) {
         logger.debug("GraphQL Client generator configuration:")
-        logger.debug("  schema file = ${schema.path}")
+        logger.debug("  schema file = $schemaPath")
         logger.debug("  queries")
         queryFiles.forEach {
             logger.debug("    - ${it.name}")

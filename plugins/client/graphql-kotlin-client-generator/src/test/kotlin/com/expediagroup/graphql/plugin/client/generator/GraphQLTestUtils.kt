@@ -19,8 +19,6 @@ package com.expediagroup.graphql.plugin.client.generator
 import com.expediagroup.graphql.client.converter.ScalarConverter
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import graphql.schema.idl.SchemaParser
-import graphql.schema.idl.TypeDefinitionRegistry
 import org.junit.jupiter.params.provider.Arguments
 import java.io.File
 import java.util.UUID
@@ -52,17 +50,12 @@ internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File
     return queries to expectedFiles
 }
 
-internal fun testSchema(): TypeDefinitionRegistry {
-    val schemaFileStream = ClassLoader.getSystemClassLoader().getResourceAsStream("testSchema.graphql") ?: throw RuntimeException("unable to locate test schema")
-    return schemaFileStream.use {
-        SchemaParser().parse(schemaFileStream)
-    }
-}
+internal const val TEST_SCHEMA_PATH = "testSchema.graphql"
 
 internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDirectory: File) {
     val (queries, expectedFiles) = locateTestFiles(testDirectory)
 
-    val generator = GraphQLClientGenerator(testSchema(), config)
+    val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, config)
     val fileSpecs = generator.generate(queries)
     assertTrue(fileSpecs.isNotEmpty())
     assertEquals(expectedFiles.size, fileSpecs.size)

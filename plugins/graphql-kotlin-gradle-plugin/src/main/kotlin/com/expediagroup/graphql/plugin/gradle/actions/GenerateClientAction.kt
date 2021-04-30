@@ -35,11 +35,11 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
         val allowDeprecated = parameters.allowDeprecated.get()
         val customScalarMap = parameters.customScalars.get().map { GraphQLScalar(it.scalar, it.type, it.converter) }
         val serializer = GraphQLSerializer.valueOf(parameters.serializer.get().name)
-        val schemaFile = parameters.schemaFile.get()
+        val schemaPath = parameters.schemaPath.get()
         val queryFiles = parameters.queryFiles.get()
         val targetDirectory = parameters.targetDirectory.get()
 
-        generateClient(targetPackage, allowDeprecated, customScalarMap, serializer, schemaFile, queryFiles).forEach {
+        generateClient(targetPackage, allowDeprecated, customScalarMap, serializer, schemaPath, queryFiles).forEach {
             it.writeTo(targetDirectory)
         }
     }

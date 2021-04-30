@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOperationsInFileException
+import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
 import com.expediagroup.graphql.plugin.client.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
@@ -31,6 +32,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
+import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlinx.serialization.Serializable
 import java.io.File
@@ -41,12 +43,17 @@ private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
  * GraphQL client code generator that uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate Kotlin classes based on the specified GraphQL queries.
  */
 class GraphQLClientGenerator(
-    private val graphQLSchema: TypeDefinitionRegistry,
+    schemaPath: String,
     private val config: GraphQLClientGeneratorConfig
 ) {
     private val documentParser: Parser = Parser()
     private val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
     private val sharedTypes: MutableMap<ClassName, List<TypeSpec>> = mutableMapOf()
+    private val graphQLSchema: TypeDefinitionRegistry
+
+    init {
+        graphQLSchema = parseSchema(schemaPath)
+    }
 
     /**
      * Generate GraphQL clients for the specified queries.
@@ -195,6 +202,16 @@ class GraphQLClientGenerator(
         }
         val rootType = operationNames[operationDefinition.operation.name]
         return graphQLSchema.getType(rootType).get() as ObjectTypeDefinition
+    }
+
+    private fun parseSchema(path: String): TypeDefinitionRegistry {
+        val schemaFile = File(path)
+        return if (schemaFile.isFile) {
+            SchemaParser().parse(schemaFile)
+        } else {
+            val schemaInputStream = this.javaClass.classLoader.getResourceAsStream(path) ?: throw SchemaUnavailableException(path)
+            SchemaParser().parse(schemaInputStream)
+        }
     }
 }
 
