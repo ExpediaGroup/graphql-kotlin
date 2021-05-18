@@ -24,6 +24,8 @@ Articles and videos specifically about `graphql-kotlin`
 
 Articles and videos about how Expedia Group is using GraphQL
 
+-   📝  [Expedia Group Case Study: Bootiful APIs With GraphQL and Kotlin](https://kotlinlang.org/lp/server-side/case-studies/expedia)
+-   📝  [Expedia Group Transforms Product Development with Apollo](https://www.apollographql.com/customers/expediagroup/)
 -   📺  [Creating a federated schema for a global company (Shane Myrick)](https://youtu.be/MuD3TAP0D9Y) (en)
 -   📺  [Migrer ses APIs vers GraphQL: pourquoi? comment! (Guillaume Scheibel)](https://youtu.be/IRIkpvJo95s) (fr)
 -   📺  [Migrate your APIs to GraphQL: how? and why! (Guillaume Scheibel)](https://youtu.be/IkPMpzQ-TRI) (en)
