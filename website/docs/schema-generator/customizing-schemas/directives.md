@@ -140,7 +140,7 @@ This is a different behavior than `graphql-java` which will first attempt to use
 :::
 
 For more details please refer to the example usage of directives in our [example
-app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring).
+app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server/spring-server).
 
 ## Directive Chaining
 
