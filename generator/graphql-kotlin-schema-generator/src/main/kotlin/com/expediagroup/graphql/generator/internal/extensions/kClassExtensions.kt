@@ -83,7 +83,7 @@ internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {
         ?: throw CouldNotGetNameOfKClassException(this)
 
     return when {
-        isInputClass -> if (name.endsWith(INPUT_SUFFIX)) name else "$name$INPUT_SUFFIX"
+        isInputClass -> if (name.endsWith(INPUT_SUFFIX, true)) name else "$name$INPUT_SUFFIX"
         else -> name
     }
 }
