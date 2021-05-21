@@ -162,7 +162,7 @@ As with open source library, you can compare and use the right tool for the job.
 
 * Supports code-first approach (generates schema from source code - does not require duplicate implementation of data fetchers, schema classes, and SDL files)
 * Abstract server logic can be used in any framework, e.g. Ktor
-* Reference server implementation build on top of [Spring Webflux]((https://spring.io/reactive) for a reactive server stack
+* Reference server implementation build on top of [Spring Webflux](https://spring.io/reactive) for a reactive server stack
 * Simple nesting of data fetchers
 * Client code generation for Ktor and Spring
 * Client plugin support for both Maven and Gradle
