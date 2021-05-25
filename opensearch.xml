@@ -4,8 +4,8 @@
   <ShortName>GraphQL Kotlin</ShortName>
   <Description>Search GraphQL Kotlin</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://expediagroup.github.io/img/favicon.ico</Image>
-  <Url type="text/html" method="get" template="https://expediagroup.github.io/search?q={searchTerms}"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://expediagroup.github.io/opensearch.xml" />
-  <moz:SearchForm>https://expediagroup.github.io</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://expediagroup.github.io/graphql-kotlin/img/favicon.ico</Image>
+  <Url type="text/html" method="get" template="https://expediagroup.github.io/graphql-kotlin/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://expediagroup.github.io/graphql-kotlin/opensearch.xml" />
+  <moz:SearchForm>https://expediagroup.github.io/graphql-kotlin/</moz:SearchForm>
 </OpenSearchDescription>
