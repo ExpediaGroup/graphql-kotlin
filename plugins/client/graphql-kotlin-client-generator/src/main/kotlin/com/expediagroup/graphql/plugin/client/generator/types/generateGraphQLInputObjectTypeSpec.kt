@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.isOptionalInputSupported
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -48,7 +49,7 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type)
         val fieldName = fieldDefinition.name
 
-        val inputFieldType = if (context.serializer == GraphQLSerializer.JACKSON && kotlinFieldType.isNullable) {
+        val inputFieldType = if (kotlinFieldType.isNullable && context.isOptionalInputSupported()) {
             ClassName("com.expediagroup.graphql.client.jackson.types", "OptionalInput")
                 .parameterizedBy(kotlinFieldType.copy(nullable = false))
         } else {
@@ -66,7 +67,7 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
 
         val inputParameterSpec = ParameterSpec.builder(inputPropertySpec.name, inputPropertySpec.type)
         if (kotlinFieldType.isNullable) {
-            if (context.serializer == GraphQLSerializer.JACKSON) {
+            if (context.isOptionalInputSupported()) {
                 inputParameterSpec.defaultValue("%M", MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined"))
             } else {
                 inputParameterSpec.defaultValue("null")

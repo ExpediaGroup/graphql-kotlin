@@ -46,6 +46,9 @@ Plugin should be configured as part of your `pom.xml` build file.
                     <connect>1000</connect>
                     <read>30000</read>
                 </timeoutConfiguration>
+                <!-- Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
+                    Only supported for JACKSON serializer. -->
+                <useOptionalInputWrapper>false</useOptionalInputWrapper>
                 <queryFiles>
                     <queryFile>${project.basedir}/src/main/resources/queries/MyQuery.graphql</queryFile>
                 </queryFiles>
@@ -111,6 +114,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper` |
 
 **Parameter Details**
 
@@ -130,6 +134,31 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
         </customScalar>
     </customScalars>
     ```
+
+### generate-sdl
+
+Generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
+to generate the schema from classes implementing `graphql-kotlin-server` marker `Query`, `Mutation` and `Subscription` interfaces.
+In order to limit the amount of packages to scan, this mojo requires users to provide a list of `packages` that can contain
+GraphQL types.
+
+This MOJO utilizes [ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html)
+mechanism to dynamically load available `SchemaGeneratorHooksProvider` service providers from the classpath. Service provider
+can be provided as part of your project, included in one of your project dependencies or through explicitly provided artifact.
+See [Schema Generator Hooks Provider](./hooks-provider.mdx) for additional details on how to create custom hooks service
+provider. Configuration below shows how to configure GraphQL Kotlin plugin with explicitly provided artifact.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `process-classes`
+* *Requires Maven Project*
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| `packages` | `List<String>` | yes | List of supported packages that can be scanned to generate SDL. |
+| `schemaFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
 
 ### generate-test-client
 
@@ -153,6 +182,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | `queryFiles` | List<File> | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper` |
 
 **Parameter Details**
 

@@ -72,6 +72,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | `queryFiles` | `List<File>` | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper` |
 
 **Parameter Details**
 
@@ -139,6 +140,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | `queryFiles` | `List<File>` | | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | String | | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper` |
 
 **Parameter Details**
 

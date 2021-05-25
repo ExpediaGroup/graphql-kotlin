@@ -1,7 +1,5 @@
 package com.expediagroup.graphql.generated
 
-import com.expediagroup.graphql.client.jackson.types.OptionalInput
-import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.ComplexArgumentInput
 import kotlin.Boolean
@@ -22,7 +20,7 @@ public class SelfReferencingInputQuery(
       SelfReferencingInputQuery.Result::class
 
   public data class Variables(
-    public val input: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
+    public val input: ComplexArgumentInput? = null
   )
 
   public data class Result(

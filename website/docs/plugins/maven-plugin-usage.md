@@ -313,7 +313,7 @@ Mojos will be executed in the order they are defined in your `pom.xml` build fil
 ## Complete Configuration Example
 
 Following is a configuration example that downloads schema SDL from a target GraphQL server that is then used to generate
-the GraphQL client data modles using `kotlinx.serialization` that are based on the provided query.
+the GraphQL client data models using `kotlinx.serialization` that are based on the provided query.
 
 ```xml
 <project>

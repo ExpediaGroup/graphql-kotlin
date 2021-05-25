@@ -34,7 +34,8 @@ data class GraphQLClientGeneratorContext(
     val queryDocument: Document,
     val allowDeprecated: Boolean = false,
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
-    val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
+    val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
+    val useOptionalInputWrapper: Boolean = false
 ) {
     val typeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val polymorphicTypes: MutableMap<ClassName, MutableList<ClassName>> = mutableMapOf()
@@ -49,3 +50,5 @@ data class GraphQLClientGeneratorContext(
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
 }
+
+internal fun GraphQLClientGeneratorContext.isOptionalInputSupported() = useOptionalInputWrapper && serializer == GraphQLSerializer.JACKSON

@@ -53,6 +53,9 @@ graphql {
           // Read timeout in milliseconds
           read = 15_000
       }
+      // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
+      // Only supported for JACKSON serializer
+      useOptionalInputWrapper = false
   }
   schema {
       // List of supported packages that can contain GraphQL schema type definitions
@@ -103,6 +106,7 @@ resulting generated code will be automatically added to the project main source 
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
 | `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
 ### graphqlGenerateSDL
 
@@ -150,6 +154,7 @@ test source set.
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
 | `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
 ### graphqlIntrospectSchema
 

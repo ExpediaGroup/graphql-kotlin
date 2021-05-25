@@ -93,6 +93,13 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
 
     /**
+     * Explicit opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined values.
+     * Only supported for JACKSON serializer.
+     */
+    @Parameter(defaultValue = "\${graphql.useOptionalInputWrapper}", name = "useOptionalInputWrapper")
+    private var useOptionalInputWrapper: Boolean = false
+
+    /**
      * Target directory where to store generated files.
      */
     abstract var outputDirectory: File
@@ -110,7 +117,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 
         logConfiguration(schemaPath, targetQueryFiles)
         val customGraphQLScalars = customScalars.map { GraphQLScalar(it.scalar, it.type, it.converter) }
-        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, schemaPath, targetQueryFiles).forEach {
+        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, schemaPath, targetQueryFiles, useOptionalInputWrapper).forEach {
             it.writeTo(outputDirectory)
         }
 

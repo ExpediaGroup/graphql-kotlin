@@ -1,7 +1,5 @@
 package com.expediagroup.graphql.generated.inputs
 
-import com.expediagroup.graphql.client.jackson.types.OptionalInput
-import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import kotlin.Float
 
 /**
@@ -11,13 +9,13 @@ public data class ComplexArgumentInput(
   /**
    * Maximum value for test criteria
    */
-  public val max: OptionalInput<Float> = OptionalInput.Undefined,
+  public val max: Float? = null,
   /**
    * Minimum value for test criteria
    */
-  public val min: OptionalInput<Float> = OptionalInput.Undefined,
+  public val min: Float? = null,
   /**
    * Next criteria
    */
-  public val next: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
+  public val next: ComplexArgumentInput? = null
 )

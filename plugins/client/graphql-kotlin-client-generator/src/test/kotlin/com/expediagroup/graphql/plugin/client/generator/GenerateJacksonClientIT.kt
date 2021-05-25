@@ -28,7 +28,8 @@ class GenerateJacksonClientIT {
     fun `verify generation of client code using jackson`(testDirectory: File) {
         val config = defaultConfig.copy(
             serializer = GraphQLSerializer.JACKSON,
-            customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter"))
+            customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter")),
+            useOptionalInputWrapper = true
         )
         verifyClientGeneration(config, testDirectory)
     }

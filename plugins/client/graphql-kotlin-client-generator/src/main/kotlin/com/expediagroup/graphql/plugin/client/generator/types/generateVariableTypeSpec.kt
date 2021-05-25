@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.isOptionalInputSupported
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -42,7 +43,7 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
     val constructorSpec = FunSpec.constructorBuilder()
     variableDefinitions.forEach { variableDef ->
         val kotlinTypeName = generateTypeName(context, variableDef.type)
-        val variableTypeName = if (context.serializer == GraphQLSerializer.JACKSON && kotlinTypeName.isNullable) {
+        val variableTypeName = if (kotlinTypeName.isNullable && context.isOptionalInputSupported()) {
             ClassName("com.expediagroup.graphql.client.jackson.types", "OptionalInput")
                 .parameterizedBy(kotlinTypeName.copy(nullable = false))
         } else {
@@ -51,7 +52,7 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
 
         val parameterBuilder = ParameterSpec.builder(variableDef.name, variableTypeName)
         if (kotlinTypeName.isNullable) {
-            if (context.serializer == GraphQLSerializer.JACKSON) {
+            if (context.isOptionalInputSupported()) {
                 parameterBuilder.defaultValue("%M", MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined"))
             } else {
                 parameterBuilder.defaultValue("null")

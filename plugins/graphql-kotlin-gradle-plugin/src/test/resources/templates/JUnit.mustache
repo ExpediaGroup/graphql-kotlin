@@ -7,7 +7,6 @@ import com.example.generated.inputs.SimpleArgumentInput
 import com.example.generated.junitquery.BasicObject2
 import com.example.generated.junitquery.ScalarWrapper
 import com.example.generated.junitquery.SecondInterfaceImplementation
-import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -32,7 +31,7 @@ class GraphQLMavenPluginTest {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
         val client = GraphQLWebClient(graphQLEndpoint)
 
-        val variables = JUnitQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = OptionalInput.Defined("blah")))
+        val variables = JUnitQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "blah"))
         val query = JUnitQuery(variables)
 
         assertDoesNotThrow {
