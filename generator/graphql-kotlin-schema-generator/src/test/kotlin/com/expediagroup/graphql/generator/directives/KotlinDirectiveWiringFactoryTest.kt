@@ -90,7 +90,7 @@ class KotlinDirectiveWiringFactoryTest {
     @Test
     fun `verify no action is taken if GraphQL object is not GraphQLDirectiveContainer`() {
         val original = GraphQLTypeReference("MyTypeReference")
-        val actual = SimpleWiringFactory().onWire(original)
+        val actual = SimpleWiringFactory().onWire(original, null, codeRegistry = mockk())
 
         assertEquals(original, actual)
     }
@@ -98,7 +98,7 @@ class KotlinDirectiveWiringFactoryTest {
     @Test
     fun `verify no action is taken if GraphQL object does not have directive`() {
         val original = GraphQLEnumType.newEnum().name("MyEnum").build()
-        val actual = SimpleWiringFactory().onWire(original)
+        val actual = SimpleWiringFactory().onWire(original, null, codeRegistry = mockk())
 
         assertEquals(original, actual)
     }
@@ -107,7 +107,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify no action is taken if no wirings are specified`() {
         val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
 
-        val modified = SimpleWiringFactory().onWire(original)
+        val modified = SimpleWiringFactory().onWire(original, null, codeRegistry = mockk())
         assertEquals(original, modified)
     }
 
@@ -138,7 +138,7 @@ class KotlinDirectiveWiringFactoryTest {
         val newDescription = "overwritten description"
         assertNotEquals(argument.description, newDescription)
 
-        val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(newDescription))).onWire(argument)
+        val actual = SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema(newDescription))).onWire(argument, null, codeRegistry = mockk())
         assertNotEquals(argument, actual)
         val updatedArgument = actual as? GraphQLArgument
         assertEquals(newDescription, updatedArgument?.description)
@@ -225,20 +225,6 @@ class KotlinDirectiveWiringFactoryTest {
     }
 
     @Test
-    fun `verify exception is thrown if no code registry is specified for the field`() {
-        val myTestField = GraphQLFieldDefinition.newFieldDefinition()
-            .name("MyField")
-            .type { context, visitor -> context.thisNode().accept(context, visitor) }
-            .description("My Field Description")
-            .withDirective(graphQLLowercaseDirective)
-            .build()
-
-        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            SimpleWiringFactory().onWire(graphQLSchemaElement = myTestField, coordinates = mockk(), codeRegistry = null)
-        }
-    }
-
-    @Test
     fun `verify exception is thrown if directive is applied on invalid location`() {
         val myTestObject = GraphQLObjectType.newObject()
             .name("MyObject")
@@ -247,7 +233,8 @@ class KotlinDirectiveWiringFactoryTest {
             .build()
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail"))).onWire(myTestObject)
+            SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail")))
+                .onWire(myTestObject, null, codeRegistry = mockk())
         }
     }
 
@@ -261,7 +248,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
             SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail")))
-                .onWire(graphQLSchemaElement = myTestObject, coordinates = mockk())
+                .onWire(graphQLSchemaElement = myTestObject, coordinates = mockk(), codeRegistry = mockk())
         }
     }
 }

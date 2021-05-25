@@ -35,7 +35,7 @@ open class KotlinDirectiveWiringFactory(
     /**
      * Wire up the directive based on the GraphQL type.
      */
-    fun onWire(graphQLSchemaElement: GraphQLSchemaElement, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder? = null): GraphQLSchemaElement {
+    fun onWire(graphQLSchemaElement: GraphQLSchemaElement, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLSchemaElement {
         if (graphQLSchemaElement !is GraphQLDirectiveContainer) return graphQLSchemaElement
 
         return wireDirectives(graphQLSchemaElement, coordinates, graphQLSchemaElement.getAllDirectives(), codeRegistry)
@@ -51,7 +51,7 @@ open class KotlinDirectiveWiringFactory(
         element: GraphQLDirectiveContainer,
         coordinates: FieldCoordinates?,
         directives: List<GraphQLDirective>,
-        codeRegistry: GraphQLCodeRegistry.Builder?
+        codeRegistry: GraphQLCodeRegistry.Builder
     ): GraphQLDirectiveContainer {
         var modifiedObject = element
         for (directive in directives) {
@@ -60,13 +60,13 @@ open class KotlinDirectiveWiringFactory(
                     field = modifiedObject,
                     fieldDirective = directive,
                     coordinates = coordinates ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to missing field coordinates"),
-                    codeRegistry = codeRegistry ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on a field due to a missing code registry")
+                    codeRegistry = codeRegistry
                 )
             } else {
                 KotlinSchemaDirectiveEnvironment(
                     element = modifiedObject,
                     directive = directive,
-                    codeRegistry = codeRegistry ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on an object due to a missing code registry")
+                    codeRegistry = codeRegistry
                 )
             }
 

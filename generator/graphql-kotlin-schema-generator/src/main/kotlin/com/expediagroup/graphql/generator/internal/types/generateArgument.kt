@@ -59,7 +59,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
         builder.withDirective(it)
     }
 
-    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()
 }
 
 private fun getUnwrappedClass(parameterType: KType): KClass<*> =

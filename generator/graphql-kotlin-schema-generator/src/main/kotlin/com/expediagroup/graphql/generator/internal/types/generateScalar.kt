@@ -32,7 +32,7 @@ internal fun generateScalar(generator: SchemaGenerator, type: KType): GraphQLSca
     val scalar: GraphQLScalarType? = defaultScalarsMap[kClass]
 
     return scalar?.let {
-        generator.config.hooks.onRewireGraphQLType(it).safeCast()
+        generator.config.hooks.onRewireGraphQLType(it, null, generator.codeRegistry).safeCast()
     }
 }
 

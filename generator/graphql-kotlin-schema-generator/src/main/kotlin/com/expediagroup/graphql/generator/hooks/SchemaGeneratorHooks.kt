@@ -121,7 +121,7 @@ interface SchemaGeneratorHooks {
      * Called after `willGenerateGraphQLType` and before `didGenerateGraphQLType`.
      * Enables you to change the wiring, e.g. apply directives to alter the target type.
      */
-    fun onRewireGraphQLType(generatedType: GraphQLSchemaElement, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder? = null): GraphQLSchemaElement =
+    fun onRewireGraphQLType(generatedType: GraphQLSchemaElement, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLSchemaElement =
         wiringFactory.onWire(generatedType, coordinates, codeRegistry)
 
     /**

@@ -41,7 +41,7 @@ internal fun generateEnum(generator: SchemaGenerator, kClass: KClass<out Enum<*>
     kClass.java.enumConstants.forEach {
         enumBuilder.value(getEnumValueDefinition(generator, it, kClass))
     }
-    return generator.config.hooks.onRewireGraphQLType(enumBuilder.build()).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(enumBuilder.build(), null, generator.codeRegistry).safeCast()
 }
 
 private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kClass: KClass<out Enum<*>>): GraphQLEnumValueDefinition {
@@ -63,5 +63,5 @@ private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kC
         valueBuilder.withDirective(deprecatedDirectiveWithReason(it))
     }
 
-    return generator.config.hooks.onRewireGraphQLType(valueBuilder.build()).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(valueBuilder.build(), null, generator.codeRegistry).safeCast()
 }

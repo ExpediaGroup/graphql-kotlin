@@ -44,5 +44,5 @@ internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>):
         builder.field(generateInputProperty(generator, it, kClass))
     }
 
-    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()
 }

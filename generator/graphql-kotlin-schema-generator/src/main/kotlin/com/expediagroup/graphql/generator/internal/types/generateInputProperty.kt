@@ -43,5 +43,5 @@ internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*
         builder.withDirective(it)
     }
 
-    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()
 }
