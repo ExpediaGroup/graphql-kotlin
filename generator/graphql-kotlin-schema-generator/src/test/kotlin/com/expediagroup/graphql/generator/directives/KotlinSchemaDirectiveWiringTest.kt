@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.directives
 
 import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
@@ -39,6 +40,7 @@ import kotlin.test.assertTrue
 class KotlinSchemaDirectiveWiringTest {
 
     private lateinit var mockWiring: KotlinSchemaDirectiveWiring
+    private val codeRegistry = mockk<GraphQLCodeRegistry.Builder>()
 
     @BeforeEach
     fun setUp() {
@@ -48,7 +50,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with no matching element returns the type back`() {
         val mockElement: GraphQLDirectiveContainer = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertEquals(mockElement, result)
@@ -57,7 +59,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLArgument`() {
         val mockElement: GraphQLArgument = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLArgument)
@@ -67,7 +69,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLEnumType`() {
         val mockElement: GraphQLEnumType = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLEnumType)
@@ -77,7 +79,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLEnumValueDefinition`() {
         val mockElement: GraphQLEnumValueDefinition = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLEnumValueDefinition)
@@ -98,7 +100,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLInputObjectField`() {
         val mockElement: GraphQLInputObjectField = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLInputObjectField)
@@ -108,7 +110,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLInputObjectType`() {
         val mockElement: GraphQLInputObjectType = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLInputObjectType)
@@ -118,7 +120,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLInterfaceType`() {
         val mockElement: GraphQLInterfaceType = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLInterfaceType)
@@ -128,7 +130,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLObjectType`() {
         val mockElement: GraphQLObjectType = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLObjectType)
@@ -138,7 +140,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLScalarType`() {
         val mockElement: GraphQLScalarType = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLScalarType)
@@ -148,7 +150,7 @@ class KotlinSchemaDirectiveWiringTest {
     @Test
     fun `wireOnEnvironment with GraphQLUnionType`() {
         val mockElement: GraphQLUnionType = mockk()
-        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk())
+        val mockEnvironment = KotlinSchemaDirectiveEnvironment(mockElement, mockk(), codeRegistry)
 
         val result = mockWiring.wireOnEnvironment(mockEnvironment)
         assertTrue(result is GraphQLUnionType)
