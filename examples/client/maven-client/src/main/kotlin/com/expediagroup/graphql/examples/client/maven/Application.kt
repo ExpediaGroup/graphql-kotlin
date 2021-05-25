@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.client.maven
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import com.expediagroup.graphql.generated.AddObjectMutation
 import com.expediagroup.graphql.generated.ExampleQuery
@@ -49,8 +50,8 @@ fun main() {
     runBlocking {
         val results = client.execute(
             listOf(
-                HelloWorldQuery(variables = HelloWorldQuery.Variables(name = null)),
-                HelloWorldQuery(variables = HelloWorldQuery.Variables(name = "Dariusz"))
+                HelloWorldQuery(variables = HelloWorldQuery.Variables()),
+                HelloWorldQuery(variables = HelloWorldQuery.Variables(name = OptionalInput.Defined("Dariusz")))
             )
         )
 
@@ -75,7 +76,7 @@ fun main() {
 
     println("additional examples")
     runBlocking {
-        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(max = 1.0f))))
+        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = OptionalInput.Defined(SimpleArgumentInput(max = OptionalInput.Defined(1.0f))))))
         println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")

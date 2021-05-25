@@ -219,7 +219,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     mapOf(
                         "ktorClient" to useKtorClient,
                         "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
-                        "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue)
+                        "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue),
+                        "kotlinxSerializer" to (serializer == GraphQLSerializer.KOTLINX)
                     )
                 )
             )

@@ -1,5 +1,7 @@
 package com.expediagroup.graphql.generated.inputs
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
+import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import kotlin.Float
 import kotlin.String
 
@@ -10,13 +12,13 @@ public data class SimpleArgumentInput(
   /**
    * Maximum value for test criteria
    */
-  public val max: Float? = null,
+  public val max: OptionalInput<Float> = OptionalInput.Undefined,
   /**
    * Minimum value for test criteria
    */
-  public val min: Float? = null,
+  public val min: OptionalInput<Float> = OptionalInput.Undefined,
   /**
    * New value to be set
    */
-  public val newName: String? = null
+  public val newName: OptionalInput<String> = OptionalInput.Undefined
 )

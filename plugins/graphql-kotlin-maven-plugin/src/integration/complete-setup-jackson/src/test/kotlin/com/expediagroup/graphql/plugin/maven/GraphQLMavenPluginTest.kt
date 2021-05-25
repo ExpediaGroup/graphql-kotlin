@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.expediagroup.graphql.plugin.generated.examplequery.SecondInterfaceImp
 import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
 import com.expediagroup.graphql.plugin.generated.inputs.SimpleArgumentInput
 import com.expediagroup.graphql.plugin.generated.scalars.UUID
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -55,7 +56,7 @@ class GraphQLMavenPluginTest {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
         val client = GraphQLWebClient(graphQLEndpoint)
 
-        val variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "whatever", min = null, max = null))
+        val variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = OptionalInput.Defined("whatever")))
         val query = ExampleQuery(variables)
         assertDoesNotThrow {
             runBlocking {
