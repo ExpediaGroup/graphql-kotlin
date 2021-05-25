@@ -17,6 +17,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
+    testImplementation(project(path = ":graphql-kotlin-client-jackson"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:$compileTestingVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
