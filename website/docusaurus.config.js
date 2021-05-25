@@ -55,7 +55,7 @@ module.exports = {
         {
           href: "https://github.com/ExpediaGroup/graphql-kotlin",
           label: "GitHub",
-          position: "left"
+          position: "right"
         },
         {
           type: 'docsVersionDropdown',
