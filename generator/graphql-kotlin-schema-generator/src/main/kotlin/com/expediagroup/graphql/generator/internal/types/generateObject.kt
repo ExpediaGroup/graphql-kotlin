@@ -61,5 +61,5 @@ internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): Grap
     kClass.getValidFunctions(generator.config.hooks)
         .forEach { builder.field(generateFunction(generator, it, name)) }
 
-    return generator.config.hooks.onRewireGraphQLType(builder.build()).safeCast()
+    return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()
 }

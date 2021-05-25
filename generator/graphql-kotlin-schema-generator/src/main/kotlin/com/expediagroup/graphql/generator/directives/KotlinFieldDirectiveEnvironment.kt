@@ -29,8 +29,8 @@ class KotlinFieldDirectiveEnvironment(
     field: GraphQLFieldDefinition,
     fieldDirective: GraphQLDirective,
     private val coordinates: FieldCoordinates,
-    private val codeRegistry: GraphQLCodeRegistry.Builder
-) : KotlinSchemaDirectiveEnvironment<GraphQLFieldDefinition>(element = field, directive = fieldDirective) {
+    codeRegistry: GraphQLCodeRegistry.Builder
+) : KotlinSchemaDirectiveEnvironment<GraphQLFieldDefinition>(element = field, directive = fieldDirective, codeRegistry = codeRegistry) {
 
     /**
      * Retrieve current data fetcher associated with the target element.

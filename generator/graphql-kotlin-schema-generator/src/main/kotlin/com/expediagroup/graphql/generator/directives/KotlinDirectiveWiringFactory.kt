@@ -65,7 +65,8 @@ open class KotlinDirectiveWiringFactory(
             } else {
                 KotlinSchemaDirectiveEnvironment(
                     element = modifiedObject,
-                    directive = directive
+                    directive = directive,
+                    codeRegistry = codeRegistry ?: throw InvalidSchemaDirectiveWiringException("Unable to wire directive on an object due to a missing code registry")
                 )
             }
 
