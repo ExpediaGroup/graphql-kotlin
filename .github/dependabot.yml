@@ -4,3 +4,5 @@ updates:
     directory: "/"
     labels:
       - "type: dependency changes"
+    schedule:
+      interval: "weekly"
