@@ -27,7 +27,7 @@ buildscript {
 }
 
 plugins {
-    id("de.benediktritter.maven-plugin-development") version "0.2.0"
+    id("de.benediktritter.maven-plugin-development") version "0.3.1"
 }
 
 dependencies {
