@@ -18,13 +18,14 @@ package com.expediagroup.graphql.plugin.client
 
 import graphql.schema.idl.SchemaParser
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.cio.endpoint
+import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.ClientRequestException
+import io.ktor.client.features.HttpRequestTimeoutException
+import io.ktor.client.features.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
+import java.net.UnknownHostException
 
 /**
  * Downloads GraphQL SDL from the specified endpoint and verifies whether the result is a valid GraphQL schema.
@@ -34,12 +35,10 @@ fun downloadSchema(
     httpHeaders: Map<String, Any> = emptyMap(),
     connectTimeout: Long = 5_000,
     readTimeout: Long = 15_000
-): String = HttpClient(engineFactory = CIO) {
-    engine {
-        this.requestTimeout = readTimeout
-        endpoint {
-            this.connectTimeout = connectTimeout
-        }
+): String = HttpClient(engineFactory = Apache) {
+    install(HttpTimeout) {
+        connectTimeoutMillis = connectTimeout
+        requestTimeoutMillis = readTimeout
     }
 }.use { client ->
     runBlocking {
@@ -51,7 +50,7 @@ fun downloadSchema(
             }
         } catch (e: Throwable) {
             when (e) {
-                is ClientRequestException, is TimeoutCancellationException -> throw e
+                is ClientRequestException, is HttpRequestTimeoutException, is UnknownHostException -> throw e
                 else -> throw RuntimeException("Unable to download SDL from specified endpoint=$endpoint", e)
             }
         }
