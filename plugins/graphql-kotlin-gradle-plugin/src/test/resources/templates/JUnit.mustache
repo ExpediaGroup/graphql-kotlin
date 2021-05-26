@@ -31,7 +31,7 @@ class GraphQLMavenPluginTest {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
         val client = GraphQLWebClient(graphQLEndpoint)
 
-        val variables = JUnitQuery.Variables(simpleCriteria = SimpleArgumentInput(min = null, max = null, newName = "blah"))
+        val variables = JUnitQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "blah"))
         val query = JUnitQuery(variables)
 
         assertDoesNotThrow {

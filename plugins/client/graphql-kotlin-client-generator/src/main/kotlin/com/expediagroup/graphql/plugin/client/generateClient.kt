@@ -32,14 +32,16 @@ fun generateClient(
     customScalarsMap: List<GraphQLScalar> = emptyList(),
     serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     schemaPath: String,
-    queries: List<File>
+    queries: List<File>,
+    useOptionalInputWrapper: Boolean = false
 ): List<FileSpec> {
     val customScalars = customScalarsMap.associateBy { it.scalar }
     val config = GraphQLClientGeneratorConfig(
         packageName = packageName,
         allowDeprecated = allowDeprecated,
         customScalarMap = customScalars,
-        serializer = serializer
+        serializer = serializer,
+        useOptionalInputWrapper = useOptionalInputWrapper
     )
     val generator = GraphQLClientGenerator(schemaPath, config)
     return generator.generate(queries)

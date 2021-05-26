@@ -124,6 +124,11 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     @Option(option = "serializer", description = "JSON serializer that will be used to generate the data classes.")
     val serializer: Property<GraphQLSerializer> = project.objects.property(GraphQLSerializer::class.java)
 
+    @Input
+    @Optional
+    @Option(option = "useOptionalInputWrapper", description = "Opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined.")
+    val useOptionalInputWrapper: Property<Boolean> = project.objects.property(Boolean::class.java)
+
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -139,6 +144,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         serializer.convention(GraphQLSerializer.JACKSON)
         queryFileDirectory.convention("${project.projectDir}/src/main/resources")
         outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
+        useOptionalInputWrapper.convention(false)
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -185,6 +191,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             parameters.schemaPath.set(graphQLSchemaPath)
             parameters.queryFiles.set(targetQueryFiles)
             parameters.targetDirectory.set(targetDirectory)
+            parameters.useOptionalInputWrapper.set(useOptionalInputWrapper)
         }
         workQueue.await()
         logger.debug("successfully generated GraphQL HTTP client")

@@ -18,9 +18,13 @@ package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.isOptionalInputSupported
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InputObjectTypeDefinition
@@ -45,7 +49,14 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type)
         val fieldName = fieldDefinition.name
 
-        val inputPropertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
+        val inputFieldType = if (kotlinFieldType.isNullable && context.isOptionalInputSupported()) {
+            ClassName("com.expediagroup.graphql.client.jackson.types", "OptionalInput")
+                .parameterizedBy(kotlinFieldType.copy(nullable = false))
+        } else {
+            kotlinFieldType
+        }
+
+        val inputPropertySpecBuilder = PropertySpec.builder(fieldName, inputFieldType)
             .initializer(fieldName)
         fieldDefinition.description?.content?.let { kdoc ->
             inputPropertySpecBuilder.addKdoc("%L", kdoc)
@@ -55,8 +66,12 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
         inputObjectTypeSpecBuilder.addProperty(inputPropertySpec)
 
         val inputParameterSpec = ParameterSpec.builder(inputPropertySpec.name, inputPropertySpec.type)
-        if (inputPropertySpec.type.isNullable) {
-            inputParameterSpec.defaultValue("null")
+        if (kotlinFieldType.isNullable) {
+            if (context.isOptionalInputSupported()) {
+                inputParameterSpec.defaultValue("%M", MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined"))
+            } else {
+                inputParameterSpec.defaultValue("null")
+            }
         }
         constructorBuilder.addParameter(inputParameterSpec.build())
     }

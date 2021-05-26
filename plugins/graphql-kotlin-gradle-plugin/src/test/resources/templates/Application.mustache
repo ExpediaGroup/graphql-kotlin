@@ -7,6 +7,7 @@ import com.example.generated.inputs.SimpleArgumentInput
 import com.example.generated.junitquery.BasicObject2
 import com.example.generated.junitquery.ScalarWrapper
 import com.example.generated.junitquery.SecondInterfaceImplementation
+{{#optionalInputWrapper}}import com.expediagroup.graphql.client.jackson.types.OptionalInput{{/optionalInputWrapper}}
 {{#ktorClient}}
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 {{#defaultHeader}}
@@ -48,7 +49,13 @@ fun main() {
     )
         {{/ktorClient}}
     {{/defaultHeader}}
-    val variables = JUnitQuery.Variables(SimpleArgumentInput(min = null, max = null, newName = "blah"))
+
+    {{#optionalInputWrapper}}
+    val variables = JUnitQuery.Variables(SimpleArgumentInput(newName = OptionalInput.Defined("blah")))
+    {{/optionalInputWrapper}}
+    {{^optionalInputWrapper}}
+    val variables = JUnitQuery.Variables(SimpleArgumentInput(newName = "blah"))
+    {{/optionalInputWrapper}}
     val query = JUnitQuery(variables)
 
     runBlocking {

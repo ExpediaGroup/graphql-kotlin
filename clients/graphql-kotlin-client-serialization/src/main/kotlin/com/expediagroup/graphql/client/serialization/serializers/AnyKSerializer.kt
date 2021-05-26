@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.client.serialization.serializers
 
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -47,30 +48,37 @@ object AnyKSerializer : KSerializer<Any?> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Any")
 
     override fun serialize(encoder: Encoder, value: Any?) {
-        val jsonEncoder = encoder as JsonEncoder
-        val jsonElement = serializeAny(value)
-        jsonEncoder.encodeJsonElement(jsonElement)
+        serializeAny(value)?.let {
+            val jsonEncoder = encoder as JsonEncoder
+            jsonEncoder.encodeJsonElement(it)
+        }
     }
 
-    private fun serializeAny(value: Any?): JsonElement = when (value) {
+    private fun serializeAny(value: Any?): JsonElement? = when (value) {
         null -> JsonNull
+        is OptionalInput.Undefined -> null
+        is OptionalInput.Defined<*> -> serializeAny(value.value)
         is Map<*, *> -> {
-            val mapContents = value.entries.associate { mapEntry ->
-                mapEntry.key.toString() to serializeAny(mapEntry.value)
-            }
+            val mapContents = value.mapNotNull { (key, value) ->
+                serializeAny(value)?.let {
+                    key.toString() to it
+                }
+            }.toMap()
             JsonObject(mapContents)
         }
         is List<*> -> {
-            val arrayContents = value.map { listEntry -> serializeAny(listEntry) }
+            val arrayContents = value.mapNotNull { listEntry -> serializeAny(listEntry) }
             JsonArray(arrayContents)
         }
         is Number -> JsonPrimitive(value)
         is Boolean -> JsonPrimitive(value)
         is String -> JsonPrimitive(value)
         else -> {
-            val contents = value::class.memberProperties.associate { property ->
-                property.name to serializeAny(property.getter.call(value))
-            }
+            val contents = value::class.memberProperties.mapNotNull { property ->
+                serializeAny(property.getter.call(value))?.let {
+                    property.name to it
+                }
+            }.toMap()
             JsonObject(contents)
         }
     }

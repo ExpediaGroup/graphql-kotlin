@@ -38,8 +38,9 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
         val schemaPath = parameters.schemaPath.get()
         val queryFiles = parameters.queryFiles.get()
         val targetDirectory = parameters.targetDirectory.get()
+        val useOptionalInputWrapper = parameters.useOptionalInputWrapper.get()
 
-        generateClient(targetPackage, allowDeprecated, customScalarMap, serializer, schemaPath, queryFiles).forEach {
+        generateClient(targetPackage, allowDeprecated, customScalarMap, serializer, schemaPath, queryFiles, useOptionalInputWrapper).forEach {
             it.writeTo(targetDirectory)
         }
     }

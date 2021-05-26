@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class GraphQLMavenPluginTest {
         val graphQLEndpoint = System.getProperty("graphQLEndpoint")
         val client = GraphQLWebClient(graphQLEndpoint)
 
-        val variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "whatever", min = null, max = null))
+        val variables = ExampleQuery.Variables(simpleCriteria = SimpleArgumentInput(newName = "whatever"))
         val query = ExampleQuery(variables)
         assertDoesNotThrow {
             runBlocking {

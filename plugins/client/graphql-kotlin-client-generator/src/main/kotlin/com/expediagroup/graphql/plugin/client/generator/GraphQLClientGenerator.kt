@@ -104,7 +104,8 @@ class GraphQLClientGenerator(
                 queryDocument = queryDocument,
                 allowDeprecated = config.allowDeprecated,
                 customScalarMap = config.customScalarMap,
-                serializer = config.serializer
+                serializer = config.serializer,
+                useOptionalInputWrapper = config.useOptionalInputWrapper
             )
             val queryConstName = operationTypeName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)

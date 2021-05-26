@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.serialization
 
 import com.expediagroup.graphql.client.serialization.data.EnumQuery
 import com.expediagroup.graphql.client.serialization.data.FirstQuery
+import com.expediagroup.graphql.client.serialization.data.InputQuery
 import com.expediagroup.graphql.client.serialization.data.OtherQuery
 import com.expediagroup.graphql.client.serialization.data.PolymorphicQuery
 import com.expediagroup.graphql.client.serialization.data.ScalarQuery
@@ -26,10 +27,12 @@ import com.expediagroup.graphql.client.serialization.data.polymorphicquery.Secon
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 class GraphQLClientKotlinXSerializerTest {
@@ -213,5 +216,31 @@ class GraphQLClientKotlinXSerializerTest {
         """.trimMargin()
         val deserialized = serializer.deserialize(rawResponse, EnumQuery(EnumQuery.Variables()).responseType())
         assertEquals(TestEnum.THREE, deserialized.data?.enumResult)
+    }
+
+    @Test
+    @Ignore("disabled until https://github.com/Kotlin/kotlinx.serialization/issues/1091 is resolved")
+    fun `verify we can serialize optional inputs`() {
+        val query = InputQuery(
+            variables = InputQuery.Variables(
+                requiredInput = 123,
+                optionalIntInput = OptionalInput.Defined(123),
+                optionalStringInput = OptionalInput.Defined(null)
+            )
+        )
+        val rawQuery =
+            """{
+            |  "query": "INPUT_QUERY",
+            |  "operationName": "InputQuery",
+            |  "variables": {
+            |    "requiredInput": 123,
+            |    "optionalIntInput": 123,
+            |    "optionalStringInput": null
+            |  }
+            |}
+        """.trimMargin()
+
+        val serialized = serializer.serialize(query)
+        assertEquals(rawQuery, serialized)
     }
 }

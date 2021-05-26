@@ -182,6 +182,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             |    sdlEndpoint = "${wireMockServer.baseUrl()}/sdl"
             |    packageName = "com.example.generated"
             |    serializer = GraphQLSerializer.$serializer
+            |    useOptionalInputWrapper = true
             |  }
             |}
             """.trimMargin()
@@ -219,7 +220,8 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     mapOf(
                         "ktorClient" to useKtorClient,
                         "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
-                        "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue)
+                        "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue),
+                        "optionalInputWrapper" to (serializer == GraphQLSerializer.JACKSON)
                     )
                 )
             )
