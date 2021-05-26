@@ -154,7 +154,8 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
             .withArguments(DOWNLOAD_SDL_TASK_NAME, "--stacktrace")
             .buildAndFail()
 
+        println(result.output)
         assertEquals(TaskOutcome.FAILED, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
-        assertTrue(result.output.contains("Timed out waiting for 100 ms", ignoreCase = true))
+        assertTrue(result.output.contains("Request timeout has been expired", ignoreCase = true))
     }
 }

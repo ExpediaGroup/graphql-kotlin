@@ -24,15 +24,15 @@ import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import graphql.schema.idl.errors.SchemaProblem
 import io.ktor.client.features.ClientRequestException
+import io.ktor.client.features.HttpRequestTimeoutException
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.nio.channels.UnresolvedAddressException
+import java.net.UnknownHostException
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -97,12 +97,11 @@ class DownloadSchemaTest {
     @Test
     @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if URL is not valid`() {
-        val exception = assertThrows<RuntimeException> {
+        assertThrows<UnknownHostException> {
             runBlocking {
                 downloadSchema("https://non-existent-graphql-url.com/should_404")
             }
         }
-        assertTrue(exception.cause is UnresolvedAddressException)
     }
 
     @Test
@@ -147,7 +146,7 @@ class DownloadSchemaTest {
                     .withFixedDelay(1_000)
             )
         )
-        assertThrows<TimeoutCancellationException> {
+        assertThrows<HttpRequestTimeoutException> {
             runBlocking {
                 downloadSchema(endpoint = "${wireMockServer.baseUrl()}/sdl", connectTimeout = 100, readTimeout = 100)
             }

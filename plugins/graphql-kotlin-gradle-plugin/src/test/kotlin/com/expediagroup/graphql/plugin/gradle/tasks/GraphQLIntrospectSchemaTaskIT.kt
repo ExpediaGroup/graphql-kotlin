@@ -152,6 +152,6 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
-        assertTrue(result.output.contains("Timed out waiting for 100 ms", ignoreCase = true))
+        assertTrue(result.output.contains("Request timeout has been expired", ignoreCase = true))
     }
 }

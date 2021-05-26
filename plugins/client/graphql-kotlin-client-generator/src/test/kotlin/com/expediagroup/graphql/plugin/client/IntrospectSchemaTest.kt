@@ -20,8 +20,8 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.ktor.client.features.ClientRequestException
+import io.ktor.client.features.HttpRequestTimeoutException
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.BufferedReader
+import java.net.UnknownHostException
 import kotlin.test.assertEquals
 
 class IntrospectSchemaTest {
@@ -129,9 +130,19 @@ class IntrospectSchemaTest {
                         .withFixedDelay(1_000)
                 )
         )
-        assertThrows<TimeoutCancellationException> {
+        assertThrows<HttpRequestTimeoutException> {
             runBlocking {
                 introspectSchema(endpoint = "${wireMockServer.baseUrl()}/graphql", connectTimeout = 100, readTimeout = 100)
+            }
+        }
+    }
+
+    @Test
+    @KtorExperimentalAPI
+    fun `verify introspectSchema will throw exception if URL is not valid`() {
+        assertThrows<UnknownHostException> {
+            runBlocking {
+                downloadSchema("https://non-existent-graphql-url.com/should_404")
             }
         }
     }
