@@ -1,13 +1,20 @@
 ---
 id: generator-config
-title: Generator Configuration
+title: Generator Configuration & Hooks
 ---
+
 `graphql-kotlin-schema-generator` provides a single function, `toSchema,` to generate a schema from Kotlin objects. This
-function accepts four arguments: config, queries, mutations and subscriptions. The queries, mutations and subscriptions
-are a list of
+function accepts four arguments: config, queries, mutations and subscriptions.
+
+## TopLevelObjects
+
+The queries, mutations and subscriptions are a list of
 [TopLevelObjects](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/TopLevelObject.kt)
-and will be used to generate corresponding GraphQL root types. The
-[config](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorConfig.kt)
+and will be used to generate corresponding GraphQL root types.
+
+## SchemaGeneratorConfig
+
+The [config](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/SchemaGeneratorConfig.kt)
 contains all the extra information you need to pass, including custom hooks, supported packages and name overrides.
 `SchemaGeneratorConfig` has some default settings but you can override them and add custom behaviors for generating your
 schema.
@@ -20,14 +27,14 @@ schema.
 -   `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
 -   `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
 
-## Schema generator hooks
+## SchemaGeneratorHooks
 
 Hooks are lifecycle events that are called and triggered while the schema is building that allow users to customize the
 schema.
 
 For exact names and details of every hook, see the comments and descriptions in our latest
 [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator) or directly in the source file:
-[SchemaGeneratorHooks.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/generator/graphql/hooks/SchemaGeneratorHooks.kt)
+[SchemaGeneratorHooks.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/hooks/SchemaGeneratorHooks.kt)
 
 As an example here is how you would write a custom hook and provide it through the configuration
 
