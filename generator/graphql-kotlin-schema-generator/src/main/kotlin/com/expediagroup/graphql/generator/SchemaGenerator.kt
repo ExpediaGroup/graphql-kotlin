@@ -26,6 +26,7 @@ import com.expediagroup.graphql.generator.internal.types.generateQueries
 import com.expediagroup.graphql.generator.internal.types.generateSubscriptions
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
@@ -52,6 +53,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
     internal val cache = TypesCache(config.supportedPackages)
     internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
+    internal var queryRoot: GraphQLObjectType? = null
 
     /**
      * Validate that the supported packages contain classes
@@ -77,7 +79,8 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
 
         val builder = GraphQLSchema.newSchema()
-        builder.query(generateQueries(this, queries))
+        queryRoot = generateQueries(this, queries)
+        builder.query(queryRoot)
         builder.mutation(generateMutations(this, mutations))
         builder.subscription(generateSubscriptions(this, subscriptions))
         builder.additionalTypes(generateAdditionalTypes())

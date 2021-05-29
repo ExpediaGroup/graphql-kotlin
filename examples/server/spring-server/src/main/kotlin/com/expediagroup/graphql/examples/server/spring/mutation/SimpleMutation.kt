@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.examples.server.spring.mutation
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.operations.QueryRoot
 import com.expediagroup.graphql.server.operations.Mutation
 import org.springframework.stereotype.Component
 
@@ -33,5 +34,12 @@ class SimpleMutation : Mutation {
     fun addToList(entry: String): MutableList<String> {
         data.add(entry)
         return data
+    }
+
+    fun mutationQueryResponse(input: String): QueryRoot {
+        // Do mutation actions with input
+
+        // Then just return empty object
+        return QueryRoot()
     }
 }

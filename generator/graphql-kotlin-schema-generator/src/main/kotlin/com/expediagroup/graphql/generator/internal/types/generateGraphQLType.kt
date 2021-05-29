@@ -25,10 +25,12 @@ import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
 import com.expediagroup.graphql.generator.internal.extensions.wrapInNonNull
 import com.expediagroup.graphql.generator.internal.state.TypesCacheKey
+import com.expediagroup.graphql.generator.operations.QueryRoot
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Return a basic GraphQL type given all the information about the kotlin type.
@@ -37,6 +39,7 @@ internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputT
     val hookGraphQLType = generator.config.hooks.willGenerateGraphQLType(type)
     val graphQLType = hookGraphQLType
         ?: generateScalar(generator, type)
+        ?: returnRootObject(generator, type)
         ?: objectFromReflection(generator, type, inputType)
 
     // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
@@ -47,6 +50,15 @@ internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputT
     }
 
     return typeWithNullability
+}
+
+private fun returnRootObject(generator: SchemaGenerator, type: KType): GraphQLType? {
+    val kClass = type.getKClass()
+
+    return when {
+        kClass.isSubclassOf(QueryRoot::class) && generator.queryRoot != null -> generator.queryRoot
+        else -> null
+    }
 }
 
 private fun objectFromReflection(generator: SchemaGenerator, type: KType, inputType: Boolean): GraphQLType {
