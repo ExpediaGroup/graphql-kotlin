@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.directives
 
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
@@ -53,16 +54,18 @@ internal class KotlinSchemaDirectiveEnvironmentTest {
             )
             .build()
 
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLArgument>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLEnumType>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLEnumValueDefinition>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLFieldDefinition>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLInputObjectField>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLInputObjectType>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLInterfaceType>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLObjectType>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLScalarType>(), directive).isValid())
-        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLUnionType>(), directive).isValid())
+        val codeRegistry = mockk<GraphQLCodeRegistry.Builder>()
+
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLArgument>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLEnumType>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLEnumValueDefinition>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLFieldDefinition>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLInputObjectField>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLInputObjectType>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLInterfaceType>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLObjectType>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLScalarType>(), directive, codeRegistry).isValid())
+        assertTrue(KotlinSchemaDirectiveEnvironment(mockk<GraphQLUnionType>(), directive, codeRegistry).isValid())
     }
 
     @Test
@@ -71,11 +74,11 @@ internal class KotlinSchemaDirectiveEnvironmentTest {
             .name("enumDirective")
             .validLocations(Introspection.DirectiveLocation.ENUM)
             .build()
-        assertFalse(KotlinSchemaDirectiveEnvironment(mockk<GraphQLArgument>(), enumDirective).isValid())
+        assertFalse(KotlinSchemaDirectiveEnvironment(mockk<GraphQLArgument>(), enumDirective, mockk<GraphQLCodeRegistry.Builder>()).isValid())
     }
 
     @Test
     fun `isValid returns false on non valid type`() {
-        assertFalse(KotlinSchemaDirectiveEnvironment(mockk<GraphQLDirectiveContainer>(), mockk()).isValid())
+        assertFalse(KotlinSchemaDirectiveEnvironment(mockk<GraphQLDirectiveContainer>(), mockk(), mockk<GraphQLCodeRegistry.Builder>()).isValid())
     }
 }

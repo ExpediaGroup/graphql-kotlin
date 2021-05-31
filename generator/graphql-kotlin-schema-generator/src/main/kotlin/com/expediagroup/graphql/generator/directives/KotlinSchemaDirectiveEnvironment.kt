@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.directives
 
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
@@ -35,7 +36,8 @@ import graphql.schema.GraphQLUnionType
  */
 open class KotlinSchemaDirectiveEnvironment<out T : GraphQLDirectiveContainer>(
     val element: T,
-    val directive: GraphQLDirective
+    val directive: GraphQLDirective,
+    val codeRegistry: GraphQLCodeRegistry.Builder
 ) {
     /**
      * Verifies whether specified directive is applicable on the target element.
