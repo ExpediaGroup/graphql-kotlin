@@ -6,7 +6,7 @@ original_id: release-proc
 In order to [release a new version](https://github.com/ExpediaGroup/graphql-kotlin/releases) we need to draft a new release
 and tag the commit. Releases are following [semantic versioning](https://semver.org/) and specify major, minor and patch version.
 
-Once release is published it will trigger corresponding [Github Action](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/.github/workflows/release.yml)
+Once release is published it will trigger corresponding [Github Action](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/.github/workflows/release.yml)
 based on the published release event. Release workflow will then proceed to build and publish all library artifacts to [Maven Central](https://central.sonatype.org/).
 
 ### Release requirements

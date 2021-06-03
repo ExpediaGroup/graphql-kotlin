@@ -95,7 +95,7 @@ below on why we use this wrapper class. The `config` contains all the extra info
 custom hooks, supported packages, and name overrides. See the [Generator Configuration](./customizing-schemas/generator-config.md) documentation for more information.
 
 You can see the definition for `toSchema` [in the
-source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/toSchema.kt)
+source](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/toSchema.kt)
 
 ## Class `TopLevelObject`
 

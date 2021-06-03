@@ -228,7 +228,7 @@ Generated classes will be automatically added to the project compile sources.
 ### Generating Client with Custom Scalars
 
 By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
-custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt).
+custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt).
 
 For example given following custom scalar in our GraphQL schema
 

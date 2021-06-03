@@ -4,7 +4,7 @@ title: Spring Server Overview
 original_id: spring-overview
 ---
 
-[graphql-kotlin-spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/graphql-kotlin-spring-server)
+[graphql-kotlin-spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/3.x.x/graphql-kotlin-spring-server)
 is a Spring Boot auto-configuration library that automatically configures beans required to start up a reactive GraphQL
 web server.
 

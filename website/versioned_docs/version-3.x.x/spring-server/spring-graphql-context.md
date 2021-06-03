@@ -5,9 +5,9 @@ original_id: spring-graphql-context
 ---
 
 `graphql-kotlin-spring-server` provides a simple mechanism to build a [GraphQL context](../schema-generator/execution/contextual-data.md) per query execution through
-[GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
+[GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
 Once a context factory bean is available, it will then be used in
-[ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
+[ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
 to populate the GraphQL context based on the incoming request and make it available during query execution.
 
 For example if we define our custom context as follows:

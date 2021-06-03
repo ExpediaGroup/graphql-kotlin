@@ -36,9 +36,9 @@ query ($_representations: [_Any!]!) {
 
 In order to simplify the integrations, `graphql-kotlin-federation` provides default `_entities` query resolver that
 relies on
-[FederatedTypeRegistry](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeRegistry.kt)
+[FederatedTypeRegistry](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeRegistry.kt)
 to retrieve
-[FederatedTypeResolver](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeResolver.kt)
+[FederatedTypeResolver](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/federation/execution/FederatedTypeResolver.kt)
 that is used to resolve target object. When configuring the federated schema generator hooks you have to explicitly
 provide those resolver mappings to the configuration.
 

@@ -124,7 +124,7 @@ class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
 While you can manually apply all the runtime wirings to the corresponding GraphQL types directly in
 `SchemaGeneratorHooks#onRewireGraphQLType`, we recommend the usage of our
-[KotlinDirectiveWiringFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/directives/KotlinDirectiveWiringFactory.kt)
+[KotlinDirectiveWiringFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/directives/KotlinDirectiveWiringFactory.kt)
 to simplify the integrations. `KotlinDirectiveWiringFactory` accepts a mapping of directives to corresponding wirings or
 could be extended to provide the wirings through `KotlinDirectiveWiringFactory#getSchemaDirectiveWiring` that accepts
 `KotlinSchemaDirectiveEnvironment`.
@@ -152,7 +152,7 @@ arguments directives) can modify runtime behavior based on the context and user 
 first attempt to use `WiringFactory` and then fallback to manual overrides.**
 
 For more details please refer to the example usage of directives in our [example
-app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/spring).
+app](https://github.com/ExpediaGroup/graphql-kotlin/tree/3.x.x/examples/spring).
 
 ## Directive Chaining
 

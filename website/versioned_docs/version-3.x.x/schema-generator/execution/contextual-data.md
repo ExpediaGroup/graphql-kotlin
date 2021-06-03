@@ -12,9 +12,9 @@ its function, but the server needs the information to ensure observability.
 The contents of the GraphQL context vary across applications and it is up to the GraphQL server developers to decide
 what it should contain. For Spring based applications, `graphql-kotlin-spring-server` provides a simple mechanism to
 build context per query execution through
-[GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
+[GraphQLContextFactory](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/GraphQLContextFactory.kt).
 Once context factory bean is available in the Spring application context it will then be used in a corresponding
-[ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
+[ContextWebFilter](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-spring-server/src/main/kotlin/com/expediagroup/graphql/spring/execution/ContextWebFilter.kt)
 to populate GraphQL context based on the incoming request and make it available during query execution. See [graphql-kotlin-spring-server documentation](../../spring-server/spring-graphql-context)
 for additional details
 
