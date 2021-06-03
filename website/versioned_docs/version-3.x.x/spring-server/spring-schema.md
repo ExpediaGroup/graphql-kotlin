@@ -89,7 +89,7 @@ class SpringQuery : Query {
 
 You can use Spring beans to wire different objects together at runtime. Instead of autowiring specific beans as properties,
 you can also dynamically resolve beans by using bean factories. There is an example of how to set this up in the example
-app in the [TopLevelBeanFactoryQuery.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/TopLevelBeanFactoryQuery.kt).
+app in the [TopLevelBeanFactoryQuery.kt](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/main/kotlin/com/expediagroup/graphql/examples/server/spring/query/TopLevelBeanFactoryQuery.kt).
 
 ```kotlin
 @Component
@@ -118,4 +118,4 @@ class User @Autowired(required = false) constructor(private val userId: String) 
 ------
 
 We have examples of these techniques implemented in Spring boot in the [example
-app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/NestedQueries.kt).
+app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/main/kotlin/com/expediagroup/graphql/examples/server/spring/query/NestedQueries.kt).
