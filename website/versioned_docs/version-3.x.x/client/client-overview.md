@@ -91,7 +91,7 @@ Equivalent `pom.xml` Maven configuration
 
 ```
 
-See [graphql-kotlin-client-example](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client) project for complete
+See [graphql-kotlin-client-example](https://github.com/ExpediaGroup/graphql-kotlin/tree/3.x.x/examples/client) project for complete
 working examples of Gradle and Maven based projects.
 
 ## Generating GraphQL Client

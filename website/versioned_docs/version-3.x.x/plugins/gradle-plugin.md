@@ -22,7 +22,7 @@ plugins {
 ## Extension
 
 GraphQL Kotlin Gradle Plugin uses an extension on the project named `graphql` of type
-[GraphQLPluginExtension](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt).
+[GraphQLPluginExtension](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/plugins/graphql-kotlin-gradle-plugin/src/main/kotlin/com/expediagroup/graphql/plugin/gradle/GraphQLPluginExtension.kt).
 This extension can be used to configure global options instead of explicitly configuring individual tasks. Once extension
 is configured, it will automatically download SDL/run introspection to generate GraphQL schema and subsequently generate
 all GraphQL clients. GraphQL Extension should be used by default, except for cases where you need to only run individual
@@ -227,7 +227,7 @@ Generated classes will be automatically added to the project compile sources.
 ### Generating Client with Custom Scalars
 
 By default, all custom GraphQL scalars will be serialized as Strings. You can override this default behavior by specifying
-custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt).
+custom [scalar converter](https://github.com/ExpediaGroup/graphql-kotlin/blob/3.x.x/graphql-kotlin-client/src/main/kotlin/com/expediagroup/graphql/client/converter/ScalarConverter.kt).
 
 For example given following custom scalar in our GraphQL schema
 
