@@ -21,27 +21,28 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.full.createType
-import kotlin.reflect.jvm.reflect
+import kotlin.reflect.jvm.ExperimentalReflectionOnLambdas
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@ExperimentalReflectionOnLambdas
 class FlowSubscriptionSchemaGeneratorHooksTest {
 
     val hooks = FlowSubscriptionSchemaGeneratorHooks()
 
     @Test
     fun `willResolveMonad unwraps Flow`() {
-        val type = assertNotNull(TestQuery::getFlow.reflect()?.returnType)
+        val type = assertNotNull(TestQuery::getFlow.returnType)
         val result = hooks.willResolveMonad(type)
         assertEquals(String::class.createType(), result)
     }
 
     @Test
     fun `willResolveMonad does nothing on any other type`() {
-        val stringType = assertNotNull(TestQuery::getString.reflect()?.returnType)
-        val cfType = assertNotNull(TestQuery::getCompletableFuture.reflect()?.returnType)
+        val stringType = assertNotNull(TestQuery::getString.returnType)
+        val cfType = assertNotNull(TestQuery::getCompletableFuture.returnType)
 
         assertEquals(stringType, hooks.willResolveMonad(stringType))
         assertEquals(cfType, hooks.willResolveMonad(cfType))

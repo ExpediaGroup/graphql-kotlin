@@ -156,6 +156,6 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
 
         println(result.output)
         assertEquals(TaskOutcome.FAILED, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
-        assertTrue(result.output.contains("Request timeout has been expired", ignoreCase = true))
+        assertTrue(result.output.contains("Request timeout has expired", ignoreCase = true))
     }
 }
