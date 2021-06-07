@@ -24,7 +24,7 @@ public interface BasicInterface2 {
   /**
    * Name field
    */
-  public abstract val name: String
+  public val name: String
 }
 
 /**

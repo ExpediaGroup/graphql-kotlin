@@ -23,7 +23,7 @@ public interface BasicInterface {
   /**
    * Unique identifier of an interface
    */
-  public abstract val id: Int
+  public val id: Int
 }
 
 /**
