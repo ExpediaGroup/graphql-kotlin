@@ -17,7 +17,7 @@ import kotlinx.serialization.json.jsonPrimitive
  */
 @Serializable(with = UUIDSerializer::class)
 public data class UUID(
-  public val value: java.util.UUID
+  public val `value`: java.util.UUID
 )
 
 public class UUIDSerializer : KSerializer<UUID> {
@@ -25,7 +25,7 @@ public class UUIDSerializer : KSerializer<UUID> {
 
   public override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", STRING)
 
-  public override fun serialize(encoder: Encoder, value: UUID): Unit {
+  public override fun serialize(encoder: Encoder, `value`: UUID): Unit {
     val encoded = converter.toJson(value.value)
     encoder.encodeString(encoded.toString())
   }
