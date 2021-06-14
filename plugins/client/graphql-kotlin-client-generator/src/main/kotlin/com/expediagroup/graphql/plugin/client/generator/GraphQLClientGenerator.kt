@@ -90,24 +90,24 @@ class GraphQLClientGenerator(
 
         val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
         if (operationDefinitions.size > 1) {
-            throw MultipleOperationsInFileException
+            throw MultipleOperationsInFileException(queryFile)
         }
 
         val fileSpecs = mutableListOf<FileSpec>()
         val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
         operationDefinitions.forEach { operationDefinition ->
-            val operationTypeName = operationDefinition.name?.capitalize() ?: queryFile.nameWithoutExtension.capitalize()
+            val capitalizedOperationName = operationDefinition.name?.capitalize() ?: queryFile.nameWithoutExtension.capitalize()
             val context = GraphQLClientGeneratorContext(
                 packageName = config.packageName,
                 graphQLSchema = graphQLSchema,
-                rootType = operationTypeName,
+                operationName = capitalizedOperationName,
                 queryDocument = queryDocument,
                 allowDeprecated = config.allowDeprecated,
                 customScalarMap = config.customScalarMap,
                 serializer = config.serializer,
                 useOptionalInputWrapper = config.useOptionalInputWrapper
             )
-            val queryConstName = operationTypeName.toUpperUnderscore()
+            val queryConstName = capitalizedOperationName.toUpperUnderscore()
             val queryConstProp = PropertySpec.builder(queryConstName, STRING)
                 .addModifiers(KModifier.CONST)
                 .initializer("%S", queryConst)
@@ -116,12 +116,12 @@ class GraphQLClientGenerator(
 
             val rootType = findRootType(operationDefinition)
             val graphQLResponseTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
-            val kotlinResultTypeName = ClassName(context.packageName, "${context.rootType}.${graphQLResponseTypeSpec.name}")
+            val kotlinResultTypeName = ClassName(context.packageName, "${context.operationName}.${graphQLResponseTypeSpec.name}")
 
             val queryProperty = PropertySpec.builder("query", STRING, KModifier.OVERRIDE)
                 .initializer("%N", queryConstProp)
                 .build()
-            val operationTypeSpec = TypeSpec.classBuilder(operationTypeName)
+            val operationTypeSpec = TypeSpec.classBuilder(capitalizedOperationName)
                 .addSuperinterface(ClassName(CORE_TYPES_PACKAGE, "GraphQLClientRequest").parameterizedBy(kotlinResultTypeName))
                 .addProperty(queryProperty)
 
@@ -139,7 +139,7 @@ class GraphQLClientGenerator(
             if (variableType != null) {
                 operationTypeSpec.addType(variableType)
 
-                val variablesClassName = ClassName(config.packageName, "$operationTypeName.Variables")
+                val variablesClassName = ClassName(config.packageName, "$capitalizedOperationName.Variables")
                 val variablesProperty = PropertySpec.builder("variables", variablesClassName, KModifier.OVERRIDE)
                     .initializer("variables")
                     .build()

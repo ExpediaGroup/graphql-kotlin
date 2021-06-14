@@ -73,7 +73,7 @@ internal fun generateInterfaceTypeSpec(
     val namedFragments = selectionSet.getSelectionsOfType(FragmentSpread::class.java).map { fragment ->
         // polymorphic selection set can contain selection set against interface or concrete types
         context.queryDocument.getDefinitionsOfType(FragmentDefinition::class.java)
-            .find { it.name == fragment.name } ?: throw InvalidFragmentException(fragment.name, interfaceName)
+            .find { it.name == fragment.name } ?: throw InvalidFragmentException(context.operationName, fragment.name, interfaceName)
     }.associateBy { it.typeCondition.name }
 
     // find super selection set that contains
@@ -121,7 +121,7 @@ internal fun generateInterfaceTypeSpec(
     // check if all implementations are selected
     val notImplemented = implementations.minus(implementationSelections.keys)
     if (notImplemented.isNotEmpty()) {
-        throw InvalidPolymorphicQueryException("query does not specify all polymorphic implementations - $interfaceName field selection is missing $notImplemented")
+        throw InvalidPolymorphicQueryException("Operation ${context.operationName} does not specify all polymorphic implementations - $interfaceName field selection is missing $notImplemented")
     }
 
     // generate implementations with final selection set
@@ -129,7 +129,7 @@ internal fun generateInterfaceTypeSpec(
     implementationSelections.forEach { implementationName, (typeCondition, selections) ->
         val distinctSelections = selections.filterIsInstance(Field::class.java).distinctBy { if (it.alias != null) it.alias else it.name }
         if (!verifyTypeNameIsSelected(distinctSelections)) {
-            throw InvalidPolymorphicQueryException("invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
+            throw InvalidPolymorphicQueryException("Operation ${context.operationName} specifies invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
         }
         var implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
         if (implementationClassName.isNullable) {
@@ -184,7 +184,7 @@ private fun updateImplementationTypeSpecWithSuperInformation(
         .addModifiers(implementationTypeSpec.modifiers)
         .addKdoc("%L", implementationTypeSpec.kdoc)
 
-    val superClassName = ClassName("${context.packageName}.${context.rootType.toLowerCase()}", interfaceName)
+    val superClassName = ClassName("${context.packageName}.${context.operationName.toLowerCase()}", interfaceName)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
         builder.addAnnotation(Serializable::class)
             .addAnnotation(

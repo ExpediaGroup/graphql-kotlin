@@ -16,7 +16,10 @@
 
 package com.expediagroup.graphql.plugin.client.generator.exceptions
 
+import java.io.File
+
 /**
  * Exception thrown when attempting to generate a client from a query file containing multiple operations.
  */
-internal object MultipleOperationsInFileException : RuntimeException("GraphQL client does not support query files with multiple operations")
+internal class MultipleOperationsInFileException(queryFile: File) :
+    RuntimeException("GraphQL client does not support query files with multiple operations, ${queryFile.name} contains multiple operations")
