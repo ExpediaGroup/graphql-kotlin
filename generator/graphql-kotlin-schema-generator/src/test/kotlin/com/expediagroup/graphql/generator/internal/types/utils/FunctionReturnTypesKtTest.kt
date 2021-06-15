@@ -29,8 +29,11 @@ class FunctionReturnTypesKtTest {
         // Valid Types
         val string = "my string"
         val listOfString: List<String> = listOf(string)
+        val listOfListString: List<List<String>> = listOf(listOf(string))
         val dataFetcherResult: DataFetcherResult<String> = DataFetcherResult.newResult<String>().data(string).build()
         val listDataFetcherResult: List<DataFetcherResult<String>> = listOf(DataFetcherResult.newResult<String>().data(string).build())
+        val dataFetcherResultListString: DataFetcherResult<List<String>> = DataFetcherResult.newResult<List<String>>().data(listOf(string)).build()
+        val listDataFetcherResultListString: List<DataFetcherResult<List<String>>> = listOf(DataFetcherResult.newResult<List<String>>().data(listOf(string)).build())
         val publisher: Publisher<String> = Flowable.just(string)
         val flowable: Flowable<String> = Flowable.just(string)
         val publisherDataFetcherResult: Publisher<DataFetcherResult<String>> = Flowable.just(dataFetcherResult)
@@ -41,6 +44,12 @@ class FunctionReturnTypesKtTest {
         val invalidDataFetcherResultCompletableFuture: DataFetcherResult<CompletableFuture<String>> = DataFetcherResult.newResult<CompletableFuture<String>>().data(completableFuture).build()
         val invalidDataFetcherResultPublisher: DataFetcherResult<Publisher<String>> = DataFetcherResult.newResult<Publisher<String>>().data(publisher).build()
         val invalidCompletableFuture: CompletableFuture<Publisher<String>> = CompletableFuture.completedFuture(publisher)
+    }
+
+    @Test
+    fun `getWrappedReturnType of lists`() {
+        assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::listOfString.returnType))
+        assertEquals(MyClass::listOfListString.returnType, actual = getWrappedReturnType(MyClass::listOfListString.returnType))
     }
 
     @Test
@@ -59,6 +68,8 @@ class FunctionReturnTypesKtTest {
     @Test
     fun `getWrappedReturnType of List of DataFetcherResult`() {
         assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::listDataFetcherResult.returnType))
+        assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::dataFetcherResultListString.returnType))
+        assertEquals(MyClass::listOfListString.returnType, actual = getWrappedReturnType(MyClass::listDataFetcherResultListString.returnType))
     }
 
     @Test
