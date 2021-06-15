@@ -42,7 +42,7 @@ internal fun generatePropertySpecs(
     .filterNot { it.name == "__typename" }
     .map { selectedField ->
         val fieldDefinition = fieldDefinitions.find { it.name == selectedField.name }
-            ?: throw InvalidSelectionSetException(selectedField.name, objectName)
+            ?: throw InvalidSelectionSetException(context.operationName, selectedField.name, objectName)
 
         val nullable = fieldDefinition.type !is NonNullType
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
@@ -57,7 +57,7 @@ internal fun generatePropertySpecs(
         val deprecatedDirective = fieldDefinition.getDirectives(DeprecatedDirective.name).firstOrNull()
         if (deprecatedDirective != null) {
             if (!context.allowDeprecated) {
-                throw DeprecatedFieldsSelectedException(selectedField.name, objectName)
+                throw DeprecatedFieldsSelectedException(context.operationName, selectedField.name, objectName)
             } else {
                 val deprecatedReason = deprecatedDirective.getArgument("reason")?.value as? StringValue
                 val reason = deprecatedReason?.value ?: "no longer supported"

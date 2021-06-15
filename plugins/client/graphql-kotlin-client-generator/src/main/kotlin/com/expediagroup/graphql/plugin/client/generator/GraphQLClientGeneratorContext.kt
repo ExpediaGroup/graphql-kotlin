@@ -30,17 +30,18 @@ import graphql.schema.idl.TypeDefinitionRegistry
 data class GraphQLClientGeneratorContext(
     val packageName: String,
     val graphQLSchema: TypeDefinitionRegistry,
-    val rootType: String,
+    val operationName: String,
     val queryDocument: Document,
     val allowDeprecated: Boolean = false,
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     val useOptionalInputWrapper: Boolean = false
 ) {
+    // per operation caches
     val typeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val polymorphicTypes: MutableMap<ClassName, MutableList<ClassName>> = mutableMapOf()
 
-    // shared types
+    // shared type caches
     val enumClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val inputClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val scalarsClassToTypeSpec: MutableMap<ClassName, MutableList<TypeSpec>> = mutableMapOf()

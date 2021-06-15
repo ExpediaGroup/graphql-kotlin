@@ -36,7 +36,7 @@ internal fun generateGraphQLUnionTypeSpec(
     unionNameOverride: String? = null
 ): TypeSpec {
     if (selectionSet == null || selectionSet.selections.isEmpty()) {
-        throw InvalidSelectionSetException(unionDefinition.name, "union")
+        throw InvalidSelectionSetException(context.operationName, unionDefinition.name, "union")
     }
 
     val unionName = unionNameOverride ?: unionDefinition.name

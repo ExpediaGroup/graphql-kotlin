@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator.exceptions
 
 /**
- * Exception thrown when specified query file references unknown fields.
+ * Exception thrown when polymorphic query does not specify __typename information.
  */
-internal class UnknownFieldSelectedException(fieldName: String, typeDefinitionName: String) :
-    RuntimeException("Invalid selection set for $typeDefinitionName - unknown $fieldName field selected")
+internal class MissingTypeNameException(operationName: String, interfaceName: String, implementationName: String) :
+    RuntimeException("Operation $operationName specifies invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")

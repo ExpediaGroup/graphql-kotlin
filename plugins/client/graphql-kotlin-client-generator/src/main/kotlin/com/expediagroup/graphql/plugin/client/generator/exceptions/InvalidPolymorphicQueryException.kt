@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator.exceptions
 
 /**
- * Exception thrown when query contains invalid polymorphic selection sets.
+ * Exception thrown when query does not select all implementations of polymorphic type.
  */
-internal class InvalidPolymorphicQueryException(message: String) : RuntimeException(message)
+internal class InvalidPolymorphicQueryException(operationName: String, interfaceName: String, missingImplementations: List<String>) :
+    RuntimeException("Operation $operationName does not specify all polymorphic implementations - $interfaceName field selection is missing $missingImplementations")
