@@ -1,1 +1,1 @@
-InvalidPolymorphicQueryException
+MissingTypeNameException
