@@ -20,6 +20,7 @@ import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorCo
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragmentException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidPolymorphicQueryException
+import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingTypeNameException
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -121,7 +122,7 @@ internal fun generateInterfaceTypeSpec(
     // check if all implementations are selected
     val notImplemented = implementations.minus(implementationSelections.keys)
     if (notImplemented.isNotEmpty()) {
-        throw InvalidPolymorphicQueryException("Operation ${context.operationName} does not specify all polymorphic implementations - $interfaceName field selection is missing $notImplemented")
+        throw InvalidPolymorphicQueryException(context.operationName, interfaceName, notImplemented)
     }
 
     // generate implementations with final selection set
@@ -129,7 +130,7 @@ internal fun generateInterfaceTypeSpec(
     implementationSelections.forEach { implementationName, (typeCondition, selections) ->
         val distinctSelections = selections.filterIsInstance(Field::class.java).distinctBy { if (it.alias != null) it.alias else it.name }
         if (!verifyTypeNameIsSelected(distinctSelections)) {
-            throw InvalidPolymorphicQueryException("Operation ${context.operationName} specifies invalid polymorphic selection set - $implementationName implementation of $interfaceName is missing __typename field in its selection set")
+            throw MissingTypeNameException(context.operationName, implementationName, interfaceName)
         }
         var implementationClassName = generateTypeName(context, typeCondition, SelectionSet.newSelectionSet(distinctSelections).build())
         if (implementationClassName.isNullable) {
