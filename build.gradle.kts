@@ -22,14 +22,12 @@ allprojects {
     buildscript {
         repositories {
             mavenCentral()
-            jcenter()
             mavenLocal()
         }
     }
 
     repositories {
         mavenCentral()
-        jcenter()
         mavenLocal {
             content {
                 includeGroup("com.expediagroup")
