@@ -22,8 +22,6 @@ import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
-import java.math.BigDecimal
-import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -38,13 +36,8 @@ internal fun generateScalar(generator: SchemaGenerator, type: KType): GraphQLSca
 
 private val defaultScalarsMap = mapOf(
     Int::class to Scalars.GraphQLInt,
-    Long::class to Scalars.GraphQLLong,
-    Short::class to Scalars.GraphQLShort,
     Float::class to Scalars.GraphQLFloat,
     Double::class to Scalars.GraphQLFloat,
-    BigDecimal::class to Scalars.GraphQLBigDecimal,
-    BigInteger::class to Scalars.GraphQLBigInteger,
-    Char::class to Scalars.GraphQLChar,
     String::class to Scalars.GraphQLString,
     Boolean::class to Scalars.GraphQLBoolean,
     ID::class to Scalars.GraphQLID

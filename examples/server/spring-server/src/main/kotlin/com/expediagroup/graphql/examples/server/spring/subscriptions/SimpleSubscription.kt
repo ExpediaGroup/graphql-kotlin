@@ -40,7 +40,7 @@ class SimpleSubscription : Subscription {
     fun singleValueSubscription(): Flux<Int> = Flux.just(1)
 
     @GraphQLDescription("Returns a random number every second")
-    fun counter(limit: Long? = null): Flux<Int> {
+    fun counter(limit: Int? = null): Flux<Int> {
         val flux = Flux.interval(Duration.ofSeconds(1)).map {
             val value = Random.nextInt()
             logger.info("Returning $value from counter")
@@ -48,7 +48,7 @@ class SimpleSubscription : Subscription {
         }
 
         return if (limit != null) {
-            flux.take(limit)
+            flux.take(limit.toLong())
         } else {
             flux
         }

@@ -20,8 +20,6 @@ import com.expediagroup.graphql.generator.scalars.ID
 import graphql.Scalars
 import graphql.schema.GraphQLScalarType
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
-import java.math.BigInteger
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
@@ -31,13 +29,8 @@ class GenerateScalarTest : TypeTestHelper() {
     @Test
     fun `test all types`() {
         verify(Int::class.createType(), Scalars.GraphQLInt)
-        verify(Long::class.createType(), Scalars.GraphQLLong)
-        verify(Short::class.createType(), Scalars.GraphQLShort)
         verify(Float::class.createType(), Scalars.GraphQLFloat)
         verify(Double::class.createType(), Scalars.GraphQLFloat)
-        verify(BigDecimal::class.createType(), Scalars.GraphQLBigDecimal)
-        verify(BigInteger::class.createType(), Scalars.GraphQLBigInteger)
-        verify(Char::class.createType(), Scalars.GraphQLChar)
         verify(String::class.createType(), Scalars.GraphQLString)
         verify(Boolean::class.createType(), Scalars.GraphQLBoolean)
         verify(ID::class.createType(), Scalars.GraphQLID)
