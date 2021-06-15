@@ -75,7 +75,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             |val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
             |  endpoint.set("${wireMockServer.baseUrl()}/graphql")
-            |  timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
+            |  timeoutConfig.set(com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(connect = 100, read = 100))
             |}
             """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
@@ -152,6 +152,6 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
-        assertTrue(result.output.contains("Request timeout has been expired", ignoreCase = true))
+        assertTrue(result.output.contains("Request timeout has expired", ignoreCase = true))
     }
 }

@@ -24,7 +24,7 @@ public interface BasicInterface2 {
   /**
    * Unique identifier of an interface
    */
-  public abstract val id: Int
+  public val id: Int
 }
 
 /**

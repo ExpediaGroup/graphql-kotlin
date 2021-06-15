@@ -10,7 +10,7 @@ import kotlin.jvm.JvmStatic
  * Custom scalar representing UUID
  */
 public data class UUID(
-  public val value: java.util.UUID
+  public val `value`: java.util.UUID
 ) {
   @JsonValue
   public fun rawValue() = converter.toJson(value)
