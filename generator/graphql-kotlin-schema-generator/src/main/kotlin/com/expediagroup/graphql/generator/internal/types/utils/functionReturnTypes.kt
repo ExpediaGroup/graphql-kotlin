@@ -22,6 +22,9 @@ import graphql.execution.DataFetcherResult
 import org.reactivestreams.Publisher
 import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
+import kotlin.reflect.KVariance
+import kotlin.reflect.full.createType
 
 /**
  * These are the classes that can be returned from data fetchers (ie functions)
@@ -38,12 +41,16 @@ import kotlin.reflect.KType
  *      Publisher<DataFetcherResult<T>>
  *      CompletableFuture<T>
  *      CompletableFuture<DataFetcherResult<T>>
+ *      List<DataFetcherResult<T>>
  */
 internal fun getWrappedReturnType(returnType: KType): KType {
     return when {
         returnType.isSubclassOf(DataFetcherResult::class) -> returnType.getTypeOfFirstArgument()
         returnType.isSubclassOf(Publisher::class) -> { checkTypeForDataFetcherResult(returnType) }
         returnType.isSubclassOf(CompletableFuture::class) -> { checkTypeForDataFetcherResult(returnType) }
+        returnType.isSubclassOf(List::class) && returnType.getTypeOfFirstArgument().isSubclassOf(DataFetcherResult::class) -> {
+            List::class.createType(listOf(KTypeProjection(KVariance.INVARIANT, getWrappedReturnType(returnType.getTypeOfFirstArgument()))))
+        }
         else -> returnType
     }
 }
@@ -55,6 +62,7 @@ internal fun getWrappedReturnType(returnType: KType): KType {
  *      Published<DataFetcherResult<T>>
  *      CompletableFuture<T>
  *      CompletableFuture<DataFetcherResult<T>>
+ *      List<DataFetcherResult<T>>
  */
 private fun checkTypeForDataFetcherResult(returnType: KType): KType {
     val wrappedType = returnType.getTypeOfFirstArgument()

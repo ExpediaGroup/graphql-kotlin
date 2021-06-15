@@ -28,7 +28,9 @@ class FunctionReturnTypesKtTest {
     class MyClass {
         // Valid Types
         val string = "my string"
+        val listOfString: List<String> = listOf(string)
         val dataFetcherResult: DataFetcherResult<String> = DataFetcherResult.newResult<String>().data(string).build()
+        val listDataFetcherResult: List<DataFetcherResult<String>> = listOf(DataFetcherResult.newResult<String>().data(string).build())
         val publisher: Publisher<String> = Flowable.just(string)
         val flowable: Flowable<String> = Flowable.just(string)
         val publisherDataFetcherResult: Publisher<DataFetcherResult<String>> = Flowable.just(dataFetcherResult)
@@ -52,6 +54,11 @@ class FunctionReturnTypesKtTest {
         assertEquals(MyClass::string.returnType, actual = getWrappedReturnType(MyClass::dataFetcherResult.returnType))
         assertEquals(MyClass::completableFuture.returnType, actual = getWrappedReturnType(MyClass::invalidDataFetcherResultCompletableFuture.returnType))
         assertEquals(MyClass::publisher.returnType, actual = getWrappedReturnType(MyClass::invalidDataFetcherResultPublisher.returnType))
+    }
+
+    @Test
+    fun `getWrappedReturnType of List of DataFetcherResult`() {
+        assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::listDataFetcherResult.returnType))
     }
 
     @Test
