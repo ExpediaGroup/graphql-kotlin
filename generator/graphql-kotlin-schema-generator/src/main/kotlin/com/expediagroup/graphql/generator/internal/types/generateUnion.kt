@@ -21,7 +21,6 @@ import com.expediagroup.graphql.generator.annotations.GraphQLAbstractType
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
-import com.expediagroup.graphql.generator.internal.extensions.isAny
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import graphql.GraphQLException
 import graphql.TypeResolutionEnvironment
@@ -45,7 +44,7 @@ private fun generateUnionFromAbstractTypeAnnotation(generator: SchemaGenerator, 
     builder.name(abstractTypeAnnotation.name)
 
     val possibleTypes = abstractTypeAnnotation.possibleTypes.toList()
-    val types = if (kClass.isAny() || (possibleTypes.isNotEmpty() && generator.classScanner.getSubTypesOf(kClass).containsAll(possibleTypes))) {
+    val types = if (kClass.isInstance(Any::class) || (possibleTypes.isNotEmpty() && generator.classScanner.getSubTypesOf(kClass).containsAll(possibleTypes))) {
         possibleTypes
     } else {
         throw GraphQLException("The specified possible types are not all subtypes of ${kClass.qualifiedName}") // TODO: throw correct exception

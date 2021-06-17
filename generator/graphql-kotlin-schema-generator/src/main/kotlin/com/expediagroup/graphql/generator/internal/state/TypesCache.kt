@@ -86,7 +86,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
         return when {
             kClass.isListType() -> null
             kClass.isSubclassOf(Enum::class) -> kClass.getSimpleName()
-            kClass.qualifiedName?.startsWith("kotlin.Any") == true -> null
+            kClass.isInstance(Any::class) -> null
             isTypeNotSupported(type) -> throw TypeNotSupportedException(type, supportedPackages)
             else -> type.getSimpleName(cacheKey.inputType)
         }
