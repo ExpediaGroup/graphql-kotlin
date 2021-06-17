@@ -61,10 +61,8 @@ internal fun KClass<*>.isInterface(): Boolean =
     this.java.isInterface || this.isAbstract || this.isSealed
 
 internal fun KClass<*>.isUnion(): Boolean =
-    (this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty())  || this.isAny()
+    (this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty())  || this.isInstance(Any::class)
 
-internal fun KClass<*>.isAny(): Boolean =
-    qualifiedName?.startsWith("kotlin.Any") == true
 /**
  * Do not add interfaces as additional types if it expects all the types
  * to be input types. The isInteface() check works for both
