@@ -59,6 +59,8 @@ open class GraphQLPluginClientExtension {
     var endpoint: String? = null
     /** GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against [endpoint]. */
     var sdlEndpoint: String? = null
+    /** GraphQL schema file location. Can be used instead of [endpoint] or [sdlEndpoint]. */
+    var schemaFile: File? = null
     /** Target package name to be used for generated classes. */
     var packageName: String? = null
     /** Optional HTTP headers to be specified on an introspection query or SDL request. */

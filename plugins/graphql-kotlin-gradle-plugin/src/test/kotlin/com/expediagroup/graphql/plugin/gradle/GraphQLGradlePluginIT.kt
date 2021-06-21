@@ -76,6 +76,43 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
     @Test
     @Tag("kts")
+    fun `apply the plugin extension to generate client with local schema file (kts)`(@TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        val buildFileContents =
+            """
+            |application {
+            |  applicationDefaultJvmArgs = listOf("-DgraphQLEndpoint=${wireMockServer.baseUrl()}/graphql")
+            |  mainClassName = "com.example.ApplicationKt"
+            |}
+            |
+            |graphql {
+            |  client {
+            |    schemaFile = File("src/main/resources/schema.graphql")
+            |    packageName = "com.example.generated"
+            |  }
+            |}
+            """.trimMargin()
+        testProjectDirectory.generateBuildFileForClient(buildFileContents)
+        testProjectDirectory.createTestFile("JUnitQuery.graphql", "src/main/resources")
+            .writeText(testQuery)
+        testProjectDirectory.createTestFile("Application.kt", "src/main/kotlin/com/example")
+            .writeText(loadTemplate("Application", mapOf("customScalarsEnabled" to false)))
+        testProjectDirectory.createTestFile("schema.graphql", "src/main/resources")
+            .writeText(testSchema)
+
+        val buildResult = GradleRunner.create()
+            .withProjectDir(testProjectDirectory)
+            .withPluginClasspath()
+            .withArguments("build", "run", "--stacktrace")
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertTrue(File(testProjectDirectory, "build/generated/source/graphql/main/com/example/generated/JUnitQuery.kt").exists())
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":run")?.outcome)
+    }
+
+    @Test
+    @Tag("kts")
     fun `apply the plugin extension to generate client (kts)`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         // custom header to pass to SDL endpoint
