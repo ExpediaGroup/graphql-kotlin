@@ -35,6 +35,7 @@ fun getGraphQLServer(mapper: ObjectMapper): KtorGraphQLServer {
     val dataLoaderRegistryFactory = KtorDataLoaderRegistryFactory()
     val requestParser = KtorGraphQLRequestParser(mapper)
     val contextFactory = KtorGraphQLContextFactory()
+    val graphQL = getGraphQLObject()
     val requestHandler = GraphQLRequestHandler(graphQL, dataLoaderRegistryFactory)
 
     return KtorGraphQLServer(requestParser, contextFactory, requestHandler)

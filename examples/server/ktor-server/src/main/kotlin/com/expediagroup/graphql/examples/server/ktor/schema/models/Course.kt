@@ -23,10 +23,10 @@ import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
 data class Course(
-    val id: Long,
+    val id: Int,
     val name: String? = null,
-    val universityId: Long? = null,
-    val bookIds: List<Long> = listOf()
+    val universityId: Int? = null,
+    val bookIds: List<Int> = listOf()
 ) {
     fun university(dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<University?> {
         return if (universityId != null) {
@@ -39,7 +39,7 @@ data class Course(
     }
 
     companion object {
-        suspend fun search(ids: List<Long>): List<Course> {
+        fun search(ids: List<Int>): List<Course> {
             return listOf(
                 Course(id = 1, name = "Biology 101", universityId = 1, bookIds = listOf(1, 2)),
                 Course(id = 2, name = "Cultural Anthropology", universityId = 1),

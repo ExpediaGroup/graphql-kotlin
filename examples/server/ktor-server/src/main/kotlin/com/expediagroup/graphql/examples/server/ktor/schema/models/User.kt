@@ -22,7 +22,7 @@ data class User(
     val email: String,
     val firstName: String?,
     val lastName: String?,
-    val universityId: Long?,
+    val universityId: Int?,
     val isAdmin: Boolean = false
 ) {
     suspend fun university(): University? {
@@ -30,6 +30,6 @@ data class User(
         return University.search(listOf(universityId))[0]
     }
 
-    fun longThatNeverComes(): Long =
+    fun intThatNeverComes(): Int =
         throw GraphQLException("This value will never return")
 }
