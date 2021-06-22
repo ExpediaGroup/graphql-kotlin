@@ -22,9 +22,9 @@ import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture
 
-val UniversityDataLoader = object : KotlinDataLoader<Long, University?> {
+val UniversityDataLoader = object : KotlinDataLoader<Int, University?> {
     override val dataLoaderName = "UNIVERSITY_LOADER"
-    override fun getDataLoader() = DataLoader<Long, University?> { ids ->
+    override fun getDataLoader() = DataLoader<Int, University?> { ids ->
         CompletableFuture.supplyAsync {
             runBlocking { University.search(ids).toMutableList() }
         }

@@ -18,9 +18,9 @@ package com.expediagroup.graphql.examples.server.ktor.schema.models
 
 import graphql.GraphQLException
 
-class University(val id: Long, val name: String? = null) {
+class University(val id: Int, val name: String? = null) {
     companion object {
-        suspend fun search(ids: List<Long>): List<University> =
+        suspend fun search(ids: List<Int>): List<University> =
             listOf(
                 University(id = 1, name = "University of Nebraska-Lincoln"),
                 University(id = 2, name = "Kansas State University"),
@@ -30,7 +30,7 @@ class University(val id: Long, val name: String? = null) {
             ).filter { ids.contains(it.id) }
     }
 
-    fun longThatNeverComes(): Long {
+    fun intThatNeverComes(): Int {
         throw GraphQLException("This value will never return")
     }
 }

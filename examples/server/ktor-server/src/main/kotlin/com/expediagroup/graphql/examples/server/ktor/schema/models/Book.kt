@@ -20,12 +20,12 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 
 @GraphQLDescription("Contains Book Metadata, title, authorship, and references to product and content.")
 data class Book(
-    val id: Long,
+    val id: Int,
     val title: String
 ) {
     @Suppress("unused")
     companion object {
-        fun search(ids: List<Long>): List<Book> {
+        fun search(ids: List<Int>): List<Book> {
             return listOf(
                 Book(id = 1, title = "Campbell Biology"),
                 Book(id = 2, title = "The Cell"),

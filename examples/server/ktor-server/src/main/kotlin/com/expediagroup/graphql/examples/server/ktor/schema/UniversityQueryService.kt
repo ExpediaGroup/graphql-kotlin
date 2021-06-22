@@ -26,4 +26,4 @@ class UniversityQueryService : Query {
         University.search(params.ids)
 }
 
-data class UniversitySearchParameters(val ids: List<Long>)
+data class UniversitySearchParameters(val ids: List<Int>)
