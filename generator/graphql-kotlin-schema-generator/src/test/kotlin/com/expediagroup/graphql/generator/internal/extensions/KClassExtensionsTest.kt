@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassException
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
@@ -149,6 +150,17 @@ open class KClassExtensionsTest {
         fun getTest() = 1
     }
 
+    class One(val value: String)
+    class Two(val value: String)
+
+    class TestQuery {
+        @GraphQLUnion(name = "Number", possibleTypes = [One::class, Two::class])
+        fun customUnion(): Any = One("1")
+
+        @GraphQLUnion(name = "InvalidUnion", possibleTypes = [One::class, Two::class])
+        fun invalidCustomUnion(): Int = 1
+    }
+
     private class FilterHooks : SchemaGeneratorHooks {
         override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>) =
             property.name.contains("filteredProperty").not()
@@ -272,10 +284,12 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test graphql union extension`() {
-        assertTrue(TestUnion::class.isUnion())
-        assertFalse(InvalidPropertyUnionInterface::class.isUnion())
-        assertFalse(InvalidFunctionUnionInterface::class.isUnion())
-        assertFalse(Pet::class.isUnion())
+        assertTrue(TestUnion::class.isUnion(emptyList()))
+        val customAnnotationUnion = TestQuery::customUnion
+        assertTrue(customAnnotationUnion.returnType::class.isUnion(customAnnotationUnion.annotations))
+        assertFalse(InvalidPropertyUnionInterface::class.isUnion(emptyList()))
+        assertFalse(InvalidFunctionUnionInterface::class.isUnion(emptyList()))
+        assertFalse(Pet::class.isUnion(emptyList()))
     }
 
     // TODO remove JUnit condition once we only build artifacts using Java 11

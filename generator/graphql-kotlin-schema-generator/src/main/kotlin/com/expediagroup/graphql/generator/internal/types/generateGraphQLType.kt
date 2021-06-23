@@ -17,15 +17,14 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.annotations.GraphQLAbstractType
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
+import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isEnum
 import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
 import com.expediagroup.graphql.generator.internal.extensions.wrapInNonNull
-import com.expediagroup.graphql.generator.internal.state.TypesCacheKey
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
@@ -51,8 +50,7 @@ internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputT
 }
 
 private fun objectFromReflection(generator: SchemaGenerator, type: KType, inputType: Boolean, annotations: List<Annotation> = emptyList()): GraphQLType {
-    val cacheKey = TypesCacheKey(type, inputType)
-    val cachedType = generator.cache.get(cacheKey)
+    val cachedType = generator.cache.get(type, inputType, annotations)
 
     if (cachedType != null) {
         return cachedType
@@ -60,17 +58,17 @@ private fun objectFromReflection(generator: SchemaGenerator, type: KType, inputT
 
     val kClass = type.getKClass()
 
-    return generator.cache.buildIfNotUnderConstruction(kClass, inputType) {
+    return generator.cache.buildIfNotUnderConstruction(kClass, inputType, annotations) {
         val graphQLType = getGraphQLType(generator, kClass, inputType, type, annotations)
         generator.config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
     }
 }
 
-private fun getGraphQLType(generator: SchemaGenerator, kClass: KClass<*>, inputType: Boolean, type: KType, annotations: List<Annotation> = emptyList()): GraphQLType = when {
+private fun getGraphQLType(generator: SchemaGenerator, kClass: KClass<*>, inputType: Boolean, type: KType, fieldAnnotations: List<Annotation> = emptyList()): GraphQLType = when {
     kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
-    kClass.isListType() -> generateList(generator, type, inputType)
-    kClass.isUnion() -> generateUnion(generator, kClass, annotations.filterIsInstance(GraphQLAbstractType::class.java).firstOrNull())
-    kClass.isInterface() -> generateInterface(generator, kClass, annotations.filterIsInstance(GraphQLAbstractType::class.java).firstOrNull())
+    kClass.isListType() -> generateList(generator, type, inputType, fieldAnnotations)
+    kClass.isUnion(fieldAnnotations) -> generateUnion(generator, kClass, fieldAnnotations.getUnionAnnotation())
+    kClass.isInterface() -> generateInterface(generator, kClass)
     inputType -> generateInputObject(generator, kClass)
     else -> generateObject(generator, kClass)
 }

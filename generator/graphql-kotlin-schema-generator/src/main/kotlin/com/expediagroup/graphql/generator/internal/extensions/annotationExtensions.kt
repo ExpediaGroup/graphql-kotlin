@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.internal.extensions
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.full.findAnnotation
 
@@ -30,6 +31,12 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? = this.findAnnota
 
 internal fun KAnnotatedElement.isGraphQLIgnored(): Boolean = this.findAnnotation<GraphQLIgnore>() != null
 
+internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterIsInstance(GraphQLUnion::class.java).firstOrNull()
+
+/**
+ * The java code called here may return null
+ */
+@Suppress("RedundantNullableReturnType")
 internal fun Deprecated.getReason(): String? {
     val builder = StringBuilder()
     builder.append(this.message)

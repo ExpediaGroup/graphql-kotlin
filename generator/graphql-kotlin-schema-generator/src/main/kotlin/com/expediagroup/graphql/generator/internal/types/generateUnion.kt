@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.annotations.GraphQLAbstractType
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
@@ -31,19 +31,19 @@ import graphql.schema.GraphQLUnionType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>, abstractTypeAnnotation: GraphQLAbstractType?): GraphQLUnionType {
-    return if (abstractTypeAnnotation != null) {
-        generateUnionFromAbstractTypeAnnotation(generator, kClass, abstractTypeAnnotation)
+internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>, unionAnnotation: GraphQLUnion? = null): GraphQLUnionType {
+    return if (unionAnnotation != null) {
+        generateUnionFromAnnotation(generator, kClass, unionAnnotation)
     } else {
         generateUnionFromKClass(generator, kClass)
     }
 }
 
-private fun generateUnionFromAbstractTypeAnnotation(generator: SchemaGenerator, kClass: KClass<*>, abstractTypeAnnotation: GraphQLAbstractType): GraphQLUnionType {
+private fun generateUnionFromAnnotation(generator: SchemaGenerator, kClass: KClass<*>, unionAnnotation: GraphQLUnion): GraphQLUnionType {
     val builder = GraphQLUnionType.newUnionType()
-    builder.name(abstractTypeAnnotation.name)
+    builder.name(unionAnnotation.name)
 
-    val possibleTypes = abstractTypeAnnotation.possibleTypes.toList()
+    val possibleTypes = unionAnnotation.possibleTypes.toList()
     val types = if (kClass.isInstance(Any::class) || (possibleTypes.isNotEmpty() && generator.classScanner.getSubTypesOf(kClass).containsAll(possibleTypes))) {
         possibleTypes
     } else {

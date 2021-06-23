@@ -159,7 +159,7 @@ class TypesCacheTest {
         assertNull(cache.get(cacheKey))
         cache.put(cacheKey, cacheValue)
 
-        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false) {
+        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false, emptyList()) {
             assertTrue(false, "Should never reach here")
             cacheValue.graphQLType
         }
@@ -174,8 +174,8 @@ class TypesCacheTest {
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
         assertNull(cache.get(cacheKey))
 
-        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false) {
-            cache.buildIfNotUnderConstruction(MyType::class, false) {
+        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false, emptyList()) {
+            cache.buildIfNotUnderConstruction(MyType::class, false, emptyList()) {
                 assertTrue(false, "Should never reach here")
                 cacheValue.graphQLType
             }

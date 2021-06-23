@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.annotations.GraphQLAbstractType
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
@@ -26,7 +25,6 @@ import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import com.expediagroup.graphql.generator.internal.state.AdditionalType
-import graphql.GraphQLException
 import graphql.TypeResolutionEnvironment
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInterfaceType
@@ -34,32 +32,7 @@ import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>, abstractTypeAnnotation: GraphQLAbstractType?): GraphQLInterfaceType {
-    return if (abstractTypeAnnotation != null) {
-        generateInterfaceFromAbstractTypeAnnotation(generator, kClass, abstractTypeAnnotation)
-    } else {
-        generateFromKClass(generator, kClass)
-    }
-}
-
-private fun generateInterfaceFromAbstractTypeAnnotation(generator: SchemaGenerator, kClass: KClass<*>, abstractTypeAnnotation: GraphQLAbstractType): GraphQLInterfaceType {
-    val builder = GraphQLInterfaceType.newInterface()
-    builder.name(abstractTypeAnnotation.name)
-    builder.description(abstractTypeAnnotation.description)
-
-    val interfaceSubTypes = generator.classScanner.getSubTypesOf(kClass).filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
-    val possibleTypes = abstractTypeAnnotation.possibleTypes.toList()
-    val subTypes = if (possibleTypes.isNotEmpty() && interfaceSubTypes.containsAll(possibleTypes)) {
-        possibleTypes
-    } else {
-        throw GraphQLException("The specified possible types are not all valid sub types of ${kClass.qualifiedName}") // TODO: throw correct excpetion
-    }
-
-    return createInterface(generator, kClass, builder, subTypes)
-
-}
-
-private fun generateFromKClass(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
+internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
     val builder = GraphQLInterfaceType.newInterface()
     builder.name(kClass.getSimpleName())
     builder.description(kClass.getGraphQLDescription())

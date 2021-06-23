@@ -18,4 +18,8 @@ package com.expediagroup.graphql.generator.internal.state
 
 import kotlin.reflect.KType
 
-internal data class TypesCacheKey(val type: KType, val inputType: Boolean)
+internal data class TypesCacheKey(
+    val type: KType,
+    val inputType: Boolean = false,
+    val name: String? = null
+)
