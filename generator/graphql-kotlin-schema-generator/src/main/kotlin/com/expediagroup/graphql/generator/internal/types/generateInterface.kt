@@ -34,6 +34,7 @@ import kotlin.reflect.full.createType
 
 internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
     val builder = GraphQLInterfaceType.newInterface()
+
     builder.name(kClass.getSimpleName())
     builder.description(kClass.getGraphQLDescription())
 
@@ -41,12 +42,6 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         builder.withDirective(it)
     }
 
-    val subTypes = generator.classScanner.getSubTypesOf(kClass).filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
-
-    return createInterface(generator, kClass, builder, subTypes)
-}
-
-private fun createInterface(generator: SchemaGenerator, kClass: KClass<*>, builder: GraphQLInterfaceType.Builder, subTypes: List<KClass<*>>): GraphQLInterfaceType {
     kClass.getValidSuperclasses(generator.config.hooks)
         .map { generateGraphQLType(generator, it.createType()) }
         .forEach {
@@ -62,7 +57,9 @@ private fun createInterface(generator: SchemaGenerator, kClass: KClass<*>, build
     kClass.getValidFunctions(generator.config.hooks)
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
-    subTypes.forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
+    generator.classScanner.getSubTypesOf(kClass)
+        .filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
+        .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 
     val interfaceType = builder.build()
     generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }

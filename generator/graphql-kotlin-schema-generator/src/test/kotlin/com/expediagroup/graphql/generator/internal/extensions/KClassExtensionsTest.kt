@@ -286,10 +286,12 @@ open class KClassExtensionsTest {
     fun `test graphql union extension`() {
         assertTrue(TestUnion::class.isUnion(emptyList()))
         val customAnnotationUnion = TestQuery::customUnion
-        assertTrue(customAnnotationUnion.returnType::class.isUnion(customAnnotationUnion.annotations))
+        assertTrue(customAnnotationUnion.returnType.getKClass().isUnion(customAnnotationUnion.annotations))
         assertFalse(InvalidPropertyUnionInterface::class.isUnion(emptyList()))
         assertFalse(InvalidFunctionUnionInterface::class.isUnion(emptyList()))
         assertFalse(Pet::class.isUnion(emptyList()))
+        val invalidAnnotationUnion = TestQuery::invalidCustomUnion
+        assertFalse(invalidAnnotationUnion.returnType.getKClass().isUnion(invalidAnnotationUnion.annotations))
     }
 
     // TODO remove JUnit condition once we only build artifacts using Java 11
