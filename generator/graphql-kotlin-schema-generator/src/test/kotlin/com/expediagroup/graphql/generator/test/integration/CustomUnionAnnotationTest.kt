@@ -71,6 +71,10 @@ class CustomUnionAnnotationTest {
         fun listNumbers(): List<Any> = listOf(One("1"), Two("2"))
     }
 
+    /**
+     * Each union here is valid, but using them together in the same schema means the union "Number"
+     * is defined twice with different definitions and should fail
+     */
     class InvalidQuery {
         @GraphQLUnion(name = "Number", possibleTypes = [One::class, Two::class])
         fun number1(): Any = One("1")
