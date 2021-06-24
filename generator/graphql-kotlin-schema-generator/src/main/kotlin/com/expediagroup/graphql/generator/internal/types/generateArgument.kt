@@ -43,7 +43,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
     // This is not currently supported by the GraphQL spec
     // https://github.com/graphql/graphql-spec/blob/master/rfcs/InputUnion.md
     val unwrappedClass = getUnwrappedClass(unwrappedType)
-    if (unwrappedClass.isUnion(emptyList()) || unwrappedClass.isInterface()) {
+    if (unwrappedClass.isUnion() || unwrappedClass.isInterface()) {
         throw InvalidInputFieldTypeException(parameter)
     }
 

@@ -26,7 +26,7 @@ private typealias SuperclassFilter = (KClass<*>) -> Boolean
 
 private val isPublic: SuperclassFilter = { it.isPublic() }
 private val isInterface: SuperclassFilter = { it.isInterface() }
-private val isNotUnion: SuperclassFilter = { it.isUnion(emptyList()).not() }
+private val isNotUnion: SuperclassFilter = { it.isUnion().not() }
 private val isNotIgnored: SuperclassFilter = { it.isGraphQLIgnored().not() }
 
 internal val superclassFilters: List<SuperclassFilter> = listOf(isPublic, isInterface, isNotUnion, isNotIgnored)

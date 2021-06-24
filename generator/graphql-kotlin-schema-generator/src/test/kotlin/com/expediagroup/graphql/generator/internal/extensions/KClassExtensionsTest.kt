@@ -284,12 +284,12 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test graphql union extension`() {
-        assertTrue(TestUnion::class.isUnion(emptyList()))
+        assertTrue(TestUnion::class.isUnion())
         val customAnnotationUnion = TestQuery::customUnion
         assertTrue(customAnnotationUnion.returnType.getKClass().isUnion(customAnnotationUnion.annotations))
-        assertFalse(InvalidPropertyUnionInterface::class.isUnion(emptyList()))
-        assertFalse(InvalidFunctionUnionInterface::class.isUnion(emptyList()))
-        assertFalse(Pet::class.isUnion(emptyList()))
+        assertFalse(InvalidPropertyUnionInterface::class.isUnion())
+        assertFalse(InvalidFunctionUnionInterface::class.isUnion())
+        assertFalse(Pet::class.isUnion())
         val invalidAnnotationUnion = TestQuery::invalidCustomUnion
         assertFalse(invalidAnnotationUnion.returnType.getKClass().isUnion(invalidAnnotationUnion.annotations))
     }
