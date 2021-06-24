@@ -26,7 +26,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 
-class CustomAbstractTypeTest {
+class CustomUnionAnnotationTest {
 
     @Test
     fun `custom unions can be defined with a variety of return types`() {

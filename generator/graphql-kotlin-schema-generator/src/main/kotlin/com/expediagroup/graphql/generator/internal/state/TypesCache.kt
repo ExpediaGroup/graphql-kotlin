@@ -110,7 +110,6 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
             when {
                 kClass.isListType() -> null
                 kClass.isSubclassOf(Enum::class) -> kClass.getSimpleName()
-                kClass.isInstance(Any::class) -> null
                 isTypeNotSupported(type) -> throw TypeNotSupportedException(type, supportedPackages)
                 else -> type.getSimpleName(cacheKey.inputType)
             }
