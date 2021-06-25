@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
-import com.expediagroup.graphql.generator.exceptions.UnionContainsNoPossibleTypesException
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
@@ -65,10 +64,6 @@ private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*
 }
 
 private fun createUnion(generator: SchemaGenerator, builder: GraphQLUnionType.Builder, types: List<KClass<*>>, name: String): GraphQLUnionType {
-    if (types.isEmpty()) {
-        throw UnionContainsNoPossibleTypesException(name)
-    }
-
     types.map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = it.unwrapType()) {
@@ -77,7 +72,7 @@ private fun createUnion(generator: SchemaGenerator, builder: GraphQLUnionType.Bu
             }
         }
 
-    val unionType = builder.build()
+    val unionType: GraphQLUnionType = builder.build()
     generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(unionType, null, generator.codeRegistry).safeCast()
 }
