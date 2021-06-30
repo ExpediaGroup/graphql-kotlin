@@ -5,7 +5,9 @@ title: Arguments
 Method arguments are automatically exposed as part of the arguments to the corresponding GraphQL fields.
 
 ```kotlin
-fun doSomething(value: Int): Boolean = true
+class Query {
+    fun doSomething(value: Int): Boolean = true
+}
 ```
 
 The above Kotlin code will generate following GraphQL schema:
@@ -35,9 +37,9 @@ class WidgetMutation {
         }
         return widget
     }
+}
 
-
-data class Widget(var value: Int? = nul) {
+data class Widget(var value: Int? = null) {
     fun multiplyValueBy(multiplier: Int): Int? = value?.times(multiplier)
 }
 ```
@@ -59,20 +61,23 @@ input WidgetInput {
 }
 ```
 
-Please note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output types.
+Note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output types.
 
 If you know a type will only be used for input types you can call your class something like `CustomTypeInput`. The library will not
 append `Input` if the class name already ends with `Input` but that means you can not use this type as output because
 the schema would have two types with the same name and that would be invalid.
 
+If you would like to restrict an Kotlin class to only being used as input or output, see how to use [GraphQLValidObjectLocations](../customizing-schemas/restricting-input-output.md)
+
 ## Optional fields
 
 Kotlin requires variables/values to be initialized upon their declaration either from the user input OR by providing
-defaults (even if they are marked as nullable). Therefore in order for a GraphQL input field to be optional it needs to be
-nullable.
+defaults (even if they are marked as nullable).
+
+Therefore, in order for a GraphQL input field to be optional, **it needs to be nullable and must have a default value**.
 
 ```kotlin
-fun doSomethingWithOptionalInput(requiredValue: Int, optionalValue: Int?): String {
+fun doSomethingWithOptionalInput(requiredValue: Int, optionalValue: Int? = null): String {
     return "requiredValue=$requiredValue, optionalValue=$optionalValue"
 }
 ```
