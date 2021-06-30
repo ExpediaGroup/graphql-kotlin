@@ -73,7 +73,8 @@ If you would like to restrict an Kotlin class to only being used as input or out
 
 Kotlin requires variables/values to be initialized upon their declaration either from the user input OR by providing
 defaults (even if they are marked as nullable).
-Therefore in order for a GraphQL input field to be optional it needs to be nullable and must have a default value.
+
+Therefore, in order for a GraphQL input field to be optional, **it needs to be nullable and must have a default value**.
 
 ```kotlin
 fun doSomethingWithOptionalInput(requiredValue: Int, optionalValue: Int? = null): String {
