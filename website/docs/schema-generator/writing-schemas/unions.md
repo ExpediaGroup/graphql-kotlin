@@ -2,6 +2,11 @@
 id: unions
 title: Unions
 ---
+
+GraphQL Kotlin allows for two ways of defining unions in the schema
+
+## Marker Interfaces
+
 Marker interfaces (i.e. interfaces without any common fields or methods) are exposed as GraphQL union types. All the
 types that implement the marker interface, and are available on the classpath, will be automatically exposed as
 objects in the schema.
@@ -14,9 +19,9 @@ This means that while it is valid Kotlin code to have a marker inteface as an ar
 ```kotlin
 interface BodyPart
 
-data class LeftHand(val field: String): BodyPart
+class LeftHand(val field: String): BodyPart
 
-data class RightHand(val property: Int): BodyPart
+class RightHand(val property: Int): BodyPart
 
 class PolymorphicQuery {
     fun whichHand(whichHand: String): BodyPart = when (whichHand) {
@@ -43,3 +48,57 @@ type Query {
   whichHand(whichHand: String!): BodyPart!
 }
 ```
+
+## `@GraphQLUnion`
+
+The downside to marker interface unions is that you can not edit classes included in dependencies to implement new schema unions.
+For example in an SDL-First world you could have this Kotlin class defined in some library.
+
+```kotlin
+class SharedModel(val foo: String)
+```
+
+And then write your schema as the following
+
+
+```graphql
+# From library
+type SharedModel {
+  foo: String!
+}
+
+# Defined in our schema
+type ServiceModel {
+  bar: String!
+}
+
+# Defined in our schema
+union CustomUnion = SharedModel | ServiceModel
+
+type Query {
+    getModel: CustomUnion
+}
+```
+
+But this is not currently possible in the full code-generation approach. Instead, you will need to use the `@GraphQLUnion` annotation on your functions or properties.
+
+### Example Usage
+```kotlin
+// Defined in some other library
+class SharedModel(val foo: String)
+
+// Our code
+class ServiceModel(val bar: String)
+
+class Query {
+    @GraphQLUnion(
+        name = "CustomUnion",
+        possibleTypes = [SharedModel::class, ServiceModel::class],
+        description = "Return one or the other model"
+    )
+    fun getModel(): Any = ServiceModel("abc")
+}
+```
+
+The annotation requires the `name` of the new union to create and the `possibleTypes` that this union can return.
+However since we can not enforce the type checks anymore, you must use `Any` as the return type.
