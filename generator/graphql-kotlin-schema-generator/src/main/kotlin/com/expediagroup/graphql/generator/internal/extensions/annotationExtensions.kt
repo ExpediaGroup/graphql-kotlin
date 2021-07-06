@@ -33,11 +33,7 @@ internal fun KAnnotatedElement.isGraphQLIgnored(): Boolean = this.findAnnotation
 
 internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterIsInstance(GraphQLUnion::class.java).firstOrNull()
 
-/**
- * The java code called here may return null
- */
-@Suppress("RedundantNullableReturnType")
-internal fun Deprecated.getReason(): String? {
+internal fun Deprecated.getReason(): String {
     val builder = StringBuilder()
     builder.append(this.message)
 
