@@ -82,4 +82,4 @@ If you are using custom data fetcher make sure that you extend `SpringDataFetche
 :::
 
 We have examples of these techniques implemented in Spring boot in the [example
-app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/NestedQueries.kt).
+app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/main/kotlin/com/expediagroup/graphql/examples/server/spring/query/NestedQueries.kt).
