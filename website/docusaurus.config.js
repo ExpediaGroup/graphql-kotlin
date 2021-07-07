@@ -21,9 +21,10 @@ module.exports = {
       {
         docs: {
           editUrl: "https://github.com/ExpediaGroup/graphql-kotlin/tree/master/website",
+          lastVersion: "current",
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
-          lastVersion: "current",
+          sidebarPath: require.resolve('./sidebars.js'),
           versions: {
             current: {
               label: "5.x.x",
