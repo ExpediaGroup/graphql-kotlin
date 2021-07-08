@@ -87,7 +87,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             |
             |graphql {
             |  client {
-            |    schemaFile = File("src/main/resources/schema.graphql")
+            |    schemaFileName = "src/main/resources/schema.graphql"
             |    packageName = "com.example.generated"
             |  }
             |}
