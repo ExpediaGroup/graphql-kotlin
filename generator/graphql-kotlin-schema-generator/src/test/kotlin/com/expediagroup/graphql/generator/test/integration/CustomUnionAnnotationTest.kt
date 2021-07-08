@@ -52,6 +52,13 @@ class CustomUnionAnnotationTest {
         }
     }
 
+    @Test
+    fun `verify exception is thrown when custom union return type is not Any`() {
+        assertFails {
+            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidReturnType())))
+        }
+    }
+
     class One(val value: String)
     class Two(val value: String)
     class Three(val value: String)
@@ -81,5 +88,16 @@ class CustomUnionAnnotationTest {
 
         @GraphQLUnion(name = "Number", possibleTypes = [Three::class, Four::class])
         fun number2(): Any = Three("1")
+    }
+
+    /**
+     * While it is valid to compile, library users should return Any for the custom
+     * union annotation
+     */
+    class InvalidReturnType {
+        @GraphQLUnion(name = "Number", possibleTypes = [One::class, Two::class])
+        fun number1(): One = One("one")
+
+        fun number2(): One = One("two")
     }
 }

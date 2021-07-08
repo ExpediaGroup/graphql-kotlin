@@ -16,6 +16,9 @@
 
 package com.expediagroup.graphql.generator.internal.state
 
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
+import com.expediagroup.graphql.generator.exceptions.InvalidCustomUnionException
+import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import graphql.schema.GraphQLNamedType
 import io.mockk.every
 import io.mockk.mockk
@@ -23,6 +26,7 @@ import org.junit.jupiter.api.Test
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -30,7 +34,7 @@ import kotlin.test.assertTrue
 
 class TypesCacheTest {
 
-    internal data class MyType(val id: Int = 0)
+    data class MyType(val id: Int = 0)
 
     private val graphQLType: GraphQLNamedType = mockk {
         every { name } returns "MyType"
@@ -40,7 +44,11 @@ class TypesCacheTest {
         every { name } returns "MySecondType"
     }
 
-    internal class MyClass {
+    private val customUnionGraphQLType: GraphQLNamedType = mockk {
+        every { name } returns "CustomUnion"
+    }
+
+    class MyClass {
         fun listFun(list: List<String>) = list.joinToString(separator = ",") { it }
 
         fun objectListFun(list: List<MyType>) = list.map { it.id.toString() }.joinToString(separator = ",") { it }
@@ -48,6 +56,12 @@ class TypesCacheTest {
         fun arrayFun(array: Array<String>) = array.joinToString(separator = ",") { it }
 
         fun primitiveArrayFun(intArray: IntArray) = intArray.joinToString(separator = ",") { it.toString() }
+
+        @GraphQLUnion(name = "CustomUnion", possibleTypes = [MyType::class, Int::class])
+        fun customUnion(): Any = MyType(1)
+
+        @GraphQLUnion(name = "InvalidUnion", possibleTypes = [MyType::class, Int::class])
+        fun invalidUnion(): String = "foobar"
     }
 
     @Test
@@ -136,6 +150,35 @@ class TypesCacheTest {
 
         assertNull(cache.get(cacheKey))
         assertNull(cache.put(cacheKey, cacheValue))
+    }
+
+    @Test
+    fun `custom unions are cached by special name`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
+        val type = MyClass::customUnion.returnType
+        val annotations = MyClass::customUnion.annotations
+
+        val cacheKey = TypesCacheKey(type = type, name = "CustomUnion[MyType,Int]")
+        val cacheValue = KGraphQLType(type.getKClass(), customUnionGraphQLType)
+
+        assertNull(cache.get(cacheKey))
+        assertNull(cache.get(type = type, inputType = false, annotations = annotations))
+        assertNotNull(cache.put(cacheKey, cacheValue))
+        assertNotNull(cache.get(type = type, inputType = false, annotations = annotations))
+    }
+
+    @Test
+    fun `invalid custom unions throw an exception`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
+        val type = MyClass::invalidUnion.returnType
+        val annotations = MyClass::invalidUnion.annotations
+
+        val cacheKey = TypesCacheKey(type = type, name = "InvalidUnion[MyType,Int]")
+
+        assertNull(cache.get(cacheKey))
+        assertFailsWith(InvalidCustomUnionException::class) {
+            cache.get(type = type, inputType = false, annotations = annotations)
+        }
     }
 
     @Test

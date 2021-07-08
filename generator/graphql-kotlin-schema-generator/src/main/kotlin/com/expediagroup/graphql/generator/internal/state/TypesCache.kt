@@ -18,10 +18,12 @@ package com.expediagroup.graphql.generator.internal.state
 
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.ConflictingTypesException
+import com.expediagroup.graphql.generator.exceptions.InvalidCustomUnionException
 import com.expediagroup.graphql.generator.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
+import com.expediagroup.graphql.generator.internal.extensions.isAnnotationUnion
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.qualifiedName
 import graphql.schema.GraphQLNamedType
@@ -39,7 +41,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
     private val typesUnderConstruction: MutableSet<TypesCacheKey> = mutableSetOf()
 
     internal fun get(type: KType, inputType: Boolean, annotations: List<Annotation>): GraphQLNamedType? {
-        val cacheKey = getCacheKey(type, inputType, annotations)
+        val cacheKey = generateCacheKey(type, inputType, annotations)
         return get(cacheKey)
     }
 
@@ -71,11 +73,19 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
         return null
     }
 
-    private fun getCacheKey(type: KType, inputType: Boolean, annotations: List<Annotation> = emptyList()): TypesCacheKey {
+    private fun generateCacheKey(type: KType, inputType: Boolean, annotations: List<Annotation> = emptyList()): TypesCacheKey {
+        if (type.getKClass().isListType()) {
+            return TypesCacheKey(type, inputType)
+        }
+
         val unionAnnotation = annotations.getUnionAnnotation()
 
         return if (unionAnnotation != null) {
-            TypesCacheKey(type = type, inputType = inputType, name = getCustomUnionNameKey(unionAnnotation))
+            if (type.getKClass().isAnnotationUnion(annotations)) {
+                TypesCacheKey(type = type, inputType = inputType, name = getCustomUnionNameKey(unionAnnotation))
+            } else {
+                throw InvalidCustomUnionException(type)
+            }
         } else {
             TypesCacheKey(type = type, inputType = inputType)
         }
@@ -123,7 +133,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
             return build(kClass)
         }
 
-        val cacheKey = getCacheKey(kClass.starProjectedType, inputType, annotations)
+        val cacheKey = generateCacheKey(kClass.starProjectedType, inputType, annotations)
         val cachedType = get(cacheKey)
         return when {
             cachedType != null -> cachedType
