@@ -102,3 +102,7 @@ class Query {
 
 The annotation requires the `name` of the new union to create and the `possibleTypes` that this union can return.
 However since we can not enforce the type checks anymore, you must use `Any` as the return type.
+
+### Limitations
+Since this union is defined with an added annotation it is not currently possible to add directives directly to this union definition.
+You will have to modify the type with [schema generator hooks](../customizing-schemas/generator-config.md)
