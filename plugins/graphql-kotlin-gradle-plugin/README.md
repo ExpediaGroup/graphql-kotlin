@@ -32,7 +32,7 @@ graphql {
       allowDeprecatedFields = false
       // List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
       customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
-      // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint`.
+      // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint` or specify local `schemaFileName`.
       endpoint = "http://localhost:8080/graphql"
       // Optional HTTP headers to be specified on an introspection query or SDL request.
       headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
@@ -44,7 +44,9 @@ graphql {
       queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
       // JSON serializer that will be used to generate the data classes.
       serializer = GraphQLSerializer.JACKSON
-      // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint`.
+      // GraphQL schema file location. Can be used instead of `endpoint` or `sdlEndpoint`.
+      schemaFileName = "${project.projectDir}/src/main/resources/myLocalSchema.graphql"
+      // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint` or specify local `schemaFileName`.
       sdlEndpoint = "http://localhost:8080/sdl"
       // Timeout configuration for introspection query/downloading SDL
       timeout {

@@ -115,8 +115,11 @@ class GraphQLGradlePlugin : Plugin<Project> {
                         generateClientTask.dependsOn(downloadSDLTask.path)
                         generateClientTask.schemaFile.convention(downloadSDLTask.outputFile)
                     }
+                    extension.clientExtension.schemaFileName != null -> {
+                        generateClientTask.schemaFileName.convention(extension.clientExtension.schemaFileName)
+                    }
                     else -> {
-                        throw RuntimeException("Invalid GraphQL client extension configuration - missing required endpoint/sdlEndpoint property")
+                        throw RuntimeException("Invalid GraphQL client extension configuration - missing required endpoint/sdlEndpoint/schemaFileName property")
                     }
                 }
             }
