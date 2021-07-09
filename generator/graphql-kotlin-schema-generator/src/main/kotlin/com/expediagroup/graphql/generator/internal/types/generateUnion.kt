@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
@@ -29,17 +30,41 @@ import graphql.schema.GraphQLUnionType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): GraphQLUnionType {
+internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>, unionAnnotation: GraphQLUnion? = null): GraphQLUnionType {
+    return if (unionAnnotation != null) {
+        generateUnionFromAnnotation(generator, unionAnnotation)
+    } else {
+        generateUnionFromKClass(generator, kClass)
+    }
+}
+
+private fun generateUnionFromAnnotation(generator: SchemaGenerator, unionAnnotation: GraphQLUnion): GraphQLUnionType {
     val builder = GraphQLUnionType.newUnionType()
-    builder.name(kClass.getSimpleName())
+    builder.name(unionAnnotation.name)
+    builder.description(unionAnnotation.description)
+
+    val possibleTypes = unionAnnotation.possibleTypes.toList()
+
+    return createUnion(generator, builder, possibleTypes, unionAnnotation.name)
+}
+
+private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*>): GraphQLUnionType {
+    val builder = GraphQLUnionType.newUnionType()
+    val name = kClass.getSimpleName()
+    builder.name(name)
     builder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.UNION).forEach {
         builder.withDirective(it)
     }
 
-    generator.classScanner.getSubTypesOf(kClass)
-        .map { generateGraphQLType(generator, it.createType()) }
+    val types = generator.classScanner.getSubTypesOf(kClass)
+
+    return createUnion(generator, builder, types, name)
+}
+
+private fun createUnion(generator: SchemaGenerator, builder: GraphQLUnionType.Builder, types: List<KClass<*>>, name: String): GraphQLUnionType {
+    types.map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = it.unwrapType()) {
                 is GraphQLTypeReference -> builder.possibleType(unwrappedType)
@@ -47,7 +72,7 @@ internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>): Graph
             }
         }
 
-    val unionType = builder.build()
+    val unionType: GraphQLUnionType = builder.build()
     generator.codeRegistry.typeResolver(unionType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(unionType, null, generator.codeRegistry).safeCast()
 }

@@ -18,42 +18,52 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
-@Suppress("Detekt.UnusedPrivateClass")
-internal class GenerateUnionTest : TypeTestHelper() {
+@Suppress("Detekt.UnusedPrivateClass", "Detekt.FunctionOnlyReturningConstant")
+class GenerateUnionTest : TypeTestHelper() {
 
     @GraphQLDescription("The truth")
     @SimpleDirective
-    private interface Cake
+    interface Cake
 
-    @Suppress("Detekt.FunctionOnlyReturningConstant")
+    interface UnusedUnion
+
     @GraphQLDescription("so red")
-    private class StrawBerryCake : Cake {
+    class StrawBerryCake : Cake {
         fun recipe(): String = "google it"
     }
 
     @GraphQLName("CakeRenamed")
-    private interface CakeCustomName
+    interface CakeCustomName
 
-    @Suppress("Detekt.FunctionOnlyReturningConstant")
     @GraphQLName("StrawBerryCakeRenamed")
-    private class StrawBerryCakeCustomName : CakeCustomName {
+    class StrawBerryCakeCustomName : CakeCustomName {
         fun recipe(): String = "bing it"
     }
 
-    private interface NestedUnionA
+    interface NestedUnionA
 
-    private interface NestedUnionB
+    interface NestedUnionB
 
-    private class NestedClass : NestedUnionA, NestedUnionB {
+    class NestedClass : NestedUnionA, NestedUnionB {
         fun getUnionA(): NestedUnionA = NestedClass()
         fun getUnionB(): NestedUnionB = NestedClass()
+    }
+
+    class AnnotationUnion {
+        @GraphQLUnion(name = "Foo", possibleTypes = [StrawBerryCakeCustomName::class, StrawBerryCake::class], description = "A custom cake")
+        fun cake(withName: Boolean): Any = if (withName) StrawBerryCakeCustomName() else StrawBerryCake()
+
+        @GraphQLUnion(name = "EmptyUnion", possibleTypes = [])
+        fun emptyUnion(): Any = StrawBerryCake()
     }
 
     @Test
@@ -64,6 +74,13 @@ internal class GenerateUnionTest : TypeTestHelper() {
         assertEquals("Cake", result.name)
         assertEquals(1, result.types.size)
         assertEquals("StrawBerryCake", result.types[0].name)
+    }
+
+    @Test
+    fun `unused unions throw exception`() {
+        assertFailsWith(graphql.AssertException::class) {
+            generateUnion(generator, UnusedUnion::class)
+        }
     }
 
     @Test
@@ -93,5 +110,25 @@ internal class GenerateUnionTest : TypeTestHelper() {
         assertNotNull(result)
         assertEquals(1, result.directives.size)
         assertEquals("simpleDirective", result.directives.first().name)
+    }
+
+    @Test
+    fun `custom union annotation can be used`() {
+        val annotation = AnnotationUnion::cake.annotations.first() as GraphQLUnion
+        val result = generateUnion(generator, Any::class, annotation)
+
+        assertEquals("Foo", result.name)
+        assertEquals(2, result.types.size)
+        assertEquals("StrawBerryCakeRenamed", result.types[0].name)
+        assertEquals("StrawBerryCake", result.types[1].name)
+        assertEquals("A custom cake", result.description)
+    }
+
+    @Test
+    fun `custom union annotation throws if possible types is empty`() {
+        val annotation = AnnotationUnion::emptyUnion.annotations.first() as GraphQLUnion
+        assertFailsWith(graphql.AssertException::class) {
+            generateUnion(generator, Any::class, annotation)
+        }
     }
 }
