@@ -6,7 +6,7 @@ import kotlin.String
 import kotlin.reflect.KClass
 
 public const val CUSTOM_SCALAR_QUERY: String =
-    "query CustomScalarQuery {\n  scalarQuery {\n    custom\n  }\n}"
+    "query CustomScalarQuery {\n  scalarQuery {\n    custom\n    bigInteger\n  }\n}"
 
 public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
   public override val query: String = CUSTOM_SCALAR_QUERY

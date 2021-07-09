@@ -10,4 +10,5 @@ fragment scalarSelections on ScalarWrapper {
   count
   custom
   id
+  bigInteger
 }

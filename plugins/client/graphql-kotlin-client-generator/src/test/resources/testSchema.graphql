@@ -123,6 +123,8 @@ type ScalarWrapper {
   rating: Float
   "Either true or false"
   valid: Boolean!
+  "Custom BigInteger scalar"
+  bigInteger: BigInteger
 }
 "Example interface implementation where value is a float"
 type SecondInterfaceImplementation implements BasicInterface {
@@ -156,6 +158,8 @@ enum OtherEnum {
 }
 "Custom scalar representing UUID"
 scalar UUID
+"Custom scalar representing BigInteger"
+scalar BigInteger
 "Test input object"
 input SimpleArgumentInput {
   "Maximum value for test criteria"

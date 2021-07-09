@@ -29,6 +29,7 @@ class GenerateKotlinxClientIT {
         val config = defaultConfig.copy(
             allowDeprecated = true,
             customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter")),
+            customScalarAliasMap = mapOf("BigInteger" to GraphQLScalarTypeAlias("BigInteger", "java.math.BigInteger")),
             serializer = GraphQLSerializer.KOTLINX
         )
         verifyClientGeneration(config, testDirectory)

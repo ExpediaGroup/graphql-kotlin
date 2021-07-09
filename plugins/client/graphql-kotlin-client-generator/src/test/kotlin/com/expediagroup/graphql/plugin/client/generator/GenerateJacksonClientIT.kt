@@ -29,6 +29,7 @@ class GenerateJacksonClientIT {
         val config = defaultConfig.copy(
             serializer = GraphQLSerializer.JACKSON,
             customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter")),
+            customScalarAliasMap = mapOf("BigInteger" to GraphQLScalarTypeAlias("BigInteger", "java.math.BigInteger")),
             useOptionalInputWrapper = true
         )
         verifyClientGeneration(config, testDirectory)

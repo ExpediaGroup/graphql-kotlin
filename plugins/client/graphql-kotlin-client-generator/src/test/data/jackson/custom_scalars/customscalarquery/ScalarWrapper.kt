@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.customscalarquery
 
+import com.expediagroup.graphql.generated.BigInteger
 import com.expediagroup.graphql.generated.scalars.UUID
 
 /**
@@ -9,5 +10,9 @@ public data class ScalarWrapper(
   /**
    * Custom scalar
    */
-  public val custom: UUID
+  public val custom: UUID,
+  /**
+   * Custom BigInteger scalar
+   */
+  public val bigInteger: BigInteger?
 )
