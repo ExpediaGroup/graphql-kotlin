@@ -26,6 +26,8 @@ data class GraphQLClientGeneratorConfig(
     val allowDeprecated: Boolean = false,
     /** Custom scalar type to converter mapping. */
     val customScalarMap: Map<String, GraphQLScalar> = emptyMap(),
+    /** Custom scalar type alias mapping. */
+    val customScalarAliasMap: Map<String, GraphQLScalarTypeAlias> = emptyMap(),
     /** Type of JSON serializer to be used. */
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     /** Explicit opt-in flag to enable support for optional inputs, only available for JACKSON serializer. */
@@ -42,6 +44,16 @@ data class GraphQLScalar(
     val type: String,
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     val converter: String
+)
+
+/**
+ * Custom scalar type alias.
+ */
+data class GraphQLScalarTypeAlias(
+    /** Custom GraphQL scalar name. */
+    val scalar: String,
+    /** Fully qualified class name of a custom scalar type, e.g. java.util.UUID */
+    val typeAlias: String
 )
 
 /**

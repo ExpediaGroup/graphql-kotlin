@@ -78,7 +78,9 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
 
     return if (cachedTypeNames == null || cachedTypeNames.isEmpty()) {
         // build new custom type
-        if (graphQLTypeDefinition is ScalarTypeDefinition && context.customScalarMap[graphQLTypeName] == null) {
+        if (graphQLTypeDefinition is ScalarTypeDefinition
+            && (context.customScalarAliasMap.containsKey(graphQLTypeName) || !context.customScalarMap.containsKey(graphQLTypeName))
+        ) {
             val typeAlias = generateGraphQLCustomScalarTypeAlias(context, graphQLTypeDefinition)
             val className = ClassName(context.packageName, typeAlias.name)
             context.classNameCache[graphQLTypeName] = mutableListOf(className)

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.gradle
 
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalarTypeAlias
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import org.gradle.api.Action
 import java.io.File
@@ -65,8 +66,10 @@ open class GraphQLPluginClientExtension {
     var headers: Map<String, Any> = emptyMap()
     /** Boolean flag indicating whether or not selection of deprecated fields is allowed. */
     var allowDeprecatedFields: Boolean = false
-    /** List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. */
+    /** List of custom GraphQL scalar to converter mapping containing information about corresponding Java/Kotlin type and converter that should be used to serialize/deserialize values. */
     var customScalars: List<GraphQLScalar> = emptyList()
+    /** List of custom GraphQL scalar and a corresponding Java/Kotlin type that will be used as type alias. */
+    var customScalarAliases: List<GraphQLScalarTypeAlias> = emptyList()
     /** List of query files to be processed. */
     var queryFiles: List<File> = emptyList()
     /** Directory containing GraphQL query files. */

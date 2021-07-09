@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeAliasSpec
 import graphql.language.ScalarTypeDefinition
 
@@ -26,7 +27,8 @@ import graphql.language.ScalarTypeDefinition
  * @see generateGraphQLCustomScalarTypeSpec for handling of custom type safe scalars
  */
 internal fun generateGraphQLCustomScalarTypeAlias(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition): TypeAliasSpec {
-    val typeAliasSpec = TypeAliasSpec.builder(scalarTypeDefinition.name, String::class)
+    val typeName = context.customScalarAliasMap[scalarTypeDefinition.name]?.typeAlias?.toClassName() ?: STRING
+    val typeAliasSpec = TypeAliasSpec.builder(scalarTypeDefinition.name, typeName)
     scalarTypeDefinition.description?.content?.let { kdoc ->
         typeAliasSpec.addKdoc("%L", kdoc)
     }

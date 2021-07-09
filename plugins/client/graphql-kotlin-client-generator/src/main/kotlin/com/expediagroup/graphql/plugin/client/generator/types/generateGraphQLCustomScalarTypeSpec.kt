@@ -156,7 +156,7 @@ internal fun generateGraphQLCustomScalarKSerializer(
     return serializerTypeSpec.build()
 }
 
-private fun String.toClassName(): ClassName {
+internal fun String.toClassName(): ClassName {
     val index = this.lastIndexOf('.')
     return if (index < 0) {
         ClassName("", this)

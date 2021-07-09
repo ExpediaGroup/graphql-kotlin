@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.client.generateClient
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
+import com.expediagroup.graphql.plugin.client.generator.GraphQLScalarTypeAlias
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Parameter
@@ -73,6 +74,9 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     @Parameter(name = "customScalars")
     private var customScalars: List<CustomScalar> = mutableListOf()
 
+    @Parameter(name = "customScalarAliases")
+    private var customScalarAliases: List<CustomScalarAlias> = mutableListOf()
+
     /**
      * Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using
      * [queryFiles] property instead.
@@ -117,7 +121,8 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 
         logConfiguration(schemaPath, targetQueryFiles)
         val customGraphQLScalars = customScalars.map { GraphQLScalar(it.scalar, it.type, it.converter) }
-        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, schemaPath, targetQueryFiles, useOptionalInputWrapper).forEach {
+        val customGraphQLScalarAliases = customScalarAliases.map { GraphQLScalarTypeAlias(it.scalar, it.typeAlias) }
+        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, customGraphQLScalarAliases, serializer, schemaPath, targetQueryFiles, useOptionalInputWrapper).forEach {
             it.writeTo(outputDirectory)
         }
 
@@ -177,4 +182,23 @@ class CustomScalar {
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     @Parameter
     lateinit var converter: String
+}
+
+/**
+ * Holds mapping between custom GraphQL scalar type and the corresponding Kotlin type that will be type aliased.
+ *
+ * Unfortunately we cannot use client-generator GraphQLScalarTypeAlias directly as per rules of mapping complex objects to Mojo parameters, target
+ * object has to be declared in the same package as Mojo itself (otherwise we need to explicitly specify fully qualified implementation
+ * name in configuration XML block).
+ *
+ * @see [Guide to Configuring Plug-ins](https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Mapping_Complex_Objects)
+ */
+class CustomScalarAlias {
+    /** Custom scalar name. */
+    @Parameter
+    lateinit var scalar: String
+
+    /** Fully qualified class name of a custom scalar type, e.g. java.util.UUID */
+    @Parameter
+    lateinit var typeAlias: String
 }

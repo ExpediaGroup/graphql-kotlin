@@ -34,6 +34,7 @@ data class GraphQLClientGeneratorContext(
     val queryDocument: Document,
     val allowDeprecated: Boolean = false,
     val customScalarMap: Map<String, GraphQLScalar> = mapOf(),
+    val customScalarAliasMap: Map<String, GraphQLScalarTypeAlias> = mapOf(),
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     val useOptionalInputWrapper: Boolean = false
 ) {

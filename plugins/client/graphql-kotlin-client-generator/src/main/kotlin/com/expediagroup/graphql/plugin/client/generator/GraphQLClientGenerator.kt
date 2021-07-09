@@ -104,6 +104,7 @@ class GraphQLClientGenerator(
                 queryDocument = queryDocument,
                 allowDeprecated = config.allowDeprecated,
                 customScalarMap = config.customScalarMap,
+                customScalarAliasMap = config.customScalarAliasMap,
                 serializer = config.serializer,
                 useOptionalInputWrapper = config.useOptionalInputWrapper
             )
