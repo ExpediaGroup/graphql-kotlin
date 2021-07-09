@@ -85,13 +85,21 @@
                                 <customScalar>
                                     <!-- custom scalar UUID type -->
                                     <scalar>UUID</scalar>
-                                    <!-- fully qualified Java class name of a custom scalar type -->
+                                    <!-- fully qualified Java/Kotlin class name of a custom scalar type -->
                                     <type>java.util.UUID</type>
                                     <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                                        used to convert to/from raw JSON and scalar type -->
                                     <converter>com.example.UUIDScalarConverter</converter>
                                 </customScalar>
                             </customScalars>
+                            <customScalarAliases>
+                                <customScalarAlias>
+                                    <!-- custom scalar BigInteger type -->
+                                    <scalar>BigInteger</scalar>
+                                    <!-- fully qualified Java/Kotlin class name of a custom scalar type alias -->
+                                    <typeAlias>java.math.BigInteger</typeAlias>
+                                </customScalarAlias>
+                            </customScalarAliases>
                             <headers>
                                 <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
                             </headers>

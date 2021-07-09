@@ -684,6 +684,18 @@
           "description": "Wrapper that holds all supported scalar types",
           "fields": [
             {
+              "name": "bigInteger",
+              "description": "Custom BigInteger scalar",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInteger",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "count",
               "description": "A signed 32-bit nullable integer value",
               "args": [],
@@ -897,6 +909,16 @@
           "kind": "SCALAR",
           "name": "UUID",
           "description": "Custom scalar representing UUID",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "BigInteger",
+          "description": "Custom scalar representing BigInteger",
           "fields": null,
           "inputFields": null,
           "interfaces": null,

@@ -74,6 +74,20 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     @Parameter(name = "customScalars")
     private var customScalars: List<CustomScalar> = mutableListOf()
 
+    /**
+     * List of custom GraphQL scalar type aliases.
+     *
+     * ```xml
+     * <customScalarAliases>
+     *     <customScalarAlias>
+     *         <!-- custom scalar UUID type -->
+     *         <scalar>UUID</scalar>
+     *         <!-- fully qualified Java/Kotlin class name of a custom scalar type alias -->
+     *         <typeAlias>java.util.UUID</type>
+     *     </customScalarAlias>
+     * </customScalarAliases>
+     * ```
+     */
     @Parameter(name = "customScalarAliases")
     private var customScalarAliases: List<CustomScalarAlias> = mutableListOf()
 

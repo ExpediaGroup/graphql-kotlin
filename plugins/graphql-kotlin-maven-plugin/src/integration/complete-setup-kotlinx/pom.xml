@@ -117,6 +117,14 @@
                                     <converter>com.example.UUIDScalarConverter</converter>
                                 </customScalar>
                             </customScalars>
+                            <customScalarAliases>
+                                <customScalarAlias>
+                                    <!-- custom scalar BigInteger type -->
+                                    <scalar>BigInteger</scalar>
+                                    <!-- fully qualified Java/Kotlin class name of a custom scalar type alias -->
+                                    <typeAlias>java.math.BigInteger</typeAlias>
+                                </customScalarAlias>
+                            </customScalarAliases>
                             <headers>
                                 <X-Custom-Header>My-Custom-Header-Value</X-Custom-Header>
                             </headers>

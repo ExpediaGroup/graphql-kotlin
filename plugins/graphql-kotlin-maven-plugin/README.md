@@ -37,6 +37,14 @@ Plugin should be configured as part of your `pom.xml` build file.
                         <converter>com.example.UUIDScalarConverter</converter>
                     </customScalar>
                 </customScalars>
+                <customScalarAliases>
+                    <customScalarAlias>
+                        <!-- custom scalar BigInteger type -->
+                        <scalar>BigInteger</scalar>
+                        <!-- fully qualified Java/Kotlin class name of a custom scalar type alias -->
+                        <typeAlias>java.math.BigInteger</typeAlias>
+                    </customScalarAlias>
+                </customScalarAliases>
                 <headers>
                     <X-Custom-Header>My-Custom-Header</X-Custom-Header>
                 </headers>
@@ -107,7 +115,8 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
-| `customScalars` | List<CustomScalar> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `customScalars` | List<CustomScalar> | | List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `customScalarAliases` | List<CustomScalarAlias> | | List of custom GraphQL scalar type aliases. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
@@ -133,6 +142,19 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
             <converter>com.example.UUIDScalarConverter</converter>
         </customScalar>
     </customScalars>
+    ```
+
+  * *customScalarAliases* - List of custom GraphQL scalar type aliases.
+
+    ```xml
+    <customScalarAliases>
+        <customScalarAlias>
+            <!-- custom scalar BigInteger type -->
+            <scalar>BigInteger</scalar>
+            <!-- fully qualified Java/Kotlin class name of a custom scalar type alias -->
+            <typeAlias>java.math.BigInteger</typeAlias>
+        </customScalarAlias>
+    </customScalarAliases>
     ```
 
 ### generate-sdl
@@ -176,6 +198,7 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 | -------- | ---- | -------- | ----------- |
 | `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.allowDeprecatedFields`. |
 | `customScalars` | List<CustomScalar> | | Custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
+| `customScalarAliases` | List<CustomScalarAlias> | | List of custom GraphQL scalar type aliases. |
 | `outputDirectory` | File | | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-test-sources/graphql` |
 | `packageName` | String | yes | Target package name for generated code.<br/>**User property is**: `graphql.packageName`. |
 | `queryFileDirectory` | File | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
@@ -188,8 +211,8 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 
   * *customScalars* - List of custom GraphQL scalars. Objects contain target GraphQL scalar name, corresponding Java type and converter that should be used to serialize/deserialize values.
 
-  ```xml
-  <customScalars>
+    ```xml
+    <customScalars>
       <customScalar>
           <!-- custom scalar UUID type -->
           <scalar>UUID</scalar>
@@ -199,8 +222,21 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
              used to convert to/from raw JSON and scalar type -->
           <converter>com.example.UUIDScalarConverter</converter>
       </customScalar>
-  </customScalars>
-  ```
+    </customScalars>
+    ```
+
+  * *customScalarAliases* - List of custom GraphQL scalar type aliases.
+
+    ```xml
+    <customScalarAliases>
+      <customScalarAlias>
+          <!-- custom scalar BigInteger type -->
+          <scalar>BigInteger</scalar>
+          <!-- fully qualified Java/Kotlin class name of a custom scalar type alias -->
+          <typeAlias>java.math.BigInteger</typeAlias>
+      </customScalarAlias>
+    </customScalarAliases>
+    ```
 
 ### introspect-schema
 

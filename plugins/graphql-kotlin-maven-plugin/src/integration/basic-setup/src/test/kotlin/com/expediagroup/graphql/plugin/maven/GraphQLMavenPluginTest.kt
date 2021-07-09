@@ -64,6 +64,7 @@ class GraphQLMavenPluginTest {
                 val scalarResult = data?.scalarQuery
                 assertTrue(scalarResult is ScalarWrapper)
                 assertNotNull(scalarResult)
+                assertTrue(scalarResult?.bigInteger is String)
                 assertTrue(scalarResult?.count is Int)
                 assertTrue(scalarResult?.custom is String)
                 assertEquals(CustomEnum.ONE, data?.enumQuery)

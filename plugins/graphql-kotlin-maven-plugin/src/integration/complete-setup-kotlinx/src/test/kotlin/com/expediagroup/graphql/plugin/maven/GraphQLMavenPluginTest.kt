@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.io.File
+import java.math.BigInteger
 import java.net.URL
 import java.nio.file.Paths
 
@@ -66,6 +67,7 @@ class GraphQLMavenPluginTest {
                 val scalarResult = data?.scalarQuery
                 assertTrue(scalarResult is ScalarWrapper)
                 assertNotNull(scalarResult)
+                assertTrue(scalarResult?.bigInteger is BigInteger)
                 assertTrue(scalarResult?.count is Int)
                 assertTrue(scalarResult?.custom is UUID)
                 assertEquals(CustomEnum.ONE, data?.enumQuery)

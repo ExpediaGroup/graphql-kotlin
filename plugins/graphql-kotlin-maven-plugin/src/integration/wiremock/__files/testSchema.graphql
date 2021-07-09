@@ -103,6 +103,8 @@ type Query {
 }
 "Wrapper that holds all supported scalar types"
 type ScalarWrapper {
+  "Custom BigInteger scalar"
+  bigInteger: BigInteger
   "A signed 32-bit nullable integer value"
   count: Int
   "Custom scalar"
@@ -136,6 +138,8 @@ enum CustomEnum {
 }
 "Custom scalar representing UUID"
 scalar UUID
+"Custom scalar representing BigInteger"
+scalar BigInteger
 "Test input object"
 input SimpleArgumentInput {
   "Maximum value for test criteria"
