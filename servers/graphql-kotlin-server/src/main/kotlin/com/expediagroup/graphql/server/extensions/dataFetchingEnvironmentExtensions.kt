@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.extensions
 
 import com.expediagroup.graphql.server.exception.MissingDataLoaderException
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture
 
 /**
