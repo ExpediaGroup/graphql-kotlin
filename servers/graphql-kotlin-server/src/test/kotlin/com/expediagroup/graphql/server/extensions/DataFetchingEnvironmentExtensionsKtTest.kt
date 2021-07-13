@@ -42,6 +42,22 @@ class DataFetchingEnvironmentExtensionsKtTest {
     }
 
     @Test
+    fun `getting values from a dataloader based on a list of keys`() {
+        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
+            every { getContext<Any>() } returns mockk()
+            every { getDataLoader<String, String>("foo") } returns mockk {
+                every { loadMany(listOf("bar"), any()) } returns CompletableFuture.completedFuture(listOf("123"))
+            }
+        }
+
+        val result: CompletableFuture<List<String>> = dataFetchingEnvironment.getValuesFromDataLoader("foo", listOf("bar"))
+
+        assertEquals(1, result.get().size)
+        assertEquals("123", result.get().first())
+    }
+
+
+    @Test
     fun `getting a dataloader throws exception when name not found`() {
         val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
             every { getContext<Any>() } returns mockk()

@@ -25,6 +25,17 @@ import java.util.concurrent.CompletableFuture
  * The provided key should be the cache key object used to save the value for that particular data loader.
  */
 fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {
-    val loader = this.getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
+    val loader = getLoaderName<K, V>(dataLoaderName)
     return loader.load(key, this.getContext())
 }
+
+/**
+* Helper method to get values from a registered DataLoader.
+*/
+fun <K, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> {
+    val loader = getLoaderName<K, V>(dataLoaderName)
+    return loader.loadMany(keys, listOf(this.getContext()))
+}
+
+private fun <K, V> DataFetchingEnvironment.getLoaderName(dataLoaderName: String) =
+    this.getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
