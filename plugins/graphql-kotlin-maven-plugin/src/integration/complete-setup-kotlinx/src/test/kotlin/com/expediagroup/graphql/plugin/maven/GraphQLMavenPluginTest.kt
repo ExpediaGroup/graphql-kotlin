@@ -22,7 +22,6 @@ import com.expediagroup.graphql.plugin.generated.examplequery.BasicObject2
 import com.expediagroup.graphql.plugin.generated.examplequery.SecondInterfaceImplementation
 import com.expediagroup.graphql.plugin.generated.examplequery.ScalarWrapper
 import com.expediagroup.graphql.plugin.generated.inputs.SimpleArgumentInput
-import com.expediagroup.graphql.plugin.generated.scalars.UUID
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import java.io.File
 import java.net.URL
 import java.nio.file.Paths
+import java.util.UUID
 
 class GraphQLMavenPluginTest {
 

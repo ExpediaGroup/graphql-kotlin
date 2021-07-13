@@ -91,6 +91,7 @@ fun main() {
         println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")
+        println("\tretrieved scalar: ${exampleData.data?.scalarQuery}")
         println("\tretrieved example list: [${exampleData.data?.listQuery?.joinToString { it.name }}]")
     }
 

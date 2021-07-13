@@ -53,7 +53,8 @@ class SimpleQueries(private val repository: BasicObjectRepository) : Query {
         valid = true,
         count = 1,
         rating = null,
-        custom = UUID.randomUUID()
+        custom = UUID.randomUUID(),
+        customList = listOf(UUID.randomUUID(), UUID.randomUUID())
     )
 
     @GraphQLDescription("Query returning list of simple objects")

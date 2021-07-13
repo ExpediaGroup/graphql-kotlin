@@ -18,8 +18,10 @@ package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
 import com.expediagroup.graphql.plugin.client.generator.exceptions.UnknownGraphQLTypeException
 import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentDefinition
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FLOAT
@@ -44,6 +46,7 @@ import graphql.language.SelectionSet
 import graphql.language.Type
 import graphql.language.TypeDefinition
 import graphql.language.UnionTypeDefinition
+import kotlinx.serialization.Serializable
 
 /**
  * Generate [TypeName] reference to a Kotlin class representation of an underlying GraphQL type.
@@ -60,7 +63,22 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
             Scalars.GraphQLBoolean.name -> BOOLEAN
             else -> generateCustomClassName(context, graphQLType, selectionSet)
         }
-        is ListType -> LIST.parameterizedBy(generateTypeName(context, graphQLType.type, selectionSet))
+        is ListType -> {
+            val type = generateTypeName(context, graphQLType.type, selectionSet)
+            val parameterizedType = if (context.serializer == GraphQLSerializer.KOTLINX && context.isCustomScalar(type)) {
+                val (serializerClassName, _) = context.scalarClassToConverterTypeSpecs[type] as ScalarConverterInfo.KotlinxSerializerInfo
+                type.copy(
+                    annotations = listOf(
+                        AnnotationSpec.builder(Serializable::class)
+                            .addMember("with = %T::class", serializerClassName)
+                            .build()
+                    )
+                )
+            } else {
+                type
+            }
+            LIST.parameterizedBy(parameterizedType)
+        }
         // should never happen
         else -> throw UnknownGraphQLTypeException(graphQLType)
     }.copy(nullable = nullable)
@@ -110,14 +128,13 @@ internal fun generateCustomClassName(context: GraphQLClientGeneratorContext, gra
                     context.typeSpecs[className] = generateGraphQLUnionTypeSpec(context, graphQLTypeDefinition, selectionSet)
                 }
                 is ScalarTypeDefinition -> {
-                    className = generateClassName(context, graphQLTypeDefinition, selectionSet, packageName = "${context.packageName}.scalars")
                     // its not possible to enter this clause if converter is not available
                     val graphQLScalarMapping = context.customScalarMap[graphQLTypeName]!!
-                    val typeSpecs = mutableListOf(generateGraphQLCustomScalarTypeSpec(context, graphQLTypeDefinition, graphQLScalarMapping))
-                    if (context.serializer == GraphQLSerializer.KOTLINX) {
-                        typeSpecs.add(generateGraphQLCustomScalarKSerializer(graphQLTypeDefinition, graphQLScalarMapping.converter, className))
-                    }
-                    context.scalarsClassToTypeSpec[className] = typeSpecs
+                    className = graphQLScalarMapping.className
+                    context.classNameCache[graphQLTypeName] = mutableListOf(className)
+
+                    val converterInfo = generateGraphQLCustomScalarConverters(context, className, graphQLScalarMapping.converterClassName)
+                    context.scalarClassToConverterTypeSpecs[className] = converterInfo
                 }
                 // should never happen as above list covers all graphql types
                 else -> throw UnknownGraphQLTypeException(graphQLType)

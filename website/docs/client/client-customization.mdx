@@ -147,7 +147,7 @@ class UUIDScalarConverter : ScalarConverter<UUID> {
 And then configure build plugin by specifying
 
 -   Custom GraphQL scalar name
--   Target class name
+-   Target JVM class name
 -   Converter that provides logic to map between GraphQL and Kotlin type
 
 ```kotlin
@@ -158,7 +158,7 @@ graphql {
 }
 ```
 
-Which will generate `UUID.kt` wrapper class under `com.example.generated.scalars` package.
+Custom scalar fields will then be automatically converted to a `java.util.UUID` type using appropriate converter/serializer.
 
 <Tabs
   defaultValue="jackson"
@@ -170,49 +170,69 @@ Which will generate `UUID.kt` wrapper class under `com.example.generated.scalars
 
 <TabItem value="jackson">
 
+Following converters will be generated under `com.example.generated.scalars` package.
+
 ```kotlin
-data class UUID(
-  val value: java.util.UUID
-) {
-  @JsonValue
-  fun rawValue() = converter.toJson(value)
+public class AnyToUUIDConverter : StdConverter<Any, UUID>() {
+  private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-  companion object {
-    val converter: UUIDScalarConverter = UUIDScalarConverter()
-
-    @JsonCreator
-    @JvmStatic
-    fun create(rawValue: Any) = UUID(converter.toScalar(rawValue))
-  }
+  public override fun convert(`value`: Any): UUID = converter.toScalar(value)
 }
+
+public class UUIDToAnyConverter : StdConverter<UUID, Any>() {
+  private val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+  public override fun convert(`value`: UUID): Any = converter.toJson(value)
+}
+```
+
+Custom scalars fields will then be annotated with Jackson annotations referencing the above converters.
+
+```kotlin
+public data class Result(
+  @JsonSerialize(converter = UUIDToAnyConverter::class)
+  @JsonDeserialize(converter = AnyToUUIDConverter::class)
+  public val custom: UUID,
+  @JsonSerialize(contentConverter = UUIDToAnyConverter::class)
+  @JsonDeserialize(contentConverter = AnyToUUIDConverter::class)
+  public val customList: List<UUID>
+)
 ```
 
 </TabItem>
 <TabItem value="kotlinx">
 
-```kotlin
-@Serializable(with = UUIDSerializer::class)
-data class UUID(
-  val value: java.util.UUID
-)
+Following serializer will be generated under `com.example.generated.scalars` package.
 
-class UUIDSerializer : KSerializer<UUID> {
+```kotlin
+public object UUIDSerializer : KSerializer<UUID> {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-  override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", STRING)
+  public override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", STRING)
 
-  override fun serialize(encoder: Encoder, value: UUID) {
-    val encoded = converter.toJson(value.value)
+  public override fun serialize(encoder: Encoder, `value`: UUID): Unit {
+    val encoded = converter.toJson(value)
     encoder.encodeString(encoded.toString())
   }
 
-  override fun deserialize(decoder: Decoder): UUID {
+  public override fun deserialize(decoder: Decoder): UUID {
     val jsonDecoder = decoder as JsonDecoder
     val element = jsonDecoder.decodeJsonElement()
     val rawContent = element.jsonPrimitive.content
-    return UUID(value = converter.toScalar(rawContent))
+    return converter.toScalar(rawContent)
   }
 }
+```
+
+Custom scalars fields will then be annotated with `@Serializable` annotation referencing the above serializer.
+
+```kotlin
+@Serializable
+public data class Result(
+  @Serializable(with = UUIDSerializer::class)
+  public val custom: UUID,
+  public val customList: List<@Serializable(with = UUIDSerializer::class) UUID>
+)
 ```
 
 </TabItem>

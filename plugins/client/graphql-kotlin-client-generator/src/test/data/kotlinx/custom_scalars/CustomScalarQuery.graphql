@@ -9,5 +9,6 @@ query CustomScalarQuery {
 fragment scalarSelections on ScalarWrapper {
   count
   custom
+  customList
   id
 }

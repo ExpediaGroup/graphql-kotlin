@@ -185,7 +185,19 @@ class GraphQLClientGenerator(
             // shared types
             sharedTypes.putAll(context.enumClassToTypeSpecs.mapValues { listOf(it.value) })
             sharedTypes.putAll(context.inputClassToTypeSpecs.mapValues { listOf(it.value) })
-            sharedTypes.putAll(context.scalarsClassToTypeSpec)
+            context.scalarClassToConverterTypeSpecs
+                .values
+                .forEach {
+                    when (it) {
+                        is ScalarConverterInfo.JacksonConvertersInfo -> {
+                            sharedTypes[it.serializerClassName] = listOf(it.serializerTypeSpec)
+                            sharedTypes[it.deserializerClassName] = listOf(it.deserializerTypeSpec)
+                        }
+                        is ScalarConverterInfo.KotlinxSerializerInfo -> {
+                            sharedTypes[it.serializerClassName] = listOf(it.serializerTypeSpec)
+                        }
+                    }
+                }
             typeAliases.putAll(context.typeAliases)
         }
         return fileSpecs

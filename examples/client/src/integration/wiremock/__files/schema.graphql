@@ -137,6 +137,8 @@ type ScalarWrapper {
   count: Int
   "Custom scalar"
   custom: UUID!
+  "List of custom scalars"
+  customList: [UUID!]!
   "ID represents unique identifier that is not intended to be human readable"
   id: ID!
   "UTF-8 character sequence"

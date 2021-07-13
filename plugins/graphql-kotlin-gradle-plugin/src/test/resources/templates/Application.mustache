@@ -3,7 +3,6 @@ package com.example
 import com.example.generated.JUnitQuery
 import com.example.generated.enums.CustomEnum
 import com.example.generated.inputs.SimpleArgumentInput
-{{#customScalarsEnabled}}import com.example.generated.scalars.UUID{{/customScalarsEnabled}}
 import com.example.generated.junitquery.BasicObject2
 import com.example.generated.junitquery.ScalarWrapper
 import com.example.generated.junitquery.SecondInterfaceImplementation
@@ -22,6 +21,7 @@ import java.net.URL
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import org.springframework.web.reactive.function.client.WebClient
 {{/ktorClient}}
+{{#customScalarsEnabled}}import java.util.UUID{{/customScalarsEnabled}}
 import kotlinx.coroutines.runBlocking
 
 fun main() {

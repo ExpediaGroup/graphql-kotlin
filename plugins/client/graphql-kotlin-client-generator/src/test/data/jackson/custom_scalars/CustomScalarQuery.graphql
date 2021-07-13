@@ -1,5 +1,6 @@
 query CustomScalarQuery {
   scalarQuery {
     custom
+    customList
   }
 }
