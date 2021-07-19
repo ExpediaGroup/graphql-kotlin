@@ -185,7 +185,16 @@ class GraphQLClientGenerator(
             // shared types
             sharedTypes.putAll(context.enumClassToTypeSpecs.mapValues { listOf(it.value) })
             sharedTypes.putAll(context.inputClassToTypeSpecs.mapValues { listOf(it.value) })
-            sharedTypes.putAll(context.scalarsClassToTypeSpec)
+            val customScalars = context.scalarClassToConverterTypeSpecs
+                .values
+                .flatMap {
+                    when (it) {
+                        is ScalarConverterInfo.JacksonConvertersInfo -> listOf(it.serializer, it.deserializer)
+                        is ScalarConverterInfo.KotlinxSerializerInfo -> listOf(it.serializer)
+                    }
+                }
+                .associate { ClassName("${context.packageName}.scalars", it.name!!) to listOf(it) }
+            sharedTypes.putAll(customScalars)
             typeAliases.putAll(context.typeAliases)
         }
         return fileSpecs

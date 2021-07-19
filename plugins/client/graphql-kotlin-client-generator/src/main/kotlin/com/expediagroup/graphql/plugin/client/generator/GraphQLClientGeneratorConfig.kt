@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.plugin.client.generator
 
+import com.squareup.kotlinpoet.ClassName
+
 /**
  * GraphQL client generator configuration.
  */
@@ -42,7 +44,19 @@ data class GraphQLScalar(
     val type: String,
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     val converter: String
-)
+) {
+    val className: ClassName by lazy { type.toClassName() }
+    val converterClassName: ClassName by lazy { converter.toClassName() }
+
+    private fun String.toClassName(): ClassName {
+        val index = this.lastIndexOf('.')
+        return if (index < 0) {
+            ClassName("", this)
+        } else {
+            ClassName(this.substring(0, index), this.substring(index + 1))
+        }
+    }
+}
 
 /**
  * Type of JSON serializer that will be used to generate the data classes.

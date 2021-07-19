@@ -1,7 +1,8 @@
 package com.expediagroup.graphql.generated.secondquery
 
 import com.expediagroup.graphql.generated.ID
-import com.expediagroup.graphql.generated.scalars.UUID
+import com.expediagroup.graphql.generated.scalars.UUIDSerializer
+import java.util.UUID
 import kotlin.Int
 import kotlinx.serialization.Serializable
 
@@ -17,6 +18,7 @@ public data class ScalarWrapper(
   /**
    * Custom scalar
    */
+  @Serializable(with = UUIDSerializer::class)
   public val custom: UUID,
   /**
    * ID represents unique identifier that is not intended to be human readable

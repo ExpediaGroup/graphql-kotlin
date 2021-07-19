@@ -17,10 +17,16 @@
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
 import com.expediagroup.graphql.plugin.client.generator.exceptions.DeprecatedFieldsSelectedException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
 import graphql.Directives.DeprecatedDirective
 import graphql.language.Field
@@ -28,6 +34,8 @@ import graphql.language.FieldDefinition
 import graphql.language.NonNullType
 import graphql.language.SelectionSet
 import graphql.language.StringValue
+import kotlinx.serialization.Serializable
+import java.lang.reflect.Parameter
 
 /**
  * Generate [PropertySpec]s from the field definitions and selection set.
@@ -51,6 +59,41 @@ internal fun generatePropertySpecs(
         val propertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType.copy(nullable = nullable))
         if (!abstract) {
             propertySpecBuilder.initializer(fieldName)
+
+            val (unwrappedFieldType, isList) = if (kotlinFieldType is ParameterizedTypeName) {
+                kotlinFieldType.rawType to true
+            } else {
+                kotlinFieldType to false
+            }
+
+            if (context.isCustomScalar(unwrappedFieldType)) {
+                if (context.serializer == GraphQLSerializer.JACKSON) {
+                    val (serializer, deserializer) = context.scalarClassToConverterTypeSpecs[kotlinFieldType] as ScalarConverterInfo.JacksonConvertersInfo
+                    val annotationMember = if (isList) {
+                        "contentConverter"
+                    } else {
+                        "converter"
+                    }
+                    propertySpecBuilder.addAnnotation(
+                        AnnotationSpec.builder(JsonSerialize::class)
+                            .addMember("$annotationMember = %T::class", ClassName("${context.packageName}.scalars", serializer.name!!))
+                            .build()
+                    )
+                    propertySpecBuilder.addAnnotation(
+                        AnnotationSpec.builder(JsonDeserialize::class)
+                            .addMember("$annotationMember = %T::class", ClassName("${context.packageName}.scalars", deserializer.name!!))
+                            .build()
+                    )
+                } else {
+                    val (serializer) = context.scalarClassToConverterTypeSpecs[kotlinFieldType] as ScalarConverterInfo.KotlinxSerializerInfo
+                    propertySpecBuilder.addAnnotation(
+                        AnnotationSpec.builder(Serializable::class)
+                            .addMember("with = %T::class", ClassName("${context.packageName}.scalars", serializer.name!!))
+                            .build()
+                    )
+                }
+            }
+
         } else {
             propertySpecBuilder.addModifiers(KModifier.ABSTRACT)
         }
