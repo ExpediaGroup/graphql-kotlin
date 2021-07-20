@@ -19,8 +19,6 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.util.StdConverter
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
@@ -39,13 +37,12 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 /**
- * Generate [TypeSpec] data class with single typed value for the target custom scalar. In order to simplify the serialization/deserialization we are using single value wrapper class that uses
- * Jackson [JsonValue] and [JsonCreator] annotations [com.expediagroup.graphql.client.converter.ScalarConverter] to convert between raw JSON String representation and Kotlin type safe value.
+ * Generate [ScalarConverterInfo] data class that holds information about generated scalar Jackson converters/or kotlinx-serialization serializer.
+ * Generated converters/serializer utilize provided [com.expediagroup.graphql.client.converter.ScalarConverter] to convert between raw JSON String
+ * representation and Kotlin type safe value.
  *
  * @see generateGraphQLCustomScalarTypeAlias for default handling of scalars
  */
-
-// TODO docs
 internal fun generateGraphQLCustomScalarConverters(
     context: GraphQLClientGeneratorContext,
     scalarClassName: ClassName,
