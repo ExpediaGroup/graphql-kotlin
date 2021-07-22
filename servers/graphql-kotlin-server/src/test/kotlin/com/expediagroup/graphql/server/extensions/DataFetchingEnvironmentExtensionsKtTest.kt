@@ -56,7 +56,6 @@ class DataFetchingEnvironmentExtensionsKtTest {
         assertEquals("123", result.get().first())
     }
 
-
     @Test
     fun `getting a dataloader throws exception when name not found`() {
         val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
