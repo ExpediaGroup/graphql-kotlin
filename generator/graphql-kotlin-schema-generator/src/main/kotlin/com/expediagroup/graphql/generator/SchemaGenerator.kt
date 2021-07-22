@@ -54,15 +54,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
 
     /**
-     * Validate that the supported packages contain classes
-     */
-    init {
-        if (classScanner.isEmptyScan()) {
-            throw InvalidPackagesException(config.supportedPackages)
-        }
-    }
-
-    /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
      */
     open fun generateSchema(
