@@ -18,6 +18,7 @@ package com.expediagroup.graphql.plugin.client.generator
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeAliasSpec
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.Document
 import graphql.schema.idl.TypeDefinitionRegistry
@@ -44,12 +45,29 @@ data class GraphQLClientGeneratorContext(
     // shared type caches
     val enumClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val inputClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
-    val scalarsClassToTypeSpec: MutableMap<ClassName, MutableList<TypeSpec>> = mutableMapOf()
+    val scalarClassToConverterTypeSpecs: MutableMap<ClassName, ScalarConverterInfo> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
 
     // class name and type selection caches
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
     val typeToSelectionSetMap: MutableMap<String, Set<String>> = mutableMapOf()
+
+    private val customScalarClassNames: Set<ClassName> = customScalarMap.values.map { it.className }.toSet()
+    internal fun isCustomScalar(typeName: TypeName): Boolean = customScalarClassNames.contains(typeName)
+}
+
+sealed class ScalarConverterInfo {
+    data class JacksonConvertersInfo(
+        val serializerClassName: ClassName,
+        val serializerTypeSpec: TypeSpec,
+        val deserializerClassName: ClassName,
+        val deserializerTypeSpec: TypeSpec
+    ) : ScalarConverterInfo()
+
+    data class KotlinxSerializerInfo(
+        val serializerClassName: ClassName,
+        val serializerTypeSpec: TypeSpec
+    ) : ScalarConverterInfo()
 }
 
 internal fun GraphQLClientGeneratorContext.isOptionalInputSupported() = useOptionalInputWrapper && serializer == GraphQLSerializer.JACKSON

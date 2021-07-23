@@ -3,6 +3,7 @@ query ExampleQuery($simpleCriteria: SimpleArgumentInput) {
   scalarQuery {
     count
     custom
+    customList
     id
     name
     rating

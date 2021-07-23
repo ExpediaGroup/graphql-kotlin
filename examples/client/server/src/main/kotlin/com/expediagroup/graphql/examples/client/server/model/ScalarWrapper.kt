@@ -33,5 +33,7 @@ data class ScalarWrapper(
     @GraphQLDescription("A nullable signed double-precision floating-point value")
     val rating: Float?,
     @GraphQLDescription("Custom scalar")
-    val custom: UUID
+    val custom: UUID,
+    @GraphQLDescription("List of custom scalars")
+    val customList: List<UUID>
 )
