@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization.types.serializers
 
 import com.expediagroup.graphql.client.serialization.serializers.GraphQLErrorPathSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -41,6 +42,7 @@ class GraphQLErrorPathSerializerTest {
     """.trimMargin()
 
     @Test
+    @ExperimentalSerializationApi
     fun `verify serialization`() {
         val json = Json {
             prettyPrint = true

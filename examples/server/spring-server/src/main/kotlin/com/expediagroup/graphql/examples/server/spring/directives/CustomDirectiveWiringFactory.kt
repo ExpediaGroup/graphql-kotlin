@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactor
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveEnvironment
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import graphql.schema.GraphQLDirectiveContainer
+import java.util.Locale
 import kotlin.reflect.KClass
 
 class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring = mapOf<String, KotlinSchemaDirectiveWiring>("lowercase" to LowercaseSchemaDirectiveWiring())) {
@@ -34,4 +35,8 @@ class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring =
     }
 }
 
-internal fun getDirectiveName(kClass: KClass<out Annotation>): String = kClass.simpleName!!.decapitalize()
+internal fun getDirectiveName(kClass: KClass<out Annotation>): String = kClass.simpleName!!.replaceFirstChar {
+    it.lowercase(
+        Locale.getDefault()
+    )
+}

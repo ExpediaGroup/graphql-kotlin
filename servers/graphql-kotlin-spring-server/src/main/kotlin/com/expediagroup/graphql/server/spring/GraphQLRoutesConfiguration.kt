@@ -25,6 +25,7 @@ import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.json
+import java.util.Locale
 
 /**
  * Default route configuration for GraphQL endpoints.
@@ -64,5 +65,5 @@ class GraphQLRoutesConfiguration(
     }
 
     private fun requestContainsHeader(headers: ServerRequest.Headers, headerName: String, headerValue: String): Boolean =
-        headers.header(headerName).map { it.toLowerCase() }.contains(headerValue.toLowerCase())
+        headers.header(headerName).map { it.lowercase(Locale.getDefault()) }.contains(headerValue.lowercase(Locale.getDefault()))
 }

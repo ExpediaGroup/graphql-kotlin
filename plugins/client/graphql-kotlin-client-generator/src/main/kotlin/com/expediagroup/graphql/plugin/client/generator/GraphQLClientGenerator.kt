@@ -36,6 +36,7 @@ import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlinx.serialization.Serializable
 import java.io.File
+import java.util.Locale
 
 private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
 
@@ -94,9 +95,9 @@ class GraphQLClientGenerator(
         }
 
         val fileSpecs = mutableListOf<FileSpec>()
-        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
+        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalizeWithDefaultLocale())
         operationDefinitions.forEach { operationDefinition ->
-            val capitalizedOperationName = operationDefinition.name?.capitalize() ?: queryFile.nameWithoutExtension.capitalize()
+            val capitalizedOperationName = operationDefinition.name?.capitalizeWithDefaultLocale() ?: queryFile.nameWithoutExtension.capitalizeWithDefaultLocale()
             val context = GraphQLClientGeneratorContext(
                 packageName = config.packageName,
                 graphQLSchema = graphQLSchema,
@@ -205,7 +206,7 @@ class GraphQLClientGenerator(
 
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {
         val operationNames = if (graphQLSchema.schemaDefinition().isPresent) {
-            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.toUpperCase() }, { it.typeName.name })
+            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.uppercase(Locale.getDefault()) }, { it.typeName.name })
         } else {
             mapOf(
                 OperationDefinition.Operation.QUERY.name to "Query",
@@ -228,6 +229,13 @@ class GraphQLClientGenerator(
     }
 }
 
+/**
+ * This is the reccommended approach now with the deprecation of String.capitalize from the
+ * Kotlin stdlib in version 1.5.
+ */
+internal fun String.capitalizeWithDefaultLocale(): String =
+    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
 internal fun String.toUpperUnderscore(): String {
     val builder = StringBuilder()
     val nameCharArray = this.toCharArray()
@@ -237,7 +245,7 @@ internal fun String.toUpperUnderscore(): String {
                 builder.append("_")
             }
         }
-        builder.append(c.toUpperCase())
+        builder.append(c.uppercaseChar())
     }
     return builder.toString()
 }

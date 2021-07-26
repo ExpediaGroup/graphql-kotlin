@@ -112,6 +112,7 @@ class GeneratePropertyTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation`() {
+        @Suppress("DEPRECATION")
         val prop = ClassWithProperties::dessert
         val result = generateProperty(generator, prop, ClassWithProperties::class)
 
@@ -121,6 +122,7 @@ class GeneratePropertyTest : TypeTestHelper() {
 
     @Test
     fun `Test deprecation with replacement`() {
+        @Suppress("DEPRECATION")
         val prop = ClassWithProperties::healthyFood
         val result = generateProperty(generator, prop, ClassWithProperties::class)
 

@@ -28,6 +28,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
@@ -58,7 +59,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         private fun getNewDescription(original: String?) = when {
             null != newDescription -> newDescription
-            lowerCase -> original?.toLowerCase()
+            lowerCase -> original?.lowercase(Locale.getDefault())
             else -> original
         }
     }
@@ -207,7 +208,7 @@ class KotlinDirectiveWiringFactoryTest {
         assertNotEquals(original, actual)
 
         val updatedField = actual as? GraphQLFieldDefinition
-        assertEquals(overwrittenDescription.toLowerCase(), updatedField?.description)
+        assertEquals(overwrittenDescription.lowercase(Locale.getDefault()), updatedField?.description)
     }
 
     @Test

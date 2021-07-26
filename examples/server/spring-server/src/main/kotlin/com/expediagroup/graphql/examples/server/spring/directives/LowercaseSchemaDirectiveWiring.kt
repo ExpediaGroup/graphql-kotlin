@@ -22,6 +22,7 @@ import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactories
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
+import java.util.Locale
 import java.util.function.BiFunction
 
 class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
@@ -32,7 +33,9 @@ class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
         val lowerCaseFetcher = DataFetcherFactories.wrapDataFetcher(
             originalDataFetcher,
-            BiFunction<DataFetchingEnvironment, Any, Any> { _, value -> value.toString().toLowerCase() }
+            BiFunction<DataFetchingEnvironment, Any, Any> { _, value ->
+                value.toString().lowercase(Locale.getDefault())
+            }
         )
         environment.setDataFetcher(lowerCaseFetcher)
         return field

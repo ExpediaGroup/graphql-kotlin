@@ -40,6 +40,7 @@ import graphql.language.Selection
 import graphql.language.SelectionSet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.util.Locale
 
 /**
  * Generate interface [TypeSpec] based on the available field definitions and selection set. Generates all implementing classes as well.
@@ -185,7 +186,7 @@ private fun updateImplementationTypeSpecWithSuperInformation(
         .addModifiers(implementationTypeSpec.modifiers)
         .addKdoc("%L", implementationTypeSpec.kdoc)
 
-    val superClassName = ClassName("${context.packageName}.${context.operationName.toLowerCase()}", interfaceName)
+    val superClassName = ClassName("${context.packageName}.${context.operationName.lowercase(Locale.getDefault())}", interfaceName)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
         builder.addAnnotation(Serializable::class)
             .addAnnotation(
