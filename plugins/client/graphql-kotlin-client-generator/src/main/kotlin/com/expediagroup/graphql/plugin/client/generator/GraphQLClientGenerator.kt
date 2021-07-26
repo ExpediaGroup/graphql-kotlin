@@ -95,9 +95,9 @@ class GraphQLClientGenerator(
         }
 
         val fileSpecs = mutableListOf<FileSpec>()
-        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalizeWithDefaultLocale())
+        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalizeFirstChar())
         operationDefinitions.forEach { operationDefinition ->
-            val capitalizedOperationName = operationDefinition.name?.capitalizeWithDefaultLocale() ?: queryFile.nameWithoutExtension.capitalizeWithDefaultLocale()
+            val capitalizedOperationName = operationDefinition.name?.capitalizeFirstChar() ?: queryFile.nameWithoutExtension.capitalizeFirstChar()
             val context = GraphQLClientGeneratorContext(
                 packageName = config.packageName,
                 graphQLSchema = graphQLSchema,
@@ -233,8 +233,7 @@ class GraphQLClientGenerator(
  * This is the reccommended approach now with the deprecation of String.capitalize from the
  * Kotlin stdlib in version 1.5.
  */
-internal fun String.capitalizeWithDefaultLocale(): String =
-    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+internal fun String.capitalizeFirstChar(): String = replaceFirstChar { if (it.isLowerCase()) it.uppercaseChar() else it }
 
 internal fun String.toUpperUnderscore(): String {
     val builder = StringBuilder()

@@ -18,7 +18,6 @@ package com.expediagroup.graphql.examples.server.spring.hooks
 
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import graphql.Scalars
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
@@ -28,7 +27,6 @@ import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import org.springframework.beans.factory.BeanFactoryAware
 import reactor.core.publisher.Mono
-import java.math.BigDecimal
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -45,7 +43,6 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
      */
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
-        BigDecimal::class -> Scalars.GraphQLBigDecimal
         else -> null
     }
 

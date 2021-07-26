@@ -21,9 +21,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 import java.util.UUID
-import kotlin.random.Random
 
 /**
  * Simple query that exposes custom scalar.
@@ -41,7 +39,4 @@ class ScalarQuery : Query {
 
     @GraphQLDescription("generates random GraphQL ID")
     fun generateRandomId() = ID(UUID.randomUUID().toString())
-
-    @GraphQLDescription("generates random BigDecimal")
-    fun generateRandomBigDecimal(): BigDecimal = BigDecimal(Random.nextLong())
 }

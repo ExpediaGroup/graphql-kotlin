@@ -54,7 +54,7 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
                     .build()
             )
         }
-        val enumName = enumValueDefinition.name.toUpperCase(Locale.US)
+        val enumName = enumValueDefinition.name.uppercase(Locale.US)
         if (enumName != enumValueDefinition.name) {
             if (context.serializer == GraphQLSerializer.JACKSON) {
                 enumValueTypeSpecBuilder.addAnnotation(
