@@ -23,7 +23,6 @@ import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironmentImpl.newDataFetchingEnvironment
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLFieldDefinition
-import java.util.Locale
 
 class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
     private val directiveName = getDirectiveName(StringEval::class)
@@ -38,7 +37,7 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
                 dataEnv.getArgument(it.name) as String?
             }.forEach { (graphQLArgumentType, value) ->
                 if (graphQLArgumentType.getDirective(directiveName).getArgument(StringEval::lowerCase.name).value as Boolean) {
-                    newArguments[graphQLArgumentType.name] = value?.lowercase(Locale.getDefault())
+                    newArguments[graphQLArgumentType.name] = value?.lowercase()
                 }
                 if (value.isNullOrEmpty()) {
                     newArguments[graphQLArgumentType.name] = graphQLArgumentType.defaultValue

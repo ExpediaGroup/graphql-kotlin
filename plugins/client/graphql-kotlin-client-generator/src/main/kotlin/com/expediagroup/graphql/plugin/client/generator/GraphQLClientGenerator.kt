@@ -36,7 +36,6 @@ import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlinx.serialization.Serializable
 import java.io.File
-import java.util.Locale
 
 private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
 
@@ -206,7 +205,7 @@ class GraphQLClientGenerator(
 
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {
         val operationNames = if (graphQLSchema.schemaDefinition().isPresent) {
-            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.uppercase(Locale.getDefault()) }, { it.typeName.name })
+            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.uppercase() }, { it.typeName.name })
         } else {
             mapOf(
                 OperationDefinition.Operation.QUERY.name to "Query",

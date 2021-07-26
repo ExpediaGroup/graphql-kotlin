@@ -47,7 +47,6 @@ import graphql.language.Type
 import graphql.language.TypeDefinition
 import graphql.language.UnionTypeDefinition
 import kotlinx.serialization.Serializable
-import java.util.Locale
 
 /**
  * Generate [TypeName] reference to a Kotlin class representation of an underlying GraphQL type.
@@ -183,7 +182,7 @@ internal fun generateClassName(
     graphQLType: NamedNode<*>,
     selectionSet: SelectionSet? = null,
     nameOverride: String? = null,
-    packageName: String = "${context.packageName}.${context.operationName.lowercase(Locale.getDefault())}"
+    packageName: String = "${context.packageName}.${context.operationName.lowercase()}"
 ): ClassName {
     val typeName = nameOverride ?: graphQLType.name
     val className = ClassName(packageName, typeName)

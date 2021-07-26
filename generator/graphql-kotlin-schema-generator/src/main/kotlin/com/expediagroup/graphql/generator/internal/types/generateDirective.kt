@@ -25,7 +25,6 @@ import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
-import java.util.Locale
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -105,7 +104,7 @@ private fun generateDirectiveArgument(prop: KProperty<*>, directiveInfo: Directi
         .build()
 }
 
-private fun String.normalizeDirectiveName() = this.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+private fun String.normalizeDirectiveName() = this.replaceFirstChar { it.lowercase() }
 
 private fun Annotation.getDirectiveInfo(): DirectiveInfo? = this.annotationClass.annotations
     .filterIsInstance(GraphQLDirectiveAnnotation::class.java)

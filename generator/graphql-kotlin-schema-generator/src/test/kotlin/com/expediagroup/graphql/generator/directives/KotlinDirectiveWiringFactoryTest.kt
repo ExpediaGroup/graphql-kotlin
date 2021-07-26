@@ -59,7 +59,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         private fun getNewDescription(original: String?) = when {
             null != newDescription -> newDescription
-            lowerCase -> original?.lowercase(Locale.getDefault())
+            lowerCase -> original?.lowercase()
             else -> original
         }
     }
@@ -208,7 +208,7 @@ class KotlinDirectiveWiringFactoryTest {
         assertNotEquals(original, actual)
 
         val updatedField = actual as? GraphQLFieldDefinition
-        assertEquals(overwrittenDescription.lowercase(Locale.getDefault()), updatedField?.description)
+        assertEquals(overwrittenDescription.lowercase(), updatedField?.description)
     }
 
     @Test

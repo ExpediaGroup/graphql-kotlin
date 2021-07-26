@@ -20,23 +20,16 @@ import com.expediagroup.graphql.generator.directives.KotlinFieldDirectiveEnviron
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetcherFactories
-import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
-import java.util.Locale
-import java.util.function.BiFunction
 
 class LowercaseSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
     override fun onField(environment: KotlinFieldDirectiveEnvironment): GraphQLFieldDefinition {
         val field = environment.element
         val originalDataFetcher: DataFetcher<*> = environment.getDataFetcher()
-
-        val lowerCaseFetcher = DataFetcherFactories.wrapDataFetcher(
-            originalDataFetcher,
-            BiFunction<DataFetchingEnvironment, Any, Any> { _, value ->
-                value.toString().lowercase(Locale.getDefault())
-            }
-        )
+        val lowerCaseFetcher = DataFetcherFactories.wrapDataFetcher(originalDataFetcher) { _, value ->
+            value.toString().lowercase()
+        }
         environment.setDataFetcher(lowerCaseFetcher)
         return field
     }
