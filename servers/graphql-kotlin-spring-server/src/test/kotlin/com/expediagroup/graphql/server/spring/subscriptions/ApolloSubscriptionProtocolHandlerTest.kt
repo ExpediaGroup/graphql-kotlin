@@ -27,9 +27,9 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_CONNECTION_KEEP_ALIVE
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_DATA
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_ERROR
-import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.coEvery
 import io.mockk.every

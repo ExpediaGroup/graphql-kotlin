@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.gradle.actions.GenerateClientAction
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty

@@ -7,8 +7,8 @@
 import React from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Link from '@docusaurus/Link';
-import { useActivePlugin, useActiveVersion, useDocVersionSuggestions } from '@theme/hooks/useDocs';
-import { useDocsPreferredVersion } from '@docusaurus/theme-common';
+import {useActivePlugin, useActiveVersion, useDocVersionSuggestions} from '@theme/hooks/useDocs';
+import {useDocsPreferredVersion} from '@docusaurus/theme-common';
 
 const getVersionMainDoc = version => version.docs.find(doc => doc.id === version.mainDocId);
 

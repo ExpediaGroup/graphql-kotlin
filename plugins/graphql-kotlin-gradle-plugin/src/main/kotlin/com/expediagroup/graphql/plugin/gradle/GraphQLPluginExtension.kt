@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import org.gradle.api.Action
 import java.io.File

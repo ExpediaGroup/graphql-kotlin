@@ -28,7 +28,6 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals

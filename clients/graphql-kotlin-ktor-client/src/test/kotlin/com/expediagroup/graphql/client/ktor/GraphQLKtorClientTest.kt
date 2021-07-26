@@ -22,11 +22,11 @@ import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLSourceLocation
 import com.expediagroup.graphql.client.serialization.GraphQLClientKotlinxSerializer
 import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
-import com.expediagroup.graphql.client.types.GraphQLClientRequest
-import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder

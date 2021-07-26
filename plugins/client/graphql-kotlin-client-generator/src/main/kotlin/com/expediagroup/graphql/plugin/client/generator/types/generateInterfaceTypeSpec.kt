@@ -40,7 +40,6 @@ import graphql.language.Selection
 import graphql.language.SelectionSet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Locale
 
 /**
  * Generate interface [TypeSpec] based on the available field definitions and selection set. Generates all implementing classes as well.
