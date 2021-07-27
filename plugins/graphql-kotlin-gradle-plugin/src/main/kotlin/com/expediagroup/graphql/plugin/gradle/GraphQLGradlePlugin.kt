@@ -16,6 +16,10 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.TestedExtension
+import com.android.build.gradle.api.BaseVariant
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_SDL_TASK_NAME
@@ -78,11 +82,6 @@ class GraphQLGradlePlugin : Plugin<Project> {
         project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
     }
 
-    private fun configureProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
-        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
-        sourceSetContainer?.findByName(targetSourceSet)?.java?.srcDir(outputDirectory)
-    }
-
     private fun processExtensionConfiguration(project: Project, extension: GraphQLPluginExtension) {
         if (extension.isClientConfigurationAvailable()) {
             if (extension.clientExtension.packageName != null) {
@@ -137,6 +136,8 @@ class GraphQLGradlePlugin : Plugin<Project> {
     }
 
     private fun configureTaskClasspaths(project: Project) {
+        val (compileTasks, compileTestTasks) = findCompileTasks(project)
+
         project.tasks.withType(GraphQLDownloadSDLTask::class.java).configureEach { downloadSDLTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             downloadSDLTask.pluginClasspath.setFrom(configuration)
@@ -145,14 +146,18 @@ class GraphQLGradlePlugin : Plugin<Project> {
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             generateClientTask.pluginClasspath.setFrom(configuration)
 
-            generateClientTask.finalizedBy(project.tasks.named("compileKotlin"))
+            compileTasks.forEach {
+                generateClientTask.finalizedBy(project.tasks.named(it))
+            }
             configureProjectSourceSet(project = project, outputDirectory = generateClientTask.outputDirectory)
         }
         project.tasks.withType(GraphQLGenerateTestClientTask::class.java).configureEach { generateTestClientTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             generateTestClientTask.pluginClasspath.setFrom(configuration)
 
-            generateTestClientTask.finalizedBy(project.tasks.named("compileTestKotlin"))
+            compileTestTasks.forEach {
+                generateTestClientTask.finalizedBy(project.tasks.named(it))
+            }
             configureProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
         }
         project.tasks.withType(GraphQLIntrospectSchemaTask::class.java).configureEach { introspectionTask ->
@@ -168,7 +173,35 @@ class GraphQLGradlePlugin : Plugin<Project> {
             val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
             generateSDLTask.pluginClasspath.setFrom(configuration)
 
-            generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))
+            compileTasks.forEach {
+                generateSDLTask.dependsOn(project.tasks.named(it))
+            }
         }
+    }
+
+    private fun findCompileTasks(project: Project): Pair<List<String>, List<String>> {
+        val extension = project.extensions.findByName("android")
+        return if (extension == null) {
+            // default to JVM
+            listOf("compileKotlin") to listOf("compileTestKotlin")
+        } else {
+            when (extension) {
+                is LibraryExtension -> extension.libraryVariants.map { calculateCompileTaskName(it) } to findTestVariantCompileTasks(extension)
+                is AppExtension -> extension.applicationVariants.map { calculateCompileTaskName(it) } to findTestVariantCompileTasks(extension)
+                else -> throw RuntimeException(
+                    "Unsupported configuration - unable to determine appropriate compile Kotlin task. graphql-kotlin plugin only supports default JVM builds, Android libraries and applications"
+                )
+            }
+        }
+    }
+
+    private fun findTestVariantCompileTasks(extension: TestedExtension) =
+        extension.testVariants.map { calculateCompileTaskName(it) } + extension.unitTestVariants.map { calculateCompileTaskName(it) }
+
+    private fun calculateCompileTaskName(variant: BaseVariant) = "compile${variant.name.capitalize()}Kotlin"
+
+    private fun configureProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
+        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
+        sourceSetContainer?.findByName(targetSourceSet)?.java?.srcDir(outputDirectory)
     }
 }
