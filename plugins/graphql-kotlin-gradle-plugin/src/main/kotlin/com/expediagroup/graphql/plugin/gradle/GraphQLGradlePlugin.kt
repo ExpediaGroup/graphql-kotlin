@@ -16,10 +16,6 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.api.BaseVariant
 import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_SDL_TASK_NAME
@@ -136,7 +132,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
     }
 
     private fun configureTaskClasspaths(project: Project) {
-        val (compileTasks, compileTestTasks) = findCompileTasks(project)
+        val (compileTasks, compileTestTasks) = project.findKotlinCompileTasks()
 
         project.tasks.withType(GraphQLDownloadSDLTask::class.java).configureEach { downloadSDLTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
@@ -178,27 +174,6 @@ class GraphQLGradlePlugin : Plugin<Project> {
             }
         }
     }
-
-    private fun findCompileTasks(project: Project): Pair<List<String>, List<String>> {
-        val extension = project.extensions.findByName("android")
-        return if (extension == null) {
-            // default to JVM
-            listOf("compileKotlin") to listOf("compileTestKotlin")
-        } else {
-            when (extension) {
-                is LibraryExtension -> extension.libraryVariants.map { calculateCompileTaskName(it) } to findTestVariantCompileTasks(extension)
-                is AppExtension -> extension.applicationVariants.map { calculateCompileTaskName(it) } to findTestVariantCompileTasks(extension)
-                else -> throw RuntimeException(
-                    "Unsupported configuration - unable to determine appropriate compile Kotlin task. graphql-kotlin plugin only supports default JVM builds, Android libraries and applications"
-                )
-            }
-        }
-    }
-
-    private fun findTestVariantCompileTasks(extension: TestedExtension) =
-        extension.testVariants.map { calculateCompileTaskName(it) } + extension.unitTestVariants.map { calculateCompileTaskName(it) }
-
-    private fun calculateCompileTaskName(variant: BaseVariant) = "compile${variant.name.capitalize()}Kotlin"
 
     private fun configureProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
         val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer

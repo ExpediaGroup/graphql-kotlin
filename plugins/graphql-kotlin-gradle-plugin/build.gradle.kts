@@ -5,6 +5,7 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
+val androidPluginVersion: String by project
 val junitVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val wireMockVersion: String by project
@@ -12,7 +13,7 @@ val mustacheVersion: String by project
 
 dependencies {
     implementation(kotlin("gradle-plugin-api"))
-    compileOnly("com.android.tools.build:gradle:4.2.2")
+    compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
 
     compileOnly(project(":graphql-kotlin-client-generator"))
     compileOnly(project(":graphql-kotlin-sdl-generator"))
