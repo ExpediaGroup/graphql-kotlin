@@ -64,5 +64,5 @@ class GraphQLRoutesConfiguration(
     }
 
     private fun requestContainsHeader(headers: ServerRequest.Headers, headerName: String, headerValue: String): Boolean =
-        headers.header(headerName).map { it.toLowerCase() }.contains(headerValue.toLowerCase())
+        headers.header(headerName).map { it.lowercase() }.contains(headerValue.lowercase())
 }

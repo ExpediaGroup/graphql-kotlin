@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.client.spring
 
 import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
-import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
+import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLSourceLocation
 import com.expediagroup.graphql.client.serialization.GraphQLClientKotlinxSerializer
 import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer

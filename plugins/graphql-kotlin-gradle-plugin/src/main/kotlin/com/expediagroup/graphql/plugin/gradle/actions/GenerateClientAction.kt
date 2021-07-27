@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.plugin.gradle.actions
 
 import com.expediagroup.graphql.plugin.client.generateClient
-import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.parameters.GenerateClientParameters
 import org.gradle.workers.WorkAction
 

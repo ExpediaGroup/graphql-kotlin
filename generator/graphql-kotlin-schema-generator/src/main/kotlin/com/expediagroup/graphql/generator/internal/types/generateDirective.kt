@@ -104,7 +104,7 @@ private fun generateDirectiveArgument(prop: KProperty<*>, directiveInfo: Directi
         .build()
 }
 
-private fun String.normalizeDirectiveName() = this.decapitalize()
+private fun String.normalizeDirectiveName() = this.replaceFirstChar { it.lowercase() }
 
 private fun Annotation.getDirectiveInfo(): DirectiveInfo? = this.annotationClass.annotations
     .filterIsInstance(GraphQLDirectiveAnnotation::class.java)

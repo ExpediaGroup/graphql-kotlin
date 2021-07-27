@@ -27,11 +27,11 @@ class CustomDirectiveWiringFactory : KotlinDirectiveWiringFactory(manualWiring =
     private val stringEvalDirectiveWiring = StringEvalSchemaDirectiveWiring()
     private val caleOnlyDirectiveWiring = SpecificValueOnlySchemaDirectiveWiring()
 
-    override fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? = when {
-        environment.directive.name == getDirectiveName(StringEval::class) -> stringEvalDirectiveWiring
-        environment.directive.name == getDirectiveName(SpecificValueOnly::class) -> caleOnlyDirectiveWiring
+    override fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? = when (environment.directive.name) {
+        getDirectiveName(StringEval::class) -> stringEvalDirectiveWiring
+        getDirectiveName(SpecificValueOnly::class) -> caleOnlyDirectiveWiring
         else -> null
     }
 }
 
-internal fun getDirectiveName(kClass: KClass<out Annotation>): String = kClass.simpleName!!.decapitalize()
+internal fun getDirectiveName(kClass: KClass<out Annotation>): String = kClass.simpleName!!.replaceFirstChar { it.lowercase() }

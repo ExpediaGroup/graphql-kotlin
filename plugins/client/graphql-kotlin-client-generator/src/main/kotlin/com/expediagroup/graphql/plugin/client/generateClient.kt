@@ -18,8 +18,8 @@ package com.expediagroup.graphql.plugin.client
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGenerator
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
-import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
+import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.squareup.kotlinpoet.FileSpec
 import java.io.File
 

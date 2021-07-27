@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import graphql.schema.idl.errors.SchemaProblem
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.features.HttpRequestTimeoutException
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -44,7 +43,6 @@ class DownloadSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify can download SDL`() {
         val expectedSchema =
             """
@@ -95,7 +93,6 @@ class DownloadSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if URL is not valid`() {
         assertThrows<UnknownHostException> {
             runBlocking {
@@ -105,7 +102,6 @@ class DownloadSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if downloaded SDL is not valid schema`() {
         stubFor(
             get("/whatever").willReturn(
@@ -124,7 +120,6 @@ class DownloadSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify downloadSchema will throw exception if unable to download schema`() {
         stubFor(
             get("/sdl").willReturn(aResponse().withStatus(404))
@@ -137,7 +132,6 @@ class DownloadSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify downloadSchema will respect timeout setting`() {
         stubFor(
             get("/sdl").willReturn(

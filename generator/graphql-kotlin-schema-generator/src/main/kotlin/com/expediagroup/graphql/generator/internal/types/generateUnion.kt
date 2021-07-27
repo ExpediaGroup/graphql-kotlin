@@ -45,7 +45,7 @@ private fun generateUnionFromAnnotation(generator: SchemaGenerator, unionAnnotat
 
     val possibleTypes = unionAnnotation.possibleTypes.toList()
 
-    return createUnion(generator, builder, possibleTypes, unionAnnotation.name)
+    return createUnion(generator, builder, possibleTypes)
 }
 
 private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*>): GraphQLUnionType {
@@ -60,10 +60,10 @@ private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*
 
     val types = generator.classScanner.getSubTypesOf(kClass)
 
-    return createUnion(generator, builder, types, name)
+    return createUnion(generator, builder, types)
 }
 
-private fun createUnion(generator: SchemaGenerator, builder: GraphQLUnionType.Builder, types: List<KClass<*>>, name: String): GraphQLUnionType {
+private fun createUnion(generator: SchemaGenerator, builder: GraphQLUnionType.Builder, types: List<KClass<*>>): GraphQLUnionType {
     types.map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = it.unwrapType()) {

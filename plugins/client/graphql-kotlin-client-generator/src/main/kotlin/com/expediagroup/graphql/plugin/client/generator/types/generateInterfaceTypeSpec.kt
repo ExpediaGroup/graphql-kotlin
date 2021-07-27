@@ -185,7 +185,7 @@ private fun updateImplementationTypeSpecWithSuperInformation(
         .addModifiers(implementationTypeSpec.modifiers)
         .addKdoc("%L", implementationTypeSpec.kdoc)
 
-    val superClassName = ClassName("${context.packageName}.${context.operationName.toLowerCase()}", interfaceName)
+    val superClassName = ClassName("${context.packageName}.${context.operationName.lowercase()}", interfaceName)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
         builder.addAnnotation(Serializable::class)
             .addAnnotation(

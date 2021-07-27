@@ -182,7 +182,7 @@ internal fun generateClassName(
     graphQLType: NamedNode<*>,
     selectionSet: SelectionSet? = null,
     nameOverride: String? = null,
-    packageName: String = "${context.packageName}.${context.operationName.toLowerCase()}"
+    packageName: String = "${context.packageName}.${context.operationName.lowercase()}"
 ): ClassName {
     val typeName = nameOverride ?: graphQLType.name
     val className = ClassName(packageName, typeName)

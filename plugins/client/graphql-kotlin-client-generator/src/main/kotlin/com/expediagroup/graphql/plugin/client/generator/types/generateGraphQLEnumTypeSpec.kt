@@ -27,7 +27,6 @@ import graphql.language.EnumTypeDefinition
 import graphql.language.StringValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Locale
 
 internal const val UNKNOWN_VALUE = "__UNKNOWN_VALUE"
 
@@ -54,7 +53,7 @@ internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext,
                     .build()
             )
         }
-        val enumName = enumValueDefinition.name.toUpperCase(Locale.US)
+        val enumName = enumValueDefinition.name.uppercase()
         if (enumName != enumValueDefinition.name) {
             if (context.serializer == GraphQLSerializer.JACKSON) {
                 enumValueTypeSpecBuilder.addAnnotation(

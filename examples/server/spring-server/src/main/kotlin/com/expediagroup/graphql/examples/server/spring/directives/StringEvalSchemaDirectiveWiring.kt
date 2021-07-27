@@ -37,7 +37,7 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
                 dataEnv.getArgument(it.name) as String?
             }.forEach { (graphQLArgumentType, value) ->
                 if (graphQLArgumentType.getDirective(directiveName).getArgument(StringEval::lowerCase.name).value as Boolean) {
-                    newArguments[graphQLArgumentType.name] = value?.toLowerCase()
+                    newArguments[graphQLArgumentType.name] = value?.lowercase()
                 }
                 if (value.isNullOrEmpty()) {
                     newArguments[graphQLArgumentType.name] = graphQLArgumentType.defaultValue

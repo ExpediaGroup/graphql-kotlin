@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization.types.serializers
 
 import com.expediagroup.graphql.client.serialization.serializers.AnyKSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -57,6 +58,7 @@ class AnyKSerializerTest {
     """.trimMargin()
 
     @Test
+    @ExperimentalSerializationApi
     fun `verify serialization logic`() {
         val json = Json {
             prettyPrint = true

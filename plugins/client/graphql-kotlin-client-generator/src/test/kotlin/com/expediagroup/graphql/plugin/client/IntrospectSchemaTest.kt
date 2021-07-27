@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.features.HttpRequestTimeoutException
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -40,7 +39,6 @@ class IntrospectSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify can run introspection query and generate valid schema`() {
         val expectedSchema =
             """
@@ -106,7 +104,6 @@ class IntrospectSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify introspectSchema will throw exception if unable to run query`() {
         WireMock.stubFor(
             WireMock.post("/graphql")
@@ -120,7 +117,6 @@ class IntrospectSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify introspectSchema will respect timeout setting`() {
         WireMock.stubFor(
             WireMock.post("/graphql")
@@ -138,7 +134,6 @@ class IntrospectSchemaTest {
     }
 
     @Test
-    @KtorExperimentalAPI
     fun `verify introspectSchema will throw exception if URL is not valid`() {
         assertThrows<UnknownHostException> {
             runBlocking {

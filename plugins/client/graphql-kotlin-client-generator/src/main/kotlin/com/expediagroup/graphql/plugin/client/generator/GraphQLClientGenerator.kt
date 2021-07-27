@@ -94,9 +94,9 @@ class GraphQLClientGenerator(
         }
 
         val fileSpecs = mutableListOf<FileSpec>()
-        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalize())
+        val operationFileSpec = FileSpec.builder(packageName = config.packageName, fileName = queryFile.nameWithoutExtension.capitalizeFirstChar())
         operationDefinitions.forEach { operationDefinition ->
-            val capitalizedOperationName = operationDefinition.name?.capitalize() ?: queryFile.nameWithoutExtension.capitalize()
+            val capitalizedOperationName = operationDefinition.name?.capitalizeFirstChar() ?: queryFile.nameWithoutExtension.capitalizeFirstChar()
             val context = GraphQLClientGeneratorContext(
                 packageName = config.packageName,
                 graphQLSchema = graphQLSchema,
@@ -205,7 +205,7 @@ class GraphQLClientGenerator(
 
     private fun findRootType(operationDefinition: OperationDefinition): ObjectTypeDefinition {
         val operationNames = if (graphQLSchema.schemaDefinition().isPresent) {
-            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.toUpperCase() }, { it.typeName.name })
+            graphQLSchema.schemaDefinition().get().operationTypeDefinitions.associateBy({ it.name.uppercase() }, { it.typeName.name })
         } else {
             mapOf(
                 OperationDefinition.Operation.QUERY.name to "Query",
@@ -228,6 +228,12 @@ class GraphQLClientGenerator(
     }
 }
 
+/**
+ * This is the reccommended approach now with the deprecation of String.capitalize from the
+ * Kotlin stdlib in version 1.5.
+ */
+internal fun String.capitalizeFirstChar(): String = replaceFirstChar { if (it.isLowerCase()) it.uppercaseChar() else it }
+
 internal fun String.toUpperUnderscore(): String {
     val builder = StringBuilder()
     val nameCharArray = this.toCharArray()
@@ -237,7 +243,7 @@ internal fun String.toUpperUnderscore(): String {
                 builder.append("_")
             }
         }
-        builder.append(c.toUpperCase())
+        builder.append(c.uppercaseChar())
     }
     return builder.toString()
 }
