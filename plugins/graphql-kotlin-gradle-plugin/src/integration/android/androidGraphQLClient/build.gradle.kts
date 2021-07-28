@@ -9,10 +9,11 @@ buildscript {
         }
     }
 
+    val androidPluginVersion = System.getenv("ANDROID_PLUGIN_VERSION") ?: "4.2.2"
     val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "5.0.0-SNAPSHOT"
     val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.5.21"
     dependencies {
-        classpath("com.android.tools.build:gradle:4.2.2")
+        classpath("com.android.tools.build:gradle:$androidPluginVersion")
         classpath("com.expediagroup:graphql-kotlin-gradle-plugin:$graphQLKotlinVersion")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")

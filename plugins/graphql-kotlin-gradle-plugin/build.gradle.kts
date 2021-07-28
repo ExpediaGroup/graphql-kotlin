@@ -101,6 +101,7 @@ tasks {
         val kotlinVersion: String by project
         val junitVersion: String by project
         val springBootVersion: String by project
+        systemProperty("androidPluginVersion", androidPluginVersion)
         systemProperty("kotlinVersion", kotlinVersion)
         systemProperty("springBootVersion", springBootVersion)
         systemProperty("junitVersion", junitVersion)
