@@ -28,6 +28,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        google()
         mavenLocal {
             content {
                 includeGroup("com.expediagroup")
