@@ -17,29 +17,46 @@
 package com.expediagroup.graphql.plugin.gradle
 
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateTestClientTask
 import org.gradle.api.Project
 
-// have to be outside plugin class due to https://github.com/gradle/gradle/issues/8411
-internal fun Project.findKotlinCompileTasks(): Pair<List<String>, List<String>> {
-    val extension = this.extensions.findByName("android")
-    return if (extension == null) {
-        // default to JVM
-        listOf("compileKotlin") to listOf("compileTestKotlin")
-    } else {
-        when (extension) {
-            is LibraryExtension -> extension.libraryVariants.map { calculateCompileTaskName(it) } to findTestVariantCompileTasks(extension)
-            is AppExtension -> extension.applicationVariants.map { calculateCompileTaskName(it) } to findTestVariantCompileTasks(extension)
-            else -> throw RuntimeException(
-                "Unsupported configuration - unable to determine appropriate compile Kotlin task. graphql-kotlin plugin only supports default JVM builds, Android libraries and applications"
-            )
+// isolating Android specific code that will be conditionally executed only on Android projects
+// see https://github.com/gradle/gradle/issues/8411
+internal fun configureAndroidCompileTasks(project: Project, clientGeneratingTasks: List<GraphQLGenerateClientTask>, testClientGeneratingTasks: List<GraphQLGenerateTestClientTask>) {
+    val androidExtension = project.extensions.findByType(BaseExtension::class.java)
+
+    val (variantCompileNames, testVariantCompileNames) = when (androidExtension) {
+        is LibraryExtension -> androidExtension.libraryVariants.map { it.calculateCompileTaskName() } to findTestVariants(androidExtension).map { it.calculateCompileTaskName() }
+        is AppExtension -> androidExtension.applicationVariants.map { it.calculateCompileTaskName() } to findTestVariants(androidExtension).map { it.calculateCompileTaskName() }
+        else -> throw RuntimeException(
+            "Unsupported configuration - unable to determine appropriate Android compile Kotlin task. graphql-kotlin plugin only supports Android libraries and applications"
+        )
+    }
+
+    for (clientTask in clientGeneratingTasks) {
+        androidExtension.sourceSets.findByName("main")?.java?.srcDir(clientTask.outputDirectory)
+        for (variantCompileName in variantCompileNames) {
+            project.tasks.named(variantCompileName).configure { compileTask ->
+                compileTask.dependsOn(clientTask)
+            }
+        }
+    }
+    for (testClientTask in testClientGeneratingTasks) {
+        androidExtension.sourceSets.findByName("test")?.java?.srcDir(testClientTask.outputDirectory)
+        for (testVariantCompileName in testVariantCompileNames) {
+            project.tasks.named(testVariantCompileName).configure { compileTask ->
+                compileTask.dependsOn(testClientTask)
+            }
         }
     }
 }
 
-private fun findTestVariantCompileTasks(extension: TestedExtension) =
-    extension.testVariants.map { calculateCompileTaskName(it) } + extension.unitTestVariants.map { calculateCompileTaskName(it) }
+private fun findTestVariants(extension: TestedExtension): Set<BaseVariant> =
+    extension.testVariants + extension.unitTestVariants
 
-private fun calculateCompileTaskName(variant: BaseVariant) = "compile${variant.name.capitalize()}Kotlin"
+private fun BaseVariant.calculateCompileTaskName() = "compile${this.name.capitalize()}Kotlin"

@@ -20,33 +20,37 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
+import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
+import java.nio.file.Path
 import kotlin.test.assertEquals
 
 class GraphQLGradlePluginAndroidIT {
-    
+
     @ParameterizedTest
     @MethodSource("pluginTests")
     @EnabledIfEnvironmentVariable(named = "ANDROID_SDK_ROOT", matches = ".+")
-    fun `verify gradle plugin`(testDirectory: File) {
+    fun `verify gradle plugin can be applied on android projects`(sourceDirectory: File, @TempDir tempDir: Path) {
+        val testProjectDirectory = tempDir.toFile()
+        sourceDirectory.copyRecursively(testProjectDirectory)
+
         val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.5.21"
         val buildResult = GradleRunner.create()
-            .withProjectDir(testDirectory)
+            .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments("build", "--stacktrace", "-PGRAPHQL_KOTLIN_VERSION=$DEFAULT_PLUGIN_VERSION", "-PKOTLIN_VERSION=$kotlinVersion")
             .forwardOutput()
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
-        println(buildResult.output)
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":app:$GENERATE_CLIENT_TASK_NAME")?.outcome)
     }
 
     companion object {
         @JvmStatic
-        fun pluginTests(): List<Arguments> = locateTestCaseArguments("src/integration")
+        fun pluginTests(): List<Arguments> = locateTestCaseArguments("src/integration/android")
 
         private fun locateTestCaseArguments(directory: String) = File(directory)
             .listFiles()

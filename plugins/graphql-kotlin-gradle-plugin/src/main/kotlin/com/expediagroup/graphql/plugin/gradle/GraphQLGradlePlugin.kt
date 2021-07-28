@@ -132,29 +132,29 @@ class GraphQLGradlePlugin : Plugin<Project> {
     }
 
     private fun configureTaskClasspaths(project: Project) {
-        val (compileTasks, compileTestTasks) = project.findKotlinCompileTasks()
+        val isAndroidProject = project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")
+        val clientGeneratingTaskNames = mutableListOf<GraphQLGenerateClientTask>()
+        val testClientGeneratingTaskNames = mutableListOf<GraphQLGenerateTestClientTask>()
 
         project.tasks.withType(GraphQLDownloadSDLTask::class.java).configureEach { downloadSDLTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             downloadSDLTask.pluginClasspath.setFrom(configuration)
         }
         project.tasks.withType(GraphQLGenerateClientTask::class.java).configureEach { generateClientTask ->
+            clientGeneratingTaskNames.add(generateClientTask)
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             generateClientTask.pluginClasspath.setFrom(configuration)
-
-            compileTasks.forEach {
-                generateClientTask.finalizedBy(project.tasks.named(it))
+            if (!isAndroidProject) {
+                configureDefaultProjectSourceSet(project = project, outputDirectory = generateClientTask.outputDirectory)
             }
-            configureProjectSourceSet(project = project, outputDirectory = generateClientTask.outputDirectory)
         }
         project.tasks.withType(GraphQLGenerateTestClientTask::class.java).configureEach { generateTestClientTask ->
+            testClientGeneratingTaskNames.add(generateTestClientTask)
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
             generateTestClientTask.pluginClasspath.setFrom(configuration)
-
-            compileTestTasks.forEach {
-                generateTestClientTask.finalizedBy(project.tasks.named(it))
+            if (!isAndroidProject) {
+                configureDefaultProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
             }
-            configureProjectSourceSet(project = project, outputDirectory = generateTestClientTask.outputDirectory, targetSourceSet = "test")
         }
         project.tasks.withType(GraphQLIntrospectSchemaTask::class.java).configureEach { introspectionTask ->
             val configuration = project.configurations.getAt(GENERATE_CLIENT_CONFIGURATION)
@@ -168,14 +168,17 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
             val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
             generateSDLTask.pluginClasspath.setFrom(configuration)
+            generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))
+        }
 
-            compileTasks.forEach {
-                generateSDLTask.dependsOn(project.tasks.named(it))
-            }
+        if (isAndroidProject) {
+            // Android plugins are eagerly configured so just adding the tasks outputs to the source set is not enough,
+            // we also need to explicitly configure compile dependencies
+            configureAndroidCompileTasks(project, clientGeneratingTaskNames, testClientGeneratingTaskNames)
         }
     }
 
-    private fun configureProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
+    private fun configureDefaultProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
         val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
         sourceSetContainer?.findByName(targetSourceSet)?.java?.srcDir(outputDirectory)
     }
