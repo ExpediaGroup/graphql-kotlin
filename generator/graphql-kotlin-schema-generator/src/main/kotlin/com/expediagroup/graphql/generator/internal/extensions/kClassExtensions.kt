@@ -60,8 +60,11 @@ internal fun KClass<*>.findConstructorParameter(name: String): KParameter? =
 internal fun KClass<*>.isInterface(): Boolean =
     this.java.isInterface || this.isAbstract || this.isSealed
 
-internal fun KClass<*>.isUnion(): Boolean =
-    this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+internal fun KClass<*>.isUnion(fieldAnnotations: List<Annotation> = emptyList()): Boolean = this.isDeclaredUnion() || this.isAnnotationUnion(fieldAnnotations)
+
+private fun KClass<*>.isDeclaredUnion() = this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
+
+internal fun KClass<*>.isAnnotationUnion(fieldAnnotations: List<Annotation>): Boolean = this.isInstance(Any::class) && fieldAnnotations.getUnionAnnotation() != null
 
 /**
  * Do not add interfaces as additional types if it expects all the types

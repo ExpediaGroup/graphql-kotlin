@@ -61,7 +61,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
         .filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
         .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 
-    val interfaceType = builder.build()
+    val interfaceType: GraphQLInterfaceType = builder.build()
     generator.codeRegistry.typeResolver(interfaceType) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObject<Any>().javaClass.kotlin.getSimpleName()) }
     return generator.config.hooks.onRewireGraphQLType(interfaceType).safeCast()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.internal.state
+package com.expediagroup.graphql.generator.exceptions
 
 import kotlin.reflect.KType
 
-internal data class TypesCacheKey(
-    val type: KType,
-    val inputType: Boolean = false,
-    val name: String? = null
-)
+class InvalidCustomUnionException(returnType: KType) :
+    GraphQLKotlinException("The custom union annotation was used but the return type was $returnType instead of Any")
