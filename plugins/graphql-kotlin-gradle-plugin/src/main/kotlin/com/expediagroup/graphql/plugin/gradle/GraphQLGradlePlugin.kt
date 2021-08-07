@@ -30,6 +30,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.SourceSetContainer
+import java.io.File
 
 private const val PLUGIN_EXTENSION_NAME = "graphql"
 private const val GENERATE_CLIENT_CONFIGURATION = "graphqlClient"
@@ -87,7 +88,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                 generateClientTask.customScalars.convention(extension.clientExtension.customScalars)
                 val queryFileDirectory = extension.clientExtension.queryFileDirectory
                 if (queryFileDirectory != null) {
-                    generateClientTask.queryFileDirectory.convention(queryFileDirectory)
+                    generateClientTask.queryFileDirectory.set(File(queryFileDirectory))
                 }
                 generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
                 generateClientTask.serializer.convention(extension.clientExtension.serializer)

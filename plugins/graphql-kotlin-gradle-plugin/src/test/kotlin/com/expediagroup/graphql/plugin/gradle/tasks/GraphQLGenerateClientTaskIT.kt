@@ -198,6 +198,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(GENERATE_TEST_CLIENT_TASK_NAME, "test", "--stacktrace")
+            .forwardOutput()
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_TEST_CLIENT_TASK_NAME")?.outcome)
