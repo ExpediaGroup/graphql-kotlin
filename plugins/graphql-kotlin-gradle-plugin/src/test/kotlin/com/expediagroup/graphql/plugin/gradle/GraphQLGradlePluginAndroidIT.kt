@@ -31,7 +31,7 @@ import kotlin.test.assertEquals
 class GraphQLGradlePluginAndroidIT {
 
     @ParameterizedTest
-    @MethodSource("pluginTests")
+    @MethodSource("androidTests")
     @EnabledIfEnvironmentVariable(named = "ANDROID_SDK_ROOT", matches = ".+")
     fun `verify gradle plugin can be applied on android projects`(sourceDirectory: File, @TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
@@ -51,7 +51,7 @@ class GraphQLGradlePluginAndroidIT {
 
     companion object {
         @JvmStatic
-        fun pluginTests(): List<Arguments> = locateTestCaseArguments("src/integration/android")
+        fun androidTests(): List<Arguments> = locateTestCaseArguments("src/integration/android")
 
         private fun locateTestCaseArguments(directory: String) = File(directory)
             .listFiles()

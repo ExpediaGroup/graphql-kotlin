@@ -50,23 +50,11 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
     /**
-     * Path to GraphQL schema file that will be used to generate client code.
-     *
-     * **Required Property**: [schemaFileName] or [schemaFile] has to be provided.
-     * **Command line property is**: `schemaFileName`.
-     */
-    @Input
-    @Optional
-    @Option(option = "schemaFileName", description = "path to GraphQL schema file that will be used to generate the client code")
-    val schemaFileName: Property<String> = project.objects.property(String::class.java)
-
-    /**
      * GraphQL schema file that will be used to generate client code.
      *
-     * **Required Property**: [schemaFileName] or [schemaFile] has to be provided.
+     * **Required Property**
      */
     @InputFile
-    @Optional
     val schemaFile: RegularFileProperty = project.objects.fileProperty()
 
     /**
@@ -152,10 +140,8 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
 
         val graphQLSchemaPath = when {
             schemaFile.isPresent -> schemaFile.get().asFile.path
-            schemaFileName.isPresent -> schemaFileName.get()
             else -> throw RuntimeException("schema not available")
         }
-
         val targetPackage = packageName.orNull ?: throw RuntimeException("package not specified")
         val targetQueryFiles: List<File> = when {
             queryFiles.files.isNotEmpty() -> queryFiles.files.toList()

@@ -56,7 +56,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             |
             |val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
             |  packageName.set("com.example.generated")
-            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  schemaFile.set(file("${'$'}{project.projectDir}/schema.graphql"))
             |}
             """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
@@ -80,7 +80,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             |val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
             |  packageName.set("com.example.generated")
-            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  schemaFile.set(file("${'$'}{project.projectDir}/schema.graphql"))
             |}
             """.trimMargin()
         testProjectDirectory.generateBuildFileForClient(buildFileContents)
@@ -127,7 +127,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             |
             |val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
             |  packageName.set("com.example.generated")
-            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  schemaFile.set(file("${'$'}{project.projectDir}/schema.graphql"))
             |  // optional config
             |  customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
             |  allowDeprecatedFields.set(true)
@@ -176,7 +176,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             """
             |val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateTestClientTask::class) {
             |  packageName.set("com.example.generated")
-            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  schemaFile.set(file("${'$'}{project.projectDir}/schema.graphql"))
             |}
             |
             |tasks {
@@ -220,7 +220,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             |
             |graphqlGenerateClient {
             |  packageName = "com.example.generated"
-            |  schemaFileName = "${'$'}{project.projectDir}/schema.graphql"
+            |  schemaFile = file("${'$'}{project.projectDir}/schema.graphql")
             |  // optional config
             |  allowDeprecatedFields = true
             |  customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
@@ -272,7 +272,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             |
             |tasks.create("generateClient1", GraphQLGenerateClientTask::class) {
             |  packageName.set("com.example.generated")
-            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  schemaFile.set(file("${'$'}{project.projectDir}/schema.graphql"))
             |  // optional config
             |  customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
             |  queryFiles.from(
@@ -282,7 +282,7 @@ class GraphQLGenerateClientTaskIT : GraphQLGradlePluginAbstractIT() {
             |
             |tasks.create("generateClient2", GraphQLGenerateClientTask::class) {
             |  packageName.set("com.example.generated2")
-            |  schemaFileName.set("${'$'}{project.projectDir}/schema.graphql")
+            |  schemaFile.set(file("${'$'}{project.projectDir}/schema.graphql"))
             |  // optional config
             |  allowDeprecatedFields.set(true)
             |  queryFiles.from(
