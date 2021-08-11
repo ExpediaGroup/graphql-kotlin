@@ -83,11 +83,11 @@ class DataFetcherIT(@Autowired private val testClient: WebTestClient) {
             .build()
 
         private object LocalDateCoercing : Coercing<LocalDate, String> {
-            override fun parseValue(input: Any?): LocalDate = LocalDate.parse(serialize(input))
+            override fun parseValue(input: Any): LocalDate = LocalDate.parse(serialize(input))
 
-            override fun parseLiteral(input: Any?): LocalDate? = LocalDate.parse((input as? StringValue)?.value)
+            override fun parseLiteral(input: Any): LocalDate = LocalDate.parse((input as? StringValue)?.value)
 
-            override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
         }
     }
 

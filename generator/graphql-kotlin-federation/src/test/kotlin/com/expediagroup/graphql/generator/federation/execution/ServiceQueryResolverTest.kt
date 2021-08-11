@@ -105,14 +105,14 @@ class ServiceQueryResolverTest {
             .coercing(CustomScalarCoercing()).build()
 
         private class CustomScalarCoercing : Coercing<CustomScalar, String> {
-            override fun parseValue(input: Any?): CustomScalar = CustomScalar(serialize(input))
+            override fun parseValue(input: Any): CustomScalar = CustomScalar(serialize(input))
 
-            override fun parseLiteral(input: Any?): CustomScalar {
+            override fun parseLiteral(input: Any): CustomScalar {
                 val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("CustomScalar value is null")
                 return CustomScalar(customValue)
             }
 
-            override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
         }
     }
 

@@ -27,7 +27,7 @@ import io.mockk.mockk
 internal fun getKeyDirective(diretiveValue: String): GraphQLDirective = mockk {
     every { name } returns KEY_DIRECTIVE_NAME
     every { getArgument(eq("fields")) } returns mockk {
-        every { value } returns mockk<FieldSet> {
+        every { argumentValue.value } returns mockk<FieldSet> {
             every { value } returns diretiveValue
         }
     }
@@ -38,7 +38,7 @@ internal fun getKeyDirective(diretiveValue: String): GraphQLDirective = mockk {
 internal fun getRequiresDirective(directiveValue: String): GraphQLDirective = mockk {
     every { name } returns REQUIRES_DIRECTIVE_NAME
     every { getArgument(eq("fields")) } returns mockk {
-        every { value } returns mockk<FieldSet> {
+        every { argumentValue.value } returns mockk<FieldSet> {
             every { value } returns directiveValue
         }
     }

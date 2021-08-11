@@ -63,11 +63,11 @@ private val FEDERATED_SDL =
     "Specifies required input field set from the base type for a resolver"
     directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
-    "Marks the field or enum value as deprecated"
+    "Marks the field, argument, input field or enum value as deprecated"
     directive @deprecated(
         "The reason for the deprecation"
         reason: String = "No longer supported"
-      ) on FIELD_DEFINITION | ENUM_VALUE
+      ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
     "Exposes a URL that specifies the behaviour of this scalar."
     directive @specifiedBy(
@@ -163,11 +163,11 @@ class FederatedSchemaGeneratorTest {
                 if: Boolean!
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-            "Marks the field or enum value as deprecated"
+            "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(
                 "The reason for the deprecation"
                 reason: String = "No longer supported"
-              ) on FIELD_DEFINITION | ENUM_VALUE
+              ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
             "Exposes a URL that specifies the behaviour of this scalar."
             directive @specifiedBy(

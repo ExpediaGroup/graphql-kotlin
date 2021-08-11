@@ -79,7 +79,7 @@ private object UUIDCoercing : Coercing<UUID, String> {
         throw CoercingParseValueException("Expected valid UUID but was $input")
     }
 
-    override fun parseLiteral(input: Any): UUID? {
+    override fun parseLiteral(input: Any): UUID {
         val uuidString = (input as? StringValue)?.value
         return runCatching {
             UUID.fromString(uuidString)

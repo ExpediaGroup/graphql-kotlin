@@ -36,11 +36,11 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
             environment.element.arguments.associateWith {
                 dataEnv.getArgument(it.name) as String?
             }.forEach { (graphQLArgumentType, value) ->
-                if (graphQLArgumentType.getDirective(directiveName).getArgument(StringEval::lowerCase.name).value as Boolean) {
+                if (graphQLArgumentType.getDirective(directiveName).getArgument(StringEval::lowerCase.name).argumentValue.value as Boolean) {
                     newArguments[graphQLArgumentType.name] = value?.lowercase()
                 }
                 if (value.isNullOrEmpty()) {
-                    newArguments[graphQLArgumentType.name] = graphQLArgumentType.defaultValue
+                    newArguments[graphQLArgumentType.name] = graphQLArgumentType.argumentDefaultValue.value
                 }
             }
             val newEnv = newDataFetchingEnvironment(dataEnv)
@@ -56,7 +56,7 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
         val argument = environment.element
         val directive = environment.directive
 
-        val default = directive.getArgument(StringEval::default.name).value as String
+        val default = directive.getArgument(StringEval::default.name).argumentValue.value as String
         return if (default.isNotEmpty()) {
             argument.transform { it.defaultValue(default) }
         } else {

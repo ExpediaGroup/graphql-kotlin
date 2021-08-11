@@ -70,7 +70,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns null
+                every { argumentValue.value } returns null
             }
         }
 
@@ -93,7 +93,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns "hello"
+                every { argumentValue.value } returns "hello"
             }
         }
 
@@ -116,7 +116,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
+                every { argumentValue.value } returns mockk<FieldSet> {
                     every { value } returns ""
                 }
             }
@@ -141,7 +141,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
+                every { argumentValue.value } returns mockk<FieldSet> {
                     every { value } returns " "
                 }
             }
@@ -166,7 +166,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
+                every { argumentValue.value } returns mockk<FieldSet> {
                     every { value } returns "bar"
                 }
             }
@@ -193,7 +193,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
+                every { argumentValue.value } returns mockk<FieldSet> {
                     every { value } returns "bar"
                 }
             }
@@ -226,7 +226,7 @@ internal class ValidateDirectiveKtTest {
         val directive: GraphQLDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
-                every { value } returns mockk<FieldSet> {
+                every { argumentValue.value } returns mockk<FieldSet> {
                     every { value } returns "bar baz"
                 }
             }

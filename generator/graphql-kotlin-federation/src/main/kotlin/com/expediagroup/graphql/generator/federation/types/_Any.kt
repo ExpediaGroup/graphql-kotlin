@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 
 package com.expediagroup.graphql.generator.federation.types
 
-import graphql.Assert
 import graphql.language.ArrayValue
 import graphql.language.BooleanValue
 import graphql.language.EnumValue
 import graphql.language.FloatValue
 import graphql.language.IntValue
-import graphql.language.NullValue
 import graphql.language.ObjectValue
 import graphql.language.StringValue
 import graphql.schema.Coercing
+import graphql.schema.CoercingParseLiteralException
 import graphql.schema.GraphQLScalarType
 
 /**
@@ -45,9 +44,8 @@ private object AnyCoercing : Coercing<Any, Any> {
     override fun parseValue(input: Any): Any = input
 
     @Suppress("ComplexMethod")
-    override fun parseLiteral(input: Any): Any? =
+    override fun parseLiteral(input: Any): Any =
         when (input) {
-            is NullValue -> null
             is FloatValue -> input.value
             is StringValue -> input.value
             is IntValue -> input.value
@@ -55,6 +53,6 @@ private object AnyCoercing : Coercing<Any, Any> {
             is EnumValue -> input.name
             is ArrayValue -> input.values.map { parseLiteral(it) }
             is ObjectValue -> input.objectFields.associateBy({ it.name }, { parseLiteral(it.value) })
-            else -> Assert.assertShouldNeverHappen()
+            else -> throw CoercingParseLiteralException("Cannot parse $input to Any scalar")
         }
 }

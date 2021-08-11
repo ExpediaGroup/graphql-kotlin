@@ -34,7 +34,7 @@ internal fun validateDirective(
     if (directive == null) {
         validationErrors.add("@$targetDirective directive is missing on federated $validatedType type")
     } else {
-        val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.value as? FieldSet)?.value
+        val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.argumentValue?.value as? FieldSet)?.value
         val fieldSet = fieldSetValue?.split(" ")?.filter { it.isNotEmpty() }.orEmpty()
         if (fieldSet.isEmpty()) {
             validationErrors.add("@$targetDirective directive on $validatedType is missing field information")

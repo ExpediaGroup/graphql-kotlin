@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ class GenerateFunctionTest : TypeTestHelper() {
         assertEquals(1, result.directives.size)
         val directive = result.directives[0]
         assertEquals("functionDirective", directive.name)
-        assertEquals("happy", directive.arguments[0].value)
+        assertEquals("happy", directive.arguments[0].argumentValue.value)
         assertEquals("arg", directive.arguments[0].name)
         assertTrue(GraphQLNonNull(GraphQLString).isEqualTo(directive.arguments[0].type))
         assertEquals(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ class DirectiveTests {
         val possibleDirective = (schema.getType("Location") as? GraphQLObjectType)?.getDirective("RightNameDirective")
         val directive = assertNotNull(possibleDirective)
 
-        assertEquals("arenaming", directive.arguments[0].value)
+        assertEquals("arenaming", directive.arguments[0].argumentValue.value)
         assertEquals("arg", directive.arguments[0].name)
         assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(directive.arguments[0].type))
     }
