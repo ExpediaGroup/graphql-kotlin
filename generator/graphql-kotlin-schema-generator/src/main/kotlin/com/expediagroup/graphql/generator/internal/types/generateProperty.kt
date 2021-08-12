@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.directives.deprecatedDirectiveWithReason
+import com.expediagroup.graphql.generator.internal.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyDeprecationReason
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyName
@@ -32,7 +33,7 @@ import kotlin.reflect.KProperty
 
 internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
     val typeFromHooks = generator.config.hooks.willResolveMonad(prop.returnType)
-    val propertyType = generateGraphQLType(generator, type = typeFromHooks)
+    val propertyType = generateGraphQLType(generator, type = typeFromHooks, annotations = prop.getPropertyAnnotations(parentClass))
         .safeCast<GraphQLOutputType>()
 
     val propertyName = prop.getPropertyName(parentClass)
