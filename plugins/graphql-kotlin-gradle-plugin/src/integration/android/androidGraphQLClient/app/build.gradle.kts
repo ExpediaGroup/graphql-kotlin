@@ -25,7 +25,7 @@ dependencies {
 
 graphql {
     client {
-        schemaFileName = "${project.projectDir}/schema.graphql"
+        schemaFile = file("${project.projectDir}/schema.graphql")
         packageName = "com.expediagroup.android.generated"
         serializer = com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.KOTLINX
     }

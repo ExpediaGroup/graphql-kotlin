@@ -110,15 +110,7 @@ invoke it OR configure it as a dependency of some other task.
 ## Generating Client
 
 GraphQL Kotlin client code is generated based on the provided queries that will be executed against target GraphQL `schemaFile`.
-Separate class is generated for each provided GraphQL query and are saved under specified `packageName`. When using default
-configuration and storing GraphQL queries under `src/main/resources` directories, task can be executed directly from the
-command line by explicitly providing required properties.
-
-```shell script
-$ gradle graphqlGenerateClient --schemaFileName"mySchema.graphql" --packageName="com.example.generated"
-```
-
-Task can also be explicitly configured in your Gradle build file
+Separate class is generated for each provided GraphQL query and are saved under specified `packageName`.
 
 <Tabs
   defaultValue="kotlin"
@@ -136,7 +128,7 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   packageName.set("com.example.generated")
-  schemaFileName.set("mySchema.graphql")
+  schemaFile.set(file("${project.projectDir}/mySchema.graphql"))
 }
 ```
 
@@ -147,7 +139,7 @@ val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
 //build.gradle
 graphqlGenerateClient {
     packageName = "com.example.generated"
-    schemaFileName = "mySchema.graphql"
+    schemaFile = file("${project.projectDir}/mySchema.graphql")
 }
 ```
 
@@ -201,7 +193,7 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   packageName.set("com.example.generated")
-  schemaFileName.set("mySchema.graphql")
+  schemaFile.set(file("${project.projectDir}/mySchema.graphql"))
   customScalars.add(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
@@ -215,7 +207,7 @@ import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 
 graphqlGenerateClient {
     packageName = "com.example.generated"
-    schemaFileName = "mySchema.graphql"
+    schemaFile = file("${project.projectDir}/mySchema.graphql")
     customScalars.add(new GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
 }
 ```
@@ -251,7 +243,7 @@ plugins {
 
 val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
   packageName.set("com.example.generated")
-  schemaFileName.set("mySchema.graphql")
+  schemaFile.set(file("${project.projectDir}/mySchema.graphql"))
   serializer.set(GraphQLSerializer.KOTLINX)
 }
 ```
@@ -270,8 +262,56 @@ plugins {
 
 graphqlGenerateClient {
     packageName = "com.example.generated"
-    schemaFileName = "mySchema.graphql"
+    schemaFile = file("${project.projectDir}/mySchema.graphql")
     serializer = GraphQLSerializer.KOTLINX
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Generating Client using Classpath Schema
+
+Client generation tasks require `schemaFile` to be provided. Using Gradle we can configure tasks to use local schema file,
+load it from an URI or consume it directly from a classpath. See [Gradle TextResourceFactory](https://docs.gradle.org/current/dsl/org.gradle.api.resources.TextResourceFactory.html)
+for additional details.
+
+If `schema.graphql` file is provided in a `my-lib` JAR we can configure our generate client task as follows
+
+<Tabs
+  defaultValue="kotlin"
+  values={[
+    { label: 'Kotlin', value: 'kotlin' },
+    { label: 'Groovy', value: 'groovy' }
+  ]
+  }>
+
+<TabItem value="kotlin">
+
+```kotlin
+// build.gradle.kts
+val graphqlGenerateClient by tasks.getting(GraphQLGenerateClientTask::class) {
+  packageName.set("com.example.generated")
+  val archive = configurations["compileClasspath"].filter {
+      // filter on the jar name.
+      it.name.startsWith("my-lib")
+  }
+  schemaFile.set(resources.text.fromArchive(archive, "schema.graphql").asFile())
+}
+```
+
+</TabItem>
+<TabItem value="groovy">
+
+```groovy
+//build.gradle
+graphqlGenerateClient {
+    packageName = "com.example.generated"
+    val archive = configurations["compileClasspath"].filter {
+        // filter on the jar name.
+        it.name.startsWith("my-lib")
+    }
+    schemaFile = resources.text.fromArchive(archive, "schema.graphql").asFile()
 }
 ```
 
@@ -281,15 +321,7 @@ graphqlGenerateClient {
 ## Generating Test Client
 
 GraphQL Kotlin test client code is generated based on the provided queries that will be executed against target GraphQL `schemaFile`.
-Separate class is generated for each provided GraphQL query and are saved under specified `packageName`. When using default
-configuration and storing GraphQL queries under `src/test/resources` directories, task can be executed directly from the
-command line by explicitly providing required properties.
-
-```shell script
-$ gradle graphqlGenerateTestClient --schemaFileName"mySchema.graphql" --packageName="com.example.generated"
-```
-
-Task can also be explicitly configured in your Gradle build file
+Separate class is generated for each provided GraphQL query and are saved under specified `packageName`.
 
 <Tabs
   defaultValue="kotlin"
@@ -307,7 +339,7 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 
 val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateTestClientTask::class) {
   packageName.set("com.example.generated")
-  schemaFileName.set("mySchema.graphql")
+  schemaFile.set(file("${project.projectDir}/mySchema.graphql"))
 }
 ```
 
@@ -318,7 +350,7 @@ val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateTestClientTask::cl
 //build.gradle
 graphqlGenerateTestClient {
     packageName = "com.example.generated"
-    schemaFileName = "mySchema.graphql"
+    schemaFile = file("${project.projectDir}/mySchema.graphql")
 }
 ```
 

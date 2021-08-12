@@ -32,7 +32,7 @@ graphql {
       allowDeprecatedFields = false
       // List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values.
       customScalars = listOf(GraphQLScalar("UUID", "java.util.UUID", "com.example.UUIDScalarConverter"))
-      // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint` or specify local `schemaFileName`.
+      // GraphQL server endpoint that will be used to for running introspection queries. Alternatively you can download schema directly from `sdlEndpoint` or specify local `schemaFile`.
       endpoint = "http://localhost:8080/graphql"
       // Optional HTTP headers to be specified on an introspection query or SDL request.
       headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
@@ -42,12 +42,12 @@ graphql {
       queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
       // Optional list of query files to be processed, takes precedence over queryFileDirectory
       queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))
+      // GraphQL schema file. Can be used instead of `endpoint` or `sdlEndpoint`.
+      schemaFile = file("${project.projectDir}/src/main/resources/myLocalSchema.graphql")
+      // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint` or specify local `schemaFile`.
+      sdlEndpoint = "http://localhost:8080/sdl"
       // JSON serializer that will be used to generate the data classes.
       serializer = GraphQLSerializer.JACKSON
-      // GraphQL schema file location. Can be used instead of `endpoint` or `sdlEndpoint`.
-      schemaFileName = "${project.projectDir}/src/main/resources/myLocalSchema.graphql"
-      // GraphQL server SDL endpoint that will be used to download schema. Alternatively you can run introspection query against `endpoint` or specify local `schemaFileName`.
-      sdlEndpoint = "http://localhost:8080/sdl"
       // Timeout configuration for introspection query/downloading SDL
       timeout {
           // Connect timeout in milliseconds
@@ -104,10 +104,9 @@ resulting generated code will be automatically added to the project main source 
 | `customScalars` | List<GraphQLScalar> | | List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
 | `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
-| `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `queryFileDirectory` | Directory | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
-| `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
-| `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
+| `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
 ### graphqlGenerateSDL
@@ -152,10 +151,9 @@ test source set.
 | `customScalars` | List<GraphQLScalar> | | List of custom GraphQL scalar to converter mapping containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
 | `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
 | `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
-| `queryFileDirectory` | String | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`.<br/>**Command line property is**: `queryFileDirectory`. |
+| `queryFileDirectory` | Directory | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
-| `schemaFile` | File | `schemaFileName` or `schemaFile` has to be provided | GraphQL schema file that will be used to generate client code. |
-| `schemaFileName` | String | `schemaFileName` or `schemaFile` has to be provided | Path to GraphQL schema file that will be used to generate client code.<br/>**Command line property is**: `schemaFileName`. |
+| `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
 ### graphqlIntrospectSchema

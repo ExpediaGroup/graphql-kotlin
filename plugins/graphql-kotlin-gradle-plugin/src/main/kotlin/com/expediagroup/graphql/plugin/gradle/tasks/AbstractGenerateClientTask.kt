@@ -27,6 +27,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
@@ -49,23 +50,11 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
     /**
-     * Path to GraphQL schema file that will be used to generate client code.
-     *
-     * **Required Property**: [schemaFileName] or [schemaFile] has to be provided.
-     * **Command line property is**: `schemaFileName`.
-     */
-    @Input
-    @Optional
-    @Option(option = "schemaFileName", description = "path to GraphQL schema file that will be used to generate the client code")
-    val schemaFileName: Property<String> = project.objects.property(String::class.java)
-
-    /**
      * GraphQL schema file that will be used to generate client code.
      *
-     * **Required Property**: [schemaFileName] or [schemaFile] has to be provided.
+     * **Required Property**
      */
     @InputFile
-    @Optional
     val schemaFile: RegularFileProperty = project.objects.fileProperty()
 
     /**
@@ -106,10 +95,9 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
      *
      * Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.
      */
-    @Input
+    @InputDirectory
     @Optional
-    @Option(option = "queryFileDirectory", description = "directory containing query files")
-    val queryFileDirectory: Property<String> = project.objects.property(String::class.java)
+    val queryFileDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     /**
      * List of query files to be processed. Instead of a list of files to be processed you can also specify [queryFileDirectory] directory
@@ -142,8 +130,6 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         allowDeprecatedFields.convention(false)
         customScalars.convention(emptyList())
         serializer.convention(GraphQLSerializer.JACKSON)
-        queryFileDirectory.convention("${project.projectDir}/src/main/resources")
-        outputDirectory.convention(project.layout.buildDirectory.dir("generated/source/graphql/main"))
         useOptionalInputWrapper.convention(false)
     }
 
@@ -154,17 +140,16 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
 
         val graphQLSchemaPath = when {
             schemaFile.isPresent -> schemaFile.get().asFile.path
-            schemaFileName.isPresent -> schemaFileName.get()
             else -> throw RuntimeException("schema not available")
         }
-
         val targetPackage = packageName.orNull ?: throw RuntimeException("package not specified")
         val targetQueryFiles: List<File> = when {
             queryFiles.files.isNotEmpty() -> queryFiles.files.toList()
-            queryFileDirectory.isPresent ->
-                File(queryFileDirectory.get())
+            queryFileDirectory.isPresent -> {
+                queryFileDirectory.get().asFile
                     .listFiles { file -> file.extension == "graphql" }
                     ?.toList() ?: throw RuntimeException("exception while looking up the query files")
+            }
             else -> throw RuntimeException("no query files found")
         }
 
