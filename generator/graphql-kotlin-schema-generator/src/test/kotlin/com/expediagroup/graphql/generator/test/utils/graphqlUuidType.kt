@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.test.utils
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLScalarType
 import java.util.UUID
 
@@ -32,7 +33,11 @@ internal val graphqlUUIDType = GraphQLScalarType.newScalar()
     .build()
 
 private object UUIDCoercing : Coercing<UUID, String> {
-    override fun parseValue(input: Any): UUID = UUID.fromString(serialize(input))
+    override fun parseValue(input: Any): UUID = try {
+        UUID.fromString(serialize(input))
+    } catch (e: Exception) {
+        throw CoercingParseValueException("Cannot parse $input to UUID", e)
+    }
 
     override fun parseLiteral(input: Any): UUID {
         val uuidString: String? = (input as? StringValue)?.value

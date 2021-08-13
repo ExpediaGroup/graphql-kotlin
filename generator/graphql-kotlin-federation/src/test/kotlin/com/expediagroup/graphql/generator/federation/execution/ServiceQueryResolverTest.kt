@@ -108,7 +108,7 @@ class ServiceQueryResolverTest {
             override fun parseValue(input: Any): CustomScalar = CustomScalar(serialize(input))
 
             override fun parseLiteral(input: Any): CustomScalar {
-                val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("CustomScalar value is null")
+                val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("Cannot parse $input to CustomScalar")
                 return CustomScalar(customValue)
             }
 

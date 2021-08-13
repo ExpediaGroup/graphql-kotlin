@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHoo
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import java.util.UUID
@@ -29,16 +30,18 @@ private val graphqlUUIDType = GraphQLScalarType.newScalar()
     .name("UUID")
     .description("Custom scalar representing UUID")
     .coercing(object : Coercing<UUID, String> {
-        override fun parseValue(input: Any): UUID = UUID.fromString(
-            serialize(input)
-        )
+        override fun parseValue(input: Any): UUID = try {
+            UUID.fromString(serialize(input))
+        } catch (e: Exception) {
+            throw CoercingParseValueException("Unable to convert value $input to UUID")
+        }
 
         override fun parseLiteral(input: Any): UUID {
             val uuidString = (input as? StringValue)?.value
             return if (uuidString != null) {
                 UUID.fromString(uuidString)
             } else {
-                throw CoercingParseLiteralException("Unable to convert $input to Any scalar")
+                throw CoercingParseLiteralException("Unable to convert literal $input to UUID")
             }
         }
 

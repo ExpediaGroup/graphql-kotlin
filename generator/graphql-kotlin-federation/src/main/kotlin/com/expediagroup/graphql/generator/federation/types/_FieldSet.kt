@@ -39,14 +39,14 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
     override fun serialize(input: Any): String = if (input is FieldSet) {
         input.value
     } else {
-        throw CoercingSerializeException("Expected type 'FieldSet' but was '${input.javaClass.simpleName}'.")
+        throw CoercingSerializeException("Cannot serialize $input. Expected type 'FieldSet' but was '${input.javaClass.simpleName}'.")
     }
 
     override fun parseValue(input: Any): FieldSet = parseLiteral(input)
 
     override fun parseLiteral(input: Any): FieldSet =
         if (input !is StringValue) {
-            throw CoercingParseLiteralException("Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'.")
+            throw CoercingParseLiteralException("Cannot parse $input to FieldSet. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'.")
         } else {
             FieldSet::class.constructors.first().call(input.value)
         }
