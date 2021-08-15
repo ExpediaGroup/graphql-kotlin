@@ -20,6 +20,7 @@ import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorCo
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
 import com.expediagroup.graphql.plugin.client.generator.exceptions.DeprecatedFieldsSelectedException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
+import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingArgumentException
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -48,6 +49,13 @@ internal fun generatePropertySpecs(
     .map { selectedField ->
         val fieldDefinition = fieldDefinitions.find { it.name == selectedField.name }
             ?: throw InvalidSelectionSetException(context.operationName, selectedField.name, objectName)
+
+        val missingRequiredArguments = fieldDefinition.inputValueDefinitions.filter { it.type is NonNullType }
+            .map { it.name }
+            .minus(selectedField.arguments.map { it.name })
+        if (missingRequiredArguments.isNotEmpty()) {
+            throw MissingArgumentException(context.operationName, objectName, selectedField.name, missingRequiredArguments)
+        }
 
         val nullable = fieldDefinition.type !is NonNullType
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
