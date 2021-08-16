@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -270,11 +270,11 @@ class GraphQLSchemaExtensionsTest {
 
                 directive @customDirective on FIELD_DEFINITION
 
-                "Marks the field or enum value as deprecated"
+                "Marks the field, argument, input field or enum value as deprecated"
                 directive @deprecated(
                     "The reason for the deprecation"
                     reason: String = "No longer supported"
-                  ) on FIELD_DEFINITION | ENUM_VALUE
+                  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
                 "Exposes a URL that specifies the behaviour of this scalar."
                 directive @specifiedBy(

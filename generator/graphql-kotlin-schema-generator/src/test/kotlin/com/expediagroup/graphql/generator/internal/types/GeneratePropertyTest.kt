@@ -162,7 +162,7 @@ class GeneratePropertyTest : TypeTestHelper() {
         assertEquals(1, result.directives.size)
         val directive = result.directives[0]
         assertEquals("propertyDirective", directive.name)
-        assertEquals("trust me", directive.arguments[0].value)
+        assertEquals("trust me", directive.arguments[0].argumentValue.value)
         assertEquals("arg", directive.arguments[0].name)
         assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(directive.arguments[0].type))
         assertEquals(

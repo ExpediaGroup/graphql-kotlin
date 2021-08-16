@@ -21,6 +21,8 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import graphql.language.StringValue
 import graphql.schema.Coercing
+import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
@@ -83,11 +85,19 @@ class DataFetcherIT(@Autowired private val testClient: WebTestClient) {
             .build()
 
         private object LocalDateCoercing : Coercing<LocalDate, String> {
-            override fun parseValue(input: Any?): LocalDate = LocalDate.parse(serialize(input))
+            override fun parseValue(input: Any): LocalDate = try {
+                LocalDate.parse(serialize(input))
+            } catch (e: Exception) {
+                throw CoercingParseValueException("Cannot parse value $input to LocalDate", e)
+            }
 
-            override fun parseLiteral(input: Any?): LocalDate? = LocalDate.parse((input as? StringValue)?.value)
+            override fun parseLiteral(input: Any): LocalDate = try {
+                LocalDate.parse((input as? StringValue)?.value)
+            } catch (e: Exception) {
+                throw CoercingParseLiteralException("Cannot parse literal $input to LocalDate", e)
+            }
 
-            override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
         }
     }
 

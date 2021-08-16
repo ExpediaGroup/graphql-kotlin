@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify directive wirings provided by wiring factory are applied on a field with directives`() {
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { context, visitor -> context.thisNode().accept(context, visitor) }
+            .type(Scalars.GraphQLString)
             .description("My Field Description")
             .withDirective(graphQLLowercaseDirective)
             .build()
@@ -155,7 +155,7 @@ class KotlinDirectiveWiringFactoryTest {
 
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { context, visitor -> context.thisNode().accept(context, visitor) }
+            .type(Scalars.GraphQLString)
             .argument(argument)
             .description("My Field Description")
             .build()
@@ -175,7 +175,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify manual wirings take precedence over wiring factory`() {
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { context, visitor -> context.thisNode().accept(context, visitor) }
+            .type(Scalars.GraphQLString)
             .description("My Field Description")
             .withDirective(graphQLLowercaseDirective)
             .build()
@@ -195,7 +195,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify directives are applied in order they were declared`() {
         val original = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { context, visitor -> context.thisNode().accept(context, visitor) }
+            .type(Scalars.GraphQLString)
             .description("My Field Description")
             .withDirective(graphQLOverrideDescriptionDirective)
             .withDirective(graphQLLowercaseDirective)
@@ -214,7 +214,7 @@ class KotlinDirectiveWiringFactoryTest {
     fun `verify exception is thrown if no coordinates are specified for the field`() {
         val myTestField = GraphQLFieldDefinition.newFieldDefinition()
             .name("MyField")
-            .type { context, visitor -> context.thisNode().accept(context, visitor) }
+            .type(Scalars.GraphQLString)
             .description("My Field Description")
             .withDirective(graphQLLowercaseDirective)
             .build()

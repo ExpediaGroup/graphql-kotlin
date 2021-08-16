@@ -40,6 +40,7 @@ class IntrospectSchemaTest {
 
     @Test
     fun `verify can run introspection query and generate valid schema`() {
+        // loading schema from introspection results ends up with old deprecated description -> https://github.com/graphql-java/graphql-java/pull/2510
         val expectedSchema =
             """
                 schema {
@@ -62,7 +63,7 @@ class IntrospectSchemaTest {
                 directive @deprecated(
                     "The reason for the deprecation"
                     reason: String = "No longer supported"
-                  ) on FIELD_DEFINITION | ENUM_VALUE
+                  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
                 "Exposes a URL that specifies the behaviour of this scalar."
                 directive @specifiedBy(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.federation.types
 
-import graphql.AssertException
 import graphql.language.ArrayValue
 import graphql.language.BooleanValue
 import graphql.language.EnumValue
@@ -27,13 +26,13 @@ import graphql.language.ObjectField
 import graphql.language.ObjectValue
 import graphql.language.StringValue
 import graphql.language.Value
+import graphql.schema.CoercingParseLiteralException
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 
 class AnyTest {
 
@@ -41,12 +40,15 @@ class AnyTest {
     fun `_Any scalar should allow all types`() {
         val coercing = ANY_SCALAR_TYPE.coercing
 
-        assertNull(coercing.parseLiteral(NullValue.newNullValue().build()))
         assertEquals(expected = BigDecimal.ONE, actual = coercing.parseLiteral(FloatValue(BigDecimal.ONE)))
         assertEquals(expected = "hello", actual = coercing.parseLiteral(StringValue("hello")))
         assertEquals(expected = BigInteger.ONE, actual = coercing.parseLiteral(IntValue(BigInteger.ONE)))
         assertEquals(expected = true, actual = coercing.parseLiteral(BooleanValue(true)))
         assertEquals(expected = "MyEnum", actual = coercing.parseLiteral(EnumValue("MyEnum")))
+
+        assertThrows<CoercingParseLiteralException> {
+            coercing.parseLiteral(NullValue.newNullValue().build())
+        }
 
         val listValues = listOf<Value<IntValue>>(IntValue(BigInteger.TEN))
         assertEquals(expected = listOf(BigInteger.TEN), actual = coercing.parseLiteral(ArrayValue(listValues)))
@@ -77,7 +79,7 @@ class AnyTest {
         val multipleFields = ObjectValue(listOf(fieldOne, fieldTwo))
         assertEquals(expected = mapOf("one" to BigInteger.ONE, "ten" to BigInteger.TEN), actual = coercing.parseLiteral(multipleFields))
 
-        assertFailsWith(AssertException::class) {
+        assertThrows<CoercingParseLiteralException> {
             val mockValue: Value<*> = mockk()
             val objectValue = ObjectValue(listOf(ObjectField("name", mockValue)))
             coercing.parseLiteral(objectValue)
@@ -88,7 +90,7 @@ class AnyTest {
     fun `_Any scalar should throw exception on invalid graphql value`() {
         val coercing = ANY_SCALAR_TYPE.coercing
 
-        assertFailsWith(AssertException::class) {
+        assertThrows<CoercingParseLiteralException> {
             coercing.parseLiteral(1)
         }
     }

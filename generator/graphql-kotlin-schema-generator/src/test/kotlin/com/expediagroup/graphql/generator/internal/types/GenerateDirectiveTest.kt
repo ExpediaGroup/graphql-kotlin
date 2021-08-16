@@ -194,8 +194,8 @@ class GenerateDirectiveTest {
         val seconDirective = directivesOnSecondField.first()
         assertEquals("directiveWithString", firstDirective.name)
         assertEquals("directiveWithString", seconDirective.name)
-        assertEquals("foo", firstDirective.getArgument("string")?.value)
-        assertEquals("bar", seconDirective.getArgument("string")?.value)
+        assertEquals("foo", firstDirective.getArgument("string")?.argumentValue?.value)
+        assertEquals("bar", seconDirective.getArgument("string")?.argumentValue?.value)
 
         assertEquals(initialCount + 1, basicGenerator.directives.size)
     }

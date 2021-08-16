@@ -28,7 +28,7 @@ class SpecificValueOnlySchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
         val field = environment.element
         val originalDataFetcher: DataFetcher<*> = environment.getDataFetcher()
 
-        val supportedValue = environment.directive.getArgument("value")?.value?.toString() ?: ""
+        val supportedValue = environment.directive.getArgument("value")?.argumentValue?.value?.toString() ?: ""
 
         val cakeOnlyFetcher = DataFetcher<Any> { dataEnv ->
             val strArg: String? = dataEnv.getArgument(environment.element.arguments[0].name) as String?
