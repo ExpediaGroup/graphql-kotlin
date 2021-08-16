@@ -201,7 +201,7 @@ class GraphQLWebClientTest {
     @Test
     fun `verifies spring web client instance can be customized`() {
         val expectedResponse = JacksonGraphQLResponse(data = HelloWorldResult("Hello World!"))
-        WireMock.stubFor(stubJacksonResponse(response = expectedResponse, delayMillis = 50))
+        WireMock.stubFor(stubJacksonResponse(response = expectedResponse, delayMillis = 500))
 
         val httpClient: HttpClient = HttpClient.create()
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10)
