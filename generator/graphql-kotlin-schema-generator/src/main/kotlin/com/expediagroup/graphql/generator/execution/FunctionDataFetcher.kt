@@ -55,7 +55,8 @@ import kotlin.reflect.full.valueParameters
 open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
+    private val defaultCoroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : DataFetcher<Any?> {
 
     /**
@@ -169,7 +170,7 @@ open class FunctionDataFetcher(
      */
     protected open fun runSuspendingFunction(
         parameterValues: Map<KParameter, Any?>,
-        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext = defaultCoroutineContext,
         coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
     ): CompletableFuture<Any?> = GlobalScope.future(context = coroutineContext, start = coroutineStart) {
         try {
