@@ -19,6 +19,8 @@ package com.expediagroup.graphql.generator.execution
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcherFactory
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -52,14 +54,16 @@ interface KotlinDataFetcherFactoryProvider {
  * to obtain [DataFetcherFactory] that should be used for target function and property resolution.
  */
 open class SimpleKotlinDataFetcherFactoryProvider(
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
+    private val defaultCoroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : KotlinDataFetcherFactoryProvider {
 
     override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
         FunctionDataFetcher(
             target = target,
             fn = kFunction,
-            objectMapper = objectMapper
+            objectMapper = objectMapper,
+            defaultCoroutineContext = defaultCoroutineContext
         )
     }
 
