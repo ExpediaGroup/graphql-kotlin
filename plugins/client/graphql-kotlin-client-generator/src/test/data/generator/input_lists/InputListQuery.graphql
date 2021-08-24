@@ -1,0 +1,3 @@
+query InputListQuery($nullableIds: [String], $nullableIdList: [String!], $nonNullableIds: [String!]!) {
+  listInputQuery(nullableIds: $nulllableIds, nonNullableIds: $nonNullableIds)
+}

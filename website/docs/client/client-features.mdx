@@ -198,3 +198,46 @@ val secondQuery = SecondQuery(variables = SecondQuery.Variables(foo = "baz"))
 
 val results: List<GraphQLResponse<*>> = client.execute(listOf(firstQuery, secondQuery))
 ```
+
+## Optional Input Support (Jackson only)
+
+In the GraphQL world, input types can be optional which means that the client can specify a value, specify a `null` value
+OR don't specify any value. This is in contrast with the JVM world where objects can either have some specific value or
+don't have any value (i.e. are `null`). By default, GraphQL Kotlin Client treats `null` Kotlin values as unspecified, which
+means it will skip all `null` values when serializing the request, e.g. given following query
+
+```graphql
+query OptionalInputQuery($optionalValue: String) {
+  optional(value: $optionalValue)
+```
+
+GraphQL Kotlin plugins will generate corresponding POJO that defines `Variables` as
+
+```kotlin
+public data class Variables(
+  public val optionalValue: String? = null
+)
+```
+
+Regardless whether we specify `optionalValue` as `null` or rely on the default value, this field won't be serialized,
+i.e. variables will be serialized as an empty JSON object `{}`.
+
+By specifying `useOptionalInputWrapper = true` plugin configuration option, we can opt-in to a behavior that supports
+three states - defined, `null` or undefined. Generated code will then use `OptionalInput` wrapper to represent those states.
+See [Gradle](../plugins/gradle-plugin-tasks) and [Maven](../plugins/maven-plugin-goals) plugin for configuration details.
+
+```kotlin
+public data class Variables(
+  public val optionalValue: OptionalInput<String> = OptionalInput.Undefined
+)
+
+// usage
+// - same behavior as default null, serialized as {}
+val undefinedVariables = Variables(optionalValue = OptionalInput.Undefined)
+
+// - serialized as {"optionalValue": null}
+val nullVariables = Variables(optionalValue = OptionalInput.Defined(null))
+
+// - serialized as {"optionalValue": "foo"}
+val definedVariables = Variables(optionalValue = OptionalInput.Defined("foo")
+```

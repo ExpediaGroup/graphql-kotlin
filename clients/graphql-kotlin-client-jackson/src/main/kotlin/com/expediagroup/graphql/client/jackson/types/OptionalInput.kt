@@ -39,3 +39,10 @@ sealed class OptionalInput<out T> {
         override fun toString(): String = "Defined(value=$value)"
     }
 }
+
+/**
+ * Jackson value filter that is used to determine whether to serialize the `OptionalInput` or not.
+ */
+class UndefinedFilter {
+    override fun equals(other: Any?): Boolean = OptionalInput.Undefined == other
+}
