@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.client.jackson.data
 
-import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlin.reflect.KClass
 
