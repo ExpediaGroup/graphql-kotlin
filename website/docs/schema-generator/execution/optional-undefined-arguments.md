@@ -43,7 +43,7 @@ value in `Defined` class, i.e. `OptionalInput<String>` will appear as nullable `
 Optional input types can be represented as nullable parameters in Kotlin
 
 ```kotlin
-fun optionalInput(value: String?): String? = value
+fun optionalInput(value: String? = null): String? = value
 ```
 
 ```graphql
@@ -54,14 +54,14 @@ query OptionalInputQuery {
 }
 ```
 
-By default, if an optional input value is not specified, then the execution engine will set the argument in Kotlin to `null`.
-This means that you can not tell, by just the value alone, whether the request did not contain any argument or the client
-explicitly passed in `null`.
+By default, if an optional input value is not specified, then the execution engine will fallback to the argument default
+value (in our example above `null`). This means that you can not tell, by just the value alone, whether the request did
+not contain any argument or the client explicitly passed in the default value.
 
 Instead, you can inspect all passed in arguments using the [DataFetchingEnvironment](./data-fetching-environment.md).
 
 ```kotlin
-fun optionalInput(value: String?, dataFetchingEnvironment: DataFetchingEnvironment): String =
+fun optionalInput(value: String? = null, dataFetchingEnvironment: DataFetchingEnvironment): String =
     if (dataFetchingEnvironment.containsArgument("value")) {
         "The value was $value"
     } else {

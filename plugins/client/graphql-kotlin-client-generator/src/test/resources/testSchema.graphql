@@ -100,6 +100,8 @@ type Query {
   interfaceQuery: BasicInterface!
   "Query returning list of simple objects"
   listQuery: [BasicObject!]!
+  "Query accepting list input"
+  listInputQuery(nullableIds: [String], nullableIdList: [String!], nonNullableIds: [String!]!): String
   "Query returning object referencing itself"
   nestedObjectQuery: NestedObject!
   "Query that returns wrapper object with all supported scalar types"

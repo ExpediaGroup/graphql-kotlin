@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.client.jackson
 
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
+import com.expediagroup.graphql.client.jackson.types.UndefinedFilter
 import com.expediagroup.graphql.client.serializer.GraphQLClientSerializer
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -35,7 +37,8 @@ class GraphQLClientJacksonSerializer(private val mapper: ObjectMapper = jacksonO
 
     init {
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        mapper.configOverride(OptionalInput::class.java).include = JsonInclude.Value.empty().withValueInclusion(JsonInclude.Include.CUSTOM).withValueFilter(UndefinedFilter::class.java)
     }
 
     override fun serialize(request: GraphQLClientRequest<*>): String = mapper.writeValueAsString(request)
