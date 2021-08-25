@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.client.jackson.data
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlin.reflect.KClass
 
@@ -29,7 +30,10 @@ class OptionalInputQuery(
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
-        val optional: String? = null
+        val requiredInput: Int,
+        val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
+        val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
+        val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined
     )
 
     data class Result(

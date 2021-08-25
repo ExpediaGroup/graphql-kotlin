@@ -34,6 +34,7 @@ import graphql.language.OperationDefinition
 import graphql.parser.Parser
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import java.io.File
 
@@ -118,21 +119,29 @@ class GraphQLClientGenerator(
             val graphQLResponseTypeSpec = generateGraphQLObjectTypeSpec(context, rootType, operationDefinition.selectionSet, "Result")
             val kotlinResultTypeName = ClassName(context.packageName, "${context.operationName}.${graphQLResponseTypeSpec.name}")
 
-            val queryProperty = PropertySpec.builder("query", STRING, KModifier.OVERRIDE)
-                .initializer("%N", queryConstProp)
-                .build()
             val operationTypeSpec = TypeSpec.classBuilder(capitalizedOperationName)
                 .addSuperinterface(ClassName(CORE_TYPES_PACKAGE, "GraphQLClientRequest").parameterizedBy(kotlinResultTypeName))
-                .addProperty(queryProperty)
+
+            var queryProperty: PropertySpec = PropertySpec.builder("query", STRING, KModifier.OVERRIDE)
+                .initializer("%N", queryConstProp)
+                .build()
+            var operationNameProperty: PropertySpec? = if (operationDefinition.name != null) {
+                PropertySpec.builder("operationName", STRING, KModifier.OVERRIDE)
+                    .initializer("%S", operationDefinition.name)
+                    .build()
+            } else {
+                null
+            }
 
             if (config.serializer == GraphQLSerializer.KOTLINX) {
                 operationTypeSpec.addAnnotation(Serializable::class)
+                queryProperty = queryProperty.toBuilder().addAnnotation(Required::class).build()
+                operationNameProperty = operationNameProperty?.toBuilder()?.addAnnotation(Required::class)?.build()
             }
-            if (operationDefinition.name != null) {
-                val operationNameProperty = PropertySpec.builder("operationName", STRING, KModifier.OVERRIDE)
-                    .initializer("%S", operationDefinition.name)
-                    .build()
-                operationTypeSpec.addProperty(operationNameProperty)
+
+            operationTypeSpec.addProperty(queryProperty)
+            operationNameProperty?.let {
+                operationTypeSpec.addProperty(it)
             }
 
             val variableType: TypeSpec? = generateVariableTypeSpec(context, operationDefinition.variableDefinitions)

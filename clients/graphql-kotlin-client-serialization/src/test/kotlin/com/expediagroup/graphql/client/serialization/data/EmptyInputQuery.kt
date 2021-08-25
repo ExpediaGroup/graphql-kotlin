@@ -16,24 +16,31 @@
 
 package com.expediagroup.graphql.client.serialization.data
 
-import com.expediagroup.graphql.client.serialization.data.polymorphicquery.BasicInterface
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
 @Serializable
-class PolymorphicQuery : GraphQLClientRequest<PolymorphicQuery.Result> {
-    @Required
-    override val query: String = "POLYMORPHIC_QUERY"
+class EmptyInputQuery(
+    override val variables: Variables
+) : GraphQLClientRequest<EmptyInputQuery.Result> {
 
     @Required
-    override val operationName: String = "PolymorphicQuery"
+    override val query: String = "EMPTY_INPUT_QUERY"
+
+    @Required
+    override val operationName: String = "EmptyInputQuery"
 
     override fun responseType(): KClass<Result> = Result::class
 
     @Serializable
+    data class Variables(
+        val nullable: Int? = null
+    )
+
+    @Serializable
     data class Result(
-        val polymorphicResult: BasicInterface
+        val stringResult: String
     )
 }

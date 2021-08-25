@@ -56,7 +56,6 @@ graphql {
           read = 15_000
       }
       // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
-      // Only supported for JACKSON serializer
       useOptionalInputWrapper = false
   }
   schema {
@@ -107,7 +106,7 @@ resulting generated code will be automatically added to the project main source 
 | `queryFileDirectory` | Directory | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
-| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. <br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
 ### graphqlGenerateSDL
 
@@ -154,7 +153,7 @@ test source set.
 | `queryFileDirectory` | Directory | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
-| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. Only supported for JACKSON serializer.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
+| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. <br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
 ### graphqlIntrospectSchema
 

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.serialization.data
 
 import com.expediagroup.graphql.client.serialization.data.scalars.UUID
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
@@ -28,8 +29,10 @@ typealias ID = String
 class ScalarQuery(
     override val variables: Variables
 ) : GraphQLClientRequest<ScalarQuery.Result> {
+    @Required
     override val query: String = "SCALAR_QUERY"
 
+    @Required
     override val operationName: String = "ScalarQuery"
 
     override fun responseType(): KClass<Result> = Result::class

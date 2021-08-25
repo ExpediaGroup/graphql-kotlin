@@ -9,6 +9,7 @@ import com.expediagroup.graphql.generated.secondquery.ScalarWrapper
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val SECOND_QUERY: String =
@@ -18,8 +19,10 @@ public const val SECOND_QUERY: String =
 public class SecondQuery(
   public override val variables: SecondQuery.Variables
 ) : GraphQLClientRequest<SecondQuery.Result> {
+  @Required
   public override val query: String = SECOND_QUERY
 
+  @Required
   public override val operationName: String = "SecondQuery"
 
   public override fun responseType(): KClass<SecondQuery.Result> = SecondQuery.Result::class

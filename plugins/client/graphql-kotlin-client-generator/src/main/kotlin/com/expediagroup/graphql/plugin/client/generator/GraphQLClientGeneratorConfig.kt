@@ -30,7 +30,7 @@ data class GraphQLClientGeneratorConfig(
     val customScalarMap: Map<String, GraphQLScalar> = emptyMap(),
     /** Type of JSON serializer to be used. */
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
-    /** Explicit opt-in flag to enable support for optional inputs, only available for JACKSON serializer. */
+    /** Explicit opt-in flag to enable support for optional inputs. */
     val useOptionalInputWrapper: Boolean = false
 )
 

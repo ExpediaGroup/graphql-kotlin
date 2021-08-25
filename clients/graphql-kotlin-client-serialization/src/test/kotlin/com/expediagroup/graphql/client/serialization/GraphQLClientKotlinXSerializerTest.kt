@@ -16,9 +16,11 @@
 
 package com.expediagroup.graphql.client.serialization
 
+import com.expediagroup.graphql.client.serialization.data.EmptyInputQuery
 import com.expediagroup.graphql.client.serialization.data.EnumQuery
 import com.expediagroup.graphql.client.serialization.data.FirstQuery
 import com.expediagroup.graphql.client.serialization.data.InputQuery
+import com.expediagroup.graphql.client.serialization.data.OptionalInputQuery
 import com.expediagroup.graphql.client.serialization.data.OtherQuery
 import com.expediagroup.graphql.client.serialization.data.PolymorphicQuery
 import com.expediagroup.graphql.client.serialization.data.ScalarQuery
@@ -28,39 +30,48 @@ import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 class GraphQLClientKotlinXSerializerTest {
 
-    private val serializer = GraphQLClientKotlinxSerializer()
-    private val json = Json
+    private val serializer = GraphQLClientKotlinxSerializer {
+        prettyPrint = true
+    }
 
     @Test
     fun `verify we can serialize GraphQLClientRequest`() {
         val testQuery = FirstQuery(FirstQuery.Variables(input = 1.0f))
-        val result = serializer.serialize(testQuery)
-        val deserialized: FirstQuery = json.decodeFromString(result)
-        assertEquals(testQuery.variables, deserialized.variables)
+        val serialized = serializer.serialize(testQuery)
+        val expected = """{
+            |    "variables": {
+            |        "input": 1.0
+            |    },
+            |    "query": "FIRST_QUERY",
+            |    "operationName": "FirstQuery"
+            |}""".trimMargin()
+
+        assertEquals(expected, serialized)
     }
 
     @Test
     fun `verify we can serialize batch GraphQLClientRequest`() {
         val queries = listOf(FirstQuery(FirstQuery.Variables(input = 1.0f)), OtherQuery())
 
-        val result = serializer.serialize(queries)
-        val serializedQueries = result.substring(1, result.length - 1).split(Regex("(?<=\\}),(?=\\{)"))
-        assertEquals(2, serializedQueries.size)
+        val serialized = serializer.serialize(queries)
+        val expected = """[{
+            |    "variables": {
+            |        "input": 1.0
+            |    },
+            |    "query": "FIRST_QUERY",
+            |    "operationName": "FirstQuery"
+            |},{
+            |    "query": "OTHER_QUERY",
+            |    "operationName": "OtherQuery"
+            |}]""".trimMargin()
 
-        val first: FirstQuery = json.decodeFromString(serializedQueries[0])
-        assertEquals(queries[0].variables, first.variables)
-
-        val second: OtherQuery = json.decodeFromString(serializedQueries[1])
-        assertEquals(queries[1].variables, second.variables)
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -106,8 +117,7 @@ class GraphQLClientKotlinXSerializerTest {
             |    "extNull": null,
             |    "extString": "extra"
             |  }
-            |}
-        """.trimMargin()
+            |}""".trimMargin()
 
         val result = serializer.deserialize(rawResponse, testQuery.responseType())
         assertEquals(expected, result)
@@ -165,8 +175,15 @@ class GraphQLClientKotlinXSerializerTest {
         val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = com.expediagroup.graphql.client.serialization.data.scalars.UUID(randomUUID)))
 
         val serialized = serializer.serialize(scalarQuery)
-        val deserialized: ScalarQuery = json.decodeFromString(serialized)
-        assertEquals(scalarQuery.variables, deserialized.variables)
+        val expected = """{
+            |    "variables": {
+            |        "alias": "1234",
+            |        "custom": "$randomUUID"
+            |    },
+            |    "query": "SCALAR_QUERY",
+            |    "operationName": "ScalarQuery"
+            |}""".trimMargin()
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -203,8 +220,14 @@ class GraphQLClientKotlinXSerializerTest {
         val query = EnumQuery(variables = EnumQuery.Variables(enum = TestEnum.THREE))
 
         val serialized = serializer.serialize(query)
-        val deserialized: EnumQuery = json.decodeFromString(serialized)
-        assertEquals(query.variables, deserialized.variables)
+        val expected = """{
+            |    "variables": {
+            |        "enum": "three"
+            |    },
+            |    "query": "ENUM_QUERY",
+            |    "operationName": "EnumQuery"
+            |}""".trimMargin()
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -219,28 +242,76 @@ class GraphQLClientKotlinXSerializerTest {
     }
 
     @Test
-    @Ignore("disabled until https://github.com/Kotlin/kotlinx.serialization/issues/1091 is resolved")
     fun `verify we can serialize optional inputs`() {
-        val query = InputQuery(
-            variables = InputQuery.Variables(
+        val query = OptionalInputQuery(
+            variables = OptionalInputQuery.Variables(
                 requiredInput = 123,
                 optionalIntInput = OptionalInput.Defined(123),
                 optionalStringInput = OptionalInput.Defined(null)
+                // optionalBooleanInput = OptionalInput.Undefined // use default
             )
         )
         val rawQuery =
             """{
-            |  "query": "INPUT_QUERY",
-            |  "operationName": "InputQuery",
-            |  "variables": {
-            |    "requiredInput": 123,
-            |    "optionalIntInput": 123,
-            |    "optionalStringInput": null
-            |  }
-            |}
-        """.trimMargin()
+            |    "variables": {
+            |        "requiredInput": 123,
+            |        "optionalIntInput": 123,
+            |        "optionalStringInput": null
+            |    },
+            |    "query": "OPTIONAL_INPUT_QUERY",
+            |    "operationName": "OptionalInputQuery"
+            |}""".trimMargin()
 
         val serialized = serializer.serialize(query)
         assertEquals(rawQuery, serialized)
+    }
+
+    @Test
+    fun `verify serialization of null values and empty collections`() {
+        val query = InputQuery(
+            variables = InputQuery.Variables(
+                requiredInput = 123,
+                // nullableId = null, // use default
+                nullableListNullableElements = listOf(null),
+                nullableListNonNullableElements = null, // same as default
+                nullableElementList = listOf("foo", null),
+                nonNullableElementList = listOf()
+            )
+        )
+
+        val expected = """{
+            |    "variables": {
+            |        "requiredInput": 123,
+            |        "nullableListNullableElements": [
+            |            null
+            |        ],
+            |        "nullableElementList": [
+            |            "foo",
+            |            null
+            |        ],
+            |        "nonNullableElementList": [
+            |        ]
+            |    },
+            |    "query": "INPUT_QUERY",
+            |    "operationName": "InputQuery"
+            |}""".trimMargin()
+        val serialized = serializer.serialize(query)
+        assertEquals(expected, serialized)
+    }
+
+    @Test
+    fun `verify serialization of empty variables`() {
+        val query = EmptyInputQuery(
+            variables = EmptyInputQuery.Variables()
+        )
+
+        val expected = """{
+            |    "variables": {
+            |    },
+            |    "query": "EMPTY_INPUT_QUERY",
+            |    "operationName": "EmptyInputQuery"
+            |}""".trimMargin()
+        val serialized = serializer.serialize(query)
+        assertEquals(expected, serialized)
     }
 }

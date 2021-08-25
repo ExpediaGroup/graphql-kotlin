@@ -69,5 +69,3 @@ sealed class ScalarConverterInfo {
         val serializerTypeSpec: TypeSpec
     ) : ScalarConverterInfo()
 }
-
-internal fun GraphQLClientGeneratorContext.isOptionalInputSupported() = useOptionalInputWrapper && serializer == GraphQLSerializer.JACKSON

@@ -5,14 +5,17 @@ import com.expediagroup.graphql.generated.enums.CustomEnum
 import com.expediagroup.graphql.generated.enums.OtherEnum
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val ENUM_QUERY: String = "query EnumQuery {\n  enumQuery\n  otherEnumQuery\n}"
 
 @Serializable
 public class EnumQuery : GraphQLClientRequest<EnumQuery.Result> {
+  @Required
   public override val query: String = ENUM_QUERY
 
+  @Required
   public override val operationName: String = "EnumQuery"
 
   public override fun responseType(): KClass<EnumQuery.Result> = EnumQuery.Result::class

@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.client.serialization.data
 
-import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
@@ -25,8 +25,11 @@ import kotlin.reflect.KClass
 class InputQuery(
     override val variables: Variables
 ) : GraphQLClientRequest<InputQuery.Result> {
+
+    @Required
     override val query: String = "INPUT_QUERY"
 
+    @Required
     override val operationName: String = "InputQuery"
 
     override fun responseType(): KClass<Result> = Result::class
@@ -34,9 +37,11 @@ class InputQuery(
     @Serializable
     data class Variables(
         val requiredInput: Int,
-        val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
-        val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
-        val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined
+        val nullableId: Int? = null,
+        val nullableListNullableElements: List<String?>? = null,
+        val nullableListNonNullableElements: List<String>? = null,
+        val nullableElementList: List<String?>,
+        val nonNullableElementList: List<String>
     )
 
     @Serializable

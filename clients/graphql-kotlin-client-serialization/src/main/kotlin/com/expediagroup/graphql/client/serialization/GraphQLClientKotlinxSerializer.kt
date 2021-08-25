@@ -41,8 +41,7 @@ class GraphQLClientKotlinxSerializer(private val jsonBuilder: JsonBuilder.() -> 
         apply(jsonBuilder)
         classDiscriminator = "__typename"
         coerceInputValues = true
-        // encodeDefaults = false // need this for optional
-        encodeDefaults = true
+        encodeDefaults = false
     }
 
     override fun serialize(request: GraphQLClientRequest<*>): String = json.encodeToString(requestSerializer(request), request)

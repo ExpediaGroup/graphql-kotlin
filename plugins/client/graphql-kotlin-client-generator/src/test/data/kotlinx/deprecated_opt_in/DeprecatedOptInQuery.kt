@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlin.Deprecated
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val DEPRECATED_OPT_IN_QUERY: String =
@@ -11,8 +12,10 @@ public const val DEPRECATED_OPT_IN_QUERY: String =
 
 @Serializable
 public class DeprecatedOptInQuery : GraphQLClientRequest<DeprecatedOptInQuery.Result> {
+  @Required
   public override val query: String = DEPRECATED_OPT_IN_QUERY
 
+  @Required
   public override val operationName: String = "DeprecatedOptInQuery"
 
   public override fun responseType(): KClass<DeprecatedOptInQuery.Result> =

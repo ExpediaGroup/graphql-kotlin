@@ -18,13 +18,9 @@ package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
-import com.expediagroup.graphql.plugin.client.generator.isOptionalInputSupported
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.VariableDefinition
@@ -43,20 +39,11 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
     val constructorSpec = FunSpec.constructorBuilder()
     variableDefinitions.forEach { variableDef ->
         val kotlinTypeName = generateTypeName(context, variableDef.type)
-        val variableTypeName = if (kotlinTypeName.isNullable && context.isOptionalInputSupported()) {
-            ClassName("com.expediagroup.graphql.client.jackson.types", "OptionalInput")
-                .parameterizedBy(kotlinTypeName.copy(nullable = false))
-        } else {
-            kotlinTypeName
-        }
+        val variableTypeName = kotlinTypeName.wrapOptionalInputType(context)
 
         val parameterBuilder = ParameterSpec.builder(variableDef.name, variableTypeName)
         if (kotlinTypeName.isNullable) {
-            if (context.isOptionalInputSupported()) {
-                parameterBuilder.defaultValue("%M", MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined"))
-            } else {
-                parameterBuilder.defaultValue("null")
-            }
+            parameterBuilder.defaultValue(nullableDefaultValueCodeBlock(context))
         }
         constructorSpec.addParameter(parameterBuilder.build())
         variableTypeSpec.addProperty(

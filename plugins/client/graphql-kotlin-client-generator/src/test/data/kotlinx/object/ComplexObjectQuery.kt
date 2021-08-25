@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.complexobjectquery.ComplexObject
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val COMPLEX_OBJECT_QUERY: String =
@@ -11,8 +12,10 @@ public const val COMPLEX_OBJECT_QUERY: String =
 
 @Serializable
 public class ComplexObjectQuery : GraphQLClientRequest<ComplexObjectQuery.Result> {
+  @Required
   public override val query: String = COMPLEX_OBJECT_QUERY
 
+  @Required
   public override val operationName: String = "ComplexObjectQuery"
 
   public override fun responseType(): KClass<ComplexObjectQuery.Result> =

@@ -9,6 +9,7 @@ import com.expediagroup.graphql.generated.inputs.ComplexArgumentInput
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val FIRST_QUERY: String =
@@ -18,8 +19,10 @@ public const val FIRST_QUERY: String =
 public class FirstQuery(
   public override val variables: FirstQuery.Variables
 ) : GraphQLClientRequest<FirstQuery.Result> {
+  @Required
   public override val query: String = FIRST_QUERY
 
+  @Required
   public override val operationName: String = "FirstQuery"
 
   public override fun responseType(): KClass<FirstQuery.Result> = FirstQuery.Result::class
