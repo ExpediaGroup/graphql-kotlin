@@ -19,7 +19,6 @@ package com.expediagroup.graphql.plugin.gradle
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -28,29 +27,36 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals
 
-class GraphQLGradlePluginAndroidIT {
+class GraphQLGenerateClientIT {
 
     @ParameterizedTest
-    @MethodSource("androidTests")
-    @EnabledIfEnvironmentVariable(named = "ANDROID_SDK_ROOT", matches = ".+")
-    fun `verify gradle plugin can be applied on android projects`(sourceDirectory: File, @TempDir tempDir: Path) {
+    @MethodSource("generateClientTests")
+    fun `verify gradle plugin can generate client code`(sourceDirectory: File, @TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
         sourceDirectory.copyRecursively(testProjectDirectory)
 
-        val androidPluginVersion = System.getProperty("androidPluginVersion") ?: "4.2.2"
+        val junitVersion = System.getProperty("junitVersion") ?: "5.7.2"
         val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.5.21"
+        val mockkVersion = System.getProperty("mockkVersion") ?: "1.11.0"
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments("build", "--stacktrace", "-PGRAPHQL_KOTLIN_VERSION=$DEFAULT_PLUGIN_VERSION", "-PKOTLIN_VERSION=$kotlinVersion", "-PANDROID_PLUGIN_VERSION=$androidPluginVersion")
+            .withArguments(
+                "build",
+                "--stacktrace",
+                "-PGRAPHQL_KOTLIN_VERSION=$DEFAULT_PLUGIN_VERSION",
+                "-PKOTLIN_VERSION=$kotlinVersion",
+                "-PJUNIT_VERSION=$junitVersion",
+                "-PMOCKK_VERSION=$mockkVersion"
+            )
             .forwardOutput()
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":app:$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
     }
 
     companion object {
         @JvmStatic
-        fun androidTests(): List<Arguments> = locateTestCaseArguments("src/integration/android")
+        fun generateClientTests(): List<Arguments> = locateTestCaseArguments("src/integration/client-generator")
     }
 }

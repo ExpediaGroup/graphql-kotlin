@@ -1,0 +1,11 @@
+query JacocoQuery {
+  enumQuery
+  scalarQuery {
+    count
+    custom
+    id
+    name
+    rating
+    valid
+  }
+}
