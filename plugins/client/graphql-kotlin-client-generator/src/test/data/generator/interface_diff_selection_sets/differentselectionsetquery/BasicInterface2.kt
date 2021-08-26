@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
+import com.expediagroup.graphql.client.Generated
 import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
@@ -11,6 +12,7 @@ import kotlin.String
 /**
  * Very basic interface
  */
+@Generated
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
@@ -30,6 +32,7 @@ public interface BasicInterface2 {
 /**
  * Example interface implementation where value is an integer
  */
+@Generated
 public data class FirstInterfaceImplementation2(
   /**
    * Name of the first implementation
@@ -44,6 +47,7 @@ public data class FirstInterfaceImplementation2(
 /**
  * Example interface implementation where value is a float
  */
+@Generated
 public data class SecondInterfaceImplementation2(
   /**
    * Name of the second implementation

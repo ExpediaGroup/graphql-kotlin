@@ -1,10 +1,12 @@
 package com.expediagroup.graphql.generated.inputs
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Float
 
 /**
  * Self referencing input object
  */
+@Generated
 public data class ComplexArgumentInput(
   /**
    * Maximum value for test criteria

@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.enums
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Deprecated
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,6 +8,7 @@ import kotlinx.serialization.Serializable
 /**
  * Custom enum description
  */
+@Generated
 @Serializable
 public enum class CustomEnum {
   /**

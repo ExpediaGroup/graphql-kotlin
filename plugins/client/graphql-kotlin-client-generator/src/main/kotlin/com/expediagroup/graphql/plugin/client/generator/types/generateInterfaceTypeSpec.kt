@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragmentException
@@ -63,10 +64,13 @@ internal fun generateInterfaceTypeSpec(
     val interfaceTypeSpec = if (context.serializer == GraphQLSerializer.KOTLINX) {
         TypeSpec.classBuilder(interfaceName)
             .addModifiers(KModifier.SEALED)
+            .addAnnotation(Generated::class)
             .addAnnotation(Serializable::class)
     } else {
         TypeSpec.interfaceBuilder(interfaceName)
+            .addAnnotation(Generated::class)
     }
+
     if (kdoc != null) {
         interfaceTypeSpec.addKdoc("%L", kdoc)
     }
@@ -181,14 +185,10 @@ private fun updateImplementationTypeSpecWithSuperInformation(
     val commonPropertyNames = commonProperties.map { it.name }
     val implementationTypeSpec = context.typeSpecs[implementationClassName]!!
 
-    val builder = TypeSpec.classBuilder(implementationTypeSpec.name!!)
-        .addModifiers(implementationTypeSpec.modifiers)
-        .addKdoc("%L", implementationTypeSpec.kdoc)
-
+    val builder = implementationTypeSpec.toBuilder()
     val superClassName = ClassName("${context.packageName}.${context.operationName.lowercase()}", interfaceName)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
-        builder.addAnnotation(Serializable::class)
-            .addAnnotation(
+        builder.addAnnotation(
                 AnnotationSpec.builder(SerialName::class)
                     .addMember("value = %S", implementationName)
                     .build()

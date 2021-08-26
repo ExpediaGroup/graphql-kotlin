@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.firstquery
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Int
 import kotlin.String
 import kotlinx.serialization.Serializable
@@ -9,6 +10,7 @@ import kotlinx.serialization.Serializable
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
+@Generated
 @Serializable
 public data class ComplexObject(
   /**

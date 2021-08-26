@@ -1,10 +1,12 @@
 package com.expediagroup.graphql.generated.enums
 
+import com.expediagroup.graphql.client.Generated
 import kotlinx.serialization.Serializable
 
 /**
  * Other enum description
  */
+@Generated
 @Serializable
 public enum class OtherEnum {
   FIRST,

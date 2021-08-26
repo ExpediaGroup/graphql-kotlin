@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.firstquery
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Float
 import kotlin.Int
 import kotlin.String
@@ -9,6 +10,7 @@ import kotlinx.serialization.Serializable
 /**
  * Very basic interface
  */
+@Generated
 @Serializable
 public sealed class BasicInterface {
   /**
@@ -25,6 +27,7 @@ public sealed class BasicInterface {
 /**
  * Example interface implementation where value is an integer
  */
+@Generated
 @Serializable
 @SerialName(value = "FirstInterfaceImplementation")
 public data class FirstInterfaceImplementation(
@@ -45,6 +48,7 @@ public data class FirstInterfaceImplementation(
 /**
  * Example interface implementation where value is a float
  */
+@Generated
 @Serializable
 @SerialName(value = "SecondInterfaceImplementation")
 public data class SecondInterfaceImplementation(

@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.complexobjectquery
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
@@ -8,6 +9,7 @@ import kotlinx.serialization.Serializable
 /**
  * Inner type object description
  */
+@Generated
 @Serializable
 public data class DetailsObject(
   /**

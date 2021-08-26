@@ -1,11 +1,13 @@
 package com.expediagroup.graphql.generated.inputs
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Float
 import kotlinx.serialization.Serializable
 
 /**
  * Self referencing input object
  */
+@Generated
 @Serializable
 public data class ComplexArgumentInput(
   /**

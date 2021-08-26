@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.isOptionalInputSupported
@@ -36,6 +37,7 @@ import kotlinx.serialization.Serializable
 internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorContext, inputObjectDefinition: InputObjectTypeDefinition): TypeSpec {
     val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputObjectDefinition.name)
         .addModifiers(KModifier.DATA)
+        .addAnnotation(Generated::class)
     inputObjectDefinition.description?.content?.let { kdoc ->
         inputObjectTypeSpecBuilder.addKdoc("%L", kdoc)
     }

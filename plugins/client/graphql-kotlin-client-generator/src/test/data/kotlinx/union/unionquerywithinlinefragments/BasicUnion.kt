@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.unionquerywithinlinefragments
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Int
 import kotlin.String
 import kotlinx.serialization.SerialName
@@ -8,12 +9,14 @@ import kotlinx.serialization.Serializable
 /**
  * Very basic union of BasicObject and ComplexObject
  */
+@Generated
 @Serializable
 public sealed class BasicUnion
 
 /**
  * Some basic description
  */
+@Generated
 @Serializable
 @SerialName(value = "BasicObject")
 public data class BasicObject(
@@ -29,6 +32,7 @@ public data class BasicObject(
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
+@Generated
 @Serializable
 @SerialName(value = "ComplexObject")
 public data class ComplexObject(

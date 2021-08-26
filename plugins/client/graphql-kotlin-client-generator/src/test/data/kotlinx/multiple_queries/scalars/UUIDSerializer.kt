@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.scalars
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter
 import java.util.UUID
 import kotlin.Unit
@@ -12,6 +13,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.jsonPrimitive
 
+@Generated
 public object UUIDSerializer : KSerializer<UUID> {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
