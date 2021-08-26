@@ -189,11 +189,11 @@ private fun updateImplementationTypeSpecWithSuperInformation(
     val superClassName = ClassName("${context.packageName}.${context.operationName.lowercase()}", interfaceName)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
         builder.addAnnotation(
-                AnnotationSpec.builder(SerialName::class)
-                    .addMember("value = %S", implementationName)
-                    .build()
-            )
-            .superclass(superClassName)
+            AnnotationSpec.builder(SerialName::class)
+                .addMember("value = %S", implementationName)
+                .build()
+        )
+        .superclass(superClassName)
     } else {
         builder.addSuperinterface(superClassName)
     }

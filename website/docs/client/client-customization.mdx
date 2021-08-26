@@ -174,12 +174,14 @@ Custom scalar fields will then be automatically converted to a `java.util.UUID` 
 Following converters will be generated under `com.example.generated.scalars` package.
 
 ```kotlin
+@Generated
 public class AnyToUUIDConverter : StdConverter<Any, UUID>() {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
   public override fun convert(`value`: Any): UUID = converter.toScalar(value)
 }
 
+@Generated
 public class UUIDToAnyConverter : StdConverter<UUID, Any>() {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
@@ -190,6 +192,7 @@ public class UUIDToAnyConverter : StdConverter<UUID, Any>() {
 Custom scalars fields will then be annotated with Jackson annotations referencing the above converters.
 
 ```kotlin
+@Generated
 public data class Result(
   @JsonSerialize(converter = UUIDToAnyConverter::class)
   @JsonDeserialize(converter = AnyToUUIDConverter::class)
@@ -206,6 +209,7 @@ public data class Result(
 Following serializer will be generated under `com.example.generated.scalars` package.
 
 ```kotlin
+@Generated
 public object UUIDSerializer : KSerializer<UUID> {
   private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
@@ -228,6 +232,7 @@ public object UUIDSerializer : KSerializer<UUID> {
 Custom scalars fields will then be annotated with `@Serializable` annotation referencing the above serializer.
 
 ```kotlin
+@Generated
 @Serializable
 public data class Result(
   @Serializable(with = UUIDSerializer::class)
