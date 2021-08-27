@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.internal.extensions.isGraphQLIgnored
 import com.expediagroup.graphql.generator.internal.extensions.isPropertyGraphQLIgnored
 import com.expediagroup.graphql.generator.internal.extensions.isPublic
 import com.expediagroup.graphql.generator.internal.extensions.qualifiedName
+import com.expediagroup.graphql.generator.internal.types.utils.validGraphQLNameRegex
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
@@ -32,6 +33,7 @@ private val blacklistTypes: List<String> = listOf("kotlin.reflect.KClass")
 private val isPropertyPublic: PropertyFilter = { prop, _ -> prop.isPublic() }
 private val isPropertyNotGraphQLIgnored: PropertyFilter = { prop, parentClass -> prop.isPropertyGraphQLIgnored(parentClass).not() }
 private val isNotBlacklistedType: PropertyFilter = { prop, _ -> blacklistTypes.contains(prop.returnType.qualifiedName).not() }
+private val isValidPropertyName: PropertyFilter = { prop, _ -> prop.name.matches(validGraphQLNameRegex) }
 
 private val isNotIgnoredFromSuperClass: PropertyFilter = { prop, parentClass ->
     val superPropsIgnored = parentClass.supertypes
@@ -48,4 +50,4 @@ private val isNotIgnoredFromSuperClass: PropertyFilter = { prop, parentClass ->
 }
 
 private val basicPropertyFilters = listOf(isPropertyPublic, isNotBlacklistedType)
-internal val propertyFilters: List<PropertyFilter> = basicPropertyFilters + isPropertyNotGraphQLIgnored + isNotIgnoredFromSuperClass
+internal val propertyFilters: List<PropertyFilter> = basicPropertyFilters + isPropertyNotGraphQLIgnored + isNotIgnoredFromSuperClass + isValidPropertyName

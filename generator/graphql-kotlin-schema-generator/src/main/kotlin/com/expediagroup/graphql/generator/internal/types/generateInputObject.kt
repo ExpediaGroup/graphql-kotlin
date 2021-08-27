@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescript
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
+import com.expediagroup.graphql.generator.internal.types.utils.validateGraphQLName
 import com.expediagroup.graphql.generator.internal.types.utils.validateObjectLocation
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInputObjectType
@@ -30,9 +31,11 @@ import kotlin.reflect.KClass
 internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInputObjectType {
     validateObjectLocation(kClass, GraphQLValidObjectLocations.Locations.INPUT_OBJECT)
 
-    val builder = GraphQLInputObjectType.newInputObject()
+    val name = kClass.getSimpleName(isInputClass = true)
+    validateGraphQLName(name, kClass)
 
-    builder.name(kClass.getSimpleName(isInputClass = true))
+    val builder = GraphQLInputObjectType.newInputObject()
+    builder.name(name)
     builder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.INPUT_OBJECT).forEach {

@@ -23,15 +23,19 @@ import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescript
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
+import com.expediagroup.graphql.generator.internal.types.utils.validateGraphQLEnumValue
+import com.expediagroup.graphql.generator.internal.types.utils.validateGraphQLName
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLEnumValueDefinition
 import kotlin.reflect.KClass
 
 internal fun generateEnum(generator: SchemaGenerator, kClass: KClass<out Enum<*>>): GraphQLEnumType {
-    val enumBuilder = GraphQLEnumType.newEnum()
+    val name = kClass.getSimpleName()
+    validateGraphQLName(name, kClass)
 
-    enumBuilder.name(kClass.getSimpleName())
+    val enumBuilder = GraphQLEnumType.newEnum()
+    enumBuilder.name(name)
     enumBuilder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.ENUM).forEach {
@@ -49,6 +53,8 @@ private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kC
     val valueField = kClass.java.getField(enum.name)
 
     val name = valueField.getGraphQLName()
+    validateGraphQLEnumValue(name, kClass)
+
     valueBuilder.name(name)
     valueBuilder.value(name)
 

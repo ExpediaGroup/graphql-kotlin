@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.internal.types
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
@@ -52,6 +53,8 @@ class GenerateInputObjectTest : TypeTestHelper() {
     class OutputOnly {
         val myField: String = "car"
     }
+
+    class `Invalid$InputTypeName`
 
     @Test
     fun `Test naming`() {
@@ -103,6 +106,13 @@ class GenerateInputObjectTest : TypeTestHelper() {
     fun `output only objects throw an exception`() {
         assertFailsWith(InvalidObjectLocationException::class) {
             generateInputObject(generator, OutputOnly::class)
+        }
+    }
+
+    @Test
+    fun `Generation of output object will fail if it specifies invalid name`() {
+        assertFailsWith(InvalidGraphQLNameException::class) {
+            generateInputObject(generator, `Invalid$InputTypeName`::class)
         }
     }
 }

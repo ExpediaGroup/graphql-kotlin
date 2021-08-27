@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.filters
 
 import com.expediagroup.graphql.generator.internal.extensions.isGraphQLIgnored
 import com.expediagroup.graphql.generator.internal.extensions.isPublic
+import com.expediagroup.graphql.generator.internal.types.utils.validGraphQLNameRegex
 import kotlin.reflect.KCallable
 
 private typealias CallableFilter = (KCallable<*>) -> Boolean
@@ -30,5 +31,6 @@ private val isNotGraphQLIgnored: CallableFilter = { it.isGraphQLIgnored().not() 
 private val isBlacklistedFunction: CallableFilter = { blacklistFunctions.contains(it.name) }
 private val isComponentFunction: CallableFilter = { it.name.matches(componentFunctionRegex) }
 private val isNotBlacklistedFunction: CallableFilter = { isBlacklistedFunction(it).not() && isComponentFunction(it).not() }
+private val isValidFunctionName: CallableFilter = { it.name.matches(validGraphQLNameRegex) }
 
-internal val functionFilters: List<CallableFilter> = listOf(isPublic, isNotGraphQLIgnored, isNotBlacklistedFunction)
+internal val functionFilters: List<CallableFilter> = listOf(isPublic, isNotGraphQLIgnored, isValidFunctionName, isNotBlacklistedFunction)
