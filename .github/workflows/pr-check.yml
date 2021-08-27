@@ -13,10 +13,6 @@ jobs:
   build:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # test against latest update of each major Java version, as well as specific updates of LTS versions
-        java: [ 8, 11.0.x ]
 
     steps:
       - uses: actions/checkout@v2
@@ -24,27 +20,27 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Set up Java ${{ matrix.java }}
+      - name: Set up Java 11
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.java }}
+          java-version: 11
 
       - name: Set up Gradle cache
         uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-${{ matrix.java }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.java }}-gradle-
+            ${{ runner.os }}-gradle-
 
       # Used by maven-plugin integration tests
       - name: Set up Maven cache
         uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-${{ matrix.java }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.java }}-maven-
+            ${{ runner.os }}-maven-
 
       - name: Build library with Gradle
         run: ./gradlew clean build
@@ -53,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: build-reports-${{ matrix.java }}
+          name: build-reports
           path: |
             ./**/build/reports
             plugins/graphql-kotlin-maven-plugin/build/integration/**/build.log
@@ -68,6 +64,6 @@ jobs:
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: build-examples-reports-${{ matrix.java }}
+          name: build-examples-reports
           path: ./examples/**/build/reports
           retention-days: 7
