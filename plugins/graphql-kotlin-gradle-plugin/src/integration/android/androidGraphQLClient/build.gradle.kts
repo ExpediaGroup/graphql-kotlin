@@ -9,7 +9,7 @@ buildscript {
         }
     }
 
-    val androidPluginVersion = System.getenv("ANDROID_PLUGIN_VERSION") ?: "4.2.2"
+    val androidPluginVersion = System.getenv("ANDROID_PLUGIN_VERSION") ?: "7.0.1"
     val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "5.0.0-SNAPSHOT"
     val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.5.21"
     dependencies {
