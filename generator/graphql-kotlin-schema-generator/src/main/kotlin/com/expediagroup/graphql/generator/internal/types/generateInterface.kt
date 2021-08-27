@@ -25,6 +25,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import com.expediagroup.graphql.generator.internal.state.AdditionalType
+import com.expediagroup.graphql.generator.internal.types.utils.validateGraphQLName
 import graphql.TypeResolutionEnvironment
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInterfaceType
@@ -33,9 +34,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
 internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInterfaceType {
-    val builder = GraphQLInterfaceType.newInterface()
+    val name = kClass.getSimpleName()
+    validateGraphQLName(name, kClass)
 
-    builder.name(kClass.getSimpleName())
+    val builder = GraphQLInterfaceType.newInterface()
+    builder.name(name)
     builder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.INTERFACE).forEach {

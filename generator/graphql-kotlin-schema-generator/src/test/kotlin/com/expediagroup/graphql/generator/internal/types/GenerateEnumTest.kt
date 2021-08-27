@@ -18,10 +18,13 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLEnumValueException
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.test.utils.CustomDirective
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -53,6 +56,12 @@ class GenerateEnumTest : TypeTestHelper() {
     @Suppress("Detekt.UnusedPrivateClass")
     @GraphQLName("MyTestEnumRenamed")
     enum class MyTestEnumCustomName
+
+    enum class `Invalid$EnumName`
+
+    enum class InvalidEnum {
+        FOO, FOO_BAR, `FOO$BAR`
+    }
 
     @Test
     fun enumType() {
@@ -129,5 +138,19 @@ class GenerateEnumTest : TypeTestHelper() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
 
         assertNotNull(gqlEnum.getValue("customFour"))
+    }
+
+    @Test
+    fun `Enum generation will fail if it has invalid name`() {
+        assertFailsWith<InvalidGraphQLNameException> {
+            generateEnum(generator, `Invalid$EnumName`::class)
+        }
+    }
+
+    @Test
+    fun `Enum generation will fail if it has invalid value`() {
+        assertFailsWith<InvalidGraphQLEnumValueException> {
+            generateEnum(generator, `InvalidEnum`::class)
+        }
     }
 }

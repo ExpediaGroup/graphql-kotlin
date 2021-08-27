@@ -25,6 +25,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getValidFunctions
 import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.getValidSuperclasses
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
+import com.expediagroup.graphql.generator.internal.types.utils.validateGraphQLName
 import com.expediagroup.graphql.generator.internal.types.utils.validateObjectLocation
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInterfaceType
@@ -36,9 +37,10 @@ import kotlin.reflect.full.createType
 internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLObjectType {
     validateObjectLocation(kClass, GraphQLValidObjectLocations.Locations.OBJECT)
 
-    val builder = GraphQLObjectType.newObject()
-
     val name = kClass.getSimpleName()
+    validateGraphQLName(name, kClass)
+
+    val builder = GraphQLObjectType.newObject()
     builder.name(name)
     builder.description(kClass.getGraphQLDescription())
 

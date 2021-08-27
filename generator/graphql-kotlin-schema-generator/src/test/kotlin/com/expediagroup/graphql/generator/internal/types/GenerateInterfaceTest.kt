@@ -18,15 +18,37 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.schema.GraphQLInterfaceType
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 class GenerateInterfaceTest : TypeTestHelper() {
+
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLDescription("The truth")
+    @SimpleDirective
+    interface HappyInterface
+
+    @Suppress("Detekt.UnusedPrivateClass")
+    @GraphQLName("HappyInterfaceRenamed")
+    interface HappyInterfaceCustomName
+
+    abstract class Shape(val area: Double)
+    class Circle(radius: Double) : Shape(PI * radius * radius)
+    class Square(sideLength: Double) : Shape(sideLength * sideLength)
+
+    sealed class Pet(val name: String) {
+        class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
+        class Cat(name: String, val livesRemaining: Int) : Pet(name)
+    }
+
+    interface `Invalid$IntefaceName`
 
     @Test
     fun `Test naming`() {
@@ -73,21 +95,10 @@ class GenerateInterfaceTest : TypeTestHelper() {
         assertNotNull(generator.additionalTypes.find { it.kType.getSimpleName() == "Dog" })
     }
 
-    @Suppress("Detekt.UnusedPrivateClass")
-    @GraphQLDescription("The truth")
-    @SimpleDirective
-    interface HappyInterface
-
-    @Suppress("Detekt.UnusedPrivateClass")
-    @GraphQLName("HappyInterfaceRenamed")
-    interface HappyInterfaceCustomName
-
-    abstract class Shape(val area: Double)
-    class Circle(radius: Double) : Shape(PI * radius * radius)
-    class Square(sideLength: Double) : Shape(sideLength * sideLength)
-
-    sealed class Pet(val name: String) {
-        class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
-        class Cat(name: String, val livesRemaining: Int) : Pet(name)
+    @Test
+    fun `Generation of interface will fail if it specifies invalid name override`() {
+        assertFailsWith(InvalidGraphQLNameException::class) {
+            generateInterface(generator, `Invalid$IntefaceName`::class)
+        }
     }
 }

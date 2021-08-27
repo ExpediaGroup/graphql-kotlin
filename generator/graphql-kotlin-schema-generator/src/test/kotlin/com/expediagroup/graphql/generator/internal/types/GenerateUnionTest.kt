@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.internal.types
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
@@ -64,7 +65,12 @@ class GenerateUnionTest : TypeTestHelper() {
 
         @GraphQLUnion(name = "EmptyUnion", possibleTypes = [])
         fun emptyUnion(): Any = StrawBerryCake()
+
+        @GraphQLUnion(name = "Invalid\$Name", possibleTypes = [StrawBerryCake::class])
+        fun invalidUnion(): Any = StrawBerryCake()
     }
+
+    interface `Invalid$UnionName`
 
     @Test
     fun `Test simple case`() {
@@ -128,6 +134,21 @@ class GenerateUnionTest : TypeTestHelper() {
     fun `custom union annotation throws if possible types is empty`() {
         val annotation = AnnotationUnion::emptyUnion.annotations.first() as GraphQLUnion
         assertFailsWith(graphql.AssertException::class) {
+            generateUnion(generator, Any::class, annotation)
+        }
+    }
+
+    @Test
+    fun `Union generation will fail if it has an invalid name`() {
+        assertFailsWith<InvalidGraphQLNameException> {
+            generateUnion(generator, `Invalid$UnionName`::class)
+        }
+    }
+
+    @Test
+    fun `Union generation will fail if annotation specifies an invalid name`() {
+        val annotation = AnnotationUnion::invalidUnion.annotations.first() as GraphQLUnion
+        assertFailsWith<InvalidGraphQLNameException> {
             generateUnion(generator, Any::class, annotation)
         }
     }

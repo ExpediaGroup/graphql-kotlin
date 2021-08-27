@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
+import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
 import graphql.Scalars
 import graphql.introspection.Introspection
@@ -59,6 +60,11 @@ class GenerateObjectTest : TypeTestHelper() {
     class OutputOnly {
         val myField: String = "car"
     }
+
+    class `Invalid$OutputTypeName`
+
+    @GraphQLName("Invalid\$Name")
+    class InvalidOutputTypeNameOverride
 
     @Test
     fun `Test naming`() {
@@ -117,6 +123,20 @@ class GenerateObjectTest : TypeTestHelper() {
     fun `output only objects throw an exception`() {
         assertFailsWith(InvalidObjectLocationException::class) {
             generateInputObject(generator, OutputOnly::class)
+        }
+    }
+
+    @Test
+    fun `Generation of output object will fail if it specifies invalid name`() {
+        assertFailsWith(InvalidGraphQLNameException::class) {
+            generateInputObject(generator, `Invalid$OutputTypeName`::class)
+        }
+    }
+
+    @Test
+    fun `Generation of output object will fail if it specifies invalid name override`() {
+        assertFailsWith(InvalidGraphQLNameException::class) {
+            generateInputObject(generator, InvalidOutputTypeNameOverride::class)
         }
     }
 }

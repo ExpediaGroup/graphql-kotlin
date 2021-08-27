@@ -31,6 +31,7 @@ internal class CallableFiltersTest {
         assertTrue(isValidFunction(MyClass::publicFunction))
         assertFalse(isValidFunction(MyClass::ignoredFunction))
         assertFalse(isValidFunction(MyClass::privateFunction))
+        assertFalse(isValidFunction(MyClass::`invalid$Name`))
     }
 
     @Test
@@ -50,6 +51,8 @@ internal class CallableFiltersTest {
 
         @Suppress("Detekt.FunctionOnlyReturningConstant")
         internal fun privateFunction() = 0
+
+        fun `invalid$Name`() = privateFunction()
     }
 
     private fun isValidFunction(function: KFunction<*>): Boolean = functionFilters.all { it(function) }
