@@ -193,7 +193,7 @@ private fun updateImplementationTypeSpecWithSuperInformation(
                 .addMember("value = %S", implementationName)
                 .build()
         )
-        .superclass(superClassName)
+            .superclass(superClassName)
     } else {
         builder.addSuperinterface(superClassName)
     }
