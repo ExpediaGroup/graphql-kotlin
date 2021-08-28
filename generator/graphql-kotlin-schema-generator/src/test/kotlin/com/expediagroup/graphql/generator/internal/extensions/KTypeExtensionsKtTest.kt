@@ -21,8 +21,6 @@ import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
-import org.junit.jupiter.api.condition.JRE
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.createType

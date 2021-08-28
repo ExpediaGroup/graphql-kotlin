@@ -23,8 +23,6 @@ import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKClassExce
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
-import org.junit.jupiter.api.condition.JRE
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
