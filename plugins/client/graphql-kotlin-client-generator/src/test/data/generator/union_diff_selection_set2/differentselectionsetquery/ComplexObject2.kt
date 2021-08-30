@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Int
 import kotlin.String
 
@@ -8,6 +9,7 @@ import kotlin.String
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
+@Generated
 public data class ComplexObject2(
   /**
    * Some unique identifier

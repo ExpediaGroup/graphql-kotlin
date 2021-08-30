@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
 import kotlin.Boolean
@@ -11,6 +12,7 @@ import kotlinx.serialization.Serializable
 public const val KOTLIN_X_INPUT_QUERY: String =
     "query KotlinXInputQuery(${'$'}input: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}input)\n}"
 
+@Generated
 @Serializable
 public class KotlinXInputQuery(
   public override val variables: KotlinXInputQuery.Variables
@@ -24,11 +26,13 @@ public class KotlinXInputQuery(
   public override fun responseType(): KClass<KotlinXInputQuery.Result> =
       KotlinXInputQuery.Result::class
 
+  @Generated
   @Serializable
   public data class Variables(
     public val input: SimpleArgumentInput? = null
   )
 
+  @Generated
   @Serializable
   public data class Result(
     /**

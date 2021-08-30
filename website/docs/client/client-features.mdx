@@ -78,6 +78,7 @@ Which will generate following data models
 <TabItem value="jackson">
 
 ```kotlin
+@Generated
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
@@ -92,12 +93,14 @@ interface BasicInterface {
   abstract val name: String
 }
 
+@Generated
 data class FirstInterfaceImplementation(
   override val id: Int,
   override val name: String,
   val intValue: Int
 ) : BasicInterface
 
+@Generated
 data class SecondInterfaceImplementation(
   override val id: Int,
   override val name: String,
@@ -109,12 +112,14 @@ data class SecondInterfaceImplementation(
 <TabItem value="kotlinx">
 
 ```kotlin
+@Generated
 @Serializable
 sealed class BasicInterface {
   abstract val id: Int
   abstract val name: String
 }
 
+@Generated
 @Serializable
 @SerialName(value = "FirstInterfaceImplementation")
 data class FirstInterfaceImplementation(
@@ -123,6 +128,7 @@ data class FirstInterfaceImplementation(
   val intValue: Int
 ) : BasicInterface()
 
+@Generated
 @Serializable
 @SerialName(value = "SecondInterfaceImplementation")
 data class SecondInterfaceImplementation(
@@ -164,6 +170,7 @@ Will result in a corresponding auto generated data class
 /**
  * Some basic description
  */
+ @Generated
 data class BasicObject(
   /**
    * Unique identifier

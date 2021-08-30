@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
 import com.expediagroup.graphql.generated.enums.OtherEnum
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
 
 public const val ENUM_QUERY: String = "query EnumQuery {\n  enumQuery\n  otherEnumQuery\n}"
 
+@Generated
 @Serializable
 public class EnumQuery : GraphQLClientRequest<EnumQuery.Result> {
   @Required
@@ -20,6 +22,7 @@ public class EnumQuery : GraphQLClientRequest<EnumQuery.Result> {
 
   public override fun responseType(): KClass<EnumQuery.Result> = EnumQuery.Result::class
 
+  @Generated
   @Serializable
   public data class Result(
     /**

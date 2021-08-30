@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOperationsInFileException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
@@ -120,6 +121,7 @@ class GraphQLClientGenerator(
             val kotlinResultTypeName = ClassName(context.packageName, "${context.operationName}.${graphQLResponseTypeSpec.name}")
 
             val operationTypeSpec = TypeSpec.classBuilder(capitalizedOperationName)
+                .addAnnotation(Generated::class)
                 .addSuperinterface(ClassName(CORE_TYPES_PACKAGE, "GraphQLClientRequest").parameterizedBy(kotlinResultTypeName))
 
             var queryProperty: PropertySpec = PropertySpec.builder("query", STRING, KModifier.OVERRIDE)

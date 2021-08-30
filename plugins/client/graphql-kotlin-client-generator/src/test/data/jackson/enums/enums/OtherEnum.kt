@@ -1,10 +1,12 @@
 package com.expediagroup.graphql.generated.enums
 
+import com.expediagroup.graphql.client.Generated
 import com.fasterxml.jackson.`annotation`.JsonEnumDefaultValue
 
 /**
  * Other enum description
  */
+@Generated
 public enum class OtherEnum {
   FIRST,
   SECOND,

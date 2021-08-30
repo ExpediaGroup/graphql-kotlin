@@ -52,12 +52,5 @@ class GraphQLGradlePluginAndroidIT {
     companion object {
         @JvmStatic
         fun androidTests(): List<Arguments> = locateTestCaseArguments("src/integration/android")
-
-        private fun locateTestCaseArguments(directory: String) = File(directory)
-            .listFiles()
-            ?.filter { it.isDirectory }
-            ?.map {
-                Arguments.of(it)
-            } ?: emptyList()
     }
 }

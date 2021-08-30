@@ -1,11 +1,13 @@
 package com.expediagroup.graphql.generated.nestedquery
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.String
 import kotlin.collections.List
 
 /**
  * Example of an object self-referencing itself
  */
+@Generated
 public data class NestedObject2(
   /**
    * Name of the object

@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.complexobjectquery
 
+import com.expediagroup.graphql.client.Generated
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
@@ -7,6 +8,7 @@ import kotlin.String
 /**
  * Inner type object description
  */
+@Generated
 public data class DetailsObject(
   /**
    * Unique identifier

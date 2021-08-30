@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
@@ -35,6 +36,7 @@ internal const val UNKNOWN_VALUE = "__UNKNOWN_VALUE"
  */
 internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDefinition: EnumTypeDefinition): TypeSpec {
     val enumTypeSpecBuilder = TypeSpec.enumBuilder(enumDefinition.name)
+        .addAnnotation(Generated::class)
     enumDefinition.description?.content?.let { kdoc ->
         enumTypeSpecBuilder.addKdoc("%L", kdoc)
     }

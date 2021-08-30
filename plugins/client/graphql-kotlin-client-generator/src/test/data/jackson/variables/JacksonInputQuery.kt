@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
@@ -11,6 +12,7 @@ import kotlin.reflect.KClass
 public const val JACKSON_INPUT_QUERY: String =
     "query JacksonInputQuery(${'$'}input: SimpleArgumentInput) {\n  inputObjectQuery(criteria: ${'$'}input)\n}"
 
+@Generated
 public class JacksonInputQuery(
   public override val variables: JacksonInputQuery.Variables
 ) : GraphQLClientRequest<JacksonInputQuery.Result> {
@@ -21,10 +23,12 @@ public class JacksonInputQuery(
   public override fun responseType(): KClass<JacksonInputQuery.Result> =
       JacksonInputQuery.Result::class
 
+  @Generated
   public data class Variables(
     public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined
   )
 
+  @Generated
   public data class Result(
     /**
      * Query that accepts some input arguments

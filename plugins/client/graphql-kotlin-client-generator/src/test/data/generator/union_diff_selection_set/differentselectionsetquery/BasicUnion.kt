@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.differentselectionsetquery
 
+import com.expediagroup.graphql.client.Generated
 import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
@@ -9,6 +10,7 @@ import kotlin.Int
 /**
  * Very basic union of BasicObject and ComplexObject
  */
+@Generated
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
@@ -22,6 +24,7 @@ public interface BasicUnion
 /**
  * Some basic description
  */
+@Generated
 public data class BasicObject(
   public val id: Int
 ) : BasicUnion
@@ -31,6 +34,7 @@ public data class BasicObject(
  * This is a second line of the paragraph.
  * This is final line of the description.
  */
+@Generated
 public data class ComplexObject(
   /**
    * Some unique identifier

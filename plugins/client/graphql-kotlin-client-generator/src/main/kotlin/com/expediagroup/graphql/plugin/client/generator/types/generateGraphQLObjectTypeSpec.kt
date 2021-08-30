@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidSelectionSetException
@@ -47,6 +48,7 @@ internal fun generateGraphQLObjectTypeSpec(
     val typeName = objectNameOverride ?: objectDefinition.name
     val objectTypeSpecBuilder = TypeSpec.classBuilder(typeName)
         .addModifiers(KModifier.DATA)
+        .addAnnotation(Generated::class)
     objectDefinition.description?.content?.let { kdoc ->
         objectTypeSpecBuilder.addKdoc("%L", kdoc)
     }

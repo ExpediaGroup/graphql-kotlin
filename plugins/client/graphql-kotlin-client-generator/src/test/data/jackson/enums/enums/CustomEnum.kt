@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.enums
 
+import com.expediagroup.graphql.client.Generated
 import com.fasterxml.jackson.`annotation`.JsonEnumDefaultValue
 import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Deprecated
@@ -7,6 +8,7 @@ import kotlin.Deprecated
 /**
  * Custom enum description
  */
+@Generated
 public enum class CustomEnum {
   /**
    * First enum value

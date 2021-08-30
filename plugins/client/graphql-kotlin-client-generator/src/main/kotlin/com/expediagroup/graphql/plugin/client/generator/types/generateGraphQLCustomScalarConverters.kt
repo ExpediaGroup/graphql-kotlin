@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
@@ -69,6 +70,7 @@ private fun generateGraphQLCustomScalarJacksonConverters(
     val serializeConverterName = "${customScalarName}ToAnyConverter"
     val serializerConverterTypeSpec = TypeSpec.classBuilder(serializeConverterName)
         .superclass(StdConverter::class.asTypeName().parameterizedBy(scalarClassName, ANY))
+        .addAnnotation(Generated::class)
         .addProperty(converter)
         .addFunction(
             FunSpec.builder("convert")
@@ -83,6 +85,7 @@ private fun generateGraphQLCustomScalarJacksonConverters(
     val deserializeConverterName = "AnyTo${customScalarName}Converter"
     val deserializerConverterTypeSpec = TypeSpec.classBuilder(deserializeConverterName)
         .superclass(StdConverter::class.asTypeName().parameterizedBy(ANY, scalarClassName))
+        .addAnnotation(Generated::class)
         .addProperty(converter)
         .addFunction(
             FunSpec.builder("convert")
@@ -110,6 +113,7 @@ private fun generateGraphQLCustomScalarKSerializer(
     val serializerName = "${customScalarName}Serializer"
     val serializerTypeSpec = TypeSpec.objectBuilder(serializerName)
         .addSuperinterface(KSerializer::class.asTypeName().parameterizedBy(scalarClassName))
+        .addAnnotation(Generated::class)
 
     val converter = PropertySpec.builder("converter", converterClassName)
         .initializer("%T()", converterClassName)

@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
 import com.expediagroup.graphql.generated.inputs.ComplexArgumentInput
@@ -15,6 +16,7 @@ import kotlinx.serialization.Serializable
 public const val SECOND_QUERY: String =
     "query SecondQuery(${'$'}input: ComplexArgumentInput) {\n  complexInputObjectQuery(criteria: ${'$'}input)\n  complexObjectQuery {\n    id\n    name\n  }\n  enumQuery\n  interfaceQuery {\n    __typename\n    id\n    name\n    ... on FirstInterfaceImplementation {\n      intValue\n    }\n    ... on SecondInterfaceImplementation {\n      floatValue\n    }\n  }\n  scalarQuery {\n    count\n    custom\n    id\n  }\n}"
 
+@Generated
 @Serializable
 public class SecondQuery(
   public override val variables: SecondQuery.Variables
@@ -27,11 +29,13 @@ public class SecondQuery(
 
   public override fun responseType(): KClass<SecondQuery.Result> = SecondQuery.Result::class
 
+  @Generated
   @Serializable
   public data class Variables(
     public val input: ComplexArgumentInput? = null
   )
 
+  @Generated
   @Serializable
   public data class Result(
     /**

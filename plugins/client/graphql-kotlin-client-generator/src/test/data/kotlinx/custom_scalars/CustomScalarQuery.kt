@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.customscalarquery.ScalarWrapper
 import kotlin.String
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
 public const val CUSTOM_SCALAR_QUERY: String =
     "query CustomScalarQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  count\n  custom\n  customList\n  id\n}"
 
+@Generated
 @Serializable
 public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
   @Required
@@ -21,6 +23,7 @@ public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> 
   public override fun responseType(): KClass<CustomScalarQuery.Result> =
       CustomScalarQuery.Result::class
 
+  @Generated
   @Serializable
   public data class Result(
     /**

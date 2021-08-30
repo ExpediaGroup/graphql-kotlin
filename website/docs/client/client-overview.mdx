@@ -173,12 +173,14 @@ Plugins will generate following client code
 ```kotlin
 package com.example.generated
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlin.String
 import kotlin.reflect.KClass
 
 const val HELLO_WORLD_QUERY: String = "query HelloWorldQuery {\n    helloWorld\n}"
 
+@Generated
 class HelloWorldQuery: GraphQLClientRequest<HelloWorldQuery.Result> {
     override val query: String = HELLO_WORLD_QUERY
 
@@ -186,6 +188,7 @@ class HelloWorldQuery: GraphQLClientRequest<HelloWorldQuery.Result> {
 
     override fun responseType(): KClass<HelloWorldQuery.Result> = HelloWorldQuery.Result::class
 
+    @Generated
     data class Result(
         val helloWorld: String
     }

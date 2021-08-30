@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.customscalarquery
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.generated.ID
 import com.expediagroup.graphql.generated.scalars.UUIDSerializer
 import java.util.UUID
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
 /**
  * Wrapper that holds all supported scalar types
  */
+@Generated
 @Serializable
 public data class ScalarWrapper(
   /**

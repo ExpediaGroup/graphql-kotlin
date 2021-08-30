@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.squareup.kotlinpoet.FunSpec
@@ -32,6 +33,7 @@ import kotlinx.serialization.Serializable
 internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, variableDefinitions: List<VariableDefinition>): TypeSpec? {
     val variableTypeSpec = TypeSpec.classBuilder("Variables")
         .addModifiers(KModifier.DATA)
+        .addAnnotation(Generated::class)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
         variableTypeSpec.addAnnotation(Serializable::class)
     }
