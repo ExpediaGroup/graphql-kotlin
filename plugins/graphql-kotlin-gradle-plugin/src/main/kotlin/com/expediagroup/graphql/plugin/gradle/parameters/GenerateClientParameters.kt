@@ -42,9 +42,6 @@ interface GenerateClientParameters : WorkParameters {
     val queryFiles: ListProperty<File>
     /** Directory where to save the generated source files. */
     val targetDirectory: Property<File>
-    /**
-     * Explicit opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined values.
-     * Only supported for JACKSON serializer.
-     */
+    /** Explicit opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined values. */
     val useOptionalInputWrapper: Property<Boolean>
 }

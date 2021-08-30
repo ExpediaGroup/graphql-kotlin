@@ -94,7 +94,6 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 
     /**
      * Explicit opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined values.
-     * Only supported for JACKSON serializer.
      */
     @Parameter(defaultValue = "\${graphql.useOptionalInputWrapper}", name = "useOptionalInputWrapper")
     private var useOptionalInputWrapper: Boolean = false

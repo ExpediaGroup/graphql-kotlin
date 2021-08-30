@@ -17,13 +17,16 @@
 package com.expediagroup.graphql.client.serialization.data
 
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
 @Serializable
 class OtherQuery : GraphQLClientRequest<OtherQuery.Result> {
+    @Required
     override val query: String = "OTHER_QUERY"
 
+    @Required
     override val operationName: String = "OtherQuery"
 
     override fun responseType(): KClass<Result> = Result::class

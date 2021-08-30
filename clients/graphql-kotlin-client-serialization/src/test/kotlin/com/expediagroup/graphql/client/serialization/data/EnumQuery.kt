@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.serialization.data
 
 import com.expediagroup.graphql.client.serialization.data.enums.TestEnum
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
@@ -25,8 +26,10 @@ import kotlin.reflect.KClass
 class EnumQuery(
     override val variables: Variables
 ) : GraphQLClientRequest<EnumQuery.Result> {
+    @Required
     override val query: String = "ENUM_QUERY"
 
+    @Required
     override val operationName: String = "EnumQuery"
 
     override fun responseType(): KClass<Result> = Result::class

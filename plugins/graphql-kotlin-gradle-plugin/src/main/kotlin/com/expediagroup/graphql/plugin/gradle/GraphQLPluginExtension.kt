@@ -75,7 +75,7 @@ open class GraphQLPluginClientExtension {
     var queryFileDirectory: String? = null
     /** JSON serializer that will be used to generate the data classes. */
     var serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
-    /** Opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined. Only supported for JACKSON serializer. */
+    /** Opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined. */
     var useOptionalInputWrapper: Boolean = false
 
     /** Connect and read timeout configuration for executing introspection query/download schema */

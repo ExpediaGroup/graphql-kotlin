@@ -199,12 +199,12 @@ val secondQuery = SecondQuery(variables = SecondQuery.Variables(foo = "baz"))
 val results: List<GraphQLResponse<*>> = client.execute(listOf(firstQuery, secondQuery))
 ```
 
-## Optional Input Support (Jackson only)
+## Optional Input Support
 
 In the GraphQL world, input types can be optional which means that the client can specify a value, specify a `null` value
 OR don't specify any value. This is in contrast with the JVM world where objects can either have some specific value or
 don't have any value (i.e. are `null`). By default, GraphQL Kotlin Client treats `null` Kotlin values as unspecified, which
-means it will skip all `null` values when serializing the request, e.g. given following query
+means they will skip all `null` values when serializing the request, e.g. given following query
 
 ```graphql
 query OptionalInputQuery($optionalValue: String) {

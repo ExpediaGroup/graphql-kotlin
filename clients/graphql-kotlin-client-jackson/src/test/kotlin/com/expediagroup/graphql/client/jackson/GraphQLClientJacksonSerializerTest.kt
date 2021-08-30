@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.client.jackson
 
+import com.expediagroup.graphql.client.jackson.data.EmptyInputQuery
 import com.expediagroup.graphql.client.jackson.data.EnumQuery
 import com.expediagroup.graphql.client.jackson.data.FirstQuery
-import com.expediagroup.graphql.client.jackson.data.InputListQuery
 import com.expediagroup.graphql.client.jackson.data.InputQuery
 import com.expediagroup.graphql.client.jackson.data.OptionalInputQuery
 import com.expediagroup.graphql.client.jackson.data.OtherQuery
@@ -30,6 +30,7 @@ import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLSourceLocation
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -38,6 +39,7 @@ import kotlin.test.assertEquals
 class GraphQLClientJacksonSerializerTest {
 
     private val testMapper = jacksonObjectMapper()
+        .enable(SerializationFeature.INDENT_OUTPUT)
     private val serializer = GraphQLClientJacksonSerializer(testMapper)
 
     @Test
@@ -45,32 +47,36 @@ class GraphQLClientJacksonSerializerTest {
         val testQuery = FirstQuery(FirstQuery.Variables(input = 1.0f))
         val expected =
             """{
-            |  "query": "FIRST_QUERY",
-            |  "operationName": "FirstQuery",
-            |  "variables": { "input": 1.0 }
+            |  "variables" : {
+            |    "input" : 1.0
+            |  },
+            |  "query" : "FIRST_QUERY",
+            |  "operationName" : "FirstQuery"
             |}
         """.trimMargin()
 
-        val result = serializer.serialize(testQuery)
-        assertEquals(testMapper.readTree(expected), testMapper.readTree(result))
+        val serialized = serializer.serialize(testQuery)
+        assertEquals(expected, serialized)
     }
 
     @Test
     fun `verify we can serialize batch GraphQLClientRequest`() {
         val queries = listOf(FirstQuery(FirstQuery.Variables(input = 1.0f)), OtherQuery())
         val expected =
-            """[{
-            |  "query": "FIRST_QUERY",
-            |  "operationName": "FirstQuery",
-            |  "variables": { "input": 1.0 }
-            |},{
-            |  "query": "OTHER_QUERY",
-            |  "operationName": "OtherQuery"
-            |}]
+            """[ {
+            |  "variables" : {
+            |    "input" : 1.0
+            |  },
+            |  "query" : "FIRST_QUERY",
+            |  "operationName" : "FirstQuery"
+            |}, {
+            |  "query" : "OTHER_QUERY",
+            |  "operationName" : "OtherQuery"
+            |} ]
         """.trimMargin()
 
-        val result = serializer.serialize(queries)
-        assertEquals(testMapper.readTree(expected), testMapper.readTree(result))
+        val serialized = serializer.serialize(queries)
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -173,16 +179,19 @@ class GraphQLClientJacksonSerializerTest {
     fun `verify we can serialize custom scalars`() {
         val randomUUID = UUID.randomUUID()
         val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = com.expediagroup.graphql.client.jackson.data.scalars.UUID(randomUUID)))
-        val rawQuery =
+        val expected =
             """{
-            |  "query": "SCALAR_QUERY",
-            |  "operationName": "ScalarQuery",
-            |  "variables": { "alias": "1234", "custom": "$randomUUID" }
+            |  "variables" : {
+            |    "alias" : "1234",
+            |    "custom" : "$randomUUID"
+            |  },
+            |  "query" : "SCALAR_QUERY",
+            |  "operationName" : "ScalarQuery"
             |}
         """.trimMargin()
 
         val serialized = serializer.serialize(scalarQuery)
-        assertEquals(testMapper.readTree(rawQuery), testMapper.readTree(serialized))
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -217,16 +226,18 @@ class GraphQLClientJacksonSerializerTest {
     @Test
     fun `verify we can serialize enums with custom names`() {
         val query = EnumQuery(variables = EnumQuery.Variables(enum = TestEnum.THREE))
-        val rawQuery =
+        val expected =
             """{
-            |  "query": "ENUM_QUERY",
-            |  "operationName": "EnumQuery",
-            |  "variables": { "enum": "three" }
+            |  "variables" : {
+            |    "enum" : "three"
+            |  },
+            |  "query" : "ENUM_QUERY",
+            |  "operationName" : "EnumQuery"
             |}
         """.trimMargin()
 
         val serialized = serializer.serialize(query)
-        assertEquals(testMapper.readTree(rawQuery), testMapper.readTree(serialized))
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -242,83 +253,69 @@ class GraphQLClientJacksonSerializerTest {
 
     @Test
     fun `verify we can serialize optional inputs`() {
-        val query = InputQuery(
-            variables = InputQuery.Variables(
+        val query = OptionalInputQuery(
+            variables = OptionalInputQuery.Variables(
                 requiredInput = 123,
                 optionalIntInput = OptionalInput.Defined(123),
                 optionalStringInput = OptionalInput.Defined(null)
+                // optionalBooleanInput = OptionalInput.Undefined // use default
             )
         )
-        val rawQuery =
+        val expected =
             """{
-            |  "query": "INPUT_QUERY",
-            |  "operationName": "InputQuery",
-            |  "variables": {
-            |    "requiredInput": 123,
-            |    "optionalIntInput": 123,
-            |    "optionalStringInput": null
-            |  }
+            |  "variables" : {
+            |    "requiredInput" : 123,
+            |    "optionalIntInput" : 123,
+            |    "optionalStringInput" : null
+            |  },
+            |  "query" : "OPTIONAL_INPUT_QUERY",
+            |  "operationName" : "OptionalInputQuery"
             |}
         """.trimMargin()
 
         val serialized = serializer.serialize(query)
-        assertEquals(testMapper.readTree(rawQuery), testMapper.readTree(serialized))
+        assertEquals(expected, serialized)
     }
 
     @Test
-    fun `verify list serialization`() {
-        val query = InputListQuery(
-            variables = InputListQuery.Variables(
-                nonNullableIds = listOf("ABC")
+    fun `verify serialization of null values and empty collections`() {
+        val query = InputQuery(
+            variables = InputQuery.Variables(
+                requiredInput = 123,
+                // nullableId = null, // use default
+                nullableListNullableElements = listOf(null),
+                nullableListNonNullableElements = null, // same as default
+                nullableElementList = listOf("foo", null),
+                nonNullableElementList = listOf()
             )
         )
-        val rawQuery =
-            """{
-            |  "query": "INPUT_LIST_QUERY",
-            |  "operationName": "InputListQuery",
-            |  "variables": {
-            |    "nonNullableIds": ["ABC"]
-            |  }
-            |}
-        """.trimMargin()
+
+        val expected = """{
+            |  "variables" : {
+            |    "requiredInput" : 123,
+            |    "nullableListNullableElements" : [ null ],
+            |    "nullableElementList" : [ "foo", null ],
+            |    "nonNullableElementList" : [ ]
+            |  },
+            |  "query" : "INPUT_QUERY",
+            |  "operationName" : "InputQuery"
+            |}""".trimMargin()
         val serialized = serializer.serialize(query)
-        assertEquals(testMapper.readTree(rawQuery), testMapper.readTree(serialized))
+        assertEquals(expected, serialized)
     }
 
     @Test
-    fun `verify nullable list serialization`() {
-        val query = InputListQuery(
-            variables = InputListQuery.Variables(
-                nullableIds = listOf("XYZ", null),
-                nullableIdList = null,
-                nonNullableIds = listOf()
-            )
+    fun `verify serialization of empty variables`() {
+        val query = EmptyInputQuery(
+            variables = EmptyInputQuery.Variables()
         )
-        val rawQuery =
-            """{
-            |  "query": "INPUT_LIST_QUERY",
-            |  "operationName": "InputListQuery",
-            |  "variables": {
-            |    "nullableIds": ["XYZ", null],
-            |    "nonNullableIds": []
-            |  }
-            |}
-        """.trimMargin()
-        val serialized = serializer.serialize(query)
-        assertEquals(testMapper.readTree(rawQuery), testMapper.readTree(serialized))
-    }
 
-    @Test
-    fun `verify unspecified optional input serialization results in empty variables`() {
-        val query = OptionalInputQuery(variables = OptionalInputQuery.Variables())
-        val rawQuery =
-            """{
-            |  "query": "OPTIONAL_INPUT_QUERY",
-            |  "operationName": "OptionalInputQuery",
-            |  "variables": {}
-            |}
-        """.trimMargin()
+        val expected = """{
+            |  "variables" : { },
+            |  "query" : "EMPTY_INPUT_QUERY",
+            |  "operationName" : "EmptyInputQuery"
+            |}""".trimMargin()
         val serialized = serializer.serialize(query)
-        assertEquals(testMapper.readTree(rawQuery), testMapper.readTree(serialized))
+        assertEquals(expected, serialized)
     }
 }

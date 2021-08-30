@@ -5,6 +5,7 @@ import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val KOTLIN_X_INPUT_QUERY: String =
@@ -14,8 +15,10 @@ public const val KOTLIN_X_INPUT_QUERY: String =
 public class KotlinXInputQuery(
   public override val variables: KotlinXInputQuery.Variables
 ) : GraphQLClientRequest<KotlinXInputQuery.Result> {
+  @Required
   public override val query: String = KOTLIN_X_INPUT_QUERY
 
+  @Required
   public override val operationName: String = "KotlinXInputQuery"
 
   public override fun responseType(): KClass<KotlinXInputQuery.Result> =

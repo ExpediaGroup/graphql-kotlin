@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.jackson.data
+package com.expediagroup.graphql.client.serialization.data
 
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
-import kotlin.String
-import kotlin.collections.List
+import kotlinx.serialization.Required
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
-class InputListQuery(
+@Serializable
+class OptionalInputQuery(
     override val variables: Variables
-) : GraphQLClientRequest<InputListQuery.Result> {
-    override val query: String = "INPUT_LIST_QUERY"
+) : GraphQLClientRequest<OptionalInputQuery.Result> {
+    @Required
+    override val query: String = "OPTIONAL_INPUT_QUERY"
 
-    override val operationName: String = "InputListQuery"
+    @Required
+    override val operationName: String = "OptionalInputQuery"
 
     override fun responseType(): KClass<Result> = Result::class
 
+    @Serializable
     data class Variables(
-        val nullableIds: List<String?>? = null,
-        val nullableIdList: List<String>? = null,
-        val nonNullableIds: List<String>
+        val requiredInput: Int,
+        val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
+        val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
+        val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined
     )
 
+    @Serializable
     data class Result(
-        val inputListQuery: String?
+        val stringResult: String
     )
 }

@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.customscalarquery.ScalarWrapper
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val CUSTOM_SCALAR_QUERY: String =
@@ -11,8 +12,10 @@ public const val CUSTOM_SCALAR_QUERY: String =
 
 @Serializable
 public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
+  @Required
   public override val query: String = CUSTOM_SCALAR_QUERY
 
+  @Required
   public override val operationName: String = "CustomScalarQuery"
 
   public override fun responseType(): KClass<CustomScalarQuery.Result> =

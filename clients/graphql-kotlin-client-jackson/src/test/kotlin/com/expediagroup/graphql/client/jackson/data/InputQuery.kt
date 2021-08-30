@@ -16,8 +16,9 @@
 
 package com.expediagroup.graphql.client.jackson.data
 
-import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlin.String
+import kotlin.collections.List
 import kotlin.reflect.KClass
 
 class InputQuery(
@@ -31,12 +32,14 @@ class InputQuery(
 
     data class Variables(
         val requiredInput: Int,
-        val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
-        val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
-        val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined
+        val nullableId: Int? = null,
+        val nullableListNullableElements: List<String?>? = null,
+        val nullableListNonNullableElements: List<String>? = null,
+        val nullableElementList: List<String?>,
+        val nonNullableElementList: List<String>
     )
 
     data class Result(
-        val stringResult: String
+        val inputListQuery: String?
     )
 }

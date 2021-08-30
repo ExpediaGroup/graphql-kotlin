@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.unionquerywithinlinefragments.BasicUnion
 import kotlin.String
 import kotlin.reflect.KClass
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
@@ -12,8 +13,10 @@ public const val UNION_QUERY_WITH_INLINE_FRAGMENTS: String =
 @Serializable
 public class UnionQueryWithInlineFragments :
     GraphQLClientRequest<UnionQueryWithInlineFragments.Result> {
+  @Required
   public override val query: String = UNION_QUERY_WITH_INLINE_FRAGMENTS
 
+  @Required
   public override val operationName: String = "UnionQueryWithInlineFragments"
 
   public override fun responseType(): KClass<UnionQueryWithInlineFragments.Result> =
