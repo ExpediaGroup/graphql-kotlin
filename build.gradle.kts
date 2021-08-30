@@ -108,7 +108,7 @@ subprojects {
         val dokka = named("dokkaJavadoc", DokkaTask::class)
         val javadocJar by registering(Jar::class) {
             archiveClassifier.set("javadoc")
-            from("$buildDir/javadoc")
+            from("$buildDir/dokka/javadoc")
             dependsOn(dokka)
         }
         publishing {

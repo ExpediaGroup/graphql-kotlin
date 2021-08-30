@@ -21,8 +21,6 @@ import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
-import org.junit.jupiter.api.condition.JRE
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.createType
@@ -145,27 +143,13 @@ class KTypeExtensionsKtTest {
         }
     }
 
-    // TODO remove JUnit condition once we only build artifacts using Java 11
-    //  BLOCKED: in order to publish to Maven Central we need to generate javadoc jar, blocked until Dokka https://github.com/Kotlin/dokka/issues/294 is resolved
-    //  ISSUE: with Kotlin 1.3.40+ there is bug on JRE 1.8 that results in incorrect simple name of the anonymous classes, see https://youtrack.jetbrains.com/issue/KT-23072
     @Test
-    @EnabledOnJre(JRE.JAVA_11)
     fun getSimpleName() {
         assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
         assertEquals("MyClassInput", MyClass::class.starProjectedType.getSimpleName(isInputType = true))
         assertFailsWith(CouldNotGetNameOfKClassException::class) {
             object {}::class.starProjectedType.getSimpleName()
         }
-    }
-
-    // TODO remove this JUnit once we only build artifacts using Java 11
-    //  BLOCKED: in order to publish to Maven Central we need to generate javadoc jar, blocked until Dokka https://github.com/Kotlin/dokka/issues/294 is resolved
-    //  ISSUE: with Kotlin 1.3.40+ there is bug on JRE 1.8 that results in incorrect simple name of the anonymous classes, see https://youtrack.jetbrains.com/issue/KT-23072
-    @Test
-    @EnabledOnJre(JRE.JAVA_8)
-    fun getSimpleNameJava8() {
-        assertEquals("MyClass", MyClass::class.starProjectedType.getSimpleName())
-        assertEquals("MyClassInput", MyClass::class.starProjectedType.getSimpleName(isInputType = true))
     }
 
     @Test
