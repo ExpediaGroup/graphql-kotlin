@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +30,6 @@ import kotlin.test.assertFailsWith
 
 class SpringDataFetcherTest {
 
-    private val objectMapper = jacksonObjectMapper()
     private val context: ApplicationContext = mockk {
         every { getBean(MyService::class.java) } returns MyService()
         every { getBean(NotService::class.java) } throws NoSuchBeanDefinitionException(NotService::class.java)
@@ -45,7 +43,6 @@ class SpringDataFetcherTest {
         val dataFetcher = SpringDataFetcher(
             target = MyQuery(),
             fn = MyQuery::callService,
-            objectMapper = objectMapper,
             applicationContext = context
         )
 
@@ -59,7 +56,6 @@ class SpringDataFetcherTest {
         val dataFetcher = SpringDataFetcher(
             target = MyQuery(),
             fn = MyQuery::callServiceNoAnnotation,
-            objectMapper = objectMapper,
             applicationContext = context
         )
 
@@ -73,7 +69,6 @@ class SpringDataFetcherTest {
         val dataFetcher = SpringDataFetcher(
             target = MyQuery(),
             fn = MyQuery::callNotService,
-            objectMapper = objectMapper,
             applicationContext = context
         )
 
@@ -87,7 +82,6 @@ class SpringDataFetcherTest {
         val dataFetcher = SpringDataFetcher(
             target = MyQuery(),
             fn = MyQuery::callNotServiceNoAnnotation,
-            objectMapper = objectMapper,
             applicationContext = context
         )
 

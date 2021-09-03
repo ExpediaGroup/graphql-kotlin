@@ -29,6 +29,8 @@ data class Widget(
     @GraphQLDescription("The widget's deprecated value that shouldn't be used")
     val deprecatedValue: Int? = value,
 
+    val listOfValues: List<Int>? = null,
+
     @GraphQLIgnore
     val ignoredField: String? = "ignored",
 
