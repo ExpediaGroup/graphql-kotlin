@@ -34,4 +34,23 @@ class WidgetMutation : Mutation {
         }
         return widget
     }
+
+    fun processWidgetList(widgets: List<Widget>): List<Widget> {
+        widgets.forEach {
+            if (null == it.value) {
+                it.value = 42
+            }
+        }
+
+        return widgets
+    }
+
+    fun processWidgetArray(widgets: Array<Widget>): Array<Widget> {
+        widgets.forEach {
+            if (null == it.value) {
+                it.value = 42
+            }
+        }
+        return widgets
+    }
 }
