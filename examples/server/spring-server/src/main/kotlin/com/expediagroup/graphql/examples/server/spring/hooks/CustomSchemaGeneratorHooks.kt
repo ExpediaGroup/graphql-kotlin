@@ -27,6 +27,7 @@ import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import org.springframework.beans.factory.BeanFactoryAware
 import reactor.core.publisher.Mono
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -43,6 +44,12 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
      */
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
+        ClosedRange::class -> {
+            when(type.arguments[0].type?.classifier as? KClass<*>) {
+                LocalDate::class -> graphqlPeriodType
+                else -> null
+            }
+        }
         else -> null
     }
 
@@ -92,5 +99,38 @@ private object UUIDCoercing : Coercing<UUID, String> {
         dataFetcherResult.toString()
     }.getOrElse {
         throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+    }
+}
+
+internal val graphqlPeriodType: GraphQLScalarType = GraphQLScalarType.newScalar()
+    .name("Period")
+    .description("""A period of local date to local date, inclusive on both ends i.e. a closed range.""")
+    .coercing(PeriodCoercing)
+    .build()
+
+typealias Period = ClosedRange<LocalDate>
+
+private object PeriodCoercing : Coercing<Period, String> {
+    override fun parseValue(input: Any): Period = runCatching {
+        input.toString().parseAsPeriod()
+    }.getOrElse {
+        throw CoercingParseValueException("Expected valid Period but was $input")
+    }
+
+    override fun parseLiteral(input: Any): Period = runCatching {
+        (input as? StringValue)?.value?.parseAsPeriod() ?: throw CoercingParseLiteralException("Expected valid Period literal but was $input")
+    }.getOrElse {
+        throw CoercingParseLiteralException("Expected valid Period literal but was $input")
+    }
+
+    override fun serialize(dataFetcherResult: Any): String = kotlin.runCatching {
+        toString()
+    }.getOrElse {
+        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+    }
+
+    private fun String.parseAsPeriod(): Period = split("..").let {
+        if (it.size != 2) error("Cannot parse input $this as Period")
+        LocalDate.parse(it[0])..LocalDate.parse(it[1])
     }
 }

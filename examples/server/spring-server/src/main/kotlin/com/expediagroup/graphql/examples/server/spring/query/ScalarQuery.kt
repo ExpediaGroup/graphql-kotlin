@@ -33,6 +33,9 @@ class ScalarQuery : Query {
     fun generateRandomUUID() = UUID.randomUUID()
 
     @GraphQLDescription("Prints a string with a custom scalar as input")
+    fun printUuid(uuid: UUID) = "You sent $uuid"
+
+    @GraphQLDescription("Prints a string with a custom scalar as input")
     fun printUuids(uuids: List<UUID>) = "You sent $uuids"
 
     fun findPersonById(id: ID) = Person(id, "Nelson")
