@@ -6,7 +6,14 @@ import com.example.generated.inputs.SimpleArgumentInput
 import com.example.generated.junitquery.BasicObject2
 import com.example.generated.junitquery.ScalarWrapper
 import com.example.generated.junitquery.SecondInterfaceImplementation
-{{#optionalInputWrapper}}import com.expediagroup.graphql.client.jackson.types.OptionalInput{{/optionalInputWrapper}}
+{{#optionalInputWrapper}}
+{{#useJackson}}
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
+{{/useJackson}}
+{{^useJackson}}
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
+{{/useJackson}}
+{{/optionalInputWrapper}}
 {{#ktorClient}}
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 {{#defaultHeader}}

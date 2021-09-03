@@ -59,7 +59,7 @@ class IntrospectSchemaTest {
                     if: Boolean!
                   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-                "Marks the field or enum value as deprecated"
+                "Marks the field, argument, input field or enum value as deprecated"
                 directive @deprecated(
                     "The reason for the deprecation"
                     reason: String = "No longer supported"

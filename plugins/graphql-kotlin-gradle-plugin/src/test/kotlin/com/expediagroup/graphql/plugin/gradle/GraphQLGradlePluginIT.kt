@@ -256,9 +256,10 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
                     "Application",
                     mapOf(
                         "ktorClient" to useKtorClient,
+                        "useJackson" to (serializer == GraphQLSerializer.JACKSON),
                         "defaultHeader" to mapOf("name" to defaultHeaderName, "value" to defaultHeaderValue),
                         "requestHeader" to mapOf("name" to customHeaderName, "value" to customHeaderValue),
-                        "optionalInputWrapper" to (serializer == GraphQLSerializer.JACKSON)
+                        "optionalInputWrapper" to true
                     )
                 )
             )
