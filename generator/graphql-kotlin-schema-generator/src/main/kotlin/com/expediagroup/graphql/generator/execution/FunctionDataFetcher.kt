@@ -146,22 +146,30 @@ open class FunctionDataFetcher(
     private fun convertValue(
         paramType: KType,
         argumentValue: Any?
-    ): Any? = when {
-        paramType.isList() -> {
-            val argumentClass = paramType.getTypeOfFirstArgument().getJavaClass()
-            val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
-            objectMapper.convertValue(argumentValue, jacksonCollectionType)
+    ): Any? {
+        if (argumentValueIsNotParsed(argumentValue)) {
+            return when {
+                paramType.isList() -> {
+                    val argumentClass = paramType.getTypeOfFirstArgument().getJavaClass()
+                    val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
+                    objectMapper.convertValue(argumentValue, jacksonCollectionType)
+                }
+                paramType.isArray() -> {
+                    val argumentClass = paramType.getWrappedType().getJavaClass()
+                    val jacksonCollectionType = objectMapper.typeFactory.constructArrayType(argumentClass)
+                    objectMapper.convertValue(argumentValue, jacksonCollectionType)
+                }
+                else -> {
+                    val javaClass = paramType.getJavaClass()
+                    objectMapper.convertValue(argumentValue, javaClass)
+                }
+            }
         }
-        paramType.isArray() -> {
-            val argumentClass = paramType.getWrappedType().getJavaClass()
-            val jacksonCollectionType = objectMapper.typeFactory.constructArrayType(argumentClass)
-            objectMapper.convertValue(argumentValue, jacksonCollectionType)
-        }
-        else -> {
-            val javaClass = paramType.getJavaClass()
-            objectMapper.convertValue(argumentValue, javaClass)
-        }
+
+        return argumentValue
     }
+
+    private fun argumentValueIsNotParsed(argumentValue: Any?): Boolean = argumentValue != null && (argumentValue is Map<*, *> || argumentValue is String)
 
     /**
      * Once all parameters values are properly converted, this function will be called to run a suspendable function.
