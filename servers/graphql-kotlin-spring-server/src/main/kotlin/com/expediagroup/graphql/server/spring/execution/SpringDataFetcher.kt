@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -34,9 +33,8 @@ import kotlin.reflect.jvm.javaType
 open class SpringDataFetcher(
     target: Any?,
     fn: KFunction<*>,
-    objectMapper: ObjectMapper,
     private val applicationContext: ApplicationContext
-) : FunctionDataFetcher(target, fn, objectMapper) {
+) : FunctionDataFetcher(target, fn) {
 
     @ExperimentalStdlibApi
     override fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =

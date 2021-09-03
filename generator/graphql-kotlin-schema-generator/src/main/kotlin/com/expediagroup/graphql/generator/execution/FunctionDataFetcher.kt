@@ -16,17 +16,10 @@
 
 package com.expediagroup.graphql.generator.execution
 
-import com.expediagroup.graphql.generator.internal.extensions.getJavaClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
-import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
-import com.expediagroup.graphql.generator.internal.extensions.getWrappedType
-import com.expediagroup.graphql.generator.internal.extensions.isArray
 import com.expediagroup.graphql.generator.internal.extensions.isDataFetchingEnvironment
 import com.expediagroup.graphql.generator.internal.extensions.isGraphQLContext
-import com.expediagroup.graphql.generator.internal.extensions.isList
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineStart
@@ -38,7 +31,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.KType
 import kotlin.reflect.full.callSuspendBy
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.valueParameters
@@ -49,13 +41,12 @@ import kotlin.reflect.full.valueParameters
  * @param target The target object that performs the data fetching, if not specified then this data fetcher will attempt
  *   to use source object from the environment
  * @param fn The Kotlin function being invoked
- * @param objectMapper Jackson ObjectMapper that will be used to deserialize environment arguments to the expected function arguments
+ * @param defaultCoroutineContext The coroutine context to use when calling suspendable functions
  */
 @Suppress("Detekt.SpreadOperator")
 open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
     private val defaultCoroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : DataFetcher<Any?> {
 
@@ -118,58 +109,6 @@ open class FunctionDataFetcher(
                 }
             }
         }
-
-    /**
-     * Convert the generic arument value from JSON input to the paramter class.
-     * This is currently achieved by using a Jackson ObjectMapper.
-     */
-    private fun convertArgumentToObject(
-        param: KParameter,
-        environment: DataFetchingEnvironment,
-        argumentName: String,
-        argumentValue: Any?
-    ): Any? = when {
-        param.type.isOptionalInputType() -> {
-            when {
-                !environment.containsArgument(argumentName) -> OptionalInput.Undefined
-                argumentValue == null -> OptionalInput.Defined(null)
-                else -> {
-                    val paramType = param.type.getTypeOfFirstArgument()
-                    val value = convertValue(paramType, argumentValue)
-                    OptionalInput.Defined(value)
-                }
-            }
-        }
-        else -> convertValue(param.type, argumentValue)
-    }
-
-    private fun convertValue(
-        paramType: KType,
-        argumentValue: Any?
-    ): Any? {
-        if (argumentValueIsNotParsed(argumentValue)) {
-            return when {
-                paramType.isList() -> {
-                    val argumentClass = paramType.getTypeOfFirstArgument().getJavaClass()
-                    val jacksonCollectionType = objectMapper.typeFactory.constructCollectionType(List::class.java, argumentClass)
-                    objectMapper.convertValue(argumentValue, jacksonCollectionType)
-                }
-                paramType.isArray() -> {
-                    val argumentClass = paramType.getWrappedType().getJavaClass()
-                    val jacksonCollectionType = objectMapper.typeFactory.constructArrayType(argumentClass)
-                    objectMapper.convertValue(argumentValue, jacksonCollectionType)
-                }
-                else -> {
-                    val javaClass = paramType.getJavaClass()
-                    objectMapper.convertValue(argumentValue, javaClass)
-                }
-            }
-        }
-
-        return argumentValue
-    }
-
-    private fun argumentValueIsNotParsed(argumentValue: Any?): Boolean = argumentValue != null && (argumentValue is Map<*, *> || argumentValue is String)
 
     /**
      * Once all parameters values are properly converted, this function will be called to run a suspendable function.

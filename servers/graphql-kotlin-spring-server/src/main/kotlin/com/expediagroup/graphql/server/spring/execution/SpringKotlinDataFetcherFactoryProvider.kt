@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcherFactory
 import org.springframework.context.ApplicationContext
 import kotlin.reflect.KFunction
@@ -27,9 +26,8 @@ import kotlin.reflect.KFunction
  * This allows you to use Spring beans as function arugments and they will be populated by the data fetcher.
  */
 class SpringKotlinDataFetcherFactoryProvider(
-    private val objectMapper: ObjectMapper,
     private val applicationContext: ApplicationContext
-) : SimpleKotlinDataFetcherFactoryProvider(objectMapper) {
+) : SimpleKotlinDataFetcherFactoryProvider() {
     override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any?> =
-        DataFetcherFactory { SpringDataFetcher(target, kFunction, objectMapper, applicationContext) }
+        DataFetcherFactory { SpringDataFetcher(target, kFunction, applicationContext) }
 }
