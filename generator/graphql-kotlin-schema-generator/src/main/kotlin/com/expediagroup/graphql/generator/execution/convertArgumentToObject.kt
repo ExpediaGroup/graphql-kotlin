@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.execution
 
 import com.expediagroup.graphql.generator.exceptions.CouldNotConstructAValidKotlinObject
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
+import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import graphql.schema.DataFetchingEnvironment
@@ -69,7 +70,7 @@ private fun convertValue(
         return argumentValue.map {
             val wrappedType = paramType.getTypeOfFirstArgument()
             convertValue(wrappedType, it)
-        }
+        }.toTypedArray()
     }
 
     // If the value is a generic map, parse each entry which may have some values already parsed
@@ -88,19 +89,19 @@ private fun convertValue(
 private fun <T : Any> mapToKotlinObject(inputMap: Map<String, *>, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw CouldNotConstructAValidKotlinObject(targetClass)
     val params = targetConstructor.parameters
-    val constructorValues = mutableListOf<Any?>()
+    val constructorValues = mutableMapOf<KParameter, Any?>()
 
     params.forEach {
-        val input = inputMap[it.name]
+        val input = inputMap[it.getName()]
         if (input is Map<*, *>) {
             val nestedTarged = it.type.getKClass()
             @Suppress("UNCHECKED_CAST")
             val subValue = mapToKotlinObject(input as Map<String, *>, nestedTarged)
-            constructorValues.add(subValue)
+            constructorValues[it] = subValue
         } else {
-            constructorValues.add(input)
+            constructorValues[it] = input
         }
     }
 
-    return targetConstructor.call(*constructorValues.toTypedArray())
+    return targetConstructor.callBy(constructorValues)
 }
