@@ -74,6 +74,11 @@ class FunctionDataFetcherTest {
             is OptionalInput.Undefined -> "input was UNDEFINED"
             is OptionalInput.Defined -> "first input was ${input.value?.first()?.field1}"
         }
+
+        fun optionalListInputObjects(input: OptionalInput<List<MyInputClass>>): String = when (input) {
+            is OptionalInput.Undefined -> "input was UNDEFINED"
+            is OptionalInput.Defined -> "first input was ${input.value?.first()?.field1}"
+        }
     }
 
     @GraphQLName("MyInputClassRenamed")
@@ -179,7 +184,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `list can be converted by the object mapper`() {
+    fun `list inputs can be converted by the object mapper`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printList)
         val mockEnvironmet: DataFetchingEnvironment = mockk {
             every { arguments } returns mapOf("items" to listOf("foo", "bar"))
@@ -286,7 +291,18 @@ class FunctionDataFetcherTest {
     fun `optional array of input objects is deserialized correctly`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalArrayInputObjects)
         val mockEnvironmet: DataFetchingEnvironment = mockk {
-            every { arguments } returns mapOf("input" to arrayListOf(linkedMapOf("jacksonField" to "foo")))
+            every { arguments } returns mapOf("input" to arrayOf(linkedMapOf("jacksonField" to "foo")))
+            every { containsArgument("input") } returns true
+        }
+        val result = dataFetcher.get(mockEnvironmet)
+        assertEquals(expected = "first input was foo", actual = result)
+    }
+
+    @Test
+    fun `optional list of input objects is deserialized correctly`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalListInputObjects)
+        val mockEnvironmet: DataFetchingEnvironment = mockk {
+            every { arguments } returns mapOf("input" to listOf(linkedMapOf("jacksonField" to "foo")))
             every { containsArgument("input") } returns true
         }
         val result = dataFetcher.get(mockEnvironmet)
