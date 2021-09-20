@@ -30,6 +30,11 @@
             <artifactId>reactor-core</artifactId>
             <version>${reactor.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>69.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -78,6 +83,15 @@
                                     <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
                                        used to convert to/from raw JSON and scalar type -->
                                     <converter>com.expediagroup.graphql.examples.client.maven.UUIDScalarConverter</converter>
+                                </customScalar>
+                                <customScalar>
+                                    <!-- custom scalar UUID type -->
+                                    <scalar>Locale</scalar>
+                                    <!-- fully qualified Java class name of a custom scalar type -->
+                                    <type>com.ibm.icu.util.ULocale</type>
+                                    <!-- fully qualified Java class name of a custom com.expediagroup.graphql.client.converter.ScalarConverter
+                                       used to convert to/from raw JSON and scalar type -->
+                                    <converter>com.expediagroup.graphql.examples.client.maven.ULocaleScalarConverter</converter>
                                 </customScalar>
                             </customScalars>
                             <serializer>JACKSON</serializer>

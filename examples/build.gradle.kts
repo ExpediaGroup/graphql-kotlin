@@ -51,6 +51,7 @@ subprojects {
         implementation(kotlin("stdlib", kotlinVersion))
         implementation(kotlin("reflect", kotlinVersion))
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
+        implementation("com.ibm.icu:icu4j:69.1")
         testImplementation(kotlin("test-junit5", kotlinVersion))
         testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
         testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.examples.client.server.model
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
+import com.ibm.icu.util.ULocale
 import java.util.UUID
 
 @GraphQLDescription("Wrapper that holds all supported scalar types")
@@ -32,8 +33,12 @@ data class ScalarWrapper(
     val count: Int?,
     @GraphQLDescription("A nullable signed double-precision floating-point value")
     val rating: Float?,
-    @GraphQLDescription("Custom scalar")
+    @GraphQLDescription("Custom scalar of UUID")
     val custom: UUID,
-    @GraphQLDescription("List of custom scalars")
-    val customList: List<UUID>
+    @GraphQLDescription("List of custom scalar UUIDs")
+    val customList: List<UUID>,
+    @GraphQLDescription("Custom scalar of Locale")
+    val locale: ULocale,
+    @GraphQLDescription("List of custom scalar Locales")
+    val listLocale: List<ULocale>
 )
