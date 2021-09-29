@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.plugin.client.generator.exceptions
+package com.expediagroup.graphql.examples.client.gradle
+
+import com.expediagroup.graphql.client.converter.ScalarConverter
+import com.ibm.icu.util.ULocale
 
 /**
- * Exception thrown when specified query file contains invalid selection set.
+ * Public client converter for a [ULocale]
  */
-internal class InvalidSelectionSetException(operationName: String, typeDefinitionName: String, typeName: String) :
-    RuntimeException("Operation $operationName specifies invalid selection set for $typeName - cannot find field '$typeDefinitionName'")
+class ULocaleScalarConverter : ScalarConverter<ULocale> {
+    override fun toScalar(rawValue: Any): ULocale = ULocale(rawValue.toString())
+    override fun toJson(value: ULocale): Any = value.toString()
+}

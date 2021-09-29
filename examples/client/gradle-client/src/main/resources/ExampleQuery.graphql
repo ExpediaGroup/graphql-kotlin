@@ -8,6 +8,8 @@ query ExampleQuery($simpleCriteria: SimpleArgumentInput) {
     name
     rating
     valid
+    locale
+    listLocale
   }
   listQuery {
     id

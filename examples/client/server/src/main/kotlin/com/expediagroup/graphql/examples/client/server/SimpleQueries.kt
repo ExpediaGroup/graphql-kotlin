@@ -31,6 +31,7 @@ import com.expediagroup.graphql.examples.client.server.repository.BasicObjectRep
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Query
+import com.ibm.icu.util.ULocale
 import org.springframework.stereotype.Component
 import java.util.UUID
 import kotlin.random.Random
@@ -54,7 +55,9 @@ class SimpleQueries(private val repository: BasicObjectRepository) : Query {
         count = 1,
         rating = null,
         custom = UUID.randomUUID(),
-        customList = listOf(UUID.randomUUID(), UUID.randomUUID())
+        customList = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        locale = ULocale.US,
+        listLocale = listOf(ULocale.US, ULocale.FRANCE)
     )
 
     @GraphQLDescription("Query returning list of simple objects")

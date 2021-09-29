@@ -16,12 +16,10 @@
 
 package com.expediagroup.graphql.examples.client.server
 
+import com.expediagroup.graphql.examples.client.server.scalars.graphqlULocaleType
+import com.expediagroup.graphql.examples.client.server.scalars.graphqlUUIDType
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import graphql.language.StringValue
-import graphql.schema.Coercing
-import graphql.schema.CoercingParseLiteralException
-import graphql.schema.CoercingParseValueException
-import graphql.schema.GraphQLScalarType
+import com.ibm.icu.util.ULocale
 import graphql.schema.GraphQLType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -32,33 +30,11 @@ import kotlin.reflect.KType
 @SpringBootApplication
 class Application {
 
-    private val graphqlUUIDType = GraphQLScalarType.newScalar()
-        .name("UUID")
-        .description("Custom scalar representing UUID")
-        .coercing(object : Coercing<UUID, String> {
-            override fun parseValue(input: Any): UUID = try {
-                UUID.fromString(
-                    serialize(input)
-                )
-            } catch (e: Exception) {
-                throw CoercingParseValueException("Cannot parse value $input to UUID", e)
-            }
-
-            override fun parseLiteral(input: Any): UUID = try {
-                val uuidString = (input as? StringValue)?.value
-                UUID.fromString(uuidString)
-            } catch (e: Exception) {
-                throw CoercingParseLiteralException("Cannot parse literal $input to UUID", e)
-            }
-
-            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
-        })
-        .build()
-
     @Bean
     fun customHooks(): SchemaGeneratorHooks = object : SchemaGeneratorHooks {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
             UUID::class -> graphqlUUIDType
+            ULocale::class -> graphqlULocaleType
             else -> null
         }
     }
