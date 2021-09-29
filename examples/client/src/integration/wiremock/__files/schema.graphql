@@ -147,6 +147,10 @@ type ScalarWrapper {
   rating: Float
   "Either true or false"
   valid: Boolean!
+  "Custom scalar of Locale"
+  locale: Locale!
+  "List of custom scalar Locales"
+  listLocale: [Locale!]!
 }
 
 "Example interface implementation where value is a float"
