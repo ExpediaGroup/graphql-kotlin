@@ -127,6 +127,10 @@ type ScalarWrapper {
   rating: Float
   "Either true or false"
   valid: Boolean!
+  "Custom scalar of Locale"
+  locale: Locale!
+  "List of custom scalar Locales"
+  listLocale: [Locale!]!
 }
 "Example interface implementation where value is a float"
 type SecondInterfaceImplementation implements BasicInterface {
@@ -160,6 +164,10 @@ enum OtherEnum {
 }
 "Custom scalar representing UUID"
 scalar UUID
+
+"A type representing a Locale such as en_US or fr_FR"
+scalar Locale
+
 "Test input object"
 input SimpleArgumentInput {
   "Maximum value for test criteria"

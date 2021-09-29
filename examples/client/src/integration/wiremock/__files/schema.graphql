@@ -172,6 +172,9 @@ enum CustomEnum {
 "Custom scalar representing UUID"
 scalar UUID
 
+"A type representing a Locale such as en_US or fr_FR"
+scalar Locale
+
 "Some basic description"
 input BasicObjectInput {
   id: Int!
