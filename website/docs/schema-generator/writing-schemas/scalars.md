@@ -16,7 +16,7 @@ extended scalar types provided by `graphql-java`.
 
 :::caution
 Extended GraphQL scalar types provided by `graphql-java` were [deprecated in v15](https://github.com/graphql-java/graphql-java/releases/tag/v15.0).
-This includes the following types: `Long`, `Short`, `Float`, `BigInteger`, `BigDecimal`, and `Char`. If you are currently
+This includes the following types: `Double`, `Long`, `Short`, `Float`, `BigInteger`, `BigDecimal`, and `Char`. If you are currently
 using these types, they will be removed in future `graphql-java` releases.
 
 See the [graphql-java-extended-scalars](https://github.com/graphql-java/graphql-java-extended-scalars) project if you need continued support.
