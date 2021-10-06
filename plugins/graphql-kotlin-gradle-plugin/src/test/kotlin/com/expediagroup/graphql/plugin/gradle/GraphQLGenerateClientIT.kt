@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
-import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.io.TempDir
@@ -52,7 +51,7 @@ class GraphQLGenerateClientIT {
             .forwardOutput()
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, buildResult.task(":build")?.outcome)
     }
 
     companion object {

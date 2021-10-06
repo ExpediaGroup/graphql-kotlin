@@ -2,5 +2,7 @@ query CustomScalarQuery {
   scalarQuery {
     custom
     customList
+    locale
+    listLocale
   }
 }

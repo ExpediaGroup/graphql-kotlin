@@ -27,6 +27,7 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
 import graphql.Directives.DeprecatedDirective
 import graphql.language.Field
 import graphql.language.FieldDefinition
@@ -57,47 +58,16 @@ internal fun generatePropertySpecs(
             throw MissingArgumentException(context.operationName, objectName, selectedField.name, missingRequiredArguments)
         }
 
-        val nullable = fieldDefinition.type !is NonNullType
         val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
         val fieldName = selectedField.alias ?: fieldDefinition.name
 
-        val propertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType.copy(nullable = nullable))
+        val propertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
         if (!abstract) {
             propertySpecBuilder.initializer(fieldName)
-
-            val (unwrappedFieldType, isList) = if (kotlinFieldType is ParameterizedTypeName) {
-                kotlinFieldType.typeArguments.first() to true
-            } else {
-                kotlinFieldType to false
-            }
-
-            if (context.isCustomScalar(unwrappedFieldType)) {
-                val converterInfo = context.scalarClassToConverterTypeSpecs[unwrappedFieldType]
-                when {
-                    converterInfo is ScalarConverterInfo.JacksonConvertersInfo -> {
-                        val annotationMember = if (isList) {
-                            "contentConverter"
-                        } else {
-                            "converter"
-                        }
-                        propertySpecBuilder.addAnnotation(
-                            AnnotationSpec.builder(JsonSerialize::class)
-                                .addMember("$annotationMember = %T::class", converterInfo.serializerClassName)
-                                .build()
-                        )
-                        propertySpecBuilder.addAnnotation(
-                            AnnotationSpec.builder(JsonDeserialize::class)
-                                .addMember("$annotationMember = %T::class", converterInfo.deserializerClassName)
-                                .build()
-                        )
-                    }
-                    converterInfo is ScalarConverterInfo.KotlinxSerializerInfo && !isList -> {
-                        propertySpecBuilder.addAnnotation(
-                            AnnotationSpec.builder(Serializable::class)
-                                .addMember("with = %T::class", converterInfo.serializerClassName)
-                                .build()
-                        )
-                    }
+            val (rawType, isList) = unwrapRawType(kotlinFieldType)
+            if (context.isCustomScalar(rawType)) {
+                generateCustomScalarPropertyAnnotations(context, rawType, isList).forEach { scalarAnnotation ->
+                    propertySpecBuilder.addAnnotation(scalarAnnotation)
                 }
             }
         } else {
@@ -122,3 +92,51 @@ internal fun generatePropertySpecs(
         }
         propertySpecBuilder.build()
     }
+
+internal fun unwrapRawType(type: TypeName): Pair<TypeName, Boolean> {
+    val rawType = type.unwrapNullableType()
+    return if (rawType is ParameterizedTypeName) {
+        rawType.typeArguments.first() to true
+    } else {
+        rawType to false
+    }
+}
+
+private fun TypeName.unwrapNullableType(): TypeName = if (this.isNullable) {
+    this.copy(nullable = false)
+} else {
+    this
+}
+
+internal fun generateCustomScalarPropertyAnnotations(context: GraphQLClientGeneratorContext, rawType: TypeName, isList: Boolean): List<AnnotationSpec> {
+    val result = mutableListOf<AnnotationSpec>()
+    val converterInfo = context.scalarClassToConverterTypeSpecs[rawType]
+    when {
+        converterInfo is ScalarConverterInfo.JacksonConvertersInfo -> {
+            val annotationMember = if (isList) {
+                "contentConverter"
+            } else {
+                "converter"
+            }
+            result.add(
+                AnnotationSpec.builder(JsonSerialize::class)
+                    .addMember("$annotationMember = %T::class", converterInfo.serializerClassName)
+                    .build()
+            )
+            result.add(
+                AnnotationSpec.builder(JsonDeserialize::class)
+                    .addMember("$annotationMember = %T::class", converterInfo.deserializerClassName)
+                    .build()
+            )
+        }
+        converterInfo is ScalarConverterInfo.KotlinxSerializerInfo && !isList -> {
+            result.add(
+                AnnotationSpec.builder(Serializable::class)
+                    .addMember("with = %T::class", converterInfo.serializerClassName)
+                    .build()
+            )
+        }
+    }
+
+    return result
+}

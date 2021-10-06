@@ -33,7 +33,15 @@ class GenerateInvalidClientIT {
         val (queries, _) = locateTestFiles(testDirectory)
         val expectedException = File(testDirectory, "exception.txt").readText().trim()
 
-        val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, defaultConfig)
+        val config = defaultConfig.copy(
+            serializer = GraphQLSerializer.JACKSON,
+            customScalarMap = mapOf(
+                "UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter"),
+                "Locale" to GraphQLScalar("Locale", "com.ibm.icu.util.ULocale", "com.expediagroup.graphql.plugin.client.generator.ULocaleScalarConverter")
+            ),
+            useOptionalInputWrapper = true
+        )
+        val generator = GraphQLClientGenerator(TEST_SCHEMA_PATH, config)
         val exception = assertFails {
             generator.generate(queries)
         }

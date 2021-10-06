@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
+import com.ibm.icu.util.ULocale
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.junit.jupiter.params.provider.Arguments
@@ -82,4 +83,9 @@ internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDi
 class UUIDScalarConverter : ScalarConverter<UUID> {
     override fun toScalar(rawValue: Any): UUID = UUID.fromString(rawValue.toString())
     override fun toJson(value: UUID): String = value.toString()
+}
+
+class ULocaleScalarConverter : ScalarConverter<ULocale> {
+    override fun toScalar(rawValue: Any): ULocale = ULocale(rawValue.toString())
+    override fun toJson(value: ULocale): Any = value.toString()
 }

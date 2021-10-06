@@ -37,9 +37,11 @@ import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
+import org.slf4j.LoggerFactory
 import java.io.File
 
 private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
+internal val LOGGER = LoggerFactory.getLogger(GraphQLClientGenerator::class.java)
 
 /**
  * GraphQL client code generator that uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate Kotlin classes based on the specified GraphQL queries.

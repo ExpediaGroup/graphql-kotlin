@@ -7,7 +7,7 @@ import kotlin.String
 import kotlin.reflect.KClass
 
 public const val CUSTOM_SCALAR_QUERY: String =
-    "query CustomScalarQuery {\n  scalarQuery {\n    custom\n    customList\n  }\n}"
+    "query CustomScalarQuery {\n  scalarQuery {\n    custom\n    customList\n    locale\n    listLocale\n  }\n}"
 
 @Generated
 public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> {
