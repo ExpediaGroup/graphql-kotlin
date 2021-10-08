@@ -17,7 +17,7 @@ android {
 }
 
 val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "5.0.0-SNAPSHOT"
-val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.5.21"
+val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.5.31"
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-ktor-client:$graphQLKotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
