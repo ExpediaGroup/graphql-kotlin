@@ -37,8 +37,8 @@ class GraphQLGradlePluginAndroidIT {
         val testProjectDirectory = tempDir.toFile()
         sourceDirectory.copyRecursively(testProjectDirectory)
 
-        val androidPluginVersion = System.getProperty("androidPluginVersion") ?: "4.2.2"
-        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.5.21"
+        val androidPluginVersion = System.getProperty("androidPluginVersion") ?: "7.0.1"
+        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.5.31"
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
