@@ -93,9 +93,10 @@ subprojects {
             // NOTE: in order to run gradle and maven plugin integration tests we need to have our build artifacts available in local repo
             finalizedBy("publishToMavenLocal")
         }
-        test {
-            useJUnitPlatform()
-            finalizedBy(jacocoTestReport)
+        java {
+            // even though we don't have any Java code, since we are building using Java LTS version,
+            // this is required for Gradle to set the correct JVM versions in the module metadata
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
 
         // published artifacts
@@ -166,6 +167,11 @@ subprojects {
             val signingPassword: String? = System.getenv("GPG_PASSPHRASE")
             useInMemoryPgpKeys(signingKey, signingPassword)
             sign(publishing.publications)
+        }
+
+        test {
+            useJUnitPlatform()
+            finalizedBy(jacocoTestReport)
         }
     }
 
