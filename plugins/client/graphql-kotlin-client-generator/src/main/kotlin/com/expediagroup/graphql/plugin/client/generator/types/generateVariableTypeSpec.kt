@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.LOGGER
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
@@ -31,7 +32,8 @@ import kotlinx.serialization.Serializable
  * Generate [TypeSpec] data class wrapper for variables used within the target query.
  */
 internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, variableDefinitions: List<VariableDefinition>): TypeSpec? {
-    val variableTypeSpec = TypeSpec.classBuilder("Variables")
+    val variablesTypeName = "Variables"
+    val variableTypeSpec = TypeSpec.classBuilder(variablesTypeName)
         .addModifiers(KModifier.DATA)
         .addAnnotation(Generated::class)
     if (context.serializer == GraphQLSerializer.KOTLINX) {
@@ -41,16 +43,42 @@ internal fun generateVariableTypeSpec(context: GraphQLClientGeneratorContext, va
     val constructorSpec = FunSpec.constructorBuilder()
     variableDefinitions.forEach { variableDef ->
         val kotlinTypeName = generateTypeName(context, variableDef.type)
-        val variableTypeName = kotlinTypeName.wrapOptionalInputType(context)
 
-        val parameterBuilder = ParameterSpec.builder(variableDef.name, variableTypeName)
-        if (kotlinTypeName.isNullable) {
-            parameterBuilder.defaultValue(nullableDefaultValueCodeBlock(context))
+        val (rawType, isList) = unwrapRawType(kotlinTypeName)
+        val isCustomScalar = context.isCustomScalar(rawType)
+        val shouldWrapInOptional = shouldWrapInOptional(kotlinTypeName, context)
+
+        val variableTypeName = if (!isCustomScalar && shouldWrapInOptional) {
+            kotlinTypeName.wrapOptionalInputType(context)
+        } else {
+            kotlinTypeName
         }
-        constructorSpec.addParameter(parameterBuilder.build())
-        variableTypeSpec.addProperty(
-            PropertySpec.builder(variableDef.name, variableTypeName)
-                .initializer(variableDef.name)
+
+        val variable = PropertySpec.builder(variableDef.name, variableTypeName)
+            .initializer(variableDef.name)
+            .also { builder ->
+                if (isCustomScalar) {
+                    builder.addAnnotations(generateCustomScalarPropertyAnnotations(context, rawType, isList))
+
+                    if (shouldWrapInOptional) {
+                        LOGGER.warn(
+                            "Operation ${context.operationName} specifies optional custom scalar as input - ${variableDef.name} in Variables. " +
+                                "Currently custom scalars do not work with optional wrappers."
+                        )
+                        builder.addKdoc("NOTE: This field was not wrapped in optional as currently custom scalars do not work with optional wrappers.")
+                    }
+                }
+            }
+            .build()
+        variableTypeSpec.addProperty(variable)
+
+        constructorSpec.addParameter(
+            ParameterSpec.builder(variable.name, variable.type)
+                .also { builder ->
+                    if (kotlinTypeName.isNullable) {
+                        builder.defaultValue(nullableDefaultValueCodeBlock(context, isCustomScalar))
+                    }
+                }
                 .build()
         )
     }

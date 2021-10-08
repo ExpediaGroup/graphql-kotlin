@@ -7,8 +7,9 @@ query CustomScalarQuery {
   }
 }
 fragment scalarSelections on ScalarWrapper {
-  count
+  id
   custom
   customList
-  id
+  locale
+  listLocale
 }

@@ -24,7 +24,7 @@ import com.expediagroup.graphql.plugin.client.generator.extensions.findFragmentD
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FLOAT
+import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -59,7 +59,7 @@ internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLTyp
         is NamedNode<*> -> when (graphQLType.name) {
             Scalars.GraphQLString.name -> STRING
             Scalars.GraphQLInt.name -> INT
-            Scalars.GraphQLFloat.name -> FLOAT
+            Scalars.GraphQLFloat.name -> DOUBLE
             Scalars.GraphQLBoolean.name -> BOOLEAN
             else -> generateCustomClassName(context, graphQLType, selectionSet)
         }

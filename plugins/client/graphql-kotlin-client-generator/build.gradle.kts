@@ -2,6 +2,7 @@ description = "GraphQL Kotlin common utilities to generate a client."
 
 val compileTestingVersion: String by project
 val graphQLJavaVersion: String by project
+val icuVersion: String by project
 val jacksonVersion: String by project
 val junitVersion: String by project
 val kotlinPoetVersion: String by project
@@ -26,6 +27,7 @@ dependencies {
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:$compileTestingVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    testImplementation("com.ibm.icu:icu4j:$icuVersion")
 }
 
 tasks {

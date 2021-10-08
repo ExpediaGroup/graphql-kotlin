@@ -5,7 +5,7 @@ import com.fasterxml.jackson.`annotation`.JsonSubTypes
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.As.PROPERTY
 import com.fasterxml.jackson.`annotation`.JsonTypeInfo.Id.NAME
-import kotlin.Float
+import kotlin.Double
 import kotlin.Int
 import kotlin.String
 
@@ -56,5 +56,5 @@ public data class SecondInterfaceImplementation2(
   /**
    * Custom field float value
    */
-  public val floatValue: Float
+  public val floatValue: Double
 ) : BasicInterface2

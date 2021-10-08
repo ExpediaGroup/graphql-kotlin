@@ -1,7 +1,7 @@
 package com.expediagroup.graphql.generated.inputs
 
 import com.expediagroup.graphql.client.Generated
-import kotlin.Float
+import kotlin.Double
 import kotlin.String
 
 /**
@@ -12,11 +12,11 @@ public data class SimpleArgumentInput(
   /**
    * Maximum value for test criteria
    */
-  public val max: Float? = null,
+  public val max: Double? = null,
   /**
    * Minimum value for test criteria
    */
-  public val min: Float? = null,
+  public val min: Double? = null,
   /**
    * New value to be set
    */

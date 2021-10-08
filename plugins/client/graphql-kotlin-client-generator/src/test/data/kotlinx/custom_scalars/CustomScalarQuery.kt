@@ -9,7 +9,7 @@ import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 
 public const val CUSTOM_SCALAR_QUERY: String =
-    "query CustomScalarQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  count\n  custom\n  customList\n  id\n}"
+    "query CustomScalarQuery {\n  first: scalarQuery {\n    ... scalarSelections\n  }\n  second: scalarQuery {\n    ... scalarSelections\n  }\n}\nfragment scalarSelections on ScalarWrapper {\n  id\n  custom\n  customList\n  locale\n  listLocale\n}"
 
 @Generated
 @Serializable

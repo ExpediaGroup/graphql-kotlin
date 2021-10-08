@@ -1,0 +1,17 @@
+query CustomScalarQuery(
+    $required: Locale!
+    $optional: Locale
+    $wrapper: ScalarWrapperInput
+) {
+    scalarQuery(required: $required, optional: $optional, wrapper: $wrapper) {
+        count
+        id
+        locale
+        localeList
+        name
+        rating
+        uuid
+        uuidList
+        valid
+    }
+}

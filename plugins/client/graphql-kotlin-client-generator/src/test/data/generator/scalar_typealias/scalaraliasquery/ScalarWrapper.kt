@@ -14,7 +14,7 @@ public data class ScalarWrapper(
    */
   public val id: ID,
   /**
-   * Custom scalar
+   * Custom scalar of UUID
    */
-  public val custom: UUID
+  public val custom: UUID?
 )

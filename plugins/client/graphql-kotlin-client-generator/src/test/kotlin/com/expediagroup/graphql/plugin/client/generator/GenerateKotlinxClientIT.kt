@@ -28,7 +28,10 @@ class GenerateKotlinxClientIT {
     fun `verify generation of client code using kotlinx serialization`(testDirectory: File) {
         val config = defaultConfig.copy(
             allowDeprecated = true,
-            customScalarMap = mapOf("UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter")),
+            customScalarMap = mapOf(
+                "UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter"),
+                "Locale" to GraphQLScalar("Locale", "com.ibm.icu.util.ULocale", "com.expediagroup.graphql.plugin.client.generator.ULocaleScalarConverter")
+            ),
             serializer = GraphQLSerializer.KOTLINX
         )
         verifyClientGeneration(config, testDirectory)

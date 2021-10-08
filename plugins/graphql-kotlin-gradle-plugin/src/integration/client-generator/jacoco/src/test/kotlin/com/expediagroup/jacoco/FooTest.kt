@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 class FooTest {
 
     @Test
-    fun `simple test for 0`() = runBlocking {
+    fun `simple test for excluding generated code from coverage`() = runBlocking {
         val mockkClient = mockk<GraphQLWebClient> {
             coEvery { execute(any<GraphQLClientRequest<String>>(), any()) } returns JacksonGraphQLResponse(data = "Bar")
         }

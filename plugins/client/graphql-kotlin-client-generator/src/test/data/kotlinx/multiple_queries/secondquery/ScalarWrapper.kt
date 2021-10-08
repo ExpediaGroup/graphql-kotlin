@@ -18,10 +18,10 @@ public data class ScalarWrapper(
    */
   public val count: Int?,
   /**
-   * Custom scalar
+   * Custom scalar of UUID
    */
   @Serializable(with = UUIDSerializer::class)
-  public val custom: UUID,
+  public val custom: UUID?,
   /**
    * ID represents unique identifier that is not intended to be human readable
    */

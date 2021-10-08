@@ -1,7 +1,7 @@
 package com.expediagroup.graphql.generated.interfacewithinlinefragmentsquery
 
 import com.expediagroup.graphql.client.Generated
-import kotlin.Float
+import kotlin.Double
 import kotlin.Int
 import kotlin.String
 import kotlinx.serialization.SerialName
@@ -63,5 +63,5 @@ public data class SecondInterfaceImplementation(
   /**
    * Custom field float value
    */
-  public val floatValue: Float
+  public val floatValue: Double
 ) : BasicInterface()

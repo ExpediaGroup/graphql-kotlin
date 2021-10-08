@@ -96,6 +96,8 @@ type Query {
   otherEnumQuery: OtherEnum!
   "Query that accepts some input arguments"
   inputObjectQuery(criteria: SimpleArgumentInput!): Boolean!
+  "Query that accepts a custom scalar input"
+  inputCustomScalarQuery(requiredLocale: Locale!, optionalLocale: Locale, scalarWrapper: ScalarWrapperInput): Boolean!
   "Query returning an interface"
   interfaceQuery: BasicInterface!
   "Query returning list of simple objects"
@@ -115,10 +117,10 @@ type Query {
 type ScalarWrapper {
   "A signed 32-bit nullable integer value"
   count: Int
-  "Custom scalar"
-  custom: UUID!
-  "List of custom scalars"
-  customList: [UUID!]!
+  "Custom scalar of UUID"
+  custom: UUID
+  "List of custom scalar UUIDs"
+  customList: [UUID!]
   "ID represents unique identifier that is not intended to be human readable"
   id: ID!
   "UTF-8 character sequence"
@@ -185,4 +187,25 @@ input ComplexArgumentInput {
   min: Float
   "Next criteria"
   next: ComplexArgumentInput
+}
+"Wrapper that holds all supported scalar types"
+input ScalarWrapperInput {
+    "A signed 32-bit nullable integer value"
+    count: Int
+    "Custom scalar of UUID"
+    custom: UUID
+    "List of custom scalar UUIDs"
+    customList: [UUID!]
+    "ID represents unique identifier that is not intended to be human readable"
+    id: ID!
+    "UTF-8 character sequence"
+    name: String!
+    "A nullable signed double-precision floating-point value"
+    rating: Float
+    "Either true or false"
+    valid: Boolean!
+    "Custom scalar of Locale"
+    locale: Locale!
+    "List of custom scalar Locales"
+    listLocale: [Locale!]!
 }

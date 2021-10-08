@@ -1,0 +1,3 @@
+query CustomScalarInputQuery($requiredLocale: Locale!, $optionalLocale: Locale, $scalarWrapper: ScalarWrapperInput) {
+  inputCustomScalarQuery(requiredLocale: $requiredLocale, optionalLocale: $optionalLocale, scalarWrapper: $scalarWrapper)
+}

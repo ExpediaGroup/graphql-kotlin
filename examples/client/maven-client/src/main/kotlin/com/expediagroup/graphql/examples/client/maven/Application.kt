@@ -76,7 +76,7 @@ fun main() {
 
     println("additional examples")
     runBlocking {
-        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = OptionalInput.Defined(SimpleArgumentInput(max = OptionalInput.Defined(1.0f))))))
+        val exampleData = client.execute(ExampleQuery(variables = ExampleQuery.Variables(simpleCriteria = OptionalInput.Defined(SimpleArgumentInput(max = OptionalInput.Defined(1.0))))))
         println("\tretrieved interface: ${exampleData.data?.interfaceQuery} ")
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")

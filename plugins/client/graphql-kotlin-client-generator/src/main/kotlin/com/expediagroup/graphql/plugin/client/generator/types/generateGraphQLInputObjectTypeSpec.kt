@@ -19,6 +19,7 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.LOGGER
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -36,7 +37,8 @@ import kotlinx.serialization.Serializable
  * Generate [TypeSpec] data class from the specified input object definition where are fields are mapped to corresponding Kotlin property.
  */
 internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorContext, inputObjectDefinition: InputObjectTypeDefinition): TypeSpec {
-    val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputObjectDefinition.name)
+    val inputTypeName = inputObjectDefinition.name
+    val inputObjectTypeSpecBuilder = TypeSpec.classBuilder(inputTypeName)
         .addModifiers(KModifier.DATA)
         .addAnnotation(Generated::class)
     inputObjectDefinition.description?.content?.let { kdoc ->
@@ -49,31 +51,58 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
 
     val constructorBuilder = FunSpec.constructorBuilder()
     inputObjectDefinition.inputValueDefinitions.forEach { fieldDefinition ->
-        val kotlinFieldType = generateTypeName(context, fieldDefinition.type)
-        val fieldName = fieldDefinition.name
+        val kotlinFieldTypeName = generateTypeName(context, fieldDefinition.type)
 
-        val inputFieldType = kotlinFieldType.wrapOptionalInputType(context)
-        val inputPropertySpecBuilder = PropertySpec.builder(fieldName, inputFieldType)
-            .initializer(fieldName)
-        fieldDefinition.description?.content?.let { kdoc ->
-            inputPropertySpecBuilder.addKdoc("%L", kdoc)
+        val (rawType, isList) = unwrapRawType(kotlinFieldTypeName)
+        val isCustomScalar = context.isCustomScalar(rawType)
+        val shouldWrapInOptional = shouldWrapInOptional(kotlinFieldTypeName, context)
+
+        val inputFieldType = if (!isCustomScalar && shouldWrapInOptional) {
+            kotlinFieldTypeName.wrapOptionalInputType(context)
+        } else {
+            kotlinFieldTypeName
         }
 
-        val inputPropertySpec = inputPropertySpecBuilder.build()
+        val inputPropertySpec = PropertySpec.builder(fieldDefinition.name, inputFieldType)
+            .initializer(fieldDefinition.name)
+            .also { builder ->
+                fieldDefinition.description?.content?.let { kdoc ->
+                    builder.addKdoc("%L", kdoc)
+                }
+
+                if (isCustomScalar) {
+                    builder.addAnnotations(generateCustomScalarPropertyAnnotations(context, rawType, isList))
+
+                    if (shouldWrapInOptional) {
+                        LOGGER.warn(
+                            "Operation ${context.operationName} specifies optional custom scalar as input - ${fieldDefinition.name} in Variables. " +
+                                "Currently custom scalars do not work with optional wrappers."
+                        )
+                        builder.addKdoc("\nNOTE: This field was not wrapped in optional as currently custom scalars do not work with optional wrappers.")
+                    }
+                }
+            }
+            .build()
         inputObjectTypeSpecBuilder.addProperty(inputPropertySpec)
 
-        val inputParameterSpec = ParameterSpec.builder(inputPropertySpec.name, inputPropertySpec.type)
-        if (kotlinFieldType.isNullable) {
-            inputParameterSpec.defaultValue(nullableDefaultValueCodeBlock(context))
-        }
-        constructorBuilder.addParameter(inputParameterSpec.build())
+        constructorBuilder.addParameter(
+            ParameterSpec.builder(inputPropertySpec.name, inputPropertySpec.type)
+                .also { builder ->
+                    if (kotlinFieldTypeName.isNullable) {
+                        builder.defaultValue(nullableDefaultValueCodeBlock(context, isCustomScalar))
+                    }
+                }
+                .build()
+        )
     }
     inputObjectTypeSpecBuilder.primaryConstructor(constructorBuilder.build())
 
     return inputObjectTypeSpecBuilder.build()
 }
 
-internal fun TypeName.wrapOptionalInputType(context: GraphQLClientGeneratorContext): TypeName = if (this.isNullable && context.useOptionalInputWrapper) {
+internal fun shouldWrapInOptional(type: TypeName, context: GraphQLClientGeneratorContext) = type.isNullable && context.useOptionalInputWrapper
+
+internal fun TypeName.wrapOptionalInputType(context: GraphQLClientGeneratorContext): TypeName =
     if (context.serializer == GraphQLSerializer.JACKSON) {
         ClassName("com.expediagroup.graphql.client.jackson.types", "OptionalInput")
             .parameterizedBy(this.copy(nullable = false))
@@ -81,11 +110,8 @@ internal fun TypeName.wrapOptionalInputType(context: GraphQLClientGeneratorConte
         ClassName("com.expediagroup.graphql.client.serialization.types", "OptionalInput")
             .parameterizedBy(this.copy(nullable = false))
     }
-} else {
-    this
-}
 
-internal fun nullableDefaultValueCodeBlock(context: GraphQLClientGeneratorContext): CodeBlock = if (context.useOptionalInputWrapper) {
+internal fun nullableDefaultValueCodeBlock(context: GraphQLClientGeneratorContext, isCustomScalar: Boolean): CodeBlock = if (context.useOptionalInputWrapper && !isCustomScalar) {
     if (context.serializer == GraphQLSerializer.JACKSON) {
         CodeBlock.of("%M", MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined"))
     } else {
