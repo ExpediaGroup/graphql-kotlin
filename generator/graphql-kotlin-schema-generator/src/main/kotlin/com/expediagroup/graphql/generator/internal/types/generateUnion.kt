@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
+import com.expediagroup.graphql.generator.exceptions.InvalidUnionException
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
@@ -49,7 +50,7 @@ private fun generateUnionFromAnnotation(generator: SchemaGenerator, unionAnnotat
 
     val possibleTypes = unionAnnotation.possibleTypes.toList()
 
-    return createUnion(generator, builder, possibleTypes)
+    return createUnion(unionName, generator, builder, possibleTypes)
 }
 
 private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*>): GraphQLUnionType {
@@ -66,10 +67,14 @@ private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*
 
     val types = generator.classScanner.getSubTypesOf(kClass)
 
-    return createUnion(generator, builder, types)
+    return createUnion(name, generator, builder, types)
 }
 
-private fun createUnion(generator: SchemaGenerator, builder: GraphQLUnionType.Builder, types: List<KClass<*>>): GraphQLUnionType {
+private fun createUnion(typeName: String, generator: SchemaGenerator, builder: GraphQLUnionType.Builder, types: List<KClass<*>>): GraphQLUnionType {
+    if (types.isEmpty()) {
+        throw InvalidUnionException(typeName)
+    }
+
     types.map { generateGraphQLType(generator, it.createType()) }
         .forEach {
             when (val unwrappedType = it.unwrapType()) {
