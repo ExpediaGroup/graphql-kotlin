@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
+import com.expediagroup.graphql.generator.exceptions.InvalidUnionException
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
@@ -84,7 +85,7 @@ class GenerateUnionTest : TypeTestHelper() {
 
     @Test
     fun `unused unions throw exception`() {
-        assertFailsWith(graphql.AssertException::class) {
+        assertFailsWith(InvalidUnionException::class) {
             generateUnion(generator, UnusedUnion::class)
         }
     }
@@ -133,7 +134,7 @@ class GenerateUnionTest : TypeTestHelper() {
     @Test
     fun `custom union annotation throws if possible types is empty`() {
         val annotation = AnnotationUnion::emptyUnion.annotations.first() as GraphQLUnion
-        assertFailsWith(graphql.AssertException::class) {
+        assertFailsWith(InvalidUnionException::class) {
             generateUnion(generator, Any::class, annotation)
         }
     }
