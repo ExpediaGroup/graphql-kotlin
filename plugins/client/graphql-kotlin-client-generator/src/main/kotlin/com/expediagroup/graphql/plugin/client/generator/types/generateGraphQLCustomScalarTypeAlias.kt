@@ -22,8 +22,6 @@ import graphql.language.ScalarTypeDefinition
 
 /**
  * Generate String type alias to custom GraphQL scalars (including ID) since they are serialized as Strings by default.
- *
- * @see generateGraphQLCustomScalarTypeSpec for handling of custom type safe scalars
  */
 internal fun generateGraphQLCustomScalarTypeAlias(context: GraphQLClientGeneratorContext, scalarTypeDefinition: ScalarTypeDefinition): TypeAliasSpec {
     val typeAliasSpec = TypeAliasSpec.builder(scalarTypeDefinition.name, String::class)

@@ -19,7 +19,9 @@ package com.expediagroup.graphql.plugin.client.generator
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOperationsInFileException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
+import com.expediagroup.graphql.plugin.client.generator.types.OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
+import com.expediagroup.graphql.plugin.client.generator.types.generateJacksonOptionalInputScalarSerializer
 import com.expediagroup.graphql.plugin.client.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -37,11 +39,9 @@ import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
-import org.slf4j.LoggerFactory
 import java.io.File
 
 private const val CORE_TYPES_PACKAGE = "com.expediagroup.graphql.client.types"
-internal val LOGGER = LoggerFactory.getLogger(GraphQLClientGenerator::class.java)
 
 /**
  * GraphQL client code generator that uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate Kotlin classes based on the specified GraphQL queries.
@@ -212,6 +212,14 @@ class GraphQLClientGenerator(
                     }
                 }
             typeAliases.putAll(context.typeAliases)
+
+            if (context.requireJacksonOptionalScalarSerializer) {
+                val optionalJacksonSerializer = generateJacksonOptionalInputScalarSerializer(config)
+                fileSpecs.add(FileSpec.builder(packageName = "${config.packageName}.scalars", fileName = OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)
+                    .addType(optionalJacksonSerializer)
+                    .build()
+                )
+            }
         }
         return fileSpecs
     }

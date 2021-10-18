@@ -27,14 +27,14 @@ class CustomScalarApplicationTests(@LocalServerPort private val port: Int) {
             localeList = listOf(ULocale.FRANCE, ULocale.UK),
             name = "junit_test",
             rating = OptionalInput.Defined(1.2345),
-            uuid = UUID.randomUUID(),
-            uuidList = listOf(UUID.randomUUID()),
+            uuid = OptionalInput.Defined(UUID.randomUUID()),
+            uuidList = OptionalInput.Defined(listOf(UUID.randomUUID())),
             valid = true
         )
 
         val query = CustomScalarQuery(variables = CustomScalarQuery.Variables(
             required = ULocale.US,
-            optional = null,
+            optional = OptionalInput.Undefined,
             wrapper = OptionalInput.Defined(wrapperInput)
         ))
 
@@ -46,9 +46,11 @@ class CustomScalarApplicationTests(@LocalServerPort private val port: Int) {
         assertEquals(wrapperInput.id, wrapperResponse.id)
         assertEquals(wrapperInput.localeList, wrapperResponse.localeList)
         assertEquals(wrapperInput.name, wrapperResponse.name)
+        // default value from server
+        assertEquals("undefined value", wrapperResponse.optional)
         assertEquals((wrapperInput.rating as? OptionalInput.Defined<Double>)?.value, wrapperResponse.rating)
-        assertEquals(wrapperInput.uuid, wrapperResponse.uuid)
-        assertEquals(wrapperInput.uuidList, wrapperResponse.uuidList)
+        assertEquals((wrapperInput.uuid as? OptionalInput.Defined<UUID>)?.value, wrapperResponse.uuid)
+        assertEquals((wrapperInput.uuidList as? OptionalInput.Defined<List<UUID>>)?.value, wrapperResponse.uuidList)
         assertEquals(wrapperInput.valid, wrapperResponse.valid)
     }
 
