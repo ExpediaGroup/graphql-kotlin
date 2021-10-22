@@ -14,7 +14,7 @@ what it should contain. `graphql-kotlin-server` provides a simple mechanism to
 build a context per operation with the [GraphQLContextFactory](../../server/graphql-context-factory.md).
 If a custom factory is defined, it will then be used to populate GraphQL context based on the incoming request and make it available during execution.
 
-## GraphQLContext Interface
+## GraphQLContext Interface (deprecated)
 
 The easiest way to specify a context class is to use the `GraphQLContext` marker interface. This interface does not require any implementations,
 it is just used to inform the schema generator that this is the class that should be used as the context for every request.
@@ -43,6 +43,31 @@ type Query {
 ```
 
 Note that the argument that implements `GraphQLContext` is not reflected in the GraphQL schema.
+
+## graphql-java GraphQLContext
+
+Starting with graphql-java 17.0 passing an arbitrary context object is deprecated. Instead,
+a new [GraphQLContext](https://javadoc.io/doc/com.graphql-java/graphql-java/17.0/graphql/GraphQLContext.html) definition
+was introduced as a mutable key value map as the preferred context mechanism.
+
+It can be accessed as an argument in functions just like custom context objects:
+
+```kotlin
+class ContextualQuery : Query {
+    fun contextualQuery(
+        context: graphql.GraphQLContext,
+        value: Int
+    ): String = "The custom value was ${context.get<String>("hello")} and the value was $value"
+}
+```
+
+The above query would produce the following GraphQL schema:
+
+```graphql
+type Query {
+  contextualQuery(value: Int!): String!
+}
+```
 
 ## Handling Context Errors
 

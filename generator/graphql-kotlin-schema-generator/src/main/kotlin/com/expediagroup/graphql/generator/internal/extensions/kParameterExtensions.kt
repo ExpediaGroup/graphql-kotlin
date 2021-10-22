@@ -24,7 +24,7 @@ import kotlin.reflect.full.isSubclassOf
 
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
 
-internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class)
+internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class) || this.type.classifier == graphql.GraphQLContext::class
 
 internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == DataFetchingEnvironment::class
 

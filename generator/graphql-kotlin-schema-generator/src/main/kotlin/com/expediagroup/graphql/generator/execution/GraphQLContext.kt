@@ -20,4 +20,5 @@ package com.expediagroup.graphql.generator.execution
  * Marker interface to indicate that the implementing class should be considered
  * as the GraphQL context. This means the implementing class will not appear in the schema.
  */
+@Deprecated(message = "Please migrate to graphql-java GraphQLContext", replaceWith = ReplaceWith("graphql.GraphQLContext"))
 interface GraphQLContext

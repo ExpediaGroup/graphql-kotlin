@@ -79,6 +79,8 @@ class GenerateFunctionTest : TypeTestHelper() {
 
         fun context(context: MyContext, string: String) = "${context.value} and $string"
 
+        fun graphQlJavaContext(context: graphql.GraphQLContext, string: String): String = "${context.get<String>("hello")} and $string"
+
         fun ignoredParameter(color: String, @GraphQLIgnore ignoreMe: String) = "$color and $ignoreMe"
 
         fun publisher(num: Int): Publisher<Int> = Flowable.just(num)
@@ -158,6 +160,17 @@ class GenerateFunctionTest : TypeTestHelper() {
     @Test
     fun `test context on argument`() {
         val kFunction = Happy::context
+        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
+
+        assertTrue(result.directives.isEmpty())
+        assertEquals(expected = 1, actual = result.arguments.size)
+        val arg = result.arguments.firstOrNull()
+        assertEquals(expected = "string", actual = arg?.name)
+    }
+
+    @Test
+    fun `test graphql-java context on argument`() {
+        val kFunction = Happy::graphQlJavaContext
         val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
 
         assertTrue(result.directives.isEmpty())

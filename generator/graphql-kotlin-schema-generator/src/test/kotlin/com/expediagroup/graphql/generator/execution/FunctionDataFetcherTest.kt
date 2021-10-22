@@ -50,6 +50,8 @@ class FunctionDataFetcherTest {
 
         fun contextClass(myContext: MyContext) = myContext.value
 
+        fun graphQlJavaContext(context: graphql.GraphQLContext): String = context.get("hello")
+
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
 
         suspend fun suspendPrint(string: String): String = coroutineScope {
@@ -122,6 +124,17 @@ class FunctionDataFetcherTest {
             every { containsArgument(any()) } returns false
         }
         assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironmet))
+    }
+
+    @Test
+    fun `valid target with graphql-java context class`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::graphQlJavaContext)
+        val mockEnvironment: DataFetchingEnvironment = mockk {
+            every { getContext<graphql.GraphQLContext>() } returns graphql.GraphQLContext.newContext().of("hello", "world").build()
+            every { arguments } returns emptyMap()
+            every { containsArgument(any()) } returns false
+        }
+        assertEquals(expected = "world", actual = dataFetcher.get(mockEnvironment))
     }
 
     @Test
