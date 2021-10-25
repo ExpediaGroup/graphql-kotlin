@@ -29,7 +29,7 @@ However, if your custom factory may return `null`, you must define the context a
 data class CustomContext(val value: String) : GraphQLContext
 
 class CustomFactory : GraphQLContextFactory<CustomContext, ServerRequest> {
-    suspend fun generateContext(request: Request): Context? {
+    override suspend fun generateContext(request: Request): Context? {
         if (isSpecialRequest(request)) {
             return null
         }
