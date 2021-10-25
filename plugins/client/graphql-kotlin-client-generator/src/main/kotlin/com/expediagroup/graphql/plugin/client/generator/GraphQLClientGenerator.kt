@@ -215,9 +215,10 @@ class GraphQLClientGenerator(
 
             if (context.requireJacksonOptionalScalarSerializer) {
                 val optionalJacksonSerializer = generateJacksonOptionalInputScalarSerializer(config)
-                fileSpecs.add(FileSpec.builder(packageName = "${config.packageName}.scalars", fileName = OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)
-                    .addType(optionalJacksonSerializer)
-                    .build()
+                fileSpecs.add(
+                    FileSpec.builder(packageName = "${config.packageName}.scalars", fileName = OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)
+                        .addType(optionalJacksonSerializer)
+                        .build()
                 )
             }
         }

@@ -80,7 +80,12 @@ internal fun TypeName.wrapOptionalInputType(context: GraphQLClientGeneratorConte
             .parameterizedBy(this.copy(nullable = false))
     }
 
-internal fun createInputPropertySpec(context: GraphQLClientGeneratorContext, graphqlFieldName: String, graphqlFieldType: Type<*>, graphqlFieldDescription: String? = null): Pair<PropertySpec, CodeBlock?> {
+internal fun createInputPropertySpec(
+    context: GraphQLClientGeneratorContext,
+    graphqlFieldName: String,
+    graphqlFieldType: Type<*>,
+    graphqlFieldDescription: String? = null
+): Pair<PropertySpec, CodeBlock?> {
     val kotlinFieldTypeName = generateTypeName(context, graphqlFieldType)
 
     val (rawType, isList) = unwrapRawType(kotlinFieldTypeName)

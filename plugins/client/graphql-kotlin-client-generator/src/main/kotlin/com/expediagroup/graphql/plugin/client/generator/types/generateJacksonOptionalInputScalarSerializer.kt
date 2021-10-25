@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.expediagroup.graphql.plugin.client.generator.types
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
@@ -73,21 +72,22 @@ fun generateJacksonOptionalInputScalarSerializer(config: GraphQLClientGeneratorC
         }
         .addFunction(
             FunSpec.builder("isEmpty")
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter("provider", SerializerProvider::class.java)
-            .addParameter("value", jacksonOptionalInput)
-            .returns(BOOLEAN)
-            .addStatement("return value == %M", jacksonUndefinedInput)
-            .build()
+                .addModifiers(KModifier.OVERRIDE)
+                .addParameter("provider", SerializerProvider::class.java)
+                .addParameter("value", jacksonOptionalInput)
+                .returns(BOOLEAN)
+                .addStatement("return value == %M", jacksonUndefinedInput)
+                .build()
         )
         .addFunction(
             FunSpec.builder("serialize")
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter("value", jacksonOptionalInput)
-            .addParameter("gen", JsonGenerator::class.java)
-            .addParameter("serializers", SerializerProvider::class.java)
-            .addCode(
-                CodeBlock.of("""when (value) {
+                .addModifiers(KModifier.OVERRIDE)
+                .addParameter("value", jacksonOptionalInput)
+                .addParameter("gen", JsonGenerator::class.java)
+                .addParameter("serializers", SerializerProvider::class.java)
+                .addCode(
+                    CodeBlock.of(
+                        """when (value) {
                         |  is %M -> return
                         |  is %M -> {
                         |    val rawValue = value.value
@@ -104,26 +104,31 @@ fun generateJacksonOptionalInputScalarSerializer(config: GraphQLClientGeneratorC
                         |    }
                         |  }
                         |}
-                        """.trimMargin(), jacksonUndefinedInput, jacksonDefinedInput)
-            )
-            .build()
+                        """.trimMargin(),
+                        jacksonUndefinedInput, jacksonDefinedInput
+                    )
+                )
+                .build()
         )
         .addFunction(
             FunSpec.builder("serializeValue")
-            .addModifiers(KModifier.PRIVATE)
-            .addParameter("value", ANY)
-            .addParameter("gen", JsonGenerator::class.java)
-            .addParameter("serializers", SerializerProvider::class.java)
-            .addCode(
-                CodeBlock.of("""val clazz = value::class.java
+                .addModifiers(KModifier.PRIVATE)
+                .addParameter("value", ANY)
+                .addParameter("gen", JsonGenerator::class.java)
+                .addParameter("serializers", SerializerProvider::class.java)
+                .addCode(
+                    CodeBlock.of(
+                        """val clazz = value::class.java
                         |val converter = converters[clazz] as? ScalarConverter<Any>
                         |if (converter != null) {
                         |  serializers.defaultSerializeValue(converter.toJson(value), gen)
                         |} else {
                         |  serializers.findValueSerializer(clazz).serialize(value, gen, serializers)
                         |}
-                    """.trimMargin()))
-            .build()
+                    """.trimMargin()
+                    )
+                )
+                .build()
         )
         .build()
 }
