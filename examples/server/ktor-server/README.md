@@ -20,7 +20,7 @@ cd /path/to/graphql-kotlin/examples
 ./gradlew ktor-server:run
 ```
 
-Once the app has started you can explore the example schema by opening Playground endpoint at http://localhost:5000/graphql
+Once the app has started you can explore the example schema by opening Playground endpoint at http://localhost:8080/playground
 
 #### Example query
 
