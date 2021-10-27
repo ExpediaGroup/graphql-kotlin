@@ -110,7 +110,7 @@ class ApolloSubscriptionProtocolHandler(
         val graphQLContext = sessionState.getGraphQLContext(session)
 
         subscriptionHooks.onOperation(operationMessage, session, context)
-        subscriptionHooks.onOperation(operationMessage, session, graphQLContext)
+        subscriptionHooks.onOperationWithContext(operationMessage, session, graphQLContext)
 
         if (operationMessage.id == null) {
             logger.error("GraphQL subscription operation id is required")
@@ -168,7 +168,7 @@ class ApolloSubscriptionProtocolHandler(
             val context = contextFactory.generateContext(session)
             val graphQLContext = contextFactory.generateContextMap(session)
             val onConnectContext = subscriptionHooks.onConnect(connectionParams, session, context)
-            val onConnectGraphQLContext = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
+            val onConnectGraphQLContext = subscriptionHooks.onConnectWithContext(connectionParams, session, graphQLContext)
             sessionState.saveContext(session, onConnectContext)
             sessionState.saveContextMap(session, onConnectGraphQLContext)
         }

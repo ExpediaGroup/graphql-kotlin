@@ -40,7 +40,7 @@ interface ApolloSubscriptionHooks {
      * You can reject the connection by throwing an exception.
      * If you need to forward state to execution, update and return the context map.
      */
-    fun onConnect(
+    fun onConnectWithContext(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
         graphQLContext: Map<*, Any>?
@@ -60,7 +60,7 @@ interface ApolloSubscriptionHooks {
      * Called when the client executes a GraphQL operation.
      * The context can not be updated here, it is read only.
      */
-    fun onOperation(
+    fun onOperationWithContext(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
         graphQLContext: Map<*, Any>?
