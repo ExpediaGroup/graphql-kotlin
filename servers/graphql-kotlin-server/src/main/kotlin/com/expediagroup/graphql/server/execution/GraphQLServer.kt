@@ -44,11 +44,13 @@ open class GraphQLServer<Request>(
 
         return if (graphQLRequest != null) {
             val context = contextFactory.generateContext(request)
+            val graphQLContext = contextFactory.generateContextMap(request)
+
             when (graphQLRequest) {
-                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, context)
+                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, context, graphQLContext)
                 is GraphQLBatchRequest -> GraphQLBatchResponse(
                     graphQLRequest.requests.map {
-                        requestHandler.executeRequest(it, context)
+                        requestHandler.executeRequest(it, context, graphQLContext)
                     }
                 )
             }

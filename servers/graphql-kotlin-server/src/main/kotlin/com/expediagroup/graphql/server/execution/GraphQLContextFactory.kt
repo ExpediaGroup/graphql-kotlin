@@ -28,4 +28,10 @@ interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
      * If no context should be generated and used in the request, return null.
      */
     suspend fun generateContext(request: Request): Context?
+
+    /**
+     * GraphQL Java 17 has a new context map instead of a generic object. Implementing this method
+     * will set the context map in the execution input.
+     */
+    suspend fun generateContextMap(request: Request): Map<*, Any>? = null
 }

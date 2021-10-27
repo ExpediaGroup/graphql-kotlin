@@ -22,7 +22,6 @@ import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class RequestExtensionsKtTest {
 
@@ -31,7 +30,7 @@ class RequestExtensionsKtTest {
         val request = GraphQLRequest(query = "query { whatever }")
         val executionInput = request.toExecutionInput()
         assertEquals(request.query, executionInput.query)
-        assertNull(executionInput.context)
+        assertNotNull(executionInput.variables)
         assertNotNull(executionInput.dataLoaderRegistry)
     }
 
@@ -66,5 +65,14 @@ class RequestExtensionsKtTest {
         val executionInput = request.toExecutionInput(dataLoaderRegistry = dataLoaderRegistry)
         assertEquals(request.query, executionInput.query)
         assertEquals(dataLoaderRegistry, executionInput.dataLoaderRegistry)
+    }
+
+    @Test
+    fun `verify can convert request with context map to execution input`() {
+        val request = GraphQLRequest(query = "query { whatever }")
+        val context = mapOf("foo" to 1)
+
+        val executionInput = request.toExecutionInput(context = context)
+        assertEquals(1, executionInput.graphQLContext.get("foo"))
     }
 }

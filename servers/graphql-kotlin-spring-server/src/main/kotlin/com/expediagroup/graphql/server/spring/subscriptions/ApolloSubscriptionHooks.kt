@@ -36,6 +36,17 @@ interface ApolloSubscriptionHooks {
     ): GraphQLContext? = graphQLContext
 
     /**
+     * Allows validation of connectionParams prior to starting the connection.
+     * You can reject the connection by throwing an exception.
+     * If you need to forward state to execution, update and return the context map.
+     */
+    fun onConnect(
+        connectionParams: Map<String, String>,
+        session: WebSocketSession,
+        graphQLContext: Map<*, Any>?
+    ): Map<*, Any>? = graphQLContext
+
+    /**
      * Called when the client executes a GraphQL operation.
      * The context can not be updated here, it is read only.
      */
@@ -43,6 +54,16 @@ interface ApolloSubscriptionHooks {
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
         graphQLContext: GraphQLContext?
+    ): Unit = Unit
+
+    /**
+     * Called when the client executes a GraphQL operation.
+     * The context can not be updated here, it is read only.
+     */
+    fun onOperation(
+        operationMessage: SubscriptionOperationMessage,
+        session: WebSocketSession,
+        graphQLContext: Map<*, Any>?
     ): Unit = Unit
 
     /**

@@ -54,6 +54,7 @@ class ApolloSubscriptionProtocolHandlerTest {
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
     private val nullContextFactory: SpringSubscriptionGraphQLContextFactory<*> = mockk {
         coEvery { generateContext(any()) } returns null
+        coEvery { generateContextMap(any()) } returns null
     }
     private val simpleInitMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
 
