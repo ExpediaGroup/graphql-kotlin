@@ -70,7 +70,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest(query = "subscription { ticker }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk(), mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -88,7 +88,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription with data loader`() {
         val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk(), mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -109,7 +109,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     fun `verify subscription with context object`() {
         val request = GraphQLRequest(query = "subscription { contextualTicker }")
         val context = SubscriptionContext("junitHandler")
-        val responseFlux = subscriptionHandler.executeSubscription(request, context, mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request, context).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -152,7 +152,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription to failing publisher`() {
         val request = GraphQLRequest(query = "subscription { alwaysThrows }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk(), mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
 
         StepVerifier.create(responseFlux)
             .assertNext { response ->
