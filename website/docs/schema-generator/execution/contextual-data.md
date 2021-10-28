@@ -14,8 +14,22 @@ what it should contain. `graphql-kotlin-server` provides a simple mechanism to
 build a context per operation with the [GraphQLContextFactory](../../server/graphql-context-factory.md).
 If a custom factory is defined, it will then be used to populate GraphQL context based on the incoming request and make it available during execution.
 
-## GraphQLContext Interface
+## GraphQL Context Map
+In graphql-java v17 a new context map was added to the `DataFetchingEnvironment`. This is now the prefered way of saving info for execution.
+```kotlin
+class ContextualQuery : Query {
+    fun contextualQuery(
+        dfe: DataFetchingEnvironment,
+        value: Int
+    ): String = "The custom value was ${dfe.graphQLContext.get("foo")} and the value was $value"
+}
+```
 
+## GraphQLContext Interface (Deprecated)
+In graphql-java v17, this context object was deprecated in favor of a generic map managed by the execution engine. You can access this map through the [DataFetchingEnvironment](./data-fetching-environment.md).
+The injection of the context interface will eventually be removed. We reccomend all developers use the [DataFetchingEnvironment] to access both the legacy object and new context map.
+
+### Interface Injection (Deprecated)
 The easiest way to specify a context class is to use the `GraphQLContext` marker interface. This interface does not require any implementations,
 it is just used to inform the schema generator that this is the class that should be used as the context for every request.
 

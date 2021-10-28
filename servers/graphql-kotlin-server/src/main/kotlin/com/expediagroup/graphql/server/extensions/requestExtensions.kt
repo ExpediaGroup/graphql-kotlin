@@ -23,15 +23,15 @@ import org.dataloader.DataLoaderRegistry
 /**
  * Convert the common [GraphQLRequest] to the execution input used by graphql-java
  */
-fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null, context: Map<*, Any>? = null): ExecutionInput {
+fun GraphQLRequest.toExecutionInput(context: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null, graphQLContext: Map<*, Any>? = null): ExecutionInput {
     val builder = ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
 
-    graphQLContext?.let { builder.context(it) }
-    context?.let { builder.graphQLContext(it) }
+    context?.let { builder.context(it) }
+    graphQLContext?.let { builder.graphQLContext(it) }
 
     return builder.build()
 }
