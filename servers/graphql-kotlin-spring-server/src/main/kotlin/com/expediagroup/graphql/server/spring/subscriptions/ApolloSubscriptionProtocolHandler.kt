@@ -107,8 +107,10 @@ class ApolloSubscriptionProtocolHandler(
         session: WebSocketSession
     ): Flux<SubscriptionOperationMessage> {
         val context = sessionState.getContext(session)
+        val graphQLContext = sessionState.getGraphQLContext(session)
 
         subscriptionHooks.onOperation(operationMessage, session, context)
+        subscriptionHooks.onOperationWithContext(operationMessage, session, graphQLContext)
 
         if (operationMessage.id == null) {
             logger.error("GraphQL subscription operation id is required")
@@ -130,7 +132,7 @@ class ApolloSubscriptionProtocolHandler(
 
         try {
             val request = objectMapper.convertValue<GraphQLRequest>(payload)
-            return subscriptionHandler.executeSubscription(request, context)
+            return subscriptionHandler.executeSubscription(request, context, graphQLContext)
                 .asFlux()
                 .map {
                     if (it.errors?.isNotEmpty() == true) {
@@ -164,8 +166,11 @@ class ApolloSubscriptionProtocolHandler(
         runBlocking {
             val connectionParams = castToMapOfStringString(operationMessage.payload)
             val context = contextFactory.generateContext(session)
-            val onConnect = subscriptionHooks.onConnect(connectionParams, session, context)
-            sessionState.saveContext(session, onConnect)
+            val graphQLContext = contextFactory.generateContextMap(session)
+            val onConnectContext = subscriptionHooks.onConnect(connectionParams, session, context)
+            val onConnectGraphQLContext = subscriptionHooks.onConnectWithContext(connectionParams, session, graphQLContext)
+            sessionState.saveContext(session, onConnectContext)
+            sessionState.saveContextMap(session, onConnectGraphQLContext)
         }
     }
 

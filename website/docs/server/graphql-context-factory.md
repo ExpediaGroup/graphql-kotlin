@@ -7,16 +7,17 @@ title: GraphQLContextFactory
 If you are using `graphql-kotlin-spring-server`, see the [Spring specific documentation](./spring-server/spring-graphql-context.md).
 :::
 
-`GraphQLContextFactory` is a generic method for generating a `GraphQLContext` for each request.
+`GraphQLContextFactory` is a generic method for generating a GraphQL context for each request.
 
 ```kotlin
 interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
     suspend fun generateContext(request: Request): Context?
+    suspend fun generateContextMap(request: Request): Map<*, Any>?
 }
 ```
 
-Given the generic server request, the interface should create a `GraphQLContext` class to be used for every new operation.
-The context must implement the `GraphQLContext` interface from `graphql-kotlin-schema-generator`.
+Given the generic server request, the interface should create a legacy `GraphQLContext` class and a new context map to be used for every new operation.
+The legacy context class must implement the `GraphQLContext` interface from `graphql-kotlin-schema-generator`.
 See [execution context](../schema-generator/execution/contextual-data.md) for more info on how the context can be used in the schema functions.
 
 ## Nullable Context
@@ -26,10 +27,11 @@ If your custom factory never returns `null`, then there is no need to use nullab
 However, if your custom factory may return `null`, you must define the context argument as nullable in the schema functions or a runtime exception will be thrown.
 
 ```kotlin
+@Deprecated
 data class CustomContext(val value: String) : GraphQLContext
 
 class CustomFactory : GraphQLContextFactory<CustomContext, ServerRequest> {
-    override suspend fun generateContext(request: Request): Context? {
+    override suspend fun generateContext(request: ServerRequest): Context? {
         if (isSpecialRequest(request)) {
             return null
         }
@@ -37,13 +39,25 @@ class CustomFactory : GraphQLContextFactory<CustomContext, ServerRequest> {
         val value = callSomeSuspendableService(request)
         return CustomContext(value)
     }
+
+    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any>? {
+        if (isSpecialRequest(request)) {
+            return null
+        }
+
+        val value = callSomeSuspendableService(request)
+        return mapOf("myKey" to value)
+    }
 }
 
 class MyQuery : Query {
 
-    fun getResults(context: CustomContext?, input: String): String {
-        if (context != null) {
-            return getDataWithContext(input, context)
+    fun getResults(dfe: DataFetchingEnvironment, input: String): String {
+        val contextMapValue = dfe.graphQLContext.get("myKey")
+        val contextObjectValue = (dfe.context as? CustomContext)?.value
+        val contextValue = contextMapValue ?: contextObjectValue
+        if (contextValue != null) {
+            return getDataWithContextValue(input, contextValue)
         }
 
         return getBasicData(input)

@@ -106,7 +106,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     }
 
     @Test
-    fun `verify subscription with context`() {
+    fun `verify subscription with context object`() {
         val request = GraphQLRequest(query = "subscription { contextualTicker }")
         val context = SubscriptionContext("junitHandler")
         val responseFlux = subscriptionHandler.executeSubscription(request, context).asFlux()
@@ -115,6 +115,28 @@ class SpringGraphQLSubscriptionHandlerTest {
             .thenConsumeWhile { response ->
                 assertNotNull(response.data as? Map<*, *>) { data ->
                     assertNotNull(data["contextualTicker"] as? String) { tickerValue ->
+                        assertTrue(tickerValue.startsWith("junitHandler:"))
+                        assertNotNull(tickerValue.substringAfter("junitHandler:").toIntOrNull())
+                    }
+                }
+                assertNull(response.errors)
+                assertNull(response.extensions)
+                true
+            }
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun `verify subscription with context map`() {
+        val request = GraphQLRequest(query = "subscription { contextualMapTicker }")
+        val graphQLContext = mapOf("foo" to "junitHandler")
+        val responseFlux = subscriptionHandler.executeSubscription(request, mockk(), graphQLContext).asFlux()
+
+        StepVerifier.create(responseFlux)
+            .thenConsumeWhile { response ->
+                assertNotNull(response.data as? Map<*, *>) { data ->
+                    assertNotNull(data["contextualMapTicker"] as? String) { tickerValue ->
                         assertTrue(tickerValue.startsWith("junitHandler:"))
                         assertNotNull(tickerValue.substringAfter("junitHandler:").toIntOrNull())
                     }
@@ -163,6 +185,10 @@ class SpringGraphQLSubscriptionHandlerTest {
         fun contextualTicker(context: SubscriptionContext): Flux<String> = Flux.range(1, 5)
             .delayElements(Duration.ofMillis(100))
             .map { "${context.value}:${Random.nextInt(100)}" }
+
+        fun contextualMapTicker(dfe: DataFetchingEnvironment): Flux<String> = Flux.range(1, 5)
+            .delayElements(Duration.ofMillis(100))
+            .map { "${dfe.graphQlContext.get<String>("foo")}:${Random.nextInt(100)}" }
 
         fun dataLoaderValue(dfe: DataFetchingEnvironment): Flux<String> = dfe.getValueFromDataLoader<String, String>("MockDataLoader", "foo").toMono().toFlux()
     }

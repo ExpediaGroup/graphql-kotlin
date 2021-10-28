@@ -23,11 +23,14 @@ import org.dataloader.DataLoaderRegistry
 /**
  * Convert the common [GraphQLRequest] to the execution input used by graphql-java
  */
-fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null): ExecutionInput =
+fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null, graphQLContextMap: Map<*, Any>? = null): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
-        .context(graphQLContext)
+        .also { builder ->
+            graphQLContext?.let { builder.context(it) }
+            graphQLContextMap?.let { builder.graphQLContext(it) }
+        }
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()
