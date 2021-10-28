@@ -51,7 +51,7 @@ class RequestExtensionsKtTest {
     fun `verify can convert request with context to execution input`() {
         val request = GraphQLRequest(query = "query { whatever }")
         val context = mapOf("contextValue" to 12_345)
-        val executionInput = request.toExecutionInput(context = context)
+        val executionInput = request.toExecutionInput(graphQLContext = context)
         assertEquals(request.query, executionInput.query)
         assertEquals(context, executionInput.context)
     }
@@ -72,7 +72,7 @@ class RequestExtensionsKtTest {
         val request = GraphQLRequest(query = "query { whatever }")
         val context = mapOf("foo" to 1)
 
-        val executionInput = request.toExecutionInput(graphQLContext = context)
+        val executionInput = request.toExecutionInput(graphQLContextMap = context)
         assertEquals(1, executionInput.graphQLContext.get("foo"))
     }
 }
