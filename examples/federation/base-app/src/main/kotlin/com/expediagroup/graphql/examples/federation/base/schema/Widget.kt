@@ -27,7 +27,8 @@ class Widget(
     val id: Int,
     @GraphQLDescription("The widget's value that can be null")
     val value: Int? = null,
-    val uuid: UUID = UUID.randomUUID()
+    val uuid: UUID = UUID.randomUUID(),
+    val listOfValues: List<Int>? = listOf(1, 2, 3)
 ) {
     @GraphQLDescription("returns original value multiplied by target OR null if original value was null")
     fun multiplyValueBy(multiplier: Int) = value?.times(multiplier)
