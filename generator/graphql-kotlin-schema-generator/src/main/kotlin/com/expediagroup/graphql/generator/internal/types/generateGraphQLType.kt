@@ -26,7 +26,6 @@ import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
 import com.expediagroup.graphql.generator.internal.extensions.wrapInNonNull
-import com.expediagroup.graphql.generator.internal.types.utils.generateCustomType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
@@ -74,7 +73,7 @@ private fun getGraphQLType(
 ): GraphQLType {
     val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
     if (customTypeAnnotation != null) {
-        return generateCustomType(customTypeAnnotation)
+        return GraphQLTypeReference.typeRef(customTypeAnnotation.typeName)
     }
 
     return when {
