@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.generator.internal.types
 
+import com.expediagroup.graphql.generator.annotations.GraphQLType
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import graphql.schema.GraphQLInterfaceType
+import graphql.schema.GraphQLTypeReference
 import org.junit.jupiter.api.Test
 import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
@@ -34,8 +36,22 @@ class GenerateGraphQLTypeKtTest : TypeTestHelper() {
         assertEquals(2, generator.additionalTypes.size)
     }
 
+    @Test
+    fun generateCustomType() {
+        val fn = CustomTypeAnnotation::stringOrInt
+        val typeInfo = KTypeInfo(inputType = false, fieldAnnotations = fn.annotations)
+        val result = generateGraphQLType(generator, fn.returnType, typeInfo).unwrapType()
+        assertTrue(result is GraphQLTypeReference)
+        assertEquals("StringOrInt", result.name)
+    }
+
     sealed class Pet(open val name: String) {
         data class Dog(override val name: String, val goodBoysReceived: Int) : Pet(name)
         data class Cat(override val name: String, val livesRemaining: Int) : Pet(name)
+    }
+
+    class CustomTypeAnnotation {
+        @GraphQLType("StringOrInt")
+        fun stringOrInt(string: Boolean): Any = if (string) "Hello" else 1
     }
 }

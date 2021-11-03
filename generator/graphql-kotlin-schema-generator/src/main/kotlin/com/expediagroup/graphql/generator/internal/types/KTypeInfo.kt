@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2021 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.internal.state
+package com.expediagroup.graphql.generator.internal.types
 
-import com.expediagroup.graphql.generator.internal.types.KTypeInfo
-import kotlin.reflect.KType
-
-internal data class TypesCacheKey(
-    val type: KType,
-    val typeInfo: KTypeInfo,
-    val name: String? = null
+/**
+ * Internal metadata class we can use to forward info about the type we are generating.
+ * If there is no metadata to add, create the class with default values.
+ */
+internal data class KTypeInfo(
+    val inputType: Boolean = false,
+    val fieldName: String? = null,
+    val fieldAnnotations: List<Annotation> = emptyList()
 )

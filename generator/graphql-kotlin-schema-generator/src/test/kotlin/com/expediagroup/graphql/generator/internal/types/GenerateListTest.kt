@@ -22,7 +22,7 @@ import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-internal class GenerateListTest : TypeTestHelper() {
+class GenerateListTest : TypeTestHelper() {
 
     private data class MyDataClass(val id: String)
 
@@ -37,7 +37,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify a list of primitives for output`() {
         val listProp = ClassWithListAndArray::testList
 
-        val result = generateList(generator, listProp.returnType, false)
+        val result = generateList(generator, listProp.returnType, KTypeInfo())
         assertEquals("Int", getListTypeName(result))
     }
 
@@ -45,7 +45,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify a list of objects for ouput`() {
         val listProp = ClassWithListAndArray::testListOfClass
 
-        val result = generateList(generator, listProp.returnType, false)
+        val result = generateList(generator, listProp.returnType, KTypeInfo())
         assertEquals("MyDataClass", getListTypeName(result))
     }
 
@@ -53,7 +53,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify arrays are valid output`() {
         val arrayProp = ClassWithListAndArray::testArray
 
-        val result = generateList(generator, arrayProp.returnType, false)
+        val result = generateList(generator, arrayProp.returnType, KTypeInfo())
         assertEquals("String", getListTypeName(result))
     }
 
@@ -61,7 +61,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify primitive arrays are valid output`() {
         val primitiveArray = ClassWithListAndArray::primitiveArray
 
-        val result = generateList(generator, primitiveArray.returnType, false)
+        val result = generateList(generator, primitiveArray.returnType, KTypeInfo())
         assertEquals("Boolean", getListTypeName(result))
     }
 
@@ -69,7 +69,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify arrays are valid input`() {
         val arrayProp = ClassWithListAndArray::testArray
 
-        val result = generateList(generator, arrayProp.returnType, true)
+        val result = generateList(generator, arrayProp.returnType, KTypeInfo(inputType = true))
         assertEquals("String", getListTypeName(result))
     }
 
@@ -77,7 +77,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify primitive arrays are valid input`() {
         val primitiveArray = ClassWithListAndArray::primitiveArray
 
-        val result = generateList(generator, primitiveArray.returnType, true)
+        val result = generateList(generator, primitiveArray.returnType, KTypeInfo(inputType = true))
         assertEquals("Boolean", getListTypeName(result))
     }
 
@@ -85,7 +85,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify a list of primitives for input`() {
         val listProp = ClassWithListAndArray::testList
 
-        val result = generateList(generator, listProp.returnType, true)
+        val result = generateList(generator, listProp.returnType, KTypeInfo(inputType = true))
         assertEquals("Int", getListTypeName(result))
     }
 
@@ -93,7 +93,7 @@ internal class GenerateListTest : TypeTestHelper() {
     fun `verify a list of objects for input`() {
         val listProp = ClassWithListAndArray::testListOfClass
 
-        val result = generateList(generator, listProp.returnType, true)
+        val result = generateList(generator, listProp.returnType, KTypeInfo(inputType = true))
         assertEquals("MyDataClassInput", getListTypeName(result))
     }
 

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.unwrapType
+import com.expediagroup.graphql.generator.internal.extensions.getCustomTypeAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isEnum
@@ -25,6 +26,7 @@ import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
 import com.expediagroup.graphql.generator.internal.extensions.wrapInNonNull
+import com.expediagroup.graphql.generator.internal.types.utils.generateCustomType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
@@ -33,11 +35,11 @@ import kotlin.reflect.KType
 /**
  * Return a basic GraphQL type given all the information about the kotlin type.
  */
-internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputType: Boolean = false, annotations: List<Annotation> = emptyList()): GraphQLType {
+internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, typeInfo: KTypeInfo = KTypeInfo()): GraphQLType {
     val hookGraphQLType = generator.config.hooks.willGenerateGraphQLType(type)
     val graphQLType = hookGraphQLType
         ?: generateScalar(generator, type)
-        ?: objectFromReflection(generator, type, inputType, annotations)
+        ?: objectFromReflection(generator, type, typeInfo)
 
     // Do not call the hook on GraphQLTypeReference as we have not generated the type yet
     val unwrappedType = graphQLType.unwrapType()
@@ -49,8 +51,8 @@ internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, inputT
     return typeWithNullability
 }
 
-private fun objectFromReflection(generator: SchemaGenerator, type: KType, inputType: Boolean, annotations: List<Annotation> = emptyList()): GraphQLType {
-    val cachedType = generator.cache.get(type, inputType, annotations)
+private fun objectFromReflection(generator: SchemaGenerator, type: KType, typeInfo: KTypeInfo): GraphQLType {
+    val cachedType = generator.cache.get(type, typeInfo)
 
     if (cachedType != null) {
         return cachedType
@@ -58,17 +60,29 @@ private fun objectFromReflection(generator: SchemaGenerator, type: KType, inputT
 
     val kClass = type.getKClass()
 
-    return generator.cache.buildIfNotUnderConstruction(kClass, inputType, annotations) {
-        val graphQLType = getGraphQLType(generator, kClass, inputType, type, annotations)
+    return generator.cache.buildIfNotUnderConstruction(kClass, typeInfo) {
+        val graphQLType = getGraphQLType(generator, kClass, type, typeInfo)
         generator.config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
     }
 }
 
-private fun getGraphQLType(generator: SchemaGenerator, kClass: KClass<*>, inputType: Boolean, type: KType, fieldAnnotations: List<Annotation> = emptyList()): GraphQLType = when {
-    kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
-    kClass.isListType() -> generateList(generator, type, inputType, fieldAnnotations)
-    kClass.isUnion(fieldAnnotations) -> generateUnion(generator, kClass, fieldAnnotations.getUnionAnnotation())
-    kClass.isInterface() -> generateInterface(generator, kClass)
-    inputType -> generateInputObject(generator, kClass)
-    else -> generateObject(generator, kClass)
+private fun getGraphQLType(
+    generator: SchemaGenerator,
+    kClass: KClass<*>,
+    type: KType,
+    typeInfo: KTypeInfo
+): GraphQLType {
+    val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
+    if (customTypeAnnotation != null) {
+        return generateCustomType(customTypeAnnotation)
+    }
+
+    return when {
+        kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
+        kClass.isListType() -> generateList(generator, type, typeInfo)
+        kClass.isUnion(typeInfo.fieldAnnotations) -> generateUnion(generator, kClass, typeInfo.fieldAnnotations.getUnionAnnotation())
+        kClass.isInterface() -> generateInterface(generator, kClass)
+        typeInfo.inputType -> generateInputObject(generator, kClass)
+        else -> generateObject(generator, kClass)
+    }
 }

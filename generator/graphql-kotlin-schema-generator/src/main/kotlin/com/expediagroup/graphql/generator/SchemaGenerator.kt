@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.generator.internal.state.AdditionalType
 import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.generator.internal.state.TypesCache
+import com.expediagroup.graphql.generator.internal.types.KTypeInfo
 import com.expediagroup.graphql.generator.internal.types.generateGraphQLType
 import com.expediagroup.graphql.generator.internal.types.generateMutations
 import com.expediagroup.graphql.generator.internal.types.generateQueries
@@ -109,18 +110,18 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      * Generate the GraphQL type for all the `additionalTypes`.
      *
      * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
-     * you can provide more types to be added through [generateSchema].
+     * you can provide more types to be added through [generateSchema] or the config.
      *
      * This function loops because while generating the additionalTypes it is possible to create more additional types that need to be processed.
      */
     protected fun generateAdditionalTypes(): Set<GraphQLType> {
-        val graphqlTypes = mutableSetOf<GraphQLType>()
+        val graphqlTypes = this.config.additionalTypes.toMutableSet()
         while (this.additionalTypes.isNotEmpty()) {
             val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
             this.additionalTypes.clear()
             graphqlTypes.addAll(
                 currentlyProcessedTypes.map {
-                    GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, it.inputType))
+                    GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, KTypeInfo(inputType = it.inputType)))
                 }
             )
         }
