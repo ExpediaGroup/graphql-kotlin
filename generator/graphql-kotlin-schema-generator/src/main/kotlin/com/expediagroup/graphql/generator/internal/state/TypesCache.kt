@@ -77,24 +77,24 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
 
     private fun generateCacheKey(type: KType, typeInfo: KTypeInfo): TypesCacheKey {
         if (type.getKClass().isListType()) {
-            return TypesCacheKey(type, typeInfo)
+            return TypesCacheKey(type, typeInfo.inputType)
         }
 
         val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
         if (customTypeAnnotation != null) {
-            return TypesCacheKey(type, typeInfo, customTypeAnnotation.typeName)
+            return TypesCacheKey(type, typeInfo.inputType, customTypeAnnotation.typeName)
         }
 
         val unionAnnotation = typeInfo.fieldAnnotations.getUnionAnnotation()
         if (unionAnnotation != null) {
             if (type.getKClass().isAnnotationUnion(typeInfo.fieldAnnotations)) {
-                return TypesCacheKey(type, typeInfo, getCustomUnionNameKey(unionAnnotation))
+                return TypesCacheKey(type, typeInfo.inputType, getCustomUnionNameKey(unionAnnotation))
             } else {
                 throw InvalidCustomUnionException(type)
             }
         }
 
-        return TypesCacheKey(type, typeInfo)
+        return TypesCacheKey(type, typeInfo.inputType)
     }
 
     private fun getCustomUnionNameKey(union: GraphQLUnion): String {
@@ -127,7 +127,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
                 kClass.isListType() -> null
                 kClass.isSubclassOf(Enum::class) -> kClass.getSimpleName()
                 isTypeNotSupported(type) -> throw TypeNotSupportedException(type, supportedPackages)
-                else -> type.getSimpleName(cacheKey.typeInfo.inputType)
+                else -> type.getSimpleName(cacheKey.inputType)
             }
         }
     }

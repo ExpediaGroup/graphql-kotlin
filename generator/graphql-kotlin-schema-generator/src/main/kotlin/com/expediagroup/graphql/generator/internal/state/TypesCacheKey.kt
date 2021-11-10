@@ -16,11 +16,10 @@
 
 package com.expediagroup.graphql.generator.internal.state
 
-import com.expediagroup.graphql.generator.internal.types.KTypeInfo
 import kotlin.reflect.KType
 
 internal data class TypesCacheKey(
     val type: KType,
-    val typeInfo: KTypeInfo,
+    val inputType: Boolean = false,
     val name: String? = null
 )
