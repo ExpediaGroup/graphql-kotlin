@@ -31,3 +31,5 @@ fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegis
         .context(graphQLContext)
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()
+
+fun GraphQLRequest.isMutation(): Boolean = query.contains("mutation ");

@@ -21,6 +21,7 @@ import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
@@ -36,7 +37,9 @@ class GraphQLServerTest {
     @Test
     fun `the request handler and parser are called`() {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
-            coEvery { parseRequest(any()) } returns GraphQLBatchRequest(requests = listOf(mockk()))
+            coEvery { parseRequest(any()) } returns GraphQLBatchRequest(requests = listOf(mockk {
+                every { query } returns "query OperationName { parent { child } }"
+            }))
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns MockContext()
@@ -59,7 +62,9 @@ class GraphQLServerTest {
     @Test
     fun `null context is used and passed to the request handler`() {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
-            coEvery { parseRequest(any()) } returns mockk<GraphQLRequest>()
+            coEvery { parseRequest(any()) } returns mockk<GraphQLRequest> {
+                every { query } returns "query OperationName { parent { child } }"
+            }
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns null

@@ -16,9 +16,12 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.server.extensions.concurrentMap
+import com.expediagroup.graphql.server.extensions.isMutation
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 
 /**
@@ -46,11 +49,21 @@ open class GraphQLServer<Request>(
             val context = contextFactory.generateContext(request)
             when (graphQLRequest) {
                 is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, context)
-                is GraphQLBatchRequest -> GraphQLBatchResponse(
-                    graphQLRequest.requests.map {
-                        requestHandler.executeRequest(it, context)
+                is GraphQLBatchRequest -> when {
+                    graphQLRequest.requests.any(GraphQLRequest::isMutation) -> GraphQLBatchResponse(
+                        graphQLRequest.requests.map {
+                            requestHandler.executeRequest(it, context)
+                        }
+                    )
+                    else -> {
+                        GraphQLBatchResponse(
+                            graphQLRequest.requests.concurrentMap {
+                                requestHandler.executeRequest(it, context)
+                            }
+                        )
                     }
-                )
+
+                }
             }
         } else {
             null
