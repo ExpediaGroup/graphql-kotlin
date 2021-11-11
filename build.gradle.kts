@@ -97,6 +97,7 @@ subprojects {
             // even though we don't have any Java code, since we are building using Java LTS version,
             // this is required for Gradle to set the correct JVM versions in the module metadata
             targetCompatibility = JavaVersion.VERSION_1_8
+            sourceCompatibility = JavaVersion.VERSION_1_8
         }
 
         // published artifacts

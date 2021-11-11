@@ -24,6 +24,7 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.execution.AbortExecutionException
+import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
@@ -124,6 +125,22 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
+    fun `execute graphQL query with graphql context`() = runBlockingTest {
+        val context = mapOf("foo" to "JUNIT context value")
+        val request = GraphQLRequest(query = "query { graphQLContextualValue }")
+
+        val response = graphQLRequestHandler.executeRequest(request, context = null, graphQLContext = context)
+        assertNotNull(response.data as? Map<*, *>) { data ->
+            assertNotNull(data["graphQLContextualValue"] as? String) { msg ->
+                assertEquals("JUNIT context value", msg)
+            }
+        }
+        assertNull(response.errors)
+        assertNull(response.extensions)
+    }
+
+    @Test
+    @ExperimentalCoroutinesApi
     fun `execute graphQL query throwing uncaught exception`() = runBlockingTest {
         val mockGraphQL: GraphQL = mockk {
             every { executeAsync(any<ExecutionInput>()) } throws RuntimeException("Uncaught JUNIT")
@@ -164,6 +181,8 @@ class GraphQLRequestHandlerTest {
         fun alwaysThrows(): String = throw Exception("JUNIT Failure")
 
         fun contextualValue(context: MyContext): String = context.value ?: "default"
+
+        fun graphQLContextualValue(dataFetchingEnvironment: DataFetchingEnvironment): String = dataFetchingEnvironment.graphQlContext.get("foo") ?: "default"
     }
 
     data class MyContext(val value: String? = null) : GraphQLContext

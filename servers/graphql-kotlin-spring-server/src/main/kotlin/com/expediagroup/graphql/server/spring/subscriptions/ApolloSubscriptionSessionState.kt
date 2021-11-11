@@ -34,6 +34,9 @@ internal class ApolloSubscriptionSessionState {
     // The context is saved by web socket session id
     private val cachedContext = ConcurrentHashMap<String, GraphQLContext>()
 
+    // The graphQL context is saved by web socket session id
+    private val cachedGraphQLContext = ConcurrentHashMap<String, Map<*, Any>>()
+
     /**
      * Save the context created from the factory and possibly updated in the onConnect hook.
      * This allows us to include some intial state to be used when handling all the messages.
@@ -46,9 +49,25 @@ internal class ApolloSubscriptionSessionState {
     }
 
     /**
+     * Save the context created from the factory and possibly updated in the onConnect hook.
+     * This allows us to include some intial state to be used when handling all the messages.
+     * This will be removed in [terminateSession].
+     */
+    fun saveContextMap(session: WebSocketSession, graphQLContext: Map<*, Any>?) {
+        if (graphQLContext != null) {
+            cachedGraphQLContext[session.id] = graphQLContext
+        }
+    }
+
+    /**
      * Return the context for this session.
      */
     fun getContext(session: WebSocketSession): GraphQLContext? = cachedContext[session.id]
+
+    /**
+     * Return the graphQL context for this session.
+     */
+    fun getGraphQLContext(session: WebSocketSession): Map<*, Any>? = cachedGraphQLContext[session.id]
 
     /**
      * Save the session that is sending keep alive messages.
@@ -122,6 +141,7 @@ internal class ApolloSubscriptionSessionState {
         activeOperations[session.id]?.forEach { (_, subscription) -> subscription.cancel() }
         activeOperations.remove(session.id)
         cachedContext.remove(session.id)
+        cachedGraphQLContext.remove(session.id)
         activeKeepAliveSessions[session.id]?.cancel()
         activeKeepAliveSessions.remove(session.id)
         session.close()

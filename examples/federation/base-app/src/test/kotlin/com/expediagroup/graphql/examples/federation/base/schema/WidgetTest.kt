@@ -25,7 +25,7 @@ class WidgetTest {
 
     @Test
     fun multiplyValueBy() {
-        val widget = Widget(id = 1, value = 2, uuid = UUID.randomUUID())
+        val widget = Widget(id = 1, value = 2, uuid = UUID.randomUUID(), listOfValues = null)
         assertEquals(expected = 4, actual = widget.multiplyValueBy(2))
 
         val nullWidget = Widget(id = 1, uuid = UUID.randomUUID())

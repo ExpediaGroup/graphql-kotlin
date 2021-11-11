@@ -1,3 +1,5 @@
+import kotlinx.benchmark.gradle.JvmBenchmarkTarget
+
 description = "Common code for running a GraphQL server in any HTTP server framework"
 
 val kotlinCoroutinesVersion: String by project
@@ -8,17 +10,35 @@ plugins {
 
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
-    implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.3.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
+}
+
+// Benchmarks
+
+// Create a separate source set for benchmarks.
+sourceSets.create("benchmarks")
+
+kotlin.sourceSets.getByName("benchmarks") {
+    dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.3.1")
+        implementation(sourceSets.main.get().output)
+        implementation(sourceSets.main.get().runtimeClasspath)
+    }
 }
 
 benchmark {
     targets {
-        register("test")
+        register("benchmarks") {
+            this as JvmBenchmarkTarget
+            jmhVersion = "1.21"
+        }
     }
 }
 
 tasks {
+    withType<org.gradle.jvm.tasks.Jar> {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
     jacocoTestCoverageVerification {
         violationRules {
             rule {

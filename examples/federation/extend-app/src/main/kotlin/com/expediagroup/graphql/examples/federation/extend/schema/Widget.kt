@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
 
 /**
  * We do not own the "Widget" type in this service. We are extending it here with the new fields when we are given the @key "id"
@@ -28,8 +29,10 @@ import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 @ExtendsDirective
 class Widget(
     @ExternalDirective val id: Int,
+    @ExternalDirective val listOfValues: List<Int>? = null,
     val randomValueFromExtend: Int
 ) {
+    @RequiresDirective(FieldSet("listOfValues"))
     @Suppress("FunctionOnlyReturningConstant")
-    fun extraStringFromExtend() = "This data is coming from extend-app!"
+    fun extraStringFromExtend() = "This data is coming from extend-app! listOfValues=$listOfValues"
 }

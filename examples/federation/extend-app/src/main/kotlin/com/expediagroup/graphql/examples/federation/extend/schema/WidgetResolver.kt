@@ -25,14 +25,16 @@ import org.springframework.stereotype.Component
 class WidgetResolver(private val randomNumberService: RandomNumberService) : FederatedTypeResolver<Widget> {
     override val typeName: String = "Widget"
 
+    @Suppress("UNCHECKED_CAST")
     override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Widget?> = representations.map {
         // Extract the 'id' from the other service
         val id = it["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
+        val listOfValues = it["listOfValues"] as? List<Int>
 
         // If we needed to construct a Widget which has data from other APIs,
         // this is the place where we could call them with the widget id
         val valueFromExtend = randomNumberService.getInt()
-        Widget(id, valueFromExtend)
+        Widget(id, listOfValues, valueFromExtend)
     }
 
     class InvalidWidgetIdException : RuntimeException()

@@ -2,9 +2,9 @@
   "name": "federation-gateway",
   "description": "A sample gateway from apollo-federation",
   "dependencies": {
-    "@apollo/gateway": "0.16.4",
-    "apollo-server": "2.14.2",
-    "graphql": "15.0.0"
+    "@apollo/gateway": "latest",
+    "apollo-server": "latest",
+    "graphql": "latest"
   },
   "license": "Apache-2.0",
   "main": "index.js",
@@ -13,6 +13,6 @@
   },
   "keywords": [],
   "devDependencies": {
-    "nodemon": "2.0.4"
+    "nodemon": "latest"
   }
 }
