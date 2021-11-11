@@ -3,16 +3,16 @@ id: custom-type-reference
 title: Custom Types
 ---
 
-Code-first has many advantages and removes duplication. However one downside is that the type you define do have to match
+Code-first has many advantages and removes duplication. However, one downside is that the types defined have to match
 compiled Kotlin code. In some cases, it is possible to define a schema that is valid in SDL but it would be impossible to
-return a Kotlin type that matches exactly that type. In these cases we have the ability to pass in custom types in the schema
+return a Kotlin type that matches exactly that type. In these cases, you can pass in custom types in the schema
 generator config and annotate the schema with the type info.
 
 ## `@GraphQLType`
-You can use this annotation to change the return type of any field. The annotaiton accepts the type name, which will be
+You can use this annotation to change the return type of any field. The annotation accepts the type name, which will be
 added as a type reference in the schema. This means that you will have to define the type with the same name in the configuration.
 
-There could still be serialization issues though so you should make sure that the data you return from the field still matches
+There could still be serialization issues though, so you should make sure that the data you return from the field still matches
 the defined schema of the type.
 
 A prime example of using this type is for custom unions.
