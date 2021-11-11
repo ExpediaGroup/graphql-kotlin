@@ -24,6 +24,7 @@ import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingArgume
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
@@ -108,10 +109,17 @@ private fun TypeName.unwrapNullableType(): TypeName = if (this.isNullable) {
     this
 }
 
-internal fun generateCustomScalarPropertyAnnotations(context: GraphQLClientGeneratorContext, rawType: TypeName, isList: Boolean): List<AnnotationSpec> {
+internal fun generateCustomScalarPropertyAnnotations(context: GraphQLClientGeneratorContext, rawType: TypeName, isList: Boolean = false, shouldWrapInOptional: Boolean = false): List<AnnotationSpec> {
     val result = mutableListOf<AnnotationSpec>()
     val converterInfo = context.scalarClassToConverterTypeSpecs[rawType]
     when {
+        converterInfo is ScalarConverterInfo.JacksonConvertersInfo && shouldWrapInOptional -> {
+            result.add(
+                AnnotationSpec.builder(JsonSerialize::class)
+                    .addMember("using = %T::class", ClassName("${context.packageName}.scalars", OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME))
+                    .build()
+            )
+        }
         converterInfo is ScalarConverterInfo.JacksonConvertersInfo -> {
             val annotationMember = if (isList) {
                 "contentConverter"

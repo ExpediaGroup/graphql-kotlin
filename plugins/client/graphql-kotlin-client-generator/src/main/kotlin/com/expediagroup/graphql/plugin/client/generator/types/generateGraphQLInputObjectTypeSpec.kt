@@ -19,7 +19,6 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
-import com.expediagroup.graphql.plugin.client.generator.LOGGER
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -31,6 +30,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InputObjectTypeDefinition
+import graphql.language.Type
 import kotlinx.serialization.Serializable
 
 /**
@@ -51,45 +51,14 @@ internal fun generateGraphQLInputObjectTypeSpec(context: GraphQLClientGeneratorC
 
     val constructorBuilder = FunSpec.constructorBuilder()
     inputObjectDefinition.inputValueDefinitions.forEach { fieldDefinition ->
-        val kotlinFieldTypeName = generateTypeName(context, fieldDefinition.type)
-
-        val (rawType, isList) = unwrapRawType(kotlinFieldTypeName)
-        val isCustomScalar = context.isCustomScalar(rawType)
-        val shouldWrapInOptional = shouldWrapInOptional(kotlinFieldTypeName, context)
-
-        val inputFieldType = if (!isCustomScalar && shouldWrapInOptional) {
-            kotlinFieldTypeName.wrapOptionalInputType(context)
-        } else {
-            kotlinFieldTypeName
-        }
-
-        val inputPropertySpec = PropertySpec.builder(fieldDefinition.name, inputFieldType)
-            .initializer(fieldDefinition.name)
-            .also { builder ->
-                fieldDefinition.description?.content?.let { kdoc ->
-                    builder.addKdoc("%L", kdoc)
-                }
-
-                if (isCustomScalar) {
-                    builder.addAnnotations(generateCustomScalarPropertyAnnotations(context, rawType, isList))
-
-                    if (shouldWrapInOptional) {
-                        LOGGER.warn(
-                            "Operation ${context.operationName} specifies optional custom scalar as input - ${fieldDefinition.name} in Variables. " +
-                                "Currently custom scalars do not work with optional wrappers."
-                        )
-                        builder.addKdoc("\nNOTE: This field was not wrapped in optional as currently custom scalars do not work with optional wrappers.")
-                    }
-                }
-            }
-            .build()
+        val (inputPropertySpec, defaultValue) = createInputPropertySpec(context, fieldDefinition.name, fieldDefinition.type, fieldDefinition.description?.content)
         inputObjectTypeSpecBuilder.addProperty(inputPropertySpec)
 
         constructorBuilder.addParameter(
             ParameterSpec.builder(inputPropertySpec.name, inputPropertySpec.type)
                 .also { builder ->
-                    if (kotlinFieldTypeName.isNullable) {
-                        builder.defaultValue(nullableDefaultValueCodeBlock(context, isCustomScalar))
+                    if (defaultValue != null) {
+                        builder.defaultValue(defaultValue)
                     }
                 }
                 .build()
@@ -111,7 +80,63 @@ internal fun TypeName.wrapOptionalInputType(context: GraphQLClientGeneratorConte
             .parameterizedBy(this.copy(nullable = false))
     }
 
-internal fun nullableDefaultValueCodeBlock(context: GraphQLClientGeneratorContext, isCustomScalar: Boolean): CodeBlock = if (context.useOptionalInputWrapper && !isCustomScalar) {
+internal fun createInputPropertySpec(
+    context: GraphQLClientGeneratorContext,
+    graphqlFieldName: String,
+    graphqlFieldType: Type<*>,
+    graphqlFieldDescription: String? = null
+): Pair<PropertySpec, CodeBlock?> {
+    val kotlinFieldTypeName = generateTypeName(context, graphqlFieldType)
+
+    val (rawType, isList) = unwrapRawType(kotlinFieldTypeName)
+    val isCustomScalar = context.isCustomScalar(rawType)
+    val shouldWrapInOptional = shouldWrapInOptional(kotlinFieldTypeName, context)
+
+    val scalarAnnotations = if (isCustomScalar) {
+        generateCustomScalarPropertyAnnotations(context, rawType, isList, shouldWrapInOptional)
+    } else {
+        emptyList()
+    }
+
+    val inputFieldType = if (shouldWrapInOptional) {
+        if (context.serializer == GraphQLSerializer.KOTLINX) {
+            kotlinFieldTypeName.copy(annotations = scalarAnnotations).wrapOptionalInputType(context)
+        } else {
+            kotlinFieldTypeName.wrapOptionalInputType(context)
+        }
+    } else {
+        kotlinFieldTypeName
+    }
+
+    val inputProperty = PropertySpec.builder(graphqlFieldName, inputFieldType)
+        .initializer(graphqlFieldName)
+        .also { builder ->
+            if (graphqlFieldDescription != null) {
+                builder.addKdoc("%L", graphqlFieldDescription)
+            }
+
+            if (isCustomScalar) {
+                if (shouldWrapInOptional) {
+                    // annotations were already set for KOTLINX optional scalar
+                    if (context.serializer == GraphQLSerializer.JACKSON) {
+                        context.requireJacksonOptionalScalarSerializer = true
+                        builder.addAnnotations(scalarAnnotations)
+                    }
+                } else {
+                    builder.addAnnotations(scalarAnnotations)
+                }
+            }
+        }
+        .build()
+    val defaultValue = if (kotlinFieldTypeName.isNullable) {
+        nullableDefaultValueCodeBlock(context)
+    } else {
+        null
+    }
+    return inputProperty to defaultValue
+}
+
+internal fun nullableDefaultValueCodeBlock(context: GraphQLClientGeneratorContext): CodeBlock = if (context.useOptionalInputWrapper) {
     if (context.serializer == GraphQLSerializer.JACKSON) {
         CodeBlock.of("%M", MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined"))
     } else {

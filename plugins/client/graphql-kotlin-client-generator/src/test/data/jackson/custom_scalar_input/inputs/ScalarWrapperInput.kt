@@ -5,9 +5,8 @@ import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import com.expediagroup.graphql.generated.ID
 import com.expediagroup.graphql.generated.scalars.AnyToULocaleConverter
-import com.expediagroup.graphql.generated.scalars.AnyToUUIDConverter
+import com.expediagroup.graphql.generated.scalars.OptionalScalarInputSerializer
 import com.expediagroup.graphql.generated.scalars.ULocaleToAnyConverter
-import com.expediagroup.graphql.generated.scalars.UUIDToAnyConverter
 import com.fasterxml.jackson.databind.`annotation`.JsonDeserialize
 import com.fasterxml.jackson.databind.`annotation`.JsonSerialize
 import com.ibm.icu.util.ULocale
@@ -29,20 +28,14 @@ public data class ScalarWrapperInput(
   public val count: OptionalInput<Int> = OptionalInput.Undefined,
   /**
    * Custom scalar of UUID
-   * NOTE: This field was not wrapped in optional as currently custom scalars do not work with
-   * optional wrappers.
    */
-  @JsonSerialize(converter = UUIDToAnyConverter::class)
-  @JsonDeserialize(converter = AnyToUUIDConverter::class)
-  public val custom: UUID? = null,
+  @JsonSerialize(using = OptionalScalarInputSerializer::class)
+  public val custom: OptionalInput<UUID> = OptionalInput.Undefined,
   /**
    * List of custom scalar UUIDs
-   * NOTE: This field was not wrapped in optional as currently custom scalars do not work with
-   * optional wrappers.
    */
-  @JsonSerialize(contentConverter = UUIDToAnyConverter::class)
-  @JsonDeserialize(contentConverter = AnyToUUIDConverter::class)
-  public val customList: List<UUID>? = null,
+  @JsonSerialize(using = OptionalScalarInputSerializer::class)
+  public val customList: OptionalInput<List<UUID>> = OptionalInput.Undefined,
   /**
    * ID represents unique identifier that is not intended to be human readable
    */

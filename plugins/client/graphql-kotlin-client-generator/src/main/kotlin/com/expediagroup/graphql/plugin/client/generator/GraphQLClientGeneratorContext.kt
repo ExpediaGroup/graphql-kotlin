@@ -54,6 +54,7 @@ data class GraphQLClientGeneratorContext(
 
     private val customScalarClassNames: Set<ClassName> = customScalarMap.values.map { it.className }.toSet()
     internal fun isCustomScalar(typeName: TypeName): Boolean = customScalarClassNames.contains(typeName)
+    var requireJacksonOptionalScalarSerializer = false
 }
 
 sealed class ScalarConverterInfo {

@@ -9,6 +9,7 @@ query CustomScalarQuery(
         locale
         localeList
         name
+        optional
         rating
         uuid
         uuidList

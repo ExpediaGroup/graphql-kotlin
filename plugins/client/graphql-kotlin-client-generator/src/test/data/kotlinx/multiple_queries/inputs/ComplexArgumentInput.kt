@@ -1,6 +1,8 @@
 package com.expediagroup.graphql.generated.inputs
 
 import com.expediagroup.graphql.client.Generated
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefined
 import kotlin.Double
 import kotlinx.serialization.Serializable
 
@@ -13,13 +15,13 @@ public data class ComplexArgumentInput(
   /**
    * Maximum value for test criteria
    */
-  public val max: Double? = null,
+  public val max: OptionalInput<Double> = OptionalInput.Undefined,
   /**
    * Minimum value for test criteria
    */
-  public val min: Double? = null,
+  public val min: OptionalInput<Double> = OptionalInput.Undefined,
   /**
    * Next criteria
    */
-  public val next: ComplexArgumentInput? = null
+  public val next: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
 )

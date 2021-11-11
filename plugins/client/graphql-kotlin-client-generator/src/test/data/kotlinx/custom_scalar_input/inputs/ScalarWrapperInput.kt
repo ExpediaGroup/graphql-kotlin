@@ -1,6 +1,8 @@
 package com.expediagroup.graphql.generated.inputs
 
 import com.expediagroup.graphql.client.Generated
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefined
 import com.expediagroup.graphql.generated.ID
 import com.expediagroup.graphql.generated.scalars.ULocaleSerializer
 import com.expediagroup.graphql.generated.scalars.UUIDSerializer
@@ -22,16 +24,17 @@ public data class ScalarWrapperInput(
   /**
    * A signed 32-bit nullable integer value
    */
-  public val count: Int? = null,
+  public val count: OptionalInput<Int> = OptionalInput.Undefined,
   /**
    * Custom scalar of UUID
    */
-  @Serializable(with = UUIDSerializer::class)
-  public val custom: UUID? = null,
+  public val custom: OptionalInput<@Serializable(with = UUIDSerializer::class) UUID> =
+      OptionalInput.Undefined,
   /**
    * List of custom scalar UUIDs
    */
-  public val customList: List<@Serializable(with = UUIDSerializer::class) UUID>? = null,
+  public val customList: OptionalInput<List<@Serializable(with = UUIDSerializer::class) UUID>> =
+      OptionalInput.Undefined,
   /**
    * ID represents unique identifier that is not intended to be human readable
    */
@@ -43,7 +46,7 @@ public data class ScalarWrapperInput(
   /**
    * A nullable signed double-precision floating-point value
    */
-  public val rating: Double? = null,
+  public val rating: OptionalInput<Double> = OptionalInput.Undefined,
   /**
    * Either true or false
    */
