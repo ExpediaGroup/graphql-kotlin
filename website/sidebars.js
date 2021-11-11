@@ -19,7 +19,6 @@ module.exports = {
           'schema-generator/writing-schemas/lists',
           'schema-generator/writing-schemas/interfaces',
           'schema-generator/writing-schemas/unions',
-          'schema-generator/writing-schemas/annotations',
           'schema-generator/writing-schemas/nested-arguments'
         ]
       },
@@ -27,12 +26,14 @@ module.exports = {
         type: 'category',
         label: 'Customizing Schema',
         items: [
+          'schema-generator/customizing-schemas/annotations',
           'schema-generator/customizing-schemas/generator-config',
           'schema-generator/customizing-schemas/documenting-fields',
           'schema-generator/customizing-schemas/excluding-fields',
           'schema-generator/customizing-schemas/renaming-fields',
           'schema-generator/customizing-schemas/directives',
           'schema-generator/customizing-schemas/deprecating-schema',
+          'schema-generator/customizing-schemas/custom-type-reference',
           'schema-generator/customizing-schemas/restricting-input-output',
           'schema-generator/customizing-schemas/advanced-features'
         ]
