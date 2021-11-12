@@ -22,29 +22,33 @@ open class GraphQLRequestBenchmark {
     @Setup
     fun setUp() {
         val charPool = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-        val randomString = (1..3072)
+        val range = (1..3072)
+        repeat(50) {
+            val randomStringForQuery = range
+                .map { Random.nextInt(0, charPool.size) }
+                .map(charPool::get)
+                .joinToString("")
+            val query = """$randomStringForQuery query HeroNameAndFriends(${"$"}episode: Episode) {
+              hero(episode: ${"$"}episode) {
+                name
+                friends {
+                  name
+                }
+              }
+            }"""
+            requests.add(GraphQLRequest(query))
+        }
+        val randomStringForMutation = range
             .map { Random.nextInt(0, charPool.size) }
             .map(charPool::get)
             .joinToString("")
-        val query = """$randomString query HeroNameAndFriends(${"$"}episode: Episode) {
-          hero(episode: ${"$"}episode) {
-            name
-            friends {
-              name
-            }
-          }
-        }"""
-        println("query: $query")
-        val mutation = """$randomString mutation AddNewPet (${"$"}name: String!,${"$"}petType: PetType) {
-          addPet(name:${"$"}name,petType:${"$"}petType) {
-            name
-            petType
-          }
-        }"""
 
-        repeat(1000) {
-            requests.add(GraphQLRequest(query))
-        }
+        val mutation = """$randomStringForMutation mutation AddNewPet (${"$"}name: String!,${"$"}petType: PetType) {
+              addPet(name:${"$"}name,petType:${"$"}petType) {
+                name
+                petType
+              }
+            }"""
         requests.add(GraphQLRequest(mutation))
     }
 
