@@ -22,6 +22,7 @@ import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class RequestExtensionsKtTest {
 
@@ -74,5 +75,18 @@ class RequestExtensionsKtTest {
 
         val executionInput = request.toExecutionInput(graphQLContextMap = context)
         assertEquals(1, executionInput.graphQLContext.get("foo"))
+    }
+
+    @Test
+    fun `verify graphQLRequest is a mutation`() {
+        val request = GraphQLRequest(
+            query = """
+                mutation addPet(name: "name", petType: "type") {
+                name
+                petType
+              }
+            """.trimIndent()
+        )
+        assertTrue(request.isMutation())
     }
 }

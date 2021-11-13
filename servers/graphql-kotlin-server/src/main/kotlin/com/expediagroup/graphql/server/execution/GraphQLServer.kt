@@ -18,6 +18,8 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.server.extensions.concurrentMap
 import com.expediagroup.graphql.server.extensions.isMutation
+import com.expediagroup.graphql.server.extensions.toGraphQLError
+import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -59,9 +61,16 @@ open class GraphQLServer<Request>(
                     )
                     else -> {
                         GraphQLBatchResponse(
-                            graphQLRequest.requests.concurrentMap {
-                                requestHandler.executeRequest(it, context, graphQLContext)
-                            }
+                            graphQLRequest.requests.concurrentMap(
+                                {
+                                    requestHandler.executeRequest(it, context, graphQLContext)
+                                },
+                                { _: GraphQLRequest, exception: Exception ->
+                                    GraphQLResponse<Any?>(
+                                        errors = listOf(exception.toGraphQLError().toGraphQLKotlinType())
+                                    )
+                                }
+                            )
                         )
                     }
                 }

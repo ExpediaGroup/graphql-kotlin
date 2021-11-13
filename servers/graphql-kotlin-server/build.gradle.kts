@@ -3,6 +3,8 @@ import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 description = "Common code for running a GraphQL server in any HTTP server framework"
 
 val kotlinCoroutinesVersion: String by project
+val reactorVersion: String by project
+val reactorExtensionsVersion: String by project
 
 plugins {
     id("org.jetbrains.kotlinx.benchmark") version "0.3.1"
