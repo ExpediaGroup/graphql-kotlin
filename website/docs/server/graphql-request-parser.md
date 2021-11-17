@@ -28,8 +28,8 @@ where
 - `variables` is an optional map of JSON objects that are referenced as input arguments in the `query` string
 
 GraphQL Kotlin server supports both single and batch GraphQL requests. Batch requests are represented as a list of individual
-GraphQL requests. When processing batch requests, same context will be used for processing all requests and server will respond
-with a list of GraphQL responses.
+GraphQL requests. When processing batch requests, the same context will be used for processing all requests and the server will
+respond with a list of GraphQL responses.
 
 If the request is not a valid GraphQL format, the interface should return `null` and let the server specific code return a bad request status to the client.
 This is not the same as a GraphQL error or an exception thrown by the schema.
