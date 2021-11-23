@@ -32,7 +32,6 @@ import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
-import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.CoroutineContext
@@ -59,7 +58,6 @@ open class FunctionDataFetcher(
     private val objectMapper: ObjectMapper = jacksonObjectMapper(),
     private val defaultCoroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : DataFetcher<Any?> {
-    private val logger = LoggerFactory.getLogger(FunctionDataFetcher::class.java)
 
     /**
      * Invoke a suspend function or blocking function, passing in the [target] if not null or default to using the source from the environment.
@@ -108,10 +106,7 @@ open class FunctionDataFetcher(
      */
     protected open fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
         when {
-            param.isGraphQLContext() -> {
-                logger.warn("GraphQLContext interface injection is deprecated. Please use DataFetchingEnvironment to retrieve ${param.getName()}.")
-                param to environment.getContext()
-            }
+            param.isGraphQLContext() -> param to environment.getContext()
             param.isDataFetchingEnvironment() -> param to environment
             else -> {
                 val name = param.getName()
