@@ -24,12 +24,12 @@ import kotlin.reflect.full.valueParameters
 
 private val logger: Logger = LoggerFactory.getLogger("schemaGenerator")
 
-internal fun KFunction<*>.getValidArguments(): List<KParameter> {
+internal fun KFunction<*>.getValidArguments(parentName: String? = null): List<KParameter> {
     return this.valueParameters.mapNotNull {
         when {
             it.isGraphQLIgnored() || it.isDataFetchingEnvironment() -> null
             it.isGraphQLContext() -> {
-                logger.warn("GraphQLContext interface injection is deprecated. Please use DataFetchingEnvironment to retrieve ${it.getName()}.")
+                logger.warn("GraphQLContext interface injection is deprecated. Please use DataFetchingEnvironment to retrieve context. Parent: $parentName, function: ${getFunctionName()}, context: ${it.getName()}")
                 null
             }
             else -> it
