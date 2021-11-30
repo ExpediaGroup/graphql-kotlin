@@ -47,7 +47,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
         throw InvalidInputFieldTypeException(parameter)
     }
 
-    val typeInfo = KTypeInfo(inputType = true, fieldName = parameter.getName(), fieldAnnotations = parameter.annotations)
+    val typeInfo = GraphQLKTypeMetadata(inputType = true, fieldName = parameter.getName(), fieldAnnotations = parameter.annotations)
     val graphQLType = generateGraphQLType(generator = generator, type = unwrappedType, typeInfo)
 
     // Deprecation of arguments is currently unsupported: https://github.com/facebook/graphql/issues/197

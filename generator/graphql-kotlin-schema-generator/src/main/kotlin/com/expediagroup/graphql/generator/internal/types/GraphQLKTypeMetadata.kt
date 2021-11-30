@@ -20,7 +20,7 @@ package com.expediagroup.graphql.generator.internal.types
  * Internal metadata class we can use to forward info about the type we are generating.
  * If there is no metadata to add, create the class with default values.
  */
-internal data class KTypeInfo(
+internal data class GraphQLKTypeMetadata(
     val inputType: Boolean = false,
     val fieldName: String? = null,
     val fieldAnnotations: List<Annotation> = emptyList()

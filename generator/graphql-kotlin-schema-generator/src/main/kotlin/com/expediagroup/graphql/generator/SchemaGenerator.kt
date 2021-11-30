@@ -20,7 +20,7 @@ import com.expediagroup.graphql.generator.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.generator.internal.state.AdditionalType
 import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.generator.internal.state.TypesCache
-import com.expediagroup.graphql.generator.internal.types.KTypeInfo
+import com.expediagroup.graphql.generator.internal.types.GraphQLKTypeMetadata
 import com.expediagroup.graphql.generator.internal.types.generateGraphQLType
 import com.expediagroup.graphql.generator.internal.types.generateMutations
 import com.expediagroup.graphql.generator.internal.types.generateQueries
@@ -121,7 +121,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
             this.additionalTypes.clear()
             graphqlTypes.addAll(
                 currentlyProcessedTypes.map {
-                    GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, KTypeInfo(inputType = it.inputType)))
+                    GraphQLTypeUtil.unwrapNonNull(generateGraphQLType(this, it.kType, GraphQLKTypeMetadata(inputType = it.inputType)))
                 }
             )
         }

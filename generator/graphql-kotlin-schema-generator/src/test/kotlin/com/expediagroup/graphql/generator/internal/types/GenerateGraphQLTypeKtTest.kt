@@ -39,7 +39,7 @@ class GenerateGraphQLTypeKtTest : TypeTestHelper() {
     @Test
     fun generateCustomType() {
         val fn = CustomTypeAnnotation::stringOrInt
-        val typeInfo = KTypeInfo(inputType = false, fieldAnnotations = fn.annotations)
+        val typeInfo = GraphQLKTypeMetadata(inputType = false, fieldAnnotations = fn.annotations)
         val result = generateGraphQLType(generator, fn.returnType, typeInfo).unwrapType()
         assertTrue(result is GraphQLTypeReference)
         assertEquals("StringOrInt", result.name)

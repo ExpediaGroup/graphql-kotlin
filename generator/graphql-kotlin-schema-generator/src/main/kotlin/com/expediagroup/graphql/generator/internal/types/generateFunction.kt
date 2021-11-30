@@ -51,7 +51,7 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
 
     val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
     val returnType = getWrappedReturnType(typeFromHooks)
-    val typeInfo = KTypeInfo(fieldName = functionName, fieldAnnotations = fn.annotations)
+    val typeInfo = GraphQLKTypeMetadata(fieldName = functionName, fieldAnnotations = fn.annotations)
     val graphQLOutputType = generateGraphQLType(generator = generator, type = returnType, typeInfo).safeCast<GraphQLOutputType>()
     val graphQLType = builder.type(graphQLOutputType).build()
     val coordinates = FieldCoordinates.coordinates(parentName, functionName)

@@ -27,7 +27,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isAnnotationUnion
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.qualifiedName
-import com.expediagroup.graphql.generator.internal.types.KTypeInfo
+import com.expediagroup.graphql.generator.internal.types.GraphQLKTypeMetadata
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
@@ -42,7 +42,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
     private val typesUnderConstruction: MutableSet<TypesCacheKey> = mutableSetOf()
 
-    internal fun get(type: KType, typeInfo: KTypeInfo): GraphQLNamedType? {
+    internal fun get(type: KType, typeInfo: GraphQLKTypeMetadata): GraphQLNamedType? {
         val cacheKey = generateCacheKey(type, typeInfo)
         return get(cacheKey)
     }
@@ -75,7 +75,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
         return null
     }
 
-    private fun generateCacheKey(type: KType, typeInfo: KTypeInfo): TypesCacheKey {
+    private fun generateCacheKey(type: KType, typeInfo: GraphQLKTypeMetadata): TypesCacheKey {
         if (type.getKClass().isListType()) {
             return TypesCacheKey(type, typeInfo.inputType)
         }
@@ -134,7 +134,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
 
     private fun isTypeNotSupported(type: KType): Boolean = supportedPackages.none { type.qualifiedName.startsWith(it) }
 
-    internal fun buildIfNotUnderConstruction(kClass: KClass<*>, typeInfo: KTypeInfo, build: (KClass<*>) -> GraphQLType): GraphQLType {
+    internal fun buildIfNotUnderConstruction(kClass: KClass<*>, typeInfo: GraphQLKTypeMetadata, build: (KClass<*>) -> GraphQLType): GraphQLType {
         if (kClass.isListType()) {
             return build(kClass)
         }

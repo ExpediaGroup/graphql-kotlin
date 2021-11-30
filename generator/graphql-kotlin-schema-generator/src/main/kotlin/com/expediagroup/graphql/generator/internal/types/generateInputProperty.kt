@@ -35,7 +35,7 @@ internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*
     val inputTypeFromHooks = generator.config.hooks.willResolveInputMonad(prop.returnType)
     val unwrappedType = inputTypeFromHooks.unwrapOptionalInputType()
     val propertyName = prop.getPropertyName(parentClass)
-    val typeInfo = KTypeInfo(inputType = true, fieldName = propertyName, fieldAnnotations = prop.getPropertyAnnotations(parentClass))
+    val typeInfo = GraphQLKTypeMetadata(inputType = true, fieldName = propertyName, fieldAnnotations = prop.getPropertyAnnotations(parentClass))
     val graphQLInputType = generateGraphQLType(generator = generator, type = unwrappedType, typeInfo).safeCast<GraphQLInputType>()
 
     builder.name(propertyName)

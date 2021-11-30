@@ -34,7 +34,7 @@ import kotlin.reflect.KType
 /**
  * Return a basic GraphQL type given all the information about the kotlin type.
  */
-internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, typeInfo: KTypeInfo = KTypeInfo()): GraphQLType {
+internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, typeInfo: GraphQLKTypeMetadata = GraphQLKTypeMetadata()): GraphQLType {
     val hookGraphQLType = generator.config.hooks.willGenerateGraphQLType(type)
     val graphQLType = hookGraphQLType
         ?: generateScalar(generator, type)
@@ -50,7 +50,7 @@ internal fun generateGraphQLType(generator: SchemaGenerator, type: KType, typeIn
     return typeWithNullability
 }
 
-private fun objectFromReflection(generator: SchemaGenerator, type: KType, typeInfo: KTypeInfo): GraphQLType {
+private fun objectFromReflection(generator: SchemaGenerator, type: KType, typeInfo: GraphQLKTypeMetadata): GraphQLType {
     val cachedType = generator.cache.get(type, typeInfo)
 
     if (cachedType != null) {
@@ -69,7 +69,7 @@ private fun getGraphQLType(
     generator: SchemaGenerator,
     kClass: KClass<*>,
     type: KType,
-    typeInfo: KTypeInfo
+    typeInfo: GraphQLKTypeMetadata
 ): GraphQLType {
     val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
     if (customTypeAnnotation != null) {
