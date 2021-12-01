@@ -16,12 +16,12 @@
 
 package com.expediagroup.graphql.generator.internal.types
 
-import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.internal.extensions.getWrappedType
-import graphql.schema.GraphQLList
-import kotlin.reflect.KType
-
-internal fun generateList(generator: SchemaGenerator, type: KType, typeInfo: GraphQLKTypeMetadata): GraphQLList {
-    val wrappedType = generateGraphQLType(generator, type.getWrappedType(), typeInfo)
-    return GraphQLList.list(wrappedType)
-}
+/**
+ * Internal metadata class we can use to forward info about the type we are generating.
+ * If there is no metadata to add, create the class with default values.
+ */
+internal data class GraphQLKTypeMetadata(
+    val inputType: Boolean = false,
+    val fieldName: String? = null,
+    val fieldAnnotations: List<Annotation> = emptyList()
+)

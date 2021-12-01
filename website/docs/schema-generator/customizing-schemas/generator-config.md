@@ -19,13 +19,14 @@ contains all the extra information you need to pass, including custom hooks, sup
 `SchemaGeneratorConfig` has some default settings but you can override them and add custom behaviors for generating your
 schema.
 
--   `supportedPackages` **[Required]** - List of Kotlin packages that can contain schema objects. Limits the scope of
+- `supportedPackages` **[Required]** - List of Kotlin packages that can contain schema objects. Limits the scope of
     packages that can be scanned using reflections.
--   `topLevelNames` _[Optional]_ - Set the name of the top level GraphQL fields, defaults to `Query`, `Mutation` and
+- `topLevelNames` _[Optional]_ - Set the name of the top level GraphQL fields, defaults to `Query`, `Mutation` and
     `Subscription`
--   `hooks` _[Optional]_ - Set custom behaviors for generating the schema, see below for details.
--   `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
--   `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
+- `hooks` _[Optional]_ - Set custom behaviors for generating the schema, see below for details.
+- `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
+- `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
+- `additionalTypes` _[Optional]_ - Set of additional GraphQL types to include when generating the schema.
 
 ## SchemaGeneratorHooks
 
