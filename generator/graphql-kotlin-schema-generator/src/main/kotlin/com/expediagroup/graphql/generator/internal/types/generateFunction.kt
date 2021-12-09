@@ -45,7 +45,7 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
         builder.withDirective(it)
     }
 
-    fn.getValidArguments().forEach {
+    fn.getValidArguments(parentName).forEach {
         builder.argument(generateArgument(generator, it))
     }
 
