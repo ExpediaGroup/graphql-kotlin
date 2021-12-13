@@ -34,4 +34,4 @@ class DataAndErrorsQuery {
 }
 ```
 
-An example of a query returning partial data is available in our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/spring/src/main/kotlin/com/expediagroup/graphql/examples/query/DataAndErrorsQuery.kt).
+An example of a query returning partial data is available in our [spring example app](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/examples/server/spring-server/src/main/kotlin/com/expediagroup/graphql/examples/server/spring/query/DataAndErrorsQuery.kt).
