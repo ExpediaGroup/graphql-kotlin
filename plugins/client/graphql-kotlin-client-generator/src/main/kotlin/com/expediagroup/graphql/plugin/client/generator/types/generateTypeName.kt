@@ -51,8 +51,13 @@ import kotlinx.serialization.Serializable
 /**
  * Generate [TypeName] reference to a Kotlin class representation of an underlying GraphQL type.
  */
-internal fun generateTypeName(context: GraphQLClientGeneratorContext, graphQLType: Type<*>, selectionSet: SelectionSet? = null): TypeName {
-    val nullable = graphQLType !is NonNullType
+internal fun generateTypeName(
+    context: GraphQLClientGeneratorContext,
+    graphQLType: Type<*>,
+    selectionSet: SelectionSet? = null,
+    optional: Boolean = false
+): TypeName {
+    val nullable = optional || graphQLType !is NonNullType
 
     return when (graphQLType) {
         is NonNullType -> generateTypeName(context, graphQLType.type, selectionSet)

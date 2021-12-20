@@ -30,6 +30,8 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import graphql.Directives.DeprecatedDirective
+import graphql.Directives.IncludeDirective
+import graphql.Directives.SkipDirective
 import graphql.language.Field
 import graphql.language.FieldDefinition
 import graphql.language.NonNullType
@@ -59,7 +61,10 @@ internal fun generatePropertySpecs(
             throw MissingArgumentException(context.operationName, objectName, selectedField.name, missingRequiredArguments)
         }
 
-        val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
+        val optional = selectedField.directives.any {
+            it.name == SkipDirective.name || it.name == IncludeDirective.name
+        }
+        val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet, optional = optional)
         val fieldName = selectedField.alias ?: fieldDefinition.name
 
         val propertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
