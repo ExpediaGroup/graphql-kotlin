@@ -20,12 +20,9 @@ import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.future.future
-import java.util.concurrent.CompletableFuture
 
 private const val TYPENAME_FIELD = "__typename"
 private const val REPRESENTATIONS = "representations"
@@ -33,12 +30,12 @@ private const val REPRESENTATIONS = "representations"
 /**
  * Federated _entities query resolver.
  */
-open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
+interface EntityResolver<T> : DataFetcher<T> {
 
     /**
-     * Pre-compute the resolves by typename so we don't have to search on every request
+     * Pre-computed resolvers by typename, so we don't have to search on every request
      */
-    private val resolverMap: Map<String, FederatedTypeResolver<*>> = resolvers.associateBy { it.typeName }
+    val resolverMap: Map<String, FederatedTypeResolver<*>>
 
     /**
      * Resolves entities based on the passed in representations argument. Entities are resolved in the same order
@@ -50,32 +47,30 @@ open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetch
      *
      * @return list of resolved nullable entities
      */
-    override fun get(env: DataFetchingEnvironment): CompletableFuture<DataFetcherResult<List<Any?>>> {
+    suspend fun resolve(env: DataFetchingEnvironment): DataFetcherResult<List<Any?>> {
         val representations: List<Map<String, Any>> = env.getArgument(REPRESENTATIONS)
         val indexedBatchRequestsByType = representations.withIndex().groupBy { it.value[TYPENAME_FIELD].toString() }
 
-        return GlobalScope.future {
-            val data = mutableListOf<Any?>()
-            val errors = mutableListOf<GraphQLError>()
+        val data = mutableListOf<Any?>()
+        val errors = mutableListOf<GraphQLError>()
 
-            resolveRequests(indexedBatchRequestsByType, env)
-                .flatten()
-                .sortedBy { it.first }
-                .forEach {
-                    val result = it.second
-                    if (result is GraphQLError) {
-                        data.add(null)
-                        errors.add(result)
-                    } else {
-                        data.add(result)
-                    }
+        resolveRequests(indexedBatchRequestsByType, env)
+            .flatten()
+            .sortedBy { it.first }
+            .forEach {
+                val result = it.second
+                if (result is GraphQLError) {
+                    data.add(null)
+                    errors.add(result)
+                } else {
+                    data.add(result)
                 }
+            }
 
-            DataFetcherResult.newResult<List<Any?>>()
-                .data(data)
-                .errors(errors)
-                .build()
-        }
+        return DataFetcherResult.newResult<List<Any?>>()
+            .data(data)
+            .errors(errors)
+            .build()
     }
 
     private suspend fun resolveRequests(indexedBatchRequestsByType: Map<String, List<IndexedValue<Map<String, Any>>>>, env: DataFetchingEnvironment): List<List<Pair<Int, Any?>>> {

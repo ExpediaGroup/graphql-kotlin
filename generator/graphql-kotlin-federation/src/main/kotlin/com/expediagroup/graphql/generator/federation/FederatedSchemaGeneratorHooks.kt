@@ -28,6 +28,7 @@ import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTI
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.execution.EntityResolver
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.GlobalScopeEntityResolver
 import com.expediagroup.graphql.generator.federation.extensions.addDirectivesIfNotPresent
 import com.expediagroup.graphql.generator.federation.types.ANY_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
@@ -52,7 +53,10 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Hooks for generating federated GraphQL schema.
  */
-open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>) : SchemaGeneratorHooks {
+open class FederatedSchemaGeneratorHooks(private val entityResolver: EntityResolver<*>) : SchemaGeneratorHooks {
+
+    constructor(resolvers: List<FederatedTypeResolver<*>>) : this(GlobalScopeEntityResolver(resolvers))
+
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query @extends \\s*\\{\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val serviceFieldRegex = "\\s*_service: _Service".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
@@ -92,7 +96,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
             val entityField = generateEntityFieldDefinition(entityTypeNames)
             federatedQuery.field(entityField)
 
-            federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), EntityResolver(resolvers))
+            federatedCodeRegistry.dataFetcher(FieldCoordinates.coordinates(originalQuery.name, entityField.name), entityResolver)
             federatedCodeRegistry.typeResolver(ENTITY_UNION_NAME) { env: TypeResolutionEnvironment -> env.schema.getObjectType(env.getObjectName()) }
             federatedSchemaBuilder.additionalType(ANY_SCALAR_TYPE)
         }
