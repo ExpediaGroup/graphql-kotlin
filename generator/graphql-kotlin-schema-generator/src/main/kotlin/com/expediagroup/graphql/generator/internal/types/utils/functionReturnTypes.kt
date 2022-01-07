@@ -45,6 +45,7 @@ import kotlin.reflect.full.createType
  */
 internal fun getWrappedReturnType(returnType: KType): KType {
     return when {
+        returnType.isSubclassOf(DataFetcherResult::class) && returnType.getTypeOfFirstArgument().isSubclassOf(List::class) -> getWrappedReturnType(returnType.getTypeOfFirstArgument())
         returnType.isSubclassOf(DataFetcherResult::class) -> returnType.getTypeOfFirstArgument()
         returnType.isSubclassOf(Publisher::class) -> { checkTypeForDataFetcherResult(returnType) }
         returnType.isSubclassOf(CompletableFuture::class) -> { checkTypeForDataFetcherResult(returnType) }
