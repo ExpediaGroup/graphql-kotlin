@@ -32,6 +32,8 @@ class FunctionReturnTypesKtTest {
         val listOfListString: List<List<String>> = listOf(listOf(string))
         val dataFetcherResult: DataFetcherResult<String> = DataFetcherResult.newResult<String>().data(string).build()
         val listDataFetcherResult: List<DataFetcherResult<String>> = listOf(DataFetcherResult.newResult<String>().data(string).build())
+        val dataFetcherResultListDataFetcherResult: DataFetcherResult<List<DataFetcherResult<String>>> =
+            DataFetcherResult.newResult<List<DataFetcherResult<String>>>().data(listOf(DataFetcherResult.newResult<String>().data(string).build())).build()
         val dataFetcherResultListString: DataFetcherResult<List<String>> = DataFetcherResult.newResult<List<String>>().data(listOf(string)).build()
         val listDataFetcherResultListString: List<DataFetcherResult<List<String>>> = listOf(DataFetcherResult.newResult<List<String>>().data(listOf(string)).build())
         val publisher: Publisher<String> = Flowable.just(string)
@@ -70,6 +72,11 @@ class FunctionReturnTypesKtTest {
         assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::listDataFetcherResult.returnType))
         assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::dataFetcherResultListString.returnType))
         assertEquals(MyClass::listOfListString.returnType, actual = getWrappedReturnType(MyClass::listDataFetcherResultListString.returnType))
+    }
+
+    @Test
+    fun `getWrappedReturnType of DataFetcherResult of List of DataFetcherResult`() {
+        assertEquals(MyClass::listOfString.returnType, actual = getWrappedReturnType(MyClass::dataFetcherResultListDataFetcherResult.returnType))
     }
 
     @Test
