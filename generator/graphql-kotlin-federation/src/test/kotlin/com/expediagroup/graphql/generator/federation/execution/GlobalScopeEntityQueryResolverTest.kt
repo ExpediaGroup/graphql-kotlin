@@ -36,5 +36,4 @@ class GlobalScopeEntityQueryResolverTest {
         val result = resolver.get(env).get()
         assertNotNull(result)
     }
-
 }
