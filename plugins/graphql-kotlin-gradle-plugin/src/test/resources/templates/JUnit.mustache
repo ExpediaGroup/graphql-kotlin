@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.io.File
 import java.nio.file.Paths
-import kotlin.reflect.full.declaredMemberProperties
 
 class GraphQLMavenPluginTest {
 
@@ -25,16 +24,6 @@ class GraphQLMavenPluginTest {
         val buildDirectory = System.getProperty("buildDirectory")
         val path = Paths.get(buildDirectory, "generated", "sources", "graphql", "com", "example", "generated", "JUnitQuery.kt")
         assertTrue(path.toFile().exists(), "graphql client was generated")
-    }
-
-    @Test
-    fun `verify topLevelDirective fields are nullable`() {
-        assertTrue(
-            JUnitQuery.Result::class.declaredMemberProperties.first { it.name == "includeComplexObjectQuery" }.returnType.isMarkedNullable
-        )
-        assertTrue(
-            JUnitQuery.Result::class.declaredMemberProperties.first { it.name == "skipComplexObjectQuery" }.returnType.isMarkedNullable
-        )
     }
 
     @Test

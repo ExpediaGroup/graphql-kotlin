@@ -1,0 +1,5 @@
+query IncludeSkipQuery($includeCondition: Boolean!, $skipCondition: Boolean!) {
+  simpleQuery
+  included: simpleQuery @include(if: $includeCondition)
+  skipped: simpleQuery @skip(if: $skipCondition)
+}

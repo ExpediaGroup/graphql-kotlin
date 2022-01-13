@@ -22,13 +22,6 @@ query JUnitQuery($simpleCriteria: SimpleArgumentInput!) {
       value
     }
   }
-  includeComplexObjectQuery: complexObjectQuery @include(if: true) {
-    id
-  }
-  skipComplexObjectQuery: complexObjectQuery @skip(if: false) {
-    id
-  }
-
   interfaceQuery {
     __typename
     id
