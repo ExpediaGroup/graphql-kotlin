@@ -1,6 +1,6 @@
 # GraphQL Kotlin Plugin Core
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-plugin-core.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-plugin-core%22)
-[![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-plugin-core.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-plugin-core)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client-generator.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-client-generator%22)
+[![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client-generator.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client-generator)
 
 Module containing common logic used by the GraphQL Kotlin Gradle and Maven plugins. **This module is not intended to be
 consumed directly and instead you should rely on the provided build plugins.**
