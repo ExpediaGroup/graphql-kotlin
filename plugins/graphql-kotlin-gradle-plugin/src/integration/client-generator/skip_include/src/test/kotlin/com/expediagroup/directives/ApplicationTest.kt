@@ -1,11 +1,12 @@
 package com.expediagroup.directives
 
-import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import com.expediagroup.directives.generated.IncludeSkipQuery
+import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
+import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -13,7 +14,7 @@ import kotlin.test.assertNull
 class ApplicationTest(@LocalServerPort private val port: Int) {
 
     @Test
-    fun `verify include and skip directives are honored by client`() = runBlocking {
+    fun `verify include and skip directives are honored by client`(): Unit = runBlocking {
         val client = GraphQLWebClient(url = "http://localhost:$port/graphql")
 
         val skippedQuery = IncludeSkipQuery(variables = IncludeSkipQuery.Variables(
@@ -36,17 +37,16 @@ class ApplicationTest(@LocalServerPort private val port: Int) {
             skipCondition = false
         ))
 
-        val response = client.execute(includeQuery)
-        val simpleResponse = response.data?.simpleQuery
-        assertNotNull(simpleResponse)
-        assertNotNull(UUID.fromString(simpleResponse))
+        val nonNullResponse = client.execute(includeQuery)
+        val simpleResponseNonNull = nonNullResponse.data?.simpleQuery
+        assertNotNull(simpleResponseNonNull)
+        assertNotNull(UUID.fromString(simpleResponseNonNull))
 
-        val included = response.data?.included
-        assertNotNull(included)
-        assertNotNull(UUID.fromString(included))
-        val skipped = response.data?.skipped
-        assertNotNull(skipped)
-        assertNotNull(UUID.fromString(skipped))
+        val includedNonNull = nonNullResponse.data?.included
+        assertNotNull(includedNonNull)
+        assertNotNull(UUID.fromString(includedNonNull))
+        val skippedNonNull = nonNullResponse.data?.skipped
+        assertNotNull(skippedNonNull)
+        assertNotNull(UUID.fromString(skippedNonNull))
     }
-
 }
