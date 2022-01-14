@@ -16,12 +16,12 @@ public data class ScalarWrapper(
   /**
    * A signed 32-bit nullable integer value
    */
-  public val count: Int?,
+  public val count: Int? = null,
   /**
    * Custom scalar of UUID
    */
   @Serializable(with = UUIDSerializer::class)
-  public val custom: UUID?,
+  public val custom: UUID? = null,
   /**
    * ID represents unique identifier that is not intended to be human readable
    */

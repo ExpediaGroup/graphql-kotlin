@@ -21,13 +21,13 @@ public data class ScalarWrapper(
    */
   @JsonSerialize(converter = UUIDToAnyConverter::class)
   @JsonDeserialize(converter = AnyToUUIDConverter::class)
-  public val custom: UUID?,
+  public val custom: UUID? = null,
   /**
    * List of custom scalar UUIDs
    */
   @JsonSerialize(contentConverter = UUIDToAnyConverter::class)
   @JsonDeserialize(contentConverter = AnyToUUIDConverter::class)
-  public val customList: List<UUID>?,
+  public val customList: List<UUID>? = null,
   /**
    * Custom scalar of Locale
    */
