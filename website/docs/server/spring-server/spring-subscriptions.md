@@ -22,12 +22,12 @@ If you would like to implement your own subscription handler, you can provide a 
 In line with the Apollo protocol, we have implemented hooks to execute functions at different stages of the connection lifecycle.
 If you would like to implement your own subscription hooks, you can provide a primary spring bean for `ApolloSubscriptionHooks` that overrides the [default one](./spring-beans.md) which do not perform any actions.
 
-### `onConnect`
+### `onConnect` / `onConnectWithContext`
 Allows validation of connectionParams prior to starting the connection.
 You can reject the connection by throwing an exception.
 If you need to forward state to execution, update and return the [GraphQLContext](./spring-graphql-context.md).
 
-### `onOperation`
+### `onOperation` / `onOperationWithContext`
 Called when the client executes a GraphQL operation. The context can not be updated here, it is read only.
 
 ### `onOperationComplete`

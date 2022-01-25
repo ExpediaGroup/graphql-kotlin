@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.server.spring
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_VALUE
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
@@ -25,7 +27,6 @@ import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.execution.FederatedGraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
@@ -45,9 +46,6 @@ import org.springframework.context.annotation.Configuration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-
-private const val APOLLO_FEDERATION_TRACING_HEADER_NAME = "apollo-federation-include-trace"
-private const val APOLLO_FEDERATION_TRACING_HEADER_VALUE = "ftv1"
 
 class FederationConfigurationTest {
 
@@ -120,10 +118,9 @@ class FederationConfigurationTest {
                 assertThat(ctx).hasSingleBean(FederatedTracingInstrumentation::class.java)
 
                 val graphql = ctx.getBean(GraphQL::class.java)
-                val federatedContext = MockFederatedGraphQLContext()
                 val input = ExecutionInput.newExecutionInput()
                     .query("query { widget { id name } }")
-                    .context(federatedContext)
+                    .graphQLContext(mapOf(FEDERATED_TRACING_HEADER_NAME to FEDERATED_TRACING_HEADER_VALUE))
                     .build()
 
                 val result = graphql.execute(input).toSpecification()
@@ -134,7 +131,7 @@ class FederationConfigurationTest {
 
                 assertNull(result["errors"])
                 val extensions = assertNotNull(result["extensions"] as? Map<*, *>)
-                assertNotNull(extensions[APOLLO_FEDERATION_TRACING_HEADER_VALUE])
+                assertNotNull(extensions[FEDERATED_TRACING_HEADER_VALUE])
             }
     }
 
@@ -177,13 +174,4 @@ class FederationConfigurationTest {
     @ExtendsDirective
     @KeyDirective(fields = FieldSet("id"))
     data class Widget(@ExternalDirective val id: Int, val name: String)
-
-    class MockFederatedGraphQLContext : FederatedGraphQLContext {
-        override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
-            if (caseInsensitiveHeaderName == APOLLO_FEDERATION_TRACING_HEADER_NAME) {
-                APOLLO_FEDERATION_TRACING_HEADER_VALUE
-            } else {
-                null
-            }
-    }
 }

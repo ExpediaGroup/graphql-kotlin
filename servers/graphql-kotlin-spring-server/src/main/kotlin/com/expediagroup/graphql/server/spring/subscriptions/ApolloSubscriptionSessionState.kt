@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ internal class ApolloSubscriptionSessionState {
      * This allows us to include some intial state to be used when handling all the messages.
      * This will be removed in [terminateSession].
      */
+    @Deprecated(message = "The generic context object is deprecated in favor of the context map", replaceWith = ReplaceWith("saveContextMap"))
     fun saveContext(session: WebSocketSession, graphQLContext: GraphQLContext?) {
         if (graphQLContext != null) {
             cachedContext[session.id] = graphQLContext
@@ -50,24 +51,23 @@ internal class ApolloSubscriptionSessionState {
 
     /**
      * Save the context created from the factory and possibly updated in the onConnect hook.
-     * This allows us to include some intial state to be used when handling all the messages.
+     * This allows us to include some initial state to be used when handling all the messages.
      * This will be removed in [terminateSession].
      */
-    fun saveContextMap(session: WebSocketSession, graphQLContext: Map<*, Any>?) {
-        if (graphQLContext != null) {
-            cachedGraphQLContext[session.id] = graphQLContext
-        }
+    fun saveContextMap(session: WebSocketSession, graphQLContext: Map<*, Any>) {
+        cachedGraphQLContext[session.id] = graphQLContext
     }
 
     /**
      * Return the context for this session.
      */
+    @Deprecated(message = "The generic context object is deprecated in favor of the context map", replaceWith = ReplaceWith("getGraphQLContext"))
     fun getContext(session: WebSocketSession): GraphQLContext? = cachedContext[session.id]
 
     /**
      * Return the graphQL context for this session.
      */
-    fun getGraphQLContext(session: WebSocketSession): Map<*, Any>? = cachedGraphQLContext[session.id]
+    fun getGraphQLContext(session: WebSocketSession): Map<*, Any> = cachedGraphQLContext[session.id] ?: emptyMap<Any, Any>()
 
     /**
      * Save the session that is sending keep alive messages.

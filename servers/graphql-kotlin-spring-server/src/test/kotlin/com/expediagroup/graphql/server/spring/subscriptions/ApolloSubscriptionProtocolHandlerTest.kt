@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class ApolloSubscriptionProtocolHandlerTest {
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
     private val nullContextFactory: SpringSubscriptionGraphQLContextFactory<*> = mockk {
         coEvery { generateContext(any()) } returns null
-        coEvery { generateContextMap(any()) } returns null
+        coEvery { generateContextMap(any()) } returns emptyMap<Any, Any>()
     }
     private val simpleInitMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
 
@@ -509,7 +509,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
             every { onConnect(any(), any(), any()) } returns null
-            every { onConnectWithContext(any(), any(), any()) } returns null
+            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>()
             every { onOperation(any(), any(), any()) } returns Unit
             every { onOperationWithContext(any(), any(), any()) } returns Unit
             every { onOperationComplete(any()) } returns Unit
