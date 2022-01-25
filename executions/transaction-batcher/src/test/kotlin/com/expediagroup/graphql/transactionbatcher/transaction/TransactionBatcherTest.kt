@@ -7,7 +7,6 @@ import com.expediagroup.graphql.transactionbatcher.publisher.MissionServiceReque
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
 import kotlin.test.assertEquals
-import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 
 class TransactionBatcherTest {
     @Test
