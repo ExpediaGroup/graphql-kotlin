@@ -7,6 +7,7 @@ import com.expediagroup.graphql.transactionbatcher.publisher.MissionServiceReque
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
 import kotlin.test.assertEquals
+import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 
 class TransactionBatcherTest {
     @Test
@@ -132,14 +133,55 @@ class TransactionBatcherTest {
             .flatMapSequential(astronautService::getAstronaut)
             .collectList()
             .subscribe {
-                assertEquals("Buzz Aldrin", it[2].name)
                 assertEquals("Neil Armstrong", it[0].name)
                 assertEquals("William Anders", it[1].name)
+                assertEquals("Buzz Aldrin", it[2].name)
             }
 
         transactionBatcher.dispatch()
         Thread.sleep(1000)
         assertEquals(6, astronautService.getAstronautCallCount.get())
         assertEquals(0, astronautService.produceArguments[1].size)
+    }
+
+    @Test
+    fun `TransactionBatcher should resolve from cache and apply transaction`() {
+        val transactionBatcher = TransactionBatcher()
+
+        val astronautService = AstronautService(transactionBatcher)
+        val astronautRequest1 = AstronautServiceRequest(3)
+        val astronautRequest2 = AstronautServiceRequest(2)
+
+        listOf(astronautRequest1, astronautRequest2).toFlux()
+            .flatMapSequential(astronautService::getAstronaut)
+            .collectList()
+            .subscribe {
+                assertEquals("Neil Armstrong", it[0].name)
+                assertEquals("William Anders", it[1].name)
+            }
+
+        transactionBatcher.dispatch()
+        Thread.sleep(1000)
+
+        assertEquals(2, astronautService.getAstronautCallCount.get())
+        assertEquals(3, astronautService.produceArguments[0][0].id)
+        assertEquals(2, astronautService.produceArguments[0][1].id)
+
+        val astronautRequest3 = AstronautServiceRequest(1)
+
+        listOf(astronautRequest3, astronautRequest1, astronautRequest2).toFlux()
+            .flatMapSequential(astronautService::getAstronaut)
+            .collectList()
+            .subscribe {
+                assertEquals("Neil Armstrong", it[0].name)
+                assertEquals("William Anders", it[1].name)
+                assertEquals("Buzz Aldrin", it[2].name)
+            }
+
+        transactionBatcher.dispatch()
+        Thread.sleep(1000)
+        assertEquals(5, astronautService.getAstronautCallCount.get())
+        assertEquals(1, astronautService.produceArguments[1].size)
+
     }
 }
