@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,6 @@ import kotlin.test.assertTrue
 
 class FunctionDataFetcherTest {
 
-    class MyContext(val value: String) : GraphQLContext
-
     interface MyInterface {
         fun print(string: String): String
     }
@@ -47,8 +45,6 @@ class FunctionDataFetcherTest {
         fun printArray(items: Array<String>) = items.joinToString(separator = ":")
 
         fun printList(items: List<String>) = items.joinToString(separator = ":")
-
-        fun contextClass(myContext: MyContext) = myContext.value
 
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment): String = environment.field.name
 
@@ -114,17 +110,6 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `valid target with context class`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::contextClass)
-        val mockEnvironmet: DataFetchingEnvironment = mockk {
-            every { getContext<MyContext>() } returns MyContext("foo")
-            every { arguments } returns emptyMap()
-            every { containsArgument(any()) } returns false
-        }
-        assertEquals(expected = "foo", actual = dataFetcher.get(mockEnvironmet))
-    }
-
-    @Test
     fun `target is different than the function instance`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyInterface::print)
         val mockEnvironmet: DataFetchingEnvironment = mockk {
@@ -158,7 +143,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `default values are overriden when arument is passed as null`() {
+    fun `default values are overridden when argument is passed as null`() {
         val dataFetcher = FunctionDataFetcher(target = null, fn = MyClass::printDefault)
         val mockEnvironmet: DataFetchingEnvironment = mockk {
             every { getSource<Any>() } returns MyClass()
@@ -190,7 +175,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `dataFetchingEnvironement is passed as an argument`() {
+    fun `dataFetchingEnvironment is passed as an argument`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::dataFetchingEnvironment)
         val mockEnvironmet: DataFetchingEnvironment = mockk {
             every { arguments } returns emptyMap()

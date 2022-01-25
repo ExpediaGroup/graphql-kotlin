@@ -54,16 +54,14 @@ interface KotlinDataFetcherFactoryProvider {
  * to obtain [DataFetcherFactory] that should be used for target function and property resolution.
  */
 open class SimpleKotlinDataFetcherFactoryProvider(
-    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
-    private val defaultCoroutineContext: CoroutineContext = EmptyCoroutineContext
+    private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : KotlinDataFetcherFactoryProvider {
 
     override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
         FunctionDataFetcher(
             target = target,
             fn = kFunction,
-            objectMapper = objectMapper,
-            defaultCoroutineContext = defaultCoroutineContext
+            objectMapper = objectMapper
         )
     }
 

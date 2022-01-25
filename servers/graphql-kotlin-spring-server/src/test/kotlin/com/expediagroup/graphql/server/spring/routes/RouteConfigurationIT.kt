@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_VARIABLES
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -52,10 +52,9 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         fun query(): Query = SimpleQuery()
 
         @Bean
-        fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
-            override suspend fun generateContext(request: ServerRequest): CustomContext = CustomContext(
-                value = request.headers().firstHeader("X-Custom-Header") ?: "default",
-                request = request
+        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
+            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = mapOf(
+                "value" to (request.headers().firstHeader("X-Custom-Header") ?: "default")
             )
         }
     }
@@ -63,10 +62,8 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
     class SimpleQuery : Query {
         fun hello(name: String) = "Hello $name!"
 
-        fun context(ctx: CustomContext) = ctx.value
+        fun context(env: DataFetchingEnvironment) = env.graphQlContext.getOrDefault("value", "default")
     }
-
-    class CustomContext(val value: String, request: ServerRequest) : SpringGraphQLContext(request)
 
     val expectedSchema =
         """

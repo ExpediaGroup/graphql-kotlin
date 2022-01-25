@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.coEvery
@@ -29,8 +28,6 @@ import org.junit.jupiter.api.Test
 @ExperimentalCoroutinesApi
 class GraphQLServerTest {
 
-    class MockContext : GraphQLContext
-
     class MockHttpRequest
 
     @Test
@@ -38,12 +35,11 @@ class GraphQLServerTest {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
             coEvery { parseRequest(any()) } returns GraphQLBatchRequest(requests = listOf(mockk()))
         }
-        val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
-            coEvery { generateContext(any()) } returns MockContext()
+        val mockContextFactory = mockk<GraphQLContextFactory<MockHttpRequest>> {
             coEvery { generateContextMap(any()) } returns mapOf("foo" to 1)
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
-            coEvery { executeRequest(any(), any(), any()) } returns mockk()
+            coEvery { executeRequest(any(), any()) } returns mockk()
         }
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
@@ -52,46 +48,20 @@ class GraphQLServerTest {
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
-            mockContextFactory.generateContext(any())
-            mockHandler.executeRequest(any(), any(), any())
+            mockHandler.executeRequest(any(), any())
         }
     }
 
     @Test
-    fun `null context is used and passed to the request handler`() {
+    fun `null context map is used and passed to the request handler`() {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
             coEvery { parseRequest(any()) } returns mockk<GraphQLRequest>()
         }
-        val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
-            coEvery { generateContext(any()) } returns null
-            coEvery { generateContextMap(any()) } returns mapOf(1 to "foo")
-        }
-        val mockHandler = mockk<GraphQLRequestHandler> {
-            coEvery { executeRequest(any(), null, any()) } returns mockk()
-        }
-
-        val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
-
-        runBlockingTest { server.execute(mockk()) }
-
-        coVerify(exactly = 1) {
-            mockParser.parseRequest(any())
-            mockContextFactory.generateContext(any())
-            mockHandler.executeRequest(any(), null, any())
-        }
-    }
-
-    @Test
-    fun `null graphQL context is used and passed to the request handler`() {
-        val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
-            coEvery { parseRequest(any()) } returns mockk<GraphQLRequest>()
-        }
-        val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
-            coEvery { generateContext(any()) } returns null
+        val mockContextFactory = mockk<GraphQLContextFactory<MockHttpRequest>> {
             coEvery { generateContextMap(any()) } returns null
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
-            coEvery { executeRequest(any(), null, any()) } returns mockk()
+            coEvery { executeRequest(any(), any()) } returns mockk()
         }
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
@@ -100,8 +70,8 @@ class GraphQLServerTest {
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
-            mockContextFactory.generateContext(any())
-            mockHandler.executeRequest(any(), any(), null)
+            mockContextFactory.generateContextMap(any())
+            mockHandler.executeRequest(any(), any())
         }
     }
 
@@ -110,8 +80,7 @@ class GraphQLServerTest {
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
             coEvery { parseRequest(any()) } returns null
         }
-        val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
-            coEvery { generateContext(any()) } returns MockContext()
+        val mockContextFactory = mockk<GraphQLContextFactory<MockHttpRequest>> {
             coEvery { generateContextMap(any()) } returns null
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
@@ -126,8 +95,8 @@ class GraphQLServerTest {
             mockParser.parseRequest(any())
         }
         coVerify(exactly = 0) {
-            mockContextFactory.generateContext(any())
-            mockHandler.executeRequest(any(), any(), any())
+            mockContextFactory.generateContextMap(any())
+            mockHandler.executeRequest(any(), any())
         }
     }
 }

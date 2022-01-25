@@ -46,7 +46,7 @@ import java.time.Duration
  */
 class ApolloSubscriptionProtocolHandler(
     private val config: GraphQLConfigurationProperties,
-    private val contextFactory: SpringSubscriptionGraphQLContextFactory<*>,
+    private val contextFactory: SpringSubscriptionGraphQLContextFactory,
     private val subscriptionHandler: SpringGraphQLSubscriptionHandler,
     private val objectMapper: ObjectMapper,
     private val subscriptionHooks: ApolloSubscriptionHooks
@@ -106,11 +106,9 @@ class ApolloSubscriptionProtocolHandler(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession
     ): Flux<SubscriptionOperationMessage> {
-        val context = sessionState.getContext(session)
         val graphQLContext = sessionState.getGraphQLContext(session)
 
-        subscriptionHooks.onOperation(operationMessage, session, context)
-        subscriptionHooks.onOperationWithContext(operationMessage, session, graphQLContext)
+        subscriptionHooks.onOperation(operationMessage, session, graphQLContext)
 
         if (operationMessage.id == null) {
             logger.error("GraphQL subscription operation id is required")
@@ -132,7 +130,7 @@ class ApolloSubscriptionProtocolHandler(
 
         try {
             val request = objectMapper.convertValue<GraphQLRequest>(payload)
-            return subscriptionHandler.executeSubscription(request, context, graphQLContext)
+            return subscriptionHandler.executeSubscription(request, graphQLContext)
                 .asFlux()
                 .map {
                     if (it.errors?.isNotEmpty() == true) {
@@ -165,11 +163,8 @@ class ApolloSubscriptionProtocolHandler(
     private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
         runBlocking {
             val connectionParams = castToMapOfStringString(operationMessage.payload)
-            val context = contextFactory.generateContext(session)
             val graphQLContext = contextFactory.generateContextMap(session)
-            val onConnectContext = subscriptionHooks.onConnect(connectionParams, session, context)
-            val onConnectGraphQLContext = subscriptionHooks.onConnectWithContext(connectionParams, session, graphQLContext)
-            sessionState.saveContext(session, onConnectContext)
+            val onConnectGraphQLContext = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
             sessionState.saveContextMap(session, onConnectGraphQLContext)
         }
     }

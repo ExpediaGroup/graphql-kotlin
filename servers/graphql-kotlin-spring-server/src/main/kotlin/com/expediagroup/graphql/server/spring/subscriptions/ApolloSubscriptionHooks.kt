@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
@@ -27,45 +26,22 @@ interface ApolloSubscriptionHooks {
     /**
      * Allows validation of connectionParams prior to starting the connection.
      * You can reject the connection by throwing an exception.
-     * If you need to forward state to execution, update and return the [GraphQLContext].
+     * If you need to forward state to execution, update and return the context map.
      */
-    @Deprecated("The generic context object is deprecated in favor of the context map")
     fun onConnect(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: GraphQLContext?
-    ): GraphQLContext? = graphQLContext
-
-    /**
-     * Allows validation of connectionParams prior to starting the connection.
-     * You can reject the connection by throwing an exception.
-     * If you need to forward state to execution, update and return the context map.
-     */
-    fun onConnectWithContext(
-        connectionParams: Map<String, String>,
-        session: WebSocketSession,
-        graphQLContext: Map<*, Any>?
-    ): Map<*, Any>? = graphQLContext
+        graphQLContext: Map<*, Any?>?
+    ): Map<*, Any?>? = graphQLContext
 
     /**
      * Called when the client executes a GraphQL operation.
      * The context can not be updated here, it is read only.
      */
-    @Deprecated("The generic context object is deprecated in favor of the context map")
     fun onOperation(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
-        graphQLContext: GraphQLContext?
-    ): Unit = Unit
-
-    /**
-     * Called when the client executes a GraphQL operation.
-     * The context can not be updated here, it is read only.
-     */
-    fun onOperationWithContext(
-        operationMessage: SubscriptionOperationMessage,
-        session: WebSocketSession,
-        graphQLContext: Map<*, Any>?
+        graphQLContext: Map<*, Any?>?
     ): Unit = Unit
 
     /**

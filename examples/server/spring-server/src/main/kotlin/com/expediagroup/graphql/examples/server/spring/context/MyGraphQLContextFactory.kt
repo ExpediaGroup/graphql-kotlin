@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,15 @@ package com.expediagroup.graphql.examples.server.spring.context
 
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
-import com.expediagroup.graphql.server.spring.subscriptions.SpringSubscriptionGraphQLContextFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
  * [GraphQLContextFactory] that generates [MyGraphQLContext] that will be available when processing GraphQL requests.
  */
 @Component
-class MyGraphQLContextFactory : SpringGraphQLContextFactory<MyGraphQLContext>() {
-
-    override suspend fun generateContext(request: ServerRequest): MyGraphQLContext = MyGraphQLContext(
-        request = request,
-        myCustomValue = request.headers().firstHeader("MyHeader") ?: "defaultContext"
-    )
-}
-
-/**
- * [GraphQLContextFactory] that generates [MySubscriptionGraphQLContext] that will be available when processing subscription operations.
- */
-@Component
-class MySubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory<MySubscriptionGraphQLContext>() {
-
-    override suspend fun generateContext(request: WebSocketSession): MySubscriptionGraphQLContext = MySubscriptionGraphQLContext(
-        request = request,
-        auth = null
+class MyGraphQLContextFactory : SpringGraphQLContextFactory() {
+    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = mapOf(
+        "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
     )
 }

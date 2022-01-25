@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ class SchemaConfigurationTest {
             .build()
 
         @Bean
-        fun myCustomContextFactory(): SpringGraphQLContextFactory<*> = mockk()
+        fun myCustomContextFactory(): SpringGraphQLContextFactory = mockk()
 
         @Bean
         fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
@@ -60,8 +59,6 @@ class GenerateFunctionTest : TypeTestHelper() {
         override fun nestedReturnType(): MyImplementation = MyImplementation()
     }
 
-    internal class MyContext(val value: String) : GraphQLContext
-
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class FunctionDirective(val arg: String)
 
@@ -76,8 +73,6 @@ class GenerateFunctionTest : TypeTestHelper() {
 
         @GraphQLName("renamedFunction")
         fun originalName(input: String) = input
-
-        fun context(context: MyContext, string: String) = "${context.value} and $string"
 
         fun ignoredParameter(color: String, @GraphQLIgnore ignoreMe: String) = "$color and $ignoreMe"
 
@@ -153,17 +148,6 @@ class GenerateFunctionTest : TypeTestHelper() {
             directive.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
-    }
-
-    @Test
-    fun `test context on argument`() {
-        val kFunction = Happy::context
-        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
-
-        assertTrue(result.directives.isEmpty())
-        assertEquals(expected = 1, actual = result.arguments.size)
-        val arg = result.arguments.firstOrNull()
-        assertEquals(expected = "string", actual = arg?.name)
     }
 
     @Test

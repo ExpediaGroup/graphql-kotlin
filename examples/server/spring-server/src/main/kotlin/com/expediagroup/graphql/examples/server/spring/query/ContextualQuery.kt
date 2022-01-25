@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
-import com.expediagroup.graphql.examples.server.spring.context.MyGraphQLContext
 import com.expediagroup.graphql.examples.server.spring.model.ContextualResponse
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Query
+import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
 
 /**
- * Example usage of GraphQLContext. Since the argument [ContextualQuery.contextualQuery] implements
- * the GraphQLContext interface it will not appear in the schema and be populated at runtime.
+ * Example usage of GraphQLContext. Since `DataFetchingEnvironment` is passed as the argument
+ * of [ContextualQuery.contextualQuery], it will not appear in the schema and be populated at runtime.
  */
 @Component
 class ContextualQuery : Query {
@@ -33,6 +33,6 @@ class ContextualQuery : Query {
     fun contextualQuery(
         @GraphQLDescription("some value that will be returned to the user")
         value: Int,
-        context: MyGraphQLContext
-    ): ContextualResponse = ContextualResponse(value, context.myCustomValue)
+        env: DataFetchingEnvironment
+    ): ContextualResponse = ContextualResponse(value, env.graphQlContext.getOrDefault("myCustomValue", "defaultValue"))
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
+const val GRAPHQL_COROUTINE_CONTEXT_KEY = "GRAPHQL_COROUTINE_CONTEXT"
 
 /**
  * Factory that generates GraphQL context.
  */
-interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
-
-    /**
-     * Generate GraphQL context based on the incoming request and the corresponding response.
-     * If no context should be generated and used in the request, return null.
-     */
-    @Deprecated("The generic context object is deprecated in favor of the context map")
-    suspend fun generateContext(request: Request): Context?
+interface GraphQLContextFactory<in Request> {
 
     /**
      * GraphQL Java 17 has a new context map instead of a generic object. Implementing this method
      * will set the context map in the execution input.
      */
-    suspend fun generateContextMap(request: Request): Map<*, Any>? = null
+    suspend fun generateContextMap(request: Request): Map<*, Any?>? = null
 }

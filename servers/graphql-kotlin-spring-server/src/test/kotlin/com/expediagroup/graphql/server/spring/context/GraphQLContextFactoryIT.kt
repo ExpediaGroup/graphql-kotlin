@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.server.spring.context
 
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -63,24 +63,15 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
 
         @Bean
         @ExperimentalCoroutinesApi
-        fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
-            override suspend fun generateContext(request: ServerRequest): CustomContext {
-                return CustomContext(
-                    first = request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST",
-                    second = request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND",
-                    request = request
-                )
-            }
+        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
+            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = mapOf(
+                "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
+                "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
+            )
         }
     }
 
     class ContextualQuery : Query {
-        fun context(ctx: CustomContext): String = "${ctx.first},${ctx.second}"
+        fun context(env: DataFetchingEnvironment): String = "${env.graphQlContext.getOrDefault("first", null)},${env.graphQlContext.getOrDefault("second", null)}"
     }
-
-    class CustomContext(
-        val first: String?,
-        val second: String?,
-        request: ServerRequest
-    ) : SpringGraphQLContext(request)
 }
