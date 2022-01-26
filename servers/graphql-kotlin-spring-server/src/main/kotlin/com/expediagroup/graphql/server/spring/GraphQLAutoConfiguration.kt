@@ -30,4 +30,5 @@ import org.springframework.context.annotation.Import
     PlaygroundRouteConfiguration::class,
     SdlRouteConfiguration::class
 )
-class GraphQLAutoConfiguration
+class
+GraphQLAutoConfiguration

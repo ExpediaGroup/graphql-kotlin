@@ -13,7 +13,7 @@ data class Astronaut(val id: Int, val name: String)
 
 class AstronautService(
     private val transactionBatcher: TransactionBatcher
-) : TriggeredPublisher<AstronautServiceRequest, Astronaut>() {
+) {
 
     val produceArguments: MutableList<List<AstronautServiceRequest>> = mutableListOf()
     val getAstronautCallCount: AtomicInteger = AtomicInteger(0)
@@ -28,13 +28,21 @@ class AstronautService(
 
     fun getAstronaut(request: AstronautServiceRequest): Mono<Astronaut> {
         getAstronautCallCount.incrementAndGet()
-        val future = this.transactionBatcher.enqueue(request, this)
+        val self = this
+        val future = this.transactionBatcher.enqueue(
+            request,
+            object : TriggeredPublisher<AstronautServiceRequest, Astronaut> {
+                override fun produce(input: List<AstronautServiceRequest>): Publisher<Astronaut> {
+                    produceArguments.add(input)
+                    return self.getAstronauts(input)
+                }
+            }
+        )
         return future.toMono()
     }
 
-    override fun produce(input: List<AstronautServiceRequest>): Publisher<Astronaut> {
-        produceArguments.add(input)
-        return input.toFlux()
+    fun getAstronauts(input: List<AstronautServiceRequest>): Publisher<Astronaut> =
+        input.toFlux()
             .flatMapSequential { request ->
                 { astronauts[request.id] }
                     .toMono()
@@ -42,5 +50,4 @@ class AstronautService(
                         astronaut.toMono().delayElement(delay)
                     }
             }
-    }
 }

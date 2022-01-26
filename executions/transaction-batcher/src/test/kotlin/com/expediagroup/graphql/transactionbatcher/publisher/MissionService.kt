@@ -17,7 +17,7 @@ data class Mission(
 
 class MissionService(
     private val transactionBatcher: TransactionBatcher
-) : TriggeredPublisher<MissionServiceRequest, Mission>() {
+) {
 
     val produceArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
     val getMissionCallCount: AtomicInteger = AtomicInteger(0)
@@ -32,13 +32,21 @@ class MissionService(
 
     fun getMission(request: MissionServiceRequest): Mono<Mission> {
         getMissionCallCount.incrementAndGet()
-        val future = this.transactionBatcher.enqueue(request, this)
+        val self = this
+        val future = this.transactionBatcher.enqueue(
+            request,
+            object : TriggeredPublisher<MissionServiceRequest, Mission> {
+                override fun produce(input: List<MissionServiceRequest>): Publisher<Mission> {
+                    produceArguments.add(input)
+                    return self.getMissions(input)
+                }
+            }
+        )
         return future.toMono()
     }
 
-    override fun produce(input: List<MissionServiceRequest>): Publisher<Mission> {
-        produceArguments.add(input)
-        return input.toFlux()
+    fun getMissions(input: List<MissionServiceRequest>): Publisher<Mission> =
+        input.toFlux()
             .flatMapSequential { request ->
                 { missions[request.id] }
                     .toMono()
@@ -46,5 +54,4 @@ class MissionService(
                         astronaut.toMono().delayElement(delay)
                     }
             }
-    }
 }

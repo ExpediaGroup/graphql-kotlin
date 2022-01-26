@@ -7,8 +7,8 @@ import java.util.concurrent.ConcurrentHashMap
 class TransactionBatcher {
 
     private val queue = ConcurrentHashMap<
-        TriggeredPublisher<Any, Any>,
-        MutableList<BatcheableTransaction<Any, Any>>
+        Class<out TriggeredPublisher<Any, Any>>,
+        TransactionBatcherQueueValue
         >()
 
     private val cacheRepository = TransactionBatcherCacheRepository()
@@ -25,8 +25,8 @@ class TransactionBatcher {
         triggeredPublisher: TriggeredPublisher<TInput, TOutput>,
         key: String = input.toString()
     ): CompletableFuture<TOutput> {
-        val triggeredPublisherKey = triggeredPublisher as TriggeredPublisher<Any, Any>
-        return queue[triggeredPublisherKey]?.let { batcheableTransactions ->
+        val queueKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class.java
+        return queue[queueKey]?.let { (_, batcheableTransactions) ->
             batcheableTransactions
                 .find { transaction -> transaction.key == key }
                 ?.let { match -> match.future as CompletableFuture<TOutput> }
@@ -39,16 +39,19 @@ class TransactionBatcher {
                 }
         } ?: run {
             val future = CompletableFuture<TOutput>()
-            queue[triggeredPublisherKey] = mutableListOf(
-                BatcheableTransaction(input, future as CompletableFuture<Any>, key)
+            queue[queueKey] = TransactionBatcherQueueValue(
+                triggeredPublisher,
+                mutableListOf(
+                    BatcheableTransaction(input, future as CompletableFuture<Any>, key)
+                )
             )
             future
         }
     }
 
     fun dispatch() {
-        queue.forEach { (triggeredPublisher, batcheableTransactions) ->
-            triggeredPublisher.trigger(batcheableTransactions, cacheRepository)
+        queue.values.forEach { (triggeredPublisher, transactions) ->
+            triggeredPublisher.trigger(transactions, cacheRepository)
         }
         queue.clear()
     }

@@ -10,8 +10,8 @@ import org.reactivestreams.Subscription
     "ReactiveStreamsSubscriberImplementation",
     "UNCHECKED_CAST"
 )
-abstract class TriggeredPublisher<TInput, TOutput> {
-    abstract fun produce(input: List<TInput>): Publisher<TOutput>
+interface TriggeredPublisher<TInput, TOutput> {
+    fun produce(input: List<TInput>): Publisher<TOutput>
 
     /**
      * attempt to collect values from cache resolving say [1, null, 3, null, 5, 6]
