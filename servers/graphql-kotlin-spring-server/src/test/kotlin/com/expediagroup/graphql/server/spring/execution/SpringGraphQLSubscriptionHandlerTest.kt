@@ -29,7 +29,6 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQL
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
-import io.mockk.mockk
 import kotlinx.coroutines.reactor.asFlux
 import org.dataloader.DataLoader
 import org.junit.jupiter.api.Test
@@ -69,7 +68,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest(query = "subscription { ticker }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -87,7 +86,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription with data loader`() {
         val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -129,7 +128,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription to failing publisher`() {
         val request = GraphQLRequest(query = "subscription { alwaysThrows }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, mockk()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(request).asFlux()
 
         StepVerifier.create(responseFlux)
             .assertNext { response ->

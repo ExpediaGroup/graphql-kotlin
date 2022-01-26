@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.execution
 
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.fasterxml.jackson.annotation.JsonProperty
+import graphql.GraphQLContext
 import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
@@ -193,6 +194,7 @@ class FunctionDataFetcherTest {
         val mockEnvironmet: DataFetchingEnvironment = mockk {
             every { arguments } returns mapOf("string" to "hello")
             every { containsArgument("string") } returns true
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val result = dataFetcher.get(mockEnvironmet)
@@ -223,6 +225,7 @@ class FunctionDataFetcherTest {
         val mockEnvironmet: DataFetchingEnvironment = mockk {
             every { arguments } returns emptyMap()
             every { containsArgument(any()) } returns false
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         try {

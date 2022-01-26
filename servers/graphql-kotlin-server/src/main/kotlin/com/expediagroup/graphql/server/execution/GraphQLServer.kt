@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.GRAPHQL_COROUTINE_SCOPE_KEY
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -51,9 +50,9 @@ open class GraphQLServer<Request>(
         if (graphQLRequest != null) {
             val contextMap = contextFactory.generateContextMap(request) ?: emptyMap<Any, Any?>()
 
-            val customContext: CoroutineContext = contextMap[GRAPHQL_COROUTINE_CONTEXT_KEY] as? CoroutineContext ?: EmptyCoroutineContext
+            val customContext: CoroutineContext = contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext
             val graphQLExecutionScope = CoroutineScope(coroutineContext + customContext + SupervisorJob())
-            val graphQLContext = contextMap + mapOf(GRAPHQL_COROUTINE_SCOPE_KEY to graphQLExecutionScope)
+            val graphQLContext = contextMap + mapOf(CoroutineScope::class to graphQLExecutionScope)
 
             when (graphQLRequest) {
                 is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, graphQLContext)

@@ -40,8 +40,6 @@ import kotlin.reflect.full.callSuspendBy
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.valueParameters
 
-const val GRAPHQL_COROUTINE_SCOPE_KEY = "GRAPHQL_COROUTINE_SCOPE"
-
 /**
  * Simple DataFetcher that invokes target function on the given object.
  *
@@ -168,7 +166,7 @@ open class FunctionDataFetcher(
         environment: DataFetchingEnvironment,
         parameterValues: Map<KParameter, Any?>
     ): CompletableFuture<Any?> {
-        val scope = environment.graphQlContext.getOrDefault(GRAPHQL_COROUTINE_SCOPE_KEY, CoroutineScope(EmptyCoroutineContext))
+        val scope = environment.graphQlContext.getOrDefault(CoroutineScope::class, CoroutineScope(EmptyCoroutineContext))
         return scope.future {
             try {
                 fn.callSuspendBy(parameterValues)

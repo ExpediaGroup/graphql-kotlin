@@ -29,7 +29,9 @@ abstract class SpringGraphQLContextFactory : GraphQLContextFactory<ServerRequest
  * Basic implementation of [SpringGraphQLContextFactory] that populates Apollo tracing header.
  */
 class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory() {
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = mutableMapOf(
-        FEDERATED_TRACING_HEADER_NAME to request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)
-    )
+    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
+        mapOf(
+            FEDERATED_TRACING_HEADER_NAME to headerValue
+        )
+    } ?: emptyMap<Any, Any?>()
 }

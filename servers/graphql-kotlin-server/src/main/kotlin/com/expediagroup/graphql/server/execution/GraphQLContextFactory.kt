@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.server.execution
 
-const val GRAPHQL_COROUTINE_CONTEXT_KEY = "GRAPHQL_COROUTINE_CONTEXT"
-
 /**
  * Factory that generates GraphQL context.
  */
