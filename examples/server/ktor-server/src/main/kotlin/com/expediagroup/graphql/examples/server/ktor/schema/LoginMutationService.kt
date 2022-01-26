@@ -16,13 +16,18 @@
 
 package com.expediagroup.graphql.examples.server.ktor.schema
 
+import com.expediagroup.graphql.examples.server.ktor.*
 import com.expediagroup.graphql.examples.server.ktor.schema.models.User
 import com.expediagroup.graphql.server.operations.Mutation
 
 data class AuthPayload(val token: String? = null, val user: User? = null)
 
 class LoginMutationService : Mutation {
-    suspend fun login(email: String, password: String, aliasUUID: String?): AuthPayload {
+    suspend fun login(
+        @ConstraintDirective(format = "email") email: String,
+        password: String,
+        aliasUUID: String?
+    ): AuthPayload {
         val token = "fake-token"
         val user = User(
             email = "fake@site.com",
@@ -32,4 +37,8 @@ class LoginMutationService : Mutation {
         )
         return AuthPayload(token, user)
     }
+
+    suspend fun directive(input: DirectiveInput): DirectivePayload =
+        DirectivePayload("hello@gmail.com", "123456")
 }
+

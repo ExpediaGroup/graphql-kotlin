@@ -23,6 +23,8 @@ import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
 import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.directives.*
+import com.expediagroup.graphql.generator.hooks.*
 import com.expediagroup.graphql.generator.toSchema
 import graphql.GraphQL
 
@@ -31,7 +33,19 @@ import graphql.GraphQL
  * needed to handle incoming requests. In a more enterprise solution you may want to load more things from
  * configuration files instead of hardcoding them.
  */
-private val config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.examples.server.ktor"))
+
+val customWiringFactory = KotlinDirectiveWiringFactory(
+    manualWiring = mapOf("constraint" to ConstraintDirectiveWiring())
+)
+
+private val config = SchemaGeneratorConfig(
+    supportedPackages = listOf("com.expediagroup.graphql.examples.server.ktor"),
+    hooks = object : SchemaGeneratorHooks {
+        override val wiringFactory: KotlinDirectiveWiringFactory
+            get() = customWiringFactory
+    }
+)
+
 private val queries = listOf(
     TopLevelObject(HelloQueryService()),
     TopLevelObject(BookQueryService()),
