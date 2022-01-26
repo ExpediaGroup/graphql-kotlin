@@ -9,7 +9,7 @@ class TransactionBatcher {
     private val queue = ConcurrentHashMap<
         TriggeredPublisher<Any, Any>,
         MutableList<BatcheableTransaction<Any, Any>>
-    >()
+        >()
 
     private val cacheRepository = TransactionBatcherCacheRepository()
 
@@ -53,4 +53,3 @@ class TransactionBatcher {
         queue.clear()
     }
 }
-

@@ -99,7 +99,6 @@ class TransactionBatcherTest {
         assertEquals(2, missionService.produceArguments[0].size)
         assertEquals(4, missionService.produceArguments[0][0].id)
         assertEquals(2, missionService.produceArguments[0][1].id)
-
     }
 
     @Test
@@ -181,6 +180,5 @@ class TransactionBatcherTest {
         Thread.sleep(1000)
         assertEquals(5, astronautService.getAstronautCallCount.get())
         assertEquals(1, astronautService.produceArguments[1].size)
-
     }
 }
