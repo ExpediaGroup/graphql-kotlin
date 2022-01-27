@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
-import com.expediagroup.graphql.generator.extensions.*
+import com.expediagroup.graphql.generator.extensions.print
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
