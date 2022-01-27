@@ -37,7 +37,7 @@ open class SpringGraphQLSubscriptionHandler(
     private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
 ) {
 
-    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContextMap: Map<*, Any?>? = null): Flow<GraphQLResponse<*>> {
+    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContextMap: Map<*, Any> = emptyMap<Any, Any>()): Flow<GraphQLResponse<*>> {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
         val input = graphQLRequest.toExecutionInput(dataLoaderRegistry, graphQLContextMap)
 

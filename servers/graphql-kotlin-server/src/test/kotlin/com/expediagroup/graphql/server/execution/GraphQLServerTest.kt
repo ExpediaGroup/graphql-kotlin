@@ -58,7 +58,7 @@ class GraphQLServerTest {
             coEvery { parseRequest(any()) } returns mockk<GraphQLRequest>()
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockHttpRequest>> {
-            coEvery { generateContextMap(any()) } returns null
+            coEvery { generateContextMap(any()) } returns emptyMap<Any, Any>()
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
             coEvery { executeRequest(any(), any()) } returns mockk()
@@ -81,7 +81,7 @@ class GraphQLServerTest {
             coEvery { parseRequest(any()) } returns null
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockHttpRequest>> {
-            coEvery { generateContextMap(any()) } returns null
+            coEvery { generateContextMap(any()) } returns emptyMap<Any, Any>()
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
             coEvery { executeRequest(any(), any()) } returns mockk()

@@ -64,7 +64,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         @Bean
         @ExperimentalCoroutinesApi
         fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
-            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = mapOf(
+            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
                 "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
                 "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
             )

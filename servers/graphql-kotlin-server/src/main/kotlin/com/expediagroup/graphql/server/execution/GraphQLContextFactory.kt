@@ -22,8 +22,8 @@ package com.expediagroup.graphql.server.execution
 interface GraphQLContextFactory<in Request> {
 
     /**
-     * GraphQL Java 17 has a new context map instead of a generic object. Implementing this method
-     * will set the context map in the execution input.
+     * Generate GraphQL context based on the incoming request and the corresponding response.
+     * If no context should be generated and used in the request, return empty map.
      */
-    suspend fun generateContextMap(request: Request): Map<*, Any?>? = null
+    suspend fun generateContextMap(request: Request): Map<*, Any> = emptyMap<Any, Any>()
 }

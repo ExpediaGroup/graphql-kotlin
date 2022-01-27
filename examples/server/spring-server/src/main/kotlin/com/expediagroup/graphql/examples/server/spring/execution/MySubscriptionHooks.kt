@@ -27,7 +27,7 @@ class MySubscriptionHooks : ApolloSubscriptionHooks {
     override fun onConnect(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any?>?
+        graphQLContext: Map<*, Any>
     ): Map<*, Any?>  = mapOf(
         "auth" to connectionParams["Authorization"]
     )

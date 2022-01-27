@@ -29,5 +29,5 @@ abstract class SpringSubscriptionGraphQLContextFactory : GraphQLContextFactory<W
  */
 class DefaultSpringSubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory() {
 
-    override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any?>? = null
+    override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any> = emptyMap<Any, Any>()
 }

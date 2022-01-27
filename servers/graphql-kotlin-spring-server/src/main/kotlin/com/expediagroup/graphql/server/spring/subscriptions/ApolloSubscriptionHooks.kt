@@ -31,8 +31,8 @@ interface ApolloSubscriptionHooks {
     fun onConnect(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any?>?
-    ): Map<*, Any?>? = graphQLContext
+        graphQLContext: Map<*, Any>
+    ): Map<*, Any> = graphQLContext
 
     /**
      * Called when the client executes a GraphQL operation.
@@ -41,7 +41,7 @@ interface ApolloSubscriptionHooks {
     fun onOperation(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any?>?
+        graphQLContext: Map<*, Any>
     ): Unit = Unit
 
     /**

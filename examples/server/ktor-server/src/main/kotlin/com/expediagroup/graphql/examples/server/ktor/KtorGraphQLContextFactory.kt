@@ -25,13 +25,16 @@ import io.ktor.request.ApplicationRequest
  */
 class KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest> {
 
-    override suspend fun generateContextMap(request: ApplicationRequest): Map<*, Any?> = mapOf(
+    override suspend fun generateContextMap(request: ApplicationRequest): Map<Any, Any> = mutableMapOf<Any, Any>(
         "user" to User(
             email = "fake@site.com",
             firstName = "Someone",
             lastName = "You Don't know",
             universityId = 4
-        ),
-        "customHeader" to request.headers["my-custom-header"]
-    )
+        )
+    ).also { map ->
+        request.headers["my-custom-header"]?.let { customHeader ->
+            map["customHeader"] = customHeader
+        }
+    }
 }

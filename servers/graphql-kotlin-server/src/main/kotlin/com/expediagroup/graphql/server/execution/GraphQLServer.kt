@@ -48,7 +48,7 @@ open class GraphQLServer<Request>(
         val graphQLRequest = requestParser.parseRequest(request)
 
         if (graphQLRequest != null) {
-            val contextMap = contextFactory.generateContextMap(request) ?: emptyMap<Any, Any?>()
+            val contextMap = contextFactory.generateContextMap(request)
 
             val customContext: CoroutineContext = contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext
             val graphQLExecutionScope = CoroutineScope(coroutineContext + customContext + SupervisorJob())

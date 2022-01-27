@@ -53,7 +53,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
         @Bean
         fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
-            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any?> = mapOf(
+            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
                 "value" to (request.headers().firstHeader("X-Custom-Header") ?: "default")
             )
         }

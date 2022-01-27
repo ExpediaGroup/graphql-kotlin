@@ -185,7 +185,7 @@ class SubscriptionWebSocketHandlerIT(
     }
 
     class CustomContextFactory : SpringSubscriptionGraphQLContextFactory() {
-        override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any?> = mapOf(
+        override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any> = mapOf(
             "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
         )
     }
