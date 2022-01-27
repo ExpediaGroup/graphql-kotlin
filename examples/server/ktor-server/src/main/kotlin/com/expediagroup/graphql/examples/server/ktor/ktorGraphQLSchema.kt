@@ -39,6 +39,6 @@ private val queries = listOf(
     TopLevelObject(UniversityQueryService())
 )
 private val mutations = listOf(TopLevelObject(LoginMutationService()))
-private val graphQLSchema = toSchema(config, queries, mutations)
+val graphQLSchema = toSchema(config, queries, mutations)
 
 fun getGraphQLObject(): GraphQL = GraphQL.newGraphQL(graphQLSchema).build()
