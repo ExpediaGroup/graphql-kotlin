@@ -165,7 +165,7 @@ class ApolloSubscriptionProtocolHandler(
             val connectionParams = castToMapOfStringString(operationMessage.payload)
             val graphQLContext = contextFactory.generateContextMap(session)
             val onConnectGraphQLContext = subscriptionHooks.onConnect(connectionParams, session, graphQLContext)
-            sessionState.saveContextMap(session, onConnectGraphQLContext)
+            sessionState.saveGraphQLContext(session, onConnectGraphQLContext)
         }
     }
 

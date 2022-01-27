@@ -38,7 +38,7 @@ internal class ApolloSubscriptionSessionState {
      * This allows us to include some intial state to be used when handling all the messages.
      * This will be removed in [terminateSession].
      */
-    fun saveContextMap(session: WebSocketSession, graphQLContext: Map<*, Any?>?) {
+    fun saveGraphQLContext(session: WebSocketSession, graphQLContext: Map<*, Any?>?) {
         if (graphQLContext != null) {
             cachedGraphQLContext[session.id] = graphQLContext
         }
