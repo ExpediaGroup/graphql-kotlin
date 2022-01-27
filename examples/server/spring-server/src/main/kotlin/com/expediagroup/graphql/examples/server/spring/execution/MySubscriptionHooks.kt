@@ -28,7 +28,9 @@ class MySubscriptionHooks : ApolloSubscriptionHooks {
         connectionParams: Map<String, String>,
         session: WebSocketSession,
         graphQLContext: Map<*, Any>
-    ): Map<*, Any?>  = mapOf(
-        "auth" to connectionParams["Authorization"]
-    )
+    ): Map<*, Any> = mutableMapOf<Any, Any>().also { contextMap ->
+        connectionParams["Authorization"]?.let { authValue ->
+            contextMap["auth"] = authValue
+        }
+    }
 }
