@@ -23,7 +23,7 @@ import org.dataloader.DataLoaderRegistry
 /**
  * Convert the common [GraphQLRequest] to the execution input used by graphql-java
  */
-fun GraphQLRequest.toExecutionInput(dataLoaderRegistry: DataLoaderRegistry? = null, graphQLContextMap: Map<*, Any?>? = null): ExecutionInput =
+fun GraphQLRequest.toExecutionInput(dataLoaderRegistry: DataLoaderRegistry? = null, graphQLContextMap: Map<*, Any>? = null): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
