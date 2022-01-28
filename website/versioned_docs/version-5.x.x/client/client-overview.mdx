@@ -1,0 +1,222 @@
+---
+id: client-overview
+title: Client Overview
+---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+GraphQL Kotlin provides a set of lightweight type-safe GraphQL HTTP clients. The library provides [Ktor HTTP client](https://ktor.io/clients/index.html)
+and [Spring WebClient](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-webclient)
+based reference implementations as well as allows for custom implementations using other engines, see [client customization](client-customization.mdx)
+documentation for additional details. Type-safe data models are generated at build time by the GraphQL Kotlin [Gradle](../plugins/gradle-plugin-tasks.mdx)
+and [Maven](../plugins/maven-plugin-goals.md) plugins.
+
+Client Features:
+
+-   Supports query and mutation operations
+-   Supports batch operations
+-   Automatic generation of type-safe Kotlin models supporting `kotlinx.serialization` and `Jackson` formats
+-   Custom scalar support - defaults to String but can be configured to deserialize to specific types
+-   Supports default enum values to gracefully handle new/unknown server values
+-   Native support for coroutines
+-   Easily configurable Ktor and Spring WebClient based HTTP Clients
+-   Documentation generated from the underlying GraphQL schema
+
+## Project Configuration
+
+GraphQL Kotlin provides both Gradle and Maven plugins to automatically generate your client code at build time. In order
+to auto-generate the client code, plugins require target GraphQL schema and a list of query files to process.
+
+GraphQL schema can be provided as
+
+-   result of introspection query (default)
+-   downloaded from an SDL endpoint
+-   local file
+
+See [Gradle](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin) and [Maven](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin)
+plugin documentation for additional details.
+
+GraphQL Kotlin plugins generated classes are simple POJOs that implement `GraphQLClientRequest` and optionally accept variables
+(only if underlying operation uses variables) as a constructor parameter. Generated classes can then be passed directly
+to a GraphQL client to execute either a single or a batch request.
+
+Example below configures the project to use introspection query to obtain the schema and uses Spring WebClient based HTTP client.
+
+### Build Configuration
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+Basic `build.gradle.kts` Gradle configuration that executes introspection query against specified endpoint to obtain target
+schema and then generate the clients under `com.example.generated` package name:
+
+```kotlin
+import com.expediagroup.graphql.plugin.gradle.graphql
+
+plugins {
+    id("com.expediagroup.graphql") version $latestGraphQLKotlinVersion
+}
+
+dependencies {
+  implementation("com.expediagroup:graphql-kotlin-spring-client:$latestGraphQLKotlinVersion")
+}
+
+graphql {
+    client {
+        endpoint = "http://localhost:8080/graphql"
+        packageName = "com.example.generated"
+    }
+}
+```
+
+</TabItem>
+<TabItem value="maven">
+
+Basic Maven `pom.xml` configuration that executes introspection query against specified endpoint to obtain target
+schema and then generate the clients under `com.example.generated` package name:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>graphql-kotlin-maven-client-example</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <graphql-kotlin.version>$latestGraphQLKotlinVersion</graphql-kotlin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-spring-client</artifactId>
+            <version>${graphql-kotlin.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>${graphql-kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-graphql-client</id>
+                        <goals>
+                            <goal>introspectSchema</goal>
+                            <goal>generateClient</goal>
+                        </goals>
+                        <configuration>
+                            <endpoint>http://localhost:8080/graphql</endpoint>
+                            <packageName>com.example.generated</packageName>
+                            <schemaFile>${project.build.directory}/schema.graphql</schemaFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+</TabItem>
+</Tabs>
+
+See [graphql-kotlin-client-example](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/client) project for complete
+working examples of Gradle and Maven based projects.
+
+### Generating GraphQL Operations
+
+By default, GraphQL Kotlin build plugins will attempt to generate GraphQL operations from all `*.graphql` files located under
+`src/main/resources`. Operations are validated against the target GraphQL schema, which can be manually provided, retrieved by
+the plugins through introspection (as configured in examples above) or downloaded directly from a custom SDL endpoint.
+See our documentation for more details on supported [Gradle tasks](../plugins/gradle-plugin-tasks.mdx)
+and [Maven Mojos](../plugins/maven-plugin-goals.md).
+
+When creating your GraphQL operations make sure to always specify an operation name and name the files accordingly. Each
+one of your GraphQL operation files will generate a corresponding Kotlin file with a class matching your operation
+name. Input objects, enums and custom scalars definitions will be shared across different operations. All other objects
+will be generated operation specific package name. For example, given `HelloWorldQuery.graphql` with `HelloWorldQuery` as
+the operation name, GraphQL Kotlin plugins will generate a corresponding `HelloWorldQuery.kt` file with a `HelloWorldQuery`
+class under the configured package.
+
+For example, given a simple schema
+
+```graphql
+type Query {
+  helloWorld: String
+}
+```
+
+And a corresponding `HelloWorldQuery.graphql` query
+
+```graphql
+query HelloWorldQuery {
+  helloWorld
+}
+```
+
+Plugins will generate following client code
+
+```kotlin
+package com.example.generated
+
+import com.expediagroup.graphql.client.Generated
+import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import kotlin.String
+import kotlin.reflect.KClass
+
+const val HELLO_WORLD_QUERY: String = "query HelloWorldQuery {\n    helloWorld\n}"
+
+@Generated
+class HelloWorldQuery: GraphQLClientRequest<HelloWorldQuery.Result> {
+    override val query: String = HELLO_WORLD_QUERY
+
+    override val operationName: String = "HelloWorldQuery"
+
+    override fun responseType(): KClass<HelloWorldQuery.Result> = HelloWorldQuery.Result::class
+
+    @Generated
+    data class Result(
+        val helloWorld: String
+    }
+}
+```
+
+Generated classes are simple POJOs that implement `GraphQLClientRequest` interface and represent a GraphQL request.
+
+### Executing Operations
+
+`GraphQLWebClient` uses the Spring WebClient to execute the underlying operations and allows you to customize it by providing
+an instance of `WebClient.Builder`. `GraphQLWebClient` requires target URL to be specified and defaults to use `Jackson`
+based GraphQL serializer. Please refer to [Spring documentation](https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-client)
+for additional details.
+
+```kotlin
+package com.example.client
+
+import com.expediagroup.graphql.client.spring.GraphQLWebClient
+import com.expediagroup.graphql.generated.HelloWorldQuery
+import kotlinx.coroutines.runBlocking
+
+fun main() {
+    val client = GraphQLWebClient(url = "http://localhost:8080/graphql")
+    runBlocking {
+        val helloWorldQuery = HelloWorldQuery()
+        val result = client.execute(helloWorldQuery)
+        println("hello world query result: ${result.data?.helloWorld}")
+    }
+}
+```
