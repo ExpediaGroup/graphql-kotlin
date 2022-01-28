@@ -1,0 +1,250 @@
+---
+id: client-features
+title: Client Features
+---
+
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Jackson and Kotlinx Serialization Support
+
+GraphQL Kotlin supports generation of client data models that are compatible with both `Jackson` (default) and `kotlinx.serialization`
+formats. Build plugins and `graphql-kotlin-spring-client` default to use `Jackson` whereas `graphql-kotlin-ktor-client`
+defaults to `kotlinx.serialization`.
+
+See [client serialization documentation](./client-serialization.mdx) for additional details.
+
+## Polymorphic Types Support
+
+GraphQL supports polymorphic types through unions and interfaces which can be represented in Kotlin as marker and
+regular interfaces. In order to ensure generated objects are not empty, GraphQL queries referencing polymorphic types
+have to **explicitly specify all implementations**. Polymorphic queries also have to explicitly request `__typename`
+field so it can be used to Jackson correctly distinguish between different implementations.
+
+Given example schema
+
+```graphql
+type Query {
+  interfaceQuery: BasicInterface!
+}
+
+interface BasicInterface {
+  id: Int!
+  name: String!
+}
+
+type FirstInterfaceImplementation implements BasicInterface {
+  id: Int!
+  intValue: Int!
+  name: String!
+}
+
+type SecondInterfaceImplementation implements BasicInterface {
+  floatValue: Float!
+  id: Int!
+  name: String!
+}
+```
+
+We can query interface field as
+
+```graphql
+query PolymorphicQuery {
+  interfaceQuery {
+    __typename
+    id
+    name
+    ... on FirstInterfaceImplementation {
+      intValue
+    }
+    ... on SecondInterfaceImplementation {
+      floatValue
+    }
+  }
+}
+```
+
+Which will generate following data models
+
+<Tabs
+  defaultValue="jackson"
+  values={[
+    { label: 'Jackson', value: 'jackson' },
+    { label: 'kotlinx.serialization', value: 'kotlinx' }
+  ]
+}>
+
+<TabItem value="jackson">
+
+```kotlin
+@Generated
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.PROPERTY,
+  property = "__typename"
+)
+@JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
+    FirstInterfaceImplementation::class,
+    name="FirstInterfaceImplementation"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
+    = SecondInterfaceImplementation::class, name="SecondInterfaceImplementation")])
+interface BasicInterface {
+  abstract val id: Int
+  abstract val name: String
+}
+
+@Generated
+data class FirstInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val intValue: Int
+) : BasicInterface
+
+@Generated
+data class SecondInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val floatValue: Float
+) : BasicInterface
+```
+
+</TabItem>
+<TabItem value="kotlinx">
+
+```kotlin
+@Generated
+@Serializable
+sealed class BasicInterface {
+  abstract val id: Int
+  abstract val name: String
+}
+
+@Generated
+@Serializable
+@SerialName(value = "FirstInterfaceImplementation")
+data class FirstInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val intValue: Int
+) : BasicInterface()
+
+@Generated
+@Serializable
+@SerialName(value = "SecondInterfaceImplementation")
+data class SecondInterfaceImplementation(
+  override val id: Int,
+  override val name: String,
+  val floatValue: Float
+) : BasicInterface()
+```
+
+</TabItem>
+</Tabs>
+
+## Default Enum Values
+
+Enums represent predefined set of values. Adding additional enum values could be a potentially breaking change as your
+clients may not be able to process it. GraphQL Kotlin Client automatically adds default `__UNKNOWN_VALUE` to all generated
+enums as a catch all safeguard for handling new enum values.
+
+## Auto Generated Documentation
+
+GraphQL Kotlin build plugins automatically pull in GraphQL descriptions of the queried fields from the target schema and
+add it as KDoc to corresponding data models.
+
+Given simple GraphQL object definition
+
+```graphql
+"Some basic description"
+type BasicObject {
+  "Unique identifier"
+  id: Int!
+  "Object name"
+  name: String!
+}
+```
+
+Will result in a corresponding auto generated data class
+
+```kotlin
+/**
+ * Some basic description
+ */
+ @Generated
+data class BasicObject(
+  /**
+   * Unique identifier
+   */
+  val id: Int,
+  /**
+   * Object name
+   */
+  val name: String
+)
+```
+
+## Native Support for Coroutines
+
+GraphQL Kotlin Client is a generic interface that exposes `execute` methods that will suspend your GraphQL operation until
+it gets a response back without blocking the underlying thread. Reference Ktor and Spring WebClient based implementations
+offer fully asynchronous communication through Kotlin coroutines. In order to fetch data asynchronously you should wrap
+your client execution in `launch` or `async` coroutine builder and explicitly `await` for their results.
+
+See [Kotlin coroutines documentation](https://kotlinlang.org/docs/reference/coroutines-overview.html) for additional details.
+
+## Batch Operation Support
+
+GraphQL Kotlin Clients provide out of the box support for batching multiple client operations into a single GraphQL request.
+Batch requests are sent as an array of individual GraphQL requests and clients expect the server to respond with a corresponding
+array of GraphQL responses. Each response is then deserialized to a corresponding result type.
+
+```kotlin
+val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
+val firstQuery = FirstQuery(variables = FirstQuery.Variables(foo = "bar"))
+val secondQuery = SecondQuery(variables = SecondQuery.Variables(foo = "baz"))
+
+val results: List<GraphQLResponse<*>> = client.execute(listOf(firstQuery, secondQuery))
+```
+
+## Optional Input Support
+
+In the GraphQL world, input types can be optional which means that the client can specify a value, specify a `null` value
+OR don't specify any value. This is in contrast with the JVM world where objects can either have some specific value or
+don't have any value (i.e. are `null`). By default, GraphQL Kotlin Client treats `null` Kotlin values as unspecified, which
+means they will skip all `null` values when serializing the request, e.g. given following query
+
+```graphql
+query OptionalInputQuery($optionalValue: String) {
+  optional(value: $optionalValue)
+```
+
+GraphQL Kotlin plugins will generate corresponding POJO that defines `Variables` as
+
+```kotlin
+public data class Variables(
+  public val optionalValue: String? = null
+)
+```
+
+Regardless whether we specify `optionalValue` as `null` or rely on the default value, this field won't be serialized,
+i.e. variables will be serialized as an empty JSON object `{}`.
+
+By specifying `useOptionalInputWrapper = true` plugin configuration option, we can opt-in to a behavior that supports
+three states - defined, `null` or undefined. Generated code will then use `OptionalInput` wrapper to represent those states.
+See [Gradle](../plugins/gradle-plugin-tasks) and [Maven](../plugins/maven-plugin-goals) plugin for configuration details.
+
+```kotlin
+public data class Variables(
+  public val optionalValue: OptionalInput<String> = OptionalInput.Undefined
+)
+
+// usage
+// - same behavior as default null, serialized as {}
+val undefinedVariables = Variables(optionalValue = OptionalInput.Undefined)
+
+// - serialized as {"optionalValue": null}
+val nullVariables = Variables(optionalValue = OptionalInput.Defined(null))
+
+// - serialized as {"optionalValue": "foo"}
+val definedVariables = Variables(optionalValue = OptionalInput.Defined("foo")
+```
