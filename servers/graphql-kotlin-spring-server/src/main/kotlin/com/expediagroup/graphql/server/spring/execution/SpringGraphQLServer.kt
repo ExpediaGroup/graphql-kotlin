@@ -25,6 +25,6 @@ import org.springframework.web.reactive.function.server.ServerRequest
  */
 open class SpringGraphQLServer(
     requestParser: SpringGraphQLRequestParser,
-    contextFactory: SpringGraphQLContextFactory<*>,
+    contextFactory: SpringGraphQLContextFactory,
     requestHandler: GraphQLRequestHandler
 ) : GraphQLServer<ServerRequest>(requestParser, contextFactory, requestHandler)

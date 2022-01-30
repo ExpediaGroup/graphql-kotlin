@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,15 +45,6 @@ class RequestExtensionsKtTest {
         assertEquals(request.query, executionInput.query)
         assertEquals(request.variables, executionInput.variables)
         assertEquals(request.operationName, executionInput.operationName)
-    }
-
-    @Test
-    fun `verify can convert request with context to execution input`() {
-        val request = GraphQLRequest(query = "query { whatever }")
-        val context = mapOf("contextValue" to 12_345)
-        val executionInput = request.toExecutionInput(graphQLContext = context)
-        assertEquals(request.query, executionInput.query)
-        assertEquals(context, executionInput.context)
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.examples.server.spring.execution
 
-import com.expediagroup.graphql.examples.server.spring.context.MySubscriptionGraphQLContext
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import org.springframework.web.reactive.socket.WebSocketSession
 
@@ -29,11 +27,10 @@ class MySubscriptionHooks : ApolloSubscriptionHooks {
     override fun onConnect(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: GraphQLContext?
-    ): GraphQLContext? {
-        if (graphQLContext != null && graphQLContext is MySubscriptionGraphQLContext) {
-            graphQLContext.auth = connectionParams["Authorization"]
+        graphQLContext: Map<*, Any>
+    ): Map<*, Any> = mutableMapOf<Any, Any>().also { contextMap ->
+        connectionParams["Authorization"]?.let { authValue ->
+            contextMap["auth"] = authValue
         }
-        return graphQLContext
     }
 }

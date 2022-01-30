@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLContextFactory(): SpringGraphQLContextFactory<*> = DefaultSpringGraphQLContextFactory()
+    fun springGraphQLContextFactory(): SpringGraphQLContextFactory = DefaultSpringGraphQLContextFactory()
 
     @Bean
     @ConditionalOnMissingBean
@@ -117,7 +117,7 @@ class GraphQLSchemaConfiguration {
     @ConditionalOnMissingBean
     fun springGraphQLServer(
         requestParser: SpringGraphQLRequestParser,
-        contextFactory: SpringGraphQLContextFactory<*>,
+        contextFactory: SpringGraphQLContextFactory,
         requestHandler: GraphQLRequestHandler
     ): SpringGraphQLServer = SpringGraphQLServer(requestParser, contextFactory, requestHandler)
 }

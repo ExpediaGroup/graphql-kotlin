@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,12 @@ import org.dataloader.DataLoaderRegistry
 /**
  * Convert the common [GraphQLRequest] to the execution input used by graphql-java
  */
-fun GraphQLRequest.toExecutionInput(graphQLContext: Any? = null, dataLoaderRegistry: DataLoaderRegistry? = null, graphQLContextMap: Map<*, Any>? = null): ExecutionInput =
+fun GraphQLRequest.toExecutionInput(dataLoaderRegistry: DataLoaderRegistry? = null, graphQLContextMap: Map<*, Any>? = null): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
         .also { builder ->
-            graphQLContext?.let { builder.context(it) }
             graphQLContextMap?.let { builder.graphQLContext(it) }
         }
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())

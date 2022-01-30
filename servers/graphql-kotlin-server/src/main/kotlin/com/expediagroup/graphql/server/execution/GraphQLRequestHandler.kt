@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
@@ -36,10 +35,10 @@ open class GraphQLRequestHandler(
      * This should only be used for queries and mutations.
      * Subscriptions require more specific server logic and will need to be handled separately.
      */
-    open suspend fun executeRequest(request: GraphQLRequest, context: GraphQLContext? = null, graphQLContext: Map<*, Any>? = null): GraphQLResponse<*> {
+    open suspend fun executeRequest(request: GraphQLRequest, graphQLContext: Map<*, Any> = emptyMap<Any, Any>()): GraphQLResponse<*> {
         // We should generate a new registry for every request
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
-        val executionInput = request.toExecutionInput(context, dataLoaderRegistry, graphQLContext)
+        val executionInput = request.toExecutionInput(dataLoaderRegistry, graphQLContext)
 
         return try {
             graphQL.executeAsync(executionInput).await().toGraphQLResponse()

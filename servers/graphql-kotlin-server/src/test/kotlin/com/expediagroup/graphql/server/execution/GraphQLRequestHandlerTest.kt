@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
@@ -109,27 +108,11 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with context`() = runBlockingTest {
-        val context = MyContext("JUNIT context value")
-        val request = GraphQLRequest(query = "query { contextualValue }")
-
-        val response = graphQLRequestHandler.executeRequest(request, context)
-        assertNotNull(response.data as? Map<*, *>) { data ->
-            assertNotNull(data["contextualValue"] as? String) { msg ->
-                assertEquals("JUNIT context value", msg)
-            }
-        }
-        assertNull(response.errors)
-        assertNull(response.extensions)
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
     fun `execute graphQL query with graphql context`() = runBlockingTest {
         val context = mapOf("foo" to "JUNIT context value")
         val request = GraphQLRequest(query = "query { graphQLContextualValue }")
 
-        val response = graphQLRequestHandler.executeRequest(request, context = null, graphQLContext = context)
+        val response = graphQLRequestHandler.executeRequest(request, context)
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["graphQLContextualValue"] as? String) { msg ->
                 assertEquals("JUNIT context value", msg)
@@ -180,10 +163,6 @@ class GraphQLRequestHandlerTest {
 
         fun alwaysThrows(): String = throw Exception("JUNIT Failure")
 
-        fun contextualValue(context: MyContext): String = context.value ?: "default"
-
         fun graphQLContextualValue(dataFetchingEnvironment: DataFetchingEnvironment): String = dataFetchingEnvironment.graphQlContext.get("foo") ?: "default"
     }
-
-    data class MyContext(val value: String? = null) : GraphQLContext
 }

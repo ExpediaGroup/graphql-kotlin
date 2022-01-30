@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
@@ -38,9 +37,9 @@ open class SpringGraphQLSubscriptionHandler(
     private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
 ) {
 
-    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContext: GraphQLContext?, graphQLContextMap: Map<*, Any>? = null): Flow<GraphQLResponse<*>> {
+    fun executeSubscription(graphQLRequest: GraphQLRequest, graphQLContextMap: Map<*, Any> = emptyMap<Any, Any>()): Flow<GraphQLResponse<*>> {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
-        val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry, graphQLContextMap)
+        val input = graphQLRequest.toExecutionInput(dataLoaderRegistry, graphQLContextMap)
 
         return graphQL.execute(input)
             .getData<Flow<ExecutionResult>>()
