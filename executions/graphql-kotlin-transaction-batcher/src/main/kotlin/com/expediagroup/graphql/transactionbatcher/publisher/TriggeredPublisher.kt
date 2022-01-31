@@ -1,31 +1,57 @@
+/*
+ * Copyright 2022 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.transactionbatcher.publisher
 
 import com.expediagroup.graphql.transactionbatcher.transaction.BatcheableTransaction
-import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcherCacheRepository
+import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcherCache
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 
+/**
+ * Interface representing a publisher with input [TInput] type and output [TOutput] type
+ */
 @Suppress(
     "ReactiveStreamsSubscriberImplementation",
     "UNCHECKED_CAST"
 )
 interface TriggeredPublisher<TInput, TOutput> {
+    /**
+     * Given a input of type [TInput] create a cold [Publisher] that will produce a [Publisher] of type [TOutput] of n elements
+     * that maps to the size of the input [List] of [TInput]
+     * order is important so make sure ot produce elements in the same order of [input]
+     */
     fun produce(input: List<TInput>): Publisher<TOutput>
 
     /**
-     * attempt to collect values from cache resolving say [1, null, 3, null, 5, 6]
-     * so we will only need to produce values for index 1 and 3
-     * when onComplete complete futures from either values from cache or from produce
-     * order is important
+     * Attempt to collect values from first [cache] and then [produce]
+     *
+     * Example:
+     * if [TriggeredPublisher] is of type <Int, Int> and [cache] resolves [1, null, 3, null, 5, 6]
+     * we will attempt to produce elements for index 1 and 3
+     * when [produce] stream completes we will complete futures from either values resolved from [cache] or from [produce]
      */
     fun trigger(
         batcheableTransactions: List<BatcheableTransaction<TInput, TOutput>>,
-        cacheRepository: TransactionBatcherCacheRepository
+        cache: TransactionBatcherCache
     ) {
 
         val values = batcheableTransactions.map { batcheableTransaction ->
-            cacheRepository.get(batcheableTransaction.key)
+            cache.get(batcheableTransaction.key)
         }
 
         val transactionsNotInCache = values.mapIndexedNotNull { index, value ->
@@ -63,7 +89,7 @@ interface TriggeredPublisher<TInput, TOutput> {
                             batcheableTransactions[index].future.complete(value as TOutput)
                         } ?: run {
                             val result = results[resultsCounter++]
-                            cacheRepository.set(batcheableTransactions[index].key, result as Any)
+                            cache.set(batcheableTransactions[index].key, result as Any)
                             batcheableTransactions[index].future.complete(result)
                         }
                     }

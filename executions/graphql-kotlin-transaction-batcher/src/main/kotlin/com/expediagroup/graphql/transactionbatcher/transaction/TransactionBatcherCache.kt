@@ -16,15 +16,11 @@
 
 package com.expediagroup.graphql.transactionbatcher.transaction
 
-import java.util.concurrent.CompletableFuture
-
 /**
- * convenient class to store the reference of a [future] of type [TOutput]
- * that will be resolved asynchronously at later point in time by using [input] as source
- * it supports deduplication by using the [key] field
+ * Interface that allows any cache implementation that can be used by the [TransactionBatcher]
+ * by default will use [DefaultTransactionBatcherCache]
  */
-data class BatcheableTransaction<TInput, TOutput>(
-    val input: TInput,
-    val future: CompletableFuture<TOutput>,
-    val key: String
-)
+interface TransactionBatcherCache {
+    fun set(key: String, value: Any)
+    fun get(key: String): Any?
+}
