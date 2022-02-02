@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import graphql.GraphqlErrorBuilder
 import graphql.execution.DataFetcherResult
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
+import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -114,7 +115,7 @@ class FlowSubscriptionExecutionStrategyTest {
     fun `verify subscription to flow with context`() = runBlocking {
         val request = ExecutionInput.newExecutionInput()
             .query("subscription { contextualTicker }")
-            .context(SubscriptionContext("junitHandler"))
+            .graphQLContext(mapOf("foo" to "junitHandler"))
             .build()
         val response = testGraphQL.execute(request)
         val flow = response.getData<Flow<ExecutionResult>>()
@@ -248,15 +249,13 @@ class FlowSubscriptionExecutionStrategyTest {
             }
         }
 
-        fun contextualTicker(context: SubscriptionContext): Flow<String> {
+        fun contextualTicker(environment: DataFetchingEnvironment): Flow<String> {
             return flow {
                 for (i in 1..5) {
                     delay(100)
-                    emit("${context.value}:$i")
+                    emit("${environment.graphQlContext.get<String>("foo")}:$i")
                 }
             }
         }
     }
-
-    data class SubscriptionContext(val value: String) : GraphQLContext
 }

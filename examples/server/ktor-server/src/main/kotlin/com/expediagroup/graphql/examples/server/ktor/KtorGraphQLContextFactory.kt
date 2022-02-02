@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@
 package com.expediagroup.graphql.examples.server.ktor
 
 import com.expediagroup.graphql.examples.server.ktor.schema.models.User
+import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import io.ktor.request.ApplicationRequest
 
 /**
  * Custom logic for how this example app should create its context given the [ApplicationRequest]
  */
-class KtorGraphQLContextFactory : GraphQLContextFactory<AuthorizedContext, ApplicationRequest> {
+class KtorGraphQLContextFactory : GraphQLContextFactory<GraphQLContext, ApplicationRequest> {
 
-    override suspend fun generateContext(request: ApplicationRequest): AuthorizedContext {
-        val loggedInUser = User(
+    override suspend fun generateContextMap(request: ApplicationRequest): Map<Any, Any> = mutableMapOf<Any, Any>(
+        "user" to User(
             email = "fake@site.com",
             firstName = "Someone",
             lastName = "You Don't know",
             universityId = 4
         )
-
-        // Parse any headers from the Ktor request
-        val customHeader: String? = request.headers["my-custom-header"]
-
-        return AuthorizedContext(loggedInUser, customHeader = customHeader)
+    ).also { map ->
+        request.headers["my-custom-header"]?.let { customHeader ->
+            map["customHeader"] = customHeader
+        }
     }
 }

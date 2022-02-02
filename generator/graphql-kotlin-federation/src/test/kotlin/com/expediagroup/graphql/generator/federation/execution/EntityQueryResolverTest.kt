@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.federation.data.BookResolver
 import com.expediagroup.graphql.generator.federation.data.UserResolver
 import com.expediagroup.graphql.generator.federation.data.queries.federated.Book
 import com.expediagroup.graphql.generator.federation.data.queries.federated.User
+import graphql.GraphQLContext
 import graphql.GraphQLError
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.coEvery
@@ -38,6 +39,7 @@ class EntityQueryResolverTest {
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val result = resolver.get(env).get()
@@ -56,6 +58,7 @@ class EntityQueryResolverTest {
         val resolver = EntityResolver(listOf(mockBookResolver, mockUserResolver))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns listOf(emptyMap<String, Any>())
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val result = resolver.get(env).get()
@@ -69,6 +72,7 @@ class EntityQueryResolverTest {
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val result = resolver.get(env).get()
@@ -86,6 +90,7 @@ class EntityQueryResolverTest {
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env: DataFetchingEnvironment = mockk {
             every { getArgument<Any>(any()) } returns representations
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val result = resolver.get(env).get()
@@ -103,6 +108,7 @@ class EntityQueryResolverTest {
         val representations = listOf(user1.toRepresentation(), book.toRepresentation(), user2.toRepresentation())
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val spyUserResolver = spyk(UserResolver())
@@ -128,6 +134,7 @@ class EntityQueryResolverTest {
         val representations = listOf(user.toRepresentation(), book.toRepresentation())
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val spyUserResolver: UserResolver = spyk(UserResolver())
@@ -153,6 +160,7 @@ class EntityQueryResolverTest {
         val representations = listOf(user.toRepresentation(), user.toRepresentation())
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
+            every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
         val mockUserResolver: UserResolver = mockk {

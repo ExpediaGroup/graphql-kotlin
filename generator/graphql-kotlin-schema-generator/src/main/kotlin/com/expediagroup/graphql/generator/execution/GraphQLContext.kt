@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import kotlin.coroutines.CoroutineContext
+
 /**
  * Marker interface to indicate that the implementing class should be considered
  * as the GraphQL context. This means the implementing class will not appear in the schema.
  */
-@Deprecated("The generic context object is deprecated in favor of the context map")
-interface GraphQLContext
+@Deprecated(message = "The generic context object is deprecated in favor of the context map", ReplaceWith("graphql.GraphQLContext"))
+interface GraphQLContext {
+    fun graphQLCoroutineContext(): CoroutineContext? = null
+}

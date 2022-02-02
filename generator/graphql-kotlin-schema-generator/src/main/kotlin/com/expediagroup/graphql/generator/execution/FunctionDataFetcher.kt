@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.future.future
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -55,8 +53,7 @@ import kotlin.reflect.full.valueParameters
 open class FunctionDataFetcher(
     private val target: Any?,
     private val fn: KFunction<*>,
-    private val objectMapper: ObjectMapper = jacksonObjectMapper(),
-    private val defaultCoroutineContext: CoroutineContext = EmptyCoroutineContext
+    private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) : DataFetcher<Any?> {
 
     /**
@@ -71,7 +68,7 @@ open class FunctionDataFetcher(
                 .plus(instanceParameter to instance)
 
             if (fn.isSuspend) {
-                runSuspendingFunction(parameterValues)
+                runSuspendingFunction(environment, parameterValues)
             } else {
                 runBlockingFunction(parameterValues)
             }
@@ -83,7 +80,7 @@ open class FunctionDataFetcher(
     /**
      * Iterate over all the input values from the environment and the [KParameter]s for the function and, using the environment,
      * map them all to a value to pass to the function. If there is a missing environment argument, that means the client did not pass
-     * in a value for this optional paramter. This allows for the default Kotlin values to be used if no mapping is added.
+     * in a value for this optional parameter. This allows for the default Kotlin values to be used if no mapping is added.
      * You can override this behaviour by providing a value for a specific [KParameter] when [mapParameterToValue] is called.
      */
     protected open fun getParameters(fn: KFunction<*>, environment: DataFetchingEnvironment): Map<KParameter, Any?> {
@@ -93,10 +90,10 @@ open class FunctionDataFetcher(
     }
 
     /**
-     * Retreives the provided parameter value in the operation input to pass to the function to execute.
+     * Retrieves the provided parameter value in the operation input to pass to the function to execute.
      *
-     * If the arugment is missing in the input, and the type is not an [OptionalInput], do not return a mapping.
-     * This allows for default Kotlin values to be used when executing the function. Otherwise if you need logic when a value
+     * If the argument is missing in the input, and the type is not an [OptionalInput], do not return a mapping.
+     * This allows for default Kotlin values to be used when executing the function. If you need logic when a value
      * is missing, use the [OptionalInput] wrapper instead.
      *
      * If the parameter is of a special type then we do not read the input and instead just pass on that value.
@@ -120,7 +117,7 @@ open class FunctionDataFetcher(
         }
 
     /**
-     * Convert the generic arument value from JSON input to the paramter class.
+     * Convert the generic argument value from JSON input to the parameter class.
      * This is currently achieved by using a Jackson ObjectMapper.
      */
     private fun convertArgumentToObject(
@@ -164,19 +161,21 @@ open class FunctionDataFetcher(
     }
 
     /**
-     * Once all parameters values are properly converted, this function will be called to run a suspendable function.
+     * Once all parameters values are properly converted, this function will be called to run a suspendable function using
+     * a scope provided in the GraphQLContext map or default to a new CoroutineScope with EmptyCoroutineContext.
      * If you need to override the exception handling you can override the entire method.
-     * You can also call it from [get] with different values to override the default coroutine context or start parameter.
      */
     protected open fun runSuspendingFunction(
-        parameterValues: Map<KParameter, Any?>,
-        coroutineContext: CoroutineContext = defaultCoroutineContext,
-        coroutineStart: CoroutineStart = CoroutineStart.DEFAULT
-    ): CompletableFuture<Any?> = GlobalScope.future(context = coroutineContext, start = coroutineStart) {
-        try {
-            fn.callSuspendBy(parameterValues)
-        } catch (exception: InvocationTargetException) {
-            throw exception.cause ?: exception
+        environment: DataFetchingEnvironment,
+        parameterValues: Map<KParameter, Any?>
+    ): CompletableFuture<Any?> {
+        val scope = environment.graphQlContext.getOrDefault(CoroutineScope::class, CoroutineScope(EmptyCoroutineContext))
+        return scope.future {
+            try {
+                fn.callSuspendBy(parameterValues)
+            } catch (exception: InvocationTargetException) {
+                throw exception.cause ?: exception
+            }
         }
     }
 
