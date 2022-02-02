@@ -1,0 +1,18 @@
+query OptionalScalarQuery(
+    $optional: OptionalWrapperInput
+) {
+    optionalScalarQuery(optional: $optional) {
+        optionalBoolean
+        optionalDouble
+        optionalId
+        optionalInt
+        optionalIntList
+        optionalString
+        optionalObject {
+          foo
+        }
+        optionalULocale
+        optionalUUID
+        optionalUUIDList
+    }
+}

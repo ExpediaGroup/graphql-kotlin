@@ -6,6 +6,7 @@ import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefin
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
 import com.expediagroup.graphql.generated.inputs.ComplexArgumentInput
+import com.expediagroup.graphql.generated.scalars.OptionalComplexArgumentInputSerializer
 import com.expediagroup.graphql.generated.secondquery.BasicInterface
 import com.expediagroup.graphql.generated.secondquery.ComplexObject
 import com.expediagroup.graphql.generated.secondquery.ScalarWrapper
@@ -34,6 +35,7 @@ public class SecondQuery(
   @Generated
   @Serializable
   public data class Variables(
+    @Serializable(with = OptionalComplexArgumentInputSerializer::class)
     public val input: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
   )
 

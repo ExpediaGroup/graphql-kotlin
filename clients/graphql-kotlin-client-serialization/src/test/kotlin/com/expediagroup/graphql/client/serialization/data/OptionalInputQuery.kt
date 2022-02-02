@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package com.expediagroup.graphql.client.serialization.data
 
+import com.expediagroup.graphql.client.serialization.data.scalars.OptionalInputSerializer
+import com.expediagroup.graphql.client.serialization.data.scalars.UUIDSerializer
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
+import java.util.UUID
 import kotlin.reflect.KClass
 
 @Serializable
@@ -37,9 +40,16 @@ class OptionalInputQuery(
     @Serializable
     data class Variables(
         val requiredInput: Int,
+        @Serializable(with = OptionalInputSerializer::class)
         val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
+        @Serializable(with = OptionalInputSerializer::class)
         val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
-        val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined
+        @Serializable(with = OptionalInputSerializer::class)
+        val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined,
+        @Serializable(with = OptionalInputSerializer::class)
+        val optionalUUIDInput: OptionalInput<@Serializable(with = UUIDSerializer::class) UUID> = OptionalInput.Undefined,
+        @Serializable(with = OptionalInputSerializer::class)
+        val optionalUUIDListInput: OptionalInput<List<@Serializable(with = UUIDSerializer::class) UUID>> = OptionalInput.Undefined,
     )
 
     @Serializable

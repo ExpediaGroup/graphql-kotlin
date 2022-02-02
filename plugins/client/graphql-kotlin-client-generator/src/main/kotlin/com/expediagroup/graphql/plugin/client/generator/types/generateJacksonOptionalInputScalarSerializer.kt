@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package com.expediagroup.graphql.plugin.client.generator.types
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.converter.ScalarConverter
-import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
@@ -33,30 +34,29 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.joinToCode
 
 internal const val OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME = "OptionalScalarInputSerializer"
 
 /**
  * Generates custom OptionalInput serializer that works for custom scalars.
  */
-fun generateJacksonOptionalInputScalarSerializer(config: GraphQLClientGeneratorConfig): TypeSpec {
+internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collection<GraphQLScalar>): TypeSpec {
     val jacksonOptionalInput = ClassName("com.expediagroup.graphql.client.jackson.types", "OptionalInput").parameterizedBy(STAR)
     val jacksonDefinedInput = MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Defined")
     val jacksonUndefinedInput = MemberName("com.expediagroup.graphql.client.jackson.types", "OptionalInput.Undefined")
 
     return TypeSpec.classBuilder(OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)
         .superclass(JsonSerializer::class.asClassName().parameterizedBy(jacksonOptionalInput))
+        .addAnnotation(Generated::class)
         .also { builder ->
             val convertersInitBlock = CodeBlock.builder()
                 .add(CodeBlock.of("%M(", MemberName("kotlin.collections", "mapOf")))
-                .also { initBuilder ->
-                    config.customScalarMap.values.withIndex().forEach { (index, customScalarInfo) ->
-                        if (index > 0) {
-                            initBuilder.add(", ")
-                        }
-                        initBuilder.add(CodeBlock.of("%T::class.java to %T()", customScalarInfo.className, customScalarInfo.converterClassName))
-                    }
-                }
+                .add(
+                    customScalars.map { scalarInfo ->
+                        CodeBlock.of("%T::class.java to %T()", scalarInfo.className, scalarInfo.converterClassName)
+                    }.joinToCode()
+                )
                 .add(")")
                 .build()
             val converterMapProperty = PropertySpec.builder(

@@ -198,8 +198,12 @@ input ScalarWrapperInput {
     customList: [UUID!]
     "ID represents unique identifier that is not intended to be human readable"
     id: ID!
+    "Optional ID"
+    optionalId: ID
     "UTF-8 character sequence"
     name: String!
+    "Optional list of names"
+    nameList: [String!]
     "A nullable signed double-precision floating-point value"
     rating: Float
     "Either true or false"

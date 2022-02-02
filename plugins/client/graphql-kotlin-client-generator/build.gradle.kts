@@ -5,6 +5,7 @@ val graphQLJavaVersion: String by project
 val icuVersion: String by project
 val jacksonVersion: String by project
 val junitVersion: String by project
+val kotlinVersion: String by project
 val kotlinPoetVersion: String by project
 val kotlinxSerializationVersion: String by project
 val ktorVersion: String by project
@@ -29,6 +30,7 @@ dependencies {
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:$compileTestingVersion")
     testImplementation("com.ibm.icu:icu4j:$icuVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 }
 
 tasks {

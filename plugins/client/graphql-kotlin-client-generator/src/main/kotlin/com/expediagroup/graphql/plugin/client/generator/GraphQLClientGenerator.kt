@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ package com.expediagroup.graphql.plugin.client.generator
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MultipleOperationsInFileException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.SchemaUnavailableException
-import com.expediagroup.graphql.plugin.client.generator.types.OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME
 import com.expediagroup.graphql.plugin.client.generator.types.generateGraphQLObjectTypeSpec
-import com.expediagroup.graphql.plugin.client.generator.types.generateJacksonOptionalInputScalarSerializer
 import com.expediagroup.graphql.plugin.client.generator.types.generateVariableTypeSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -53,6 +51,7 @@ class GraphQLClientGenerator(
     private val documentParser: Parser = Parser()
     private val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
     private val sharedTypes: MutableMap<ClassName, List<TypeSpec>> = mutableMapOf()
+    private var generateOptionalSerializer: Boolean = false
     private val graphQLSchema: TypeDefinitionRegistry
 
     init {
@@ -68,6 +67,7 @@ class GraphQLClientGenerator(
             result.addAll(generate(query))
         }
 
+        // common shared types
         for ((className, typeSpecs) in sharedTypes) {
             val fileSpec = FileSpec.builder(className.packageName, className.simpleName)
             for (type in typeSpecs) {
@@ -75,6 +75,8 @@ class GraphQLClientGenerator(
             }
             result.add(fileSpec.build())
         }
+
+        // graphql type aliases
         if (typeAliases.isNotEmpty()) {
             val typeAliasSpec = FileSpec.builder(packageName = config.packageName, fileName = "GraphQLTypeAliases")
             typeAliases.forEach { (_, alias) ->
@@ -213,13 +215,10 @@ class GraphQLClientGenerator(
                 }
             typeAliases.putAll(context.typeAliases)
 
-            if (context.requireJacksonOptionalScalarSerializer) {
-                val optionalJacksonSerializer = generateJacksonOptionalInputScalarSerializer(config)
-                fileSpecs.add(
-                    FileSpec.builder(packageName = "${config.packageName}.scalars", fileName = OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)
-                        .addType(optionalJacksonSerializer)
-                        .build()
-                )
+            if (context.requireOptionalSerializer) {
+                generateOptionalSerializer = true
+//                customScalarSerializers.putAll(context.scalarClassToConverterTypeSpecs)
+                sharedTypes.putAll(context.optionalSerializers.mapValues { listOf(it.value) })
             }
         }
         return fileSpecs
