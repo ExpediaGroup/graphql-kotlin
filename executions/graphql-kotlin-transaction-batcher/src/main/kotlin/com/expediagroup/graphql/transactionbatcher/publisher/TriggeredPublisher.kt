@@ -31,14 +31,14 @@ import org.reactivestreams.Subscription
 )
 interface TriggeredPublisher<TInput, TOutput> {
     /**
-     * Given a input of type [TInput] create a cold [Publisher] that will produce a [Publisher] of type [TOutput] of n elements
+     * Given an input of type [TInput] create a cold [Publisher] that will produce a [Publisher] of type [TOutput] of n elements
      * that maps to the size of the input [List] of [TInput]
-     * order is important so make sure ot produce elements in the same order of [input]
+     * order is important so make sure to produce elements in the same order of [input]
      */
     fun produce(input: List<TInput>): Publisher<TOutput>
 
     /**
-     * Attempt to collect values from first [cache] and then [produce]
+     * Attempts to collect values from [cache] first and then [produce]
      *
      * Example:
      * if [TriggeredPublisher] is of type <Int, Int> and [cache] resolves [1, null, 3, null, 5, 6]
