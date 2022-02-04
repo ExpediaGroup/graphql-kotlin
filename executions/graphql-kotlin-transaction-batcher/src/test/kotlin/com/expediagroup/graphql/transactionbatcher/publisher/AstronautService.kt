@@ -40,14 +40,6 @@ class AstronautService(
         }
     }
 
-    companion object {
-        private val astronauts = mapOf(
-            1 to Pair(Astronaut(1, "Buzz Aldrin"), Duration.ofMillis(300)),
-            2 to Pair(Astronaut(2, "William Anders"), Duration.ofMillis(600)),
-            3 to Pair(Astronaut(3, "Neil Armstrong"), Duration.ofMillis(200))
-        )
-    }
-
     fun getAstronaut(request: AstronautServiceRequest): Mono<Astronaut> {
         getAstronautCallCount.incrementAndGet()
         val future = this.transactionBatcher.enqueue(request, astronautsPublisher)
@@ -63,4 +55,12 @@ class AstronautService(
                         astronaut.toMono().delayElement(delay)
                     }
             }
+
+    companion object {
+        private val astronauts = mapOf(
+            1 to Pair(Astronaut(1, "Buzz Aldrin"), Duration.ofMillis(300)),
+            2 to Pair(Astronaut(2, "William Anders"), Duration.ofMillis(600)),
+            3 to Pair(Astronaut(3, "Neil Armstrong"), Duration.ofMillis(200))
+        )
+    }
 }

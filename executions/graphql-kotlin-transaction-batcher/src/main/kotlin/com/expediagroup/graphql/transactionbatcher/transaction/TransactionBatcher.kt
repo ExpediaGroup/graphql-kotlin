@@ -21,10 +21,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Type for [TransactionBatcher.queue] value, storing the [triggeredPublisher] instance
+ * Type for [TransactionBatcher.batch] value, storing the [triggeredPublisher] instance
  * and list of [transactions] that need to be executed by it
  */
-data class TransactionBatcherQueueValue(
+data class BatchEntry(
     val triggeredPublisher: TriggeredPublisher<Any, Any>,
     val transactions: MutableList<BatcheableTransaction<Any, Any>>
 )
@@ -37,9 +37,9 @@ class TransactionBatcher(
     private val cache: TransactionBatcherCache = DefaultTransactionBatcherCache()
 ) {
 
-    private val queue = ConcurrentHashMap<
+    private val batch = ConcurrentHashMap<
         Class<out TriggeredPublisher<Any, Any>>,
-        TransactionBatcherQueueValue
+        BatchEntry
         >()
 
     /**
@@ -56,7 +56,7 @@ class TransactionBatcher(
         key: String = input.toString()
     ): CompletableFuture<TOutput> {
         val queueKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class.java
-        return queue[queueKey]?.let { (_, batcheableTransactions) ->
+        return batch[queueKey]?.let { (_, batcheableTransactions) ->
             batcheableTransactions
                 .find { transaction -> transaction.key == key }
                 ?.let { match -> match.future as CompletableFuture<TOutput> }
@@ -69,7 +69,7 @@ class TransactionBatcher(
                 }
         } ?: run {
             val future = CompletableFuture<TOutput>()
-            queue[queueKey] = TransactionBatcherQueueValue(
+            batch[queueKey] = BatchEntry(
                 triggeredPublisher,
                 mutableListOf(
                     BatcheableTransaction(input, future as CompletableFuture<Any>, key)
@@ -84,9 +84,9 @@ class TransactionBatcher(
      * at the end clear the queue
      */
     fun dispatch() {
-        queue.values.forEach { (triggeredPublisher, transactions) ->
+        batch.values.forEach { (triggeredPublisher, transactions) ->
             triggeredPublisher.trigger(transactions, cache)
         }
-        queue.clear()
+        batch.clear()
     }
 }

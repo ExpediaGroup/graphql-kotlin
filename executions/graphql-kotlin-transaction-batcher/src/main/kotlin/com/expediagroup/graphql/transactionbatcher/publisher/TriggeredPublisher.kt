@@ -21,6 +21,7 @@ import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatche
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
+import org.slf4j.LoggerFactory
 
 /**
  * Interface representing a publisher with input [TInput] type and output [TOutput] type
@@ -79,7 +80,7 @@ interface TriggeredPublisher<TInput, TOutput> {
                 }
 
                 override fun onError(throwable: Throwable) {
-                    throwable.printStackTrace()
+                    logger.error("Error while producing data", throwable)
                 }
 
                 override fun onComplete() {
@@ -96,5 +97,9 @@ interface TriggeredPublisher<TInput, TOutput> {
                 }
             }
         )
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(TriggeredPublisher::class.java)
     }
 }
