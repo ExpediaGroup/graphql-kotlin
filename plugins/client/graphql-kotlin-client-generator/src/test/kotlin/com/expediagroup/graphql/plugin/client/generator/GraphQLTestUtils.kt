@@ -69,6 +69,7 @@ internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDi
         val fileName = spec.packageName + "." + spec.name + ".kt"
         SourceFile.kotlin(fileName, spec.toString())
     }
+
     val compilationResult = KotlinCompilation().apply {
         jvmTarget = "1.8"
         sources = generatedSources

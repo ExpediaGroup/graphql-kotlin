@@ -33,10 +33,9 @@ import kotlin.reflect.KProperty
 
 internal fun generateProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLFieldDefinition {
     val typeFromHooks = generator.config.hooks.willResolveMonad(prop.returnType)
-    val propertyType = generateGraphQLType(generator, type = typeFromHooks, annotations = prop.getPropertyAnnotations(parentClass))
-        .safeCast<GraphQLOutputType>()
-
     val propertyName = prop.getPropertyName(parentClass)
+    val typeInfo = GraphQLKTypeMetadata(fieldName = propertyName, fieldAnnotations = prop.getPropertyAnnotations(parentClass))
+    val propertyType = generateGraphQLType(generator, type = typeFromHooks, typeInfo).safeCast<GraphQLOutputType>()
 
     val fieldBuilder = GraphQLFieldDefinition.newFieldDefinition()
         .description(prop.getPropertyDescription(parentClass))

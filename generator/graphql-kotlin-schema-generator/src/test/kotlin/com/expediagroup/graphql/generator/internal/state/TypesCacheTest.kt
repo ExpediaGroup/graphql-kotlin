@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.internal.state
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.InvalidCustomUnionException
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
+import com.expediagroup.graphql.generator.internal.types.GraphQLKTypeMetadata
 import graphql.schema.GraphQLNamedType
 import io.mockk.every
 import io.mockk.mockk
@@ -67,7 +68,7 @@ class TypesCacheTest {
     @Test
     fun `basic get and put with non input type`() {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, false)
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
@@ -82,7 +83,7 @@ class TypesCacheTest {
     @Test
     fun `basic get and put with input type`() {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, true)
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
@@ -100,7 +101,7 @@ class TypesCacheTest {
 
         assertNotNull(type)
 
-        val cacheKey = TypesCacheKey(type, false)
+        val cacheKey = TypesCacheKey(type)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
@@ -115,7 +116,7 @@ class TypesCacheTest {
 
         assertNotNull(type)
 
-        val cacheKey = TypesCacheKey(type, false)
+        val cacheKey = TypesCacheKey(type)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
@@ -130,7 +131,7 @@ class TypesCacheTest {
 
         assertNotNull(type)
 
-        val cacheKey = TypesCacheKey(type, false)
+        val cacheKey = TypesCacheKey(type)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
@@ -145,7 +146,7 @@ class TypesCacheTest {
 
         assertNotNull(type)
 
-        val cacheKey = TypesCacheKey(type, false)
+        val cacheKey = TypesCacheKey(type)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
@@ -157,14 +158,15 @@ class TypesCacheTest {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
         val type = MyClass::customUnion.returnType
         val annotations = MyClass::customUnion.annotations
+        val typeInfo = GraphQLKTypeMetadata(inputType = false, fieldAnnotations = annotations)
 
-        val cacheKey = TypesCacheKey(type = type, name = "CustomUnion[MyType,Int]")
+        val cacheKey = TypesCacheKey(type = type, typeInfo.inputType, name = "CustomUnion[MyType,Int]")
         val cacheValue = KGraphQLType(type.getKClass(), customUnionGraphQLType)
 
         assertNull(cache.get(cacheKey))
-        assertNull(cache.get(type = type, inputType = false, annotations = annotations))
+        assertNull(cache.get(type = type, typeInfo))
         assertNotNull(cache.put(cacheKey, cacheValue))
-        assertNotNull(cache.get(type = type, inputType = false, annotations = annotations))
+        assertNotNull(cache.get(type = type, typeInfo))
     }
 
     @Test
@@ -172,19 +174,20 @@ class TypesCacheTest {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
         val type = MyClass::invalidUnion.returnType
         val annotations = MyClass::invalidUnion.annotations
+        val typeInfo = GraphQLKTypeMetadata(fieldAnnotations = annotations)
 
-        val cacheKey = TypesCacheKey(type = type, name = "InvalidUnion[MyType,Int]")
+        val cacheKey = TypesCacheKey(type = type, inputType = typeInfo.inputType, name = "InvalidUnion[MyType,Int]")
 
         assertNull(cache.get(cacheKey))
         assertFailsWith(InvalidCustomUnionException::class) {
-            cache.get(type = type, inputType = false, annotations = annotations)
+            cache.get(type = type, typeInfo)
         }
     }
 
     @Test
     fun `verify doesNotContainGraphQLType()`() {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, true)
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, inputType = true)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         cache.put(cacheKey, cacheValue)
@@ -196,13 +199,13 @@ class TypesCacheTest {
     @Test
     fun `buildIfNotUnderConstruction returns the cache type if already set`() {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, false)
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
 
         assertNull(cache.get(cacheKey))
         cache.put(cacheKey, cacheValue)
 
-        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false, emptyList()) {
+        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, GraphQLKTypeMetadata()) {
             assertTrue(false, "Should never reach here")
             cacheValue.graphQLType
         }
@@ -213,12 +216,12 @@ class TypesCacheTest {
     @Test
     fun `buildIfNotUnderConstruction only runs once`() {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-        val cacheKey = TypesCacheKey(MyType::class.starProjectedType, false)
+        val cacheKey = TypesCacheKey(MyType::class.starProjectedType)
         val cacheValue = KGraphQLType(MyType::class, graphQLType)
         assertNull(cache.get(cacheKey))
 
-        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, false, emptyList()) {
-            cache.buildIfNotUnderConstruction(MyType::class, false, emptyList()) {
+        val cacheHit = cache.buildIfNotUnderConstruction(MyType::class, GraphQLKTypeMetadata()) {
+            cache.buildIfNotUnderConstruction(MyType::class, GraphQLKTypeMetadata()) {
                 assertTrue(false, "Should never reach here")
                 cacheValue.graphQLType
             }

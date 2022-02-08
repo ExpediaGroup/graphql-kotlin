@@ -32,7 +32,8 @@ class GenerateKotlinxClientIT {
                 "UUID" to GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.plugin.client.generator.UUIDScalarConverter"),
                 "Locale" to GraphQLScalar("Locale", "com.ibm.icu.util.ULocale", "com.expediagroup.graphql.plugin.client.generator.ULocaleScalarConverter")
             ),
-            serializer = GraphQLSerializer.KOTLINX
+            serializer = GraphQLSerializer.KOTLINX,
+            useOptionalInputWrapper = true
         )
         verifyClientGeneration(config, testDirectory)
     }

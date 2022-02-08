@@ -34,6 +34,7 @@ class DataFetcherResultListTest {
         assertEquals("String!", schema.queryType.getFieldDefinition("getString").type.toString())
         assertEquals("String!", schema.queryType.getFieldDefinition("getDataFetcherResultString").type.toString())
         assertEquals("[String!]!", schema.queryType.getFieldDefinition("getListString").type.toString())
+        assertEquals("[String!]!", schema.queryType.getFieldDefinition("getDataFetcherListOfDataFetcherString").type.toString())
     }
 
     class SimpleQuery {
@@ -43,5 +44,8 @@ class DataFetcherResultListTest {
         fun getDataFetcherResultString(): DataFetcherResult<String> =
             DataFetcherResult.newResult<String>().data(string).build()
         fun getListString(): List<DataFetcherResult<String>> = listOf(DataFetcherResult.newResult<String>().data(string).build())
+        fun getDataFetcherListOfDataFetcherString(): DataFetcherResult<List<DataFetcherResult<String>>> = DataFetcherResult.newResult<List<DataFetcherResult<String>>>().data(
+            listOf(DataFetcherResult.newResult<String>().data(string).build())
+        ).build()
     }
 }

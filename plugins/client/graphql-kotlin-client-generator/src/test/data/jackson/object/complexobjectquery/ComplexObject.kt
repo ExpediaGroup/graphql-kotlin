@@ -23,7 +23,7 @@ public data class ComplexObject(
    * Optional value
    * Second line of the description
    */
-  public val optional: String?,
+  public val optional: String? = null,
   /**
    * Some additional details
    */

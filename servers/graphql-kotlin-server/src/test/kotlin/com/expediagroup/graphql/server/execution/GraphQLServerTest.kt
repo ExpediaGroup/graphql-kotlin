@@ -60,6 +60,7 @@ class GraphQLServerTest {
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
             mockContextFactory.generateContext(any())
+            mockContextFactory.generateContextMap(any())
             mockHandler.executeRequest(any(), any(), any())
         }
     }
@@ -86,6 +87,7 @@ class GraphQLServerTest {
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
             mockContextFactory.generateContext(any())
+            mockContextFactory.generateContextMap(any())
             mockHandler.executeRequest(any(), null, any())
         }
     }
@@ -97,7 +99,7 @@ class GraphQLServerTest {
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns null
-            coEvery { generateContextMap(any()) } returns null
+            coEvery { generateContextMap(any()) } returns emptyMap<Any, Any>()
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
             coEvery { executeRequest(any(), null, any()) } returns mockk()
@@ -110,7 +112,8 @@ class GraphQLServerTest {
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
             mockContextFactory.generateContext(any())
-            mockHandler.executeRequest(any(), any(), null)
+            mockContextFactory.generateContextMap(any())
+            mockHandler.executeRequest(any(), any(), any())
         }
     }
 
@@ -121,7 +124,7 @@ class GraphQLServerTest {
         }
         val mockContextFactory = mockk<GraphQLContextFactory<MockContext, MockHttpRequest>> {
             coEvery { generateContext(any()) } returns MockContext()
-            coEvery { generateContextMap(any()) } returns null
+            coEvery { generateContextMap(any()) } returns emptyMap<Any, Any>()
         }
         val mockHandler = mockk<GraphQLRequestHandler> {
             coEvery { executeRequest(any(), any()) } returns mockk()
@@ -136,6 +139,7 @@ class GraphQLServerTest {
         }
         coVerify(exactly = 0) {
             mockContextFactory.generateContext(any())
+            mockContextFactory.generateContextMap(any())
             mockHandler.executeRequest(any(), any(), any())
         }
     }

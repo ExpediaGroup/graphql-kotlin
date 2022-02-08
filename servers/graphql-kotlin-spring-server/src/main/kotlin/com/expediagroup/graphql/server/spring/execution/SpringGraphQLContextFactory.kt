@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.execution
 
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import org.springframework.web.reactive.function.server.ServerRequest
 
@@ -25,8 +26,13 @@ import org.springframework.web.reactive.function.server.ServerRequest
 abstract class SpringGraphQLContextFactory<out T : SpringGraphQLContext> : GraphQLContextFactory<T, ServerRequest>
 
 /**
- * Basic implementation of [SpringGraphQLContextFactory] that returns [SpringGraphQLContext]
+ * Basic implementation of [SpringGraphQLContextFactory] that populates Apollo tracing header.
  */
-class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
-    override suspend fun generateContext(request: ServerRequest) = SpringGraphQLContext(request)
+open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
+    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mutableMapOf<Any, Any>()
+        .also { map ->
+            request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
+                map[FEDERATED_TRACING_HEADER_NAME] = headerValue
+            }
+        }
 }

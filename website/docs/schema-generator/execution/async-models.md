@@ -39,6 +39,32 @@ type User {
 }
 ```
 
+### Structured Concurrency
+
+`graphql-java` relies on `CompletableFuture` for asynchronous execution of the incoming requests. `CompletableFuture` is
+unaware of any contextual information which means we have to rely on additional mechanism to propagate the coroutine context.
+`graphql-java` v17 introduced `GraphQLContext` map as the default mechanism to propagate the contextual information about
+the request. In order to preserve coroutine context, we need to populate `GraphQLContext` map with a `CoroutineScope` that
+should be used to execute any suspendable functions.
+
+```kotlin
+val graphQLExecutionScope = CoroutineScope(coroutineContext + SupervisorJob())
+val contextMap = mapOf(
+    CoroutineScope::class to graphQLExecutionScope
+)
+
+val executionInput = ExecutionInput.newExecutionInput()
+    .graphQLContext(contextMap)
+    .query(queryString)
+    .build()
+graphql.executeAsync(executionInput)
+```
+
+:::info
+`graphql-kotlin-server` automatically populates `GraphQLContext` map with appropriate coroutine scope. Users can customize
+the coroutine context by providing `CoroutineContext::class` entry in custom context using `GraphQLContextFactory`.
+:::
+
 ## CompletableFuture
 
 `graphql-java` relies on Java `CompletableFuture` for asynchronously processing the requests. In order to simplify the

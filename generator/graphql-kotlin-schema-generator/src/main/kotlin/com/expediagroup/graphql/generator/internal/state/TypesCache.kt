@@ -20,12 +20,14 @@ import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.ConflictingTypesException
 import com.expediagroup.graphql.generator.exceptions.InvalidCustomUnionException
 import com.expediagroup.graphql.generator.exceptions.TypeNotSupportedException
+import com.expediagroup.graphql.generator.internal.extensions.getCustomTypeAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isAnnotationUnion
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.qualifiedName
+import com.expediagroup.graphql.generator.internal.types.GraphQLKTypeMetadata
 import graphql.schema.GraphQLNamedType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
@@ -40,8 +42,8 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
     private val cache: MutableMap<String, KGraphQLType> = mutableMapOf()
     private val typesUnderConstruction: MutableSet<TypesCacheKey> = mutableSetOf()
 
-    internal fun get(type: KType, inputType: Boolean, annotations: List<Annotation>): GraphQLNamedType? {
-        val cacheKey = generateCacheKey(type, inputType, annotations)
+    internal fun get(type: KType, typeInfo: GraphQLKTypeMetadata): GraphQLNamedType? {
+        val cacheKey = generateCacheKey(type, typeInfo)
         return get(cacheKey)
     }
 
@@ -73,22 +75,26 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
         return null
     }
 
-    private fun generateCacheKey(type: KType, inputType: Boolean, annotations: List<Annotation> = emptyList()): TypesCacheKey {
+    private fun generateCacheKey(type: KType, typeInfo: GraphQLKTypeMetadata): TypesCacheKey {
         if (type.getKClass().isListType()) {
-            return TypesCacheKey(type, inputType)
+            return TypesCacheKey(type, typeInfo.inputType)
         }
 
-        val unionAnnotation = annotations.getUnionAnnotation()
+        val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
+        if (customTypeAnnotation != null) {
+            return TypesCacheKey(type, typeInfo.inputType, customTypeAnnotation.typeName)
+        }
 
-        return if (unionAnnotation != null) {
-            if (type.getKClass().isAnnotationUnion(annotations)) {
-                TypesCacheKey(type = type, inputType = inputType, name = getCustomUnionNameKey(unionAnnotation))
+        val unionAnnotation = typeInfo.fieldAnnotations.getUnionAnnotation()
+        if (unionAnnotation != null) {
+            if (type.getKClass().isAnnotationUnion(typeInfo.fieldAnnotations)) {
+                return TypesCacheKey(type, typeInfo.inputType, getCustomUnionNameKey(unionAnnotation))
             } else {
                 throw InvalidCustomUnionException(type)
             }
-        } else {
-            TypesCacheKey(type = type, inputType = inputType)
         }
+
+        return TypesCacheKey(type, typeInfo.inputType)
     }
 
     private fun getCustomUnionNameKey(union: GraphQLUnion): String {
@@ -128,16 +134,16 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
 
     private fun isTypeNotSupported(type: KType): Boolean = supportedPackages.none { type.qualifiedName.startsWith(it) }
 
-    internal fun buildIfNotUnderConstruction(kClass: KClass<*>, inputType: Boolean, annotations: List<Annotation>, build: (KClass<*>) -> GraphQLType): GraphQLType {
+    internal fun buildIfNotUnderConstruction(kClass: KClass<*>, typeInfo: GraphQLKTypeMetadata, build: (KClass<*>) -> GraphQLType): GraphQLType {
         if (kClass.isListType()) {
             return build(kClass)
         }
 
-        val cacheKey = generateCacheKey(kClass.starProjectedType, inputType, annotations)
+        val cacheKey = generateCacheKey(kClass.starProjectedType, typeInfo)
         val cachedType = get(cacheKey)
         return when {
             cachedType != null -> cachedType
-            typesUnderConstruction.contains(cacheKey) -> GraphQLTypeReference.typeRef(kClass.getSimpleName(inputType))
+            typesUnderConstruction.contains(cacheKey) -> GraphQLTypeReference.typeRef(kClass.getSimpleName(typeInfo.inputType))
             else -> {
                 typesUnderConstruction.add(cacheKey)
                 val newType = build(kClass)

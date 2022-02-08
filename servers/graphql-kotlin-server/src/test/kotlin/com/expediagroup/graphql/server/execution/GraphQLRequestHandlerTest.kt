@@ -125,7 +125,7 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with graphql context`() = runBlockingTest {
+    fun `execute graphQL query with graphql context map`() = runBlockingTest {
         val context = mapOf("foo" to "JUNIT context value")
         val request = GraphQLRequest(query = "query { graphQLContextualValue }")
 

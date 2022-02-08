@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,11 +47,13 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
             .header("X-Second-Header", "JUNIT_SECOND")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(GraphQLRequest("query { context }"))
+            .bodyValue(GraphQLRequest("query { context contextMap }"))
             .exchange()
             .expectBody()
             .jsonPath("$.data.context").exists()
             .jsonPath("$.data.context").isEqualTo("JUNIT_FIRST,JUNIT_SECOND")
+            .jsonPath("$.data.contextMap").exists()
+            .jsonPath("$.data.contextMap").isEqualTo("JUNIT_FIRST,JUNIT_SECOND")
             .jsonPath("$.errors").doesNotExist()
             .jsonPath("$.extensions").doesNotExist()
     }
@@ -71,11 +74,17 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
                     request = request
                 )
             }
+
+            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
+                "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
+                "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
+            )
         }
     }
 
     class ContextualQuery : Query {
         fun context(ctx: CustomContext): String = "${ctx.first},${ctx.second}"
+        fun contextMap(env: DataFetchingEnvironment): String = "${env.graphQlContext.getOrDefault("first", null)},${env.graphQlContext.getOrDefault("second", null)}"
     }
 
     class CustomContext(

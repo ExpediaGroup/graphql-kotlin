@@ -12,6 +12,8 @@ data class ScalarWrapper(
     val id: ID,
     /** UTF-8 character sequence */
     val name: String,
+    /** Optional String with default value */
+    val optional: String? = "undefined value",
     /** Custom scalar of Locale */
     val locale: ULocale,
     /** List of custom scalar Locales */

@@ -16,12 +16,21 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.valueParameters
 
-internal fun KFunction<*>.getValidArguments(): List<KParameter> =
-    this.valueParameters
-        .filterNot { it.isGraphQLContext() }
-        .filterNot { it.isGraphQLIgnored() }
-        .filterNot { it.isDataFetchingEnvironment() }
+private val logger: Logger = LoggerFactory.getLogger("schemaGenerator")
+
+internal fun KFunction<*>.getValidArguments(parentName: String): List<KParameter> = this.valueParameters.mapNotNull {
+    when {
+        it.isGraphQLIgnored() || it.isDataFetchingEnvironment() -> null
+        it.isGraphQLContext() -> {
+            logger.warn("$parentName.${getFunctionName()} relies on GraphQLContext injection which is deprecated. Please update it to retrieve context from DataFetchingEnvironment instead.")
+            null
+        }
+        else -> it
+    }
+}

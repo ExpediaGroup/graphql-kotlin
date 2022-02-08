@@ -10,8 +10,8 @@ categories:
 
   - title: Patch Changes
     label: "changes: patch"
+    
+  - title: Other Changes
 
 template: |
-  ## Non-version Changes
-
   $CHANGES

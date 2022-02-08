@@ -26,28 +26,28 @@ internal class KFunctionExtensionsKtTest {
 
     @Test
     fun getValidArguments() {
-        val args = TestingClass::happyPath.getValidArguments()
+        val args = TestingClass::happyPath.getValidArguments("TestingClass")
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "color", actual = args.first().getName())
     }
 
     @Test
     fun `getValidArguments should ignore @GraphQLIgnore`() {
-        val args = TestingClass::ignored.getValidArguments()
+        val args = TestingClass::ignored.getValidArguments("TestingClass")
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notIgnored", actual = args.first().getName())
     }
 
     @Test
     fun `getValidArguments should ignore GraphQLContext classes`() {
-        val args = TestingClass::context.getValidArguments()
+        val args = TestingClass::context.getValidArguments("TestingClass")
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notContext", actual = args.first().getName())
     }
 
     @Test
     fun `getValidArguments should ignore DataFetchingEnvironment`() {
-        val args = TestingClass::dataFetchingEnvironment.getValidArguments()
+        val args = TestingClass::dataFetchingEnvironment.getValidArguments("TestingClass")
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notEnvironment", actual = args.first().getName())
     }

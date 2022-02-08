@@ -24,11 +24,14 @@ import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingArgume
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import graphql.Directives.DeprecatedDirective
+import graphql.Directives.IncludeDirective
+import graphql.Directives.SkipDirective
 import graphql.language.Field
 import graphql.language.FieldDefinition
 import graphql.language.NonNullType
@@ -58,7 +61,10 @@ internal fun generatePropertySpecs(
             throw MissingArgumentException(context.operationName, objectName, selectedField.name, missingRequiredArguments)
         }
 
-        val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet)
+        val optional = selectedField.directives.any {
+            it.name == SkipDirective.name || it.name == IncludeDirective.name
+        }
+        val kotlinFieldType = generateTypeName(context, fieldDefinition.type, selectedField.selectionSet, optional = optional)
         val fieldName = selectedField.alias ?: fieldDefinition.name
 
         val propertySpecBuilder = PropertySpec.builder(fieldName, kotlinFieldType)
@@ -108,10 +114,17 @@ private fun TypeName.unwrapNullableType(): TypeName = if (this.isNullable) {
     this
 }
 
-internal fun generateCustomScalarPropertyAnnotations(context: GraphQLClientGeneratorContext, rawType: TypeName, isList: Boolean): List<AnnotationSpec> {
+internal fun generateCustomScalarPropertyAnnotations(context: GraphQLClientGeneratorContext, rawType: TypeName, isList: Boolean = false, shouldWrapInOptional: Boolean = false): List<AnnotationSpec> {
     val result = mutableListOf<AnnotationSpec>()
     val converterInfo = context.scalarClassToConverterTypeSpecs[rawType]
     when {
+        converterInfo is ScalarConverterInfo.JacksonConvertersInfo && shouldWrapInOptional -> {
+            result.add(
+                AnnotationSpec.builder(JsonSerialize::class)
+                    .addMember("using = %T::class", ClassName("${context.packageName}.scalars", OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME))
+                    .build()
+            )
+        }
         converterInfo is ScalarConverterInfo.JacksonConvertersInfo -> {
             val annotationMember = if (isList) {
                 "contentConverter"

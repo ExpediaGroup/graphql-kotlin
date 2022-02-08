@@ -6,12 +6,14 @@ val jacksonVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val rxjavaVersion: String by project
 val junitVersion: String by project
+val slf4jVersion: String by project
 
 dependencies {
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinCoroutinesVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }

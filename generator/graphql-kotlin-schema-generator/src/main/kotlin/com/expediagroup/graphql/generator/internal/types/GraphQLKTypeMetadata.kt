@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.ktor
-
-import com.expediagroup.graphql.examples.server.ktor.schema.models.User
-import com.expediagroup.graphql.generator.execution.GraphQLContext
+package com.expediagroup.graphql.generator.internal.types
 
 /**
- * Example of a custom [GraphQLContext]
+ * Internal metadata class we can use to forward info about the type we are generating.
+ * If there is no metadata to add, create the class with default values.
  */
-data class AuthorizedContext(
-    val authorizedUser: User? = null,
-    var guestUUID: String? = null,
-    val customHeader: String? = null
-) : GraphQLContext
+internal data class GraphQLKTypeMetadata(
+    val inputType: Boolean = false,
+    val fieldName: String? = null,
+    val fieldAnnotations: List<Annotation> = emptyList()
+)

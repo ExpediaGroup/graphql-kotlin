@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,11 @@ import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * A basic server implementation that parses the incoming request and returns a [GraphQLResponse].
@@ -44,26 +49,31 @@ open class GraphQLServer<Request>(
      * In the case of errors or exceptions, return a response with GraphQLErrors populated.
      * If you need custom logic inside this method you can override this class or choose not to use it.
      */
-    open suspend fun execute(request: Request): GraphQLServerResponse? {
+    open suspend fun execute(request: Request): GraphQLServerResponse? = coroutineScope {
         val graphQLRequest = requestParser.parseRequest(request)
 
-        return if (graphQLRequest != null) {
-            val context = contextFactory.generateContext(request)
-            val graphQLContext = contextFactory.generateContextMap(request)
+        if (graphQLRequest != null) {
+            val deprecatedContext = contextFactory.generateContext(request)
+            val contextMap = contextFactory.generateContextMap(request)
+
+            val customCoroutineContext: CoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
+                (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+            val graphQLExecutionScope = CoroutineScope(coroutineContext + customCoroutineContext + SupervisorJob())
+            val graphQLContext = contextMap + mapOf(CoroutineScope::class to graphQLExecutionScope)
 
             when (graphQLRequest) {
-                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, context)
+                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, deprecatedContext)
                 is GraphQLBatchRequest -> when {
                     graphQLRequest.requests.any(GraphQLRequest::isMutation) -> GraphQLBatchResponse(
                         graphQLRequest.requests.map {
-                            requestHandler.executeRequest(it, context, graphQLContext)
+                            requestHandler.executeRequest(it, deprecatedContext, graphQLContext)
                         }
                     )
                     else -> {
                         GraphQLBatchResponse(
                             graphQLRequest.requests.concurrentMap(
                                 {
-                                    requestHandler.executeRequest(it, context, graphQLContext)
+                                    requestHandler.executeRequest(it, deprecatedContext, graphQLContext)
                                 },
                                 { _: GraphQLRequest, exception: Exception ->
                                     GraphQLResponse<Any?>(

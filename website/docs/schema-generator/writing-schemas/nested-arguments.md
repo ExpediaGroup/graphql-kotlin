@@ -19,7 +19,7 @@ type Photo {
 ```
 
 In Kotlin code, when we are resolving  `photos`, if we want access to the parent field `findUser` and its arguments there
-are a couple ways we can access it:
+are a couple ways we can access it,
 
 ## DataFetchingEnvironment
 
@@ -35,7 +35,12 @@ class User {
 }
 ```
 
-## GraphQL Context
+## GraphQL Context Object (Deprecated)
+
+:::danger
+Support for custom GraphQL context object is deprecated and will be removed in future releases. Please migrate to use
+generic GraphQL context map.
+:::
 
 You can add the `GraphQLContext` as an argument. This class will be ignored by the schema generator and will allow you to
 view the context object you set up in the data fetchers. See more in the [GraphQLContext documentation](../execution/contextual-data.md)

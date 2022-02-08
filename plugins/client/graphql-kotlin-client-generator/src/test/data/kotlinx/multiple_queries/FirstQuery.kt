@@ -1,6 +1,8 @@
 package com.expediagroup.graphql.generated
 
 import com.expediagroup.graphql.client.Generated
+import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
 import com.expediagroup.graphql.generated.firstquery.BasicInterface
@@ -32,7 +34,7 @@ public class FirstQuery(
   @Generated
   @Serializable
   public data class Variables(
-    public val input: ComplexArgumentInput? = null
+    public val input: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
   )
 
   @Generated

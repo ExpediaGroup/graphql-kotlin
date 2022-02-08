@@ -7,8 +7,8 @@ title: Scalars
 `graphql-kotlin-schema-generator` can directly map most Kotlin "primitive" types to standard GraphQL scalar types or
 extended scalar types provided by `graphql-java`.
 
-| Kotlin Type             | GraphQL Type     |
-| ----------------------- | ---------------- |
+| Kotlin Type       | GraphQL Type |
+|-------------------| ------------ |
 | `kotlin.String`   | `String`  |
 | `kotlin.Boolean`  | `Boolean` |
 | `kotlin.Int`      | `Int`     |
@@ -17,14 +17,6 @@ extended scalar types provided by `graphql-java`.
 
 :::note
 The GraphQL spec uses the term `Float` for signed double‐precision fractional values. `graphql-java` maps this to a `java.lang.Double` for the execution. The generator will map both `kotlin.Double` and `kotlin.Float` to GraphQL `Float` but we reccomend you use `kotlin.Double`
-:::
-
-:::caution
-Extended GraphQL scalar types provided by `graphql-java` were [deprecated in v15](https://github.com/graphql-java/graphql-java/releases/tag/v15.0).
-This includes the following types: `Long`, `Short`, `BigInteger`, `BigDecimal`, and `Char`. If you are currently
-using these types, they will be removed in future `graphql-java` releases.
-
-See the [graphql-java-extended-scalars](https://github.com/graphql-java/graphql-java-extended-scalars) project if you need continued support.
 :::
 
 ## GraphQL ID

@@ -6,6 +6,7 @@ import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.ScalarWrapperInput
 import com.expediagroup.graphql.generated.scalars.AnyToULocaleConverter
+import com.expediagroup.graphql.generated.scalars.OptionalScalarInputSerializer
 import com.expediagroup.graphql.generated.scalars.ULocaleToAnyConverter
 import com.fasterxml.jackson.databind.`annotation`.JsonDeserialize
 import com.fasterxml.jackson.databind.`annotation`.JsonSerialize
@@ -33,13 +34,8 @@ public class CustomScalarInputQuery(
     @JsonSerialize(converter = ULocaleToAnyConverter::class)
     @JsonDeserialize(converter = AnyToULocaleConverter::class)
     public val requiredLocale: ULocale,
-    /**
-     * NOTE: This field was not wrapped in optional as currently custom scalars do not work with
-     * optional wrappers.
-     */
-    @JsonSerialize(converter = ULocaleToAnyConverter::class)
-    @JsonDeserialize(converter = AnyToULocaleConverter::class)
-    public val optionalLocale: ULocale? = null,
+    @JsonSerialize(using = OptionalScalarInputSerializer::class)
+    public val optionalLocale: OptionalInput<ULocale> = OptionalInput.Undefined,
     public val scalarWrapper: OptionalInput<ScalarWrapperInput> = OptionalInput.Undefined
   )
 

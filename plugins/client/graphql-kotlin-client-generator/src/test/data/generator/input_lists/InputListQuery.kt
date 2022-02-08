@@ -31,6 +31,6 @@ public class InputListQuery(
     /**
      * Query accepting list input
      */
-    public val listInputQuery: String?
+    public val listInputQuery: String? = null
   )
 }

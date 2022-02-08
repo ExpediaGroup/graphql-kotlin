@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProv
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import graphql.schema.GraphQLType
 
 /**
  * Settings for generating the schema.
@@ -29,5 +30,6 @@ open class SchemaGeneratorConfig(
     open val topLevelNames: TopLevelNames = TopLevelNames(),
     open val hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks,
     open val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider(),
-    open val introspectionEnabled: Boolean = true
+    open val introspectionEnabled: Boolean = true,
+    open val additionalTypes: Set<GraphQLType> = emptySet()
 )

@@ -1,0 +1,6 @@
+query IncludeSkipDirectivesQuery($includeCondition: Boolean!, $skipCondition: Boolean!) {
+  enumQuery @include(if: $includeCondition)
+  scalarQuery @skip(if: $skipCondition) {
+    count
+  }
+}

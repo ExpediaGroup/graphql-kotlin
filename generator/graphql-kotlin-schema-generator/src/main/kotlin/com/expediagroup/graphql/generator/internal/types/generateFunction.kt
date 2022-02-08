@@ -45,13 +45,14 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
         builder.withDirective(it)
     }
 
-    fn.getValidArguments().forEach {
+    fn.getValidArguments(parentName).forEach {
         builder.argument(generateArgument(generator, it))
     }
 
     val typeFromHooks = generator.config.hooks.willResolveMonad(fn.returnType)
     val returnType = getWrappedReturnType(typeFromHooks)
-    val graphQLOutputType = generateGraphQLType(generator = generator, type = returnType, annotations = fn.annotations).safeCast<GraphQLOutputType>()
+    val typeInfo = GraphQLKTypeMetadata(fieldName = functionName, fieldAnnotations = fn.annotations)
+    val graphQLOutputType = generateGraphQLType(generator = generator, type = returnType, typeInfo).safeCast<GraphQLOutputType>()
     val graphQLType = builder.type(graphQLOutputType).build()
     val coordinates = FieldCoordinates.coordinates(parentName, functionName)
 

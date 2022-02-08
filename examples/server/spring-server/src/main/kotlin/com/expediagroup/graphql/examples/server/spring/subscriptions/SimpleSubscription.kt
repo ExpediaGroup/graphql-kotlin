@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.examples.server.spring.subscriptions
 
-import com.expediagroup.graphql.examples.server.spring.context.MySubscriptionGraphQLContext
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.GraphqlErrorException
@@ -79,8 +78,4 @@ class SimpleSubscription : Subscription {
 
         return flowOf(dfr, dfr).asPublisher()
     }
-
-    @GraphQLDescription("Returns a value from the subscription context")
-    fun subscriptionContext(myGraphQLContext: MySubscriptionGraphQLContext): Flux<String> =
-        Flux.just(myGraphQLContext.auth ?: "no-auth")
 }

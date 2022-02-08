@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ interface ApolloSubscriptionHooks {
      * You can reject the connection by throwing an exception.
      * If you need to forward state to execution, update and return the [GraphQLContext].
      */
-    @Deprecated("The generic context object is deprecated in favor of the context map")
+    @Deprecated(message = "The generic context object is deprecated in favor of the context map", ReplaceWith("onConnectWithContext"))
     fun onConnect(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
@@ -44,14 +44,14 @@ interface ApolloSubscriptionHooks {
     fun onConnectWithContext(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any>?
-    ): Map<*, Any>? = graphQLContext
+        graphQLContext: Map<*, Any>
+    ): Map<*, Any> = graphQLContext
 
     /**
      * Called when the client executes a GraphQL operation.
      * The context can not be updated here, it is read only.
      */
-    @Deprecated("The generic context object is deprecated in favor of the context map")
+    @Deprecated("The generic context object is deprecated in favor of the context map", replaceWith = ReplaceWith("onOperationWithContext"))
     fun onOperation(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
@@ -65,7 +65,7 @@ interface ApolloSubscriptionHooks {
     fun onOperationWithContext(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any>?
+        graphQLContext: Map<*, Any>
     ): Unit = Unit
 
     /**
