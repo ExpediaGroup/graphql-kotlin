@@ -1,0 +1,320 @@
+{
+  "version-5.x.x/docs": [
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Introduction",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-5.x.x/getting-started"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/examples"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/framework-comparison"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/blogs-and-videos"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Schema Generator",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-5.x.x/schema-generator/schema-generator-getting-started"
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Writing schemas with Kotlin",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/nullability"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/arguments"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/scalars"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/enums"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/lists"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/interfaces"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/unions"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/writing-schemas/nested-arguments"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Customizing Schema",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/annotations"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/generator-config"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/documenting-fields"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/excluding-fields"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/renaming-fields"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/directives"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/deprecating-schema"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/custom-type-reference"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/restricting-input-output"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/customizing-schemas/advanced-features"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Execution",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/fetching-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/async-models"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/exceptions"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/data-fetching-environment"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/contextual-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/optional-undefined-arguments"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/subscriptions"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/execution/introspection"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Federation",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/federation/apollo-federation"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/federation/federated-schemas"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/federation/federated-directives"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/federation/type-resolution"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/schema-generator/federation/federation-tracing"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Server",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-5.x.x/server/graphql-server"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/server/graphql-request-parser"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/server/graphql-context-factory"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/server/graphql-request-handler"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/server/data-loaders"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/server/server-subscriptions"
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Spring Server",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-overview"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-schema"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-graphql-context"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-http-request-response"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-beans"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-properties"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/server/spring-server/spring-subscriptions"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Client",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-5.x.x/client/client-overview"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/client/client-features"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/client/client-customization"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/client/client-serialization"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Build Plugins",
+      "items": [
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Gradle Plugin",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/plugins/gradle-plugin-tasks"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/plugins/gradle-plugin-usage"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Maven Plugin",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-5.x.x/plugins/maven-plugin-goals"
+            },
+            {
+              "type": "doc",
+              "id": "version-5.x.x/plugins/maven-plugin-usage"
+            }
+          ]
+        },
+        {
+          "type": "doc",
+          "id": "version-5.x.x/plugins/hooks-provider"
+        }
+      ]
+    }
+  ]
+}

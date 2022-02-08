@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
  * Implements the [FederatedGraphQLContext] to provide support for federation tracing.
  * The class can be extended if other custom fields are needed.
  */
+@Deprecated(message = "The generic context object is deprecated in favor of the context map", ReplaceWith("graphql.GraphQLContext"))
 open class SpringGraphQLContext(private val request: ServerRequest) : FederatedGraphQLContext {
     override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
         request.headers().firstHeader(caseInsensitiveHeaderName)

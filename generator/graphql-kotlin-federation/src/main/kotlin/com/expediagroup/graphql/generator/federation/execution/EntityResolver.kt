@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.EmptyCoroutineContext
 
 private const val TYPENAME_FIELD = "__typename"
 private const val REPRESENTATIONS = "representations"
@@ -54,7 +55,8 @@ open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetch
         val representations: List<Map<String, Any>> = env.getArgument(REPRESENTATIONS)
         val indexedBatchRequestsByType = representations.withIndex().groupBy { it.value[TYPENAME_FIELD].toString() }
 
-        return GlobalScope.future {
+        val scope = env.graphQlContext.getOrDefault(CoroutineScope::class, CoroutineScope(EmptyCoroutineContext))
+        return scope.future {
             val data = mutableListOf<Any?>()
             val errors = mutableListOf<GraphQLError>()
 

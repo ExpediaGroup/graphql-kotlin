@@ -110,4 +110,4 @@ However since we can not enforce the type checks anymore, you must use `Any` as 
 Since this union is defined with an added annotation it is not currently possible to add directives directly to this union definition.
 You will have to modify the type with [schema generator hooks](../customizing-schemas/generator-config.md).
 
-This limitations can be met with the [@GraphQLType](../customizing-schemas/custom-type-reference) annotation.
+[@GraphQLType](../customizing-schemas/custom-type-reference) annotation can be used as a workaround to this issue.

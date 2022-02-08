@@ -22,7 +22,9 @@ type MyCustomName {
 
 ## Known Issues
 
-Due to how we deserialize input classes, if you rename a field of an input class or an enum value you must also annotate it with the Jackson annotation @JsonProperty. See [issue 493](https://github.com/ExpediaGroup/graphql-kotlin/issues/493) for more info.
+Due to how we deserialize input classes, if you rename a field of an input class or an enum value you must also annotate
+it with the Jackson annotation `@JsonProperty`. See [issue 493](https://github.com/ExpediaGroup/graphql-kotlin/issues/493)
+for more info.
 
 ```kotlin
 data class MyInputClass(

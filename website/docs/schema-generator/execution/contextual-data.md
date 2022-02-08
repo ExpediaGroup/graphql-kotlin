@@ -10,12 +10,13 @@ for the GraphQL context would be trace headers for an OpenTracing system such as
 its function, but the server needs the information to ensure observability.
 
 The contents of the GraphQL context vary across applications and it is up to the GraphQL server developers to decide
-what it should contain. `graphql-kotlin-server` provides a simple mechanism to
-build a context per operation with the [GraphQLContextFactory](../../server/graphql-context-factory.md).
+what it should contain. `graphql-kotlin-server` provides a simple mechanism to build a context per operation with the
+[GraphQLContextFactory](../../server/graphql-context-factory.md).
 If a custom factory is defined, it will then be used to populate GraphQL context based on the incoming request and make it available during execution.
 
 ## GraphQL Context Map
-In graphql-java v17 a new context map was added to the `DataFetchingEnvironment`. This is now the prefered way of saving info for execution.
+In graphql-java v17 a new context map was added to the `DataFetchingEnvironment`. This is now the preferred way of saving info for execution.
+
 ```kotlin
 class ContextualQuery : Query {
     fun contextualQuery(
@@ -27,7 +28,8 @@ class ContextualQuery : Query {
 
 ## GraphQLContext Interface (Deprecated)
 In graphql-java v17, this context object was deprecated in favor of a generic map managed by the execution engine. You can access this map through the [DataFetchingEnvironment](./data-fetching-environment.md).
-The injection of the context interface will eventually be removed. We reccomend all developers use the [DataFetchingEnvironment] to access both the legacy object and new context map.
+The injection of the context interface will eventually be removed. We recommend all developers use the [DataFetchingEnvironment](data-fetching-environment.md)
+to access both the legacy object and new context map.
 
 ### Interface Injection (Deprecated)
 The easiest way to specify a context class is to use the `GraphQLContext` marker interface. This interface does not require any implementations,

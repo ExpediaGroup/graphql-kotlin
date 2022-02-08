@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -160,7 +161,7 @@ class SubscriptionWebSocketHandlerIT(
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory<SubscriptionContext> = CustomContextFactory()
+        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory<GraphQLContext> = CustomContextFactory()
     }
 
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
@@ -181,14 +182,12 @@ class SubscriptionWebSocketHandlerIT(
             .delayElements(Duration.ofMillis(100))
 
         @Suppress("unused")
-        fun ticker(ctx: SubscriptionContext): Flux<String> = Flux.just("${ctx.value}:${Random.nextInt()}")
+        fun ticker(env: DataFetchingEnvironment): Flux<String> = Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
     }
 
-    data class SubscriptionContext(val value: String) : GraphQLContext
-
-    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory<SubscriptionContext>() {
-        override suspend fun generateContext(request: WebSocketSession): SubscriptionContext = SubscriptionContext(
-            value = request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default"
+    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory<GraphQLContext>() {
+        override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any> = mapOf(
+            "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
         )
     }
 

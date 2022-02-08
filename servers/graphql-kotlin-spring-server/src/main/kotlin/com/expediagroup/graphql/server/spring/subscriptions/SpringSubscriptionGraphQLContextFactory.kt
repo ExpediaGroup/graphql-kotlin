@@ -29,5 +29,6 @@ abstract class SpringSubscriptionGraphQLContextFactory<out T : GraphQLContext> :
  * Basic implementation of [SpringSubscriptionGraphQLContextFactory] that just returns null
  */
 class DefaultSpringSubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory<GraphQLContext>() {
-    override suspend fun generateContext(request: WebSocketSession): GraphQLContext? = null
+
+    override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any> = emptyMap<Any, Any>()
 }
