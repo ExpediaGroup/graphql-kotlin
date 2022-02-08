@@ -38,14 +38,6 @@ class MissionService(
     val produceArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
     val getMissionCallCount: AtomicInteger = AtomicInteger(0)
 
-    companion object {
-        private val missions = mapOf(
-            2 to Pair(Mission(2, "Apollo 4", listOf(14, 30, 7)), Duration.ofMillis(100)),
-            3 to Pair(Mission(3, "Apollo 5", listOf(23, 10, 12)), Duration.ofMillis(400)),
-            4 to Pair(Mission(4, "Apollo 6", listOf(1, 28, 31, 6)), Duration.ofMillis(300))
-        )
-    }
-
     fun getMission(request: MissionServiceRequest): Mono<Mission> {
         getMissionCallCount.incrementAndGet()
         val future = this.transactionBatcher.enqueue(
@@ -53,20 +45,25 @@ class MissionService(
             object : TriggeredPublisher<MissionServiceRequest, Mission> {
                 override fun produce(input: List<MissionServiceRequest>): Publisher<Mission> {
                     produceArguments.add(input)
-                    return this@MissionService.getMissions(input)
+                    return input.toFlux()
+                        .flatMapSequential { request ->
+                            { missions[request.id] }
+                                .toMono()
+                                .flatMap { (astronaut, delay) ->
+                                    astronaut.toMono().delayElement(delay)
+                                }
+                        }
                 }
             }
         )
         return future.toMono()
     }
 
-    fun getMissions(input: List<MissionServiceRequest>): Publisher<Mission> =
-        input.toFlux()
-            .flatMapSequential { request ->
-                { missions[request.id] }
-                    .toMono()
-                    .flatMap { (astronaut, delay) ->
-                        astronaut.toMono().delayElement(delay)
-                    }
-            }
+    companion object {
+        private val missions = mapOf(
+            2 to Pair(Mission(2, "Apollo 4", listOf(14, 30, 7)), Duration.ofMillis(100)),
+            3 to Pair(Mission(3, "Apollo 5", listOf(23, 10, 12)), Duration.ofMillis(400)),
+            4 to Pair(Mission(4, "Apollo 6", listOf(1, 28, 31, 6)), Duration.ofMillis(300))
+        )
+    }
 }

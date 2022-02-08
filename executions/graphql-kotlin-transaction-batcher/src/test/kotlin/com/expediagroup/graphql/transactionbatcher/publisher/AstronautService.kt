@@ -33,28 +33,27 @@ class AstronautService(
 
     val produceArguments: MutableList<List<AstronautServiceRequest>> = mutableListOf()
     val getAstronautCallCount: AtomicInteger = AtomicInteger(0)
-    private val astronautsPublisher = object : TriggeredPublisher<AstronautServiceRequest, Astronaut> {
-        override fun produce(input: List<AstronautServiceRequest>): Publisher<Astronaut> {
-            produceArguments.add(input)
-            return this@AstronautService.getAstronauts(input)
-        }
-    }
 
     fun getAstronaut(request: AstronautServiceRequest): Mono<Astronaut> {
         getAstronautCallCount.incrementAndGet()
-        val future = this.transactionBatcher.enqueue(request, astronautsPublisher)
+        val future = this.transactionBatcher.enqueue(
+            request,
+            object : TriggeredPublisher<AstronautServiceRequest, Astronaut> {
+                override fun produce(input: List<AstronautServiceRequest>): Publisher<Astronaut> {
+                    produceArguments.add(input)
+                    return input.toFlux()
+                        .flatMapSequential { request ->
+                            { astronauts[request.id] }
+                                .toMono()
+                                .flatMap { (astronaut, delay) ->
+                                    astronaut.toMono().delayElement(delay)
+                                }
+                        }
+                }
+            }
+        )
         return future.toMono()
     }
-
-    fun getAstronauts(input: List<AstronautServiceRequest>): Publisher<Astronaut> =
-        input.toFlux()
-            .flatMapSequential { request ->
-                { astronauts[request.id] }
-                    .toMono()
-                    .flatMap { (astronaut, delay) ->
-                        astronaut.toMono().delayElement(delay)
-                    }
-            }
 
     companion object {
         private val astronauts = mapOf(
