@@ -62,7 +62,7 @@ open class GraphQLServer<Request>(
             val graphQLContext = contextMap + mapOf(CoroutineScope::class to graphQLExecutionScope)
 
             when (graphQLRequest) {
-                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, deprecatedContext)
+                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
                 is GraphQLBatchRequest -> when {
                     graphQLRequest.requests.any(GraphQLRequest::isMutation) -> GraphQLBatchResponse(
                         graphQLRequest.requests.map {
