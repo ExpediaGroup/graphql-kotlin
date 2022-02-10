@@ -6,7 +6,7 @@ val kotlinCoroutinesVersion: String by project
 val kotlinxBenchmarkVersion: String by project
 
 plugins {
-    id("org.jetbrains.kotlinx.benchmark") version "0.4.0"
+    id("org.jetbrains.kotlinx.benchmark")
 }
 
 dependencies {
