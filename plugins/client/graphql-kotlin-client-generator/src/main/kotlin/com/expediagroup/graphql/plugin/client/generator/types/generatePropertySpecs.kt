@@ -102,9 +102,9 @@ internal fun generatePropertySpecs(
 internal fun unwrapRawType(type: TypeName): Pair<TypeName, Boolean> {
     val rawType = type.unwrapNullableType()
     return if (rawType is ParameterizedTypeName) {
-        rawType.typeArguments.first() to true
+        rawType.typeArguments.first().copy(annotations = emptyList()) to true
     } else {
-        rawType to false
+        rawType.copy(annotations = emptyList()) to false
     }
 }
 

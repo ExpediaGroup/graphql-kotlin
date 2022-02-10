@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,24 @@ package com.expediagroup.graphql.plugin.client.generator.types
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.InputObjectTypeDefinition
+import graphql.language.NamedNode
 import graphql.language.Type
 import kotlinx.serialization.Serializable
 
@@ -89,6 +96,8 @@ internal fun createInputPropertySpec(
     val kotlinFieldTypeName = generateTypeName(context, graphqlFieldType)
 
     val (rawType, isList) = unwrapRawType(kotlinFieldTypeName)
+    val isScalar = rawType in setOf(BOOLEAN, DOUBLE, INT, STRING) ||
+        (graphqlFieldType is NamedNode<*> && context.isTypeAlias(graphqlFieldType.name))
     val isCustomScalar = context.isCustomScalar(rawType)
     val shouldWrapInOptional = shouldWrapInOptional(kotlinFieldTypeName, context)
 
@@ -115,16 +124,47 @@ internal fun createInputPropertySpec(
                 builder.addKdoc("%L", graphqlFieldDescription)
             }
 
-            if (isCustomScalar) {
-                if (shouldWrapInOptional) {
-                    // annotations were already set for KOTLINX optional scalar
-                    if (context.serializer == GraphQLSerializer.JACKSON) {
-                        context.requireJacksonOptionalScalarSerializer = true
+            if (shouldWrapInOptional) {
+                context.requireOptionalSerializer = context.requireOptionalSerializer || context.serializer == GraphQLSerializer.KOTLINX || isCustomScalar
+
+                if (context.serializer == GraphQLSerializer.JACKSON) {
+                    builder.addAnnotations(scalarAnnotations)
+                    // all custom scalars are defined globally, so we can generate the jackson serializer just once
+                    context.optionalSerializers.computeIfAbsent(ClassName("${context.packageName}.scalars", OPTIONAL_SCALAR_INPUT_JACKSON_SERIALIZER_NAME)) {
+                        generateJacksonOptionalInputScalarSerializer(context.customScalarMap.values)
+                    }
+                }
+
+                if (context.serializer == GraphQLSerializer.KOTLINX) {
+                    if (!isCustomScalar) {
                         builder.addAnnotations(scalarAnnotations)
                     }
-                } else {
-                    builder.addAnnotations(scalarAnnotations)
+
+                    val customSerializerInfo = context.scalarClassToConverterTypeSpecs[rawType] as? ScalarConverterInfo.KotlinxSerializerInfo
+                    val optionalSerializerClassName = if (isList && isScalar) {
+                        ClassName("com.expediagroup.graphql.client.serialization.serializers", "OptionalScalarListSerializer")
+                    } else if (isScalar) {
+                        ClassName("com.expediagroup.graphql.client.serialization.serializers", "OptionalScalarSerializer")
+                    } else {
+                        val elementName = (rawType as ClassName).simpleName
+                        val className = if (isList) {
+                            ClassName("${context.packageName}.scalars", "Optional${elementName}ListSerializer")
+                        } else {
+                            ClassName("${context.packageName}.scalars", "Optional${elementName}Serializer")
+                        }
+                        context.optionalSerializers.computeIfAbsent(className) {
+                            generateKotlinxOptionalInputSerializer(rawType, className.simpleName, customSerializerInfo?.serializerClassName, isList)
+                        }
+                        className
+                    }
+                    builder.addAnnotation(
+                        AnnotationSpec.builder(Serializable::class)
+                            .addMember("with = %T::class", optionalSerializerClassName)
+                            .build()
+                    )
                 }
+            } else {
+                builder.addAnnotations(scalarAnnotations)
             }
         }
         .build()

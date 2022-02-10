@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ data class GraphQLClientGeneratorContext(
     val inputClassToTypeSpecs: MutableMap<ClassName, TypeSpec> = mutableMapOf()
     val scalarClassToConverterTypeSpecs: MutableMap<ClassName, ScalarConverterInfo> = mutableMapOf()
     val typeAliases: MutableMap<String, TypeAliasSpec> = mutableMapOf()
+    internal fun isTypeAlias(typeName: String) = typeAliases.containsKey(typeName)
 
     // class name and type selection caches
     val classNameCache: MutableMap<String, MutableList<ClassName>> = mutableMapOf()
@@ -54,7 +55,8 @@ data class GraphQLClientGeneratorContext(
 
     private val customScalarClassNames: Set<ClassName> = customScalarMap.values.map { it.className }.toSet()
     internal fun isCustomScalar(typeName: TypeName): Boolean = customScalarClassNames.contains(typeName)
-    var requireJacksonOptionalScalarSerializer = false
+    var requireOptionalSerializer = false
+    val optionalSerializers: MutableMap<ClassName, TypeSpec> = mutableMapOf()
 }
 
 sealed class ScalarConverterInfo {

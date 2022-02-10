@@ -5,6 +5,7 @@ import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
+import com.expediagroup.graphql.generated.scalars.OptionalSimpleArgumentInputSerializer
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
@@ -31,6 +32,7 @@ public class KotlinXInputQuery(
   @Generated
   @Serializable
   public data class Variables(
+    @Serializable(with = OptionalSimpleArgumentInputSerializer::class)
     public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined
   )
 

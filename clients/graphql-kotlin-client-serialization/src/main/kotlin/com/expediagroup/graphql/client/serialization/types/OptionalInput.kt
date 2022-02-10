@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,10 @@
 
 package com.expediagroup.graphql.client.serialization.types
 
-import com.expediagroup.graphql.client.serialization.serializers.OptionalInputSerializer
-import kotlinx.serialization.Serializable
-
-@Serializable(with = OptionalInputSerializer::class)
 sealed class OptionalInput<out T> {
     /**
      * Represents missing/undefined value.
      */
-    @Serializable(with = OptionalInputSerializer::class)
     object Undefined : OptionalInput<Nothing>() {
         override fun toString() = "UNDEFINED"
     }
@@ -32,7 +27,6 @@ sealed class OptionalInput<out T> {
     /**
      * Wrapper holding explicitly specified value including NULL.
      */
-    @Serializable(with = OptionalInputSerializer::class)
     data class Defined<out U>(val value: U?) : OptionalInput<U>() {
         override fun toString(): String = "Defined(value=$value)"
     }
