@@ -26,7 +26,7 @@ import kotlin.reflect.KProperty
  *
  * @param propertyGetter Kotlin property getter that will be invoked to resolve a field
  */
-class PropertyDataFetcher(private val propertyGetter: KProperty.Getter<*>) : DataFetcher<Any?>, TrivialDataFetcher<Any?> {
+class PropertyDataFetcher(private val propertyGetter: KProperty.Getter<*>) : TrivialDataFetcher<Any?> {
 
     /**
      * Invokes target getter function.
