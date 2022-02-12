@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
@@ -30,7 +29,6 @@ class SubscriptionWebSocketHandler(
     private val objectMapper: ObjectMapper
 ) : WebSocketHandler {
 
-    @ExperimentalCoroutinesApi
     @Suppress("ForbiddenVoid")
     override fun handle(session: WebSocketSession): Mono<Void> {
         val response = session.receive()

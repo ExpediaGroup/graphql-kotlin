@@ -1,4 +1,3 @@
-import io.gitlab.arturbosch.detekt.detekt
 import java.util.Properties
 
 plugins {
