@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import graphql.TrivialDataFetcher
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KProperty
@@ -25,7 +26,7 @@ import kotlin.reflect.KProperty
  *
  * @param propertyGetter Kotlin property getter that will be invoked to resolve a field
  */
-class PropertyDataFetcher(private val propertyGetter: KProperty.Getter<*>) : DataFetcher<Any?> {
+class PropertyDataFetcher(private val propertyGetter: KProperty.Getter<*>) : DataFetcher<Any?>, TrivialDataFetcher<Any?> {
 
     /**
      * Invokes target getter function.
