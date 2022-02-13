@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,21 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class GenerateInputPropertyTest : TypeTestHelper() {
 
     private data class InputPropertyTestClass(
         @GraphQLDescription("Custom description")
         val description: String,
-
         @GraphQLName("newName")
         val changeMe: String,
-
         @SimpleDirective
         val directiveWithNoPrefix: String,
-
         @property:SimpleDirective
-        val directiveWithPrefix: String
+        val directiveWithPrefix: String,
+        @Deprecated("This field is deprecated")
+        val deprecatedDescription: String? = null
     )
 
     @Test
@@ -59,5 +59,12 @@ internal class GenerateInputPropertyTest : TypeTestHelper() {
         val resultWithPrefix = generateInputProperty(generator, InputPropertyTestClass::directiveWithPrefix, InputPropertyTestClass::class)
         assertEquals(1, resultWithPrefix.directives.size)
         assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
+    }
+
+    @Test
+    fun `Input properties can be deprecated`() {
+        val deprecatedResult = generateInputProperty(generator, InputPropertyTestClass::deprecatedDescription, InputPropertyTestClass::class)
+        assertTrue(deprecatedResult.isDeprecated)
+        assertEquals("This field is deprecated", deprecatedResult.deprecationReason)
     }
 }
