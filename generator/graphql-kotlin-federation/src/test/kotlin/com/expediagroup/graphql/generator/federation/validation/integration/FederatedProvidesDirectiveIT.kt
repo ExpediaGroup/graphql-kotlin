@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class FederatedProvidesDirectiveIT {
 
@@ -62,7 +63,7 @@ class FederatedProvidesDirectiveIT {
     private fun validateTypeWasCreatedWithProvidesDirective(schema: GraphQLSchema, typeName: String) {
         val validatedType = schema.getObjectType(typeName)
         assertNotNull(validatedType)
-        assertNotNull(validatedType.getDirective("key"))
+        assertTrue(validatedType.hasDirective("key"))
         val providedField = validatedType.getFieldDefinition("provided")
         assertNotNull(providedField)
         assertNotNull(providedField.getDirective("provides"))

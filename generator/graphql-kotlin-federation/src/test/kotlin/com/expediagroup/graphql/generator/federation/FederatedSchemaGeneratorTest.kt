@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ private val FEDERATED_SDL =
     directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
     "Space separated list of primary keys needed to access federated object"
-    directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+    directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 
     "Specifies required input field set from the base type for a resolver"
     directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
@@ -75,18 +75,20 @@ private val FEDERATED_SDL =
         url: String!
       ) on SCALAR
 
-    interface Product @extends @key(fields : "id") {
+    interface Product @extends @key(fields : "id") @key(fields : "upc") {
       id: String! @external
       reviews: [Review!]!
+      upc: String! @external
     }
 
     union _Entity = Book | User
 
-    type Book implements Product @extends @key(fields : "id") {
+    type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
       author: User! @provides(fields : "name")
       id: String! @external
       reviews: [Review!]!
       shippingCost: String! @requires(fields : "weight")
+      upc: String! @external
       weight: Float! @external
     }
 
@@ -136,7 +138,7 @@ class FederatedSchemaGeneratorTest {
         assertEquals(FEDERATED_SDL, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
-        assertNotNull(productType.getDirective(KEY_DIRECTIVE_NAME))
+        assertNotNull(productType.hasDirective(KEY_DIRECTIVE_NAME))
 
         val entityUnion = schema.getType(ENTITY_UNION_NAME) as? GraphQLUnionType
         assertNotNull(entityUnion)
@@ -185,7 +187,7 @@ class FederatedSchemaGeneratorTest {
             directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 
             "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+            directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 
             "Marks target object as extending part of the federated schema"
             directive @extends on OBJECT | INTERFACE

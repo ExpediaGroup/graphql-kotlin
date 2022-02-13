@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "",
-            directives = emptyMap(),
+            directiveMap = emptyMap(),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -54,7 +54,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -77,7 +77,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -100,7 +100,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -125,7 +125,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -150,7 +150,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -175,7 +175,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = emptyMap(),
             extendedType = false
         )
@@ -207,7 +207,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "MyType",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = mapOf("bar" to graphqlField),
             extendedType = false
         )
@@ -245,7 +245,7 @@ internal class ValidateDirectiveKtTest {
         val validationErrors = validateDirective(
             validatedType = "MyType",
             targetDirective = "foo",
-            directives = mapOf("foo" to directive),
+            directiveMap = mapOf("foo" to listOf(directive)),
             fieldMap = mapOf("bar" to graphqlField1, "baz" to graphqlField2),
             extendedType = false
         )

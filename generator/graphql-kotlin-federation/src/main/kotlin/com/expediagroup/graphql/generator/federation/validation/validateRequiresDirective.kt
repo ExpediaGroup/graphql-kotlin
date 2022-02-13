@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import graphql.schema.GraphQLFieldDefinition
 internal fun validateRequiresDirective(validatedType: String, validatedField: GraphQLFieldDefinition, fieldMap: Map<String, GraphQLFieldDefinition>, extendedType: Boolean): List<String> {
     val errors = mutableListOf<String>()
     if (extendedType) {
-        errors.addAll(validateDirective("$validatedType.${validatedField.name}", REQUIRES_DIRECTIVE_NAME, validatedField.directivesByName, fieldMap, extendedType))
+        errors.addAll(validateDirective("$validatedType.${validatedField.name}", REQUIRES_DIRECTIVE_NAME, validatedField.allDirectivesByName, fieldMap, extendedType))
     } else {
         errors.add("base $validatedType type has fields marked with @requires directive, validatedField=${validatedField.name}")
     }

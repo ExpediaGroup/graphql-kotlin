@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.key.failure._9
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._02
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import io.mockk.mockk
 
 /*
-# example invalid usage of @key directive - field set references complex key on scalar
-type NestedKeyReferencingScalar @key(fields : "id { uuid }") {
+# example invalid usage of @key directive - does not specify any fields
+type KeyMissingFieldSelection @key(fields : "") {
   description: String!
   id: String!
 }
  */
-@KeyDirective(fields = FieldSet("id { uuid }"))
-data class NestedKeyReferencingScalar(val id: String, val description: String)
+@KeyDirective(FieldSet(""))
+data class KeyMissingFieldSelection(val id: String, val description: String)
 
-class NestedKeyReferencingScalarQuery {
-    fun keyQuery(): NestedKeyReferencingScalar = mockk()
+class KeyMissingFieldSelectionQuery {
+    fun keyQuery(): KeyMissingFieldSelection = mockk()
 }

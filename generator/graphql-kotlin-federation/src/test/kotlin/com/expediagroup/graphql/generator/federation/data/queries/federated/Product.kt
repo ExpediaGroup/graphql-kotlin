@@ -28,22 +28,26 @@ import com.expediagroup.graphql.generator.federation.directives.RequiresDirectiv
 import kotlin.properties.Delegates
 
 /*
-interface Product @extends @key(fields : "id") {
+interface Product @extends @key(fields : "id") @key(fields : "upc") {
   id: String! @external
+  upc: String! @external
   reviews: [Review!]!
 }
  */
 @KeyDirective(fields = FieldSet("id"))
+@KeyDirective(fields = FieldSet("upc"))
 @ExtendsDirective
 interface Product {
     @ExternalDirective val id: String
+    @ExternalDirective val upc: String
     fun reviews(): List<Review>
 }
 
 /*
-type Book implements Product @extends @key(fields : "id") {
+type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
   author: User! @provides(fields : "name")
   id: String! @external
+  upc: String! @external
   reviews: [Review!]!
   shippingCost: String! @requires(fields : "weight")
   weight: Float! @external
@@ -51,9 +55,13 @@ type Book implements Product @extends @key(fields : "id") {
  */
 @ExtendsDirective
 @KeyDirective(FieldSet("id"))
+@KeyDirective(FieldSet("upc"))
 class Book(
-    @ExternalDirective override val id: String
+    @ExternalDirective override val id: String,
+    @ExternalDirective override val upc: String
 ) : Product {
+
+    constructor(id: String) : this(id, id)
 
     // optionally provided as it is not part of the @key field set
     // will only be specified if federated query attempts to resolve shippingCost

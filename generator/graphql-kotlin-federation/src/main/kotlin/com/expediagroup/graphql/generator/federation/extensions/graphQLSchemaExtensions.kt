@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ internal fun GraphQLSchema.addDirectivesIfNotPresent(directives: List<GraphQLDir
     val newBuilder = GraphQLSchema.newSchema(this)
 
     directives.forEach {
-        if (this.getDirective(it.name) == null) {
+        if (!this.allDirectivesByName.containsKey(it.name)) {
             newBuilder.additionalDirective(it)
         }
     }

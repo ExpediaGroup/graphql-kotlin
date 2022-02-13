@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,28 +24,30 @@ import graphql.schema.GraphQLFieldDefinition
 internal fun validateDirective(
     validatedType: String,
     targetDirective: String,
-    directives: Map<String, GraphQLDirective>,
+    directiveMap: Map<String, List<GraphQLDirective>>,
     fieldMap: Map<String, GraphQLFieldDefinition>,
     extendedType: Boolean
 ): List<String> {
     val validationErrors = mutableListOf<String>()
-    val directive = directives[targetDirective]
+    val directives = directiveMap[targetDirective]
 
-    if (directive == null) {
+    if (directives == null) {
         validationErrors.add("@$targetDirective directive is missing on federated $validatedType type")
     } else {
-        val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.argumentValue?.value as? FieldSet)?.value
-        val fieldSet = fieldSetValue?.split(" ")?.filter { it.isNotEmpty() }.orEmpty()
-        if (fieldSet.isEmpty()) {
-            validationErrors.add("@$targetDirective directive on $validatedType is missing field information")
-        } else {
-            // validate directive field set selection
-            val directiveInfo = DirectiveInfo(
-                directiveName = targetDirective,
-                fieldSet = fieldSet.joinToString(" "),
-                typeName = validatedType
-            )
-            validateFieldSelection(directiveInfo, fieldSet.iterator(), fieldMap, extendedType, validationErrors)
+        for (directive in directives) {
+            val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.argumentValue?.value as? FieldSet)?.value
+            val fieldSet = fieldSetValue?.split(" ")?.filter { it.isNotEmpty() }.orEmpty()
+            if (fieldSet.isEmpty()) {
+                validationErrors.add("@$targetDirective directive on $validatedType is missing field information")
+            } else {
+                // validate directive field set selection
+                val directiveInfo = DirectiveInfo(
+                    directiveName = targetDirective,
+                    fieldSet = fieldSet.joinToString(" "),
+                    typeName = validatedType
+                )
+                validateFieldSelection(directiveInfo, fieldSet.iterator(), fieldMap, extendedType, validationErrors)
+            }
         }
     }
     return validationErrors

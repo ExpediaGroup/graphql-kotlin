@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,6 @@ import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIV
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import graphql.schema.GraphQLDirectiveContainer
 
-internal fun GraphQLDirectiveContainer.isFederatedType() = this.getDirective(KEY_DIRECTIVE_NAME) != null || isExtendedType()
+internal fun GraphQLDirectiveContainer.isFederatedType() = this.getDirectives(KEY_DIRECTIVE_NAME).isNotEmpty() || isExtendedType()
 
 internal fun GraphQLDirectiveContainer.isExtendedType() = this.getDirective(EXTENDS_DIRECTIVE_NAME) != null
