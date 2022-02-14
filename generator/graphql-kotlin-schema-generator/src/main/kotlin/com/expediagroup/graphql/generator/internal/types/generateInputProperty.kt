@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
+import com.expediagroup.graphql.generator.directives.deprecatedDirectiveWithReason
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyAnnotations
+import com.expediagroup.graphql.generator.internal.extensions.getPropertyDeprecationReason
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyDescription
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyName
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
@@ -29,18 +31,22 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*>, parentClass: KClass<*>): GraphQLInputObjectField {
-    val builder = GraphQLInputObjectField.newInputObjectField()
-
-    // Verfiy that the unwrapped GraphQL type is a valid input type
+    // Verify that the unwrapped GraphQL type is a valid input type
     val inputTypeFromHooks = generator.config.hooks.willResolveInputMonad(prop.returnType)
     val unwrappedType = inputTypeFromHooks.unwrapOptionalInputType()
     val propertyName = prop.getPropertyName(parentClass)
     val typeInfo = GraphQLKTypeMetadata(inputType = true, fieldName = propertyName, fieldAnnotations = prop.getPropertyAnnotations(parentClass))
     val graphQLInputType = generateGraphQLType(generator = generator, type = unwrappedType, typeInfo).safeCast<GraphQLInputType>()
 
-    builder.name(propertyName)
-    builder.description(prop.getPropertyDescription(parentClass))
-    builder.type(graphQLInputType)
+    val builder = GraphQLInputObjectField.newInputObjectField()
+        .name(propertyName)
+        .description(prop.getPropertyDescription(parentClass))
+        .type(graphQLInputType)
+
+    prop.getPropertyDeprecationReason(parentClass)?.let {
+        builder.deprecate(it)
+        builder.withDirective(deprecatedDirectiveWithReason(it))
+    }
 
     generateDirectives(generator, prop, DirectiveLocation.INPUT_FIELD_DEFINITION, parentClass).forEach {
         builder.withDirective(it)
