@@ -21,7 +21,7 @@ import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
- * directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+ * directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
  * ```
  *
  * The @key directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. Key directive should be specified on the root base type as
