@@ -142,6 +142,24 @@ This is a different behavior than `graphql-java` which will first attempt to use
 For more details please refer to the example usage of directives in our [example
 app](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server/spring-server).
 
+### Repeatable Directives
+
+GraphQL supports repeatable directives (e.g. Apollo federation allows developers to specify multiple `@key` directives).
+By default, Kotlin does not allow applying same annotation multiple times. In order to make your directives repeatable,
+you need to annotate it with `kotlin.annotation.Repeatable` annotation.
+
+```kotlin
+@Repeatable
+@GraphQLDirective(locations = [DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE])
+annotation class MyRepeatableDirective(val value: String)
+```
+
+Generates the above directive as
+
+```graphql
+directive @myRepeatableDirective(value: String!) repeatable on OBJECT | INTERFACE
+```
+
 ## Directive Chaining
 
 Directives are applied in the order annotations are declared on the given object. Given

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.key.failure._3
+package com.expediagroup.graphql.generator.federation.data.integration.key.success._7
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import io.mockk.mockk
 
 /*
-# example invalid usage of @key directive - references non-existent field
-type InvalidKey @key(fields : "id") {
+# example usage of a valid @key directive referencing single field on a local type
+type MultipleKeys @key(fields : "id") @key(fields : "upc") {
   description: String!
-  productId: String!
+  id: String!
+  upc: String!
 }
  */
 @KeyDirective(fields = FieldSet("id"))
-data class InvalidKey(val productId: String, val description: String)
+@KeyDirective(fields = FieldSet("upc"))
+data class MultipleKeys(val id: String, val upc: String, val description: String)
 
-class InvalidKeyQuery {
-    fun keyQuery(): InvalidKey = mockk()
+class MultipleKeyQuery {
+    fun multipleKeys(): MultipleKeys = mockk()
 }

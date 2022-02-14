@@ -28,6 +28,7 @@ import java.lang.reflect.Field
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.hasAnnotation
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective as GraphQLDirectiveAnnotation
 
 internal fun generateDirectives(
@@ -59,6 +60,7 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
         val builder = GraphQLDirective.newDirective()
             .name(directiveInfo.effectiveName)
             .description(directiveInfo.directiveAnnotation.description)
+            .repeatable(directiveInfo.repeatable)
 
         directiveInfo.directiveAnnotation.locations.forEach {
             builder.validLocation(it)
@@ -108,10 +110,13 @@ private fun String.normalizeDirectiveName() = this.replaceFirstChar { it.lowerca
 
 private fun Annotation.getDirectiveInfo(): DirectiveInfo? = this.annotationClass.annotations
     .filterIsInstance(GraphQLDirectiveAnnotation::class.java)
-    .map { DirectiveInfo(this, it) }
+    .map { graphqlDirective ->
+        val isRepeatable = this.annotationClass.hasAnnotation<Repeatable>()
+        DirectiveInfo(this, graphqlDirective, isRepeatable)
+    }
     .firstOrNull()
 
-private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: GraphQLDirectiveAnnotation) {
+private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: GraphQLDirectiveAnnotation, val repeatable: Boolean = false) {
     val effectiveName: String = when {
         directiveAnnotation.name.isNotEmpty() -> directiveAnnotation.name
         else -> directive.annotationClass.getSimpleName().normalizeDirectiveName()

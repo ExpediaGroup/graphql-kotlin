@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -554,7 +554,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
             directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 
             "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+            directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 
             "Marks target object as extending part of the federated schema"
             directive @extends on OBJECT | INTERFACE

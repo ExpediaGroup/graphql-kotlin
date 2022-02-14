@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.key.failure._4
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._09
 
-import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import io.mockk.mockk
 
 /*
-# example usage of invalid type - external type specified in local object
-type BaseKeyReferencingExternalFields @key(fields : "id") {
+# example invalid usage of @key directive - field set references complex key on scalar
+type NestedKeyReferencingScalar @key(fields : "id { uuid }") {
   description: String!
-  id: String! @external
+  id: String!
 }
  */
-@KeyDirective(fields = FieldSet("id"))
-data class BaseKeyReferencingExternalFields(@ExternalDirective val id: String, val description: String)
+@KeyDirective(fields = FieldSet("id { uuid }"))
+data class NestedKeyReferencingScalar(val id: String, val description: String)
 
-class BaseKeyReferencingExternalFieldsQuery {
-    fun keyQuery(): BaseKeyReferencingExternalFields = mockk()
+class NestedKeyReferencingScalarQuery {
+    fun keyQuery(): NestedKeyReferencingScalar = mockk()
 }

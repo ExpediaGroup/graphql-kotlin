@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,10 @@ class GenerateDirectiveTest {
     @GraphQLDirective(locations = [DirectiveLocation.FIELD_DEFINITION])
     annotation class DirectiveOnFieldDefinitionOnly
 
+    @Repeatable
+    @GraphQLDirective
+    annotation class RepeatableDirective(val value: String)
+
     class MyClass {
 
         fun noAnnotation(string: String) = string
@@ -102,6 +106,11 @@ class GenerateDirectiveTest {
         @DirectiveOnObjectOnly
         @DirectiveOnInputObjectOnly
         fun invalidDirectives(string: String) = string
+
+        @RepeatableDirective("foo")
+        @RepeatableDirective("bar")
+        @RepeatableDirective("baz")
+        fun repeatedDirectives(string: String) = string
     }
 
     data class MyClassWithConstructorArgs(
@@ -191,11 +200,11 @@ class GenerateDirectiveTest {
         assertEquals(expected = 1, actual = directivesOnSecondField.size)
 
         val firstDirective = directivesOnFirstField.first()
-        val seconDirective = directivesOnSecondField.first()
+        val secondDirective = directivesOnSecondField.first()
         assertEquals("directiveWithString", firstDirective.name)
-        assertEquals("directiveWithString", seconDirective.name)
+        assertEquals("directiveWithString", secondDirective.name)
         assertEquals("foo", firstDirective.getArgument("string")?.argumentValue?.value)
-        assertEquals("bar", seconDirective.getArgument("string")?.argumentValue?.value)
+        assertEquals("bar", secondDirective.getArgument("string")?.argumentValue?.value)
 
         assertEquals(initialCount + 1, basicGenerator.directives.size)
     }
@@ -221,7 +230,7 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `exlude directive arguments @GraphQLIgnore`() {
+    fun `exclude directive arguments @GraphQLIgnore`() {
         val directiveWithIgnoredArgs: KFunction<String> = MyClass::directiveWithIgnoredArgs
         val directives = generateDirectives(basicGenerator, directiveWithIgnoredArgs, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(expected = 1, actual = directives.size)
@@ -230,7 +239,7 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `exlude directives with invalid locations`() {
+    fun `exclude directives with invalid locations`() {
         val objectDirectives = generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.OBJECT)
         assertEquals(expected = 1, actual = objectDirectives.size)
         assertEquals("directiveOnObjectOnly", objectDirectives.first().name)
@@ -242,6 +251,18 @@ class GenerateDirectiveTest {
         val fieldDirectives = generateDirectives(basicGenerator, MyClass::invalidDirectives, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(expected = 1, actual = fieldDirectives.size)
         assertEquals("directiveOnFieldDefinitionOnly", fieldDirectives.first().name)
+    }
+
+    @Test
+    fun `repeatable directives are supported`() {
+        val repeatableDirectiveResult = generateDirectives(basicGenerator, MyClass::repeatedDirectives, DirectiveLocation.FIELD_DEFINITION)
+        assertEquals(3, repeatableDirectiveResult.size)
+        assertEquals("repeatableDirective", repeatableDirectiveResult[0].name)
+        assertEquals("foo", repeatableDirectiveResult[0].getArgument("value")?.argumentValue?.value)
+        assertEquals("repeatableDirective", repeatableDirectiveResult[1].name)
+        assertEquals("bar", repeatableDirectiveResult[1].getArgument("value")?.argumentValue?.value)
+        assertEquals("repeatableDirective", repeatableDirectiveResult[2].name)
+        assertEquals("baz", repeatableDirectiveResult[2].getArgument("value")?.argumentValue?.value)
     }
 
     companion object {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,16 +39,18 @@ import kotlin.test.assertNotNull
 // SDL is returned without _entity and _service queries
 const val FEDERATED_SERVICE_SDL =
 """
-interface Product @extends @key(fields : "id") {
+interface Product @extends @key(fields : "id") @key(fields : "upc") {
   id: String! @external
   reviews: [Review!]!
+  upc: String! @external
 }
 
-type Book implements Product @extends @key(fields : "id") {
+type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
   author: User! @provides(fields : "name")
   id: String! @external
   reviews: [Review!]!
   shippingCost: String! @requires(fields : "weight")
+  upc: String! @external
   weight: Float! @external
 }
 

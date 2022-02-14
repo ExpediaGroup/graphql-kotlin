@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
         return originalSchema.allTypesAsList
             .asSequence()
             .filterIsInstance<GraphQLObjectType>()
-            .filter { type -> type.getDirective(KEY_DIRECTIVE_NAME) != null }
+            .filter { type -> type.hasDirective(KEY_DIRECTIVE_NAME) }
             .map { it.name }
             .toSet()
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.key.failure._5
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._01
 
 import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
-import com.expediagroup.graphql.generator.federation.directives.FieldSet
-import com.expediagroup.graphql.generator.federation.directives.KeyDirective
+import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 
 /*
-# example invalid usage of @key directive - extended type references local field
-type ExternalKeyReferencingLocalField @extends @key(fields : "id") {
+# example of invalid federated type - missing @key directive
+type FederatedMissingKey @extends {
   description: String!
-  id: String!
+  id: String! @external
 }
  */
-@KeyDirective(fields = FieldSet("id"))
 @ExtendsDirective
-data class ExternalKeyReferencingLocalField(val id: String, val description: String)
+data class FederatedMissingKey(@ExternalDirective val id: String, val description: String)

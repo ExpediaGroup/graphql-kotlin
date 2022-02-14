@@ -68,34 +68,33 @@ type Product @key(fields : "id") @extends {
 ## `@key` directive
 
 ```graphql
-directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 ```
 
 The `@key` directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an
 object or interface. The specified field set can represent single field (e.g. `"id"`), multiple fields (e.g. `"id name"`) or
-nested selection sets (e.g. `"id user { name }"`).
+nested selection sets (e.g. `"id user { name }"`). Multiple keys can be specified on a target type.
 
 Key directives should be specified on the root base type as well as all the corresponding federated (i.e. extended)
 types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL
 interface/object. Federated extended types should also instrument all the referenced key fields with `@external`
 directive.
 
-&gt; NOTE: The Federation spec specifies that multiple @key directives can be applied on the field. The GraphQL spec has been recently changed to allow this behavior,
-&gt; but we are currently blocked and are tracking progress in [this issue](https://github.com/ExpediaGroup/graphql-kotlin/issues/590).
-
 Example
 
 ```kotlin
 @KeyDirective(FieldSet("id"))
-class Product(val id: String, val name: String)
+@KeyDirective(FieldSet("upc"))
+class Product(val id: String, val upc: String, val name: String)
 ```
 
 will generate
 
 ```graphql
-type Product @key(fields: "id") {
+type Product @key(fields: "id") @key(fields: "upc") {
   id: String!
   name: String!
+  upc: String!
 }
 ```
 

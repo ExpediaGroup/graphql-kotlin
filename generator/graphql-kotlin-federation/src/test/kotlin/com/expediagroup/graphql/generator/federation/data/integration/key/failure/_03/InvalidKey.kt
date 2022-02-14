@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.key.failure._6
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._03
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import io.mockk.mockk
 
 /*
-# example usage of invalid @key directive - field set references a list
-type KeyReferencingList @key(fields : "id") {
+# example invalid usage of @key directive - references non-existent field
+type InvalidKey @key(fields : "id") {
   description: String!
-  id: [String!]!
+  productId: String!
 }
  */
 @KeyDirective(fields = FieldSet("id"))
-data class KeyReferencingList(val id: List<String>, val description: String)
+data class InvalidKey(val productId: String, val description: String)
 
-class KeyReferencingListQuery {
-    fun keyQuery(): KeyReferencingList = mockk()
+class InvalidKeyQuery {
+    fun keyQuery(): InvalidKey = mockk()
 }

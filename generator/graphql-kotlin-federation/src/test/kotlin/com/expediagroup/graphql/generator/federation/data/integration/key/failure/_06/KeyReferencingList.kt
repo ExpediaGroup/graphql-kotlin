@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.key.failure._2
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._06
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import io.mockk.mockk
 
 /*
-# example invalid usage of @key directive - does not specify any fields
-type KeyMissingFieldSelection @key(fields : "") {
+# example usage of invalid @key directive - field set references a list
+type KeyReferencingList @key(fields : "id") {
   description: String!
-  id: String!
+  id: [String!]!
 }
  */
-@KeyDirective(FieldSet(""))
-data class KeyMissingFieldSelection(val id: String, val description: String)
+@KeyDirective(fields = FieldSet("id"))
+data class KeyReferencingList(val id: List<String>, val description: String)
 
-class KeyMissingFieldSelectionQuery {
-    fun keyQuery(): KeyMissingFieldSelection = mockk()
+class KeyReferencingListQuery {
+    fun keyQuery(): KeyReferencingList = mockk()
 }
