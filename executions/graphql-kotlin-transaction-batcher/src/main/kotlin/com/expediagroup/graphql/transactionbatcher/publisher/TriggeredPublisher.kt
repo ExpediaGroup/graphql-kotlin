@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
     "ReactiveStreamsSubscriberImplementation",
     "UNCHECKED_CAST"
 )
-interface TriggeredPublisher<TInput, TOutput> {
+fun interface TriggeredPublisher<TInput, TOutput> {
     /**
      * Given an input of type [TInput] create a cold [Publisher] that will produce a [Publisher] of type [TOutput] of n elements
      * that maps to the size of the input [List] of [TInput]

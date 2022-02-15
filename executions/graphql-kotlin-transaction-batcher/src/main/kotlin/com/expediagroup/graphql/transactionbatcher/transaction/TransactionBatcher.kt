@@ -44,26 +44,26 @@ class TransactionBatcher(
 
     /**
      * enqueue a transaction [input] along with the [triggeredPublisher] instance that will receive the [BatcheableTransaction]
-     * deduplication will be based on [key] which by default is the toString() representation of [input]
+     * deduplication will be based on toString() representation of [input]
      * batching will be based on the implementation of [TriggeredPublisher]
      * this method returns a reference to a [CompletableFuture] which is a field of the [BatcheableTransaction] that was just
      * added into the queue
      */
     @Suppress("UNCHECKED_CAST")
-    fun <TInput : Any, TOutput : Any> enqueue(
+    fun <TInput : Any, TOutput : Any> batch(
         input: TInput,
-        triggeredPublisher: TriggeredPublisher<TInput, TOutput>,
-        key: String = input.toString()
+        transactionKey: String = input.toString(),
+        triggeredPublisher: TriggeredPublisher<TInput, TOutput>
     ): CompletableFuture<TOutput> {
         val queueKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class.java
         return batch[queueKey]?.let { (_, batcheableTransactions) ->
             batcheableTransactions
-                .find { transaction -> transaction.key == key }
+                .find { transaction -> transaction.key == transactionKey }
                 ?.let { match -> match.future as CompletableFuture<TOutput> }
                 ?: run {
                     val future = CompletableFuture<TOutput>()
                     batcheableTransactions.add(
-                        BatcheableTransaction(input, future as CompletableFuture<Any>, key)
+                        BatcheableTransaction(input, future as CompletableFuture<Any>, transactionKey)
                     )
                     future
                 }
@@ -72,7 +72,7 @@ class TransactionBatcher(
             batch[queueKey] = BatchEntry(
                 triggeredPublisher,
                 mutableListOf(
-                    BatcheableTransaction(input, future as CompletableFuture<Any>, key)
+                    BatcheableTransaction(input, future as CompletableFuture<Any>, transactionKey)
                 )
             )
             future
@@ -80,8 +80,8 @@ class TransactionBatcher(
     }
 
     /**
-     * Trigger concurrently and asynchronously the instances of [TriggeredPublisher] that the [queue] holds
-     * at the end clear the queue
+     * Trigger concurrently and asynchronously the instances of [TriggeredPublisher] that the [batch] holds
+     * at the end clear the [batch]
      */
     fun dispatch() {
         batch.values.forEach { (triggeredPublisher, transactions) ->

@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.transactionbatcher.publisher
 
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
-import org.reactivestreams.Publisher
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
@@ -36,22 +35,17 @@ class AstronautService(
 
     fun getAstronaut(request: AstronautServiceRequest): Mono<Astronaut> {
         getAstronautCallCount.incrementAndGet()
-        val future = this.transactionBatcher.enqueue(
-            request,
-            object : TriggeredPublisher<AstronautServiceRequest, Astronaut> {
-                override fun produce(input: List<AstronautServiceRequest>): Publisher<Astronaut> {
-                    produceArguments.add(input)
-                    return input.toFlux()
-                        .flatMapSequential { request ->
-                            { astronauts[request.id] }
-                                .toMono()
-                                .flatMap { (astronaut, delay) ->
-                                    astronaut.toMono().delayElement(delay)
-                                }
+        val future = this.transactionBatcher.batch(request) { input: List<AstronautServiceRequest> ->
+            produceArguments.add(input)
+            input.toFlux()
+                .flatMapSequential { request ->
+                    { astronauts[request.id] }
+                        .toMono()
+                        .flatMap { (astronaut, delay) ->
+                            astronaut.toMono().delayElement(delay)
                         }
                 }
-            }
-        )
+        }
         return future.toMono()
     }
 
