@@ -33,6 +33,20 @@ query OptionalInputQuery {
 }
 ```
 
+For complex input types the default value must be set to `OptionalInput.Undefined`, or the undefined value
+will be `OptionalInput.Defined(null)`.
+
+```kotlin
+data class InputData(
+    val optionalInput: OptionalInput<String> = OptionalInput.Undefined,
+)
+
+fun optionalInput(input: InputData): String = when (input.optionalInput) {
+    is OptionalInput.Undefined -> "input was not specified"
+    is OptionalInput.Defined<String> -> "input value: ${input.value}"
+}
+```
+
 :::info
 Regardless whether the generic type of `OptionalInput` is specified as nullable or not it will always result in a nullable
 value in `Defined` class, i.e. `OptionalInput<String>` will appear as nullable `String` in the GraphQL schema and in the wrapped value.
