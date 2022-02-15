@@ -2,6 +2,7 @@ pluginManagement {
     val detektVersion: String by settings
     val dokkaVersion: String by settings
     val kotlinVersion: String by settings
+    val kotlinxBenchmarkVersion: String by settings
     val ktlintPluginVersion: String by settings
     val mavenPluginDevelopmentVersion: String by settings
     val nexusPublishPluginVersion: String by settings
@@ -18,6 +19,7 @@ pluginManagement {
         id("io.github.gradle-nexus.publish-plugin") version nexusPublishPluginVersion
         id("io.gitlab.arturbosch.detekt") version detektVersion
         id("org.jetbrains.dokka") version dokkaVersion
+        id("org.jetbrains.kotlinx.benchmark") version kotlinxBenchmarkVersion
         id("org.jlleitschuh.gradle.ktlint") version ktlintPluginVersion
         id("org.springframework.boot") version springBootVersion
     }

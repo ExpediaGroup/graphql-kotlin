@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class FederatedRequiresDirectiveIT {
 
@@ -33,7 +34,7 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._1"))
             val validatedType = schema.getObjectType("SimpleRequires")
-            assertNotNull(validatedType.getDirective("key"))
+            assertTrue(validatedType.hasDirective("key"))
             val weightField = validatedType.getFieldDefinition("weight")
             assertNotNull(weightField)
             assertNotNull(weightField.getDirective("external"))
@@ -90,7 +91,7 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._2"))
             val validatedType = schema.getObjectType("User")
-            assertNotNull(validatedType.getDirective("key"))
+            assertTrue(validatedType.hasDirective("key"))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
             assertNotNull(externalField.getDirective("external"))
@@ -105,7 +106,7 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._3"))
             val validatedType = schema.getObjectType("User")
-            assertNotNull(validatedType.getDirective("key"))
+            assertTrue(validatedType.hasDirective("key"))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
             assertNotNull(externalField.getDirective("external"))
@@ -120,7 +121,7 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._4"))
             val validatedType = schema.getObjectType("User")
-            assertNotNull(validatedType.getDirective("key"))
+            assertTrue(validatedType.hasDirective("key"))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
             assertNotNull(externalField.getDirective("external"))

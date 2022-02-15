@@ -5,6 +5,8 @@ import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.serialization.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.ScalarWrapperInput
+import com.expediagroup.graphql.generated.scalars.OptionalScalarWrapperInputSerializer
+import com.expediagroup.graphql.generated.scalars.OptionalULocaleSerializer
 import com.expediagroup.graphql.generated.scalars.ULocaleSerializer
 import com.ibm.icu.util.ULocale
 import kotlin.Boolean
@@ -35,8 +37,10 @@ public class CustomScalarInputQuery(
   public data class Variables(
     @Serializable(with = ULocaleSerializer::class)
     public val requiredLocale: ULocale,
+    @Serializable(with = OptionalULocaleSerializer::class)
     public val optionalLocale: OptionalInput<@Serializable(with = ULocaleSerializer::class) ULocale>
         = OptionalInput.Undefined,
+    @Serializable(with = OptionalScalarWrapperInputSerializer::class)
     public val scalarWrapper: OptionalInput<ScalarWrapperInput> = OptionalInput.Undefined
   )
 

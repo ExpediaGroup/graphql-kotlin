@@ -41,9 +41,17 @@ public data class ScalarWrapperInput(
    */
   public val id: ID,
   /**
+   * Optional ID
+   */
+  public val optionalId: OptionalInput<ID> = OptionalInput.Undefined,
+  /**
    * UTF-8 character sequence
    */
   public val name: String,
+  /**
+   * Optional list of names
+   */
+  public val nameList: OptionalInput<List<String>> = OptionalInput.Undefined,
   /**
    * A nullable signed double-precision floating-point value
    */

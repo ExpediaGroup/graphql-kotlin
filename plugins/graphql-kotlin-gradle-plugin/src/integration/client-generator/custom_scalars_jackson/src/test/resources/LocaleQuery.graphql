@@ -1,0 +1,5 @@
+query LocaleQuery(
+    $optional: Locale
+) {
+    localeQuery(optional: $optional)
+}

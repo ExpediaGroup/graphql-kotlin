@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ open class SpringDataFetcher(
     private val applicationContext: ApplicationContext
 ) : FunctionDataFetcher(target, fn, objectMapper) {
 
-    @ExperimentalStdlibApi
     override fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
         if (param.hasAnnotation<Autowired>()) {
             val qualifier = param.findAnnotation<Qualifier>()?.value

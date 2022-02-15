@@ -1,0 +1,18 @@
+query RequiredScalarQuery(
+    $required: RequiredWrapperInput!
+) {
+    scalarQuery(required: $required) {
+        requiredBoolean
+        requiredDouble
+        requiredId
+        requiredInt
+        requiredIntList
+        requiredString
+        requiredObject {
+          foo
+        }
+        requiredULocale
+        requiredUUID
+        requiredUUIDList
+    }
+}

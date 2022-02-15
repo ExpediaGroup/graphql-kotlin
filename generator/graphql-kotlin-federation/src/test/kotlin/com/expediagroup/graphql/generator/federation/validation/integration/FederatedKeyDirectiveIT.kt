@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@
 package com.expediagroup.graphql.generator.federation.validation.integration
 
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._2.KeyMissingFieldSelectionQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._3.InvalidKeyQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._4.BaseKeyReferencingExternalFieldsQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._6.KeyReferencingListQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._7.KeyReferencingInterfaceQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._8.KeyReferencingUnionQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._9.NestedKeyReferencingScalarQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._02.KeyMissingFieldSelectionQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._03.InvalidKeyQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._04.BaseKeyReferencingExternalFieldsQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._06.KeyReferencingListQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._07.KeyReferencingInterfaceQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._08.KeyReferencingUnionQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._09.NestedKeyReferencingScalarQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.failure._10.MultipleKeysOneInvalidQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.success._1.SimpleKeyQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.success._3.KeyWithMultipleFieldsQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.success._5.KeyWithNestedFieldsQuery
+import com.expediagroup.graphql.generator.federation.data.integration.key.success._7.MultipleKeyQuery
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
@@ -35,6 +37,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class FederatedKeyDirectiveIT {
 
@@ -98,13 +101,13 @@ class FederatedKeyDirectiveIT {
     private fun validateTypeWasCreatedWithKeyDirective(schema: GraphQLSchema, typeName: String) {
         val validatedType = schema.getObjectType(typeName)
         assertNotNull(validatedType)
-        assertNotNull(validatedType.getDirective("key"))
+        assertTrue(validatedType.hasDirective("key"))
     }
 
     @Test
     fun `@extended type should specify @key directive`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._1"))
+            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._01"))
         }
         val expected = "Invalid federated schema:\n - @key directive is missing on federated FederatedMissingKey type"
         assertEquals(expected, exception.message)
@@ -114,7 +117,7 @@ class FederatedKeyDirectiveIT {
     fun `@key directive field set cannot be empty`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._2"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._02"),
                 queries = listOf(TopLevelObject(KeyMissingFieldSelectionQuery()))
             )
         }
@@ -126,7 +129,7 @@ class FederatedKeyDirectiveIT {
     fun `@key directive needs to reference valid field`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._3"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._03"),
                 queries = listOf(TopLevelObject(InvalidKeyQuery()))
             )
         }
@@ -138,7 +141,7 @@ class FederatedKeyDirectiveIT {
     fun `@key directive on local type cannot reference external fields`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._4"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._04"),
                 queries = listOf(TopLevelObject(BaseKeyReferencingExternalFieldsQuery()))
             )
         }
@@ -151,7 +154,7 @@ class FederatedKeyDirectiveIT {
     @Test
     fun `@extended type @key directive cannot reference local fields`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._5"))
+            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._05"))
         }
         val expected = "Invalid federated schema:\n" +
             " - @key(fields = id) directive on ExternalKeyReferencingLocalField specifies invalid field set - extended type incorrectly references local field=id"
@@ -162,7 +165,7 @@ class FederatedKeyDirectiveIT {
     fun `@key directive field set cannot reference list field`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._6"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._06"),
                 queries = listOf(TopLevelObject(KeyReferencingListQuery()))
             )
         }
@@ -175,7 +178,7 @@ class FederatedKeyDirectiveIT {
     fun `@key directive field set cannot reference interface field`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._7"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._07"),
                 queries = listOf(TopLevelObject(KeyReferencingInterfaceQuery()))
             )
         }
@@ -188,7 +191,7 @@ class FederatedKeyDirectiveIT {
     fun `@key directive field set cannot reference union field`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._8"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._08"),
                 queries = listOf(TopLevelObject(KeyReferencingUnionQuery()))
             )
         }
@@ -201,13 +204,41 @@ class FederatedKeyDirectiveIT {
     fun `@key directive field set cannot reference scalar complex key`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._9"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._09"),
                 queries = listOf(TopLevelObject(NestedKeyReferencingScalarQuery()))
             )
         }
         val expected = "Invalid federated schema:\n" +
             " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set defines nested selection set on unsupported type\n" +
             " - @key(fields = id { uuid }) directive on NestedKeyReferencingScalar specifies invalid field set - field set specifies field that does not exist, field=uuid"
+        assertEquals(expected, exception.message)
+    }
+
+    @Test
+    fun `verifies multiple @key directive on a local type`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.success._7"),
+                queries = listOf(TopLevelObject(MultipleKeyQuery()))
+            )
+            val validatedType = schema.getObjectType("MultipleKeys")
+            assertNotNull(validatedType)
+            val keyDirectives = validatedType.getDirectives("key")
+            assertTrue(keyDirectives.isNotEmpty())
+            assertEquals(2, keyDirectives.size)
+        }
+    }
+
+    @Test
+    fun `verifies validation runs on multiple @key directives`() {
+        val exception = assertFailsWith<InvalidFederatedSchema> {
+            toFederatedSchema(
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._10"),
+                queries = listOf(TopLevelObject(MultipleKeysOneInvalidQuery()))
+            )
+        }
+        val expected = "Invalid federated schema:\n" +
+            " - @key(fields = upc) directive on MultipleKeysOneInvalid specifies invalid field set - field set specifies field that does not exist, field=upc"
         assertEquals(expected, exception.message)
     }
 }

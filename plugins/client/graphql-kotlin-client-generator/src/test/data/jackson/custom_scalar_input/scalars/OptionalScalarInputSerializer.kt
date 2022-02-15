@@ -1,5 +1,6 @@
 package com.expediagroup.graphql.generated.scalars
 
+import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.converter.ScalarConverter
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.jackson.types.OptionalInput.Defined
@@ -18,6 +19,7 @@ import kotlin.Unit
 import kotlin.collections.Map
 import kotlin.collections.mapOf
 
+@Generated
 public class OptionalScalarInputSerializer : JsonSerializer<OptionalInput<*>>() {
   private val converters: Map<Class<*>, ScalarConverter<*>> = mapOf(UUID::class.java to
       UUIDScalarConverter(), ULocale::class.java to ULocaleScalarConverter())

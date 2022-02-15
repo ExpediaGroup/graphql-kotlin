@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ class GraphQLClientKotlinXSerializerTest {
     @Test
     fun `verify we can serialize custom scalars`() {
         val randomUUID = UUID.randomUUID()
-        val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = com.expediagroup.graphql.client.serialization.data.scalars.UUID(randomUUID)))
+        val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = randomUUID))
 
         val serialized = serializer.serialize(scalarQuery)
         val expected = """{
@@ -193,14 +193,17 @@ class GraphQLClientKotlinXSerializerTest {
             """{
             |  "data": {
             |    "scalarAlias": "1234",
-            |    "customScalar": "$expectedUUID"
+            |    "customScalar": "$expectedUUID",
+            |    "customScalarList": ["$expectedUUID"]
             |  }
             |}
         """.trimMargin()
 
         val result = serializer.deserialize(scalarResponse, ScalarQuery(ScalarQuery.Variables()).responseType())
         assertEquals("1234", result.data?.scalarAlias)
-        assertEquals(expectedUUID, result.data?.customScalar?.value)
+        assertEquals(expectedUUID, result.data?.customScalar)
+        assertEquals(1, result.data?.customScalarList?.size)
+        assertEquals(expectedUUID, result.data?.customScalarList?.get(0))
     }
 
     @Test
@@ -243,12 +246,15 @@ class GraphQLClientKotlinXSerializerTest {
 
     @Test
     fun `verify we can serialize optional inputs`() {
+        val uuid = UUID.randomUUID()
         val query = OptionalInputQuery(
             variables = OptionalInputQuery.Variables(
                 requiredInput = 123,
                 optionalIntInput = OptionalInput.Defined(123),
-                optionalStringInput = OptionalInput.Defined(null)
+                optionalStringInput = OptionalInput.Defined(null),
                 // optionalBooleanInput = OptionalInput.Undefined // use default
+                optionalUUIDInput = OptionalInput.Defined(uuid),
+                optionalUUIDListInput = OptionalInput.Defined(listOf(uuid))
             )
         )
         val rawQuery =
@@ -256,7 +262,11 @@ class GraphQLClientKotlinXSerializerTest {
             |    "variables": {
             |        "requiredInput": 123,
             |        "optionalIntInput": 123,
-            |        "optionalStringInput": null
+            |        "optionalStringInput": null,
+            |        "optionalUUIDInput": "$uuid",
+            |        "optionalUUIDListInput": [
+            |            "$uuid"
+            |        ]
             |    },
             |    "query": "OPTIONAL_INPUT_QUERY",
             |    "operationName": "OptionalInputQuery"

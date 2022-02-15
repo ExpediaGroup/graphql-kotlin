@@ -66,7 +66,7 @@ class SubscriptionWebSocketHandlerIT(
         val dataOutput = TestPublisher.create<String>()
 
         val response = client.execute(uri) { session ->
-            executeSubsciption(session, startMessage, dataOutput)
+            executeSubscription(session, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -90,7 +90,7 @@ class SubscriptionWebSocketHandlerIT(
         val dataOutput = TestPublisher.create<String>()
 
         val response = client.execute(uri) { session ->
-            executeSubsciption(session, startMessage, dataOutput)
+            executeSubscription(session, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -116,7 +116,7 @@ class SubscriptionWebSocketHandlerIT(
         headers.set("X-Custom-Header", "junit")
 
         val response = client.execute(uri, headers) { session ->
-            executeSubsciption(session, startMessage, dataOutput)
+            executeSubscription(session, startMessage, dataOutput)
         }.subscribe()
 
         StepVerifier.create(dataOutput)
@@ -127,7 +127,7 @@ class SubscriptionWebSocketHandlerIT(
         response.dispose()
     }
 
-    private fun executeSubsciption(
+    private fun executeSubscription(
         session: WebSocketSession,
         startMessage: String,
         dataOutput: TestPublisher<String>

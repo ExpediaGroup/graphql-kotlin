@@ -26,6 +26,6 @@ type Query {
 ```
 
 While you can deprecate any fields/functions/classes in your Kotlin code, GraphQL only supports deprecation directive on
-the fields (which correspond to Kotlin fields and functions) and enum values.
+the fields (which correspond to Kotlin properties and functions), input fields and enum values.
 
-Deprecation of input types is not yet supported [in the GraphQL spec](https://github.com/graphql/graphql-spec/pull/525).
+Deprecation of arguments is currently not supported [in Kotlin](https://youtrack.jetbrains.com/issue/KT-25643).

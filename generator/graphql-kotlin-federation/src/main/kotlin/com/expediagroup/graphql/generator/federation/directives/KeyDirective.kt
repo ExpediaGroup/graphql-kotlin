@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,12 @@ import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
- * directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+ * directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
  * ```
  *
  * The @key directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. Key directive should be specified on the root base type as
  * well as all the corresponding federated (i.e. extended) types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL interface/object.
  * Federated extended types should also instrument all the referenced key fields with @external directive.
- *
- * NOTE: The Federation spec specifies that multiple @key directives can be applied on the field. The GraphQL spec has been recently changed to allow this behavior,
- *   but we are currently blocked and are tracking progress in [this issue](https://github.com/ExpediaGroup/graphql-kotlin/issues/590).
  *
  * Example:
  * Given
@@ -55,6 +52,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  * @see ExtendsDirective
  * @see ExternalDirective
  */
+@Repeatable
 @GraphQLDirective(
     name = KEY_DIRECTIVE_NAME,
     description = KEY_DIRECTIVE_DESCRIPTION,
@@ -70,4 +68,5 @@ internal val KEY_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schem
     .description(KEY_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE)
     .argument(FIELD_SET_ARGUMENT)
+    .repeatable(true)
     .build()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,16 +48,16 @@ internal class FederatedSchemaValidator {
     internal fun validateGraphQLType(type: GraphQLType) {
         val unwrappedType = GraphQLTypeUtil.unwrapAll(type)
         if (unwrappedType is GraphQLObjectType && unwrappedType.isFederatedType()) {
-            validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.directivesByName)
+            validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.allDirectivesByName)
         } else if (unwrappedType is GraphQLInterfaceType && unwrappedType.isFederatedType()) {
-            validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.directivesByName)
+            validate(unwrappedType.name, unwrappedType.fieldDefinitions, unwrappedType.allDirectivesByName)
         }
     }
 
-    private fun validate(federatedType: String, fields: List<GraphQLFieldDefinition>, directives: Map<String, GraphQLDirective>) {
+    private fun validate(federatedType: String, fields: List<GraphQLFieldDefinition>, directiveMap: Map<String, List<GraphQLDirective>>) {
         val errors = mutableListOf<String>()
         val fieldMap = fields.associateBy { it.name }
-        val extendedType = directives.containsKey(EXTENDS_DIRECTIVE_NAME)
+        val extendedType = directiveMap.containsKey(EXTENDS_DIRECTIVE_NAME)
 
         // [OK]    @key directive is specified
         // [OK]    @key references valid existing fields
@@ -65,7 +65,7 @@ internal class FederatedSchemaValidator {
         // [ERROR] @key references fields resulting in list
         // [ERROR] @key references fields resulting in union
         // [ERROR] @key references fields resulting in interface
-        errors.addAll(validateDirective(federatedType, KEY_DIRECTIVE_NAME, directives, fieldMap, extendedType))
+        errors.addAll(validateDirective(federatedType, KEY_DIRECTIVE_NAME, directiveMap, fieldMap, extendedType))
 
         for (field in fields) {
             if (field.getDirective(REQUIRES_DIRECTIVE_NAME) != null) {
