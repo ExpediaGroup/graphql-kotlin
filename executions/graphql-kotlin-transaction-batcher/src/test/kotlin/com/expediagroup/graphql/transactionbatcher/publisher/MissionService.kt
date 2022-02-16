@@ -24,11 +24,7 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
 data class MissionServiceRequest(val id: Int)
-data class Mission(
-    val id: Int,
-    val designation: String,
-    val crew: List<Int>
-)
+data class Mission(val id: Int, val designation: String, val crew: List<Int>)
 
 class MissionService(
     private val transactionBatcher: TransactionBatcher

@@ -55,8 +55,8 @@ class TransactionBatcher(
         transactionKey: String = input.toString(),
         triggeredPublisher: TriggeredPublisher<TInput, TOutput>
     ): CompletableFuture<TOutput> {
-        val queueKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class.java
-        return batch[queueKey]?.let { (_, batcheableTransactions) ->
+        val batchKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class.java
+        return batch[batchKey]?.let { (_, batcheableTransactions) ->
             batcheableTransactions
                 .find { transaction -> transaction.key == transactionKey }
                 ?.let { match -> match.future as CompletableFuture<TOutput> }
@@ -69,7 +69,7 @@ class TransactionBatcher(
                 }
         } ?: run {
             val future = CompletableFuture<TOutput>()
-            batch[queueKey] = BatchEntry(
+            batch[batchKey] = BatchEntry(
                 triggeredPublisher,
                 mutableListOf(
                     BatcheableTransaction(input, future as CompletableFuture<Any>, transactionKey)
