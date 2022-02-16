@@ -76,7 +76,14 @@ class FunctionDataFetcherTest {
             is OptionalInput.Undefined -> "input was UNDEFINED"
             is OptionalInput.Defined -> "first input was ${input.value?.first()?.field1}"
         }
+
+        fun optionalWrapperClass(input: InputWrapper) = when (input.optional) {
+            is OptionalInput.Undefined -> "optional was UNDEFINED"
+            is OptionalInput.Defined -> "optional was ${input.optional.value}"
+        }
     }
+
+    data class InputWrapper(val required: String, val optional:  OptionalInput<String>)
 
     @GraphQLName("MyInputClassRenamed")
     data class MyInputClass(
@@ -149,7 +156,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `default values are overriden when arument is passed in`() {
+    fun `default values are overridden when arument is passed in`() {
         val dataFetcher = FunctionDataFetcher(target = null, fn = MyClass::printDefault)
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { getSource<Any>() } returns MyClass()
@@ -277,6 +284,16 @@ class FunctionDataFetcherTest {
     }
 
     @Test
+    fun `optional inputs return the value when null arguments are passed`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapper)
+        val mockEnvironment: DataFetchingEnvironment = mockk {
+            every { arguments } returns mapOf("input" to null)
+            every { containsArgument("input") } returns true
+        }
+        assertEquals(expected = "input was null", actual = dataFetcher.get(mockEnvironment))
+    }
+
+    @Test
     fun `optional inputs return undefined when arguments are empty`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapper)
         val mockEnvironment: DataFetchingEnvironment = mockk {
@@ -295,5 +312,25 @@ class FunctionDataFetcherTest {
         }
         val result = dataFetcher.get(mockEnvironment)
         assertEquals(expected = "first input was foo", actual = result)
+    }
+
+    @Test
+    fun `optional inputs inside class return the value when arguments are passed`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapperClass)
+        val mockEnvironment: DataFetchingEnvironment = mockk {
+            every { arguments } returns mapOf("input" to mapOf("required" to "hello", "optional" to "hello"))
+            every { containsArgument("input") } returns true
+        }
+        assertEquals(expected = "optional was hello", actual = dataFetcher.get(mockEnvironment))
+    }
+
+    @Test
+    fun `optional inputs inside class return undefined when arguments are empty`() {
+        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapperClass)
+        val mockEnvironment: DataFetchingEnvironment = mockk {
+            every { arguments } returns mapOf("input" to mapOf("required" to "hello"))
+            every { containsArgument("input") } returns true
+        }
+        assertEquals(expected = "optional was UNDEFINED", actual = dataFetcher.get(mockEnvironment))
     }
 }
