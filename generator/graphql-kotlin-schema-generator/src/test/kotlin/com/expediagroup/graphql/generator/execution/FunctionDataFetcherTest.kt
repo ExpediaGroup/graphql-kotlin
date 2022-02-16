@@ -83,7 +83,7 @@ class FunctionDataFetcherTest {
         }
     }
 
-    data class InputWrapper(val required: String, val optional:  OptionalInput<String>)
+    data class InputWrapper(val required: String, val optional: OptionalInput<String>)
 
     @GraphQLName("MyInputClassRenamed")
     data class MyInputClass(
