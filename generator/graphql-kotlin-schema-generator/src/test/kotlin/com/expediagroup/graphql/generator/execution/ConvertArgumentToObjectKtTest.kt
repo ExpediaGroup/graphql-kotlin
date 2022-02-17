@@ -45,6 +45,16 @@ class ConvertArgumentToObjectKtTest {
     }
 
     @Test
+    fun `enum object is parsed`() {
+        val kParam = assertNotNull(TestFunctions::enumInput.findParameterByName("input"))
+        val mockEnv = mockk<DataFetchingEnvironment>()
+        val inputValue = "BAR"
+        val result = convertArgumentToObject(kParam, mockEnv, "input", inputValue)
+        val castResult = assertIs<Foo>(result)
+        assertEquals(Foo.BAR, castResult)
+    }
+
+    @Test
     fun `generic map object is parsed`() {
         val kParam = assertNotNull(TestFunctions::inputObject.findParameterByName("input"))
         val mockEnv = mockk<DataFetchingEnvironment>()
@@ -138,6 +148,7 @@ class ConvertArgumentToObjectKtTest {
     class TestFunctions {
         fun stringInput(input: String): String = TODO()
         fun listStringInput(input: List<String>): String = TODO()
+        fun enumInput(input: Foo): String = TODO()
         fun inputObject(input: TestInput): String = TODO()
         fun optionalInput(input: OptionalInput<String>): String = TODO()
         fun optionalInputObject(input: OptionalInput<TestInput>): String = TODO()
@@ -149,4 +160,9 @@ class ConvertArgumentToObjectKtTest {
         val bar: String? = null,
         val baz: List<String>? = null
     )
+
+    enum class Foo {
+        BAR,
+        BAZ
+    }
 }
