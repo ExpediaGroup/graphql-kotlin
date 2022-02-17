@@ -37,7 +37,7 @@ interface KotlinDataLoader<K, V> {
 }
 ```
 
-This allows for library users to still have full control over the creation of the `DataLoader` and its various configuraiton options,
+This allows for library users to still have full control over the creation of the `DataLoader` and its various configuration options,
 but then allows common server code to handle the registration, generation on request, and execution.
 
 ```kotlin
