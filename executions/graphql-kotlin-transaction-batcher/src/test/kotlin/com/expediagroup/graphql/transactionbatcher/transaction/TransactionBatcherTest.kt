@@ -187,9 +187,9 @@ class TransactionBatcherTest {
             .flatMapSequential(astronautService::getAstronaut)
             .collectList()
             .subscribe {
-                assertEquals("Neil Armstrong", it[0].name)
-                assertEquals("William Anders", it[1].name)
-                assertEquals("Buzz Aldrin", it[2].name)
+                assertEquals("Buzz Aldrin", it[0].name)
+                assertEquals("Neil Armstrong", it[1].name)
+                assertEquals("William Anders", it[2].name)
             }
 
         transactionBatcher.dispatch()
