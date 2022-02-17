@@ -21,11 +21,16 @@ import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
+import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
+import com.expediagroup.graphql.generator.internal.extensions.qualifiedName
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
+
+internal fun getEnumValue(paramType: KType, enumValue: String) =
+    paramType.getKClass().java.enumConstants.filterIsInstance(Enum::class.java).first { it.name == enumValue }
 
 /**
  * Convert the input object [argumentValue] given from graphql-java to a class we can pass to the Kotlin function.
@@ -79,6 +84,10 @@ private fun convertValue(
         return mapToKotlinObject(argumentValue as Map<String, *>, paramType.getKClass())
     }
 
+    if (paramType.isSubclassOf(Enum::class) && argumentValue is String) {
+        return getEnumValue(paramType, argumentValue)
+    }
+
     // Value is already parsed so we can return it as-is
     return argumentValue
 }
@@ -95,9 +104,12 @@ private fun <T : Any> mapToKotlinObject(inputMap: Map<String, *>, targetClass: K
         val input = inputMap[it.getName()]
         if (input is Map<*, *>) {
             val nestedTarged = it.type.getKClass()
+
             @Suppress("UNCHECKED_CAST")
             val subValue = mapToKotlinObject(input as Map<String, *>, nestedTarged)
             constructorValues[it] = subValue
+        } else if (it.type.isSubclassOf(Enum::class)) {
+            constructorValues[it] = convertValue(it.type, input)
         } else {
             constructorValues[it] = input
         }
