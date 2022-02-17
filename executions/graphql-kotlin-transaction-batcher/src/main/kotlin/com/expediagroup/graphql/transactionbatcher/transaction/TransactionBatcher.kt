@@ -19,15 +19,7 @@ package com.expediagroup.graphql.transactionbatcher.transaction
 import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-
-/**
- * Type for [TransactionBatcher.batch] value, storing the [triggeredPublisher] instance
- * and list of [transactions] that need to be executed by it
- */
-data class BatchEntry(
-    val triggeredPublisher: TriggeredPublisher<Any, Any>,
-    val transactions: MutableList<BatcheableTransaction<Any, Any>>
-)
+import kotlin.reflect.KClass
 
 /**
  * Holds logic to apply batching, deduplication and caching of [BatcheableTransaction]
@@ -37,14 +29,14 @@ class TransactionBatcher(
     private val cache: TransactionBatcherCache = DefaultTransactionBatcherCache()
 ) {
 
-    private val batch = ConcurrentHashMap<
-        Class<out TriggeredPublisher<Any, Any>>,
-        BatchEntry
+    val batch = ConcurrentHashMap<
+        KClass<out TriggeredPublisher<Any, Any>>,
+        BatchEntryValue
         >()
 
     /**
-     * enqueue a transaction [input] along with the [triggeredPublisher] instance that will receive the [BatcheableTransaction]
-     * deduplication will be based on toString() representation of [input]
+     * adds a transaction [input] to the batch along with the [triggeredPublisher] instance that will receive the [BatcheableTransaction]
+     * deduplication will be based on [transactionKey] which by default is the toString() representation of [input]
      * batching will be based on the implementation of [TriggeredPublisher]
      * this method returns a reference to a [CompletableFuture] which is a field of the [BatcheableTransaction] that was just
      * added into the queue
@@ -55,37 +47,48 @@ class TransactionBatcher(
         transactionKey: String = input.toString(),
         triggeredPublisher: TriggeredPublisher<TInput, TOutput>
     ): CompletableFuture<TOutput> {
-        val batchKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class.java
-        return batch[batchKey]?.let { (_, batcheableTransactions) ->
-            batcheableTransactions
-                .find { transaction -> transaction.key == transactionKey }
-                ?.let { match -> match.future as CompletableFuture<TOutput> }
-                ?: run {
-                    val future = CompletableFuture<TOutput>()
-                    batcheableTransactions.add(
-                        BatcheableTransaction(input, future as CompletableFuture<Any>, transactionKey)
-                    )
-                    future
+        val queueKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class
+        var future = CompletableFuture<TOutput>()
+        batch.computeIfPresent(queueKey) { _, batchEntry ->
+            batchEntry
+                .transactions[transactionKey]
+                ?.let { matchedTransaction ->
+                    future = matchedTransaction.future as CompletableFuture<TOutput>
                 }
-        } ?: run {
-            val future = CompletableFuture<TOutput>()
-            batch[batchKey] = BatchEntry(
+                ?: run {
+                    batchEntry.transactions[transactionKey] = BatcheableTransaction(
+                        input,
+                        future as CompletableFuture<Any>,
+                        transactionKey
+                    )
+                }
+            batchEntry
+        }
+        batch.computeIfAbsent(queueKey) {
+            BatchEntryValue(
                 triggeredPublisher,
-                mutableListOf(
-                    BatcheableTransaction(input, future as CompletableFuture<Any>, transactionKey)
+                linkedMapOf(
+                    transactionKey to BatcheableTransaction(
+                        input,
+                        future as CompletableFuture<Any>,
+                        transactionKey
+                    )
                 )
             )
-            future
         }
+        return future
     }
 
     /**
      * Trigger concurrently and asynchronously the instances of [TriggeredPublisher] that the [batch] holds
-     * at the end clear the [batch]
+     * at the end clear the queue
      */
     fun dispatch() {
         batch.values.forEach { (triggeredPublisher, transactions) ->
-            triggeredPublisher.trigger(transactions, cache)
+            triggeredPublisher.trigger(
+                transactions.map(Map.Entry<String, BatcheableTransaction<Any, Any>>::value),
+                cache
+            )
         }
         batch.clear()
     }
