@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@ package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
+import com.expediagroup.graphql.generator.exceptions.InvalidPropertyReturnTypeException
 import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -65,6 +68,20 @@ class GenerateObjectTest : TypeTestHelper() {
 
     @GraphQLName("Invalid\$Name")
     class InvalidOutputTypeNameOverride
+
+    data class FooLambda(
+        val foo: () -> String
+    )
+
+    data class SuspendableFooLambda(
+        val foo: suspend () -> String?
+    )
+
+    data class Foo(
+        val foo: String,
+        @GraphQLIgnore val fooLambda: () -> String?,
+        private val fooSuspendable: suspend () -> String?
+    )
 
     @Test
     fun `Test naming`() {
@@ -138,5 +155,28 @@ class GenerateObjectTest : TypeTestHelper() {
         assertFailsWith(InvalidGraphQLNameException::class) {
             generateInputObject(generator, InvalidOutputTypeNameOverride::class)
         }
+    }
+
+    @Test
+    fun `Generation of output object will fail if one of the properties is lambda`() {
+        assertThrows<InvalidPropertyReturnTypeException> {
+            generateObject(generator, FooLambda::class)
+        }
+    }
+
+    @Test
+    fun `Generation of output object will fail if one of the properties is suspendable lambda`() {
+        assertThrows<InvalidPropertyReturnTypeException> {
+            generateObject(generator, SuspendableFooLambda::class)
+        }
+    }
+
+    @Test
+    fun `Generation of output objects ignores private or @GraphQLIgnored lambdas `() {
+        val result = generateObject(generator, Foo::class)
+        assertNotNull(result)
+        assertEquals("Foo", result.name)
+        assertEquals(1, result.fieldDefinitions.size)
+        assertEquals("foo", result.fieldDefinitions[0].name)
     }
 }

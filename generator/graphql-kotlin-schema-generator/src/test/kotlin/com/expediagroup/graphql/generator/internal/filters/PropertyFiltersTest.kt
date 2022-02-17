@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package com.expediagroup.graphql.generator.internal.filters
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.exceptions.InvalidPropertyReturnTypeException
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.test.assertFalse
@@ -35,6 +37,13 @@ internal class PropertyFiltersTest {
         assertFalse(isValidProperty(MyDataClass::ignoredProperty, MyDataClass::class))
         assertFalse(isValidProperty(MyClass::foo, MyClass::class))
         assertFalse(isValidProperty(MyClass::`$invalidPropertyName`, MyClass::class))
+
+        assertThrows<InvalidPropertyReturnTypeException> {
+            isValidProperty(MyClass::lambda, MyClass::class)
+        }
+        assertThrows<InvalidPropertyReturnTypeException> {
+            isValidProperty(MyClass::suspendableLambda, MyClass::class)
+        }
     }
 
     internal data class MyDataClass(
@@ -49,7 +58,10 @@ internal class PropertyFiltersTest {
         val foo: Int
     }
 
-    internal class MyClass : MyInterface {
+    internal class MyClass(
+        val lambda: () -> String,
+        val suspendableLambda: suspend () -> String
+    ) : MyInterface {
 
         val publicProperty: Int = 0
 

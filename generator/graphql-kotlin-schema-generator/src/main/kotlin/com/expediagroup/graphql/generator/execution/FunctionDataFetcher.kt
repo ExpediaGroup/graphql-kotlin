@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import com.expediagroup.graphql.generator.extensions.getOrDefault
 import com.expediagroup.graphql.generator.internal.extensions.getJavaClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
@@ -83,11 +84,10 @@ open class FunctionDataFetcher(
      * in a value for this optional parameter. This allows for the default Kotlin values to be used if no mapping is added.
      * You can override this behaviour by providing a value for a specific [KParameter] when [mapParameterToValue] is called.
      */
-    protected open fun getParameters(fn: KFunction<*>, environment: DataFetchingEnvironment): Map<KParameter, Any?> {
-        return fn.valueParameters
+    protected open fun getParameters(fn: KFunction<*>, environment: DataFetchingEnvironment): Map<KParameter, Any?> =
+        fn.valueParameters
             .mapNotNull { mapParameterToValue(it, environment) }
             .toMap()
-    }
 
     /**
      * Retrieves the provided parameter value in the operation input to pass to the function to execute.
@@ -168,26 +168,22 @@ open class FunctionDataFetcher(
     protected open fun runSuspendingFunction(
         environment: DataFetchingEnvironment,
         parameterValues: Map<KParameter, Any?>
-    ): CompletableFuture<Any?> {
-        val scope = environment.graphQlContext.getOrDefault(CoroutineScope::class, CoroutineScope(EmptyCoroutineContext))
-        return scope.future {
+    ): CompletableFuture<Any?> =
+        environment.graphQlContext.getOrDefault(CoroutineScope(EmptyCoroutineContext)).future {
             try {
                 fn.callSuspendBy(parameterValues)
             } catch (exception: InvocationTargetException) {
                 throw exception.cause ?: exception
             }
         }
-    }
 
     /**
      * Once all parameters values are properly converted, this function will be called to run a simple blocking function.
      * If you need to override the exception handling you can override this method.
      */
-    protected open fun runBlockingFunction(parameterValues: Map<KParameter, Any?>): Any? {
-        try {
-            return fn.callBy(parameterValues)
-        } catch (exception: InvocationTargetException) {
-            throw exception.cause ?: exception
-        }
+    protected open fun runBlockingFunction(parameterValues: Map<KParameter, Any?>): Any? = try {
+        fn.callBy(parameterValues)
+    } catch (exception: InvocationTargetException) {
+        throw exception.cause ?: exception
     }
 }
