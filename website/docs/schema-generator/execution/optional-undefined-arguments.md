@@ -16,10 +16,11 @@ value and explicit `null` value.
 
 `OptionalInput` is a convenient sealed class wrapper that provides distinction between undefined, null, and non-null
 values. If the argument is not specified in the request it will be represented as a `OptionalInput.Undefined` object, otherwise the
-value will be wrapped in `OptionalInput.Defined` class.
+value will be wrapped in `OptionalInput.Defined` class. As a best practice, we highly recommend to set appropriate
+[default values to all optional arguments](https://opensource.expediagroup.com/graphql-kotlin/docs/schema-generator/writing-schemas/arguments#default-values).
 
 ```kotlin
-fun optionalInput(input: OptionalInput<String>): String = when (input) {
+fun optionalInput(input: OptionalInput<String> = OptionalInput.Undefined): String = when (input) {
     is OptionalInput.Undefined -> "input was not specified"
     is OptionalInput.Defined<String> -> "input value: ${input.value}"
 }
