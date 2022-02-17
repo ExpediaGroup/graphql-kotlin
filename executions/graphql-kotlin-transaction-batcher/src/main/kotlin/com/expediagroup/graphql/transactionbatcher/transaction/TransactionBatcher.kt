@@ -47,9 +47,9 @@ class TransactionBatcher(
         transactionKey: String = input.toString(),
         triggeredPublisher: TriggeredPublisher<TInput, TOutput>
     ): CompletableFuture<TOutput> {
-        val queueKey = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class
+        val publisherClass = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class
         var future = CompletableFuture<TOutput>()
-        batch.computeIfPresent(queueKey) { _, batchEntry ->
+        batch.computeIfPresent(publisherClass) { _, batchEntry ->
             batchEntry
                 .transactions[transactionKey]
                 ?.let { matchedTransaction ->
@@ -64,7 +64,7 @@ class TransactionBatcher(
                 }
             batchEntry
         }
-        batch.computeIfAbsent(queueKey) {
+        batch.computeIfAbsent(publisherClass) {
             BatchEntryValue(
                 triggeredPublisher,
                 linkedMapOf(
