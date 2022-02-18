@@ -83,7 +83,7 @@ class TransactionBatcher(
      * Trigger concurrently and asynchronously the instances of [TriggeredPublisher] that the [batch] holds
      * at the end clear the queue
      */
-    fun dispatch() {
+    @Synchronized fun dispatch() {
         batch.values.forEach { (triggeredPublisher, transactions) ->
             triggeredPublisher.trigger(
                 transactions.map(Map.Entry<String, BatcheableTransaction<Any, Any>>::value),
