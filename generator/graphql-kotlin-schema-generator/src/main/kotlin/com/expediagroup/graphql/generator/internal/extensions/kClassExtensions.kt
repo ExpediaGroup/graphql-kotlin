@@ -39,18 +39,18 @@ private const val INPUT_SUFFIX = "Input"
 
 internal fun KClass<*>.getValidProperties(hooks: SchemaGeneratorHooks): List<KProperty<*>> =
     this.memberProperties
-        .filter { prop -> hooks.isValidProperty(this, prop) }
         .filter { prop -> propertyFilters.all { it.invoke(prop, this) } }
+        .filter { prop -> hooks.isValidProperty(this, prop) }
 
 internal fun KClass<*>.getValidFunctions(hooks: SchemaGeneratorHooks): List<KFunction<*>> =
     this.memberFunctions
-        .filter { func -> hooks.isValidFunction(this, func) }
         .filter { func -> functionFilters.all { it.invoke(func) } }
+        .filter { func -> hooks.isValidFunction(this, func) }
 
 internal fun KClass<*>.getValidSuperclasses(hooks: SchemaGeneratorHooks): List<KClass<*>> =
     this.superclasses
-        .filter { hooks.isValidSuperclass(it) }
         .filter { kClass -> superclassFilters.all { it.invoke(kClass) } }
+        .filter { hooks.isValidSuperclass(it) }
         .plus(this.superclasses.flatMap { it.getValidSuperclasses(hooks) })
         .distinct()
 

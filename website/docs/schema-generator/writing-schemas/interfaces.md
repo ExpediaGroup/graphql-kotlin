@@ -2,10 +2,10 @@
 id: interfaces
 title: Interfaces
 ---
-Any Kotlin interfaces will be mapped to a GraphQL interface. Due to the GraphQL distinction between interface and a [union type](./unions.md), Kotlin interfaces need to specify at least
-one common field (property or a function).
-
-Abstract and sealed classes will also be converted to a GraphQL interface.
+Kotlin interfaces, abstract and sealed classes will be mapped to a GraphQL interface. Due to the GraphQL distinction between interface
+and a [union type](./unions.md), Kotlin interfaces need to specify at least one common field (property or a function). Superclasses and
+interfaces can be excluded from the schema by marking them with `@GraphQLIgnore` annotation or by providing custom filtering logic in a
+custom schema generator hook.
 
 :::note
 [The GraphQL spec](http://spec.graphql.org/June2018/#sec-Interfaces) does not allow interfaces to be used as input.
@@ -91,5 +91,39 @@ class Square(sideLength: Double) : Shape(sideLength * sideLength)
 sealed class Pet(val name: String) {
     class Dog(name: String, val goodBoysReceived: Int) : Pet(name)
     class Cat(name: String, val livesRemaining: Int) : Pet(name)
+}
+```
+
+## Nested Interfaces
+
+Interfaces can implement other interfaces.
+
+```kotlin
+interface Foo {
+    val foo: String
+}
+
+interface Bar : Foo {
+    val bar: String
+}
+
+class Baz(override val foo: String, override val bar: String) : Bar
+```
+
+Code above generates following schema
+
+```graphql
+interface Foo {
+  foo: String!
+}
+
+interface Bar implements Foo {
+  bar: String!
+  foo: String!
+}
+
+type Baz implements Bar & Foo {
+  bar: String!
+  foo: String!
 }
 ```
