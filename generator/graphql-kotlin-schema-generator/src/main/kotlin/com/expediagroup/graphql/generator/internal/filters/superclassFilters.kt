@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,4 +29,4 @@ private val isInterface: SuperclassFilter = { it.isInterface() }
 private val isNotUnion: SuperclassFilter = { it.isUnion().not() }
 private val isNotIgnored: SuperclassFilter = { it.isGraphQLIgnored().not() }
 
-internal val superclassFilters: List<SuperclassFilter> = listOf(isPublic, isInterface, isNotUnion, isNotIgnored)
+internal val superclassFilters: List<SuperclassFilter> = listOf(isPublic, isNotIgnored, isInterface, isNotUnion)

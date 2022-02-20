@@ -12,6 +12,7 @@ module.exports = {
         type: 'category',
         label: 'Writing schemas with Kotlin',
         items: [
+          'schema-generator/writing-schemas/fields',
           'schema-generator/writing-schemas/nullability',
           'schema-generator/writing-schemas/arguments',
           'schema-generator/writing-schemas/scalars',
