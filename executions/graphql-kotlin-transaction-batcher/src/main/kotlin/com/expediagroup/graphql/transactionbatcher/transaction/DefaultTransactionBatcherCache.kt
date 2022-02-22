@@ -30,4 +30,6 @@ class DefaultTransactionBatcherCache : TransactionBatcherCache {
     }
 
     override fun get(key: String): Any? = cache[key]
+
+    override fun contains(key: String): Boolean = cache.containsKey(key)
 }

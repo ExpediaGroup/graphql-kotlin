@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 /**
- * Holds logic to apply batching, deduplication and caching of [BatcheableTransaction]
+ * Holds logic to apply batching, deduplication and caching of [BatchableTransaction]
  * if no [TransactionBatcherCache] implementation is provided it will use [DefaultTransactionBatcherCache]
  */
 class TransactionBatcher(
@@ -35,10 +35,10 @@ class TransactionBatcher(
         >()
 
     /**
-     * adds a transaction [input] to the batch along with the [triggeredPublisher] instance that will receive the [BatcheableTransaction]
+     * adds a transaction [input] to the batch along with the [triggeredPublisher] instance that will receive the [BatchableTransaction]
      * deduplication will be based on [transactionKey] which by default is the toString() representation of [input]
      * batching will be based on the implementation of [TriggeredPublisher]
-     * this method returns a reference to a [CompletableFuture] which is a field of the [BatcheableTransaction] that was just
+     * this method returns a reference to a [CompletableFuture] which is a field of the [BatchableTransaction] that was just
      * added into the queue
      */
     @Suppress("UNCHECKED_CAST")
@@ -56,7 +56,7 @@ class TransactionBatcher(
                     future = matchedTransaction.future as CompletableFuture<TOutput>
                 }
                 ?: run {
-                    batchEntry.transactions[transactionKey] = BatcheableTransaction(
+                    batchEntry.transactions[transactionKey] = BatchableTransaction(
                         input,
                         future as CompletableFuture<Any>,
                         transactionKey
@@ -68,7 +68,7 @@ class TransactionBatcher(
             BatchEntryValue(
                 triggeredPublisher,
                 linkedMapOf(
-                    transactionKey to BatcheableTransaction(
+                    transactionKey to BatchableTransaction(
                         input,
                         future as CompletableFuture<Any>,
                         transactionKey
@@ -86,7 +86,7 @@ class TransactionBatcher(
     @Synchronized fun dispatch() {
         batch.values.forEach { (triggeredPublisher, transactions) ->
             triggeredPublisher.trigger(
-                transactions.map(Map.Entry<String, BatcheableTransaction<Any, Any>>::value),
+                transactions.map(Map.Entry<String, BatchableTransaction<Any, Any>>::value),
                 cache
             )
         }

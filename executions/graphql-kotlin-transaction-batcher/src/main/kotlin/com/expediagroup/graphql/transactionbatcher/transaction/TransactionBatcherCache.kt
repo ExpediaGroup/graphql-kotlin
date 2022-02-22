@@ -23,4 +23,5 @@ package com.expediagroup.graphql.transactionbatcher.transaction
 interface TransactionBatcherCache {
     fun set(key: String, value: Any)
     fun get(key: String): Any?
+    fun contains(key: String): Boolean
 }

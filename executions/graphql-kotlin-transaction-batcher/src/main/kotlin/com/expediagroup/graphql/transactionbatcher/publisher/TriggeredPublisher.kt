@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.transactionbatcher.publisher
 
-import com.expediagroup.graphql.transactionbatcher.transaction.BatcheableTransaction
+import com.expediagroup.graphql.transactionbatcher.transaction.BatchableTransaction
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcherCache
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
@@ -47,27 +47,19 @@ fun interface TriggeredPublisher<TInput, TOutput> {
      * when [produce] stream completes we will complete futures from either values resolved from [cache] or from [produce]
      */
     fun trigger(
-        batcheableTransactions: List<BatcheableTransaction<TInput, TOutput>>,
+        batchableTransactions: List<BatchableTransaction<TInput, TOutput>>,
         cache: TransactionBatcherCache
     ) {
-
-        val values = batcheableTransactions.map { batcheableTransaction ->
-            cache.get(batcheableTransaction.key)
-        }
-
-        val transactionsNotInCache = values.mapIndexedNotNull { index, value ->
-            when (value) {
-                null -> batcheableTransactions.getOrNull(index)
-                else -> null
-            }
-        }
+        val transactionsNotInCache = batchableTransactions
+            .filterNot { transaction -> cache.contains(transaction.key) }
+            .map(BatchableTransaction<TInput, TOutput>::input)
 
         produce(
-            transactionsNotInCache.map(BatcheableTransaction<TInput, TOutput>::input)
+            transactionsNotInCache
         ).subscribe(
             object : Subscriber<TOutput> {
                 private lateinit var subscription: Subscription
-                private val results = mutableListOf<TOutput>()
+                private val transactionResults = mutableListOf<TOutput>()
 
                 override fun onSubscribe(subscription: Subscription) {
                     this.subscription = subscription
@@ -75,7 +67,7 @@ fun interface TriggeredPublisher<TInput, TOutput> {
                 }
 
                 override fun onNext(result: TOutput) {
-                    results += result
+                    transactionResults += result
                     this.subscription.request(1)
                 }
 
@@ -84,14 +76,16 @@ fun interface TriggeredPublisher<TInput, TOutput> {
                 }
 
                 override fun onComplete() {
-                    var resultsCounter = 0
-                    values.forEachIndexed { index, value ->
-                        value?.let {
-                            batcheableTransactions[index].future.complete(value as TOutput)
+                    val cachedTransactionResults = batchableTransactions.map { transaction -> cache.get(transaction.key) }
+                    val transactionResultsIterator = transactionResults.iterator()
+
+                    cachedTransactionResults.forEachIndexed { index, cachedTransactionResult ->
+                        cachedTransactionResult?.let {
+                            batchableTransactions[index].future.complete(cachedTransactionResult as TOutput)
                         } ?: run {
-                            val result = results[resultsCounter++]
-                            cache.set(batcheableTransactions[index].key, result as Any)
-                            batcheableTransactions[index].future.complete(result)
+                            val transactionResult = transactionResultsIterator.next()
+                            batchableTransactions[index].future.complete(transactionResult)
+                            cache.set(batchableTransactions[index].key, transactionResult as Any)
                         }
                     }
                 }

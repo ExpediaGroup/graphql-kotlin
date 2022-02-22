@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture
  * that will be resolved asynchronously at later point in time by using [input] as source
  * it supports deduplication by using the [key] field
  */
-data class BatcheableTransaction<TInput, TOutput>(
+data class BatchableTransaction<TInput, TOutput>(
     val input: TInput,
     val future: CompletableFuture<TOutput>,
     val key: String
