@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.transactionbatcher.transaction
 
 import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
+import com.expediagroup.graphql.transactionbatcher.transaction.cache.DefaultTransactionBatcherCache
+import com.expediagroup.graphql.transactionbatcher.transaction.cache.TransactionBatcherCache
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass

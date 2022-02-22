@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.transaction
-
-import java.util.concurrent.ConcurrentHashMap
+package com.expediagroup.graphql.transactionbatcher.transaction.cache
 
 /**
- * Default implementation of [TransactionBatcherCache] using an in memory [cache]
- * without eviction
+ * Interface that allows any cache implementation that can be used by the TransactionBatcher
+ * by default will use [DefaultTransactionBatcherCache]
  */
-class DefaultTransactionBatcherCache : TransactionBatcherCache {
-    private val cache = ConcurrentHashMap<String, Any>()
-
-    override fun set(key: String, value: Any) {
-        cache[key] = value
-    }
-
-    override fun get(key: String): Any? = cache[key]
-
-    override fun contains(key: String): Boolean = cache.containsKey(key)
+interface TransactionBatcherCache {
+    fun set(key: String, value: Any)
+    fun get(key: String): Any?
+    fun contains(key: String): Boolean
 }

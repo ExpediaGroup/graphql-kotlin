@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.transactionbatcher.publisher
 
 import com.expediagroup.graphql.transactionbatcher.transaction.BatchableTransaction
-import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcherCache
+import com.expediagroup.graphql.transactionbatcher.transaction.cache.TransactionBatcherCache
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -76,17 +76,12 @@ fun interface TriggeredPublisher<TInput, TOutput> {
                 }
 
                 override fun onComplete() {
-                    val cachedTransactionResults = batchableTransactions.map { transaction -> cache.get(transaction.key) }
-                    val transactionResultsIterator = transactionResults.iterator()
-
-                    cachedTransactionResults.forEachIndexed { index, cachedTransactionResult ->
-                        cachedTransactionResult?.let {
-                            batchableTransactions[index].future.complete(cachedTransactionResult as TOutput)
-                        } ?: run {
-                            val transactionResult = transactionResultsIterator.next()
-                            batchableTransactions[index].future.complete(transactionResult)
-                            cache.set(batchableTransactions[index].key, transactionResult as Any)
+                    val resultsIterator = transactionResults.iterator()
+                    batchableTransactions.forEach { transaction ->
+                        val result = cache.get(transaction.key) as? TOutput ?: resultsIterator.next().also { result ->
+                            cache.set(transaction.key, result as Any)
                         }
+                        transaction.future.complete(result)
                     }
                 }
             }
