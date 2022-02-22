@@ -87,10 +87,7 @@ class TransactionBatcher(
      */
     @Synchronized fun dispatch() {
         batch.values.forEach { (triggeredPublisher, transactions) ->
-            triggeredPublisher.trigger(
-                transactions.map(Map.Entry<String, BatchableTransaction<Any, Any>>::value),
-                cache
-            )
+            triggeredPublisher.trigger(transactions.values.toList(), cache)
         }
         batch.clear()
     }
