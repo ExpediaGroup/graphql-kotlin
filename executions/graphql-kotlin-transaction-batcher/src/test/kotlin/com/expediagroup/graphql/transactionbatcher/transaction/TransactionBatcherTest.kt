@@ -32,6 +32,27 @@ class TransactionBatcherTest {
         val transactionBatcher = TransactionBatcher()
 
         val astronautService = AstronautService(transactionBatcher)
+        val astronautRequest1 = AstronautServiceRequest(1)
+        val astronautRequest2 = AstronautServiceRequest(2)
+        val astronauts = mutableListOf<Astronaut>()
+
+        listOf(astronautRequest1, astronautRequest2).toFlux()
+            .flatMapSequential(astronautService::getAstronaut)
+            .collectList()
+            .subscribe(astronauts::addAll)
+
+        transactionBatcher.dispatch()
+        Thread.sleep(1000)
+
+        assertEquals("Buzz Aldrin", astronauts[0].name)
+        assertEquals("William Anders", astronauts[1].name)
+    }
+
+    @Test
+    fun `TransactionBatcher should batch multiple transaction types`() {
+        val transactionBatcher = TransactionBatcher()
+
+        val astronautService = AstronautService(transactionBatcher)
         val astronautRequest1 = AstronautServiceRequest(3)
         val astronautRequest2 = AstronautServiceRequest(2)
         val astronautRequest3 = AstronautServiceRequest(1)
