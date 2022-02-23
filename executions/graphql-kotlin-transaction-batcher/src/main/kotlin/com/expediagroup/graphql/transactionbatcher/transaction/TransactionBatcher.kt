@@ -52,15 +52,14 @@ class TransactionBatcher(
         val publisherClass = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class
         var future = CompletableFuture<TOutput>()
         batch.computeIfPresent(publisherClass) { _, publisherTransactions ->
-            publisherTransactions.transactions.computeIfAbsent(transactionKey) {
+            val transaction = publisherTransactions.transactions.computeIfAbsent(transactionKey) {
                 BatchableTransaction(
                     input,
                     future as CompletableFuture<Any>,
                     transactionKey
                 )
-            }.also { transaction ->
-                future = transaction.future as CompletableFuture<TOutput>
             }
+            future = transaction.future as CompletableFuture<TOutput>
             publisherTransactions
         }
         batch.computeIfAbsent(publisherClass) {
