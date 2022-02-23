@@ -33,7 +33,7 @@ class TransactionBatcher(
 
     val batch = ConcurrentHashMap<
         KClass<out TriggeredPublisher<Any, Any>>,
-        BatchEntryValue
+        TriggeredPublisherTransactions
         >()
 
     /**
@@ -51,23 +51,20 @@ class TransactionBatcher(
     ): CompletableFuture<TOutput> {
         val publisherClass = (triggeredPublisher as TriggeredPublisher<Any, Any>)::class
         var future = CompletableFuture<TOutput>()
-        batch.computeIfPresent(publisherClass) { _, batchEntry ->
-            batchEntry
-                .transactions[transactionKey]
-                ?.let { matchedTransaction ->
-                    future = matchedTransaction.future as CompletableFuture<TOutput>
-                }
-                ?: run {
-                    batchEntry.transactions[transactionKey] = BatchableTransaction(
-                        input,
-                        future as CompletableFuture<Any>,
-                        transactionKey
-                    )
-                }
-            batchEntry
+        batch.computeIfPresent(publisherClass) { _, publisherTransactions ->
+            publisherTransactions.transactions.computeIfAbsent(transactionKey) {
+                BatchableTransaction(
+                    input,
+                    future as CompletableFuture<Any>,
+                    transactionKey
+                )
+            }.also { transaction ->
+                future = transaction.future as CompletableFuture<TOutput>
+            }
+            publisherTransactions
         }
         batch.computeIfAbsent(publisherClass) {
-            BatchEntryValue(
+            TriggeredPublisherTransactions(
                 triggeredPublisher,
                 linkedMapOf(
                     transactionKey to BatchableTransaction(

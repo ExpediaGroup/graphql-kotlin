@@ -22,7 +22,7 @@ import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
  * Type for [TransactionBatcher.batch] value, storing the [triggeredPublisher] instance
  * and the [transactions] that need to be executed by it
  */
-data class BatchEntryValue(
+data class TriggeredPublisherTransactions(
     val triggeredPublisher: TriggeredPublisher<Any, Any>,
     val transactions: LinkedHashMap<String, BatchableTransaction<Any, Any>>
 )
