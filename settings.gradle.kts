@@ -50,6 +50,9 @@ include(":graphql-kotlin-federated-hooks-provider")
 include(":graphql-kotlin-server")
 include(":graphql-kotlin-spring-server")
 
+// Executions
+include(":graphql-kotlin-transaction-batcher")
+
 //
 // Project mappings so we don't need to create projects that group subprojects
 //
@@ -76,3 +79,6 @@ project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/s
 // Servers
 project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
 project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotlin-spring-server")
+
+// Executions
+project(":graphql-kotlin-transaction-batcher").projectDir = file("executions/graphql-kotlin-transaction-batcher")
