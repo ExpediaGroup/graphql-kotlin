@@ -18,7 +18,6 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafe
 
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.schema.DataFetchingEnvironment
-import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration

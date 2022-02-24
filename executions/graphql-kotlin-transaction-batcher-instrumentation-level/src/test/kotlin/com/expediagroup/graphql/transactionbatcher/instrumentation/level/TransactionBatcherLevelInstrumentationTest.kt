@@ -8,7 +8,6 @@ import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.E
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.ExecutionInput
 import graphql.GraphQL
-import graphql.schema.DataFetcher
 import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
@@ -61,14 +60,14 @@ class TransactionBatcherLevelInstrumentationTest {
     fun `Instrumentation should batch and dispatch transaction`() {
         val graphQL = GraphQL
             .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-            .instrumentation(TransactionBatcherByLevelInstrumentation())
+            .instrumentation(TransactionBatcherLevelInstrumentation())
             .build()
 
         val queries = listOf(
-            "query { astronaut(id: 1) { id name } }",
-            "query { astronaut(id: 2) { id name } }",
-            "query { mission(id: 3) { id designation } }",
-            "query { mission(id: 4) { id designation } }"
+            "{ astronaut(id: 1) { id name } }",
+            "{ astronaut(id: 2) { id name } }",
+            "{ mission(id: 3) { id designation } }",
+            "{ mission(id: 4) { id designation } }"
         )
 
         val graphQLContext = mapOf(
@@ -85,15 +84,15 @@ class TransactionBatcherLevelInstrumentationTest {
                 }
             ).collectList()
         ).expectNextMatches { results ->
-             results.size == queries.size &&
-                 astronautService.getAstronautCallCount.get() == 2 &&
-                 astronautService.produceArguments.size == 1 &&
-                 astronautService.produceArguments[0][0].id == 1 &&
-                 astronautService.produceArguments[0][1].id == 2 &&
-                 missionService.getMissionCallCount.get() == 2 &&
-                 missionService.produceArguments.size == 1 &&
-                 missionService.produceArguments[0][0].id == 3 &&
-                 missionService.produceArguments[0][1].id == 4
+            results.size == queries.size &&
+                astronautService.getAstronautCallCount.get() == 2 &&
+                astronautService.produceArguments.size == 1 &&
+                astronautService.produceArguments[0][0].id == 1 &&
+                astronautService.produceArguments[0][1].id == 2 &&
+                missionService.getMissionCallCount.get() == 2 &&
+                missionService.produceArguments.size == 1 &&
+                missionService.produceArguments[0][0].id == 3 &&
+                missionService.produceArguments[0][1].id == 4
         }.verifyComplete()
     }
 }
