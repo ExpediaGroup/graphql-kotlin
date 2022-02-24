@@ -52,6 +52,7 @@ include(":graphql-kotlin-spring-server")
 
 // Executions
 include(":graphql-kotlin-transaction-batcher")
+include(":graphql-kotlin-transaction-batcher-instrumentation-level")
 
 //
 // Project mappings so we don't need to create projects that group subprojects
@@ -82,3 +83,4 @@ project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotl
 
 // Executions
 project(":graphql-kotlin-transaction-batcher").projectDir = file("executions/graphql-kotlin-transaction-batcher")
+project(":graphql-kotlin-transaction-batcher-instrumentation-level").projectDir = file("executions/graphql-kotlin-transaction-batcher-instrumentation-level")
