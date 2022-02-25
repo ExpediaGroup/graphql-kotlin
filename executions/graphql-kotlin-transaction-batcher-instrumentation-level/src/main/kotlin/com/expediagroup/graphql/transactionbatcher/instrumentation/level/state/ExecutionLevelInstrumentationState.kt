@@ -108,11 +108,11 @@ class ExecutionLevelInstrumentationState(
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-                val dispatchNeeded = synchronized(callstacks) {
+                val isLevelReady = synchronized(callstacks) {
                     callstacks[executionInput]?.increaseHappenedFetchCount(level)
                     allExecutionsDispatched(level)
                 }
-                if (dispatchNeeded) {
+                if (isLevelReady) {
                     executionLevelContext.onLevelReady(level)
                 }
             }
