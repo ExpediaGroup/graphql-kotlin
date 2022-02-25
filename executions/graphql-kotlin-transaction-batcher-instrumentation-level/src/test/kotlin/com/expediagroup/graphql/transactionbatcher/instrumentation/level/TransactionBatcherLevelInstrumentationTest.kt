@@ -12,10 +12,12 @@ import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeRuntimeWiring
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import reactor.core.publisher.Flux
-import reactor.kotlin.core.publisher.toMono
-import reactor.test.StepVerifier
+import kotlin.test.assertEquals
 
 class TransactionBatcherLevelInstrumentationTest {
     private val schema = """
@@ -75,24 +77,26 @@ class TransactionBatcherLevelInstrumentationTest {
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
-        StepVerifier.create(
-            Flux.mergeSequential(
-                queries.map { query ->
+        runBlocking {
+            val results = queries.map { query ->
+                async {
                     graphQL.executeAsync(
                         ExecutionInput.Builder().graphQLContext(graphQLContext).query(query).build()
-                    ).toMono()
+                    ).await()
                 }
-            ).collectList()
-        ).expectNextMatches { results ->
-            results.size == queries.size &&
-                astronautService.getAstronautCallCount.get() == 2 &&
-                astronautService.produceArguments.size == 1 &&
-                astronautService.produceArguments[0][0].id == 1 &&
-                astronautService.produceArguments[0][1].id == 2 &&
-                missionService.getMissionCallCount.get() == 2 &&
-                missionService.produceArguments.size == 1 &&
-                missionService.produceArguments[0][0].id == 3 &&
-                missionService.produceArguments[0][1].id == 4
-        }.verifyComplete()
+            }.awaitAll()
+
+            assertEquals(4, results.size)
+
+            assertEquals(2, astronautService.getAstronautCallCount.get())
+            assertEquals(1, astronautService.produceArguments.size)
+            assertEquals(1, astronautService.produceArguments[0][0].id)
+            assertEquals(2, astronautService.produceArguments[0][1].id)
+
+            assertEquals(2, missionService.getMissionCallCount.get())
+            assertEquals(1, missionService.produceArguments.size)
+            assertEquals(3, missionService.produceArguments[0][0].id)
+            assertEquals(4, missionService.produceArguments[0][1].id)
+        }
     }
 }
