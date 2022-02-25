@@ -79,7 +79,7 @@ class TransactionBatcherLevelInstrumentationTest {
             val results = queries.map { query ->
                 async {
                     graphQL.executeAsync(
-                        ExecutionInput.Builder().graphQLContext(graphQLContext).query(query).build()
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
                     ).await()
                 }
             }.awaitAll()
