@@ -40,14 +40,12 @@ class AstronautService {
         return environment
             .graphQlContext
             .get<TransactionBatcher>(TransactionBatcher::class)
-            .batch(request) { input: List<AstronautServiceRequest> ->
-                produceArguments.add(input)
-                input.toFlux().flatMapSequential { request ->
-                    { astronauts[request.id] }
-                        .toMono()
-                        .flatMap { (astronaut, delay) ->
-                            astronaut.toMono().delayElement(delay)
-                        }
+            .batch(request) { requests: List<AstronautServiceRequest> ->
+                produceArguments += requests
+                requests.toFlux().flatMapSequential { request ->
+                    astronauts[request.id].toMono().flatMap { (astronaut, delay) ->
+                        astronaut.toMono().delayElement(delay)
+                    }
                 }
             }
     }

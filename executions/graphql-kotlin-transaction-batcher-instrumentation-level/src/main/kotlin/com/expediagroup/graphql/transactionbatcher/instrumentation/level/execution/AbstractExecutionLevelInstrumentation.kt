@@ -29,7 +29,9 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginExecutionStrategy(
                 parameters,
-                this.beginExecuteOperationLevel(ExecutionLevelInstrumentationParameters(parameters.executionContext))
+                this.beginExecutionLevel(
+                    ExecutionLevelInstrumentationParameters(parameters.executionContext)
+                )
             )
             ?: object : ExecutionStrategyInstrumentationContext {
                 override fun onDispatched(result: CompletableFuture<ExecutionResult>) {
@@ -46,7 +48,7 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.beginExecuteOperationLevel(ExecutionLevelInstrumentationParameters(parameters.executionContext))
+                this.beginExecutionLevel(ExecutionLevelInstrumentationParameters(parameters.executionContext))
             )
             ?: SimpleInstrumentationContext.noOp()
 }

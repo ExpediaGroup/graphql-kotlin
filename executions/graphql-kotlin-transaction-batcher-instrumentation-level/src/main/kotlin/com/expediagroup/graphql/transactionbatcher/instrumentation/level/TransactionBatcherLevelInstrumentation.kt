@@ -7,11 +7,11 @@ import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.L
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 
 class TransactionBatcherLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
-    override fun beginExecuteOperationLevel(
+    override fun beginExecutionLevel(
         parameters: ExecutionLevelInstrumentationParameters
     ): ExecutionLevelInstrumentationContext =
         object : ExecutionLevelInstrumentationContext {
-            override fun onLevelReady(level: Level) {
+            override fun onLevelDispatched(level: Level) {
                 parameters
                     .executionContext
                     .graphQLContext.get<TransactionBatcher>(TransactionBatcher::class)

@@ -3,7 +3,7 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.level.execut
 import graphql.execution.instrumentation.Instrumentation
 
 interface ExecutionLevelInstrumentation : Instrumentation {
-    fun beginExecuteOperationLevel(
+    fun beginExecutionLevel(
         parameters: ExecutionLevelInstrumentationParameters
     ): ExecutionLevelInstrumentationContext
 }

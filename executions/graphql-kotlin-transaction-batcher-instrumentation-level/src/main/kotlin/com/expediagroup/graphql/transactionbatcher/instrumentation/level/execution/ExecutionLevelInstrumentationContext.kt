@@ -3,5 +3,5 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.level.execut
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.Level
 
 interface ExecutionLevelInstrumentationContext {
-    fun onLevelReady(level: Level)
+    fun onLevelDispatched(level: Level)
 }

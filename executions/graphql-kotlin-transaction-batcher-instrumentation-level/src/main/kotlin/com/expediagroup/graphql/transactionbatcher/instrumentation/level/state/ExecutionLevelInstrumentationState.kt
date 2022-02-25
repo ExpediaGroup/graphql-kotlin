@@ -60,7 +60,7 @@ class ExecutionLevelInstrumentationState(
                     allExecutionsDispatched(nextLevel)
                 }
                 if (isLevelReady) {
-                    executionLevelContext.onLevelReady(nextLevel)
+                    executionLevelContext.onLevelDispatched(nextLevel)
                 }
             }
 
@@ -113,7 +113,7 @@ class ExecutionLevelInstrumentationState(
                     allExecutionsDispatched(level)
                 }
                 if (isLevelReady) {
-                    executionLevelContext.onLevelReady(level)
+                    executionLevelContext.onLevelDispatched(level)
                 }
             }
 
