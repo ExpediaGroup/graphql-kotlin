@@ -42,14 +42,13 @@ class MissionService {
             .get<TransactionBatcher>(TransactionBatcher::class)
             .batch(request) { input: List<MissionServiceRequest> ->
                 produceArguments.add(input)
-                input.toFlux()
-                    .flatMapSequential { request ->
-                        { missions[request.id] }
-                            .toMono()
-                            .flatMap { (astronaut, delay) ->
-                                astronaut.toMono().delayElement(delay)
-                            }
-                    }
+                input.toFlux().flatMapSequential { request ->
+                    { missions[request.id] }
+                        .toMono()
+                        .flatMap { (astronaut, delay) ->
+                            astronaut.toMono().delayElement(delay)
+                        }
+                }
             }
     }
 

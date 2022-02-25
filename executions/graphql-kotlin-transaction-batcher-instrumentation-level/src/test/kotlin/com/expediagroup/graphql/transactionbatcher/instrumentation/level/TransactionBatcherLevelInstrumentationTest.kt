@@ -42,34 +42,32 @@ class TransactionBatcherLevelInstrumentationTest {
         type(
             TypeRuntimeWiring.newTypeWiring("Query")
                 .dataFetcher("astronaut") { environment ->
-                    astronautService
-                        .getAstronaut(
-                            AstronautServiceRequest(environment.getArgument<String>("id").toInt()),
-                            environment
-                        )
+                    astronautService.getAstronaut(
+                        AstronautServiceRequest(environment.getArgument<String>("id").toInt()),
+                        environment
+                    )
                 }
                 .dataFetcher("mission") { environment ->
-                    missionService
-                        .getMission(
-                            MissionServiceRequest(environment.getArgument<String>("id").toInt()),
-                            environment
-                        )
+                    missionService.getMission(
+                        MissionServiceRequest(environment.getArgument<String>("id").toInt()),
+                        environment
+                    )
                 }
         )
     }.build()
 
+    private val graphQL = GraphQL
+        .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
+        .instrumentation(TransactionBatcherLevelInstrumentation())
+        .build()
+
     @Test
     fun `Instrumentation should batch and dispatch transaction`() {
-        val graphQL = GraphQL
-            .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-            .instrumentation(TransactionBatcherLevelInstrumentation())
-            .build()
-
         val queries = listOf(
-            "{ astronaut(id: 1) { id name } }",
+            "{ astronaut(id: 1) { name } }",
             "{ astronaut(id: 2) { id name } }",
             "{ mission(id: 3) { id designation } }",
-            "{ mission(id: 4) { id designation } }"
+            "{ mission(id: 4) { designation } }"
         )
 
         val graphQLContext = mapOf(
