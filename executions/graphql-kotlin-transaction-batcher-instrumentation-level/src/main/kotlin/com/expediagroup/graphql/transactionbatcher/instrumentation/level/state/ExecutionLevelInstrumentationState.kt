@@ -37,8 +37,8 @@ class ExecutionLevelInstrumentationState(
         val fieldCount = parameters.executionStrategyParameters.fields.size()
 
         synchronized(callstacks) {
-            callstacks[executionInput]?.increaseExpectedFetchCount(level, fieldCount)
-            callstacks[executionInput]?.increaseHappenedStrategyCalls(level)
+            callstacks[executionInput]?.increaseExpectedFetches(level, fieldCount)
+            callstacks[executionInput]?.increaseHappenedExecutionStrategies(level)
         }
 
         return object : ExecutionStrategyInstrumentationContext {
@@ -51,9 +51,9 @@ class ExecutionLevelInstrumentationState(
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
                 val isLevelReady = synchronized(callstacks) {
-                    callstacks[executionInput]?.increaseHappenedOnFieldValueCalls(level)
+                    callstacks[executionInput]?.increaseHappenedOnFieldValueInfos(level)
                     val expectedStrategyCallsForNextLevel = getExpectedStrategyCalls(fieldValueInfoList)
-                    callstacks[executionInput]?.increaseExpectedStrategyCalls(
+                    callstacks[executionInput]?.increaseExpectedExecutionStrategies(
                         nextLevel,
                         expectedStrategyCallsForNextLevel
                     )
@@ -66,7 +66,7 @@ class ExecutionLevelInstrumentationState(
 
             override fun onFieldValuesException() {
                 synchronized(callstacks) {
-                    callstacks[executionInput]?.increaseHappenedOnFieldValueCalls(level)
+                    callstacks[executionInput]?.increaseHappenedOnFieldValueInfos(level)
                 }
             }
         }
@@ -109,7 +109,7 @@ class ExecutionLevelInstrumentationState(
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
                 val isLevelReady = synchronized(callstacks) {
-                    callstacks[executionInput]?.increaseHappenedFetchCount(level)
+                    callstacks[executionInput]?.increaseHappenedFetches(level)
                     allExecutionsDispatched(level)
                 }
                 if (isLevelReady) {
@@ -140,8 +140,8 @@ class ExecutionLevelInstrumentationState(
             level.isFirst() -> callstack.allFetchesHappened(level)
             else -> {
                 isLevelDispatched(callstack, level.previous()) &&
-                    callstack.allOnFieldCallsHappened(level.previous()) &&
-                    callstack.allStrategyCallsHappened(level) &&
+                    callstack.allOnFieldValuesInfosHappened(level.previous()) &&
+                    callstack.allExecutionStrategiesHappened(level) &&
                     callstack.allFetchesHappened(level)
             }
         }.also { isLevelDispatched ->
