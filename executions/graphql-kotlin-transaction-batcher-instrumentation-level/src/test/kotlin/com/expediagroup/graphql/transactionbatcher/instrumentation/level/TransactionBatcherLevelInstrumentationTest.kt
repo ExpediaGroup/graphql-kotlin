@@ -87,14 +87,14 @@ class TransactionBatcherLevelInstrumentationTest {
             assertEquals(4, results.size)
 
             assertEquals(2, astronautService.getAstronautCallCount.get())
-            assertEquals(1, astronautService.produceArguments.size)
-            assertEquals(1, astronautService.produceArguments[0][0].id)
-            assertEquals(2, astronautService.produceArguments[0][1].id)
+            assertEquals(1, astronautService.batchArguments.size)
+            assertEquals(1, astronautService.batchArguments[0][0].id)
+            assertEquals(2, astronautService.batchArguments[0][1].id)
 
             assertEquals(2, missionService.getMissionCallCount.get())
-            assertEquals(1, missionService.produceArguments.size)
-            assertEquals(3, missionService.produceArguments[0][0].id)
-            assertEquals(4, missionService.produceArguments[0][1].id)
+            assertEquals(1, missionService.batchArguments.size)
+            assertEquals(3, missionService.batchArguments[0][0].id)
+            assertEquals(4, missionService.batchArguments[0][1].id)
         }
     }
 }

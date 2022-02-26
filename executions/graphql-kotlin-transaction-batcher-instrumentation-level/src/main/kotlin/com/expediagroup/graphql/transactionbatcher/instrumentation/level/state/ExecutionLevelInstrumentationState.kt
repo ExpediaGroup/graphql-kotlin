@@ -1,6 +1,9 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.level.state
 
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution.ExecutionLevelInstrumentationContext
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.extensions.getDocumentHeight
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.extensions.getExpectedStrategyCalls
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.extensions.synchronizeIfPresent
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.execution.FieldValueInfo
@@ -16,15 +19,14 @@ import java.util.concurrent.ConcurrentHashMap
 class ExecutionLevelInstrumentationState(
     private val totalExecutions: Int
 ) {
-    val callstacks = ConcurrentHashMap<ExecutionInput, ExecutionCallstack>()
+    val executions = ConcurrentHashMap<ExecutionInput, ExecutionState>()
 
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> {
-        if (!callstacks.contains(parameters.executionContext.executionInput)) {
-            val height = DocumentHeightCalculator.calculate(parameters.executionContext)
-            callstacks[parameters.executionContext.executionInput] = ExecutionCallstack(height)
-        }
+        executions[parameters.executionContext.executionInput] = ExecutionState(
+            parameters.executionContext.getDocumentHeight()
+        )
         return SimpleInstrumentationContext.noOp()
     }
 
@@ -36,9 +38,9 @@ class ExecutionLevelInstrumentationState(
         val level = Level(parameters.executionStrategyParameters.path.level + 1)
         val fieldCount = parameters.executionStrategyParameters.fields.size()
 
-        synchronized(callstacks) {
-            callstacks[executionInput]?.increaseExpectedFetches(level, fieldCount)
-            callstacks[executionInput]?.increaseHappenedExecutionStrategies(level)
+        executions.synchronizeIfPresent(executionInput) { callstack ->
+            callstack.increaseExpectedFetches(level, fieldCount)
+            callstack.increaseHappenedExecutionStrategies(level)
         }
 
         return object : ExecutionStrategyInstrumentationContext {
@@ -50,52 +52,25 @@ class ExecutionLevelInstrumentationState(
 
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
-                val isLevelReady = synchronized(callstacks) {
-                    callstacks[executionInput]?.increaseHappenedOnFieldValueInfos(level)
-                    val expectedStrategyCallsForNextLevel = getExpectedStrategyCalls(fieldValueInfoList)
-                    callstacks[executionInput]?.increaseExpectedExecutionStrategies(
+                val isLevelDispatched = executions.synchronizeIfPresent(executionInput) { executionState ->
+                    executionState.increaseHappenedOnFieldValueInfos(level)
+                    executionState.increaseExpectedExecutionStrategies(
                         nextLevel,
-                        expectedStrategyCallsForNextLevel
+                        fieldValueInfoList.getExpectedStrategyCalls()
                     )
                     allExecutionsDispatched(nextLevel)
                 }
-                if (isLevelReady) {
+                if (isLevelDispatched == true) {
                     executionLevelContext.onLevelDispatched(nextLevel)
                 }
             }
 
             override fun onFieldValuesException() {
-                synchronized(callstacks) {
-                    callstacks[executionInput]?.increaseHappenedOnFieldValueInfos(level)
+                executions.synchronizeIfPresent(executionInput) { executionState ->
+                    executionState.increaseHappenedOnFieldValueInfos(level)
                 }
             }
         }
-    }
-
-    private fun getExpectedStrategyCalls(fieldValueInfoList: List<FieldValueInfo>): Int {
-        var count = 0
-        fieldValueInfoList.forEach { fieldValueInfo ->
-            when (fieldValueInfo.completeValueType) {
-                FieldValueInfo.CompleteValueType.OBJECT -> count++
-                FieldValueInfo.CompleteValueType.LIST -> count += getFieldCount(fieldValueInfo.fieldValueInfos)
-                else -> {
-                }
-            }
-        }
-        return count
-    }
-
-    private fun getFieldCount(fieldValueInfos: List<FieldValueInfo>): Int {
-        var count = 0
-        fieldValueInfos.forEach { fieldValueInfo ->
-            when (fieldValueInfo.completeValueType) {
-                FieldValueInfo.CompleteValueType.OBJECT -> count++
-                FieldValueInfo.CompleteValueType.LIST -> count += getFieldCount(fieldValueInfo.fieldValueInfos)
-                else -> {
-                }
-            }
-        }
-        return count
     }
 
     fun beginFieldFetch(
@@ -108,11 +83,11 @@ class ExecutionLevelInstrumentationState(
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-                val isLevelReady = synchronized(callstacks) {
-                    callstacks[executionInput]?.increaseHappenedFetches(level)
+                val isLevelDispatched = executions.synchronizeIfPresent(executionInput) { callstack ->
+                    callstack.increaseHappenedFetches(level)
                     allExecutionsDispatched(level)
                 }
-                if (isLevelReady) {
+                if (isLevelDispatched == true) {
                     executionLevelContext.onLevelDispatched(level)
                 }
             }
@@ -123,30 +98,10 @@ class ExecutionLevelInstrumentationState(
     }
 
     private fun allExecutionsDispatched(level: Level): Boolean =
-        when (callstacks.size) {
-            totalExecutions -> {
-                callstacks
-                    .filter { (_, callstack) -> callstack.containsLevel(level) }
-                    .takeIf { callstacksWithSameLevel -> callstacksWithSameLevel.isNotEmpty() }
-                    ?.all { (_, callstack) -> isLevelDispatched(callstack, level) }
-                    ?: false
-            }
-            else -> false
-        }
-
-    private fun isLevelDispatched(callstack: ExecutionCallstack, level: Level): Boolean =
-        when {
-            callstack.isLevelDispatched(level) -> true
-            level.isFirst() -> callstack.allFetchesHappened(level)
-            else -> {
-                isLevelDispatched(callstack, level.previous()) &&
-                    callstack.allOnFieldValuesInfosHappened(level.previous()) &&
-                    callstack.allExecutionStrategiesHappened(level) &&
-                    callstack.allFetchesHappened(level)
-            }
-        }.also { isLevelDispatched ->
-            if (isLevelDispatched) {
-                callstack.markLevelAsDispatched(level)
-            }
-        }
+        executions
+            .takeIf { callstacks -> callstacks.size == totalExecutions }
+            ?.filter { (_, callstack) -> callstack.contains(level) }
+            ?.takeIf { callstacksWithSameLevel -> callstacksWithSameLevel.isNotEmpty() }
+            ?.all { (_, callstack) -> callstack.isLevelDispatched(level) }
+            ?: false
 }

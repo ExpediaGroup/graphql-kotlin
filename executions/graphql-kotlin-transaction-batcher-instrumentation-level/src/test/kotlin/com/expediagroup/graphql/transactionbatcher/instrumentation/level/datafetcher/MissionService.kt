@@ -29,7 +29,7 @@ data class Mission(val id: Int, val designation: String, val crew: List<Int>)
 
 class MissionService {
 
-    val produceArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
+    val batchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
     val getMissionCallCount: AtomicInteger = AtomicInteger(0)
 
     fun getMission(
@@ -41,7 +41,7 @@ class MissionService {
             .graphQlContext
             .get<TransactionBatcher>(TransactionBatcher::class)
             .batch(request) { requests: List<MissionServiceRequest> ->
-                produceArguments += requests
+                batchArguments += requests
                 requests.toFlux().flatMapSequential { request ->
                     missions[request.id].toMono().flatMap { (astronaut, delay) ->
                         astronaut.toMono().delayElement(delay)
