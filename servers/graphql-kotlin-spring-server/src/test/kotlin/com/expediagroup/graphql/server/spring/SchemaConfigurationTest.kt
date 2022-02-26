@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
@@ -68,11 +67,6 @@ class SchemaConfigurationTest {
                 assertThat(ctx).hasSingleBean(ObjectMapper::class.java)
                 val mapper = ctx.getBean(ObjectMapper::class.java)
                 assertThat(ctx).hasSingleBean(KotlinDataFetcherFactoryProvider::class.java)
-                val dataFetcherFactoryProvider = ctx.getBean(KotlinDataFetcherFactoryProvider::class.java)
-                val privateMapperField = SimpleKotlinDataFetcherFactoryProvider::class.java.getDeclaredField("objectMapper")
-                privateMapperField.isAccessible = true
-                val privateMapper = privateMapperField.get(dataFetcherFactoryProvider)
-                assertEquals(mapper, privateMapper)
 
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 val schema = ctx.getBean(GraphQLSchema::class.java)
