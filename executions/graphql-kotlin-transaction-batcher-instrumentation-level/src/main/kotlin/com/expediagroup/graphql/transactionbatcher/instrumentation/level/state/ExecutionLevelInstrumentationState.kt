@@ -38,9 +38,9 @@ class ExecutionLevelInstrumentationState(
         val level = Level(parameters.executionStrategyParameters.path.level + 1)
         val fieldCount = parameters.executionStrategyParameters.fields.size()
 
-        executions.synchronizeIfPresent(executionInput) { callstack ->
-            callstack.increaseExpectedFetches(level, fieldCount)
-            callstack.increaseHappenedExecutionStrategies(level)
+        executions.synchronizeIfPresent(executionInput) { executionState ->
+            executionState.increaseExpectedFetches(level, fieldCount)
+            executionState.increaseHappenedExecutionStrategies(level)
         }
 
         return object : ExecutionStrategyInstrumentationContext {
@@ -52,7 +52,7 @@ class ExecutionLevelInstrumentationState(
 
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
-                val isLevelDispatched = executions.synchronizeIfPresent(executionInput) { executionState ->
+                val allExecutionsDispatched = executions.synchronizeIfPresent(executionInput) { executionState ->
                     executionState.increaseHappenedOnFieldValueInfos(level)
                     executionState.increaseExpectedExecutionStrategies(
                         nextLevel,
@@ -60,7 +60,7 @@ class ExecutionLevelInstrumentationState(
                     )
                     allExecutionsDispatched(nextLevel)
                 }
-                if (isLevelDispatched == true) {
+                if (allExecutionsDispatched == true) {
                     executionLevelContext.onLevelDispatched(nextLevel)
                 }
             }
@@ -83,11 +83,11 @@ class ExecutionLevelInstrumentationState(
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-                val isLevelDispatched = executions.synchronizeIfPresent(executionInput) { callstack ->
-                    callstack.increaseHappenedFetches(level)
+                val allExecutionsDispatched = executions.synchronizeIfPresent(executionInput) { executionState ->
+                    executionState.increaseHappenedFetches(level)
                     allExecutionsDispatched(level)
                 }
-                if (isLevelDispatched == true) {
+                if (allExecutionsDispatched == true) {
                     executionLevelContext.onLevelDispatched(level)
                 }
             }

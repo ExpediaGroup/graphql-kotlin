@@ -5,25 +5,25 @@ enum class LevelState { NOT_DISPATCHED, DISPATCHED }
 class ExecutionState(documentHeight: Int) {
 
     private val levelsState: MutableMap<Level, LevelState> = mutableMapOf(
-        *Array(documentHeight) { level -> Pair(Level(level + 1), LevelState.NOT_DISPATCHED) }
+        *Array(documentHeight) { number -> Pair(Level(number + 1), LevelState.NOT_DISPATCHED) }
     )
 
     private val expectedFetches: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { level -> Pair(Level(level + 1), 0) }
+        *Array(documentHeight) { number -> Pair(Level(number + 1), 0) }
     )
     private val happenedFetches: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { level -> Pair(Level(level + 1), 0) }
+        *Array(documentHeight) { number -> Pair(Level(number + 1), 0) }
     )
 
     private val expectedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { level -> Pair(Level(level + 1), 0) }
+        *Array(documentHeight) { number -> Pair(Level(number + 1), 0) }
     )
     private val happenedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { level -> Pair(Level(level + 1), 0) }
+        *Array(documentHeight) { number -> Pair(Level(number + 1), 0) }
     )
 
     private val happenedOnFieldValueInfos: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { level -> Pair(Level(level + 1), 0) }
+        *Array(documentHeight) { number -> Pair(Level(number + 1), 0) }
     )
 
     init {
@@ -33,19 +33,19 @@ class ExecutionState(documentHeight: Int) {
     fun contains(level: Level): Boolean = levelsState.containsKey(level)
 
     fun increaseExpectedFetches(level: Level, count: Int): Int? =
-        expectedFetches[level]?.plus(count)
+        expectedFetches.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
     fun increaseHappenedFetches(level: Level): Int? =
-        happenedFetches[level]?.inc()
+        happenedFetches.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     fun increaseExpectedExecutionStrategies(level: Level, count: Int): Int? =
-        expectedExecutionStrategies[level]?.plus(count)
+        expectedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
     fun increaseHappenedExecutionStrategies(level: Level): Int? =
-        happenedExecutionStrategies[level]?.inc()
+        happenedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     fun increaseHappenedOnFieldValueInfos(level: Level): Int? =
-        happenedOnFieldValueInfos[level]?.inc()
+        happenedOnFieldValueInfos.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     fun isLevelDispatched(level: Level): Boolean = when {
         levelsState[level] == LevelState.DISPATCHED -> true
@@ -58,7 +58,7 @@ class ExecutionState(documentHeight: Int) {
         }
     }.also { isLevelDispatched ->
         if (isLevelDispatched) {
-            levelsState.computeIfPresent(level) { _, _ -> LevelState.DISPATCHED }
+            levelsState[level] = LevelState.DISPATCHED
         }
     }
 }
