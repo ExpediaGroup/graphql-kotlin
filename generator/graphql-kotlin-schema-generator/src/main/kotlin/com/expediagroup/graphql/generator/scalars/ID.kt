@@ -21,4 +21,4 @@ package com.expediagroup.graphql.generator.scalars
  * which must serialize/deserialize to a string value
  */
 @JvmInline
-value class ID(private val value: String)
+value class ID(val value: String)

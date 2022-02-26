@@ -59,7 +59,7 @@ private fun convertValue(
     paramType: KType,
     argumentValue: Any?
 ): Any? {
-    // The input given is already a list, iterate over each value to return a parsed list
+    // The input given is a list, iterate over each value to return a parsed list
     if (argumentValue is Iterable<*>) {
         return argumentValue.map {
             val wrappedType = paramType.getTypeOfFirstArgument()
@@ -74,8 +74,13 @@ private fun convertValue(
     }
 
     // If the value is enum we need to find the correct value
-    if (paramType.isSubclassOf(Enum::class) && argumentValue is String) {
+    if (argumentValue is String && paramType.isSubclassOf(Enum::class)) {
         return mapToEnumValue(paramType, argumentValue)
+    }
+
+    // If param type is inline value class we need to wrap the value
+    if (argumentValue != null && paramType.getKClass().isValue) {
+        return mapToInlineValueClass(argumentValue, paramType.getKClass())
     }
 
     // Value is already parsed so we can return it as-is
@@ -94,5 +99,10 @@ private fun <T : Any> mapToKotlinObject(inputMap: Map<String, *>, targetClass: K
     return targetConstructor.callBy(constructorValues)
 }
 
-private fun mapToEnumValue(paramType: KType, enumValue: String) =
+private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> =
     paramType.getKClass().java.enumConstants.filterIsInstance(Enum::class.java).first { it.name == enumValue }
+
+private fun <T : Any> mapToInlineValueClass(value: Any?, targetClass: KClass<T>): T {
+    val targetConstructor = targetClass.primaryConstructor ?: throw CouldNotConstructAValidKotlinObject(targetClass)
+    return targetConstructor.call(value)
+}

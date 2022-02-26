@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import com.expediagroup.graphql.generator.scalars.ID
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
@@ -57,13 +58,15 @@ class ConvertArgumentValueTest {
         val inputValue = mapOf(
             "foo" to "hello",
             "bar" to "world",
-            "baz" to listOf("!")
+            "baz" to listOf("!"),
+            "qux" to "1234"
         )
         val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
         assertEquals("world", castResult.bar)
         assertEquals(listOf("!"), castResult.baz)
+        assertEquals("1234", castResult.qux?.value)
     }
 
     @Test
@@ -74,6 +77,7 @@ class ConvertArgumentValueTest {
         assertEquals("hello", castResult.foo)
         assertEquals(null, castResult.bar)
         assertEquals(null, castResult.baz)
+        assertEquals(null, castResult.qux)
     }
 
     @Test
@@ -127,20 +131,30 @@ class ConvertArgumentValueTest {
         assertEquals("hello", castResult2.firstOrNull()?.foo)
     }
 
+    @Test
+    fun `id input is parsed`() {
+        val kParam = assertNotNull(TestFunctions::idInput.findParameterByName("input"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to "1234"))
+        assertIs<ID>(result)
+        assertEquals("1234", result.value)
+    }
+
     class TestFunctions {
-        fun stringInput(input: String): String = TODO()
-        fun listStringInput(input: List<String>): String = TODO()
         fun enumInput(input: Foo): String = TODO()
+        fun idInput(input: ID): String = TODO()
         fun inputObject(input: TestInput): String = TODO()
+        fun listStringInput(input: List<String>): String = TODO()
         fun optionalInput(input: OptionalInput<String>): String = TODO()
         fun optionalInputObject(input: OptionalInput<TestInput>): String = TODO()
         fun optionalInputListObject(input: OptionalInput<List<TestInput>>): String = TODO()
+        fun stringInput(input: String): String = TODO()
     }
 
     class TestInput(
         val foo: String,
         val bar: String? = null,
-        val baz: List<String>? = null
+        val baz: List<String>? = null,
+        val qux: ID? = null
     )
 
     enum class Foo {
