@@ -22,7 +22,6 @@ import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicInteger
 
 data class AstronautServiceRequest(val id: Int)
 data class Astronaut(val id: Int, val name: String)
@@ -30,14 +29,12 @@ data class Astronaut(val id: Int, val name: String)
 class AstronautService {
 
     val batchArguments: MutableList<List<AstronautServiceRequest>> = mutableListOf()
-    val getAstronautCallCount: AtomicInteger = AtomicInteger(0)
 
     fun getAstronaut(
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
-    ): CompletableFuture<Astronaut> {
-        getAstronautCallCount.incrementAndGet()
-        return environment
+    ): CompletableFuture<Astronaut> =
+        environment
             .graphQlContext
             .get<TransactionBatcher>(TransactionBatcher::class)
             .batch(request) { requests: List<AstronautServiceRequest> ->
@@ -48,7 +45,6 @@ class AstronautService {
                     }
                 }
             }
-    }
 
     companion object {
         private val astronauts = mapOf(

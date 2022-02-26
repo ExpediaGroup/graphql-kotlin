@@ -1,10 +1,13 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.level
 
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafetcher.Astronaut
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafetcher.AstronautService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafetcher.AstronautServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafetcher.Mission
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafetcher.MissionService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.datafetcher.MissionServiceRequest
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.ExecutionInput
 import graphql.GraphQL
@@ -12,6 +15,9 @@ import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeRuntimeWiring
+import io.mockk.confirmVerified
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
@@ -70,8 +76,9 @@ class TransactionBatcherLevelInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
+        val transactionBatcher = spyk<TransactionBatcher>()
         val graphQLContext = mapOf(
-            TransactionBatcher::class to TransactionBatcher(),
+            TransactionBatcher::class to transactionBatcher,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
@@ -86,15 +93,32 @@ class TransactionBatcherLevelInstrumentationTest {
 
             assertEquals(4, results.size)
 
-            assertEquals(2, astronautService.getAstronautCallCount.get())
             assertEquals(1, astronautService.batchArguments.size)
             assertEquals(1, astronautService.batchArguments[0][0].id)
             assertEquals(2, astronautService.batchArguments[0][1].id)
 
-            assertEquals(2, missionService.getMissionCallCount.get())
             assertEquals(1, missionService.batchArguments.size)
             assertEquals(3, missionService.batchArguments[0][0].id)
             assertEquals(4, missionService.batchArguments[0][1].id)
+
+            verify(exactly = 2) {
+                transactionBatcher.dispatch()
+            }
+            verify(exactly = 2) {
+                transactionBatcher.batch(
+                    ofType<AstronautServiceRequest>(),
+                    ofType(),
+                    ofType<TriggeredPublisher<AstronautServiceRequest, Astronaut>>()
+                )
+            }
+            verify(exactly = 2) {
+                transactionBatcher.batch(
+                    ofType<MissionServiceRequest>(),
+                    ofType(),
+                    ofType<TriggeredPublisher<MissionServiceRequest, Mission>>()
+                )
+            }
+            confirmVerified(transactionBatcher)
         }
     }
 }

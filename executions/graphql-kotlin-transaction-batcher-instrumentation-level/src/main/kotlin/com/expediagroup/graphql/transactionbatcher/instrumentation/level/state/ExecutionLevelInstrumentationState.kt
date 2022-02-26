@@ -52,22 +52,24 @@ class ExecutionLevelInstrumentationState(
 
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
-                val allExecutionsDispatched = executions.synchronizeIfPresent(executionInput) { executionState ->
+                executions.synchronizeIfPresent(executionInput) { executionState ->
                     executionState.increaseHappenedOnFieldValueInfos(level)
                     executionState.increaseExpectedExecutionStrategies(
                         nextLevel,
                         fieldValueInfoList.getExpectedStrategyCalls()
                     )
+                }
+                val allExecutionsDispatched = synchronized(executions) {
                     allExecutionsDispatched(nextLevel)
                 }
-                if (allExecutionsDispatched == true) {
+                if (allExecutionsDispatched) {
                     executionLevelContext.onLevelDispatched(nextLevel)
                 }
             }
 
             override fun onFieldValuesException() {
-                executions.synchronizeIfPresent(executionInput) { executionState ->
-                    executionState.increaseHappenedOnFieldValueInfos(level)
+                synchronized(executions) {
+                    executions[executionInput]?.increaseHappenedOnFieldValueInfos(level)
                 }
             }
         }
@@ -83,11 +85,13 @@ class ExecutionLevelInstrumentationState(
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-                val allExecutionsDispatched = executions.synchronizeIfPresent(executionInput) { executionState ->
+                executions.synchronizeIfPresent(executionInput) { executionState ->
                     executionState.increaseHappenedFetches(level)
+                }
+                val allExecutionsDispatched = synchronized(executions) {
                     allExecutionsDispatched(level)
                 }
-                if (allExecutionsDispatched == true) {
+                if (allExecutionsDispatched) {
                     executionLevelContext.onLevelDispatched(level)
                 }
             }

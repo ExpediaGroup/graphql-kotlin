@@ -32,8 +32,9 @@ class ExecutionState(documentHeight: Int) {
 
     fun contains(level: Level): Boolean = levelsState.containsKey(level)
 
-    fun increaseExpectedFetches(level: Level, count: Int): Int? =
-        expectedFetches.computeIfPresent(level) { _, currentCount -> currentCount + count }
+    fun increaseExpectedFetches(level: Level, count: Int): Int? {
+        return expectedFetches.computeIfPresent(level) { _, currentCount -> currentCount + count }
+    }
 
     fun increaseHappenedFetches(level: Level): Int? =
         happenedFetches.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
@@ -51,8 +52,9 @@ class ExecutionState(documentHeight: Int) {
         levelsState[level] == LevelState.DISPATCHED -> true
         level.isFirst() -> happenedFetches[level] == expectedFetches[level]
         else -> {
-            isLevelDispatched(level.previous()) &&
-                happenedOnFieldValueInfos[level] == expectedExecutionStrategies[level] &&
+            val previousLevel = level.previous()
+            isLevelDispatched(previousLevel) &&
+                happenedOnFieldValueInfos[previousLevel] == expectedExecutionStrategies[previousLevel] &&
                 happenedExecutionStrategies[level] == expectedExecutionStrategies[level] &&
                 happenedFetches[level] == expectedFetches[level]
         }
