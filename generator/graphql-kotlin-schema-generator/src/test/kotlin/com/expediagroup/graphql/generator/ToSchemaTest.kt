@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,37 +84,6 @@ class ToSchemaTest {
         val geo: Map<String, Map<String, Any>>? = result.getData()
 
         assertEquals(1, geo?.get("query")?.get("id"))
-    }
-
-    @Test
-    fun `Schema generator exposes arrays and lists as function arguments`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithLists())), config = testSchemaConfig)
-        val firstArgumentType = schema.queryType.getFieldDefinition("sumOf").arguments[0].type.deepName
-        assertEquals("[Int!]!", firstArgumentType)
-        val secondArgumentType = schema.queryType.getFieldDefinition("sumOfList").arguments[0].type.deepName
-        assertEquals("[Int!]!", secondArgumentType)
-
-        val graphQL = GraphQL.newGraphQL(schema).build()
-        val arrayResult = graphQL.execute("{ sumOf(ints: [1, 2, 3]) }")
-        val arraySum = arrayResult.getData<Map<String, Int>>().values.first()
-        assertEquals(6, arraySum)
-
-        val listResult = graphQL.execute("{ sumOfList(ints: [1, 2, 3]) }")
-        val listSum = listResult.getData<Map<String, Int>>().values.first()
-        assertEquals(6, listSum)
-    }
-
-    @Test
-    fun `Schema generator exposes arrays of complex types as function arguments`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithLists())), config = testSchemaConfig)
-        val firstArgumentType = schema.queryType.getFieldDefinition("sumOfComplexArray").arguments[0].type.deepName
-        assertEquals("[ComplexWrappingTypeInput!]!", firstArgumentType)
-
-        val graphQL = GraphQL.newGraphQL(schema).build()
-        val result = graphQL.execute("{sumOfComplexArray(objects: [{value: 1}, {value: 2}, {value: 3}])}")
-        val sum = result.getData<Map<String, Int>>().values.first()
-
-        assertEquals(6, sum)
     }
 
     @Test
@@ -362,12 +331,6 @@ class ToSchemaTest {
     class QueryObject {
         @GraphQLDescription("A GraphQL query method")
         fun query(@GraphQLDescription("A GraphQL value") value: Int): Geography = Geography(value, GeoType.CITY, listOf())
-    }
-
-    class QueryWithLists {
-        fun sumOf(ints: IntArray): Int = ints.sum()
-        fun sumOfComplexArray(objects: Array<ComplexWrappingType>): Int = objects.map { it.value }.sum()
-        fun sumOfList(ints: List<Int>): Int = ints.sum()
     }
 
     class QueryWithIgnored {

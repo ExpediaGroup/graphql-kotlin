@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.execution
 
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.execution.GraphQLContext as KotlinGraphQLContext
-import com.fasterxml.jackson.annotation.JsonProperty
 import graphql.GraphQLContext
 import graphql.GraphQLException
 import graphql.schema.DataFetchingEnvironment
@@ -46,8 +45,6 @@ class FunctionDataFetcherTest {
 
         fun printDefault(string: String? = "hello") = string
 
-        fun printArray(items: Array<String>) = items.joinToString(separator = ":")
-
         fun printList(items: List<String>) = items.joinToString(separator = ":")
 
         fun contextClass(myContext: MyContext) = myContext.value
@@ -72,11 +69,6 @@ class FunctionDataFetcherTest {
             is OptionalInput.Defined -> "input was ${input.value}"
         }
 
-        fun optionalArrayInputObjects(input: OptionalInput<Array<MyInputClass>>): String = when (input) {
-            is OptionalInput.Undefined -> "input was UNDEFINED"
-            is OptionalInput.Defined -> "first input was ${input.value?.first()?.field1}"
-        }
-
         fun optionalListInputObjects(input: OptionalInput<List<MyInputClass>>): String = when (input) {
             is OptionalInput.Undefined -> "input was UNDEFINED"
             is OptionalInput.Defined -> "first input was ${input.value?.first()?.field1}"
@@ -92,7 +84,6 @@ class FunctionDataFetcherTest {
 
     @GraphQLName("MyInputClassRenamed")
     data class MyInputClass(
-        @JsonProperty("jacksonField")
         @GraphQLName("jacksonField")
         val field1: String
     )
@@ -183,17 +174,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `array inputs can be converted by the object mapper`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printArray)
-        val mockEnvironment: DataFetchingEnvironment = mockk {
-            every { arguments } returns mapOf("items" to arrayOf("foo", "bar"))
-            every { containsArgument("items") } returns true
-        }
-        assertEquals(expected = "foo:bar", actual = dataFetcher.get(mockEnvironment))
-    }
-
-    @Test
-    fun `list inputs can be converted by the object mapper`() {
+    fun `list inputs can be converted`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::printList)
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { arguments } returns mapOf("items" to listOf("foo", "bar"))
@@ -269,7 +250,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `renamed fields can be converted by the object mapper`() {
+    fun `renamed fields can be converted`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::renamedFields)
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { arguments } returns mapOf("myCustomArgument" to mapOf("jacksonField" to "foo"))
@@ -306,17 +287,6 @@ class FunctionDataFetcherTest {
             every { containsArgument(any()) } returns false
         }
         assertEquals(expected = "input was UNDEFINED", actual = dataFetcher.get(mockEnvironment))
-    }
-
-    @Test
-    fun `optional array of input objects is deserialized correctly`() {
-        val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalArrayInputObjects)
-        val mockEnvironment: DataFetchingEnvironment = mockk {
-            every { arguments } returns mapOf("input" to arrayOf(linkedMapOf("jacksonField" to "foo")))
-            every { containsArgument("input") } returns true
-        }
-        val result = dataFetcher.get(mockEnvironment)
-        assertEquals(expected = "first input was foo", actual = result)
     }
 
     @Test

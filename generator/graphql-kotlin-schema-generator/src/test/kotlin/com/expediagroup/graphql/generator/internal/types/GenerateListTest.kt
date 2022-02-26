@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,16 +26,14 @@ class GenerateListTest : TypeTestHelper() {
 
     private data class MyDataClass(val id: String)
 
-    private class ClassWithListAndArray {
+    private class ClassWithList {
         val testList: List<Int> = listOf(1)
         val testListOfClass: List<MyDataClass> = listOf(MyDataClass("bar"))
-        val testArray: Array<String> = arrayOf("foo")
-        val primitiveArray: BooleanArray = booleanArrayOf(true)
     }
 
     @Test
     fun `verify a list of primitives for output`() {
-        val listProp = ClassWithListAndArray::testList
+        val listProp = ClassWithList::testList
 
         val result = generateList(generator, listProp.returnType, GraphQLKTypeMetadata())
         assertEquals("Int", getListTypeName(result))
@@ -43,47 +41,15 @@ class GenerateListTest : TypeTestHelper() {
 
     @Test
     fun `verify a list of objects for ouput`() {
-        val listProp = ClassWithListAndArray::testListOfClass
+        val listProp = ClassWithList::testListOfClass
 
         val result = generateList(generator, listProp.returnType, GraphQLKTypeMetadata())
         assertEquals("MyDataClass", getListTypeName(result))
     }
 
     @Test
-    fun `verify arrays are valid output`() {
-        val arrayProp = ClassWithListAndArray::testArray
-
-        val result = generateList(generator, arrayProp.returnType, GraphQLKTypeMetadata())
-        assertEquals("String", getListTypeName(result))
-    }
-
-    @Test
-    fun `verify primitive arrays are valid output`() {
-        val primitiveArray = ClassWithListAndArray::primitiveArray
-
-        val result = generateList(generator, primitiveArray.returnType, GraphQLKTypeMetadata())
-        assertEquals("Boolean", getListTypeName(result))
-    }
-
-    @Test
-    fun `verify arrays are valid input`() {
-        val arrayProp = ClassWithListAndArray::testArray
-
-        val result = generateList(generator, arrayProp.returnType, GraphQLKTypeMetadata(inputType = true))
-        assertEquals("String", getListTypeName(result))
-    }
-
-    @Test
-    fun `verify primitive arrays are valid input`() {
-        val primitiveArray = ClassWithListAndArray::primitiveArray
-
-        val result = generateList(generator, primitiveArray.returnType, GraphQLKTypeMetadata(inputType = true))
-        assertEquals("Boolean", getListTypeName(result))
-    }
-
-    @Test
     fun `verify a list of primitives for input`() {
-        val listProp = ClassWithListAndArray::testList
+        val listProp = ClassWithList::testList
 
         val result = generateList(generator, listProp.returnType, GraphQLKTypeMetadata(inputType = true))
         assertEquals("Int", getListTypeName(result))
@@ -91,7 +57,7 @@ class GenerateListTest : TypeTestHelper() {
 
     @Test
     fun `verify a list of objects for input`() {
-        val listProp = ClassWithListAndArray::testListOfClass
+        val listProp = ClassWithList::testListOfClass
 
         val result = generateList(generator, listProp.returnType, GraphQLKTypeMetadata(inputType = true))
         assertEquals("MyDataClassInput", getListTypeName(result))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,9 @@ import com.expediagroup.graphql.generator.exceptions.InvalidWrappedTypeException
 import com.expediagroup.graphql.generator.execution.OptionalInput
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.withNullability
 import kotlin.reflect.jvm.jvmErasure
-
-private val primitiveArrayTypes = mapOf(
-    IntArray::class to Int::class,
-    LongArray::class to Long::class,
-    ShortArray::class to Short::class,
-    FloatArray::class to Float::class,
-    DoubleArray::class to Double::class,
-    CharArray::class to Char::class,
-    BooleanArray::class to Boolean::class
-)
 
 internal fun KType.getKClass() = this.jvmErasure
 
@@ -50,7 +39,7 @@ internal fun KType.isListType() = this.isList() || this.isArray()
 internal fun KType.isOptionalInputType() = this.isSubclassOf(OptionalInput::class)
 
 internal fun KType.unwrapOptionalInputType() = if (this.isOptionalInputType()) {
-    this.getWrappedType().withNullability(true)
+    this.getTypeOfFirstArgument().withNullability(true)
 } else {
     this
 }
@@ -58,14 +47,6 @@ internal fun KType.unwrapOptionalInputType() = if (this.isOptionalInputType()) {
 @Throws(InvalidWrappedTypeException::class)
 internal fun KType.getTypeOfFirstArgument(): KType =
     this.arguments.firstOrNull()?.type ?: throw InvalidWrappedTypeException(this)
-
-internal fun KType.getWrappedType(): KType {
-    val primitiveClass = primitiveArrayTypes[this.getKClass()]
-    return when {
-        primitiveClass != null -> primitiveClass.createType()
-        else -> this.getTypeOfFirstArgument()
-    }
-}
 
 internal fun KType.getSimpleName(isInputType: Boolean = false): String = this.getKClass().getSimpleName(isInputType)
 

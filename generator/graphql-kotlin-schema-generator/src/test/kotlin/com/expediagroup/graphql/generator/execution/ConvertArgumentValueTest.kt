@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,19 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
-class ConvertArgumentToObjectKtTest {
+class ConvertArgumentValueTest {
 
     @Test
     fun `string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::stringInput.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment>()
-        val result = convertArgumentToObject(kParam, mockEnv, "input", "hello")
+        val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"))
         assertEquals("hello", result)
     }
 
     @Test
     fun `pre-parsed object is returned`() {
         val kParam = assertNotNull(TestFunctions::inputObject.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment>()
-        val result = convertArgumentToObject(kParam, mockEnv, "input", TestInput("hello"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to TestInput("hello")))
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
     }
@@ -47,9 +45,8 @@ class ConvertArgumentToObjectKtTest {
     @Test
     fun `enum object is parsed`() {
         val kParam = assertNotNull(TestFunctions::enumInput.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment>()
         val inputValue = "BAR"
-        val result = convertArgumentToObject(kParam, mockEnv, "input", inputValue)
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
         val castResult = assertIs<Foo>(result)
         assertEquals(Foo.BAR, castResult)
     }
@@ -57,13 +54,12 @@ class ConvertArgumentToObjectKtTest {
     @Test
     fun `generic map object is parsed`() {
         val kParam = assertNotNull(TestFunctions::inputObject.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment>()
         val inputValue = mapOf(
             "foo" to "hello",
             "bar" to "world",
             "baz" to listOf("!")
         )
-        val result = convertArgumentToObject(kParam, mockEnv, "input", inputValue)
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
         assertEquals("world", castResult.bar)
@@ -73,8 +69,7 @@ class ConvertArgumentToObjectKtTest {
     @Test
     fun `generic map object is parsed and defaults are used`() {
         val kParam = assertNotNull(TestFunctions::inputObject.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment>()
-        val result = convertArgumentToObject(kParam, mockEnv, "input", mapOf("foo" to "hello"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to mapOf("foo" to "hello")))
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
         assertEquals(null, castResult.bar)
@@ -84,28 +79,21 @@ class ConvertArgumentToObjectKtTest {
     @Test
     fun `list string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::listStringInput.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment>()
-        val result = convertArgumentToObject(kParam, mockEnv, "input", listOf("hello"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to listOf("hello")))
         assertEquals(listOf("hello"), result)
     }
 
     @Test
     fun `optional input when undefined is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInput.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment> {
-            every { containsArgument("input") } returns false
-        }
-        val result = convertArgumentToObject(kParam, mockEnv, "input", null)
+        val result = convertArgumentValue("input", kParam, mapOf())
         assertEquals(OptionalInput.Undefined, result)
     }
 
     @Test
     fun `optional input with defined null is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInput.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment> {
-            every { containsArgument("input") } returns true
-        }
-        val result = convertArgumentToObject(kParam, mockEnv, "input", null)
+        val result = convertArgumentValue("input", kParam, mapOf("input" to null))
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         assertEquals(null, castResult.value)
     }
@@ -116,7 +104,7 @@ class ConvertArgumentToObjectKtTest {
         val mockEnv = mockk<DataFetchingEnvironment> {
             every { containsArgument("input") } returns true
         }
-        val result = convertArgumentToObject(kParam, mockEnv, "input", "hello")
+        val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"))
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         assertEquals("hello", castResult.value)
     }
@@ -124,10 +112,7 @@ class ConvertArgumentToObjectKtTest {
     @Test
     fun `optional input with object is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInputObject.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment> {
-            every { containsArgument("input") } returns true
-        }
-        val result = convertArgumentToObject(kParam, mockEnv, "input", TestInput("hello"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to TestInput("hello")))
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         val castResult2 = assertIs<TestInput>(castResult.value)
         assertEquals("hello", castResult2.foo)
@@ -136,10 +121,7 @@ class ConvertArgumentToObjectKtTest {
     @Test
     fun `optional input with list object is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInputListObject.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment> {
-            every { containsArgument("input") } returns true
-        }
-        val result = convertArgumentToObject(kParam, mockEnv, "input", listOf(TestInput("hello")))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to listOf(TestInput("hello"))))
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         val castResult2 = assertIs<List<TestInput>>(castResult.value)
         assertEquals("hello", castResult2.firstOrNull()?.foo)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,37 +22,34 @@ import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
-import com.expediagroup.graphql.generator.internal.extensions.qualifiedName
-import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
-internal fun getEnumValue(paramType: KType, enumValue: String) =
-    paramType.getKClass().java.enumConstants.filterIsInstance(Enum::class.java).first { it.name == enumValue }
-
 /**
- * Convert the input object [argumentValue] given from graphql-java to a class we can pass to the Kotlin function.
+ * Convert the argument from the argument map to a class we can pass to the Kotlin function.
  */
-internal fun convertArgumentToObject(
-    param: KParameter,
-    environment: DataFetchingEnvironment,
+internal fun convertArgumentValue(
     argumentName: String,
-    argumentValue: Any?
-): Any? = when {
-    param.type.isOptionalInputType() -> {
-        when {
-            !environment.containsArgument(argumentName) -> OptionalInput.Undefined
-            argumentValue == null -> OptionalInput.Defined(null)
-            else -> {
-                val paramType = param.type.getTypeOfFirstArgument()
-                val value = convertValue(paramType, argumentValue)
-                OptionalInput.Defined(value)
+    param: KParameter,
+    argumentMap: Map<String, Any?>
+): Any? {
+    val argumentValue = argumentMap[argumentName]
+    return when {
+        param.type.isOptionalInputType() -> {
+            when {
+                !argumentMap.containsKey(argumentName) -> OptionalInput.Undefined
+                argumentValue == null -> OptionalInput.Defined(null)
+                else -> {
+                    val paramType = param.type.getTypeOfFirstArgument()
+                    val value = convertValue(paramType, argumentValue)
+                    OptionalInput.Defined(value)
+                }
             }
         }
+        else -> convertValue(param.type, argumentValue)
     }
-    else -> convertValue(param.type, argumentValue)
 }
 
 /**
@@ -70,22 +67,15 @@ private fun convertValue(
         }
     }
 
-    // The input given is already an array, iterate over each value to return a parsed list
-    if (argumentValue is Array<*>) {
-        return argumentValue.map {
-            val wrappedType = paramType.getTypeOfFirstArgument()
-            convertValue(wrappedType, it)
-        }.toTypedArray()
-    }
-
     // If the value is a generic map, parse each entry which may have some values already parsed
     if (argumentValue is Map<*, *>) {
         @Suppress("UNCHECKED_CAST")
         return mapToKotlinObject(argumentValue as Map<String, *>, paramType.getKClass())
     }
 
+    // If the value is enum we need to find the correct value
     if (paramType.isSubclassOf(Enum::class) && argumentValue is String) {
-        return getEnumValue(paramType, argumentValue)
+        return mapToEnumValue(paramType, argumentValue)
     }
 
     // Value is already parsed so we can return it as-is
@@ -98,22 +88,11 @@ private fun convertValue(
 private fun <T : Any> mapToKotlinObject(inputMap: Map<String, *>, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw CouldNotConstructAValidKotlinObject(targetClass)
     val params = targetConstructor.parameters
-    val constructorValues = mutableMapOf<KParameter, Any?>()
-
-    params.forEach {
-        val input = inputMap[it.getName()]
-        if (input is Map<*, *>) {
-            val nestedTarged = it.type.getKClass()
-
-            @Suppress("UNCHECKED_CAST")
-            val subValue = mapToKotlinObject(input as Map<String, *>, nestedTarged)
-            constructorValues[it] = subValue
-        } else if (it.type.isSubclassOf(Enum::class)) {
-            constructorValues[it] = convertValue(it.type, input)
-        } else {
-            constructorValues[it] = input
-        }
+    val constructorValues: Map<KParameter, Any?> = params.associateWith { parameter ->
+        convertArgumentValue(parameter.getName(), parameter, inputMap)
     }
-
     return targetConstructor.callBy(constructorValues)
 }
+
+private fun mapToEnumValue(paramType: KType, enumValue: String) =
+    paramType.getKClass().java.enumConstants.filterIsInstance(Enum::class.java).first { it.name == enumValue }

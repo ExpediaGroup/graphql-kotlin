@@ -98,8 +98,7 @@ open class FunctionDataFetcher(
             else -> {
                 val name = param.getName()
                 if (environment.containsArgument(name) || param.type.isOptionalInputType()) {
-                    val value: Any? = environment.arguments[name]
-                    param to convertArgumentToObject(param, environment, name, value)
+                    param to convertArgumentValue(name, param, environment.arguments)
                 } else {
                     null
                 }

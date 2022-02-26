@@ -266,8 +266,6 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test listType extension`() {
-        assertTrue(arrayOf(1)::class.isListType())
-        assertTrue(intArrayOf(1)::class.isListType())
         assertTrue(listOf(1)::class.isListType())
         assertFalse(MyTestClass::class.isListType())
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.expediagroup.graphql.generator.exceptions.InvalidInputFieldTypeExcept
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
-import com.expediagroup.graphql.generator.internal.extensions.getWrappedType
+import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
 import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
 import com.expediagroup.graphql.generator.internal.extensions.isUnion
@@ -65,7 +65,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
 
 private fun getUnwrappedClass(parameterType: KType): KClass<*> =
     if (parameterType.isListType()) {
-        parameterType.getWrappedType().getKClass()
+        parameterType.getTypeOfFirstArgument().getKClass()
     } else {
         parameterType.getKClass()
     }

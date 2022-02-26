@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 
 package com.expediagroup.graphql.generator.scalars
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonValue
-
 /**
  * Used to represent a GraphQL ID scalar type
  * which must serialize/deserialize to a string value
  */
-data class ID(@get:JsonIgnore val value: String) {
-    @JsonValue
-    override fun toString() = value
-}
+@JvmInline
+value class ID(private val value: String)
