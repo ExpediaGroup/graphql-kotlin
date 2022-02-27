@@ -17,8 +17,10 @@
 package com.expediagroup.graphql.generator.scalars
 
 /**
- * Used to represent a GraphQL ID scalar type
- * which must serialize/deserialize to a string value
+ * Used to represent a GraphQL ID scalar type which must serialize/deserialize to a string value
  */
 @JvmInline
-value class ID(val value: String)
+value class ID(val value: String) {
+    override fun toString(): String = value
+}
+

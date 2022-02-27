@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
+import com.expediagroup.graphql.examples.server.spring.hooks.Period
 import com.expediagroup.graphql.examples.server.spring.model.Person
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
@@ -42,4 +43,11 @@ class ScalarQuery : Query {
 
     @GraphQLDescription("generates random GraphQL ID")
     fun generateRandomId() = ID(UUID.randomUUID().toString())
+
+    fun customScalarInput(input: CustomScalarInput): String = "foo is ${input.foo} and range is ${input.range}"
+
+    data class CustomScalarInput(
+        val foo: String,
+        val range: Period,
+    )
 }

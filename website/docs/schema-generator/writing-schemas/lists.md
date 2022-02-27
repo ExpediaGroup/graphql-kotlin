@@ -35,7 +35,8 @@ type Query {
 
 ## Primitive Arrays
 
-Due to the deserialization issues, primitive arrays are currently not supported.
+Due to the [argument deserialization issues](https://github.com/ExpediaGroup/graphql-kotlin/pull/1379), primitive arrays
+are currently not supported.
 
 ## Unsupported Collection Types
 

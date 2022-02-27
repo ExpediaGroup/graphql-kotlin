@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,36 +160,6 @@ class SimpleQueryIT(@Autowired private val testClient: WebTestClient) {
             .verifyOnlyDataExists(query)
             .jsonPath("$DATA_JSON_PATH.$query").isArray
             .jsonPath("$DATA_JSON_PATH.$query").value(hasSize<Int>(10))
-    }
-
-    @Test
-    fun `verify generatePrimitiveArray query`() {
-        val query = "generatePrimitiveArray"
-
-        testClient.post()
-            .uri(GRAPHQL_ENDPOINT)
-            .accept(APPLICATION_JSON)
-            .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query }")
-            .exchange()
-            .expectStatus().isOk
-            .verifyOnlyDataExists(query)
-            .jsonPath("$DATA_JSON_PATH.$query").isArray
-            .jsonPath("$DATA_JSON_PATH.$query").value(hasSize<Int>(10))
-    }
-
-    @Test
-    fun `verify doSomethingWithIntArray query`() {
-        val query = "doSomethingWithIntArray"
-        val expectedData = "received ints=[1, 2, 3, 4, 5]"
-
-        testClient.post()
-            .uri(GRAPHQL_ENDPOINT)
-            .accept(APPLICATION_JSON)
-            .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("query { $query(ints: [1, 2, 3, 4, 5]) }")
-            .exchange()
-            .verifyData(query, expectedData)
     }
 
     @Test

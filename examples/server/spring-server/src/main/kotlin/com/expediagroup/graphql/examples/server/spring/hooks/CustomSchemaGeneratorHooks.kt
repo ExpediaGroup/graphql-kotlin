@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         UUID::class -> graphqlUUIDType
         ClosedRange::class -> {
-            when(type.arguments[0].type?.classifier as? KClass<*>) {
+            when (type.arguments[0].type?.classifier as? KClass<*>) {
                 LocalDate::class -> graphqlPeriodType
                 else -> null
             }
