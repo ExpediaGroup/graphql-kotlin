@@ -23,4 +23,3 @@ package com.expediagroup.graphql.generator.scalars
 value class ID(val value: String) {
     override fun toString(): String = value
 }
-
