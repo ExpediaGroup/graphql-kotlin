@@ -48,7 +48,9 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.beginExecutionLevel(ExecutionLevelInstrumentationParameters(parameters.executionContext))
+                this.beginExecutionLevel(
+                    ExecutionLevelInstrumentationParameters(parameters.executionContext)
+                )
             )
             ?: SimpleInstrumentationContext.noOp()
 }
