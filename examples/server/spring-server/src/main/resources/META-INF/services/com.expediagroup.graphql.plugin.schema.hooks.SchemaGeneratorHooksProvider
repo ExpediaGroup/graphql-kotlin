@@ -1,1 +1,1 @@
-com.expediagroup.graphql.examples.hooks.CustomHooksProvider
+com.expediagroup.graphql.examples.server.spring.hooks.CustomHooksProvider
