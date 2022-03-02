@@ -1,0 +1,15 @@
+query PartialPolymorphicQuery($input: String){
+  interfaceQuery(input: $input) {
+    __typename
+    id
+    ... on FooImplementation {
+      foo
+    }
+  }
+  unionQuery(input: $input) {
+    __typename
+    ... on Foo {
+      foo
+    }
+  }
+}

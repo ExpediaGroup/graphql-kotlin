@@ -65,3 +65,23 @@ public data class SecondInterfaceImplementation(
    */
   public val floatValue: Double
 ) : BasicInterface()
+
+/**
+ * Fallback BasicInterface implementation that will be used when unknown/unhandled type is
+ * encountered.
+ *
+ * NOTE: This fallback logic has to be manually registered with the instance of
+ * GraphQLClientKotlinxSerializer. See documentation for details.
+ */
+@Generated
+@Serializable
+public data class DefaultBasicInterfaceImplementation(
+  /**
+   * Unique identifier of an interface
+   */
+  public override val id: Int,
+  /**
+   * Name field
+   */
+  public override val name: String
+) : BasicInterface()

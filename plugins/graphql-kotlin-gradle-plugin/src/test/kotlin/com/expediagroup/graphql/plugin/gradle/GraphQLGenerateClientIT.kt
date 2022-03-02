@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ class GraphQLGenerateClientIT {
         val testProjectDirectory = tempDir.toFile()
         sourceDirectory.copyRecursively(testProjectDirectory)
 
-        val junitVersion = System.getProperty("junitVersion") ?: "5.7.2"
-        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.5.31"
-        val mockkVersion = System.getProperty("mockkVersion") ?: "1.11.0"
+        val junitVersion = System.getProperty("junitVersion") ?: "5.8.2"
+        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.6.10"
+        val mockkVersion = System.getProperty("mockkVersion") ?: "1.12.2"
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()

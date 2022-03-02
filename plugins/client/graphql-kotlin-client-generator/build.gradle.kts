@@ -9,6 +9,7 @@ val kotlinVersion: String by project
 val kotlinPoetVersion: String by project
 val kotlinxSerializationVersion: String by project
 val ktorVersion: String by project
+val slf4jVersion: String by project
 val wireMockVersion: String by project
 
 dependencies {
@@ -18,12 +19,13 @@ dependencies {
     }
     api("com.squareup:kotlinpoet:$kotlinPoetVersion")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion") {
         exclude("com.fasterxml.jackson.core", "jackson-databind")
         exclude("com.fasterxml.jackson.module", "jackson-module-kotlin")
     }
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
     testImplementation(project(path = ":graphql-kotlin-client-jackson"))
     testImplementation(project(path = ":graphql-kotlin-client-serialization"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")

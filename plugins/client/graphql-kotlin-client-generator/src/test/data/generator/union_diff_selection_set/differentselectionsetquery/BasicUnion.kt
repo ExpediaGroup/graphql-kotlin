@@ -14,7 +14,8 @@ import kotlin.Int
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
-  property = "__typename"
+  property = "__typename",
+  defaultImpl = DefaultBasicUnionImplementation::class
 )
 @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     BasicObject::class, name="BasicObject"),com.fasterxml.jackson.annotation.JsonSubTypes.Type(value
@@ -41,3 +42,9 @@ public data class ComplexObject(
    */
   public val id: Int
 ) : BasicUnion
+
+/**
+ * Fallback BasicUnion implementation that will be used when unknown/unhandled type is encountered.
+ */
+@Generated
+public class DefaultBasicUnionImplementation() : BasicUnion

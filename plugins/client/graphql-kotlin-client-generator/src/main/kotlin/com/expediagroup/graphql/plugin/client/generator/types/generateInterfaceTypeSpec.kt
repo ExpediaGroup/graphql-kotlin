@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragmentException
-import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidPolymorphicQueryException
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingTypeNameException
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -30,6 +29,8 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.MemberName.Companion.member
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.Field
@@ -41,6 +42,10 @@ import graphql.language.Selection
 import graphql.language.SelectionSet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+private val logger: Logger = LoggerFactory.getLogger("com.expediagroup.graphql.plugin.client.generator.types.GenerateInterfaceTypeSpec")
 
 /**
  * Generate interface [TypeSpec] based on the available field definitions and selection set. Generates all implementing classes as well.
@@ -123,10 +128,10 @@ internal fun generateInterfaceTypeSpec(
         existing.second.addAll(fragment.selectionSet.selections)
     }
 
-    // check if all implementations are selected
+    // log warning if not all implementations are selected
     val notImplemented = implementations.minus(implementationSelections.keys)
     if (notImplemented.isNotEmpty()) {
-        throw InvalidPolymorphicQueryException(context.operationName, interfaceName, notImplemented)
+        logger.warn("Operation ${context.operationName} does not specify all polymorphic implementations - field selection on $interfaceName is missing $notImplemented")
     }
 
     // generate implementations with final selection set
@@ -152,6 +157,7 @@ internal fun generateInterfaceTypeSpec(
         jsonSubTypesCodeBlock.add("com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = %T::class, name=%S)", unwrappedClassName, implementationName)
     }
 
+    val fallbackClassName = generateFallbackImplementation(context, interfaceName, commonProperties)
     if (context.serializer == GraphQLSerializer.JACKSON) {
         // add jackson annotations to handle deserialization
         val jsonTypeInfoIdName = MemberName("com.fasterxml.jackson.annotation", "JsonTypeInfo.Id.NAME")
@@ -161,6 +167,7 @@ internal fun generateInterfaceTypeSpec(
                 .addMember("use = %M", jsonTypeInfoIdName)
                 .addMember("include = %M", jsonTypeInfoAsProperty)
                 .addMember("property = %S", "__typename")
+                .addMember("defaultImpl = %T::class", fallbackClassName)
                 .build()
         )
         interfaceTypeSpec.addAnnotation(
@@ -215,4 +222,57 @@ private fun updateImplementationTypeSpecWithSuperInformation(
     val updatedType = builder.build()
     context.polymorphicTypes[superClassName]?.add(implementationClassName)
     context.typeSpecs[implementationClassName] = updatedType
+}
+
+private fun generateFallbackImplementation(context: GraphQLClientGeneratorContext, interfaceName: String, commonProperties: List<PropertySpec>): ClassName {
+    val fallbackTypeName = "Default${interfaceName}Implementation"
+    val superClassName = ClassName("${context.packageName}.${context.operationName.lowercase()}", interfaceName)
+    val fallbackClassName = ClassName("${context.packageName}.${context.operationName.lowercase()}", fallbackTypeName)
+    val fallbackType = TypeSpec.classBuilder(fallbackTypeName)
+        .addAnnotation(Generated::class)
+        .addKdoc("Fallback $interfaceName implementation that will be used when unknown/unhandled type is encountered.")
+        .also {
+            if (context.serializer == GraphQLSerializer.KOTLINX) {
+                it.addAnnotation(Serializable::class)
+                    .superclass(superClassName)
+                    .addKdoc("\n\nNOTE: This fallback logic has to be manually registered with the instance of GraphQLClientKotlinxSerializer. See documentation for details.")
+            } else {
+                it.addSuperinterface(superClassName)
+            }
+
+            if (commonProperties.isNotEmpty()) {
+                it.addModifiers(KModifier.DATA)
+            }
+        }
+        .addProperties(
+            commonProperties.map { abstractProperty ->
+                abstractProperty.toBuilder()
+                    .initializer(abstractProperty.name)
+                    .addModifiers(KModifier.OVERRIDE)
+                    .also {
+                        it.modifiers.remove(KModifier.ABSTRACT)
+                    }
+                    .build()
+            }
+        )
+        .primaryConstructor(
+            FunSpec.constructorBuilder()
+                .addParameters(
+                    commonProperties.map { propertySpec ->
+                        val constructorParameter = ParameterSpec.builder(propertySpec.name, propertySpec.type)
+                        val className = propertySpec.type as? ClassName
+                        if (propertySpec.type.isNullable) {
+                            constructorParameter.defaultValue("null")
+                        } else if (className != null && context.enumClassToTypeSpecs.keys.contains(className)) {
+                            constructorParameter.defaultValue("%M", className.member(UNKNOWN_VALUE))
+                        }
+                        constructorParameter.build()
+                    }
+                )
+                .build()
+        )
+        .build()
+    context.polymorphicTypes[superClassName]?.add(fallbackClassName)
+    context.typeSpecs[fallbackClassName] = fallbackType
+    return fallbackClassName
 }

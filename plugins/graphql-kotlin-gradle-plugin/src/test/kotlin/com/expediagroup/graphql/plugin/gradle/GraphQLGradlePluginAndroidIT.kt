@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class GraphQLGradlePluginAndroidIT {
         sourceDirectory.copyRecursively(testProjectDirectory)
 
         val androidPluginVersion = System.getProperty("androidPluginVersion") ?: "7.0.1"
-        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.5.31"
+        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.6.10"
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
