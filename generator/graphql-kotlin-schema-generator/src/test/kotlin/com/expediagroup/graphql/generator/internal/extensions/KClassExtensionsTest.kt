@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -266,8 +266,6 @@ open class KClassExtensionsTest {
 
     @Test
     fun `test listType extension`() {
-        assertTrue(arrayOf(1)::class.isListType())
-        assertTrue(intArrayOf(1)::class.isListType())
         assertTrue(listOf(1)::class.isListType())
         assertFalse(MyTestClass::class.isListType())
     }

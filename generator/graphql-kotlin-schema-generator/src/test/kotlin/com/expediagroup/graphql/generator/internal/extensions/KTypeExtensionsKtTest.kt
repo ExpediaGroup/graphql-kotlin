@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,6 @@ class KTypeExtensionsKtTest {
 
         fun arrayFun(array: Array<String>) = array.joinToString(separator = ",") { it }
 
-        fun primitiveArrayFun(intArray: IntArray) = intArray.joinToString(separator = ",") { it.toString() }
-
         fun stringFun(string: String) = "hello $string"
     }
 
@@ -53,8 +51,6 @@ class KTypeExtensionsKtTest {
         assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getTypeOfFirstArgument())
 
         assertEquals(String::class.starProjectedType, MyClass::arrayFun.findParameterByName("array")?.type?.getTypeOfFirstArgument())
-
-        assertEquals(Int::class.starProjectedType, MyClass::primitiveArrayFun.findParameterByName("intArray")?.type?.getWrappedType())
 
         assertFailsWith(InvalidWrappedTypeException::class) {
             MyClass::stringFun.findParameterByName("string")?.type?.getTypeOfFirstArgument()
@@ -87,9 +83,6 @@ class KTypeExtensionsKtTest {
 
         val arrayType = assertNotNull(MyClass::arrayFun.findParameterByName("array")?.type)
         assertEquals(Array<String>::class.java, arrayType.getJavaClass())
-
-        val primitiveArrayType = assertNotNull(MyClass::primitiveArrayFun.findParameterByName("intArray")?.type)
-        assertEquals(IntArray::class.java, primitiveArrayType.getJavaClass())
 
         val stringType = assertNotNull(MyClass::stringFun.findParameterByName("string")?.type)
         assertEquals(String::class.java, stringType.getJavaClass())
@@ -125,22 +118,6 @@ class KTypeExtensionsKtTest {
         assertTrue(Array::class.starProjectedType.isListType())
         assertTrue(IntArray::class.starProjectedType.isListType())
         assertFalse(MyClass::class.starProjectedType.isListType())
-    }
-
-    @Test
-    fun getWrappedType() {
-        assertEquals(Int::class.starProjectedType, IntArray::class.starProjectedType.getWrappedType())
-        assertEquals(Long::class.starProjectedType, LongArray::class.starProjectedType.getWrappedType())
-        assertEquals(Short::class.starProjectedType, ShortArray::class.starProjectedType.getWrappedType())
-        assertEquals(Float::class.starProjectedType, FloatArray::class.starProjectedType.getWrappedType())
-        assertEquals(Double::class.starProjectedType, DoubleArray::class.starProjectedType.getWrappedType())
-        assertEquals(Char::class.starProjectedType, CharArray::class.starProjectedType.getWrappedType())
-        assertEquals(Boolean::class.starProjectedType, BooleanArray::class.starProjectedType.getWrappedType())
-        assertEquals(String::class.starProjectedType, MyClass::listFun.findParameterByName("list")?.type?.getWrappedType())
-
-        assertFailsWith(InvalidWrappedTypeException::class) {
-            MyClass::stringFun.findParameterByName("string")?.type?.getWrappedType()
-        }
     }
 
     @Test

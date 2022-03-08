@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,15 +61,6 @@ class SimpleQuery : Query {
         val random = Random()
         return (1..10).map { random.nextInt(100) }.toList()
     }
-
-    @GraphQLDescription("generates pseudo random array of ints")
-    fun generatePrimitiveArray(): IntArray {
-        val random = Random()
-        return (1..10).map { random.nextInt(100) }.toIntArray()
-    }
-
-    @GraphQLDescription("query with array input")
-    fun doSomethingWithIntArray(ints: IntArray) = "received ints=[${ints.joinToString()}]"
 
     @GraphQLDescription("query with optional input")
     fun doSomethingWithOptionalInput(

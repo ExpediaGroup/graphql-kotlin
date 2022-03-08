@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,17 +51,9 @@ class GenerateArgumentTest : TypeTestHelper() {
 
         fun changeName(@GraphQLName("newName") input: String) = input
 
-        fun idClass(idArg: ID) = "Your id is ${idArg.value}"
+        fun idClass(idArg: ID) = "Your id is $idArg"
 
         fun interfaceArg(input: MyInterface) = input.id
-
-        fun arrayArg(input: IntArray) = input
-
-        fun arrayListArg(input: ArrayList<String>) = input
-
-        fun arrayListInterfaceArg(input: ArrayList<MyInterface>) = input
-
-        fun arrayListUnionArg(input: ArrayList<MyUnion>) = input
 
         fun listArg(input: List<String>) = input
 
@@ -129,46 +121,6 @@ class GenerateArgumentTest : TypeTestHelper() {
     @Test
     fun `Interface argument type throws exception`() {
         val kParameter = ArgumentTestClass::interfaceArg.findParameterByName("input")
-        assertNotNull(kParameter)
-
-        assertFailsWith(InvalidInputFieldTypeException::class) {
-            generateArgument(generator, kParameter)
-        }
-    }
-
-    @Test
-    fun `Primitive array argument type is valid`() {
-        val kParameter = ArgumentTestClass::arrayArg.findParameterByName("input")
-        assertNotNull(kParameter)
-        val result = generateArgument(generator, kParameter)
-
-        assertEquals(expected = "input", actual = result.name)
-        assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
-    }
-
-    @Test
-    fun `ArrayList argument type is valid`() {
-        val kParameter = ArgumentTestClass::arrayListArg.findParameterByName("input")
-        assertNotNull(kParameter)
-        val result = generateArgument(generator, kParameter)
-
-        assertEquals(expected = "input", actual = result.name)
-        assertNotNull(GraphQLTypeUtil.unwrapNonNull(result.type) as? GraphQLList)
-    }
-
-    @Test
-    fun `ArrayList of interfaces as input is invalid`() {
-        val kParameter = ArgumentTestClass::arrayListInterfaceArg.findParameterByName("input")
-        assertNotNull(kParameter)
-
-        assertFailsWith(InvalidInputFieldTypeException::class) {
-            generateArgument(generator, kParameter)
-        }
-    }
-
-    @Test
-    fun `ArrayList of unions as input is invalid`() {
-        val kParameter = ArgumentTestClass::arrayListUnionArg.findParameterByName("input")
         assertNotNull(kParameter)
 
         assertFailsWith(InvalidInputFieldTypeException::class) {

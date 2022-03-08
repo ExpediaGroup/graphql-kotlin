@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ data class Widget(
     @Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
     @GraphQLDescription("The widget's deprecated value that shouldn't be used")
     val deprecatedValue: Int? = value,
+
+    val listOfValues: List<Int>? = null,
 
     @GraphQLIgnore
     val ignoredField: String? = "ignored",

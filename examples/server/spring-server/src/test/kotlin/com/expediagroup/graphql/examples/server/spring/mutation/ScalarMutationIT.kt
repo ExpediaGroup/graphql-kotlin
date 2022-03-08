@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class ScalarMutationIT(@Autowired private val testClient: WebTestClient) {
             .uri(GRAPHQL_ENDPOINT)
             .accept(APPLICATION_JSON)
             .contentType(GRAPHQL_MEDIA_TYPE)
-            .bodyValue("mutation { $query(person: {id: 1, name: \"Alice\"}) { id, name } }")
+            .bodyValue("mutation { $query(person: {id: \"1\", name: \"Alice\"}) { id, name } }")
             .exchange()
             .verifyOnlyDataExists(query)
             .jsonPath("$DATA_JSON_PATH.$query.id").isEqualTo(1)

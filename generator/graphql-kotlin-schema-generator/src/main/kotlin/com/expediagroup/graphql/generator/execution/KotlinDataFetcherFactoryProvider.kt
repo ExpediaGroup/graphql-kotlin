@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package com.expediagroup.graphql.generator.execution
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.schema.DataFetcherFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -51,15 +49,12 @@ interface KotlinDataFetcherFactoryProvider {
  * SimpleKotlinDataFetcherFactoryProvider is the default data fetcher factory provider that is used during schema construction
  * to obtain [DataFetcherFactory] that should be used for target function and property resolution.
  */
-open class SimpleKotlinDataFetcherFactoryProvider(
-    private val objectMapper: ObjectMapper = jacksonObjectMapper()
-) : KotlinDataFetcherFactoryProvider {
+open class SimpleKotlinDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider {
 
     override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
         FunctionDataFetcher(
             target = target,
-            fn = kFunction,
-            objectMapper = objectMapper
+            fn = kFunction
         )
     }
 

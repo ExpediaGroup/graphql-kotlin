@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.expediagroup.graphql.examples.server.spring.execution.SpringDataFetch
 import com.expediagroup.graphql.examples.server.spring.hooks.CustomSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -43,9 +42,8 @@ class Application {
     @Bean
     fun dataFetcherFactoryProvider(
         springDataFetcherFactory: SpringDataFetcherFactory,
-        objectMapper: ObjectMapper,
         applicationContext: ApplicationContext
-    ) = CustomDataFetcherFactoryProvider(springDataFetcherFactory, objectMapper, applicationContext)
+    ) = CustomDataFetcherFactoryProvider(springDataFetcherFactory, applicationContext)
 
     @Bean
     fun dataFetcherExceptionHandler(): DataFetcherExceptionHandler = CustomDataFetcherExceptionHandler()

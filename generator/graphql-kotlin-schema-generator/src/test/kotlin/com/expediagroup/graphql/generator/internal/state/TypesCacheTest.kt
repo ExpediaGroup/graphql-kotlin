@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,10 +53,6 @@ class TypesCacheTest {
         fun listFun(list: List<String>) = list.joinToString(separator = ",") { it }
 
         fun objectListFun(list: List<MyType>) = list.map { it.id.toString() }.joinToString(separator = ",") { it }
-
-        fun arrayFun(array: Array<String>) = array.joinToString(separator = ",") { it }
-
-        fun primitiveArrayFun(intArray: IntArray) = intArray.joinToString(separator = ",") { it.toString() }
 
         @GraphQLUnion(name = "CustomUnion", possibleTypes = [MyType::class, Int::class])
         fun customUnion(): Any = MyType(1)
@@ -113,36 +109,6 @@ class TypesCacheTest {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
 
         val type = MyClass::objectListFun.findParameterByName("list")?.type
-
-        assertNotNull(type)
-
-        val cacheKey = TypesCacheKey(type)
-        val cacheValue = KGraphQLType(MyType::class, graphQLType)
-
-        assertNull(cache.get(cacheKey))
-        assertNull(cache.put(cacheKey, cacheValue))
-    }
-
-    @Test
-    fun `primitive array types are not cached`() {
-        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-
-        val type = MyClass::primitiveArrayFun.findParameterByName("intArray")?.type
-
-        assertNotNull(type)
-
-        val cacheKey = TypesCacheKey(type)
-        val cacheValue = KGraphQLType(MyType::class, graphQLType)
-
-        assertNull(cache.get(cacheKey))
-        assertNull(cache.put(cacheKey, cacheValue))
-    }
-
-    @Test
-    fun `array types are not cached`() {
-        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
-
-        val type = MyClass::arrayFun.findParameterByName("array")?.type
 
         assertNotNull(type)
 

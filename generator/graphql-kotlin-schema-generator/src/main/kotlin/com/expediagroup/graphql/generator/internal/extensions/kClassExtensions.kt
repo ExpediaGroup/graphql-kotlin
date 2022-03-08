@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ internal fun KClass<*>.isValidAdditionalType(inputType: Boolean): Boolean = !(in
 
 internal fun KClass<*>.isEnum(): Boolean = this.isSubclassOf(Enum::class)
 
-internal fun KClass<*>.isListType(): Boolean = this.isSubclassOf(List::class) || this.java.isArray
+internal fun KClass<*>.isListType(): Boolean = this.isSubclassOf(List::class)
 
 @Throws(CouldNotGetNameOfKClassException::class)
 internal fun KClass<*>.getSimpleName(isInputClass: Boolean = false): String {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,5 +33,15 @@ class WidgetMutation : Mutation {
             widget.value = 42
         }
         return widget
+    }
+
+    fun processWidgetList(widgets: List<Widget>): List<Widget> {
+        widgets.forEach {
+            if (null == it.value) {
+                it.value = 42
+            }
+        }
+
+        return widgets
     }
 }

@@ -63,6 +63,11 @@ input WidgetInput {
 
 Note that only fields are exposed in the input objects. Functions will only be available on the GraphQL output types.
 
+:::caution
+All input object fields have to be exposed through a public primary constructor. This primary constructor is used to instantiate
+the input objects at runtime when resolving the queries.
+:::
+
 If you know a type will only be used for input types you can call your class something like `CustomTypeInput`. The library will not
 append `Input` if the class name already ends with `Input` but that means you can not use this type as output because
 the schema would have two types with the same name and that would be invalid.

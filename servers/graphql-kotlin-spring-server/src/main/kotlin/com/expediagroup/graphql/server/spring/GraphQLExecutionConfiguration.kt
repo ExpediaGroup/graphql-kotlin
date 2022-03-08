@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
-import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -44,8 +43,8 @@ class GraphQLExecutionConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataFetcherFactoryProvider(objectMapper: ObjectMapper, applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
-        SpringKotlinDataFetcherFactoryProvider(objectMapper, applicationContext)
+    fun dataFetcherFactoryProvider(applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
+        SpringKotlinDataFetcherFactoryProvider(applicationContext)
 
     @Bean
     @ConditionalOnMissingBean

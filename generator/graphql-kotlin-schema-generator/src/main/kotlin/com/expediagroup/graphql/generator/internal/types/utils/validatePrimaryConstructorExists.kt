@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.scalars
+package com.expediagroup.graphql.generator.internal.types.utils
+
+import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
+import com.expediagroup.graphql.generator.internal.extensions.isPublic
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 /**
- * Used to represent a GraphQL ID scalar type which must serialize/deserialize to a string value
+ * Throws an exception if this KClass does not specify valid primary constructor.
  */
-@JvmInline
-value class ID(val value: String) {
-    override fun toString(): String = value
+internal fun validatePrimaryConstructorExists(kClass: KClass<*>) {
+    if (kClass.primaryConstructor?.isPublic() == false) {
+        throw PrimaryConstructorNotFound(kClass)
+    }
 }

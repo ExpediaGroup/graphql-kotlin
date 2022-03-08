@@ -22,10 +22,11 @@ The GraphQL spec uses the term `Float` for signed double‐precision fractional 
 ## GraphQL ID
 
 GraphQL supports the scalar type `ID`, a unique identifier that is not intended to be human readable. IDs are
-serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.generator.scalars.ID` class, which wraps the underlying `String` value.
+serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.generator.scalars.ID`
+class, which is an *inline value class* that wraps the underlying `String` value.
 
 :::note
-`graphql-java` supports additional types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues](https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings. You can still use a type like UUID internally just as long as you convert or parse the value yourself and handle the errors.
+`graphql-java` supports additional types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues](https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings.
 :::
 
 ```kotlin

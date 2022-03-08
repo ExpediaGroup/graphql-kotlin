@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.scalars
+package com.expediagroup.graphql.generator.exceptions
+
+import kotlin.reflect.KClass
 
 /**
- * Used to represent a GraphQL ID scalar type which must serialize/deserialize to a string value
+ * Thrown when unable to locate the public primary constructor of an input class.
  */
-@JvmInline
-value class ID(val value: String) {
-    override fun toString(): String = value
-}
+class PrimaryConstructorNotFound(klazz: KClass<*>) : GraphQLKotlinException("Invalid input object ${klazz.simpleName} - missing public primary constructor")
