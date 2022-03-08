@@ -9,14 +9,14 @@ import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
-import java.util.concurrent.CompletableFuture
+import graphql.schema.DataFetcher
 
 abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), ExecutionLevelInstrumentation {
+
     override fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> =
-        parameters
-            .executionContext
+        parameters.executionContext
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginExecuteOperation(parameters)
             ?: SimpleInstrumentationContext.noOp()
@@ -24,33 +24,42 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters
     ): ExecutionStrategyInstrumentationContext =
-        parameters
-            .executionContext
+        parameters.executionContext
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginExecutionStrategy(
                 parameters,
-                this.beginExecutionLevel(
-                    ExecutionLevelInstrumentationParameters(parameters.executionContext)
+                this.calculateLevelState(
+                    ExecutionLevelInstrumentationParameters(
+                        parameters.executionContext,
+                        ExecutionLevelCalculationSource.EXECUTION_STRATEGY
+                    )
                 )
             )
-            ?: object : ExecutionStrategyInstrumentationContext {
-                override fun onDispatched(result: CompletableFuture<ExecutionResult>) {
-                }
-                override fun onCompleted(result: ExecutionResult, t: Throwable) {
-                }
-            }
+            ?: NoOpExecutionStrategyInstrumentationContext
 
     override fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters
     ): InstrumentationContext<Any> =
-        parameters
-            .executionContext
+        parameters.executionContext
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.beginExecutionLevel(
-                    ExecutionLevelInstrumentationParameters(parameters.executionContext)
+                this.calculateLevelState(
+                    ExecutionLevelInstrumentationParameters(
+                        parameters.executionContext,
+                        ExecutionLevelCalculationSource.FIELD_FETCH
+                    )
                 )
             )
             ?: SimpleInstrumentationContext.noOp()
+
+    override fun instrumentDataFetcher(
+        dataFetcher: DataFetcher<*>,
+        parameters: InstrumentationFieldFetchParameters
+    ): DataFetcher<*> =
+        // parameters.executionContext
+        //     .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
+        //     ?.instrumentDataFetcher(dataFetcher, parameters)
+        //     ?:
+            dataFetcher
 }

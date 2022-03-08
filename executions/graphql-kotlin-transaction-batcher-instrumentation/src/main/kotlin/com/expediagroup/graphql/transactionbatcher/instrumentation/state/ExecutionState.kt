@@ -1,5 +1,7 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.state
 
+import graphql.schema.DataFetcher
+
 enum class LevelState { NOT_DISPATCHED, DISPATCHED }
 
 class ExecutionState(documentHeight: Int) {
@@ -29,6 +31,11 @@ class ExecutionState(documentHeight: Int) {
         *Array(documentHeight) { number -> Level(number + 1) to 0 }
     )
 
+    private val manuallyCompletableDataFetchers: MutableMap<Level, MutableList<ManuallyCompletableDataFetcher>> =
+        mutableMapOf(
+            *Array(documentHeight) { number -> Level(number + 1) to mutableListOf() }
+        )
+
     fun contains(level: Level): Boolean = levelsState.containsKey(level)
 
     fun increaseExpectedFetches(level: Level, count: Int): Int? =
@@ -46,6 +53,11 @@ class ExecutionState(documentHeight: Int) {
     fun increaseHappenedOnFieldValueInfos(level: Level): Int? =
         happenedOnFieldValueInfos.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
+    fun toManuallyCompletableDataFetcher(level: Level, dataFetcher: DataFetcher<*>): ManuallyCompletableDataFetcher =
+        ManuallyCompletableDataFetcher(dataFetcher).also {
+            manuallyCompletableDataFetchers[level]?.add(it)
+        }
+
     fun isLevelDispatched(level: Level): Boolean = when {
         levelsState[level] == LevelState.DISPATCHED -> true
         level.isFirst() -> happenedFetches[level] == expectedFetches[level]
@@ -60,5 +72,9 @@ class ExecutionState(documentHeight: Int) {
         if (isLevelDispatched) {
             levelsState[level] = LevelState.DISPATCHED
         }
+    }
+
+    fun completeDataFetchers(level: Level) {
+        manuallyCompletableDataFetchers[level]?.forEach(ManuallyCompletableDataFetcher::complete)
     }
 }

@@ -13,6 +13,7 @@ import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
+import graphql.schema.DataFetcher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
@@ -52,6 +53,7 @@ class ExecutionLevelInstrumentationState(
 
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
+
                 executions.synchronizeIfPresent(executionInput) { executionState ->
                     executionState.increaseHappenedOnFieldValueInfos(level)
                     executionState.increaseExpectedExecutionStrategies(
@@ -59,11 +61,11 @@ class ExecutionLevelInstrumentationState(
                         fieldValueInfoList.getExpectedStrategyCalls()
                     )
                 }
-                val allExecutionsDispatched = synchronized(executions) {
-                    allExecutionsDispatched(nextLevel)
-                }
+
+                val allExecutionsDispatched = synchronized(executions) { allExecutionsDispatched(nextLevel) }
                 if (allExecutionsDispatched) {
-                    executionLevelContext.onLevelDispatched(nextLevel)
+                    executionLevelContext.onLevelDispatched(nextLevel, executions.keys().toList())
+                    executions.forEach { (_, executionState) -> executionState.completeDataFetchers(nextLevel) }
                 }
             }
 
@@ -88,11 +90,11 @@ class ExecutionLevelInstrumentationState(
                 executions.synchronizeIfPresent(executionInput) { executionState ->
                     executionState.increaseHappenedFetches(level)
                 }
-                val allExecutionsDispatched = synchronized(executions) {
-                    allExecutionsDispatched(level)
-                }
+
+                val allExecutionsDispatched = synchronized(executions) { allExecutionsDispatched(level) }
                 if (allExecutionsDispatched) {
-                    executionLevelContext.onLevelDispatched(level)
+                    executionLevelContext.onLevelDispatched(level, executions.keys().toList())
+                    executions.forEach { (_, executionState) -> executionState.completeDataFetchers(level) }
                 }
             }
 
@@ -101,11 +103,20 @@ class ExecutionLevelInstrumentationState(
         }
     }
 
+    fun instrumentDataFetcher(
+        dataFetcher: DataFetcher<*>,
+        parameters: InstrumentationFieldFetchParameters
+    ): DataFetcher<*> =
+        executions.synchronizeIfPresent(parameters.executionContext.executionInput) { executionState ->
+            val level = Level(parameters.executionStepInfo.path.level)
+            executionState.toManuallyCompletableDataFetcher(level, dataFetcher)
+        } ?: dataFetcher
+
     private fun allExecutionsDispatched(level: Level): Boolean =
         executions
-            .takeIf { callstacks -> callstacks.size == totalExecutions }
-            ?.filter { (_, callstack) -> callstack.contains(level) }
-            ?.takeIf { callstacksWithSameLevel -> callstacksWithSameLevel.isNotEmpty() }
-            ?.all { (_, callstack) -> callstack.isLevelDispatched(level) }
+            .takeIf { executions -> executions.size == totalExecutions }
+            ?.filter { (_, executionState) -> executionState.contains(level) }
+            ?.takeIf { executionsWithSameLevel -> executionsWithSameLevel.isNotEmpty() }
+            ?.all { (_, executionState) -> executionState.isLevelDispatched(level) }
             ?: false
 }

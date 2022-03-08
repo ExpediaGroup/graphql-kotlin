@@ -169,7 +169,7 @@ open class FunctionDataFetcher(
         environment: DataFetchingEnvironment,
         parameterValues: Map<KParameter, Any?>
     ): CompletableFuture<Any?> =
-        environment.graphQlContext.getOrDefault(CoroutineScope(EmptyCoroutineContext)).future {
+        environment.graphQlContext.getOrDefault<CoroutineScope>(CoroutineScope(EmptyCoroutineContext)).future {
             try {
                 fn.callSuspendBy(parameterValues)
             } catch (exception: InvocationTargetException) {
