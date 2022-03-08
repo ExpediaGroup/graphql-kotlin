@@ -24,7 +24,7 @@ explicitly request `__typename` field as it is used by serializers to correctly 
 
 :::caution
 `kotlinx-serialization` currently does not provide mechanism to automatically register polymorphic fallbacks. Fallbacks
-have to explicitly configured when creating your `GraphQLClientKotlinxSerializer`.
+have to be explicitly configured when creating your `GraphQLClientKotlinxSerializer`.
 
 ```kotlin
 val serializerWithFallback = GraphQLClientKotlinxSerializer(jsonBuilder = {
