@@ -7,17 +7,17 @@ class NasaService(
     private val astronautService: AstronautService,
     private val missionService: MissionService
 ) {
-    fun getAstronaut(env: DataFetchingEnvironment): CompletableFuture<Astronaut> =
+    fun getAstronaut(environment: DataFetchingEnvironment): CompletableFuture<Astronaut> =
         astronautService
             .getAstronaut(
-                AstronautServiceRequest(env.getArgument<String>("id").toInt()),
-                env
+                AstronautServiceRequest(environment.getArgument<String>("id").toInt()),
+                environment
             )
 
-    fun getMission(env: DataFetchingEnvironment): CompletableFuture<Mission> =
+    fun getMission(environment: DataFetchingEnvironment): CompletableFuture<Mission> =
         missionService
             .getMission(
-                MissionServiceRequest(env.getArgument<String>("id").toInt()),
-                env
+                MissionServiceRequest(environment.getArgument<String>("id").toInt()),
+                environment
             )
 }

@@ -6,6 +6,7 @@ import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.A
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.Mission
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.NasaService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.state.ExecutionLevelInstrumentationState
 import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
@@ -30,6 +31,11 @@ class TransactionBatcherLevelInstrumentationTest {
         type Query {
             astronaut(id: ID!): Astronaut
             mission(id: ID!): Mission
+            nasa: Nasa!
+        }
+        type Nasa {
+            astronaut(id: ID!): Astronaut!
+            mission(id: ID!): Mission!
         }
         type Astronaut {
             id: ID!
@@ -59,6 +65,7 @@ class TransactionBatcherLevelInstrumentationTest {
                         environment
                     )
                 }
+                .dataFetcher("nasa") { NasaService(astronautService, missionService) }
         )
     }.build()
 
@@ -68,7 +75,7 @@ class TransactionBatcherLevelInstrumentationTest {
         .build()
 
     @Test
-    fun `Instrumentation should batch and dispatch transaction`() {
+    fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
             "{ astronaut(id: 1) { name } }",
             "{ astronaut(id: 2) { id name } }",
@@ -94,14 +101,73 @@ class TransactionBatcherLevelInstrumentationTest {
             assertEquals(4, results.size)
 
             assertEquals(1, astronautService.batchArguments.size)
+            assertEquals(2, astronautService.batchArguments[0].size)
             assertEquals(1, astronautService.batchArguments[0][0].id)
             assertEquals(2, astronautService.batchArguments[0][1].id)
 
             assertEquals(1, missionService.batchArguments.size)
+            assertEquals(2, missionService.batchArguments[0].size)
             assertEquals(3, missionService.batchArguments[0][0].id)
             assertEquals(4, missionService.batchArguments[0][1].id)
 
             verify(exactly = 2) {
+                transactionBatcher.dispatch()
+            }
+            verify(exactly = 2) {
+                transactionBatcher.batch(
+                    ofType<AstronautServiceRequest>(),
+                    ofType(),
+                    ofType<TriggeredPublisher<AstronautServiceRequest, Astronaut>>()
+                )
+            }
+            verify(exactly = 2) {
+                transactionBatcher.batch(
+                    ofType<MissionServiceRequest>(),
+                    ofType(),
+                    ofType<TriggeredPublisher<MissionServiceRequest, Mission>>()
+                )
+            }
+            confirmVerified(transactionBatcher)
+        }
+    }
+
+    @Test
+    fun `Instrumentation should batch transactions on sync top level fields`() {
+        val queries = listOf(
+            "{ nasa { astronaut(id: 1) { name } } }",
+            "{ nasa { astronaut(id: 2) { id name } } }",
+            "{ nasa { mission(id: 3) { designation } } }",
+            "{ nasa { mission(id: 4) { id designation } } }"
+        )
+
+        val transactionBatcher = spyk<TransactionBatcher>()
+        val graphQLContext = mapOf(
+            TransactionBatcher::class to transactionBatcher,
+            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+        )
+
+        runBlocking {
+            val results = queries.map { query ->
+                async {
+                    graphQL.executeAsync(
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                    ).await()
+                }
+            }.awaitAll()
+
+            assertEquals(4, results.size)
+
+            assertEquals(1, astronautService.batchArguments.size)
+            assertEquals(2, astronautService.batchArguments[0].size)
+            assertEquals(1, astronautService.batchArguments[0][0].id)
+            assertEquals(2, astronautService.batchArguments[0][1].id)
+
+            assertEquals(1, missionService.batchArguments.size)
+            assertEquals(2, missionService.batchArguments[0].size)
+            assertEquals(3, missionService.batchArguments[0][0].id)
+            assertEquals(4, missionService.batchArguments[0][1].id)
+
+            verify(exactly = 3) {
                 transactionBatcher.dispatch()
             }
             verify(exactly = 2) {

@@ -57,9 +57,8 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
         dataFetcher: DataFetcher<*>,
         parameters: InstrumentationFieldFetchParameters
     ): DataFetcher<*> =
-        // parameters.executionContext
-        //     .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
-        //     ?.instrumentDataFetcher(dataFetcher, parameters)
-        //     ?:
-            dataFetcher
+        parameters.executionContext
+            .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
+            ?.instrumentDataFetcher(dataFetcher, parameters)
+            ?: dataFetcher
 }
