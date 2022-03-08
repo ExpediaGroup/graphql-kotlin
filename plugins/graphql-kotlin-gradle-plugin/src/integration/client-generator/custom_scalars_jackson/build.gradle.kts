@@ -19,9 +19,9 @@ buildscript {
 }
 
 plugins {
-    id("org.springframework.boot") version "2.5.5"
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.spring") version "1.5.31"
+    id("org.springframework.boot") version "2.6.3"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.spring") version "1.6.10"
 }
 
 apply(plugin = "com.expediagroup.graphql")
@@ -39,10 +39,10 @@ repositories {
 }
 
 val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "6.0.0-SNAPSHOT"
-val icuVersion = System.getenv("ICU_VERSION") ?: "69.1"
-val junitVersion = System.getenv("JUNIT_VERSION") ?: "5.7.2"
-val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.5.31"
-val springBootVersion = System.getenv("SPRINGBOOT_VERSION") ?: "2.5.5"
+val icuVersion = System.getenv("ICU_VERSION") ?: "70.1"
+val junitVersion = System.getenv("JUNIT_VERSION") ?: "5.8.2"
+val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.6.10"
+val springBootVersion = System.getenv("SPRINGBOOT_VERSION") ?: "2.6.3"
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-hooks-provider:$graphQLKotlinVersion")
     implementation("com.expediagroup:graphql-kotlin-spring-client:$graphQLKotlinVersion")

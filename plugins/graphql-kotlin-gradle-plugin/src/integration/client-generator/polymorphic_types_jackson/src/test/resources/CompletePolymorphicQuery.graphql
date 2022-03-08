@@ -1,0 +1,24 @@
+query CompletePolymorphicQuery($input: String){
+  interfaceQuery(input: $input) {
+    __typename
+    id
+    ... on FooImplementation {
+      foo
+    }
+    ... on BarImplementation {
+      bar
+    }
+  }
+  unionQuery(input: $input) {
+    __typename
+    ... on Foo {
+      foo
+    }
+    ... on Bar {
+      bar
+    }
+    ... on Baz {
+      baz
+    }
+  }
+}

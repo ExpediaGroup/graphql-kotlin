@@ -1,4 +1,4 @@
-query InvalidQueryMissingTypeSelection {
+query UnionMissingTypeSelection {
   unionQuery {
     ... on BasicObject {
       __typename

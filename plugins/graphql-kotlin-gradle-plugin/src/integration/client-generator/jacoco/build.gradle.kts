@@ -32,7 +32,7 @@ repositories {
 }
 
 val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "6.0.0-SNAPSHOT"
-val junitVersion = System.getenv("JUNIT_VERSION") ?: "5.7.2"
+val junitVersion = System.getenv("JUNIT_VERSION") ?: "5.8.2"
 val mockkVersion = System.getenv("MOCKK_VERSION") ?: "1.11.0"
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-spring-client:$graphQLKotlinVersion")

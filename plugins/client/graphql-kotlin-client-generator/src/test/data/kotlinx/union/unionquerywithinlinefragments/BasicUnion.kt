@@ -50,3 +50,13 @@ public data class ComplexObject(
    */
   public val optional: String?
 ) : BasicUnion()
+
+/**
+ * Fallback BasicUnion implementation that will be used when unknown/unhandled type is encountered.
+ *
+ * NOTE: This fallback logic has to be manually registered with the instance of
+ * GraphQLClientKotlinxSerializer. See documentation for details.
+ */
+@Generated
+@Serializable
+public class DefaultBasicUnionImplementation() : BasicUnion()

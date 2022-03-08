@@ -19,8 +19,26 @@ See [client serialization documentation](./client-serialization.mdx) for additio
 
 GraphQL supports polymorphic types through unions and interfaces which can be represented in Kotlin as marker and
 regular interfaces. In order to ensure generated objects are not empty, GraphQL queries referencing polymorphic types
-have to **explicitly specify all implementations**. Polymorphic queries also have to explicitly request `__typename`
-field so it can be used to Jackson correctly distinguish between different implementations.
+will automatically generate fallback implementations that will be used if there is no match. Polymorphic queries have to
+explicitly request `__typename` field as it is used by serializers to correctly distinguish between different implementations.
+
+:::caution
+`kotlinx-serialization` currently does not provide mechanism to automatically register polymorphic fallbacks. Fallbacks
+have to be explicitly configured when creating your `GraphQLClientKotlinxSerializer`.
+
+```kotlin
+val serializerWithFallback = GraphQLClientKotlinxSerializer(jsonBuilder = {
+    serializersModule = SerializersModule {
+        polymorphic(BasicInterface::class) {
+            defaultDeserializer { DefaultBasicInterfaceImplementation.serializer() }
+        }
+    }
+})
+val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"), serializer = serializerWithFallback)
+```
+
+See https://github.com/Kotlin/kotlinx.serialization/issues/1575 for details.
+:::
 
 Given example schema
 
@@ -82,7 +100,8 @@ Which will generate following data models
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
-  property = "__typename"
+  property = "__typename",
+  defaultImpl = DefaultBasicInterfaceImplementation::class
 )
 @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     FirstInterfaceImplementation::class,
@@ -105,6 +124,12 @@ data class SecondInterfaceImplementation(
   override val id: Int,
   override val name: String,
   val floatValue: Float
+) : BasicInterface
+
+@Generated
+data class DefaultBasicInterfaceImplementation(
+  override val id: Int,
+  override val name: String
 ) : BasicInterface
 ```
 
@@ -135,6 +160,13 @@ data class SecondInterfaceImplementation(
   override val id: Int,
   override val name: String,
   val floatValue: Float
+) : BasicInterface()
+
+@Generated
+@Serializable
+data class DefaultBasicInterfaceImplementation(
+  override val id: String
+  override val name: String
 ) : BasicInterface()
 ```
 
