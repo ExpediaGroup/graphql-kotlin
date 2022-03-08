@@ -16,4 +16,9 @@
 
 package com.expediagroup.graphql.generator.exceptions
 
-class CouldNotConstructAValidKotlinObject(input: Any?) : GraphQLKotlinException("Could not convert the input $input to a valid Kotlin object")
+import kotlin.reflect.KClass
+
+/**
+ * Thrown when unable to locate the public primary constructor of an input class.
+ */
+class PrimaryConstructorNotFound(klazz: KClass<*>) : GraphQLKotlinException("Invalid input object ${klazz.simpleName} - missing public primary constructor")

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.generator.execution
 
-import com.expediagroup.graphql.generator.exceptions.CouldNotConstructAValidKotlinObject
+import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
@@ -91,7 +91,7 @@ private fun convertValue(
  * At this point all custom scalars have been converted by graphql-java so the only thing left to parse is object maps into the nested Kotlin classes
  */
 private fun <T : Any> mapToKotlinObject(inputMap: Map<String, *>, targetClass: KClass<T>): T {
-    val targetConstructor = targetClass.primaryConstructor ?: throw CouldNotConstructAValidKotlinObject(targetClass)
+    val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
     val params = targetConstructor.parameters
     val constructorValues: Map<KParameter, Any?> = params.associateWith { parameter ->
         convertArgumentValue(parameter.getName(), parameter, inputMap)
@@ -103,6 +103,6 @@ private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> =
     paramType.getKClass().java.enumConstants.filterIsInstance(Enum::class.java).first { it.name == enumValue }
 
 private fun <T : Any> mapToInlineValueClass(value: Any?, targetClass: KClass<T>): T {
-    val targetConstructor = targetClass.primaryConstructor ?: throw CouldNotConstructAValidKotlinObject(targetClass)
+    val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
     return targetConstructor.call(value)
 }

@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLValidObjectLocations
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.exceptions.InvalidObjectLocationException
+import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -55,6 +56,8 @@ class GenerateInputObjectTest : TypeTestHelper() {
     }
 
     class `Invalid$InputTypeName`
+
+    class MissingPublicConstructor private constructor(val id: Int)
 
     @Test
     fun `Test naming`() {
@@ -110,9 +113,16 @@ class GenerateInputObjectTest : TypeTestHelper() {
     }
 
     @Test
-    fun `Generation of output object will fail if it specifies invalid name`() {
+    fun `Generation of input object will fail if it specifies invalid name`() {
         assertFailsWith(InvalidGraphQLNameException::class) {
             generateInputObject(generator, `Invalid$InputTypeName`::class)
+        }
+    }
+
+    @Test
+    fun `Generation of input object will fail if it does not have public constructor`() {
+        assertFailsWith(PrimaryConstructorNotFound::class) {
+            generateInputObject(generator, MissingPublicConstructor::class)
         }
     }
 }

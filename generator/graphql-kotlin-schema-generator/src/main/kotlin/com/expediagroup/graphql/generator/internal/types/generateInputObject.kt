@@ -24,12 +24,14 @@ import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import com.expediagroup.graphql.generator.internal.types.utils.validateGraphQLName
 import com.expediagroup.graphql.generator.internal.types.utils.validateObjectLocation
+import com.expediagroup.graphql.generator.internal.types.utils.validatePrimaryConstructorExists
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLInputObjectType
 import kotlin.reflect.KClass
 
 internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>): GraphQLInputObjectType {
     validateObjectLocation(kClass, GraphQLValidObjectLocations.Locations.INPUT_OBJECT)
+    validatePrimaryConstructorExists(kClass)
 
     val name = kClass.getSimpleName(isInputClass = true)
     validateGraphQLName(name, kClass)
