@@ -23,6 +23,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -74,6 +75,12 @@ class TransactionBatcherLevelInstrumentationTest {
         .instrumentation(TransactionBatcherLevelInstrumentation())
         .build()
 
+    @BeforeEach
+    fun setup() {
+        astronautService.batchArguments.clear()
+        missionService.batchArguments.clear()
+    }
+
     @Test
     fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
@@ -102,13 +109,9 @@ class TransactionBatcherLevelInstrumentationTest {
 
             assertEquals(1, astronautService.batchArguments.size)
             assertEquals(2, astronautService.batchArguments[0].size)
-            assertEquals(1, astronautService.batchArguments[0][0].id)
-            assertEquals(2, astronautService.batchArguments[0][1].id)
 
             assertEquals(1, missionService.batchArguments.size)
             assertEquals(2, missionService.batchArguments[0].size)
-            assertEquals(3, missionService.batchArguments[0][0].id)
-            assertEquals(4, missionService.batchArguments[0][1].id)
 
             verify(exactly = 2) {
                 transactionBatcher.dispatch()
@@ -159,13 +162,9 @@ class TransactionBatcherLevelInstrumentationTest {
 
             assertEquals(1, astronautService.batchArguments.size)
             assertEquals(2, astronautService.batchArguments[0].size)
-            assertEquals(1, astronautService.batchArguments[0][0].id)
-            assertEquals(2, astronautService.batchArguments[0][1].id)
 
             assertEquals(1, missionService.batchArguments.size)
             assertEquals(2, missionService.batchArguments[0].size)
-            assertEquals(3, missionService.batchArguments[0][0].id)
-            assertEquals(4, missionService.batchArguments[0][1].id)
 
             verify(exactly = 3) {
                 transactionBatcher.dispatch()
