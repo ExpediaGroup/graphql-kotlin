@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
+import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
@@ -68,12 +69,14 @@ class GraphQLSchemaConfiguration {
         instrumentations: Optional<List<Instrumentation>>,
         executionIdProvider: Optional<ExecutionIdProvider>,
         preparsedDocumentProvider: Optional<PreparsedDocumentProvider>,
-        config: GraphQLConfigurationProperties
+        config: GraphQLConfigurationProperties,
+        idValueUnboxer: IDValueUnboxer
     ): GraphQL {
         val graphQL = GraphQL.newGraphQL(schema)
             .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
             .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
             .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy(dataFetcherExceptionHandler))
+            .valueUnboxer(idValueUnboxer)
 
         instrumentations.ifPresent { unordered ->
             if (unordered.size == 1) {
@@ -97,6 +100,10 @@ class GraphQLSchemaConfiguration {
         }
         return graphQL.build()
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun idValueUnboxer(): IDValueUnboxer = IDValueUnboxer()
 
     @Bean
     @ConditionalOnMissingBean

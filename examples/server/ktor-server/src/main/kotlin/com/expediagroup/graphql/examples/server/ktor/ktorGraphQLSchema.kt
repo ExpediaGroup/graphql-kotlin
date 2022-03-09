@@ -23,6 +23,7 @@ import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
 import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.generator.toSchema
 import graphql.GraphQL
 
@@ -41,4 +42,6 @@ private val queries = listOf(
 private val mutations = listOf(TopLevelObject(LoginMutationService()))
 val graphQLSchema = toSchema(config, queries, mutations)
 
-fun getGraphQLObject(): GraphQL = GraphQL.newGraphQL(graphQLSchema).build()
+fun getGraphQLObject(): GraphQL = GraphQL.newGraphQL(graphQLSchema)
+    .valueUnboxer(IDValueUnboxer())
+    .build()

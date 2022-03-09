@@ -46,16 +46,22 @@ class CustomScalarApplicationTests(@LocalServerPort private val port: Int) {
     }
 
     @Test
-    fun `verify optionals are correctly serialized and deserialized`() = runBlocking {
+    fun `verify undefined optionals are correctly serialized and deserialized`() = runBlocking {
         val client = GraphQLWebClient(url = "http://localhost:$port/graphql")
 
         val undefinedWrapperQuery = OptionalScalarQuery(variables = OptionalScalarQuery.Variables())
-        val undefinedWrapperResult = client.execute(undefinedWrapperQuery)
-        assertNull(undefinedWrapperResult.data?.optionalScalarQuery)
-
-        val nullWrapperQuery = OptionalScalarQuery(variables = OptionalScalarQuery.Variables(optional = OptionalInput.Defined(null)))
-        val nullWrapperResult = client.execute(nullWrapperQuery)
-        assertNull(nullWrapperResult.data?.optionalScalarQuery)
+        val undefinedWrapperResult = client.execute(undefinedWrapperQuery).data?.optionalScalarQuery
+        assertNotNull(undefinedWrapperResult)
+        assertEquals(UNDEFINED_BOOLEAN, undefinedWrapperResult.optionalBoolean)
+        assertEquals(UNDEFINED_DOUBLE, undefinedWrapperResult.optionalDouble)
+        assertEquals(UNDEFINED_STRING, undefinedWrapperResult.optionalId)
+        assertEquals(UNDEFINED_INT, undefinedWrapperResult.optionalInt)
+        assertEquals(0, undefinedWrapperResult.optionalIntList?.size)
+        assertEquals(UNDEFINED_OBJECT.foo, undefinedWrapperResult.optionalObject?.foo)
+        assertEquals(UNDEFINED_STRING, undefinedWrapperResult.optionalString)
+        assertEquals(UNDEFINED_LOCALE, undefinedWrapperResult.optionalULocale)
+        assertEquals(UNDEFINED_UUID, undefinedWrapperResult.optionalUUID)
+        assertEquals(0, undefinedWrapperResult.optionalUUIDList?.size)
 
         val defaultWrapper = OptionalWrapperInput()
         val defaultWrapperQuery = OptionalScalarQuery(variables = OptionalScalarQuery.Variables(
@@ -73,6 +79,15 @@ class CustomScalarApplicationTests(@LocalServerPort private val port: Int) {
         assertEquals(UNDEFINED_LOCALE, defaultResult.optionalULocale)
         assertEquals(UNDEFINED_UUID, defaultResult.optionalUUID)
         assertEquals(0, defaultResult.optionalUUIDList?.size)
+    }
+
+    @Test
+    fun `verify null optionals are correctly serialized and deserialized`() = runBlocking {
+        val client = GraphQLWebClient(url = "http://localhost:$port/graphql")
+
+        val nullWrapperQuery = OptionalScalarQuery(variables = OptionalScalarQuery.Variables(optional = OptionalInput.Defined(null)))
+        val nullWrapperResult = client.execute(nullWrapperQuery)
+        assertNull(nullWrapperResult.data?.optionalScalarQuery)
 
         val nullWrapper = OptionalWrapperInput(
             optionalBoolean = OptionalInput.Defined(null),
@@ -101,6 +116,11 @@ class CustomScalarApplicationTests(@LocalServerPort private val port: Int) {
         assertNull(nullResult.optionalULocale)
         assertNull(nullResult.optionalUUID)
         assertNull(nullResult.optionalUUIDList)
+    }
+
+    @Test
+    fun `verify defined optionals are correctly serialized and deserialized`() = runBlocking {
+        val client = GraphQLWebClient(url = "http://localhost:$port/graphql")
 
         val randomUUID = UUID.randomUUID()
         val wrapper = OptionalWrapperInput(
@@ -171,5 +191,4 @@ class CustomScalarApplicationTests(@LocalServerPort private val port: Int) {
         assertEquals(wrapper.requiredUUIDList.size, result.requiredUUIDList.size)
         assertEquals(wrapper.requiredUUIDList[0], result.requiredUUIDList[0])
     }
-
 }

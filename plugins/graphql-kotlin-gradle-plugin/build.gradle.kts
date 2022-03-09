@@ -1,3 +1,5 @@
+import java.time.LocalDate
+
 description = "Gradle Kotlin Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
 plugins {
@@ -96,6 +98,12 @@ tasks {
         }
     }
     test {
+        // ensure we always run tests by setting new inputs
+        //
+        // tests are parameterized and run IT based on projects under src/integration directories
+        // Gradle is unaware of this and does not run tests if no sources/inputs changed
+        inputs.property("integration.date", LocalDate.now())
+
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         dependsOn(":resolveIntegrationTestDependencies")
 
