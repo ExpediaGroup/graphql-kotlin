@@ -3,6 +3,8 @@ package com.expediagroup.scalars
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.GraphQLContext
+import com.expediagroup.graphql.generator.scalars.ID
+import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
@@ -12,6 +14,8 @@ import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.scalars.queries.ScalarQuery
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
+import graphql.execution.DefaultValueUnboxer
+import graphql.execution.ValueUnboxer
 import io.ktor.request.ApplicationRequest
 import io.ktor.request.receiveText
 import java.io.IOException
@@ -41,7 +45,9 @@ class KtorGraphQLServer(
             val graphQLSchema = toSchema(config, listOf(
                 TopLevelObject(ScalarQuery())
             ))
-            val graphQL: GraphQL = GraphQL.newGraphQL(graphQLSchema).build()
+            val graphQL: GraphQL = GraphQL.newGraphQL(graphQLSchema)
+                .valueUnboxer(IDValueUnboxer())
+                .build()
             val requestHandler = GraphQLRequestHandler(graphQL)
 
             return KtorGraphQLServer(requestParser, contextFactory, requestHandler)

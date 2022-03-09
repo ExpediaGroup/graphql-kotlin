@@ -16,17 +16,33 @@ extended scalar types provided by `graphql-java`.
 | `kotlin.Float`    | `Float`   |
 
 :::note
-The GraphQL spec uses the term `Float` for signed double‐precision fractional values. `graphql-java` maps this to a `java.lang.Double` for the execution. The generator will map both `kotlin.Double` and `kotlin.Float` to GraphQL `Float` but we reccomend you use `kotlin.Double`
+The GraphQL spec uses the term `Float` for signed double‐precision fractional values. `graphql-java` maps this to a `java.lang.Double` for the execution. The generator will map both `kotlin.Double` and `kotlin.Float` to GraphQL `Float` but we recommend you use `kotlin.Double`.
 :::
 
 ## GraphQL ID
 
-GraphQL supports the scalar type `ID`, a unique identifier that is not intended to be human readable. IDs are
+GraphQL supports the scalar type `ID`, a unique identifier that is not intended to be human-readable. IDs are
 serialized as a `String`. To expose a GraphQL `ID` field, you must use the `com.expediagroup.graphql.generator.scalars.ID`
 class, which is an *inline value class* that wraps the underlying `String` value.
 
 :::note
 `graphql-java` supports additional types (`String`, `Int`, `Long`, or `UUID`) but [due to serialization issues](https://github.com/ExpediaGroup/graphql-kotlin/issues/317) we can only directly support Strings.
+:::
+
+Since `ID` is a value class, it may be represented at runtime as a wrapper or directly as underlying type. Due to the generic
+nature of the query processing logic we *always* end up with up a wrapper type when resolving the field value. As a result,
+in order to ensure that underlying scalar value is correctly serialized, we need to explicitly unwrap it by registering
+`IDValueUnboxer` with your GraphQL instance.
+
+```kotlin
+// registering custom value unboxer
+val graphQL = GraphQL.newGraphQL(graphQLSchema)
+    .valueUnboxer(IDValueUnboxer())
+    .build()
+```
+
+:::note
+`IDValueUnboxer` is automatically configured by `graphql-kotlin-spring-server`.
 :::
 
 ```kotlin

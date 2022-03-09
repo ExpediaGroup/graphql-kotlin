@@ -23,9 +23,12 @@ class ScalarQuery : Query {
         }
     }
 
-    fun optionalScalarQuery(optional: OptionalWrapper? = null): OptionalWrapper? {
+    fun optionalScalarQuery(optional: OptionalInput<OptionalWrapperInput> = OptionalInput.Undefined): OptionalWrapper? {
         logger.info("optional query received: $optional")
-        return optional
+        return when (optional) {
+            is OptionalInput.Defined -> optional.value?.toOptionalWrapper()
+            is OptionalInput.Undefined -> OptionalWrapper()
+        }
     }
 
     fun scalarQuery(required: RequiredWrapper): RequiredWrapper {
