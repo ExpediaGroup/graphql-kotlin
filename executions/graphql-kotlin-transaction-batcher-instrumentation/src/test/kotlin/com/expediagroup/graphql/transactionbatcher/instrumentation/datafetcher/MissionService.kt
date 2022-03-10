@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher
 
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.transactionBatcher
-import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.schema.DataFetchingEnvironment
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
