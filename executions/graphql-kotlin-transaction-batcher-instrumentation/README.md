@@ -34,7 +34,7 @@ implementation("com.expediagroup:graphql-kotlin-transaction-batcher-instrumentat
 
 ## Use it
 
-When creating your `GraphQL` instance make sure to include the `TransactionBatcherLevelInstrumentation`
+When creating your `GraphQL` instance make sure to include the `TransactionBatcherLevelInstrumentation`.
 
 ```kotlin
 GraphQL
@@ -44,7 +44,7 @@ GraphQL
 ```
 
 When ready to execute an operation or operations make sure to create a single instance of `TransactionBatcher`
-and `ExecutionLevelInstrumentationState` and store them in the `graphQLContext`
+and `ExecutionLevelInstrumentationState` and store them in the `graphQLContext`.
 
 ```kotlin
 val queries = [
@@ -77,7 +77,7 @@ val result2 = graphQL.executeAsync(executionInput2)
 ```
 
 `TransactionBatcherLevelInstrumentation` will detect when a certain level dispatched of all executionInputs (DataFetcher was called)
-and then will automatically dispatch the instance of `TransactionBatcher` in the `GraphQLContext`
+and then will automatically dispatch the instance of `TransactionBatcher` in the `GraphQLContext`.
 
 This way even if you are executing 2 separate operations you can still batch the requests to the Astronaut API.
 
