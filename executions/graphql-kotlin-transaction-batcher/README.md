@@ -33,7 +33,7 @@ implementation("com.expediagroup:graphql-kotlin-transaction-batcher:$latestVersi
 
 ## Use it
 
-Assuming we have a service that performs an HTTP Request to a REST endpoint
+Assuming we have a service that performs an HTTP Request to a REST endpoint:
 
 ```kotlin
 class AstronautService {
@@ -60,7 +60,7 @@ val transactionBatcher = TransactionBatcher()
 implementation as argument in the constructor, by default is [DefaultTransactionBatcherCache](src/main/kotlin/com/expediagroup/graphql/transactionbatcher/transaction/cache/TransactionBatcherCache.kt)
 which is just a `ConcurrentHashMap`, you can easily implement your own cache using `caffeine`, `redis`, etc.
 
-Pass the `TransactionBatcher` instance to your service
+Pass the `TransactionBatcher` instance to your service:
 
 ```kotlin
 class AstronautService(
@@ -83,11 +83,11 @@ val astronaut2 = astronautService.getAstronaut(request2)
 
 You don't have to change the return type of `getAstronaut` internally the `TransactionBatcher`
 will still return a `CompletableFuture`, and the return type of the second argument of `TransactionBatcher.batch`
-has to be a reactive-streams `Publisher`
+has to be a reactive-streams `Publisher`.
 
 Here is where you can use your own httpClient and async approach, coroutines, project reactor, you would just need to
 interop to the reactive-streams `Publisher`.
 
 At the moment the returned stream starts to emit data, the previously returned `CompletableFuture` instances will `complete`.
 
-The action that triggers everything is `TransactionBatcher.dispatch`
+The action that triggers everything is `TransactionBatcher.dispatch`.
