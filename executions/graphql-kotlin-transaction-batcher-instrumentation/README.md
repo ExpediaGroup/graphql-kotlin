@@ -3,9 +3,9 @@
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation)
 
 `graphql-kotlin-transaction-batcher-instrumentation` is a custom instrumentation that will signal when is the right moment
-to dispatch transactions added in the `TransactionBatcher` located in the `GraphQLContext`
+to dispatch transactions added in the `TransactionBatcher` located in the `GraphQLContext`.
 
-This instrumentation follows the same approach of the [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java)
+This instrumentation follows the same approach of the [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java).
 
 The main difference is that `Instrumentation` is applied by `ExecutionInput` aka GraphQL Operation, and this new Instrumentation
 accesses to a state in the `GraphQLContext` to keep track of each `ExecutionState`.
