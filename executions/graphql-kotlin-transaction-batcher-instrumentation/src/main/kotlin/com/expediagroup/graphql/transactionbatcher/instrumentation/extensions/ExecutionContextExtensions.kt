@@ -25,7 +25,7 @@ import kotlin.math.max
  * Calculate the longest path of the [ExecutionContext] AST Document from the root node to a leaf node
  * @return the height of the AST Document
  */
-fun ExecutionContext.getDocumentHeight(): Int {
+internal fun ExecutionContext.getDocumentHeight(): Int {
     val getFieldDepth: (QueryVisitorFieldEnvironment?) -> Int = { queryVisitor ->
         var hasQueryVisitor = queryVisitor
         var height = 1

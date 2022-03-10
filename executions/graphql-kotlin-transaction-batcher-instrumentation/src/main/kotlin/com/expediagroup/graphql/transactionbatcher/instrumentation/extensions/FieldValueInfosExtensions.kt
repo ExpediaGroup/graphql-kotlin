@@ -18,7 +18,7 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.extensions
 
 import graphql.execution.FieldValueInfo
 
-fun List<FieldValueInfo>.getExpectedStrategyCalls(): Int {
+internal fun List<FieldValueInfo>.getExpectedStrategyCalls(): Int {
     var count = 0
     this.forEach { fieldValueInfo ->
         when (fieldValueInfo.completeValueType) {

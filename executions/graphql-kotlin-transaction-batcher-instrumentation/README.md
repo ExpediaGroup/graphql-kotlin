@@ -7,8 +7,8 @@ to dispatch transactions added in the `TransactionBatcher` located in the `Graph
 
 This instrumentation follows the same approach of the [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java).
 
-The main difference is that `Instrumentation` is applied by `ExecutionInput` aka GraphQL Operation, and this new Instrumentation
-accesses to a state in the `GraphQLContext` to keep track of each `ExecutionState`.
+The main difference is that regular `Instrumentation`s are applied by a single `ExecutionInput` aka GraphQL Operation,
+whereas this new instrumentation applies across a number of operations and stores its state in the `GraphQLContext`.
 
 Once a certain level of all executions in the `GraphQLContext` dispatched we signal the `TransactionBatcher` to dispatch.
 

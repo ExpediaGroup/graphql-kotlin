@@ -1,4 +1,4 @@
-description = "Transaction Batcher Instrumentation by level"
+description = "Transaction Batcher Instrumentation"
 
 val junitVersion: String by project
 val graphQLJavaVersion: String by project

@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @param block function to execute over the associated value while holding his monitor
  * @return result of [block] function that was executed over the associated values
  */
-fun <K, V, R> ConcurrentHashMap<K, V>.synchronizeIfPresent(key: K, block: (V) -> R): R? =
+internal fun <K, V, R> ConcurrentHashMap<K, V>.synchronizeIfPresent(key: K, block: (V) -> R): R? =
     this[key]?.let { value ->
         synchronized(value) {
             block(value)
