@@ -81,7 +81,7 @@ and then will automatically dispatch the instance of `TransactionBatcher` in the
 
 This way even if you are executing 2 separate operations you can still batch the requests to the Astronaut API.
 
-### usage data fetchers
+### Usage in DataFetcher
 
 In order to access to the `TransactionBatcher` instance, you can use the `DataFetchingEnvironment` which is passed to each
 `DataFetcher`
