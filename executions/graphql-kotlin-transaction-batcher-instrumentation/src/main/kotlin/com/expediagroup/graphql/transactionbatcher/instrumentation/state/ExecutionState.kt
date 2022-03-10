@@ -20,6 +20,9 @@ import graphql.schema.DataFetcher
 
 enum class LevelState { NOT_DISPATCHED, DISPATCHED }
 
+/**
+ * Handle the state of an [graphql.ExecutionInput]
+ */
 class ExecutionState(documentHeight: Int) {
 
     private val levelsState: MutableMap<Level, LevelState> = mutableMapOf(
@@ -52,30 +55,85 @@ class ExecutionState(documentHeight: Int) {
             *Array(documentHeight) { number -> Level(number + 1) to mutableListOf() }
         )
 
+    /**
+     * Check if the [ExecutionState] contains a level
+     *
+     * @param level to check if his state is being calculated
+     * @return whether or not state contains the level
+     */
     fun contains(level: Level): Boolean = levelsState.containsKey(level)
 
+    /**
+     * Increase fetches that this [ExecutionState] is expecting
+     *
+     * @param level which level expects [count] of fetches
+     * @param count how many more fetches the [level] will expect
+     * @return total expected fetches
+     */
     fun increaseExpectedFetches(level: Level, count: Int): Int? =
         expectedFetches.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
+    /**
+     * Increase happened fetches of this [ExecutionState]
+     *
+     * @param level which level should increase happened fetches
+     * @return total happened fetches
+     */
     fun increaseHappenedFetches(level: Level): Int? =
         happenedFetches.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
+    /**
+     * Increase executionStrategies that this [ExecutionState] is expecting
+     *
+     * @param level which level expects [count] of fetches
+     * @param count how many more executionStrategies the [level] will expect
+     * @return total expected executionStrategies
+     */
     fun increaseExpectedExecutionStrategies(level: Level, count: Int): Int? =
         expectedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
+    /**
+     * Increase happened executionStrategies of this [ExecutionState]
+     *
+     * @param level which level should increase happened fetches
+     * @return total happened executionStrategies
+     */
     fun increaseHappenedExecutionStrategies(level: Level): Int? =
         happenedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
+    /**
+     * Increase happened OnFieldValueInfos invocations of this [ExecutionState]
+     *
+     * @param level which level should increase happened OnFieldValueInfos
+     * @return total happened executionStrategies
+     */
     fun increaseHappenedOnFieldValueInfos(level: Level): Int? =
         happenedOnFieldValueInfos.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
+    /**
+     * Instrument a dataFetcher to modify his runtime behavior to manually complete the returned CompletableFuture
+     *
+     * @param level which level the [dataFetcher] belongs
+     * @param dataFetcher to be instrumented
+     * @return instrumented dataFetcher
+     */
     fun toManuallyCompletableDataFetcher(level: Level, dataFetcher: DataFetcher<*>): ManuallyCompletableDataFetcher =
         ManuallyCompletableDataFetcher(dataFetcher).also { manuallyCompletableDataFetchers[level]?.add(it) }
 
+    /**
+     * Complete all the [manuallyCompletableDataFetchers]
+     *
+     * @param level which level should complete dataFetchers
+     */
     fun completeDataFetchers(level: Level) {
         manuallyCompletableDataFetchers[level]?.forEach(ManuallyCompletableDataFetcher::complete)
     }
 
+    /**
+     * Check if a given level is dispatched
+     *
+     * @param level which level check if its dispatched
+     */
     fun isLevelDispatched(level: Level): Boolean = when {
         levelsState[level] == LevelState.DISPATCHED -> true
         level.isFirst() -> happenedFetches[level] == expectedFetches[level]

@@ -27,6 +27,10 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionStra
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import graphql.schema.DataFetcher
 
+/**
+ * Custom GraphQL [graphql.execution.instrumentation.Instrumentation] that calculate the state of executions
+ * of all queries sharing the same GraphQLContext map
+ */
 abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), ExecutionLevelInstrumentation {
 
     override fun beginExecuteOperation(

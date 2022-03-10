@@ -22,10 +22,12 @@ import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
 /**
- * decorator that stores the original dataFetcher result (it's always a completable future)
- * and returns an uncompleted future
- * once a certain level of all operations was dispatched
- * call complete of previously returned future with original future results to let graphql-java handle all futures
+ * DataFetcher Decorator that stores the original dataFetcher result (it's always a completable future)
+ * it stores the [originalFuture] as property and returns an uncompleted [manualFuture]
+ * then at later point manually call [complete] to complete the [manualFuture] with the [originalFuture] result
+ * to let ExecutionStrategy handle all futures
+ *
+ * @param originalDataFetcher original dataFetcher to be decorated
  */
 class ManuallyCompletableDataFetcher(
     private val originalDataFetcher: DataFetcher<*>
@@ -35,6 +37,14 @@ class ManuallyCompletableDataFetcher(
     private var originalFuture: CompletableFuture<Any?>? = null
     private var originalExpressionException: Exception? = null
 
+    /**
+     * when attempting to get the value from dataFetcher, store the execute the [originalDataFetcher]
+     * and store the resulting future [originalFuture] and a possible [originalExpressionException] if
+     * an exception was thrown during the expression
+     *
+     * @param environment dataFetchingEnvironment with information about the field
+     * @return an uncompleted manualFuture that can be completed at later time
+     */
     override fun get(environment: DataFetchingEnvironment): CompletableFuture<Any?> {
         try {
             val fetchedValueRaw = originalDataFetcher.get(environment)
@@ -45,6 +55,9 @@ class ManuallyCompletableDataFetcher(
         return manualFuture
     }
 
+    /**
+     * Manually complete the [manualFuture] by handling the [originalFuture]
+     */
     fun complete() {
         when {
             originalExpressionException != null -> manualFuture.completeExceptionally(originalExpressionException)

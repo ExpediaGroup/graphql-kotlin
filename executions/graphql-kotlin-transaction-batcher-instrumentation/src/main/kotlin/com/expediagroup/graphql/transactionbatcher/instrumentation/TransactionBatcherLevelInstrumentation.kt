@@ -23,6 +23,10 @@ import com.expediagroup.graphql.transactionbatcher.instrumentation.state.Level
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.ExecutionInput
 
+/**
+ * Once a certain [Level] is dispatched for all [ExecutionInput] sharing a graphQLContext map
+ * it will automatically dispatch a [TransactionBatcher] instance located in the GraphQLContext map.
+ */
 class TransactionBatcherLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
     override fun calculateLevelState(
         parameters: ExecutionLevelInstrumentationParameters

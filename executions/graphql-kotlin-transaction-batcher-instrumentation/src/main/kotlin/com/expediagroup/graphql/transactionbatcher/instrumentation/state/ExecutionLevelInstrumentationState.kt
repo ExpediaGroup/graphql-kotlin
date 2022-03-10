@@ -33,11 +33,21 @@ import graphql.schema.DataFetcher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Orchestrate the [ExecutionState] of all [ExecutionInput] sharing the same graphQLContext map,
+ * when a certain state is reached will invoke [ExecutionLevelInstrumentationContext]
+ */
 class ExecutionLevelInstrumentationState(
     private val totalExecutions: Int
 ) {
     val executions = ConcurrentHashMap<ExecutionInput, ExecutionState>()
 
+    /**
+     * When a specific [ExecutionInput] starts his execution, calculate the height of the AST Document
+     *
+     * @param parameters contains information of which [ExecutionInput] will start his execution
+     * @return a non null [InstrumentationContext] object
+     */
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> {
@@ -47,6 +57,12 @@ class ExecutionLevelInstrumentationState(
         return SimpleInstrumentationContext.noOp()
     }
 
+    /**
+     * When a specific [ExecutionInput] begins an executionStrategy, modify the state of his [ExecutionState]
+     *
+     * @param parameters contains information of which [ExecutionInput] will start an ExecutionStrategy
+     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionState]
+     */
     fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
         executionLevelContext: ExecutionLevelInstrumentationContext
@@ -93,6 +109,12 @@ class ExecutionLevelInstrumentationState(
         }
     }
 
+    /**
+     * When a specific [ExecutionInput] begins an fieldFetch, modify the state of his [ExecutionState]
+     *
+     * @param parameters contains information of which [ExecutionInput] will start an ExecutionStrategy
+     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionState]
+     */
     fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters,
         executionLevelContext: ExecutionLevelInstrumentationContext
@@ -119,6 +141,16 @@ class ExecutionLevelInstrumentationState(
         }
     }
 
+    /**
+     * Modify runtime behaviour of ExecutionStrategy by instrumenting a data fetcher that can be
+     * manually completed, by default ExecutionStrategy will do a Depth First execution, by instrumenting
+     * the [dataFetcher] it will switch to Breath First execution to complete when a level of all operations sharing
+     * a graphQLContext was dispatched
+     *
+     * @param dataFetcher the original dataFetcher that will be instrumented
+     * @param parameters contains information of which [ExecutionInput] will use the [dataFetcher]
+     * @return [ManuallyCompletableDataFetcher]
+     */
     fun instrumentDataFetcher(
         dataFetcher: DataFetcher<*>,
         parameters: InstrumentationFieldFetchParameters
@@ -128,6 +160,15 @@ class ExecutionLevelInstrumentationState(
             executionState.toManuallyCompletableDataFetcher(level, dataFetcher)
         } ?: dataFetcher
 
+    /**
+     * calculate if all executions sharing a graphQLContext was dispatched, by
+     * 1. Checking if the height of  all executions was already calculated.
+     * 2. Filter all executions sharing the same Level
+     * 3. check if all executions sharing the same level dispatched that level.
+     *
+     * @param level that execution state will be calculated
+     * @return Boolean for allExecutionsDispatched statement
+     */
     private fun allExecutionsDispatched(level: Level): Boolean =
         executions
             .takeIf { executions -> executions.size == totalExecutions }

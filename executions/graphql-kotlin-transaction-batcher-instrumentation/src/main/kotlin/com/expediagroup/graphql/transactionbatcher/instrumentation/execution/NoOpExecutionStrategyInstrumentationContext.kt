@@ -20,6 +20,9 @@ import graphql.ExecutionResult
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Simple NoOp [ExecutionStrategyInstrumentationContext] implementation
+ */
 object NoOpExecutionStrategyInstrumentationContext : ExecutionStrategyInstrumentationContext {
     override fun onDispatched(result: CompletableFuture<ExecutionResult>) {
     }

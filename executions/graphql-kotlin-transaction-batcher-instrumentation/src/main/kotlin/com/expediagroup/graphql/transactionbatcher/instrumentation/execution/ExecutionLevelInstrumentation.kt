@@ -16,9 +16,17 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
 
-import graphql.execution.instrumentation.Instrumentation
+import graphql.ExecutionInput
 
-interface ExecutionLevelInstrumentation : Instrumentation {
+interface ExecutionLevelInstrumentation {
+    /**
+     * This is invoked each time instrumentation attempts to calculate state, this can be called from either
+     * `beginFieldField` or `beginExecutionStrategy`.
+     *
+     * @param parameters contains information of which [ExecutionInput] caused the calculation and from which hook
+     * @return an instance of [ExecutionLevelInstrumentationContext] that will call a method when a certain event happened
+     * like `onDispatched`
+     */
     fun calculateLevelState(
         parameters: ExecutionLevelInstrumentationParameters
     ): ExecutionLevelInstrumentationContext

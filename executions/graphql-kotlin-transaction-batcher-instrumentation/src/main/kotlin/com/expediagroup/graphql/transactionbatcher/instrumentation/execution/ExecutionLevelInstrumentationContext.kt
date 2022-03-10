@@ -19,6 +19,18 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
 import com.expediagroup.graphql.transactionbatcher.instrumentation.state.Level
 import graphql.ExecutionInput
 
+/**
+ * Defines the contract for the behavior that needs to be executed when a certain event happened
+ */
 interface ExecutionLevelInstrumentationContext {
-    fun onDispatched(level: Level, executions: List<ExecutionInput>)
+    /**
+     * this is invoked when all [ExecutionInput] in a GraphQLContext dispatched a certain level.
+     *
+     * @param level that was dispatched on all [ExecutionInput]
+     * @param executions list of executions that just dispatched a certain level
+     */
+    fun onDispatched(
+        level: Level,
+        executions: List<ExecutionInput>
+    )
 }
