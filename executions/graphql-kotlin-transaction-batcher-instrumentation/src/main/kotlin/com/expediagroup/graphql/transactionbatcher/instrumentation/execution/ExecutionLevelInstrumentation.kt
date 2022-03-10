@@ -18,6 +18,9 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
 
 import graphql.ExecutionInput
 
+/**
+ * Defines the contract for the behavior that needs to be executed when a level reaches some state
+ */
 interface ExecutionLevelInstrumentation {
     /**
      * This is invoked each time instrumentation attempts to calculate state, this can be called from either
