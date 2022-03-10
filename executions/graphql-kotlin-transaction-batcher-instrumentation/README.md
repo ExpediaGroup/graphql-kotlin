@@ -76,8 +76,27 @@ val result1 = graphQL.executeAsync(executionInput1)
 val result2 = graphQL.executeAsync(executionInput2)
 ```
 
-`TransactionBatcherLevelInstrumentation` will detect when a certain level dispatched of all executionInputs (DataFetcher was called)
+`TransactionBatcherLevelInstrumentation` will detect when a certain level of all executionInputs was dispatched (DataFetcher was called)
 and then will automatically dispatch the instance of `TransactionBatcher` in the `GraphQLContext`.
 
 This way even if you are executing 2 separate operations you can still batch the requests to the Astronaut API.
+
+### usage data fetchers
+
+In order to access to the `TransactionBatcher` instance, you can use the `DataFetchingEnvironment` which is passed to each
+`DataFetcher`
+
+```kotlin
+class AstronautService {
+    fun getAstronaut(
+        request: AstronautServiceRequest,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<Astronaut> =
+        environment.transactionBatcher().batch(request) { requests: List<AstronautServiceRequest> ->
+            // perform Transaction with list of requests and return a Publisher<Astronaut>
+        }
+}
+```
+
+
 
