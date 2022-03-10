@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher
 
-import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
+import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.transactionBatcher
 import graphql.schema.DataFetchingEnvironment
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
@@ -34,17 +34,14 @@ class AstronautService {
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
-        environment
-            .graphQlContext
-            .get<TransactionBatcher>(TransactionBatcher::class)
-            .batch(request) { requests: List<AstronautServiceRequest> ->
-                batchArguments += requests
-                requests.toFlux().flatMapSequential { request ->
-                    astronauts[request.id].toMono().flatMap { (astronaut, delay) ->
-                        astronaut.toMono().delayElement(delay)
-                    }
+        environment.transactionBatcher().batch(request) { requests: List<AstronautServiceRequest> ->
+            batchArguments += requests
+            requests.toFlux().flatMapSequential { request ->
+                astronauts[request.id].toMono().flatMap { (astronaut, delay) ->
+                    astronaut.toMono().delayElement(delay)
                 }
             }
+        }
 
     companion object {
         private val astronauts = mapOf(
