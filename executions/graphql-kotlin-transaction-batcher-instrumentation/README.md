@@ -39,7 +39,7 @@ When creating your `GraphQL` instance make sure to include the `TransactionBatch
 ```kotlin
 GraphQL
     .instrumentation(TransactionBatcherLevelInstrumentation())
-    // configure schema type wiring, etc.
+    // configure schema, type wiring, etc.
     .build()
 ```
 
