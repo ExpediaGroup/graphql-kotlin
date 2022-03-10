@@ -18,8 +18,14 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
 
 import graphql.execution.ExecutionContext
 
+/**
+ * Source of level state calculation
+ */
 enum class ExecutionLevelCalculationSource { EXECUTION_STRATEGY, FIELD_FETCH }
 
+/**
+ * Hold information that will be provided to an instance of [ExecutionLevelInstrumentation]
+ */
 data class ExecutionLevelInstrumentationParameters(
     val executionContext: ExecutionContext,
     val calculationSource: ExecutionLevelCalculationSource

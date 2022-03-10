@@ -18,6 +18,14 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.extensions
 
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * if [ConcurrentHashMap] contains a given [key] execute a given [block] function while
+ * holding the monitor of the given object lock
+ *
+ * @param key to check if there is a value associated with
+ * @param block function to execute over the associated value while holding his monitor
+ * @return result of [block] function that was executed over the associated values
+ */
 fun <K, V, R> ConcurrentHashMap<K, V>.synchronizeIfPresent(key: K, block: (V) -> R): R? =
     this[key]?.let { value ->
         synchronized(value) {

@@ -16,8 +16,25 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.state
 
+/**
+ * Represent a Level of a Document
+ */
 data class Level(private val number: Int) {
+    /**
+     * calculate [Level] that is after this [Level]
+     * @return next [Level]
+     */
     fun next(): Level = Level(number + 1)
+
+    /**
+     * calculate [Level] that is before this [Level]
+     * @return previous [Level]
+     */
     fun previous(): Level = Level(number - 1)
+
+    /**
+     * calculate if this [Level] is the first
+     * @return whether or not this is the first [Level]
+     */
     fun isFirst(): Boolean = number == 1
 }
