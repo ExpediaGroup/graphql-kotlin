@@ -34,13 +34,13 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Orchestrate the [ExecutionState] of all [ExecutionInput] sharing the same graphQLContext map,
+ * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same graphQLContext map,
  * when a certain state is reached will invoke [ExecutionLevelInstrumentationContext]
  */
 class ExecutionLevelInstrumentationState(
     private val totalExecutions: Int
 ) {
-    val executions = ConcurrentHashMap<ExecutionInput, ExecutionState>()
+    val executions = ConcurrentHashMap<ExecutionInput, ExecutionBatchState>()
 
     /**
      * When a specific [ExecutionInput] starts his execution, calculate the height of the AST Document
@@ -51,17 +51,17 @@ class ExecutionLevelInstrumentationState(
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> {
-        executions[parameters.executionContext.executionInput] = ExecutionState(
+        executions[parameters.executionContext.executionInput] = ExecutionBatchState(
             parameters.executionContext.getDocumentHeight()
         )
         return SimpleInstrumentationContext.noOp()
     }
 
     /**
-     * When a specific [ExecutionInput] begins an executionStrategy, modify the state of his [ExecutionState]
+     * When a specific [ExecutionInput] begins an executionStrategy, modify the state of his [ExecutionBatchState]
      *
      * @param parameters contains information of which [ExecutionInput] will start an ExecutionStrategy
-     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionState]
+     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionBatchState]
      */
     fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
@@ -110,10 +110,10 @@ class ExecutionLevelInstrumentationState(
     }
 
     /**
-     * When a specific [ExecutionInput] begins an fieldFetch, modify the state of his [ExecutionState]
+     * When a specific [ExecutionInput] begins an fieldFetch, modify the state of his [ExecutionBatchState]
      *
      * @param parameters contains information of which [ExecutionInput] will start an ExecutionStrategy
-     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionState]
+     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionBatchState]
      */
     fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters,

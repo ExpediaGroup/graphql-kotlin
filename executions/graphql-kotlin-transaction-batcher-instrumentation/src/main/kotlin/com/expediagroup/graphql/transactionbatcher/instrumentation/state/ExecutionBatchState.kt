@@ -23,7 +23,7 @@ enum class LevelState { NOT_DISPATCHED, DISPATCHED }
 /**
  * Handle the state of an [graphql.ExecutionInput]
  */
-class ExecutionState(documentHeight: Int) {
+class ExecutionBatchState(documentHeight: Int) {
 
     private val levelsState: MutableMap<Level, LevelState> = mutableMapOf(
         *Array(documentHeight) { number -> Level(number + 1) to LevelState.NOT_DISPATCHED }
@@ -56,7 +56,7 @@ class ExecutionState(documentHeight: Int) {
         )
 
     /**
-     * Check if the [ExecutionState] contains a level
+     * Check if the [ExecutionBatchState] contains a level
      *
      * @param level to check if his state is being calculated
      * @return whether or not state contains the level
@@ -64,7 +64,7 @@ class ExecutionState(documentHeight: Int) {
     fun contains(level: Level): Boolean = levelsState.containsKey(level)
 
     /**
-     * Increase fetches that this [ExecutionState] is expecting
+     * Increase fetches that this [ExecutionBatchState] is expecting
      *
      * @param level which level expects [count] of fetches
      * @param count how many more fetches the [level] will expect
@@ -74,7 +74,7 @@ class ExecutionState(documentHeight: Int) {
         expectedFetches.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
     /**
-     * Increase happened fetches of this [ExecutionState]
+     * Increase happened fetches of this [ExecutionBatchState]
      *
      * @param level which level should increase happened fetches
      * @return total happened fetches
@@ -83,7 +83,7 @@ class ExecutionState(documentHeight: Int) {
         happenedFetches.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     /**
-     * Increase executionStrategies that this [ExecutionState] is expecting
+     * Increase executionStrategies that this [ExecutionBatchState] is expecting
      *
      * @param level which level expects [count] of fetches
      * @param count how many more executionStrategies the [level] will expect
@@ -93,7 +93,7 @@ class ExecutionState(documentHeight: Int) {
         expectedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
     /**
-     * Increase happened executionStrategies of this [ExecutionState]
+     * Increase happened executionStrategies of this [ExecutionBatchState]
      *
      * @param level which level should increase happened fetches
      * @return total happened executionStrategies
@@ -102,7 +102,7 @@ class ExecutionState(documentHeight: Int) {
         happenedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     /**
-     * Increase happened OnFieldValueInfos invocations of this [ExecutionState]
+     * Increase happened OnFieldValueInfos invocations of this [ExecutionBatchState]
      *
      * @param level which level should increase happened OnFieldValueInfos
      * @return total happened executionStrategies
