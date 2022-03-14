@@ -19,7 +19,7 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 
 ## ⌨️ Usage
 
-While all the individual modules of `graphql-kotlin` are published as stand-alone libraries, the most common use cases are running a server, and genereating a type-safe client.
+While all the individual modules of `graphql-kotlin` are published as stand-alone libraries, the most common use cases are running a server and generating a type-safe client.
 
 ### Server Example
 
@@ -34,7 +34,7 @@ A basic setup of a GraphQL client can be found on our [client documentation sect
 More examples and documentation are available on our [documentation site](https://expediagroup.github.io/graphql-kotlin) hosted in GitHub Pages.
 We also have the [examples](/examples) module which can be run locally for testing and shows example code using the libraries.
 
-If you have a question about something you can not find in our documentation, the indivdual module READMEs, or [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator), feel free to contribute to the docs or [start a disucssion](https://github.com/ExpediaGroup/graphql-kotlin/discussions) and tag it with the question label.
+If you have a question about something you can not find in our documentation, the indivdual module `README`s, or [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator), feel free to contribute to the docs or [start a disucssion](https://github.com/ExpediaGroup/graphql-kotlin/discussions) and tag it with the question label.
 
 If you would like to contribute to our documentation see the [website](/website) directory for more information.
 
