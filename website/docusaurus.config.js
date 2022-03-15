@@ -72,8 +72,9 @@ module.exports = {
       }
     },
     algolia: {
-      apiKey: "b23761059e66eefd46f5f665a2d4537a",
-      indexName: "graphql-kotlin"
+      appId: 'B2J35I9RRE',
+      apiKey: 'f040c6941342dc872146a008495313a2',
+      indexName: 'expediagroup-graphql-kotlin'
     }
   }
 }
