@@ -31,7 +31,7 @@ class TransactionBatcher(
     private val cache: TransactionBatcherCache = DefaultTransactionBatcherCache()
 ) {
 
-    val batch = ConcurrentHashMap<
+    private val batch = ConcurrentHashMap<
         KClass<out TriggeredPublisher<Any, Any>>,
         TriggeredPublisherTransactions
         >()
