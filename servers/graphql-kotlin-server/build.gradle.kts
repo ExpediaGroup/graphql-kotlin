@@ -12,6 +12,7 @@ plugins {
 val jacksonVersion: String by project
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
+    api(project(path = ":graphql-kotlin-transaction-batcher-instrumentation"))
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
 }

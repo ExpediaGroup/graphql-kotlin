@@ -30,13 +30,16 @@ open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
     private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
 ) {
-
     /**
      * Execute a GraphQL request in a non-blocking fashion.
      * This should only be used for queries and mutations.
      * Subscriptions require more specific server logic and will need to be handled separately.
      */
-    open suspend fun executeRequest(request: GraphQLRequest, context: GraphQLContext? = null, graphQLContext: Map<*, Any> = emptyMap<Any, Any>()): GraphQLResponse<*> {
+    open suspend fun executeRequest(
+        request: GraphQLRequest,
+        context: GraphQLContext? = null,
+        graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
+    ): GraphQLResponse<*> {
         // We should generate a new registry for every request
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
         val executionInput = request.toExecutionInput(context, dataLoaderRegistry, graphQLContext)

@@ -25,6 +25,8 @@ import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
+import com.expediagroup.graphql.transactionbatcher.instrumentation.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -53,16 +55,23 @@ open class GraphQLServer<Request>(
      * If you need custom logic inside this method you can override this class or choose not to use it.
      */
     open suspend fun execute(request: Request): GraphQLServerResponse? = coroutineScope {
-        val graphQLRequest = requestParser.parseRequest(request)
-
-        if (graphQLRequest != null) {
+        requestParser.parseRequest(request)?.let { graphQLRequest ->
             val deprecatedContext = contextFactory.generateContext(request)
             val contextMap = contextFactory.generateContextMap(request)
 
             val customCoroutineContext: CoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
                 (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
             val graphQLExecutionScope = CoroutineScope(coroutineContext + customCoroutineContext + SupervisorJob())
-            val graphQLContext = contextMap + mapOf(CoroutineScope::class to graphQLExecutionScope)
+            val graphQLContext = contextMap + mapOf(
+                CoroutineScope::class to graphQLExecutionScope,
+                TransactionBatcher::class to TransactionBatcher(),
+                ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(
+                    when (graphQLRequest) {
+                        is GraphQLBatchRequest -> graphQLRequest.requests.size
+                        else -> 1
+                    }
+                )
+            )
 
             when (graphQLRequest) {
                 is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
@@ -79,8 +88,6 @@ open class GraphQLServer<Request>(
                     }
                 }
             }
-        } else {
-            null
         }
     }
 
