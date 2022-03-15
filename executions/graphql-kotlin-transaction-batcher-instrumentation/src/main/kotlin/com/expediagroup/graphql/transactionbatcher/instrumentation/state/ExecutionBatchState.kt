@@ -32,7 +32,7 @@ class ExecutionBatchState(documentHeight: Int) {
     private val expectedFetches: MutableMap<Level, Int> = mutableMapOf(
         *Array(documentHeight) { number -> Level(number + 1) to 0 }
     )
-    private val happenedFetches: MutableMap<Level, Int> = mutableMapOf(
+    private val dispatchedFetches: MutableMap<Level, Int> = mutableMapOf(
         *Array(documentHeight) { number -> Level(number + 1) to 0 }
     )
 
@@ -42,11 +42,11 @@ class ExecutionBatchState(documentHeight: Int) {
             level to if (level.isFirst()) 1 else 0
         }
     )
-    private val happenedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf(
+    private val dispatchedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf(
         *Array(documentHeight) { number -> Level(number + 1) to 0 }
     )
 
-    private val happenedOnFieldValueInfos: MutableMap<Level, Int> = mutableMapOf(
+    private val onFieldValueInfos: MutableMap<Level, Int> = mutableMapOf(
         *Array(documentHeight) { number -> Level(number + 1) to 0 }
     )
 
@@ -74,13 +74,13 @@ class ExecutionBatchState(documentHeight: Int) {
         expectedFetches.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
     /**
-     * Increase happened fetches of this [ExecutionBatchState]
+     * Increase dispatched fetches of this [ExecutionBatchState]
      *
-     * @param level which level should increase happened fetches
-     * @return total happened fetches
+     * @param level which level should increase dispatched fetches
+     * @return total dispatched fetches
      */
-    fun increaseHappenedFetches(level: Level): Int? =
-        happenedFetches.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
+    fun increaseDispatchedFetches(level: Level): Int? =
+        dispatchedFetches.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     /**
      * Increase executionStrategies that this [ExecutionBatchState] is expecting
@@ -93,22 +93,22 @@ class ExecutionBatchState(documentHeight: Int) {
         expectedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + count }
 
     /**
-     * Increase happened executionStrategies of this [ExecutionBatchState]
+     * Increase dispatched executionStrategies of this [ExecutionBatchState]
      *
-     * @param level which level should increase happened fetches
-     * @return total happened executionStrategies
+     * @param level which level should increase dispatched fetches
+     * @return total dispatched executionStrategies
      */
-    fun increaseHappenedExecutionStrategies(level: Level): Int? =
-        happenedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
+    fun increaseDispatchedExecutionStrategies(level: Level): Int? =
+        dispatchedExecutionStrategies.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     /**
-     * Increase happened OnFieldValueInfos invocations of this [ExecutionBatchState]
+     * Increase OnFieldValueInfos invocations of this [ExecutionBatchState]
      *
-     * @param level which level should increase happened OnFieldValueInfos
-     * @return total happened executionStrategies
+     * @param level which level should increase OnFieldValueInfos invocations
+     * @return total onFieldValueInfos invocations
      */
-    fun increaseHappenedOnFieldValueInfos(level: Level): Int? =
-        happenedOnFieldValueInfos.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
+    fun increaseOnFieldValueInfos(level: Level): Int? =
+        onFieldValueInfos.computeIfPresent(level) { _, currentCount -> currentCount + 1 }
 
     /**
      * Instrument a dataFetcher to modify his runtime behavior to manually complete the returned CompletableFuture
@@ -136,13 +136,13 @@ class ExecutionBatchState(documentHeight: Int) {
      */
     fun isLevelDispatched(level: Level): Boolean = when {
         levelsState[level] == LevelState.DISPATCHED -> true
-        level.isFirst() -> happenedFetches[level] == expectedFetches[level]
+        level.isFirst() -> dispatchedFetches[level] == expectedFetches[level]
         else -> {
             val previousLevel = level.previous()
             isLevelDispatched(previousLevel) &&
-                happenedOnFieldValueInfos[previousLevel] == expectedExecutionStrategies[previousLevel] &&
-                happenedExecutionStrategies[level] == expectedExecutionStrategies[level] &&
-                happenedFetches[level] == expectedFetches[level]
+                onFieldValueInfos[previousLevel] == expectedExecutionStrategies[previousLevel] &&
+                dispatchedExecutionStrategies[level] == expectedExecutionStrategies[level] &&
+                dispatchedFetches[level] == expectedFetches[level]
         }
     }.also { isLevelDispatched ->
         if (isLevelDispatched) {

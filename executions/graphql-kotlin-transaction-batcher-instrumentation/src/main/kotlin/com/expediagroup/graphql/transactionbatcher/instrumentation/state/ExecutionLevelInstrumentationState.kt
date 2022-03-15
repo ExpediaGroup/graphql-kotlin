@@ -19,7 +19,6 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.state
 import com.expediagroup.graphql.transactionbatcher.instrumentation.execution.ExecutionLevelInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getDocumentHeight
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getExpectedStrategyCalls
-import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.synchronizeIfPresent
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.execution.FieldValueInfo
@@ -51,9 +50,10 @@ class ExecutionLevelInstrumentationState(
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> {
-        executions[parameters.executionContext.executionInput] = ExecutionBatchState(
-            parameters.executionContext.getDocumentHeight()
-        )
+        val executionState = ExecutionBatchState(parameters.executionContext.getDocumentHeight())
+        executions.computeIfAbsent(parameters.executionContext.executionInput) {
+            executionState
+        }
         return SimpleInstrumentationContext.noOp()
     }
 
@@ -71,9 +71,11 @@ class ExecutionLevelInstrumentationState(
         val level = Level(parameters.executionStrategyParameters.path.level + 1)
         val fieldCount = parameters.executionStrategyParameters.fields.size()
 
-        executions.synchronizeIfPresent(executionInput) { executionState ->
-            executionState.increaseExpectedFetches(level, fieldCount)
-            executionState.increaseHappenedExecutionStrategies(level)
+        executions.computeIfPresent(executionInput) { _, executionState ->
+            executionState.also {
+                it.increaseExpectedFetches(level, fieldCount)
+                it.increaseDispatchedExecutionStrategies(level)
+            }
         }
 
         return object : ExecutionStrategyInstrumentationContext {
@@ -86,12 +88,14 @@ class ExecutionLevelInstrumentationState(
             override fun onFieldValuesInfo(fieldValueInfoList: List<FieldValueInfo>) {
                 val nextLevel = level.next()
 
-                executions.synchronizeIfPresent(executionInput) { executionState ->
-                    executionState.increaseHappenedOnFieldValueInfos(level)
-                    executionState.increaseExpectedExecutionStrategies(
-                        nextLevel,
-                        fieldValueInfoList.getExpectedStrategyCalls()
-                    )
+                executions.computeIfPresent(executionInput) { _, executionState ->
+                    executionState.also {
+                        it.increaseOnFieldValueInfos(level)
+                        it.increaseExpectedExecutionStrategies(
+                            nextLevel,
+                            fieldValueInfoList.getExpectedStrategyCalls()
+                        )
+                    }
                 }
 
                 val allExecutionsDispatched = synchronized(executions) { allExecutionsDispatched(nextLevel) }
@@ -102,8 +106,10 @@ class ExecutionLevelInstrumentationState(
             }
 
             override fun onFieldValuesException() {
-                synchronized(executions) {
-                    executions[executionInput]?.increaseHappenedOnFieldValueInfos(level)
+                executions.computeIfPresent(executionInput) { _, executionState ->
+                    executionState.also {
+                        it.increaseOnFieldValueInfos(level)
+                    }
                 }
             }
         }
@@ -125,8 +131,9 @@ class ExecutionLevelInstrumentationState(
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-                executions.synchronizeIfPresent(executionInput) { executionState ->
-                    executionState.increaseHappenedFetches(level)
+
+                executions.computeIfPresent(executionInput) { _, executionState ->
+                    executionState.also { it.increaseDispatchedFetches(level) }
                 }
 
                 val allExecutionsDispatched = synchronized(executions) { allExecutionsDispatched(level) }
@@ -154,11 +161,18 @@ class ExecutionLevelInstrumentationState(
     fun instrumentDataFetcher(
         dataFetcher: DataFetcher<*>,
         parameters: InstrumentationFieldFetchParameters
-    ): DataFetcher<*> =
-        executions.synchronizeIfPresent(parameters.executionContext.executionInput) { executionState ->
-            val level = Level(parameters.executionStepInfo.path.level)
-            executionState.toManuallyCompletableDataFetcher(level, dataFetcher)
-        } ?: dataFetcher
+    ): DataFetcher<*> {
+        var manuallyCompletableDataFetcher: DataFetcher<*> = dataFetcher
+        executions.computeIfPresent(parameters.executionContext.executionInput) { _, executionState ->
+            executionState.also {
+                manuallyCompletableDataFetcher = it.toManuallyCompletableDataFetcher(
+                    Level(parameters.executionStepInfo.path.level),
+                    dataFetcher
+                )
+            }
+        }
+        return manuallyCompletableDataFetcher
+    }
 
     /**
      * calculate if all executions sharing a graphQLContext was dispatched, by
