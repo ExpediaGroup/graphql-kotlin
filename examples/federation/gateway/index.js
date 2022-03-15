@@ -15,17 +15,23 @@
  */
 
 const { ApolloServer } = require("apollo-server");
-const { ApolloGateway } = require("@apollo/gateway");
+const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
+const { ApolloGateway, IntrospectAndCompose } = require("@apollo/gateway");
 
 const server = new ApolloServer({
   gateway: new ApolloGateway({
     debug: true,
-    serviceList: [
-      { name: "base-app", url: "http://localhost:8080/graphql" },
-      { name: "extend-app", url: "http://localhost:8081/graphql" }
-    ]
+    supergraphSdl: new IntrospectAndCompose({
+      subgraphs: [
+        { name: "base-app", url: "http://localhost:8080/graphql" },
+        { name: "extend-app", url: "http://localhost:8081/graphql" }
+      ],
+    })
   }),
-  subscriptions: false
+  plugins: [
+    ApolloServerPluginLandingPageGraphQLPlayground()
+  ],
+  subscriptions: false,
 });
 
 server.listen().then(({ url }) => {
