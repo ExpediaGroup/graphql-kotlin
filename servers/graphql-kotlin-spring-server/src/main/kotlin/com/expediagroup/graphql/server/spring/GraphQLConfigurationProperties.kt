@@ -33,7 +33,8 @@ data class GraphQLConfigurationProperties(
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
-    val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties()
+    val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
+    val batching: BatchingConfigurationProperties = BatchingConfigurationProperties()
 ) {
     /**
      * Apollo Federation configuration properties.
@@ -102,5 +103,13 @@ data class GraphQLConfigurationProperties(
     data class IntrospectionConfigurationProperties(
         /** Boolean flag indicating whether introspection queries are enabled. */
         val enabled: Boolean = true
+    )
+
+    /**
+     * Batching configuration properties.
+     */
+    data class BatchingConfigurationProperties(
+        /** Boolean flag indicating whether batching is enabled. */
+        val enabled: Boolean = false
     )
 }

@@ -24,6 +24,7 @@ import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLCont
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLRequestParser
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
+import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionBatcherLevelInstrumentation
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
@@ -60,45 +61,43 @@ const val DEFAULT_INSTRUMENTATION_ORDER = 0
     FederatedSchemaAutoConfiguration::class
 )
 class GraphQLSchemaConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     fun graphQL(
         schema: GraphQLSchema,
         dataFetcherExceptionHandler: DataFetcherExceptionHandler,
-        instrumentations: Optional<List<Instrumentation>>,
+        providedInstrumentations: Optional<List<Instrumentation>>,
         executionIdProvider: Optional<ExecutionIdProvider>,
         preparsedDocumentProvider: Optional<PreparsedDocumentProvider>,
         config: GraphQLConfigurationProperties,
         idValueUnboxer: IDValueUnboxer
     ): GraphQL {
-        val graphQL = GraphQL.newGraphQL(schema)
+        val graphQLBuilder = GraphQL.newGraphQL(schema)
             .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
             .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
             .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy(dataFetcherExceptionHandler))
             .valueUnboxer(idValueUnboxer)
-
-        instrumentations.ifPresent { unordered ->
-            if (unordered.size == 1) {
-                graphQL.instrumentation(unordered.first())
-            } else {
-                val sorted = unordered.sortedBy {
-                    if (it is Ordered) {
-                        it.order
-                    } else {
-                        DEFAULT_INSTRUMENTATION_ORDER
-                    }
-                }
-                graphQL.instrumentation(ChainedInstrumentation(sorted))
+            .also { builder ->
+                executionIdProvider.ifPresent(builder::executionIdProvider)
+                preparsedDocumentProvider.ifPresent(builder::preparsedDocumentProvider)
             }
+
+        val instrumentations = mutableListOf<Instrumentation>()
+        if (config.batching.enabled) {
+            instrumentations.add(TransactionBatcherLevelInstrumentation())
         }
-        executionIdProvider.ifPresent {
-            graphQL.executionIdProvider(it)
+
+        providedInstrumentations.ifPresent { unorderedInstrumentations ->
+            instrumentations.addAll(
+                unorderedInstrumentations.sortedBy { instrumentation ->
+                    (instrumentation as? Ordered)?.order ?: DEFAULT_INSTRUMENTATION_ORDER
+                }
+            )
         }
-        preparsedDocumentProvider.ifPresent {
-            graphQL.preparsedDocumentProvider(it)
-        }
-        return graphQL.build()
+
+        graphQLBuilder.instrumentation(ChainedInstrumentation(instrumentations))
+
+        return graphQLBuilder.build()
     }
 
     @Bean
