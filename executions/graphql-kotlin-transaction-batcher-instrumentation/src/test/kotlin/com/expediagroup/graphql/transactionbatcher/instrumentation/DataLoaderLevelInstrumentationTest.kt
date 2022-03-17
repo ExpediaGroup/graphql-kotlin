@@ -15,7 +15,6 @@ import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeRuntimeWiring
-import io.mockk.confirmVerified
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.async
@@ -70,7 +69,6 @@ class DataLoaderLevelInstrumentationTest {
                 .dataFetcher("nasa") { NasaService(astronautService, missionService) }
         )
     }.build()
-
 
     private val graphQL = GraphQL
         .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
