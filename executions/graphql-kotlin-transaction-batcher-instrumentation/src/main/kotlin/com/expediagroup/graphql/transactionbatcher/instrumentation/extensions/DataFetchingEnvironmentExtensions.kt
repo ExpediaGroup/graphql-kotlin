@@ -16,16 +16,17 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.extensions
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions.MissingTransactionBatcherException
-import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
+import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions.MissingTransactionLoaderException
 import graphql.schema.DataFetchingEnvironment
 
 /**
- * get an instance of [TransactionBatcher] from the GraphQLContext
- * @return a [TransactionBatcher] instance or [MissingTransactionBatcherException] if there
- * is not a [TransactionBatcher] instance in the GraphQLContext
+ * get an implementation instance of [TransactionLoader] from the GraphQLContext
+ * @return [TransactionLoader] loader implementation instance
+ * @throws [MissingTransactionLoaderException] if there is not a [TransactionLoader] implementation instance in the GraphQLContext
  */
-fun DataFetchingEnvironment.transactionBatcher(): TransactionBatcher =
+inline fun <reified T : Any> DataFetchingEnvironment.getTransactionLoader(): T =
     this.graphQlContext
-        .get<TransactionBatcher>(TransactionBatcher::class)
-        ?: throw MissingTransactionBatcherException()
+        .get<TransactionLoader<out T>>(TransactionLoader::class)
+        ?.loader
+        ?: throw MissingTransactionLoaderException()

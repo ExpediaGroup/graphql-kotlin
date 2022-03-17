@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher
+package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.transactionBatcher
+import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getTransactionLoader
+import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.schema.DataFetchingEnvironment
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
@@ -34,7 +35,7 @@ class AstronautService {
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
-        environment.transactionBatcher().batch(request) { requests: List<AstronautServiceRequest> ->
+        environment.getTransactionLoader<TransactionBatcher>().batch(request) { requests: List<AstronautServiceRequest> ->
             batchArguments += requests
             requests.toFlux().flatMapSequential { request ->
                 astronauts[request.id].toMono().flatMap { (astronaut, delay) ->

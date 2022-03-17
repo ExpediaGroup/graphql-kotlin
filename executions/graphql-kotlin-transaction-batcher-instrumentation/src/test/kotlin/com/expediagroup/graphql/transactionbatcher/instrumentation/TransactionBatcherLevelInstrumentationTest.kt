@@ -16,13 +16,13 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.Astronaut
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautServiceRequest
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.Mission
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionServiceRequest
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.NasaService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.Astronaut
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.AstronautService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.AstronautServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.Mission
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.MissionService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.MissionServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.NasaService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.state.ExecutionLevelInstrumentationState
 import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
@@ -88,7 +88,7 @@ class TransactionBatcherLevelInstrumentationTest {
 
     private val graphQL = GraphQL
         .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-        .instrumentation(TransactionBatcherLevelInstrumentation())
+        .instrumentation(TransactionLoaderLevelInstrumentation())
         .build()
 
     @BeforeEach
@@ -107,8 +107,12 @@ class TransactionBatcherLevelInstrumentationTest {
         )
 
         val transactionBatcher = spyk<TransactionBatcher>()
+        val batchLoader = object : TransactionLoader<TransactionBatcher> {
+            override val loader = transactionBatcher
+            override fun load() = transactionBatcher.dispatch()
+        }
         val graphQLContext = mapOf(
-            TransactionBatcher::class to transactionBatcher,
+            TransactionLoader::class to batchLoader,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
@@ -160,8 +164,12 @@ class TransactionBatcherLevelInstrumentationTest {
         )
 
         val transactionBatcher = spyk<TransactionBatcher>()
+        val batchLoader = object : TransactionLoader<TransactionBatcher> {
+            override val loader = transactionBatcher
+            override fun load() = transactionBatcher.dispatch()
+        }
         val graphQLContext = mapOf(
-            TransactionBatcher::class to transactionBatcher,
+            TransactionLoader::class to batchLoader,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 

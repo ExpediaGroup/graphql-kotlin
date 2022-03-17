@@ -72,11 +72,9 @@ open class GraphQLServer<Request>(
                             requestHandler.executeRequest(it, deprecatedContext, graphQLContext)
                         }
                     )
-                    else -> {
-                        GraphQLBatchResponse(
-                            handleConcurrently(graphQLRequest, deprecatedContext, graphQLContext)
-                        )
-                    }
+                    else -> GraphQLBatchResponse(
+                        handleConcurrently(graphQLRequest, deprecatedContext, graphQLContext)
+                    )
                 }
             }
         } else {

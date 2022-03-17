@@ -20,14 +20,13 @@ import com.expediagroup.graphql.transactionbatcher.instrumentation.execution.Abs
 import com.expediagroup.graphql.transactionbatcher.instrumentation.execution.ExecutionLevelInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.execution.ExecutionLevelInstrumentationParameters
 import com.expediagroup.graphql.transactionbatcher.instrumentation.state.Level
-import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.ExecutionInput
 
 /**
  * Once a certain [Level] is dispatched for all [ExecutionInput] sharing a graphQLContext map
- * it will automatically dispatch a [TransactionBatcher] instance located in the GraphQLContext map.
+ * it will automatically dispatch a [TransactionLoader] instance located in the GraphQLContext map.
  */
-class TransactionBatcherLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
+class TransactionLoaderLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
     override fun calculateLevelState(
         parameters: ExecutionLevelInstrumentationParameters
     ): ExecutionLevelInstrumentationContext =
@@ -35,8 +34,8 @@ class TransactionBatcherLevelInstrumentation : AbstractExecutionLevelInstrumenta
             override fun onDispatched(level: Level, executions: List<ExecutionInput>) {
                 parameters
                     .executionContext
-                    .graphQLContext.get<TransactionBatcher>(TransactionBatcher::class)
-                    ?.dispatch()
+                    .graphQLContext.get<TransactionLoader<*>>(TransactionLoader::class)
+                    ?.load()
             }
         }
 }
