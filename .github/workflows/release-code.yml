@@ -38,7 +38,7 @@ jobs:
           PLUGIN_PORTAL_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
 
       - name: Archive failure build reports
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: build-reports
