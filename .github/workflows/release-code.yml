@@ -20,7 +20,7 @@ jobs:
         with:
           java-version: 11
           distribution: 'zulu'
-
+      - uses: gradle/gradle-build-action@v2
       - name: Build library with Gradle
         run: ./gradlew clean build
 

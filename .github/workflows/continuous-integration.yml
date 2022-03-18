@@ -26,12 +26,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Set up Gradle cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+        uses: gradle/gradle-build-action@v2
 
       - name: Build libraries with Gradle
         run: ./gradlew clean build
