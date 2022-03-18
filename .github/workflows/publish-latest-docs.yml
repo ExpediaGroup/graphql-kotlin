@@ -14,30 +14,30 @@ jobs:
     if: github.repository == 'ExpediaGroup/graphql-kotlin'
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Use Node.js 12
-      uses: actions/setup-node@v3
-      with:
-        node-version: 12
+      - name: Use Node.js 12
+        uses: actions/setup-node@v3
+        with:
+          node-version: 12
 
-    - uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Build website
-      run: |
-        cd website
-        npm install
-        npm run build
+      - name: Build website
+        run: |
+          cd website
+          npm install
+          npm run build
 
-    - name: Deploy GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./website/build
-        user_name: eg-oss-ci
-        user_email: oss@expediagroup.com
+      - name: Deploy GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
+          user_name: eg-oss-ci
+          user_email: oss@expediagroup.com
