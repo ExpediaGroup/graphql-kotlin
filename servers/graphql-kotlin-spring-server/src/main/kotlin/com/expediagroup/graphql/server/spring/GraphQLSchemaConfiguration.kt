@@ -80,22 +80,26 @@ class GraphQLSchemaConfiguration {
             .also { builder ->
                 executionIdProvider.ifPresent(builder::executionIdProvider)
                 preparsedDocumentProvider.ifPresent(builder::preparsedDocumentProvider)
-            }
 
-        val instrumentations = mutableListOf<Instrumentation>()
-        if (config.batching.enabled) {
-            instrumentations.add(TransactionBatcherLevelInstrumentation())
-        }
-
-        providedInstrumentations.ifPresent { unorderedInstrumentations ->
-            instrumentations.addAll(
-                unorderedInstrumentations.sortedBy { instrumentation ->
-                    (instrumentation as? Ordered)?.order ?: DEFAULT_INSTRUMENTATION_ORDER
+                val instrumentations = mutableListOf<Instrumentation>()
+                if (config.batching.enabled) {
+                    builder.doNotAddDefaultInstrumentations()
+                    instrumentations.add(TransactionBatcherLevelInstrumentation())
                 }
-            )
-        }
 
-        graphQLBuilder.instrumentation(ChainedInstrumentation(instrumentations))
+                providedInstrumentations.ifPresent { unorderedInstrumentations ->
+                    instrumentations.addAll(
+                        unorderedInstrumentations.sortedBy { instrumentation ->
+                            when (instrumentation) {
+                                is Ordered -> instrumentation.order
+                                else -> DEFAULT_INSTRUMENTATION_ORDER
+                            }
+                        }
+                    )
+                }
+
+                builder.instrumentation(ChainedInstrumentation(instrumentations))
+            }
 
         return graphQLBuilder.build()
     }
