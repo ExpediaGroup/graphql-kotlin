@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,8 +157,8 @@ class GenerateSubscriptionTest : TypeTestHelper() {
         val subscriptions = listOf(TopLevelObject(MyPublicTestSubscription()))
         val result = assertNotNull(generateSubscriptions(generator, subscriptions))
 
-        assertEquals(1, result.directives.size)
-        assertEquals("mySubscriptionDirective", result.directives.first().name)
+        assertEquals(1, result.appliedDirectives.size)
+        assertEquals("mySubscriptionDirective", result.appliedDirectives.first().name)
     }
 
     @Test
@@ -170,7 +170,6 @@ class GenerateSubscriptionTest : TypeTestHelper() {
     }
 
     @MySubscriptionDirective
-    @MyInterfaceDirective
     class MyPublicTestSubscription {
         fun counter(): Publisher<Int> = Flowable.just(1)
 
@@ -201,7 +200,4 @@ class GenerateSubscriptionTest : TypeTestHelper() {
 
     @GraphQLDirective(locations = [DirectiveLocation.OBJECT])
     annotation class MySubscriptionDirective
-
-    @GraphQLDirective(locations = [DirectiveLocation.INTERFACE])
-    annotation class MyInterfaceDirective
 }

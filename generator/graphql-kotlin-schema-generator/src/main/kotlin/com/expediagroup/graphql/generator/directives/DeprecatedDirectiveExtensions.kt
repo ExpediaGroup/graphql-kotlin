@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 package com.expediagroup.graphql.generator.directives
 
 import graphql.Directives.DeprecatedDirective
-import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLAppliedDirective
 
 const val DEPRECATED_DIRECTIVE_NAME = "deprecated"
 
-internal fun deprecatedDirectiveWithReason(reason: String): GraphQLDirective = DeprecatedDirective.transform { directive ->
-    val deprecatedArgument = DeprecatedDirective.getArgument("reason").transform { argument ->
-        argument.value(reason)
+internal fun deprecatedDirectiveWithReason(reason: String): GraphQLAppliedDirective = DeprecatedDirective.toAppliedDirective().transform { directive ->
+    val deprecatedArgument = DeprecatedDirective.getArgument("reason").toAppliedArgument().transform { argument ->
+        argument.valueProgrammatic(reason)
     }
     directive.argument(deprecatedArgument)
 }

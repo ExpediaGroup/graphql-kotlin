@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class ValidateRequiresDirectiveKtTest {
     private val idExternalField = GraphQLFieldDefinition.newFieldDefinition()
         .name("id")
         .type(GraphQLString)
-        .withDirective(externalDirective)
+        .withAppliedDirective(externalDirective)
         .build()
 
     /**
@@ -45,7 +45,7 @@ class ValidateRequiresDirectiveKtTest {
      * }
      */
     @Test
-    fun `Verify non extended types and non requries fields returns an error`() {
+    fun `Verify non extended types and non requires fields returns an error`() {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
@@ -72,7 +72,7 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(getRequiresDirective("weight"))
+            .withAppliedDirective(getRequiresDirective("weight"))
             .build()
 
         val errors = validateRequiresDirective(
@@ -97,7 +97,7 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(getRequiresDirective("bar"))
+            .withAppliedDirective(getRequiresDirective("bar"))
             .build()
 
         val validatedType = GraphQLObjectType.newObject()
@@ -108,7 +108,7 @@ class ValidateRequiresDirectiveKtTest {
 
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
-            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
             validatedField = shippingCost,
             extendedType = true
         )
@@ -128,7 +128,7 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(getRequiresDirective("weight"))
+            .withAppliedDirective(getRequiresDirective("weight"))
             .build()
 
         val validatedType = GraphQLObjectType.newObject()
@@ -139,7 +139,7 @@ class ValidateRequiresDirectiveKtTest {
 
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
-            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
             validatedField = shippingCost,
             extendedType = true
         )
@@ -159,11 +159,11 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(getRequiresDirective("weight"))
+            .withAppliedDirective(getRequiresDirective("weight"))
             .build()
 
         val modifiedWeight = GraphQLFieldDefinition.newFieldDefinition(weight)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
 
         val validatedType = GraphQLObjectType.newObject()
             .name("Foo")
@@ -173,7 +173,7 @@ class ValidateRequiresDirectiveKtTest {
 
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
-            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
             validatedField = shippingCost,
             extendedType = true
         )
@@ -196,19 +196,19 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(getRequiresDirective("bar { foo }"))
+            .withAppliedDirective(getRequiresDirective("bar { foo }"))
             .build()
 
         val barObject = GraphQLObjectType.newObject()
             .name("Bar")
             .field(weight)
-            .withDirective(getKeyDirective("weight"))
+            .withAppliedDirective(getKeyDirective("weight"))
             .build()
 
         val barField = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(barObject)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         val validatedType = GraphQLObjectType.newObject()
@@ -219,7 +219,7 @@ class ValidateRequiresDirectiveKtTest {
 
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
-            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
             validatedField = shippingCost,
             extendedType = true
         )
@@ -244,25 +244,25 @@ class ValidateRequiresDirectiveKtTest {
         val shippingCostField = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
-            .withDirective(getRequiresDirective("bar { weight }"))
+            .withAppliedDirective(getRequiresDirective("bar { weight }"))
             .build()
 
         val externalWeightField = GraphQLFieldDefinition.newFieldDefinition()
             .name("weight")
             .type(GraphQLFloat)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         val barObject = GraphQLObjectType.newObject()
             .name("Bar")
             .field(externalWeightField)
-            .withDirective(getKeyDirective("weight"))
+            .withAppliedDirective(getKeyDirective("weight"))
             .build()
 
         val barField = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(barObject)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         val validatedType = GraphQLObjectType.newObject()
@@ -270,12 +270,12 @@ class ValidateRequiresDirectiveKtTest {
             .field(idExternalField)
             .field(shippingCostField)
             .field(barField)
-            .withDirective(getKeyDirective("id"))
+            .withAppliedDirective(getKeyDirective("id"))
             .build()
 
         val errors = validateRequiresDirective(
             validatedType = validatedType.name,
-            fieldMap = validatedType.fieldDefinitions.map { it.name to it }.toMap(),
+            fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
             validatedField = shippingCostField,
             extendedType = true
         )

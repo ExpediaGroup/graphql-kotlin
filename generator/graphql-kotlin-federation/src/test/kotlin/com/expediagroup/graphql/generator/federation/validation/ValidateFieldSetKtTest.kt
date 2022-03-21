@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,6 @@ class ValidateFieldSetKtTest {
         directiveName = "key",
         fieldSet = "foo",
         typeName = "Parent"
-    )
-
-    private val mockProvidesDirectiveInfo = DirectiveInfo(
-        directiveName = "provides",
-        fieldSet = "foo",
-        typeName = "Any"
     )
 
     private val mockRequiresDirectiveInfo = DirectiveInfo(
@@ -99,7 +93,7 @@ class ValidateFieldSetKtTest {
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
             .type(GraphQLString)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(
@@ -121,12 +115,12 @@ class ValidateFieldSetKtTest {
      * }
      */
     @Test
-    fun `@requries returns no errors when the field type is a list`() {
+    fun `@requires returns no errors when the field type is a list`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
             .type(GraphQLList.list(GraphQLString))
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(
@@ -152,7 +146,7 @@ class ValidateFieldSetKtTest {
     @Test
     fun `@key returns no errors when the field type is an object`() {
         val errors = mutableListOf<String>()
-        val stringField = GraphQLFieldDefinition.newFieldDefinition()
+        val barField = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(GraphQLString)
 
@@ -161,9 +155,9 @@ class ValidateFieldSetKtTest {
             .type(
                 GraphQLObjectType.newObject()
                     .name("FooObject")
-                    .field(stringField)
+                    .field(barField)
             )
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(
@@ -174,6 +168,7 @@ class ValidateFieldSetKtTest {
             validatedDirective = mockKeyDirectiveInfo
         )
 
+        println(errors)
         assertEquals(0, errors.size)
     }
 
@@ -184,12 +179,12 @@ class ValidateFieldSetKtTest {
      * }
      */
     @Test
-    fun `@requries returns no errors when the field type is a non-nullable list of non-nulls`() {
+    fun `@requires returns no errors when the field type is a non-nullable list of non-nulls`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("bar")
             .type(GraphQLNonNull.nonNull(GraphQLList.list(GraphQLNonNull.nonNull(GraphQLString))))
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(
@@ -221,7 +216,7 @@ class ValidateFieldSetKtTest {
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
             .type(interfaceType)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(
@@ -253,7 +248,7 @@ class ValidateFieldSetKtTest {
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
             .type(unionType)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(
@@ -279,7 +274,7 @@ class ValidateFieldSetKtTest {
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
             .type(GraphQLString)
-            .withDirective(externalDirective)
+            .withAppliedDirective(externalDirective)
             .build()
 
         validateFieldSet(

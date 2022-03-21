@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLe
         }
 
         generateDirectives(generator, mutation.kClass, DirectiveLocation.OBJECT).forEach {
-            mutationBuilder.withDirective(it)
+            mutationBuilder.withAppliedDirective(it)
         }
 
         mutation.kClass.getValidFunctions(generator.config.hooks)

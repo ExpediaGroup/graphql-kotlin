@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ internal fun generateEnum(generator: SchemaGenerator, kClass: KClass<out Enum<*>
     enumBuilder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.ENUM).forEach {
-        enumBuilder.withDirective(it)
+        enumBuilder.withAppliedDirective(it)
     }
 
     kClass.java.enumConstants.forEach {
@@ -58,15 +58,15 @@ private fun getEnumValueDefinition(generator: SchemaGenerator, enum: Enum<*>, kC
     valueBuilder.name(name)
     valueBuilder.value(name)
 
-    generateEnumValueDirectives(generator, valueField).forEach {
-        valueBuilder.withDirective(it)
+    generateEnumValueDirectives(generator, valueField, kClass.getSimpleName()).forEach {
+        valueBuilder.withAppliedDirective(it)
     }
 
     valueBuilder.description(valueField.getGraphQLDescription())
 
     valueField.getDeprecationReason()?.let {
         valueBuilder.deprecationReason(it)
-        valueBuilder.withDirective(deprecatedDirectiveWithReason(it))
+        valueBuilder.withAppliedDirective(deprecatedDirectiveWithReason(it))
     }
 
     return generator.config.hooks.onRewireGraphQLType(valueBuilder.build(), null, generator.codeRegistry).safeCast()

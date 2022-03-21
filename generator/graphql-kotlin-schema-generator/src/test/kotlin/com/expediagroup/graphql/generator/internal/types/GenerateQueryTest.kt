@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,8 +111,8 @@ internal class GenerateQueryTest : TypeTestHelper() {
     fun `query objects can have directives`() {
         val queries = listOf(TopLevelObject(QueryObject()))
         val result = generateQueries(generator, queries)
-        assertEquals(expected = 1, actual = result.directives.size)
-        assertEquals(expected = "simpleDirective", actual = result.directives.first().name)
+        assertEquals(expected = 1, actual = result.appliedDirectives.size)
+        assertEquals(expected = "simpleDirective", actual = result.appliedDirectives.first().name)
     }
 
     @Test

@@ -181,7 +181,7 @@ class ToSchemaTest {
             config = testSchemaConfig
         )
         val geo = schema.getObjectType("Geography")
-        assertTrue(geo.description.startsWith("A place"))
+        assertTrue(geo.description?.startsWith("A place") == true)
     }
 
     @Test

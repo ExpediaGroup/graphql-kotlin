@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
 
     fn.getDeprecationReason()?.let {
         builder.deprecate(it)
-        builder.withDirective(deprecatedDirectiveWithReason(it))
+        builder.withAppliedDirective(deprecatedDirectiveWithReason(it))
     }
 
     generateDirectives(generator, fn, DirectiveLocation.FIELD_DEFINITION).forEach {
-        builder.withDirective(it)
+        builder.withAppliedDirective(it)
     }
 
     fn.getValidArguments(parentName).forEach {

@@ -18,13 +18,13 @@ package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.FIELD_SET_ARGUMENT_NAME
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
-import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
 
 internal fun validateDirective(
     validatedType: String,
     targetDirective: String,
-    directiveMap: Map<String, List<GraphQLDirective>>,
+    directiveMap: Map<String, List<GraphQLAppliedDirective>>,
     fieldMap: Map<String, GraphQLFieldDefinition>,
     extendedType: Boolean
 ): List<String> {

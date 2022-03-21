@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
             environment.element.arguments.associateWith {
                 dataEnv.getArgument(it.name) as String?
             }.forEach { (graphQLArgumentType, value) ->
-                if (graphQLArgumentType.getDirective(directiveName).getArgument(StringEval::lowerCase.name).argumentValue.value as Boolean) {
+                if (graphQLArgumentType.getAppliedDirective(directiveName).getArgument(StringEval::lowerCase.name).argumentValue.value as Boolean) {
                     newArguments[graphQLArgumentType.name] = value?.lowercase()
                 }
                 if (value.isNullOrEmpty()) {
@@ -58,7 +58,7 @@ class StringEvalSchemaDirectiveWiring : KotlinSchemaDirectiveWiring {
 
         val default = directive.getArgument(StringEval::default.name).argumentValue.value as String
         return if (default.isNotEmpty()) {
-            argument.transform { it.defaultValue(default) }
+            argument.transform { it.defaultValueProgrammatic(default) }
         } else {
             argument
         }

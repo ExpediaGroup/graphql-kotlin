@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.extensions
+package com.expediagroup.graphql.generator.exceptions
 
-import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
-import graphql.schema.GraphQLDirectiveContainer
+import graphql.introspection.Introspection
 
-internal fun GraphQLDirectiveContainer.isFederatedType() = this.getAppliedDirectives(KEY_DIRECTIVE_NAME).isNotEmpty() || isExtendedType()
-
-internal fun GraphQLDirectiveContainer.isExtendedType() = this.getAppliedDirective(EXTENDS_DIRECTIVE_NAME) != null
+/**
+ * Thrown when directive is specified on unsupported location.
+ */
+class InvalidDirectiveLocationException(
+    directiveName: String,
+    supportedLocations: Array<Introspection.DirectiveLocation>,
+    location: Introspection.DirectiveLocation,
+    target: String
+) : GraphQLKotlinException(
+    "Directive $directiveName was specified in unsupported $location location ($target). This directive can only be applied on one of the supported locations: ${supportedLocations.joinToString()}."
+)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class FieldSetTest {
-    private val coercing: Coercing<Any, Any> = FIELD_SET_SCALAR_TYPE.coercing
+    private val coercing: Coercing<*, *> = FIELD_SET_SCALAR_TYPE.coercing
 
     @Test
     fun `serialize should throw exception when not a FieldSet`() {

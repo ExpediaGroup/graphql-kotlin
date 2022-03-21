@@ -57,7 +57,7 @@ internal fun generateArgument(generator: SchemaGenerator, parameter: KParameter)
         .type(graphQLType.safeCast())
 
     generateDirectives(generator, parameter, DirectiveLocation.ARGUMENT_DEFINITION).forEach {
-        builder.withDirective(it)
+        builder.withAppliedDirective(it)
     }
 
     return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,15 +110,15 @@ class GenerateEnumTest : TypeTestHelper() {
     @Test
     fun `Enum classes can have directives`() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
-        assertEquals(1, gqlEnum.directives.size)
-        assertEquals("simpleDirective", gqlEnum.directives.first().name)
+        assertEquals(1, gqlEnum.appliedDirectives.size)
+        assertEquals("simpleDirective", gqlEnum.appliedDirectives.first().name)
     }
 
     @Test
     fun `Enum values can have directives`() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
 
-        val enumValuesDirectives = gqlEnum.values.find { it.name == "THREE" }?.directives
+        val enumValuesDirectives = gqlEnum.values.find { it.name == "THREE" }?.appliedDirectives
         assertNotNull(enumValuesDirectives)
         assertEquals(3, enumValuesDirectives.size)
         assertEquals("simpleDirective", enumValuesDirectives[0].name)
@@ -129,8 +129,8 @@ class GenerateEnumTest : TypeTestHelper() {
     @Test
     fun `Enum values can have a multiple directives`() {
         val gqlEnum = assertNotNull(generateEnum(generator, MyTestEnum::class))
-        assertEquals(1, gqlEnum.values.first().directives.size)
-        assertEquals("simpleDirective", gqlEnum.values.first().directives.first().name)
+        assertEquals(1, gqlEnum.values.first().appliedDirectives.size)
+        assertEquals("simpleDirective", gqlEnum.values.first().appliedDirectives.first().name)
     }
 
     @Test

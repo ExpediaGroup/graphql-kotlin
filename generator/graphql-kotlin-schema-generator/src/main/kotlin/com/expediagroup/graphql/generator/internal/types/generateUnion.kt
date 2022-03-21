@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ private fun generateUnionFromKClass(generator: SchemaGenerator, kClass: KClass<*
     builder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.UNION).forEach {
-        builder.withDirective(it)
+        builder.withAppliedDirective(it)
     }
 
     val types = generator.classScanner.getSubTypesOf(kClass)

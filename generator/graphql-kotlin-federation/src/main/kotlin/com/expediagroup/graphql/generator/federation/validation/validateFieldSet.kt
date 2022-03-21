@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import graphql.schema.GraphQLUnionType
 internal fun validateFieldSet(fieldName: String, targetField: GraphQLFieldDefinition?, extendedType: Boolean, errors: MutableList<String>, validatedDirective: DirectiveInfo) {
     val errorMessage = validatedDirective.getErrorString()
     if (null != targetField) {
-        val externalField = targetField.getDirective(EXTERNAL_DIRECTIVE_NAME) != null
+        val externalField = targetField.getAppliedDirective(EXTERNAL_DIRECTIVE_NAME) != null
         if (extendedType && !externalField) {
             errors.add("$errorMessage specifies invalid field set - extended type incorrectly references local field=${targetField.name}")
         } else if (!extendedType && externalField) {

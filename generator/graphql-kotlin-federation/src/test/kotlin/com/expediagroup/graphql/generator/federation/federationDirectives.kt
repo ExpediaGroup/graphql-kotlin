@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,32 @@
 
 package com.expediagroup.graphql.generator.federation
 
-import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
-import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
-import graphql.schema.GraphQLDirective
-import io.mockk.every
-import io.mockk.mockk
+import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_TYPE
+import graphql.schema.GraphQLAppliedDirective
 
-internal fun getKeyDirective(diretiveValue: String): GraphQLDirective = mockk {
-    every { name } returns KEY_DIRECTIVE_NAME
-    every { getArgument(eq("fields")) } returns mockk {
-        every { argumentValue.value } returns mockk<FieldSet> {
-            every { value } returns diretiveValue
-        }
+internal fun getKeyDirective(directiveValue: String): GraphQLAppliedDirective = KEY_DIRECTIVE_TYPE.toAppliedDirective()
+    .transform { directiveBuilder ->
+        directiveBuilder.argument(
+            KEY_DIRECTIVE_TYPE.getArgument("fields")
+                .toAppliedArgument()
+                .transform { argumentBuilder ->
+                    argumentBuilder.valueProgrammatic(FieldSet(directiveValue))
+                }
+        )
     }
-    every { isNonRepeatable } returns true
-    every { isRepeatable } returns false
-}
 
-internal fun getRequiresDirective(directiveValue: String): GraphQLDirective = mockk {
-    every { name } returns REQUIRES_DIRECTIVE_NAME
-    every { getArgument(eq("fields")) } returns mockk {
-        every { argumentValue.value } returns mockk<FieldSet> {
-            every { value } returns directiveValue
-        }
+internal fun getRequiresDirective(directiveValue: String): GraphQLAppliedDirective = REQUIRES_DIRECTIVE_TYPE.toAppliedDirective()
+    .transform { directiveBuilder ->
+        directiveBuilder.argument(
+            REQUIRES_DIRECTIVE_TYPE.getArgument("fields")
+                .toAppliedArgument()
+                .transform { argumentBuilder ->
+                    argumentBuilder.valueProgrammatic(FieldSet(directiveValue))
+                }
+        )
     }
-    every { isNonRepeatable } returns true
-    every { isRepeatable } returns false
-}
 
-internal val externalDirective = GraphQLDirective.newDirective().name(EXTERNAL_DIRECTIVE_NAME)
+internal val externalDirective: GraphQLAppliedDirective = EXTERNAL_DIRECTIVE_TYPE.toAppliedDirective()

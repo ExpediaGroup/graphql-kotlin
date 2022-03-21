@@ -53,12 +53,12 @@ internal class GenerateInputPropertyTest : TypeTestHelper() {
     @Test
     fun `Input property can have directives`() {
         val resultWithNoPrefix = generateInputProperty(generator, InputPropertyTestClass::directiveWithNoPrefix, InputPropertyTestClass::class)
-        assertEquals(1, resultWithNoPrefix.directives.size)
-        assertEquals("simpleDirective", resultWithNoPrefix.directives.first().name)
+        assertEquals(1, resultWithNoPrefix.appliedDirectives.size)
+        assertEquals("simpleDirective", resultWithNoPrefix.appliedDirectives.first().name)
 
         val resultWithPrefix = generateInputProperty(generator, InputPropertyTestClass::directiveWithPrefix, InputPropertyTestClass::class)
-        assertEquals(1, resultWithPrefix.directives.size)
-        assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
+        assertEquals(1, resultWithPrefix.appliedDirectives.size)
+        assertEquals("simpleDirective", resultWithPrefix.appliedDirectives.first().name)
     }
 
     @Test

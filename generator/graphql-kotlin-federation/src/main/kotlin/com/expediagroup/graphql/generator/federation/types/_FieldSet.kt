@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package com.expediagroup.graphql.generator.federation.types
 
+import com.apollographql.federation.graphqljava._FieldSet
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.exception.CoercingValueToLiteralException
 import graphql.Scalars
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingSerializeException
@@ -45,9 +48,19 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
     override fun parseValue(input: Any): FieldSet = parseLiteral(input)
 
     override fun parseLiteral(input: Any): FieldSet =
-        if (input !is StringValue) {
-            throw CoercingParseLiteralException("Cannot parse $input to FieldSet. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'.")
-        } else {
-            FieldSet::class.constructors.first().call(input.value)
+        when (input) {
+            is FieldSet -> input
+            is StringValue -> FieldSet::class.constructors.first().call(input.value)
+            else -> {
+                throw CoercingParseLiteralException("Cannot parse $input to FieldSet. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'.")
+            }
         }
+
+    override fun valueToLiteral(input: Any): Value<out Value<*>> {
+        if (input is FieldSet) {
+            return StringValue.newStringValue(input.value).build()
+        } else {
+            throw CoercingValueToLiteralException(_FieldSet::class, input)
+        }
+    }
 }

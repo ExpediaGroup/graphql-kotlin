@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.InvalidInputFieldTypeException
 import graphql.TypeResolutionEnvironment
+import graphql.execution.TypeResolutionParameters
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
@@ -173,7 +174,10 @@ class PolymorphicTests {
     }
 
     private fun mockTypeResolutionEnvironment(target: Any, schema: GraphQLSchema): TypeResolutionEnvironment =
-        TypeResolutionEnvironment(target, emptyMap(), null, null, schema, null)
+        TypeResolutionParameters.newParameters()
+            .value(target)
+            .schema(schema)
+            .build()
 }
 
 class QueryWithInterface {
