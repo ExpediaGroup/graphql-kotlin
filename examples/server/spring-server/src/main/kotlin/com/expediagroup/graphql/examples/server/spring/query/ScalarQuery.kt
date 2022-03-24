@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.examples.server.spring.query
 
-import com.expediagroup.graphql.examples.server.spring.hooks.Period
+import com.expediagroup.graphql.examples.server.spring.model.CustomScalarInput
+import com.expediagroup.graphql.examples.server.spring.model.MyValueClass
 import com.expediagroup.graphql.examples.server.spring.model.Person
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.scalars.ID
@@ -46,8 +47,5 @@ class ScalarQuery : Query {
 
     fun customScalarInput(input: CustomScalarInput): String = "foo is ${input.foo} and range is ${input.range}"
 
-    data class CustomScalarInput(
-        val foo: String,
-        val range: Period,
-    )
+    fun inlineValueClass(value: MyValueClass? = null): MyValueClass = value ?: MyValueClass("default")
 }

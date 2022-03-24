@@ -42,7 +42,7 @@ val graphQL = GraphQL.newGraphQL(graphQLSchema)
 ```
 
 :::note
-`IDValueUnboxer` is automatically configured by `graphql-kotlin-spring-server`.
+`IDValueUnboxer` bean is automatically configured by `graphql-kotlin-spring-server`.
 :::
 
 ```kotlin
@@ -99,18 +99,97 @@ val graphqlUUIDType = GraphQLScalarType.newScalar()
     .build()
 
 object UUIDCoercing : Coercing<UUID, String> {
-    override fun parseValue(input: Any?): UUID = UUID.fromString(serialize(input))
-
-    override fun parseLiteral(input: Any?): UUID? {
-        val uuidString = (input as? StringValue)?.value
-        return UUID.fromString(uuidString)
+    override fun parseValue(input: Any): UUID = runCatching {
+        UUID.fromString(serialize(input))
+    }.getOrElse {
+        throw CoercingParseValueException("Expected valid UUID but was $input")
     }
 
-    override fun serialize(dataFetcherResult: Any?): String = dataFetcherResult.toString()
+    override fun parseLiteral(input: Any): UUID {
+        val uuidString = (input as? StringValue)?.value
+        return runCatching {
+            UUID.fromString(uuidString)
+        }.getOrElse {
+            throw CoercingParseLiteralException("Expected valid UUID literal but was $uuidString")
+        }
+    }
+
+    override fun serialize(dataFetcherResult: Any): String = runCatching {
+        dataFetcherResult.toString()
+    }.getOrElse {
+        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+    }
 }
 ```
 
 Once the scalars are registered you can use them anywhere in the schema as regular objects.
+
+### Inline Value Classes
+
+It is often beneficial to create a wrapper around the underlying primitive type to better represent its meaning. Inline value classes can be used
+to optimize such use cases - Kotlin compiler will attempt to use underlying type directly whenever possible and only keep the wrapper classes
+whenever it is necessary.
+
+In order to use inline value classes in your schema, you need to register it using hooks and also provide value unboxer that will be used by
+`graphql-java` when dealing with its wrapper object.
+
+```kotlin
+@JvmInline
+value class MyValueClass(
+    val value: String
+)
+
+class MyQuery : Query {
+    fun inlineValueClassQuery(value: MyValueClass? = null): MyValueClass = value ?: MyValueClass("default")
+}
+
+class MySchemaGeneratorHooks : SchemaGeneratorHooks {
+    override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
+        MyValueClass::class -> Scalars.GraphQLString
+        else -> null
+    }
+}
+
+class MyValueUnboxer : IDValueUnboxer() {
+    override fun unbox(`object`: Any?): Any? = if (`object` is MyValueClass) {
+        `object`.value
+    } else {
+        super.unbox(`object`)
+    }
+}
+
+val config = SchemaGeneratorConfig(
+    supportedPackages = listOf("com.example"),
+    hooks = MySchemaGeneratorHooks()
+)
+val schema = toSchema(
+    config = config,
+    queries = listOf(TopLevelObject(MyQuery()))
+)
+val graphQL = GraphQL.newGraphQL(graphQLSchema)
+    .valueUnboxer(IDValueUnboxer())
+    .build()
+```
+
+This will generate the schema that exposes value classes as corresponding primitive types in the schema
+
+```graphql
+type Query {
+  inlineValueClassQuery(value: String): String!
+}
+```
+
+:::note
+GraphQL ID scalar type is represented using inline value class. When registering additional inline value classes you should extend the
+`IDValueUnboxer` to ensure IDs will be correctly processed.
+
+If you are using `graphql-kotlin-spring-server` you should create an instance of your bean as
+
+```kotlin
+@Bean
+fun idValueUnboxer(): IDValueUnboxer = MyValueUnboxer()
+```
+:::
 
 ## Common Issues
 
