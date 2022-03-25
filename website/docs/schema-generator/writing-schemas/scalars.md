@@ -167,7 +167,7 @@ val schema = toSchema(
     queries = listOf(TopLevelObject(MyQuery()))
 )
 val graphQL = GraphQL.newGraphQL(graphQLSchema)
-    .valueUnboxer(IDValueUnboxer())
+    .valueUnboxer(MyValueUnboxer())
     .build()
 ```
 
