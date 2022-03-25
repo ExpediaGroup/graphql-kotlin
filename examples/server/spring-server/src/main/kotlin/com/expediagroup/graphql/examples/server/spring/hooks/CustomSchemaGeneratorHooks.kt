@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.examples.server.spring.hooks
 
+import com.expediagroup.graphql.examples.server.spring.model.MyValueClass
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import graphql.Scalars
 import graphql.language.StringValue
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
@@ -43,6 +45,7 @@ class CustomSchemaGeneratorHooks(override val wiringFactory: KotlinDirectiveWiri
      * Register additional GraphQL scalar types.
      */
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
+        MyValueClass::class -> Scalars.GraphQLString
         UUID::class -> graphqlUUIDType
         ClosedRange::class -> {
             when (type.arguments[0].type?.classifier as? KClass<*>) {
