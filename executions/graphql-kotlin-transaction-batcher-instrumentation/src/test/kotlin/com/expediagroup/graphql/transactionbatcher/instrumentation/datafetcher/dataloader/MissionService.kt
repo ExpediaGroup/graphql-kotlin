@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader
 
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getContextDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getTransactionLoader
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
@@ -50,8 +51,7 @@ class MissionService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Mission> =
         environment
-            .getTransactionLoader<DataLoaderRegistry>()
-            .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
+            .getContextDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
             .load(request)
 
     companion object {

@@ -35,7 +35,7 @@ class TransactionLoaderLevelInstrumentation : AbstractExecutionLevelInstrumentat
                 parameters
                     .executionContext
                     .graphQLContext.get<TransactionLoader<*>>(TransactionLoader::class)
-                    ?.load()
+                    ?.dispatch()
             }
         }
 }

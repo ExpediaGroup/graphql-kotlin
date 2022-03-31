@@ -97,11 +97,12 @@ class DataLoaderLevelInstrumentationTest {
                 listOf(AstronautDataLoader(), MissionDataLoader())
             ).generate()
         )
-
         val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
             override val loader = dataLoaderRegistry
-            override fun load() = dataLoaderRegistry.dispatchAll()
+            override fun dispatch() = dataLoaderRegistry.dispatchAll()
+            override fun isDispatchCompleted(): Boolean = true
         }
+
         val graphQLContext = mapOf(
             TransactionLoader::class to batchLoader,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
@@ -125,6 +126,54 @@ class DataLoaderLevelInstrumentationTest {
             assertEquals(2, AstronautService.batchArguments[0].size)
 
             verify(exactly = 2) {
+                dataLoaderRegistry.dispatchAll()
+            }
+        }
+    }
+
+    @Test
+    fun `Instrumentation should batch transactions on sync top level fields`() {
+        val queries = listOf(
+            "{ nasa { astronaut(id: 1) { name } } }",
+            "{ nasa { astronaut(id: 2) { id name } } }",
+            "{ nasa { mission(id: 3) { designation } } }",
+            "{ nasa { mission(id: 4) { id designation } } }"
+        )
+
+        val dataLoaderRegistry = spyk(
+            DefaultDataLoaderRegistryFactory(
+                listOf(AstronautDataLoader(), MissionDataLoader())
+            ).generate()
+        )
+        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
+            override val loader = dataLoaderRegistry
+            override fun dispatch() = dataLoaderRegistry.dispatchAll()
+            override fun isDispatchCompleted(): Boolean = true
+        }
+
+        val graphQLContext = mapOf(
+            TransactionLoader::class to batchLoader,
+            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+        )
+
+        runBlocking {
+            val results = queries.map { query ->
+                async {
+                    graphQL.executeAsync(
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                    ).await()
+                }
+            }.awaitAll()
+
+            assertEquals(4, results.size)
+
+            assertEquals(1, AstronautService.batchArguments.size)
+            assertEquals(2, AstronautService.batchArguments[0].size)
+
+            assertEquals(1, AstronautService.batchArguments.size)
+            assertEquals(2, AstronautService.batchArguments[0].size)
+
+            verify(exactly = 3) {
                 dataLoaderRegistry.dispatchAll()
             }
         }

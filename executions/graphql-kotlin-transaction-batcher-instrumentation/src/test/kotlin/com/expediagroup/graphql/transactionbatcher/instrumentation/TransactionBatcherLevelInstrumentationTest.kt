@@ -109,7 +109,8 @@ class TransactionBatcherLevelInstrumentationTest {
         val transactionBatcher = spyk<TransactionBatcher>()
         val batchLoader = object : TransactionLoader<TransactionBatcher> {
             override val loader = transactionBatcher
-            override fun load() = transactionBatcher.dispatch()
+            override fun dispatch() = transactionBatcher.dispatch()
+            override fun isDispatchCompleted(): Boolean = transactionBatcher.isDispatchCompleted()
         }
         val graphQLContext = mapOf(
             TransactionLoader::class to batchLoader,
@@ -166,7 +167,8 @@ class TransactionBatcherLevelInstrumentationTest {
         val transactionBatcher = spyk<TransactionBatcher>()
         val batchLoader = object : TransactionLoader<TransactionBatcher> {
             override val loader = transactionBatcher
-            override fun load() = transactionBatcher.dispatch()
+            override fun dispatch() = transactionBatcher.dispatch()
+            override fun isDispatchCompleted(): Boolean = transactionBatcher.isDispatchCompleted()
         }
         val graphQLContext = mapOf(
             TransactionLoader::class to batchLoader,

@@ -31,6 +31,8 @@ class TransactionBatcher(
     private val cache: TransactionBatcherCache = DefaultTransactionBatcherCache()
 ) {
 
+    private val futuresToComplete: MutableList<CompletableFuture<*>> = mutableListOf()
+
     private val batch = ConcurrentHashMap<
         KClass<out TriggeredPublisher<Any, Any>>,
         TriggeredPublisherTransactions
@@ -44,7 +46,7 @@ class TransactionBatcher(
      * added into the queue
      */
     @Suppress("UNCHECKED_CAST")
-    fun <TInput : Any, TOutput : Any> batch(
+    @Synchronized fun <TInput : Any, TOutput : Any> batch(
         input: TInput,
         transactionKey: String = input.toString(),
         triggeredPublisher: TriggeredPublisher<TInput, TOutput>
@@ -83,8 +85,23 @@ class TransactionBatcher(
      */
     @Synchronized fun dispatch() {
         batch.values.forEach { (triggeredPublisher, transactions) ->
-            triggeredPublisher.trigger(transactions.values.toList(), cache)
+            val batcheableTransactions = transactions.values.toList()
+            triggeredPublisher.trigger(batcheableTransactions, cache)
+            futuresToComplete.addAll(
+                batcheableTransactions.map(BatchableTransaction<Any, Any>::future)
+            )
         }
         batch.clear()
     }
+
+    /**
+     * Calculates if all dependants of all completableFutures were executed, this means that this method calculates
+     * if there are still some pending transactions to be completed after data was resolved.
+     */
+    fun isDispatchCompleted(): Boolean =
+        futuresToComplete.all { it.numberOfDependents == 0 }.also { allFuturesCompleted ->
+            if (allFuturesCompleted) {
+                futuresToComplete.clear()
+            }
+        }
 }

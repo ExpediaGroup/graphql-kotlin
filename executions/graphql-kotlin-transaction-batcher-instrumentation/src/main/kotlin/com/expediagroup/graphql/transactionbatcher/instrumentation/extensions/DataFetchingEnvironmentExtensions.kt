@@ -19,6 +19,8 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.extensions
 import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions.MissingTransactionLoaderException
 import graphql.schema.DataFetchingEnvironment
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderRegistry
 
 /**
  * get an implementation instance of [TransactionLoader] from the GraphQLContext
@@ -30,3 +32,6 @@ inline fun <reified T : Any> DataFetchingEnvironment.getTransactionLoader(): T =
         .get<TransactionLoader<out T>>(TransactionLoader::class)
         ?.loader
         ?: throw MissingTransactionLoaderException()
+
+fun <K, V> DataFetchingEnvironment.getContextDataLoader(key: String): DataLoader<K, V> =
+    this.getTransactionLoader<DataLoaderRegistry>().getDataLoader(key)
