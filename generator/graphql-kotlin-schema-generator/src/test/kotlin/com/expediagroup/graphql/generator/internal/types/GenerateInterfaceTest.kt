@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,8 +71,8 @@ class GenerateInterfaceTest : TypeTestHelper() {
     @Test
     fun `Interfaces can have directives`() {
         val result = generateInterface(generator, HappyInterface::class) as? GraphQLInterfaceType
-        assertEquals(1, result?.directives?.size)
-        assertEquals("simpleDirective", result?.directives?.first()?.name)
+        assertEquals(1, result?.appliedDirectives?.size)
+        assertEquals("simpleDirective", result?.appliedDirectives?.first()?.name)
     }
 
     @Test

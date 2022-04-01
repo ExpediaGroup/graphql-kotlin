@@ -108,15 +108,17 @@ class GenerateObjectTest : TypeTestHelper() {
     fun `Test custom directive`() {
         val result = generateObject(generator, BeHappy::class) as? GraphQLObjectType
         assertNotNull(result)
-        assertEquals(1, result.directives.size)
+        assertEquals(1, result.appliedDirectives.size)
 
-        val directive = result.directives[0]
-        assertEquals("objectDirective", directive.name)
-        assertEquals("Don't worry", directive.arguments[0].argumentValue.value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(directive.arguments[0].type))
+        val appliedDirective = result.appliedDirectives[0]
+        assertEquals("objectDirective", appliedDirective.name)
+        assertEquals("Don't worry", appliedDirective.arguments[0].argumentValue.value)
+        assertEquals("arg", appliedDirective.arguments[0].name)
+        assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(appliedDirective.arguments[0].type))
+
+        val schemaDirective = generator.directives[appliedDirective.name]
         assertEquals(
-            directive.validLocations()?.toSet(),
+            schemaDirective?.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.OBJECT)
         )
     }

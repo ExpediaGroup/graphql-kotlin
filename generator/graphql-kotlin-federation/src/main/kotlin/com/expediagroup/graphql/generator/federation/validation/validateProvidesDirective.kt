@@ -40,7 +40,7 @@ internal fun validateProvidesDirective(federatedType: String, field: GraphQLFiel
             validateDirective(
                 "$federatedType.${field.name}",
                 PROVIDES_DIRECTIVE_NAME,
-                field.allDirectivesByName,
+                field.allAppliedDirectivesByName,
                 returnTypeFields,
                 true
             )

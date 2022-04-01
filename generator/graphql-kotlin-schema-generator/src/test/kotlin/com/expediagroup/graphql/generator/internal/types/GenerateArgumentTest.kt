@@ -94,8 +94,8 @@ class GenerateArgumentTest : TypeTestHelper() {
         val result = generateArgument(generator, kParameter)
 
         assertEquals(Scalars.GraphQLString, (result.type as? GraphQLNonNull)?.wrappedType)
-        assertEquals(1, result.directives.size)
-        assertEquals("simpleDirective", result.directives.firstOrNull()?.name)
+        assertEquals(1, result.appliedDirectives.size)
+        assertEquals("simpleDirective", result.appliedDirectives.firstOrNull()?.name)
     }
 
     @Test

@@ -18,7 +18,7 @@ package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import graphql.Scalars
-import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
 import io.mockk.every
 import io.mockk.mockk
@@ -46,7 +46,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive does not have field information, return an error`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns null
         }
@@ -67,7 +67,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument does not have a value, return an error`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns null
@@ -90,7 +90,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument value is not a FieldSet, return an error`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns "hello"
@@ -113,7 +113,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument value is FieldSet but with empty string, return an error`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns mockk<FieldSet> {
@@ -138,7 +138,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument value is FieldSet with value that is just spaces, return an error`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns mockk<FieldSet> {
@@ -163,7 +163,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument value is FieldSet with valid value but validatedType in invalid, return an error`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns mockk<FieldSet> {
@@ -190,7 +190,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument value is FieldSet with valid value, no errors are returned`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns mockk<FieldSet> {
@@ -223,7 +223,7 @@ internal class ValidateDirectiveKtTest {
      */
     @Test
     fun `if directive argument value is FieldSet with valid multiple values, no errors are returned`() {
-        val directive: GraphQLDirective = mockk {
+        val directive: GraphQLAppliedDirective = mockk {
             every { name } returns "foo"
             every { getArgument(eq("fields")) } returns mockk {
                 every { argumentValue.value } returns mockk<FieldSet> {

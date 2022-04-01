@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,15 +87,15 @@ class GenerateInputObjectTest : TypeTestHelper() {
     @Test
     fun `directives should be on input objects`() {
         val result = generateInputObject(generator, InputClass::class)
-        assertEquals(1, result.directives.size)
-        assertEquals("simpleDirective", result.directives.first().name)
+        assertEquals(1, result.appliedDirectives.size)
+        assertEquals("simpleDirective", result.appliedDirectives.first().name)
     }
 
     @Test
     fun `directives should be on input object fields`() {
         val result = generateInputObject(generator, InputClass::class)
-        assertEquals(1, result.fields.first().directives.size)
-        assertEquals("simpleDirective", result.fields.first().directives.first().name)
+        assertEquals(1, result.fields.first().appliedDirectives.size)
+        assertEquals("simpleDirective", result.fields.first().appliedDirectives.first().name)
     }
 
     @Test

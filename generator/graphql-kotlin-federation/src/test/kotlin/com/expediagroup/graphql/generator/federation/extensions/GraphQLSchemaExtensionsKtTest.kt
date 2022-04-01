@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import kotlin.test.assertNotNull
 
 class GraphQLSchemaExtensionsKtTest {
 
-    private val simplQuery = GraphQLObjectType.newObject()
+    private val simpleQuery = GraphQLObjectType.newObject()
         .name("Query")
         .field(
             GraphQLFieldDefinition.newFieldDefinition()
@@ -38,7 +38,7 @@ class GraphQLSchemaExtensionsKtTest {
     @Test
     fun `addDirectivesIfNotPresent does nothing on empty list`() {
         val oldSchema = GraphQLSchema.newSchema()
-            .query(simplQuery)
+            .query(simpleQuery)
             .build()
         val numberOfDirectives = oldSchema.directives.size
         val newSchema = oldSchema.addDirectivesIfNotPresent(emptyList()).build()
@@ -48,7 +48,7 @@ class GraphQLSchemaExtensionsKtTest {
     @Test
     fun `addDirectivesIfNotPresent does nothing if directive is already present`() {
         val oldSchema = GraphQLSchema.newSchema()
-            .query(simplQuery)
+            .query(simpleQuery)
             .additionalDirective(EXTENDS_DIRECTIVE_TYPE)
             .build()
         val numberOfDirectives = oldSchema.directives.size
@@ -60,7 +60,7 @@ class GraphQLSchemaExtensionsKtTest {
     @Test
     fun `addDirectivesIfNotPresent adds directive if not present`() {
         val oldSchema = GraphQLSchema.newSchema()
-            .query(simplQuery)
+            .query(simpleQuery)
             .build()
         val numberOfDirectives = oldSchema.directives.size
         val newSchema = oldSchema.addDirectivesIfNotPresent(listOf(EXTENDS_DIRECTIVE_TYPE)).build()

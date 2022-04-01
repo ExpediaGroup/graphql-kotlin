@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,8 +115,8 @@ class GenerateUnionTest : TypeTestHelper() {
         val result = generateUnion(generator, Cake::class) as? GraphQLUnionType
 
         assertNotNull(result)
-        assertEquals(1, result.directives.size)
-        assertEquals("simpleDirective", result.directives.first().name)
+        assertEquals(1, result.appliedDirectives.size)
+        assertEquals("simpleDirective", result.appliedDirectives.first().name)
     }
 
     @Test

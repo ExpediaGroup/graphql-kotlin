@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ class DirectiveTests {
 
         val query = schema.queryType.getFieldDefinition("query")
         assertNotNull(query)
-        assertNotNull(query.getDirective("dummyDirective"))
+        assertNotNull(query.getAppliedDirective("dummyDirective"))
     }
 
     @Test
@@ -90,7 +90,7 @@ class DirectiveTests {
         )
         val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), config = config)
 
-        val possibleDirective = (schema.getType("Location") as? GraphQLObjectType)?.getDirective("RightNameDirective")
+        val possibleDirective = (schema.getType("Location") as? GraphQLObjectType)?.getAppliedDirective("RightNameDirective")
         val directive = assertNotNull(possibleDirective)
 
         assertEquals("arenaming", directive.arguments[0].argumentValue.value)

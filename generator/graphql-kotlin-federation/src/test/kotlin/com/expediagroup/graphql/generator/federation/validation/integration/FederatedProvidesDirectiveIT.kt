@@ -63,13 +63,13 @@ class FederatedProvidesDirectiveIT {
     private fun validateTypeWasCreatedWithProvidesDirective(schema: GraphQLSchema, typeName: String) {
         val validatedType = schema.getObjectType(typeName)
         assertNotNull(validatedType)
-        assertTrue(validatedType.hasDirective("key"))
+        assertTrue(validatedType.hasAppliedDirective("key"))
         val providedField = validatedType.getFieldDefinition("provided")
         assertNotNull(providedField)
-        assertNotNull(providedField.getDirective("provides"))
+        assertNotNull(providedField.getAppliedDirective("provides"))
         val providedType = GraphQLTypeUtil.unwrapAll(providedField.type) as? GraphQLObjectType
         assertNotNull(providedType)
-        assertNotNull(providedType.getDirective("extends"))
+        assertNotNull(providedType.getAppliedDirective("extends"))
     }
 
     @Test

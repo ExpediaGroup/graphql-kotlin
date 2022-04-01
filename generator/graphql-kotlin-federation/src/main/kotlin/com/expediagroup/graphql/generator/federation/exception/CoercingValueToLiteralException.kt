@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.extensions
+package com.expediagroup.graphql.generator.federation.exception
 
-import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
-import graphql.schema.GraphQLDirectiveContainer
+import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
+import kotlin.reflect.KClass
 
-internal fun GraphQLDirectiveContainer.isFederatedType() = this.getAppliedDirectives(KEY_DIRECTIVE_NAME).isNotEmpty() || isExtendedType()
-
-internal fun GraphQLDirectiveContainer.isExtendedType() = this.getAppliedDirective(EXTENDS_DIRECTIVE_NAME) != null
+/**
+ * GraphQLError thrown when unable to parse _FieldSet value to a literal Value.
+ */
+class CoercingValueToLiteralException(target: KClass<*>, input: Any) : GraphQLKotlinException("Unable to coerce ${target.simpleName} $input to a literal Value")

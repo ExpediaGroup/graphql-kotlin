@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,14 +159,16 @@ class GeneratePropertyTest : TypeTestHelper() {
         val prop = ClassWithProperties::cake
         val result = generateProperty(generator, prop, ClassWithProperties::class)
 
-        assertEquals(1, result.directives.size)
-        val directive = result.directives[0]
-        assertEquals("propertyDirective", directive.name)
-        assertEquals("trust me", directive.arguments[0].argumentValue.value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(directive.arguments[0].type))
+        assertEquals(1, result.appliedDirectives.size)
+        val appliedDirective = result.appliedDirectives[0]
+        assertEquals("propertyDirective", appliedDirective.name)
+        assertEquals("trust me", appliedDirective.arguments[0].argumentValue.value)
+        assertEquals("arg", appliedDirective.arguments[0].name)
+        assertTrue(GraphQLNonNull(Scalars.GraphQLString).isEqualTo(appliedDirective.arguments[0].type))
+
+        val schemaDirective = generator.directives[appliedDirective.name]
         assertEquals(
-            directive.validLocations()?.toSet(),
+            schemaDirective?.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
     }
@@ -180,12 +182,12 @@ class GeneratePropertyTest : TypeTestHelper() {
     @Test
     fun `Properties can have directives on the constructor args`() {
         val resultWithPrefix = generateProperty(generator, DataClassWithProperties::directiveWithPrefix, DataClassWithProperties::class)
-        assertEquals(1, resultWithPrefix.directives.size)
-        assertEquals("simpleDirective", resultWithPrefix.directives.first().name)
+        assertEquals(1, resultWithPrefix.appliedDirectives.size)
+        assertEquals("simpleDirective", resultWithPrefix.appliedDirectives.first().name)
 
         val resultWithNoPrefix = generateProperty(generator, DataClassWithProperties::directiveWithNoPrefix, DataClassWithProperties::class)
-        assertEquals(1, resultWithNoPrefix.directives.size)
-        assertEquals("simpleDirective", resultWithNoPrefix.directives.first().name)
+        assertEquals(1, resultWithNoPrefix.appliedDirectives.size)
+        assertEquals("simpleDirective", resultWithNoPrefix.appliedDirectives.first().name)
     }
 
     @Test

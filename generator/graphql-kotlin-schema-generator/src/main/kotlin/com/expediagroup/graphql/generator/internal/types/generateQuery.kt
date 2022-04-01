@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ internal fun generateQueries(generator: SchemaGenerator, queries: List<TopLevelO
         }
 
         generateDirectives(generator, query.kClass, DirectiveLocation.OBJECT).forEach {
-            queryBuilder.withDirective(it)
+            queryBuilder.withAppliedDirective(it)
         }
 
         query.kClass.getValidFunctions(generator.config.hooks)

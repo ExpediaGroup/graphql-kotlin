@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package com.expediagroup.graphql.generator.directives
 
 import com.expediagroup.graphql.generator.exceptions.InvalidSchemaDirectiveWiringException
-import com.expediagroup.graphql.generator.internal.extensions.getAllDirectives
+import com.expediagroup.graphql.generator.internal.extensions.getAllAppliedDirectives
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLCodeRegistry
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLSchemaElement
@@ -38,7 +38,7 @@ open class KotlinDirectiveWiringFactory(
     fun onWire(graphQLSchemaElement: GraphQLSchemaElement, coordinates: FieldCoordinates? = null, codeRegistry: GraphQLCodeRegistry.Builder): GraphQLSchemaElement {
         if (graphQLSchemaElement !is GraphQLDirectiveContainer) return graphQLSchemaElement
 
-        return wireDirectives(graphQLSchemaElement, coordinates, graphQLSchemaElement.getAllDirectives(), codeRegistry)
+        return wireDirectives(graphQLSchemaElement, coordinates, graphQLSchemaElement.getAllAppliedDirectives(), codeRegistry)
     }
 
     /**
@@ -50,7 +50,7 @@ open class KotlinDirectiveWiringFactory(
     private fun wireDirectives(
         element: GraphQLDirectiveContainer,
         coordinates: FieldCoordinates?,
-        directives: List<GraphQLDirective>,
+        directives: List<GraphQLAppliedDirective>,
         codeRegistry: GraphQLCodeRegistry.Builder
     ): GraphQLDirectiveContainer {
         var modifiedObject = element
@@ -67,12 +67,6 @@ open class KotlinDirectiveWiringFactory(
                     element = modifiedObject,
                     directive = directive,
                     codeRegistry = codeRegistry
-                )
-            }
-
-            if (!env.isValid()) {
-                throw InvalidSchemaDirectiveWiringException(
-                    "Directive ${directive.name} not applicable on specified ${element.name} GraphQLType, valid directive locations ${directive.validLocations()}"
                 )
             }
 

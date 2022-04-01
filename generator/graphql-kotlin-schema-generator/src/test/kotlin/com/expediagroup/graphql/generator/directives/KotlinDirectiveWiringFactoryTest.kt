@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLTypeReference
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -80,7 +79,7 @@ class KotlinDirectiveWiringFactoryTest {
         val lowercaseWiring = UpdateDescriptionWiringKotlinSchema(lowerCase = true)
 
         override fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? =
-            if (environment.element is GraphQLFieldDefinition && environment.element.directives.any { it.name == "lowercase" }) {
+            if (environment.element is GraphQLFieldDefinition && environment.element.appliedDirectives.any { it.name == "lowercase" }) {
                 lowercaseWiring
             } else {
                 null
@@ -105,7 +104,9 @@ class KotlinDirectiveWiringFactoryTest {
 
     @Test
     fun `verify no action is taken if no wirings are specified`() {
-        val original = GraphQLEnumType.newEnum().name("MyEnum").withDirective(graphQLOverrideDescriptionDirective).build()
+        val original = GraphQLEnumType.newEnum().name("MyEnum")
+            .withAppliedDirective(graphQLOverrideDescriptionDirective.toAppliedDirective())
+            .build()
 
         val modified = SimpleWiringFactory().onWire(original, null, codeRegistry = mockk())
         assertEquals(original, modified)
@@ -117,7 +118,7 @@ class KotlinDirectiveWiringFactoryTest {
             .name("MyField")
             .type(Scalars.GraphQLString)
             .description("My Field Description")
-            .withDirective(graphQLLowercaseDirective)
+            .withAppliedDirective(graphQLLowercaseDirective.toAppliedDirective())
             .build()
 
         val actual = SimpleWiringFactory().onWire(graphQLSchemaElement = original, coordinates = mockk(), codeRegistry = mockk())
@@ -132,7 +133,7 @@ class KotlinDirectiveWiringFactoryTest {
             .name("MyArgument")
             .description("My Argument Description")
             .type(Scalars.GraphQLString)
-            .withDirective(graphQLOverrideDescriptionDirective)
+            .withAppliedDirective(graphQLOverrideDescriptionDirective.toAppliedDirective())
             .build()
 
         val newDescription = "overwritten description"
@@ -150,7 +151,7 @@ class KotlinDirectiveWiringFactoryTest {
             .name("MyArgument")
             .type(Scalars.GraphQLString)
             .description("My Argument Description")
-            .withDirective(graphQLOverrideDescriptionDirective)
+            .withAppliedDirective(graphQLOverrideDescriptionDirective.toAppliedDirective())
             .build()
 
         val original = GraphQLFieldDefinition.newFieldDefinition()
@@ -177,7 +178,7 @@ class KotlinDirectiveWiringFactoryTest {
             .name("MyField")
             .type(Scalars.GraphQLString)
             .description("My Field Description")
-            .withDirective(graphQLLowercaseDirective)
+            .withAppliedDirective(graphQLLowercaseDirective.toAppliedDirective())
             .build()
 
         val overwrittenDescription = "overwritten"
@@ -197,8 +198,8 @@ class KotlinDirectiveWiringFactoryTest {
             .name("MyField")
             .type(Scalars.GraphQLString)
             .description("My Field Description")
-            .withDirective(graphQLOverrideDescriptionDirective)
-            .withDirective(graphQLLowercaseDirective)
+            .withAppliedDirective(graphQLOverrideDescriptionDirective.toAppliedDirective())
+            .withAppliedDirective(graphQLLowercaseDirective.toAppliedDirective())
             .build()
 
         val overwrittenDescription = "OverWriTTen"
@@ -216,39 +217,11 @@ class KotlinDirectiveWiringFactoryTest {
             .name("MyField")
             .type(Scalars.GraphQLString)
             .description("My Field Description")
-            .withDirective(graphQLLowercaseDirective)
+            .withAppliedDirective(graphQLLowercaseDirective.toAppliedDirective())
             .build()
 
         assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
             SimpleWiringFactory().onWire(graphQLSchemaElement = myTestField, coordinates = null, codeRegistry = mockk())
-        }
-    }
-
-    @Test
-    fun `verify exception is thrown if directive is applied on invalid location`() {
-        val myTestObject = GraphQLObjectType.newObject()
-            .name("MyObject")
-            .description("My Object Description")
-            .withDirective(graphQLOverrideDescriptionDirective)
-            .build()
-
-        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail")))
-                .onWire(myTestObject, null, codeRegistry = mockk())
-        }
-    }
-
-    @Test
-    fun `verify exception is thrown if invalid code registry`() {
-        val myTestObject = GraphQLObjectType.newObject()
-            .name("MyObject")
-            .description("My Object Description")
-            .withDirective(graphQLOverrideDescriptionDirective)
-            .build()
-
-        assertFailsWith(InvalidSchemaDirectiveWiringException::class) {
-            SimpleWiringFactory(overrides = mapOf("overrideDescription" to UpdateDescriptionWiringKotlinSchema("should fail")))
-                .onWire(graphQLSchemaElement = myTestObject, coordinates = mockk(), codeRegistry = mockk())
         }
     }
 }

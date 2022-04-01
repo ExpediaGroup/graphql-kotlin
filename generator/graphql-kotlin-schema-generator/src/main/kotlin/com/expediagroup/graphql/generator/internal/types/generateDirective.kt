@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
+import com.expediagroup.graphql.generator.exceptions.InvalidDirectiveLocationException
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyAnnotations
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import graphql.introspection.Introspection.DirectiveLocation
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLDirective
 import java.lang.reflect.Field
@@ -36,7 +38,7 @@ internal fun generateDirectives(
     element: KAnnotatedElement,
     location: DirectiveLocation,
     parentClass: KClass<*>? = null
-): List<GraphQLDirective> {
+): List<GraphQLAppliedDirective> {
     val annotations = when {
         element is KProperty<*> && parentClass != null -> element.getPropertyAnnotations(parentClass)
         else -> element.annotations
@@ -44,17 +46,25 @@ internal fun generateDirectives(
 
     return annotations
         .mapNotNull { it.getDirectiveInfo() }
-        .filter { it.directiveAnnotation.locations.contains(location) }
-        .map { getDirective(generator, it) }
+        .map {
+            if (!it.directiveAnnotation.locations.contains(location)) {
+                throw InvalidDirectiveLocationException(it.effectiveName, it.directiveAnnotation.locations, location, element.toString())
+            }
+            getDirective(generator, it)
+        }
 }
 
-internal fun generateEnumValueDirectives(generator: SchemaGenerator, field: Field): List<GraphQLDirective> =
+internal fun generateEnumValueDirectives(generator: SchemaGenerator, field: Field, enumName: String): List<GraphQLAppliedDirective> =
     field.annotations
         .mapNotNull { it.getDirectiveInfo() }
-        .filter { it.directiveAnnotation.locations.contains(DirectiveLocation.ENUM_VALUE) }
-        .map { getDirective(generator, it) }
+        .map {
+            if (!it.directiveAnnotation.locations.contains(DirectiveLocation.ENUM_VALUE)) {
+                throw InvalidDirectiveLocationException(it.effectiveName, it.directiveAnnotation.locations, DirectiveLocation.ENUM_VALUE, "$enumName.${field.name}")
+            }
+            getDirective(generator, it)
+        }
 
-private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLDirective {
+private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLAppliedDirective {
     val directiveName = directiveInfo.effectiveName
     val directive = generator.directives.computeIfAbsent(directiveName) {
         val builder = GraphQLDirective.newDirective()
@@ -70,38 +80,40 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
         val directiveArguments: List<KProperty<*>> = directiveClass.getValidProperties(generator.config.hooks)
 
         directiveArguments.forEach { prop ->
-            val argument = generateDirectiveArgument(prop, directiveInfo, generator)
+            val argument = generateDirectiveArgument(prop, generator)
             builder.argument(argument)
         }
 
         builder.build()
     }
 
+    val appliedDirective = directive.toAppliedDirective()
     return if (directive.arguments.isNotEmpty()) {
-        // update args for this instance
-        val builder = GraphQLDirective.newDirective(directive)
-        directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
-            val defaultArgument = directive.getArgument(prop.name)
-            val value = prop.call(directiveInfo.directive)
-            val argument = GraphQLArgument.newArgument(defaultArgument)
-                .value(value)
-                .build()
-            builder.argument(argument)
+        appliedDirective.transform { builder ->
+            directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
+                val value = prop.call(directiveInfo.directive)
+                val directiveArgument = directive.getArgument(prop.name)
+                    .toAppliedArgument()
+                    .transform { argumentBuilder ->
+                        argumentBuilder.valueProgrammatic(value)
+                    }
+
+                builder.argument(directiveArgument)
+            }
         }
-        builder.build()
     } else {
-        directive
+        appliedDirective
     }
 }
 
-private fun generateDirectiveArgument(prop: KProperty<*>, directiveInfo: DirectiveInfo, generator: SchemaGenerator): GraphQLArgument {
+private fun generateDirectiveArgument(prop: KProperty<*>, generator: SchemaGenerator): GraphQLArgument {
     val propertyName = prop.name
-    val value = prop.call(directiveInfo.directive)
     val type = generateGraphQLType(generator, prop.returnType)
 
+    // default directive argument values are unsupported
+    // https://github.com/ExpediaGroup/graphql-kotlin/issues/53
     return GraphQLArgument.newArgument()
         .name(propertyName)
-        .value(value)
         .type(type.safeCast())
         .build()
 }

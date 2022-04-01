@@ -75,8 +75,8 @@ class FederationConfigurationTest {
 
                 val widgetType = schema.getType("Widget") as? GraphQLObjectType
                 assertNotNull(widgetType)
-                assertNotNull(widgetType.directives.firstOrNull { it.name == "key" })
-                assertNotNull(widgetType.directives.firstOrNull { it.name == "extends" })
+                assertNotNull(widgetType.appliedDirectives.firstOrNull { it.name == "key" })
+                assertNotNull(widgetType.appliedDirectives.firstOrNull { it.name == "extends" })
 
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)

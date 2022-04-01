@@ -61,7 +61,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
 
     private val federatedDirectiveTypes: List<GraphQLDirective> = listOf(EXTERNAL_DIRECTIVE_TYPE, REQUIRES_DIRECTIVE_TYPE, PROVIDES_DIRECTIVE_TYPE, KEY_DIRECTIVE_TYPE, EXTENDS_DIRECTIVE_TYPE)
     private val directivesToInclude: List<String> = federatedDirectiveTypes.map { it.name }.plus(DEPRECATED_DIRECTIVE_NAME)
-    private val customDirectivePredicate: Predicate<GraphQLDirective> = Predicate { directivesToInclude.contains(it.name) }
+    private val customDirectivePredicate: Predicate<String> = Predicate { directivesToInclude.contains(it) }
 
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         FieldSet::class -> FIELD_SET_SCALAR_TYPE
@@ -109,7 +109,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
      */
     override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = GraphQLObjectType.newObject(type)
         .field(SERVICE_FIELD_DEFINITION)
-        .withDirective(EXTENDS_DIRECTIVE_TYPE)
+        .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
         .build()
 
     /**
@@ -147,7 +147,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
         return originalSchema.allTypesAsList
             .asSequence()
             .filterIsInstance<GraphQLObjectType>()
-            .filter { type -> type.hasDirective(KEY_DIRECTIVE_NAME) }
+            .filter { type -> type.hasAppliedDirective(KEY_DIRECTIVE_NAME) }
             .map { it.name }
             .toSet()
     }

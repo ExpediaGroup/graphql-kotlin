@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ class GenerateFunctionTest : TypeTestHelper() {
         assertTrue(result.isDeprecated)
         assertEquals("Should paint instead, replace with paint", result.deprecationReason)
 
-        val fieldDirectives = result.directives
+        val fieldDirectives = result.appliedDirectives
         assertEquals(1, fieldDirectives.size)
         assertEquals("deprecated", fieldDirectives.first().name)
     }
@@ -143,14 +143,16 @@ class GenerateFunctionTest : TypeTestHelper() {
         val kFunction = Happy::littleTrees
         val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
 
-        assertEquals(1, result.directives.size)
-        val directive = result.directives[0]
-        assertEquals("functionDirective", directive.name)
-        assertEquals("happy", directive.arguments[0].argumentValue.value)
-        assertEquals("arg", directive.arguments[0].name)
-        assertTrue(GraphQLNonNull(GraphQLString).isEqualTo(directive.arguments[0].type))
+        assertEquals(1, result.appliedDirectives.size)
+        val appliedDirective = result.appliedDirectives[0]
+        assertEquals("functionDirective", appliedDirective.name)
+        assertEquals("happy", appliedDirective.arguments[0].argumentValue.value)
+        assertEquals("arg", appliedDirective.arguments[0].name)
+        assertTrue(GraphQLNonNull(GraphQLString).isEqualTo(appliedDirective.arguments[0].type))
+
+        val schemaDirective = generator.directives[appliedDirective.name]
         assertEquals(
-            directive.validLocations()?.toSet(),
+            schemaDirective?.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
     }

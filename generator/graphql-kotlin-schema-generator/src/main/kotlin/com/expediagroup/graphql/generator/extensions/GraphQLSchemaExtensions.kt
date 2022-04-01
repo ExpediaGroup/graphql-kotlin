@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.extensions
 
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLSchema
 import graphql.schema.idl.SchemaPrinter
 import java.util.function.Predicate
@@ -29,7 +28,7 @@ import java.util.function.Predicate
  * @param includeDefaultSchemaDefinition boolean flag indicating whether SDL should include schema definition if using
  *   default root type names
  * @param includeDirectives boolean flag indicating whether SDL should include directive information
- * @param includeDirectivesFilter Predicate to filter out specifc directives. Defaults to filter all directives by the value of [includeDirectives]
+ * @param includeDirectivesFilter Predicate to filter out specific directives. Defaults to filter all directives by the value of [includeDirectives]
  * @param includeDirectiveDefinitions Include the definitions of directives at the top of the schema
  */
 fun GraphQLSchema.print(
@@ -37,7 +36,7 @@ fun GraphQLSchema.print(
     includeScalarTypes: Boolean = true,
     includeDefaultSchemaDefinition: Boolean = true,
     includeDirectives: Boolean = true,
-    includeDirectivesFilter: Predicate<GraphQLDirective> = Predicate { includeDirectives },
+    includeDirectivesFilter: Predicate<String> = Predicate { includeDirectives },
     includeDirectiveDefinitions: Boolean = true
 ): String {
     val schemaPrinter = SchemaPrinter(

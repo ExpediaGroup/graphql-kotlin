@@ -45,11 +45,11 @@ internal fun generateInputProperty(generator: SchemaGenerator, prop: KProperty<*
 
     prop.getPropertyDeprecationReason(parentClass)?.let {
         builder.deprecate(it)
-        builder.withDirective(deprecatedDirectiveWithReason(it))
+        builder.withAppliedDirective(deprecatedDirectiveWithReason(it))
     }
 
     generateDirectives(generator, prop, DirectiveLocation.INPUT_FIELD_DEFINITION, parentClass).forEach {
-        builder.withDirective(it)
+        builder.withAppliedDirective(it)
     }
 
     return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()

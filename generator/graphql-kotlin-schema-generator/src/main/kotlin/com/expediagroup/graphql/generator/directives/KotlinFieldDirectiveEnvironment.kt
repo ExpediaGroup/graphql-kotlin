@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.expediagroup.graphql.generator.directives
 
 import graphql.schema.DataFetcher
 import graphql.schema.FieldCoordinates
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLCodeRegistry
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 
 /**
@@ -27,7 +27,7 @@ import graphql.schema.GraphQLFieldDefinition
  */
 class KotlinFieldDirectiveEnvironment(
     field: GraphQLFieldDefinition,
-    fieldDirective: GraphQLDirective,
+    fieldDirective: GraphQLAppliedDirective,
     private val coordinates: FieldCoordinates,
     codeRegistry: GraphQLCodeRegistry.Builder
 ) : KotlinSchemaDirectiveEnvironment<GraphQLFieldDefinition>(element = field, directive = fieldDirective, codeRegistry = codeRegistry) {

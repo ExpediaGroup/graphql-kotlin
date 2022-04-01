@@ -23,14 +23,10 @@ import graphql.schema.GraphQLSchema
  * Add all the directives to the schema if they are not present.
  * Returns a new schema builder so you can continue adding more types if needed.
  */
-internal fun GraphQLSchema.addDirectivesIfNotPresent(directives: List<GraphQLDirective>): GraphQLSchema.Builder {
+internal fun GraphQLSchema.addDirectivesIfNotPresent(additionalSchemaDirectives: List<GraphQLDirective>): GraphQLSchema.Builder {
+    val schemaDirectives = directives.map { it.name }
     val newBuilder = GraphQLSchema.newSchema(this)
-
-    directives.forEach {
-        if (!this.allDirectivesByName.containsKey(it.name)) {
-            newBuilder.additionalDirective(it)
-        }
-    }
-
+    additionalSchemaDirectives.filterNot { schemaDirectives.contains(it.name) }
+        .forEach { newBuilder.additionalDirective(it) }
     return newBuilder
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ class ValidateProvidesDirectiveKtTest {
         val objectType = GraphQLObjectType.newObject()
             .name("MyObject")
             .field(GraphQLFieldDefinition.newFieldDefinition().name("bar").type(GraphQLString))
-            .withDirective(EXTENDS_DIRECTIVE_TYPE)
+            .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
             .build()
 
         val federatedType = GraphQLFieldDefinition.newFieldDefinition()

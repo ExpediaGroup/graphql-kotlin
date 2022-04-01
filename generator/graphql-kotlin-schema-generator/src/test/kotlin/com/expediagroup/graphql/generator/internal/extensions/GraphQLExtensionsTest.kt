@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.exceptions.CouldNotCastGraphQLSchemaElement
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
@@ -41,7 +41,7 @@ internal class GraphQLExtensionsTest {
     private val basicType = mockk<GraphQLNamedType> {
         every { name } returns "BasicType"
     }
-    private val mockDirective: GraphQLDirective = mockk()
+    private val mockDirective: GraphQLAppliedDirective = mockk()
 
     @Test
     fun `wrapInNonNull twice returns object`() {
@@ -52,8 +52,9 @@ internal class GraphQLExtensionsTest {
 
     @Test
     fun `wrapInNonNull with null kotlin type does nothing`() {
-        val mockKType: KType = mockk()
-        every { mockKType.isMarkedNullable } returns true
+        val mockKType: KType = mockk {
+            every { isMarkedNullable } returns true
+        }
 
         assertFalse(basicType.wrapInNonNull(mockKType) is GraphQLNonNull)
         assertEquals(expected = basicType, actual = basicType.wrapInNonNull(mockKType))
@@ -61,59 +62,67 @@ internal class GraphQLExtensionsTest {
 
     @Test
     fun `wrapInNonNull with non-nullable kotlin type wraps`() {
-        val mockKType: KType = mockk()
-        every { mockKType.isMarkedNullable } returns false
+        val mockKType: KType = mockk {
+            every { isMarkedNullable } returns false
+        }
 
         assertTrue(basicType.wrapInNonNull(mockKType) is GraphQLNonNull)
     }
 
     @Test
     fun `GraphQLDirectiveContainer with no directives`() {
-        val container: GraphQLDirectiveContainer = mockk()
-        every { container.directives } returns emptyList()
+        val container: GraphQLDirectiveContainer = mockk {
+            every { appliedDirectives } returns emptyList()
+        }
 
-        assertTrue(container.getAllDirectives().isEmpty())
+        assertTrue(container.getAllAppliedDirectives().isEmpty())
     }
 
     @Test
     fun `GraphQLDirectiveContainer with one directive`() {
-        val container: GraphQLDirectiveContainer = mockk()
-        every { container.directives } returns listOf(mockDirective)
+        val container: GraphQLDirectiveContainer = mockk {
+            every { appliedDirectives } returns listOf(mockDirective)
+        }
 
-        assertEquals(expected = 1, actual = container.getAllDirectives().size)
+        assertEquals(expected = 1, actual = container.getAllAppliedDirectives().size)
     }
 
     @Test
     fun `GraphQLFieldDefinition with one directive and no arguments`() {
-        val container: GraphQLFieldDefinition = mockk()
-        every { container.directives } returns listOf(mockDirective)
-        every { container.arguments } returns emptyList()
+        val container: GraphQLFieldDefinition = mockk {
+            every { appliedDirectives } returns listOf(mockDirective)
+            every { arguments } returns emptyList()
+        }
 
-        assertEquals(expected = 1, actual = container.getAllDirectives().size)
+        assertEquals(expected = 1, actual = container.getAllAppliedDirectives().size)
     }
 
     @Test
     fun `GraphQLFieldDefinition with one directive and argument with no directives`() {
-        val mockArgument: GraphQLArgument = mockk()
-        every { mockArgument.directives } returns emptyList()
+        val mockArgument: GraphQLArgument = mockk {
+            every { appliedDirectives } returns emptyList()
+        }
 
-        val container: GraphQLFieldDefinition = mockk()
-        every { container.directives } returns listOf(mockDirective)
-        every { container.arguments } returns listOf(mockArgument)
+        val container: GraphQLFieldDefinition = mockk {
+            every { appliedDirectives } returns listOf(mockDirective)
+            every { arguments } returns listOf(mockArgument)
+        }
 
-        assertEquals(expected = 1, actual = container.getAllDirectives().size)
+        assertEquals(expected = 1, actual = container.getAllAppliedDirectives().size)
     }
 
     @Test
     fun `GraphQLFieldDefinition with one directive and argument with two directives`() {
-        val mockArgument: GraphQLArgument = mockk()
-        every { mockArgument.directives } returns listOf(mockDirective, mockDirective)
+        val mockArgument: GraphQLArgument = mockk {
+            every { appliedDirectives } returns listOf(mockDirective, mockDirective)
+        }
 
-        val container: GraphQLFieldDefinition = mockk()
-        every { container.directives } returns listOf(mockDirective)
-        every { container.arguments } returns listOf(mockArgument)
+        val container: GraphQLFieldDefinition = mockk {
+            every { appliedDirectives } returns listOf(mockDirective)
+            every { arguments } returns listOf(mockArgument)
+        }
 
-        assertEquals(expected = 3, actual = container.getAllDirectives().size)
+        assertEquals(expected = 3, actual = container.getAllAppliedDirectives().size)
     }
 
     @Test

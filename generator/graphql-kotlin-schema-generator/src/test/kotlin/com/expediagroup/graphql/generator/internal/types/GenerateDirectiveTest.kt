@@ -20,15 +20,18 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.exceptions.InvalidDirectiveLocationException
 import com.expediagroup.graphql.generator.getTestSchemaConfigWithMockedDirectives
 import com.expediagroup.graphql.generator.internal.extensions.isTrue
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.introspection.Introspection.DirectiveLocation
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class GenerateDirectiveTest {
@@ -54,7 +57,6 @@ class GenerateDirectiveTest {
 
     @DirectiveOnInputObjectOnly
     @DirectiveOnObjectOnly
-    @DirectiveOnFieldDefinitionOnly
     data class MyExampleObject(val value: String)
 
     @GraphQLDirective
@@ -101,10 +103,9 @@ class GenerateDirectiveTest {
         @DirectiveWithIgnoredArgs(string = "foo", ignoreMe = "bar")
         fun directiveWithIgnoredArgs(string: String) = string
 
-        // While all of these annotations are valid kotlin code, only the ones with valid locations should be added
+        // While all of these annotations are valid kotlin code, exception should be thrown when directives are used in wrong locations
         @DirectiveOnFieldDefinitionOnly
         @DirectiveOnObjectOnly
-        @DirectiveOnInputObjectOnly
         fun invalidDirectives(string: String) = string
 
         @RepeatableDirective("foo")
@@ -158,14 +159,15 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `directives are only added to the schema once`() {
+    fun `schema directives are only added to the schema once`() {
         val initialCount = basicGenerator.directives.size
         val simpleDirective: KFunction<String> = MyClass::simpleDirective
         val firstInvocation = generateDirectives(basicGenerator, simpleDirective, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(1, firstInvocation.size)
         val secondInvocation = generateDirectives(basicGenerator, simpleDirective, DirectiveLocation.FIELD_DEFINITION)
         assertEquals(1, secondInvocation.size)
-        assertEquals(firstInvocation.first(), secondInvocation.first())
+        // directives are applied per definition
+        assertNotEquals(firstInvocation.first(), secondInvocation.first())
         assertEquals(initialCount + 1, basicGenerator.directives.size)
     }
 
@@ -173,7 +175,7 @@ class GenerateDirectiveTest {
     fun `directives are valid on enum values`() {
         val field = Type::class.java.getField("ONE")
 
-        val directives = generateEnumValueDirectives(basicGenerator, field)
+        val directives = generateEnumValueDirectives(basicGenerator, field, "Type")
 
         assertEquals(2, directives.size)
         assertEquals("directiveWithString", directives.first().name)
@@ -184,7 +186,7 @@ class GenerateDirectiveTest {
     fun `directives are empty on an enum with no valid annotations`() {
         val field = Type::class.java.getField("TWO")
 
-        val directives = generateEnumValueDirectives(basicGenerator, field)
+        val directives = generateEnumValueDirectives(basicGenerator, field, "Type")
 
         assertEquals(0, directives.size)
     }
@@ -239,18 +241,17 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `exclude directives with invalid locations`() {
-        val objectDirectives = generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.OBJECT)
-        assertEquals(expected = 1, actual = objectDirectives.size)
-        assertEquals("directiveOnObjectOnly", objectDirectives.first().name)
+    fun `applying directives with invalid locations will throw exception`() {
+        assertThrows<InvalidDirectiveLocationException> {
+            generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.OBJECT)
+        }
+        assertThrows<InvalidDirectiveLocationException> {
+            generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.INPUT_OBJECT)
+        }
 
-        val inputObjectDirectives = generateDirectives(basicGenerator, MyExampleObject::class, DirectiveLocation.INPUT_OBJECT)
-        assertEquals(expected = 1, actual = inputObjectDirectives.size)
-        assertEquals("directiveOnInputObjectOnly", inputObjectDirectives.first().name)
-
-        val fieldDirectives = generateDirectives(basicGenerator, MyClass::invalidDirectives, DirectiveLocation.FIELD_DEFINITION)
-        assertEquals(expected = 1, actual = fieldDirectives.size)
-        assertEquals("directiveOnFieldDefinitionOnly", fieldDirectives.first().name)
+        assertThrows<InvalidDirectiveLocationException> {
+            generateDirectives(basicGenerator, MyClass::invalidDirectives, DirectiveLocation.FIELD_DEFINITION)
+        }
     }
 
     @Test

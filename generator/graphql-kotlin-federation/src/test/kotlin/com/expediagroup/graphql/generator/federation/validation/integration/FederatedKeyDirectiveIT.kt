@@ -101,7 +101,7 @@ class FederatedKeyDirectiveIT {
     private fun validateTypeWasCreatedWithKeyDirective(schema: GraphQLSchema, typeName: String) {
         val validatedType = schema.getObjectType(typeName)
         assertNotNull(validatedType)
-        assertTrue(validatedType.hasDirective("key"))
+        assertTrue(validatedType.hasAppliedDirective("key"))
     }
 
     @Test
@@ -223,7 +223,7 @@ class FederatedKeyDirectiveIT {
             )
             val validatedType = schema.getObjectType("MultipleKeys")
             assertNotNull(validatedType)
-            val keyDirectives = validatedType.getDirectives("key")
+            val keyDirectives = validatedType.getAppliedDirectives("key")
             assertTrue(keyDirectives.isNotEmpty())
             assertEquals(2, keyDirectives.size)
         }

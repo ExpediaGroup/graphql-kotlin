@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.exceptions.CouldNotCastGraphQLSchemaElement
-import graphql.schema.GraphQLDirective
+import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLNonNull
@@ -41,16 +41,14 @@ internal inline fun <reified T : GraphQLSchemaElement> GraphQLSchemaElement.safe
     return this
 }
 
-internal fun GraphQLDirectiveContainer.getAllDirectives(): List<GraphQLDirective> {
+internal fun GraphQLDirectiveContainer.getAllAppliedDirectives(): List<GraphQLAppliedDirective> {
     // A function without directives may still be rewired if the arguments have directives
     // see https://github.com/ExpediaGroup/graphql-kotlin/wiki/Schema-Directives for details
-    val mutableList = mutableListOf<GraphQLDirective>()
-
-    mutableList.addAll(this.directives)
+    val mutableList = mutableListOf<GraphQLAppliedDirective>()
+    mutableList.addAll(this.appliedDirectives)
 
     if (this is GraphQLFieldDefinition) {
-        this.arguments.forEach { mutableList.addAll(it.directives) }
+        this.arguments.forEach { mutableList.addAll(it.appliedDirectives) }
     }
-
     return mutableList
 }

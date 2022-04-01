@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ internal fun generateInputObject(generator: SchemaGenerator, kClass: KClass<*>):
     builder.description(kClass.getGraphQLDescription())
 
     generateDirectives(generator, kClass, DirectiveLocation.INPUT_OBJECT).forEach {
-        builder.withDirective(it)
+        builder.withAppliedDirective(it)
     }
 
     // It does not make sense to run functions against the input types so we only process the properties
