@@ -56,11 +56,9 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
             }
         }
 
-    override fun valueToLiteral(input: Any): Value<out Value<*>> {
-        if (input is FieldSet) {
-            return StringValue.newStringValue(input.value).build()
-        } else {
-            throw CoercingValueToLiteralException(_FieldSet::class, input)
-        }
+    override fun valueToLiteral(input: Any): Value<out Value<*>> = if (input is FieldSet) {
+        StringValue.newStringValue(input.value).build()
+    } else {
+        throw CoercingValueToLiteralException(_FieldSet::class, input)
     }
 }
