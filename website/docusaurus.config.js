@@ -50,7 +50,8 @@ module.exports = {
     navbar: {
       title: "GraphQL Kotlin",
       logo: {
-        src: "img/EG_Icon_White_on_Blue.png"
+        src: "img/EG_Icon_White_on_Blue.png",
+        href: "/docs"
       },
       items: [
         {
