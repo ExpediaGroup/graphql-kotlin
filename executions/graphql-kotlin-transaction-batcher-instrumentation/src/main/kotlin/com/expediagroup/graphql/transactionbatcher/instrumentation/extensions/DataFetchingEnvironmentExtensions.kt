@@ -16,22 +16,19 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.extensions
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions.MissingTransactionLoaderException
+import com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions.MissingDataLoaderException
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 
 /**
- * get an implementation instance of [TransactionLoader] from the GraphQLContext
- * @return [TransactionLoader] loader implementation instance
- * @throws [MissingTransactionLoaderException] if there is not a [TransactionLoader] implementation instance in the GraphQLContext
+ * get an instance of [DataLoaderRegistry] from the [GraphQLContext]
+ * @return [DataLoaderRegistry] instance
+ * @throws [MissingDataLoaderException] if there is not a [DataLoaderRegistry] instance in the [GraphQLContext]
  */
-inline fun <reified T : Any> DataFetchingEnvironment.getTransactionLoader(): T =
-    this.graphQlContext
-        .get<TransactionLoader<out T>>(TransactionLoader::class)
-        ?.loader
-        ?: throw MissingTransactionLoaderException()
-
 fun <K, V> DataFetchingEnvironment.getContextDataLoader(key: String): DataLoader<K, V> =
-    this.getTransactionLoader<DataLoaderRegistry>().getDataLoader(key)
+    this.graphQlContext
+        .get<DataLoaderRegistry>(DataLoaderRegistry::class)
+        ?.getDataLoader(key)
+        ?: throw MissingDataLoaderException()

@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.state
 
+import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.NoOpExecutionStrategyInstrumentationContext
-import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.execution.MergedField
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class SyncExecutionExhaustionInstrumentationState(
     private val totalExecutions: Int,
-    private val transactionLoader: TransactionLoader<*>
+    private val dataLoaderRegistry: KotlinDataLoaderRegistry
 ) {
     val executions = ConcurrentHashMap<ExecutionInput, ExecutionBatchState>()
 
@@ -111,7 +111,7 @@ class SyncExecutionExhaustionInstrumentationState(
 
     private fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
         when {
-            executions.size < totalExecutions || !transactionLoader.isDispatchCompleted() -> false
+            executions.size < totalExecutions || !dataLoaderRegistry.isDispatchCompleted() -> false
             else -> executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)
         }
     }

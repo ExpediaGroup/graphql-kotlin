@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.server.execution.dataloader
 
-import org.dataloader.BatchLoader
 import org.dataloader.CacheMap
-import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture
 
 /**
- * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
- * by return type and loading values in the data fetchers.
+ * Custom Default implementation of [CacheMap] that exposes a [KotlinDefaultCacheMap.values] method that provides access to the
+ * list of [CompletableFuture] in the CacheMap, that way we can keep track of how many [CompletableFuture.getNumberOfDependents]
+ * each future still has on his stack.
  */
-interface KotlinDataLoader<K, V> {
-    val dataLoaderName: String
-    fun getBatchLoader(): BatchLoader<K, V>
-}
-
 class KotlinDefaultCacheMap<K, V> : CacheMap<K, V> {
 
     private val cache: MutableMap<K, CompletableFuture<V>> = mutableMapOf()
@@ -44,5 +38,10 @@ class KotlinDefaultCacheMap<K, V> : CacheMap<K, V> {
 
     override fun clear(): CacheMap<K, V> = this.also { cache.clear() }
 
+    /**
+     * Provides access to the list of [CompletableFuture] that are in the cacheMap
+     *
+     * @return The list of [CompletableFuture] that are on the cache
+     */
     fun values(): List<CompletableFuture<V>> = cache.values.toList()
 }

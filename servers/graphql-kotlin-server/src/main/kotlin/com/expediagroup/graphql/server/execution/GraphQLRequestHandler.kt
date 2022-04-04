@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
+import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType

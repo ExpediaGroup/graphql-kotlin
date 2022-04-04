@@ -6,9 +6,8 @@ val reactorVersion: String by project
 val reactorExtensionsVersion: String by project
 
 dependencies {
-    api(project(path = ":graphql-kotlin-transaction-batcher"))
+    api(project(path = ":graphql-kotlin-server"))
     api("com.graphql-java:graphql-java:$graphQLJavaVersion")
-    testImplementation(project(path = ":graphql-kotlin-server"))
     testImplementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
     testImplementation("io.projectreactor:reactor-core:$reactorVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

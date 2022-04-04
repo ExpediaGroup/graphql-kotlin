@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
+import org.dataloader.DataLoaderRegistry
 
 /**
- * Thrown when an instance of [TransactionLoader] does not exists in the GraphQLContext.
+ * Thrown when an instance of [DataLoaderRegistry] does not exists in the GraphQLContext.
  */
-class MissingTransactionLoaderException : RuntimeException("TransactionLoader instance not found in the GraphQLContext")
+class MissingDataLoaderException : RuntimeException("DataLoaderRegistry instance not found in the GraphQLContext")

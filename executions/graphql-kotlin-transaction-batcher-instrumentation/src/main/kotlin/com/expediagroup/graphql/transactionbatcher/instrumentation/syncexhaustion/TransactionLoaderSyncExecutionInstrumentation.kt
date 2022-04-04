@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.AbstractSyncExecutionExhaustionInstrumentation
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationParameters
 import graphql.ExecutionInput
+import org.dataloader.DataLoaderRegistry
 
 class TransactionLoaderSyncExecutionInstrumentation : AbstractSyncExecutionExhaustionInstrumentation() {
     override fun calculateSyncExecutionState(
@@ -30,8 +30,8 @@ class TransactionLoaderSyncExecutionInstrumentation : AbstractSyncExecutionExhau
             override fun onSyncExecutionExhausted(executions: List<ExecutionInput>) {
                 parameters
                     .executionContext
-                    .graphQLContext.get<TransactionLoader<*>>(TransactionLoader::class)
-                    ?.dispatch()
+                    .graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class)
+                    ?.dispatchAll()
             }
         }
 }

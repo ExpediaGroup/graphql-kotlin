@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher
+package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher
 
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture

@@ -1,16 +1,15 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion
 
-import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
-import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.Astronaut
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautDataLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautServiceRequest
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionDataLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionServiceRequest
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionsByAstronautDataLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.NasaService
+import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.Astronaut
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionsByAstronautDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.NasaService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.state.SyncExecutionExhaustionInstrumentationState
 import graphql.ExecutionInput
 import graphql.GraphQL
@@ -104,7 +103,8 @@ class DataLoaderSyncExecutionInstrumentationTest {
             "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
             "{ astronaut(id: 2) { id name missions { designation } } }",
             "{ nasa { mission(id: 3) { designation } } }",
-            "{ mission(id: 4) { designation } }"
+            "{ mission(id: 4) { designation } }",
+            "{ missions { designation } }"
         )
 
         val dataLoaderRegistry = spyk(
@@ -112,15 +112,10 @@ class DataLoaderSyncExecutionInstrumentationTest {
                 listOf(AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader())
             ).generate()
         )
-        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
-            override val loader = dataLoaderRegistry
-            override fun dispatch() = dataLoaderRegistry.dispatchAll()
-            override fun isDispatchCompleted(): Boolean = dataLoaderRegistry.isDispatchCompleted()
-        }
 
         val graphQLContext = mapOf(
-            TransactionLoader::class to batchLoader,
-            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(queries.size, batchLoader)
+            DataLoaderRegistry::class to dataLoaderRegistry,
+            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(queries.size, dataLoaderRegistry)
         )
 
         val results = runBlocking {
@@ -133,7 +128,7 @@ class DataLoaderSyncExecutionInstrumentationTest {
             }.awaitAll()
         }
 
-        assertEquals(4, results.size)
+        assertEquals(5, results.size)
 
         assertEquals(1, AstronautService.batchArguments.size)
         assertEquals(2, AstronautService.batchArguments[0].size)
@@ -141,8 +136,9 @@ class DataLoaderSyncExecutionInstrumentationTest {
         assertEquals(1, MissionService.getMissionBatchArguments.size)
         assertEquals(2, MissionService.getMissionBatchArguments[0].size)
 
-        assertEquals(1, MissionService.getMissionsByAstronautBatchArguments.size)
-        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments[0].size)
+        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments.size)
+        assertEquals(1, MissionService.getMissionsByAstronautBatchArguments[0].size)
+        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments[1].size)
 
         verify(exactly = 3) {
             dataLoaderRegistry.dispatchAll()

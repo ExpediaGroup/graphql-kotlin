@@ -16,15 +16,14 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.level
 
-import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
-import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautDataLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautServiceRequest
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionDataLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionServiceRequest
-import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.NasaService
+import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.MissionServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.NasaService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.ExecutionLevelInstrumentationState
 import graphql.ExecutionInput
 import graphql.GraphQL
@@ -114,14 +113,9 @@ class DataLoaderLevelInstrumentationTest {
                 listOf(AstronautDataLoader(), MissionDataLoader())
             ).generate()
         )
-        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
-            override val loader = dataLoaderRegistry
-            override fun dispatch() = dataLoaderRegistry.dispatchAll()
-            override fun isDispatchCompleted(): Boolean = dataLoaderRegistry.isDispatchCompleted()
-        }
 
         val graphQLContext = mapOf(
-            TransactionLoader::class to batchLoader,
+            DataLoaderRegistry::class to dataLoaderRegistry,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
@@ -162,37 +156,32 @@ class DataLoaderLevelInstrumentationTest {
                 listOf(AstronautDataLoader(), MissionDataLoader())
             ).generate()
         )
-        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
-            override val loader = dataLoaderRegistry
-            override fun dispatch() = dataLoaderRegistry.dispatchAll()
-            override fun isDispatchCompleted(): Boolean = true
-        }
 
         val graphQLContext = mapOf(
-            TransactionLoader::class to batchLoader,
+            DataLoaderRegistry::class to dataLoaderRegistry,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
-        runBlocking {
-            val results = queries.map { query ->
+        val results = runBlocking {
+            queries.map { query ->
                 async {
                     graphQL.executeAsync(
                         ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
                     ).await()
                 }
             }.awaitAll()
+        }
 
-            assertEquals(4, results.size)
+        assertEquals(4, results.size)
 
-            assertEquals(1, AstronautService.batchArguments.size)
-            assertEquals(2, AstronautService.batchArguments[0].size)
+        assertEquals(1, AstronautService.batchArguments.size)
+        assertEquals(2, AstronautService.batchArguments[0].size)
 
-            assertEquals(1, AstronautService.batchArguments.size)
-            assertEquals(2, AstronautService.batchArguments[0].size)
+        assertEquals(1, AstronautService.batchArguments.size)
+        assertEquals(2, AstronautService.batchArguments[0].size)
 
-            verify(exactly = 3) {
-                dataLoaderRegistry.dispatchAll()
-            }
+        verify(exactly = 3) {
+            dataLoaderRegistry.dispatchAll()
         }
     }
 }

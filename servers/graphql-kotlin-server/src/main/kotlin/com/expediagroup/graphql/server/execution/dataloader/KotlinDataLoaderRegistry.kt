@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.server.execution.dataloader
 
+import org.dataloader.CacheMap
 import org.dataloader.DataLoader
-import org.dataloader.DataLoaderFactory
-import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
 import org.dataloader.stats.Statistics
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
 /**
- * Factory used to generate [DataLoaderRegistry] per GraphQL execution.
+ * Custom [DataLoaderRegistry] decorator that has access to the [CacheMap] of each registered [DataLoader]
+ * in order to keep track of the [futuresToComplete] when [dispatchAll] is invoked,
+ * that way we can know if all dependants of the [CompletableFuture]s were executed.
  */
-interface DataLoaderRegistryFactory {
-    /**
-     * Generate [DataLoaderRegistry] to be used for GraphQL request execution.
-     */
-    fun generate(): DataLoaderRegistry
-}
-
 class KotlinDataLoaderRegistry(
     private val registry: DataLoaderRegistry,
     private val cacheMaps: List<KotlinDefaultCacheMap<*, *>>
@@ -49,7 +43,15 @@ class KotlinDataLoaderRegistry(
     override fun unregister(key: String): DataLoaderRegistry = registry.unregister(key)
     override fun <K : Any, V : Any> getDataLoader(key: String?): DataLoader<K, V> = registry.getDataLoader(key)
     override fun getKeys(): MutableSet<String> = registry.keys
+    override fun dispatchAllWithCount(): Int = registry.dispatchAllWithCount()
+    override fun dispatchDepth(): Int = registry.dispatchDepth()
+    override fun getStatistics(): Statistics = registry.statistics
 
+    /**
+     * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
+     * it will start to keep track of the [CompletableFuture]s of each [DataLoader] by adding them to
+     * [futuresToComplete]
+     */
     override fun dispatchAll() {
         futuresToComplete.addAll(
             cacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
@@ -57,35 +59,17 @@ class KotlinDataLoaderRegistry(
         registry.dispatchAll()
     }
 
-    override fun dispatchAllWithCount(): Int = registry.dispatchAllWithCount()
-    override fun dispatchDepth(): Int = registry.dispatchDepth()
-    override fun getStatistics(): Statistics = registry.statistics
-
-    fun isDispatchCompleted(): Boolean = this.futuresToComplete.all {
-        it.numberOfDependents == 0
-    }
-}
-
-/**
- * Default [DataLoaderRegistryFactory] that generates a [DataLoaderRegistry] with all the names from the [KotlinDataLoader]s.
- */
-class DefaultDataLoaderRegistryFactory(
-    private val dataLoaders: List<KotlinDataLoader<*, *>>
-) : DataLoaderRegistryFactory {
-    override fun generate(): KotlinDataLoaderRegistry {
-        val cacheMaps = mutableListOf<KotlinDefaultCacheMap<*, *>>()
-        val registry = DataLoaderRegistry()
-        dataLoaders.forEach { dataLoader ->
-            val cacheMap = KotlinDefaultCacheMap<Any?, Any?>()
-            cacheMaps.add(cacheMap)
-            registry.register(
-                dataLoader.dataLoaderName,
-                DataLoaderFactory.newDataLoader(
-                    dataLoader.getBatchLoader(),
-                    DataLoaderOptions().setCacheMap(cacheMap)
-                )
-            )
-        }
-        return KotlinDataLoaderRegistry(registry, cacheMaps)
-    }
+    /**
+     * Will signal when all dependants of all [futuresToComplete] were invoked,
+     * [futuresToComplete] is the list of all [CompletableFuture]s that are going to be completed because the [dispatchAll]
+     * method was invoked
+     */
+    fun isDispatchCompleted(): Boolean =
+        this.futuresToComplete
+            .all { it.numberOfDependents == 0 }
+            .also { allFuturesCompleted ->
+                if (allFuturesCompleted) {
+                    futuresToComplete.clear()
+                }
+            }
 }
