@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.state
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level.state
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.execution.ExecutionLevelInstrumentationContext
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution.ExecutionLevelInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getDocumentHeight
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getExpectedStrategyCalls
 import graphql.ExecutionInput

@@ -16,7 +16,10 @@
 
 package com.expediagroup.graphql.server.execution
 
+import org.dataloader.BatchLoader
+import org.dataloader.CacheMap
 import org.dataloader.DataLoader
+import java.util.concurrent.CompletableFuture
 
 /**
  * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
@@ -24,5 +27,22 @@ import org.dataloader.DataLoader
  */
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+    fun getBatchLoader(): BatchLoader<K, V>
+}
+
+class KotlinDefaultCacheMap<K, V> : CacheMap<K, V> {
+
+    private val cache: MutableMap<K, CompletableFuture<V>> = mutableMapOf()
+
+    override fun containsKey(key: K): Boolean = cache.containsKey(key)
+
+    override fun get(key: K): CompletableFuture<V>? = cache[key]
+
+    override fun set(key: K, value: CompletableFuture<V>): CacheMap<K, V> = this.also { cache[key] = value }
+
+    override fun delete(key: K): CacheMap<K, V> = this.also { cache.remove(key) }
+
+    override fun clear(): CacheMap<K, V> = this.also { cache.clear() }
+
+    fun values(): List<CompletableFuture<V>> = cache.values.toList()
 }

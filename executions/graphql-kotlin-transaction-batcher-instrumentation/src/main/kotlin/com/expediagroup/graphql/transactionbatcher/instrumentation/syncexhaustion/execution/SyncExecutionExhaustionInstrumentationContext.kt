@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.state
+package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution
+
+import graphql.ExecutionInput
 
 /**
- * Represent a Level of a Document
+ * Defines the contract for the behavior that needs to be executed when a certain event happened
  */
-data class Level(private val number: Int) {
+interface SyncExecutionExhaustionInstrumentationContext {
     /**
-     * calculate [Level] that is after this [Level]
-     * @return next [Level]
+     * this is invoked when all [ExecutionInput] in a GraphQLContext exhausted their sync execution.
+     *
+     * @param executions list of executions that exhausted their sync execution.
      */
-    fun next(): Level = Level(number + 1)
-
-    /**
-     * calculate [Level] that is before this [Level]
-     * @return previous [Level]
-     */
-    fun previous(): Level = Level(number - 1)
-
-    /**
-     * calculate if this [Level] is the first
-     * @return whether or not this is the first [Level]
-     */
-    fun isFirst(): Boolean = number == 1
+    fun onSyncExecutionExhausted(
+        executions: List<ExecutionInput>
+    )
 }

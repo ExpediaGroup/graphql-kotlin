@@ -19,22 +19,21 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getContextDataLoader
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.DataLoader
-import org.dataloader.DataLoaderFactory
+import org.dataloader.BatchLoader
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
-data class MissionServiceRequest(val id: Int)
+data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 data class Mission(val id: Int, val designation: String, val crew: List<Int>)
 
 class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission> {
     override val dataLoaderName: String = "MissionDataLoader"
-    override fun getDataLoader(): DataLoader<MissionServiceRequest, Mission> =
-        DataLoaderFactory.newDataLoader { requests ->
-            MissionService.batchArguments += requests
-            requests.toFlux().flatMapSequential { request ->
+    override fun getBatchLoader(): BatchLoader<MissionServiceRequest, Mission> =
+        BatchLoader<MissionServiceRequest, Mission> { keys ->
+            MissionService.getMissionBatchArguments += keys
+            keys.toFlux().flatMapSequential { request ->
                 MissionService.missions[request.id].toMono().flatMap { (astronaut, delay) ->
                     astronaut.toMono().delayElement(delay)
                 }
@@ -42,8 +41,21 @@ class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission> {
         }
 }
 
-class MissionService {
+class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, List<Mission>> {
+    override val dataLoaderName: String = "MissionsByAstronautDataLoader"
+    override fun getBatchLoader(): BatchLoader<MissionServiceRequest, List<Mission>> =
+        BatchLoader<MissionServiceRequest, List<Mission>> { keys ->
+            MissionService.getMissionsByAstronautBatchArguments += keys
+            keys.toFlux().flatMapSequential { request ->
+                MissionService.missions.values
+                    .filter { (mission, _) -> mission.crew.contains(request.astronautId) }
+                    .map(Pair<Mission, Duration>::first)
+                    .toMono().delayElement(Duration.ofMillis(300))
+            }.collectList().toFuture()
+        }
+}
 
+class MissionService {
     fun getMission(
         request: MissionServiceRequest,
         environment: DataFetchingEnvironment
@@ -52,12 +64,21 @@ class MissionService {
             .getContextDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
             .load(request)
 
+    fun getMissionsByAstronaut(
+        request: MissionServiceRequest,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Mission>> =
+        environment
+            .getContextDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+            .load(request)
+
     companion object {
-        val batchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
+        val getMissionBatchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
+        val getMissionsByAstronautBatchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
         val missions = mapOf(
-            2 to Pair(Mission(2, "Apollo 4", listOf(14, 30, 7)), Duration.ofMillis(100)),
-            3 to Pair(Mission(3, "Apollo 5", listOf(23, 10, 12)), Duration.ofMillis(400)),
-            4 to Pair(Mission(4, "Apollo 6", listOf(1, 28, 31, 6)), Duration.ofMillis(300))
+            2 to Pair(Mission(2, "Apollo 4", listOf(1, 30, 2)), Duration.ofMillis(100)),
+            3 to Pair(Mission(3, "Apollo 5", listOf(23, 2, 3)), Duration.ofMillis(400)),
+            4 to Pair(Mission(4, "Apollo 6", listOf(1, 28, 31, 3)), Duration.ofMillis(300))
         )
     }
 }

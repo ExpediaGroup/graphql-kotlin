@@ -1,14 +1,17 @@
-package com.expediagroup.graphql.transactionbatcher.instrumentation
+package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.Astronaut
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautServiceRequest
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionsByAstronautDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.NasaService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.state.SyncExecutionExhaustionInstrumentationState
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.schema.idl.RuntimeWiring
@@ -26,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class DataLoaderLevelInstrumentationTest {
+class DataLoaderSyncExecutionInstrumentationTest {
     private val schema = """
         type Query {
             astronaut(id: ID!): Astronaut
@@ -40,6 +43,7 @@ class DataLoaderLevelInstrumentationTest {
         type Astronaut {
             id: ID!
             name: String
+            missions: [Mission]
         }
         type Mission {
             id: ID!
@@ -68,11 +72,22 @@ class DataLoaderLevelInstrumentationTest {
                 }
                 .dataFetcher("nasa") { NasaService(astronautService, missionService) }
         )
+        type(
+            TypeRuntimeWiring.newTypeWiring("Astronaut")
+                .dataFetcher("missions") { env ->
+                    val astronaut = env.getSource<Astronaut>()
+                    missionService
+                        .getMissionsByAstronaut(
+                            MissionServiceRequest(id = 0, astronautId = astronaut.id),
+                            env
+                        )
+                }
+        )
     }.build()
 
     private val graphQL = GraphQL
         .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-        .instrumentation(TransactionLoaderLevelInstrumentation())
+        .instrumentation(TransactionLoaderSyncExecutionInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
@@ -80,102 +95,57 @@ class DataLoaderLevelInstrumentationTest {
     @BeforeEach
     fun setup() {
         AstronautService.batchArguments.clear()
-        MissionService.batchArguments.clear()
+        MissionService.getMissionBatchArguments.clear()
     }
 
     @Test
     fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
-            "{ astronaut(id: 1) { name } }",
-            "{ astronaut(id: 2) { id name } }",
-            "{ mission(id: 3) { id designation } }",
+            "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
+            "{ astronaut(id: 2) { id name missions { designation } } }",
+            "{ nasa { mission(id: 3) { designation } } }",
             "{ mission(id: 4) { designation } }"
         )
 
         val dataLoaderRegistry = spyk(
             DefaultDataLoaderRegistryFactory(
-                listOf(AstronautDataLoader(), MissionDataLoader())
+                listOf(AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader())
             ).generate()
         )
         val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
             override val loader = dataLoaderRegistry
             override fun dispatch() = dataLoaderRegistry.dispatchAll()
-            override fun isDispatchCompleted(): Boolean = true
+            override fun isDispatchCompleted(): Boolean = dataLoaderRegistry.isDispatchCompleted()
         }
 
         val graphQLContext = mapOf(
             TransactionLoader::class to batchLoader,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(queries.size, batchLoader)
         )
 
-        runBlocking {
-            val results = queries.map { query ->
+        val results = runBlocking {
+            queries.map { query ->
                 async {
                     graphQL.executeAsync(
                         ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
                     ).await()
                 }
             }.awaitAll()
-
-            assertEquals(4, results.size)
-
-            assertEquals(1, AstronautService.batchArguments.size)
-            assertEquals(2, AstronautService.batchArguments[0].size)
-
-            assertEquals(1, AstronautService.batchArguments.size)
-            assertEquals(2, AstronautService.batchArguments[0].size)
-
-            verify(exactly = 2) {
-                dataLoaderRegistry.dispatchAll()
-            }
-        }
-    }
-
-    @Test
-    fun `Instrumentation should batch transactions on sync top level fields`() {
-        val queries = listOf(
-            "{ nasa { astronaut(id: 1) { name } } }",
-            "{ nasa { astronaut(id: 2) { id name } } }",
-            "{ nasa { mission(id: 3) { designation } } }",
-            "{ nasa { mission(id: 4) { id designation } } }"
-        )
-
-        val dataLoaderRegistry = spyk(
-            DefaultDataLoaderRegistryFactory(
-                listOf(AstronautDataLoader(), MissionDataLoader())
-            ).generate()
-        )
-        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
-            override val loader = dataLoaderRegistry
-            override fun dispatch() = dataLoaderRegistry.dispatchAll()
-            override fun isDispatchCompleted(): Boolean = true
         }
 
-        val graphQLContext = mapOf(
-            TransactionLoader::class to batchLoader,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
-        )
+        assertEquals(4, results.size)
 
-        runBlocking {
-            val results = queries.map { query ->
-                async {
-                    graphQL.executeAsync(
-                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
-                    ).await()
-                }
-            }.awaitAll()
+        assertEquals(1, AstronautService.batchArguments.size)
+        assertEquals(2, AstronautService.batchArguments[0].size)
 
-            assertEquals(4, results.size)
+        assertEquals(1, MissionService.getMissionBatchArguments.size)
+        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
 
-            assertEquals(1, AstronautService.batchArguments.size)
-            assertEquals(2, AstronautService.batchArguments[0].size)
+        assertEquals(1, MissionService.getMissionsByAstronautBatchArguments.size)
+        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments[0].size)
 
-            assertEquals(1, AstronautService.batchArguments.size)
-            assertEquals(2, AstronautService.batchArguments[0].size)
-
-            verify(exactly = 3) {
-                dataLoaderRegistry.dispatchAll()
-            }
+        verify(exactly = 3) {
+            dataLoaderRegistry.dispatchAll()
         }
     }
 }

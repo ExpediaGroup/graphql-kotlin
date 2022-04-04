@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
-
-import graphql.execution.ExecutionContext
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level.state
 
 /**
- * Source of level state calculation
+ * Represent a Level of a Document
  */
-enum class ExecutionLevelCalculationSource { EXECUTION_STRATEGY, FIELD_FETCH }
+data class Level(private val number: Int) {
+    /**
+     * calculate [Level] that is after this [Level]
+     * @return next [Level]
+     */
+    fun next(): Level = Level(number + 1)
 
-/**
- * Hold information that will be provided to an instance of [ExecutionLevelInstrumentation]
- */
-data class ExecutionLevelInstrumentationParameters(
-    val executionContext: ExecutionContext,
-    val calculationSource: ExecutionLevelCalculationSource
-)
+    /**
+     * calculate [Level] that is before this [Level]
+     * @return previous [Level]
+     */
+    fun previous(): Level = Level(number - 1)
+
+    /**
+     * calculate if this [Level] is the first
+     * @return whether or not this is the first [Level]
+     */
+    fun isFirst(): Boolean = number == 1
+}

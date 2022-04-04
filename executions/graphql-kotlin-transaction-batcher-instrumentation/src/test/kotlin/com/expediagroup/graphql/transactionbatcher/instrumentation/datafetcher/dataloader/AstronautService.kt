@@ -19,8 +19,7 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.
 import com.expediagroup.graphql.server.execution.KotlinDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getContextDataLoader
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.DataLoader
-import org.dataloader.DataLoaderFactory
+import org.dataloader.BatchLoader
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
@@ -31,8 +30,8 @@ data class Astronaut(val id: Int, val name: String)
 
 class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut> {
     override val dataLoaderName: String = "AstronautDataLoader"
-    override fun getDataLoader(): DataLoader<AstronautServiceRequest, Astronaut> =
-        DataLoaderFactory.newDataLoader { requests ->
+    override fun getBatchLoader(): BatchLoader<AstronautServiceRequest, Astronaut> =
+        BatchLoader<AstronautServiceRequest, Astronaut> { requests ->
             AstronautService.batchArguments += requests
             requests.toFlux().flatMapSequential { request ->
                 AstronautService.astronauts[request.id].toMono().flatMap { (astronaut, delay) ->
@@ -43,7 +42,6 @@ class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut>
 }
 
 class AstronautService {
-
     fun getAstronaut(
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment

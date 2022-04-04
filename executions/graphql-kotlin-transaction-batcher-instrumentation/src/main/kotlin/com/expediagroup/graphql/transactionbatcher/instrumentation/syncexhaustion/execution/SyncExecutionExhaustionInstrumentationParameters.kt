@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
+package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution
 
-import graphql.ExecutionResult
-import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
-import java.util.concurrent.CompletableFuture
+import graphql.execution.ExecutionContext
 
 /**
- * Simple NoOp [ExecutionStrategyInstrumentationContext] implementation
+ * Hold information that will be provided to an instance of [SyncExecutionExhaustionInstrumentation]
  */
-object NoOpExecutionStrategyInstrumentationContext : ExecutionStrategyInstrumentationContext {
-    override fun onDispatched(result: CompletableFuture<ExecutionResult>) {
-    }
-    override fun onCompleted(result: ExecutionResult, t: Throwable) {
-    }
-}
+data class SyncExecutionExhaustionInstrumentationParameters(
+    val executionContext: ExecutionContext
+)

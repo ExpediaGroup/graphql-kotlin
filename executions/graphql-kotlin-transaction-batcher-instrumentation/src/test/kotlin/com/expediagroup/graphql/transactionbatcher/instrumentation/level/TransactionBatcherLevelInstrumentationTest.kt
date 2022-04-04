@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level
 
+import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.Astronaut
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.AstronautService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.AstronautServiceRequest
@@ -23,7 +24,7 @@ import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.t
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.MissionService
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.MissionServiceRequest
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.transactionbatcher.NasaService
-import com.expediagroup.graphql.transactionbatcher.instrumentation.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.ExecutionLevelInstrumentationState
 import com.expediagroup.graphql.transactionbatcher.publisher.TriggeredPublisher
 import com.expediagroup.graphql.transactionbatcher.transaction.TransactionBatcher
 import graphql.ExecutionInput
@@ -94,7 +95,7 @@ class TransactionBatcherLevelInstrumentationTest {
     @BeforeEach
     fun setup() {
         astronautService.batchArguments.clear()
-        missionService.batchArguments.clear()
+        missionService.getMissionBatchArguments.clear()
     }
 
     @Test
@@ -131,8 +132,8 @@ class TransactionBatcherLevelInstrumentationTest {
             assertEquals(1, astronautService.batchArguments.size)
             assertEquals(2, astronautService.batchArguments[0].size)
 
-            assertEquals(1, missionService.batchArguments.size)
-            assertEquals(2, missionService.batchArguments[0].size)
+            assertEquals(1, missionService.getMissionBatchArguments.size)
+            assertEquals(2, missionService.getMissionBatchArguments[0].size)
 
             verify(exactly = 2) {
                 transactionBatcher.dispatch()
@@ -175,41 +176,26 @@ class TransactionBatcherLevelInstrumentationTest {
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
-        runBlocking {
-            val results = queries.map { query ->
+        val results = runBlocking {
+            queries.map { query ->
                 async {
                     graphQL.executeAsync(
                         ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
                     ).await()
                 }
             }.awaitAll()
+        }
 
-            assertEquals(4, results.size)
+        assertEquals(4, results.size)
 
-            assertEquals(1, astronautService.batchArguments.size)
-            assertEquals(2, astronautService.batchArguments[0].size)
+        assertEquals(1, astronautService.batchArguments.size)
+        assertEquals(2, astronautService.batchArguments[0].size)
 
-            assertEquals(1, missionService.batchArguments.size)
-            assertEquals(2, missionService.batchArguments[0].size)
+        assertEquals(1, missionService.getMissionBatchArguments.size)
+        assertEquals(2, missionService.getMissionBatchArguments[0].size)
 
-            verify(exactly = 3) {
-                transactionBatcher.dispatch()
-            }
-            verify(exactly = 2) {
-                transactionBatcher.batch(
-                    ofType<AstronautServiceRequest>(),
-                    ofType(),
-                    ofType<TriggeredPublisher<AstronautServiceRequest, Astronaut>>()
-                )
-            }
-            verify(exactly = 2) {
-                transactionBatcher.batch(
-                    ofType<MissionServiceRequest>(),
-                    ofType(),
-                    ofType<TriggeredPublisher<MissionServiceRequest, Mission>>()
-                )
-            }
-            confirmVerified(transactionBatcher)
+        verify(exactly = 3) {
+            transactionBatcher.dispatch()
         }
     }
 }

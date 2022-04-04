@@ -24,19 +24,20 @@ import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
-data class MissionServiceRequest(val id: Int)
+data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 data class Mission(val id: Int, val designation: String, val crew: List<Int>)
 
 class MissionService {
 
-    val batchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
+    val getMissionBatchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
+    val getMissionsByAstronautBatchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
 
     fun getMission(
         request: MissionServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<Mission> =
         environment.getTransactionLoader<TransactionBatcher>().batch(request) { requests: List<MissionServiceRequest> ->
-            batchArguments += requests
+            getMissionBatchArguments += requests
             requests.toFlux().flatMapSequential { request ->
                 missions[request.id].toMono().flatMap { (astronaut, delay) ->
                     astronaut.toMono().delayElement(delay)
@@ -44,11 +45,26 @@ class MissionService {
             }
         }
 
+    fun getMissionsByAstronaut(
+        request: MissionServiceRequest,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Mission>> =
+        environment.getTransactionLoader<TransactionBatcher>().batch(request) { requests: List<MissionServiceRequest> ->
+            getMissionsByAstronautBatchArguments += requests
+            requests.toFlux().flatMapSequential { request ->
+                missions.values
+                    .filter { (mission, _) -> mission.crew.contains(request.astronautId) }.
+                    map(Pair<Mission, Duration>::first)
+                    .toFlux()
+                    .collectList().delayElement(Duration.ofMillis(300))
+            }
+        }
+
     companion object {
-        private val missions = mapOf(
-            2 to Pair(Mission(2, "Apollo 4", listOf(14, 30, 7)), Duration.ofMillis(100)),
-            3 to Pair(Mission(3, "Apollo 5", listOf(23, 10, 12)), Duration.ofMillis(400)),
-            4 to Pair(Mission(4, "Apollo 6", listOf(1, 28, 31, 6)), Duration.ofMillis(300))
+        val missions = mapOf(
+            2 to Pair(Mission(2, "Apollo 4", listOf(1, 30, 2)), Duration.ofMillis(100)),
+            3 to Pair(Mission(3, "Apollo 5", listOf(23, 2, 3)), Duration.ofMillis(400)),
+            4 to Pair(Mission(4, "Apollo 6", listOf(1, 28, 31, 3)), Duration.ofMillis(300))
         )
     }
 }

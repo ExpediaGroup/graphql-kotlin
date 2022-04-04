@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
+package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.transactionbatcher.instrumentation.NoOpExecutionStrategyInstrumentationContext
+import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.state.SyncExecutionExhaustionInstrumentationState
 import graphql.ExecutionResult
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
@@ -25,19 +26,18 @@ import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
-import graphql.schema.DataFetcher
 
 /**
  * Custom GraphQL [graphql.execution.instrumentation.Instrumentation] that calculate the state of executions
- * of all queries sharing the same GraphQLContext map
+ * of all queries sharing the same GraphQLContext
  */
-abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), ExecutionLevelInstrumentation {
+abstract class AbstractSyncExecutionExhaustionInstrumentation : SimpleInstrumentation(), SyncExecutionExhaustionInstrumentation {
 
     override fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> =
         parameters.executionContext
-            .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
+            .graphQLContext.get<SyncExecutionExhaustionInstrumentationState>(SyncExecutionExhaustionInstrumentationState::class)
             ?.beginExecuteOperation(parameters)
             ?: SimpleInstrumentationContext.noOp()
 
@@ -45,40 +45,20 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
         parameters: InstrumentationExecutionStrategyParameters
     ): ExecutionStrategyInstrumentationContext =
         parameters.executionContext
-            .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
-            ?.beginExecutionStrategy(
-                parameters,
-                this.calculateLevelState(
-                    ExecutionLevelInstrumentationParameters(
-                        parameters.executionContext,
-                        ExecutionLevelCalculationSource.EXECUTION_STRATEGY
-                    )
-                )
-            )
+            .graphQLContext.get<SyncExecutionExhaustionInstrumentationState>(SyncExecutionExhaustionInstrumentationState::class)
+            ?.beginExecutionStrategy(parameters)
             ?: NoOpExecutionStrategyInstrumentationContext
 
     override fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters
     ): InstrumentationContext<Any> =
         parameters.executionContext
-            .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
+            .graphQLContext.get<SyncExecutionExhaustionInstrumentationState>(SyncExecutionExhaustionInstrumentationState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.calculateLevelState(
-                    ExecutionLevelInstrumentationParameters(
-                        parameters.executionContext,
-                        ExecutionLevelCalculationSource.FIELD_FETCH
-                    )
+                this.calculateSyncExecutionState(
+                    SyncExecutionExhaustionInstrumentationParameters(parameters.executionContext)
                 )
             )
             ?: SimpleInstrumentationContext.noOp()
-
-    override fun instrumentDataFetcher(
-        dataFetcher: DataFetcher<*>,
-        parameters: InstrumentationFieldFetchParameters
-    ): DataFetcher<*> =
-        parameters.executionContext
-            .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
-            ?.instrumentDataFetcher(dataFetcher, parameters)
-            ?: dataFetcher
 }

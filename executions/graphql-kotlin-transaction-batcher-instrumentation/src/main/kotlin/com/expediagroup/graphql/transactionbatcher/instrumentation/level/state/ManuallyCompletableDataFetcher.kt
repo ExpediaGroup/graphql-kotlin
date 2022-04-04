@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.state
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level.state
 
 import graphql.execution.Async
 import graphql.schema.DataFetcher

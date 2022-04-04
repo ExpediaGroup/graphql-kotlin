@@ -1,0 +1,198 @@
+/*
+ * Copyright 2022 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level
+
+import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.transactionbatcher.instrumentation.TransactionLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.AstronautServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionDataLoader
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.MissionServiceRequest
+import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.dataloader.NasaService
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.ExecutionLevelInstrumentationState
+import graphql.ExecutionInput
+import graphql.GraphQL
+import graphql.schema.idl.RuntimeWiring
+import graphql.schema.idl.SchemaGenerator
+import graphql.schema.idl.SchemaParser
+import graphql.schema.idl.TypeRuntimeWiring
+import io.mockk.spyk
+import io.mockk.verify
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
+import org.dataloader.DataLoaderRegistry
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+
+class DataLoaderLevelInstrumentationTest {
+    private val schema = """
+        type Query {
+            astronaut(id: ID!): Astronaut
+            mission(id: ID!): Mission
+            nasa: Nasa!
+        }
+        type Nasa {
+            astronaut(id: ID!): Astronaut!
+            mission(id: ID!): Mission!
+        }
+        type Astronaut {
+            id: ID!
+            name: String
+        }
+        type Mission {
+            id: ID!
+            designation: String!
+            crew: [ID]!
+        }
+    """.trimIndent()
+
+    private val astronautService = AstronautService()
+    private val missionService = MissionService()
+
+    private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
+        type(
+            TypeRuntimeWiring.newTypeWiring("Query")
+                .dataFetcher("astronaut") { environment ->
+                    astronautService.getAstronaut(
+                        AstronautServiceRequest(environment.getArgument<String>("id").toInt()),
+                        environment
+                    )
+                }
+                .dataFetcher("mission") { environment ->
+                    missionService.getMission(
+                        MissionServiceRequest(environment.getArgument<String>("id").toInt()),
+                        environment
+                    )
+                }
+                .dataFetcher("nasa") { NasaService(astronautService, missionService) }
+        )
+    }.build()
+
+    private val graphQL = GraphQL
+        .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
+        .instrumentation(TransactionLoaderLevelInstrumentation())
+        // graphql java adds DataLoaderDispatcherInstrumentation by default
+        .doNotAddDefaultInstrumentations()
+        .build()
+
+    @BeforeEach
+    fun setup() {
+        AstronautService.batchArguments.clear()
+        MissionService.getMissionBatchArguments.clear()
+    }
+
+    @Test
+    fun `Instrumentation should batch transactions on async top level fields`() {
+        val queries = listOf(
+            "{ astronaut(id: 1) { name } }",
+            "{ astronaut(id: 2) { id name } }",
+            "{ mission(id: 3) { id designation } }",
+            "{ mission(id: 4) { designation } }"
+        )
+
+        val dataLoaderRegistry = spyk(
+            DefaultDataLoaderRegistryFactory(
+                listOf(AstronautDataLoader(), MissionDataLoader())
+            ).generate()
+        )
+        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
+            override val loader = dataLoaderRegistry
+            override fun dispatch() = dataLoaderRegistry.dispatchAll()
+            override fun isDispatchCompleted(): Boolean = dataLoaderRegistry.isDispatchCompleted()
+        }
+
+        val graphQLContext = mapOf(
+            TransactionLoader::class to batchLoader,
+            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+        )
+
+        val results = runBlocking {
+            queries.map { query ->
+                async {
+                    graphQL.executeAsync(
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                    ).await()
+                }
+            }.awaitAll()
+        }
+
+        assertEquals(4, results.size)
+
+        assertEquals(1, AstronautService.batchArguments.size)
+        assertEquals(2, AstronautService.batchArguments[0].size)
+
+        assertEquals(1, MissionService.getMissionBatchArguments.size)
+        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
+
+        verify(exactly = 2) {
+            dataLoaderRegistry.dispatchAll()
+        }
+    }
+
+    @Test
+    fun `Instrumentation should batch transactions on sync top level fields`() {
+        val queries = listOf(
+            "{ nasa { astronaut(id: 1) { name } } }",
+            "{ nasa { astronaut(id: 2) { id name } } }",
+            "{ nasa { mission(id: 3) { designation } } }",
+            "{ nasa { mission(id: 4) { id designation } } }"
+        )
+
+        val dataLoaderRegistry = spyk(
+            DefaultDataLoaderRegistryFactory(
+                listOf(AstronautDataLoader(), MissionDataLoader())
+            ).generate()
+        )
+        val batchLoader = object : TransactionLoader<DataLoaderRegistry> {
+            override val loader = dataLoaderRegistry
+            override fun dispatch() = dataLoaderRegistry.dispatchAll()
+            override fun isDispatchCompleted(): Boolean = true
+        }
+
+        val graphQLContext = mapOf(
+            TransactionLoader::class to batchLoader,
+            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+        )
+
+        runBlocking {
+            val results = queries.map { query ->
+                async {
+                    graphQL.executeAsync(
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                    ).await()
+                }
+            }.awaitAll()
+
+            assertEquals(4, results.size)
+
+            assertEquals(1, AstronautService.batchArguments.size)
+            assertEquals(2, AstronautService.batchArguments[0].size)
+
+            assertEquals(1, AstronautService.batchArguments.size)
+            assertEquals(2, AstronautService.batchArguments[0].size)
+
+            verify(exactly = 3) {
+                dataLoaderRegistry.dispatchAll()
+            }
+        }
+    }
+}

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.execution
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution
 
-import com.expediagroup.graphql.transactionbatcher.instrumentation.state.Level
+import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.Level
 import graphql.ExecutionInput
 
 /**
