@@ -85,7 +85,7 @@ class ExecutionBatchState {
     ): Boolean {
         val executionStrategyState = this.executionStrategiesState[executionStrategyPath]
 
-        if (executionStrategyState == null || !executionStrategyState.allFieldsDispatched()) {
+        if (executionStrategyState == null || !executionStrategyState.allFieldsVisited()) {
             return false
         }
         if (executionStrategyState.exhaustionState == ExecutionStrategyExhaustionState.EXHAUSTED) {

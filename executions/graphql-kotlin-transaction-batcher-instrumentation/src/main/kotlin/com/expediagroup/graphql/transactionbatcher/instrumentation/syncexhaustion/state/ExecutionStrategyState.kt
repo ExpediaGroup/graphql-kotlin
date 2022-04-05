@@ -32,7 +32,7 @@ class ExecutionStrategyState(selections: List<Field>) {
         selections.associateBy(Field::getResultKey) { FieldState() }
     )
     var exhaustionState: ExecutionStrategyExhaustionState = ExecutionStrategyExhaustionState.NOT_EXHAUSTED
-    fun allFieldsDispatched(): Boolean = dispatchedFields == fieldsState.size
+    fun allFieldsVisited(): Boolean = dispatchedFields == fieldsState.size
 
     inner class FieldState {
         var fetchState: FieldFetchState = FieldFetchState.NOT_DISPATCHED

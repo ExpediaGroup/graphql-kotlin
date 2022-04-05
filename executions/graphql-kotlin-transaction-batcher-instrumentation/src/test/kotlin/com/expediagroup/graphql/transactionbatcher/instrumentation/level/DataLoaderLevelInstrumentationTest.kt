@@ -111,6 +111,7 @@ class DataLoaderLevelInstrumentationTest {
     fun setup() {
         AstronautService.batchArguments.clear()
         MissionService.getMissionBatchArguments.clear()
+        MissionService.getMissionsByAstronautBatchArguments.clear()
     }
 
     @Test

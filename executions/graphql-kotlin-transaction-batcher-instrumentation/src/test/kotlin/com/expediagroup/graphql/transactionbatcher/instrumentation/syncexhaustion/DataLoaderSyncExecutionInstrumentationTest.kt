@@ -95,14 +95,111 @@ class DataLoaderSyncExecutionInstrumentationTest {
     fun setup() {
         AstronautService.batchArguments.clear()
         MissionService.getMissionBatchArguments.clear()
+        MissionService.getMissionsByAstronautBatchArguments.clear()
     }
 
     @Test
     fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
-            "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
-            "{ astronaut(id: 2) { id name missions { designation } } }",
+            "{ astronaut(id: 1) { name } }",
+            "{ astronaut(id: 2) { id name } }",
+            "{ mission(id: 3) { id designation } }",
+            "{ mission(id: 4) { designation } }"
+        )
+
+        val dataLoaderRegistry = spyk(
+            DefaultDataLoaderRegistryFactory(
+                listOf(AstronautDataLoader(), MissionDataLoader())
+            ).generate()
+        )
+
+        val graphQLContext = mapOf(
+            DataLoaderRegistry::class to dataLoaderRegistry,
+            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(
+                queries.size,
+                dataLoaderRegistry
+            )
+        )
+
+        val results = runBlocking {
+            queries.map { query ->
+                async {
+                    graphQL.executeAsync(
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                    ).await()
+                }
+            }.awaitAll()
+        }
+
+        assertEquals(4, results.size)
+
+        assertEquals(1, AstronautService.batchArguments.size)
+        assertEquals(2, AstronautService.batchArguments[0].size)
+
+        assertEquals(1, MissionService.getMissionBatchArguments.size)
+        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
+
+        verify(exactly = 2) {
+            dataLoaderRegistry.dispatchAll()
+        }
+    }
+
+    @Test
+    fun `Instrumentation should batch transactions on sync top level fields`() {
+        val queries = listOf(
+            "{ nasa { astronaut(id: 1) { name } } }",
+            "{ nasa { astronaut(id: 2) { id name } } }",
             "{ nasa { mission(id: 3) { designation } } }",
+            "{ nasa { mission(id: 4) { id designation } } }"
+        )
+
+        val dataLoaderRegistry = spyk(
+            DefaultDataLoaderRegistryFactory(
+                listOf(AstronautDataLoader(), MissionDataLoader())
+            ).generate()
+        )
+
+        val graphQLContext = mapOf(
+            DataLoaderRegistry::class to dataLoaderRegistry,
+            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(
+                queries.size,
+                dataLoaderRegistry
+            )
+        )
+
+        val results = runBlocking {
+            queries.map { query ->
+                async {
+                    graphQL.executeAsync(
+                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                    ).await()
+                }
+            }.awaitAll()
+        }
+
+        assertEquals(4, results.size)
+
+        assertEquals(1, AstronautService.batchArguments.size)
+        assertEquals(2, AstronautService.batchArguments[0].size)
+
+        assertEquals(1, MissionService.getMissionBatchArguments.size)
+        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
+
+        verify(exactly = 2) {
+            dataLoaderRegistry.dispatchAll()
+        }
+    }
+
+    @Test
+    fun `Instrumentation should batch transactions on different levels`() {
+        val queries = listOf(
+            // L2 astronaut - L3 missions
+            "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
+            // L1 astronaut - L2 missions
+            "{ astronaut(id: 2) { id name missions { designation } } }",
+            // L2 mission
+            "{ nasa { mission(id: 3) { designation } } }",
+            // L1 mission
             "{ mission(id: 4) { designation } }"
         )
 
@@ -114,7 +211,10 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         val graphQLContext = mapOf(
             DataLoaderRegistry::class to dataLoaderRegistry,
-            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(queries.size, dataLoaderRegistry)
+            SyncExecutionExhaustionInstrumentationState::class to SyncExecutionExhaustionInstrumentationState(
+                queries.size,
+                dataLoaderRegistry
+            )
         )
 
         val results = runBlocking {

@@ -42,7 +42,6 @@ class DefaultDataLoaderRegistryFactory(
         val registry = DataLoaderRegistry()
         dataLoaders.forEach { dataLoader ->
             val cacheMap = KotlinDefaultCacheMap<Any?, Any?>()
-            cacheMaps.add(cacheMap)
             registry.register(
                 dataLoader.dataLoaderName,
                 DataLoaderFactory.newDataLoader(
@@ -50,6 +49,7 @@ class DefaultDataLoaderRegistryFactory(
                     DataLoaderOptions().setCacheMap(cacheMap)
                 )
             )
+            cacheMaps += cacheMap
         }
         return KotlinDataLoaderRegistry(registry, cacheMaps)
     }
