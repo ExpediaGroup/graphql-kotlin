@@ -21,7 +21,7 @@ import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
 
 /**
- * Factory used to generate [DataLoaderRegistry] per GraphQL execution.
+ * Factory used to generate a [DataLoaderRegistry].
  */
 interface DataLoaderRegistryFactory {
     /**
