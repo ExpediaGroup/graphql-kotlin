@@ -17,13 +17,17 @@
 package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution
 
 import graphql.ExecutionInput
+import graphql.GraphQLContext
+import java.util.concurrent.CompletableFuture
 
 /**
- * Defines the contract for the behavior that needs to be executed when a certain event happened
+ * Defines the contract for the behavior that needs to be executed when a SyncExecutionExhaustion is calculated
  */
-interface SyncExecutionExhaustionInstrumentationContext {
+fun interface SyncExecutionExhaustionInstrumentationContext {
     /**
-     * this is invoked when all [ExecutionInput] in a GraphQLContext exhausted their sync execution.
+     * this is invoked when all [ExecutionInput] sharing a [GraphQLContext] exhausted their synchronous execution.
+     * a synchronous execution is considered exhausted when all data fetchers of all paths were executed up until
+     * an scalar leaf or a non-trivial data fetcher that returns a [CompletableFuture]
      *
      * @param executions list of executions that exhausted their sync execution.
      */

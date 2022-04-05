@@ -19,19 +19,15 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhausti
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.AbstractSyncExecutionExhaustionInstrumentation
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationParameters
-import graphql.ExecutionInput
 import org.dataloader.DataLoaderRegistry
 
 class TransactionLoaderSyncExecutionInstrumentation : AbstractSyncExecutionExhaustionInstrumentation() {
     override fun calculateSyncExecutionState(
         parameters: SyncExecutionExhaustionInstrumentationParameters
-    ): SyncExecutionExhaustionInstrumentationContext =
-        object : SyncExecutionExhaustionInstrumentationContext {
-            override fun onSyncExecutionExhausted(executions: List<ExecutionInput>) {
-                parameters
-                    .executionContext
-                    .graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class)
-                    ?.dispatchAll()
-            }
-        }
+    ): SyncExecutionExhaustionInstrumentationContext = SyncExecutionExhaustionInstrumentationContext {
+        parameters
+            .executionContext
+            .graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class)
+            ?.dispatchAll()
+    }
 }
