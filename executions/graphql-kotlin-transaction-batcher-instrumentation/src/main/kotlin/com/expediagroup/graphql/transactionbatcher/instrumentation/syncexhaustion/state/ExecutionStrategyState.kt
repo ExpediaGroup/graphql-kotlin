@@ -27,11 +27,11 @@ enum class FieldFetchState { NOT_DISPATCHED, DISPATCHED, COMPLETED }
 enum class FieldFetchType { UNKNOWN, ASYNC, SYNC }
 
 class ExecutionStrategyState(selections: List<Field>) {
+    private var dispatchedFields: Int = 0
     val fieldsState: ConcurrentHashMap<String, FieldState> = ConcurrentHashMap(
         selections.associateBy(Field::getResultKey) { FieldState() }
     )
     var exhaustionState: ExecutionStrategyExhaustionState = ExecutionStrategyExhaustionState.NOT_EXHAUSTED
-    private var dispatchedFields: Int = 0
     fun allFieldsDispatched(): Boolean = dispatchedFields == fieldsState.size
 
     inner class FieldState {
@@ -44,17 +44,19 @@ class ExecutionStrategyState(selections: List<Field>) {
         fun isList(): Boolean = GraphQLTypeUtil.isList(graphQLType)
         fun isLeaf(): Boolean = GraphQLTypeUtil.isLeaf(graphQLType)
 
-        fun toDispatchedState(graphQLType: GraphQLType, result: CompletableFuture<Any?>): FieldState {
-            dispatchedFields++
+        fun toDispatchedState(
+            graphQLType: GraphQLType,
+            result: CompletableFuture<Any?>
+        ): FieldState = this.also {
             this.fetchState = FieldFetchState.DISPATCHED
             this.graphQLType = graphQLType
             this.fetchType = if (result.isDone) FieldFetchType.SYNC else FieldFetchType.ASYNC
-            return this
+            this@ExecutionStrategyState.dispatchedFields++
         }
-        fun toCompletedState(result: Any?): FieldState {
+
+        fun toCompletedState(result: Any?): FieldState = this.also {
             this.fetchState = FieldFetchState.COMPLETED
             this.result = result
-            return this
         }
     }
 }

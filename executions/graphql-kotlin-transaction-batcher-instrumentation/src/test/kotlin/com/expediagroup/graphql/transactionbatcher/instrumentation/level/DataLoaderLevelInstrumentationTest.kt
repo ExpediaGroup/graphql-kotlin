@@ -239,17 +239,16 @@ class DataLoaderLevelInstrumentationTest {
         assertEquals(1, AstronautService.batchArguments[0].size)
         assertEquals(1, MissionService.getMissionBatchArguments[0].size)
 
-        //Level 2
+        // Level 2
         assertEquals(1, AstronautService.batchArguments[1].size)
         assertEquals(1, MissionService.getMissionsByAstronautBatchArguments[0].size)
         assertEquals(1, MissionService.getMissionBatchArguments[1].size)
 
-        //Level 3
+        // Level 3
         assertEquals(1, MissionService.getMissionsByAstronautBatchArguments[1].size)
 
         verify(exactly = 4) {
             dataLoaderRegistry.dispatchAll()
         }
-
     }
 }
