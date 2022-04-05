@@ -24,11 +24,11 @@ import graphql.ExecutionInput
 interface SyncExecutionExhaustionInstrumentation {
     /**
      * This is invoked each time instrumentation attempts to calculate state, this can be called from either
-     * `beginFieldField` or `beginExecutionStrategy`.
+     * `beginFieldField.dispatch` or `beginFieldFetch.complete`.
      *
-     * @param parameters contains information of which [ExecutionInput] caused the calculation and from which hook
-     * @return an instance of [SyncExecutionExhaustionInstrumentationContext] that will call a method when a certain event happened
-     * like `onDispatched`
+     * @param parameters contains information of which [ExecutionInput] caused the calculation
+     * @return an instance of [SyncExecutionExhaustionInstrumentationContext] that will be invoked when the synchronous
+     * execution was exhausted
      */
     fun calculateSyncExecutionState(
         parameters: SyncExecutionExhaustionInstrumentationParameters

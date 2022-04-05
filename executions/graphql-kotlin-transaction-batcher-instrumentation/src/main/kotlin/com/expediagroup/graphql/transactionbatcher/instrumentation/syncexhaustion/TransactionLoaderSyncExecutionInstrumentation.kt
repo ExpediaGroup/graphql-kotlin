@@ -19,8 +19,15 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhausti
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.AbstractSyncExecutionExhaustionInstrumentation
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.execution.SyncExecutionExhaustionInstrumentationParameters
+import graphql.GraphQLContext
+import graphql.execution.instrumentation.Instrumentation
 import org.dataloader.DataLoaderRegistry
+import org.dataloader.DataLoader
 
+/**
+ * Custom GraphQL [Instrumentation] that will dispatch all [DataLoader]s inside a [DataLoaderRegistry]
+ * located in a [GraphQLContext], which can be shared among multiple GraphQL operations.
+ */
 class TransactionLoaderSyncExecutionInstrumentation : AbstractSyncExecutionExhaustionInstrumentation() {
     override fun calculateSyncExecutionState(
         parameters: SyncExecutionExhaustionInstrumentationParameters

@@ -19,7 +19,9 @@ package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhausti
 import com.expediagroup.graphql.transactionbatcher.instrumentation.NoOpExecutionStrategyInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.state.SyncExecutionExhaustionInstrumentationState
 import graphql.ExecutionResult
+import graphql.GraphQLContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
+import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.SimpleInstrumentationContext
@@ -28,11 +30,10 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionStra
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 
 /**
- * Custom GraphQL [graphql.execution.instrumentation.Instrumentation] that calculate the state of executions
- * of all queries sharing the same GraphQLContext
+ * Custom GraphQL [Instrumentation] that calculate the synchronous execution state
+ * of all queries sharing the same [GraphQLContext]
  */
 abstract class AbstractSyncExecutionExhaustionInstrumentation : SimpleInstrumentation(), SyncExecutionExhaustionInstrumentation {
-
     override fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> =
