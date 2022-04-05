@@ -103,8 +103,7 @@ class DataLoaderSyncExecutionInstrumentationTest {
             "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
             "{ astronaut(id: 2) { id name missions { designation } } }",
             "{ nasa { mission(id: 3) { designation } } }",
-            "{ mission(id: 4) { designation } }",
-            "{ missions { designation } }"
+            "{ mission(id: 4) { designation } }"
         )
 
         val dataLoaderRegistry = spyk(
@@ -128,7 +127,7 @@ class DataLoaderSyncExecutionInstrumentationTest {
             }.awaitAll()
         }
 
-        assertEquals(5, results.size)
+        assertEquals(4, results.size)
 
         assertEquals(1, AstronautService.batchArguments.size)
         assertEquals(2, AstronautService.batchArguments[0].size)
@@ -136,9 +135,8 @@ class DataLoaderSyncExecutionInstrumentationTest {
         assertEquals(1, MissionService.getMissionBatchArguments.size)
         assertEquals(2, MissionService.getMissionBatchArguments[0].size)
 
-        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments.size)
-        assertEquals(1, MissionService.getMissionsByAstronautBatchArguments[0].size)
-        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments[1].size)
+        assertEquals(1, MissionService.getMissionsByAstronautBatchArguments.size)
+        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments[0].size)
 
         verify(exactly = 3) {
             dataLoaderRegistry.dispatchAll()

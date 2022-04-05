@@ -30,9 +30,9 @@ class ExecutionStrategyState(selections: List<Field>) {
     val fieldsState: ConcurrentHashMap<String, FieldState> = ConcurrentHashMap(
         selections.associateBy(Field::getResultKey) { FieldState() }
     )
-    val totalFields = fieldsState.size
-    var dispatchedFields: Int = 0
     var exhaustionState: ExecutionStrategyExhaustionState = ExecutionStrategyExhaustionState.NOT_EXHAUSTED
+    private var dispatchedFields: Int = 0
+    fun allFieldsDispatched(): Boolean = dispatchedFields == fieldsState.size
 
     inner class FieldState {
         var fetchState: FieldFetchState = FieldFetchState.NOT_DISPATCHED
