@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.server.execution.dataloader
 
 import io.mockk.mockk
-import org.dataloader.DataLoader
+import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -34,7 +34,7 @@ class DefaultDataLoaderRegistryFactoryTest {
     fun `generate registry with basic loader`() {
         val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "MockDataLoader"
-            override fun getDataLoader(): DataLoader<String, String> = mockk()
+            override fun getBatchLoader(): BatchLoader<String, String> = mockk()
         }
 
         val registry = DefaultDataLoaderRegistryFactory(listOf(mockLoader)).generate()
