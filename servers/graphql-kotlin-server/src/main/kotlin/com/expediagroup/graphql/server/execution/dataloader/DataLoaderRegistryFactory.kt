@@ -46,7 +46,8 @@ class DefaultDataLoaderRegistryFactory(
             registry.register(
                 dataLoader.dataLoaderName,
                 DataLoaderFactory.newDataLoader(
-                    dataLoader.getBatchLoader()
+                    dataLoader.getBatchLoader(),
+                    dataLoader.getOptions()
                 )
             )
         }

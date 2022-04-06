@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.execution.dataloader
 
 import org.dataloader.BatchLoader
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderOptions
 
 /**
  * Configuration interface that will create a [DataLoader] instance
@@ -27,4 +28,5 @@ import org.dataloader.DataLoader
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
     fun getBatchLoader(): BatchLoader<K, V>
+    fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions()
 }
