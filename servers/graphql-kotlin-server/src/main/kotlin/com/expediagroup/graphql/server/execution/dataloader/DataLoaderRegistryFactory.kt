@@ -37,6 +37,9 @@ interface DataLoaderRegistryFactory {
 class DefaultDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
 ) : DataLoaderRegistryFactory {
+
+    constructor(vararg dataLoaders: KotlinDataLoader<*, *>) : this(dataLoaders.toList())
+
     override fun generate(): KotlinDataLoaderRegistry {
         val cacheMaps = mutableListOf<KotlinDefaultCacheMap<*, *>>()
         val registry = DataLoaderRegistry()

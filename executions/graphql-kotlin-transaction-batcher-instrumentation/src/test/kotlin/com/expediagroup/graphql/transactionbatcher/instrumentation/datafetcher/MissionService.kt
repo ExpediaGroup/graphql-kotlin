@@ -32,7 +32,6 @@ class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission> {
     override val dataLoaderName: String = "MissionDataLoader"
     override fun getBatchLoader(): BatchLoader<MissionServiceRequest, Mission> =
         BatchLoader<MissionServiceRequest, Mission> { keys ->
-            MissionService.getMissionBatchArguments += keys
             keys.toFlux().flatMapSequential { request ->
                 MissionService.missions[request.id].toMono().flatMap { (astronaut, delay) ->
                     astronaut.toMono().delayElement(delay)
@@ -45,7 +44,6 @@ class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, Li
     override val dataLoaderName: String = "MissionsByAstronautDataLoader"
     override fun getBatchLoader(): BatchLoader<MissionServiceRequest, List<Mission>> =
         BatchLoader<MissionServiceRequest, List<Mission>> { keys ->
-            MissionService.getMissionsByAstronautBatchArguments += keys
             keys.toFlux().flatMapSequential { request ->
                 MissionService.missions.values
                     .filter { (mission, _) -> mission.crew.contains(request.astronautId) }
@@ -73,8 +71,6 @@ class MissionService {
             .load(request)
 
     companion object {
-        val getMissionBatchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
-        val getMissionsByAstronautBatchArguments: MutableList<List<MissionServiceRequest>> = mutableListOf()
         val missions = mapOf(
             2 to Pair(Mission(2, "Apollo 4", listOf(1, 30, 2)), Duration.ofMillis(100)),
             3 to Pair(Mission(3, "Apollo 5", listOf(23, 2, 3)), Duration.ofMillis(400)),

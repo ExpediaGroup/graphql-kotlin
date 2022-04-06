@@ -24,7 +24,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoaderRegistry
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -91,13 +90,6 @@ class DataLoaderSyncExecutionInstrumentationTest {
         .doNotAddDefaultInstrumentations()
         .build()
 
-    @BeforeEach
-    fun setup() {
-        AstronautService.batchArguments.clear()
-        MissionService.getMissionBatchArguments.clear()
-        MissionService.getMissionsByAstronautBatchArguments.clear()
-    }
-
     @Test
     fun `Instrumentation should batch transactions on async top level fields`() {
         val queries = listOf(
@@ -109,7 +101,7 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         val dataLoaderRegistry = spyk(
             DefaultDataLoaderRegistryFactory(
-                listOf(AstronautDataLoader(), MissionDataLoader())
+                AstronautDataLoader(), MissionDataLoader()
             ).generate()
         )
 
@@ -133,11 +125,14 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         assertEquals(4, results.size)
 
-        assertEquals(1, AstronautService.batchArguments.size)
-        assertEquals(2, AstronautService.batchArguments[0].size)
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
-        assertEquals(1, MissionService.getMissionBatchArguments.size)
-        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        assertEquals(2, astronautStatistics?.batchLoadCount)
+
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        assertEquals(2, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
             dataLoaderRegistry.dispatchAll()
@@ -155,7 +150,7 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         val dataLoaderRegistry = spyk(
             DefaultDataLoaderRegistryFactory(
-                listOf(AstronautDataLoader(), MissionDataLoader())
+                AstronautDataLoader(), MissionDataLoader()
             ).generate()
         )
 
@@ -179,11 +174,14 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         assertEquals(4, results.size)
 
-        assertEquals(1, AstronautService.batchArguments.size)
-        assertEquals(2, AstronautService.batchArguments[0].size)
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
 
-        assertEquals(1, MissionService.getMissionBatchArguments.size)
-        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        assertEquals(2, astronautStatistics?.batchLoadCount)
+
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        assertEquals(2, missionStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
             dataLoaderRegistry.dispatchAll()
@@ -205,7 +203,7 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         val dataLoaderRegistry = spyk(
             DefaultDataLoaderRegistryFactory(
-                listOf(AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader())
+                AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader()
             ).generate()
         )
 
@@ -229,14 +227,21 @@ class DataLoaderSyncExecutionInstrumentationTest {
 
         assertEquals(4, results.size)
 
-        assertEquals(1, AstronautService.batchArguments.size)
-        assertEquals(2, AstronautService.batchArguments[0].size)
+        val astronautStatistics = dataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
-        assertEquals(1, MissionService.getMissionBatchArguments.size)
-        assertEquals(2, MissionService.getMissionBatchArguments[0].size)
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        // 1 for Level 1, 1 for Level 2
+        assertEquals(2, astronautStatistics?.batchLoadCount)
 
-        assertEquals(1, MissionService.getMissionsByAstronautBatchArguments.size)
-        assertEquals(2, MissionService.getMissionsByAstronautBatchArguments[0].size)
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        // 1 for Level 1, 1 for Level 2
+        assertEquals(2, missionStatistics?.batchLoadCount)
+
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
+        // 1 for Level 2, 1 for Level 3
+        assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 3) {
             dataLoaderRegistry.dispatchAll()

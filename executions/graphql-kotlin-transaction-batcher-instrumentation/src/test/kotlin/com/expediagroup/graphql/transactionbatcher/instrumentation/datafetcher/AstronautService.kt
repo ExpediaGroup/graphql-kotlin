@@ -32,7 +32,6 @@ class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut>
     override val dataLoaderName: String = "AstronautDataLoader"
     override fun getBatchLoader(): BatchLoader<AstronautServiceRequest, Astronaut> =
         BatchLoader<AstronautServiceRequest, Astronaut> { requests ->
-            AstronautService.batchArguments += requests
             requests.toFlux().flatMapSequential { request ->
                 AstronautService.astronauts[request.id].toMono().flatMap { (astronaut, delay) ->
                     astronaut.toMono().delayElement(delay)
@@ -51,7 +50,6 @@ class AstronautService {
             .load(request)
 
     companion object {
-        val batchArguments: MutableList<List<AstronautServiceRequest>> = mutableListOf()
         val astronauts = mapOf(
             1 to Pair(Astronaut(1, "Buzz Aldrin"), Duration.ofMillis(300)),
             2 to Pair(Astronaut(2, "William Anders"), Duration.ofMillis(600)),
