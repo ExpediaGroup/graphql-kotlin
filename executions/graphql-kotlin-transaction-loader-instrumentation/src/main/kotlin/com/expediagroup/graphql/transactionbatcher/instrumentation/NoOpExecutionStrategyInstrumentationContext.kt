@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.spring.dataloaders
+package com.expediagroup.graphql.transactionbatcher.instrumentation
 
-import com.expediagroup.graphql.examples.server.spring.model.Company
-import org.springframework.stereotype.Component
+import graphql.ExecutionResult
+import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
+import java.util.concurrent.CompletableFuture
 
-@Component("companyServiceBean")
-class CompanyService {
-    private val companies = listOf(
-        Company(id = 1, name = "FirstCompany"),
-        Company(id = 2, name = "SecondCompany")
-    )
-
-    fun getCompanies(ids: List<Int>): List<Company> = companies
+/**
+ * Simple NoOp [ExecutionStrategyInstrumentationContext] implementation
+ */
+object NoOpExecutionStrategyInstrumentationContext : ExecutionStrategyInstrumentationContext {
+    override fun onDispatched(result: CompletableFuture<ExecutionResult>) {
+    }
+    override fun onCompleted(result: ExecutionResult, t: Throwable) {
+    }
 }

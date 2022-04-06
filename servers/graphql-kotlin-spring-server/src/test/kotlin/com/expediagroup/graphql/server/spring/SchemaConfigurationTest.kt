@@ -21,10 +21,10 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
@@ -38,8 +38,7 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
-import org.dataloader.DataLoader
-import org.dataloader.DataLoaderOptions
+import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
@@ -193,13 +192,10 @@ class SchemaConfigurationTest {
         }
 
         override val dataLoaderName = name
-        override fun getDataLoader() = DataLoader<String, Foo>(
-            { keys ->
-                CompletableFuture.supplyAsync {
-                    keys.mapNotNull { Foo(it) }
-                }
-            },
-            DataLoaderOptions.newOptions().setCachingEnabled(false)
-        )
+        override fun getBatchLoader(): BatchLoader<String, Foo> = BatchLoader { keys ->
+            CompletableFuture.supplyAsync {
+                keys.mapNotNull { Foo(it) }
+            }
+        }
     }
 }

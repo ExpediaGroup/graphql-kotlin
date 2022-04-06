@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.spring.dataloaders
+package com.expediagroup.graphql.server.execution.dataloader
 
-import com.expediagroup.graphql.examples.server.spring.model.Company
-import org.springframework.stereotype.Component
+import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderOptions
 
-@Component("companyServiceBean")
-class CompanyService {
-    private val companies = listOf(
-        Company(id = 1, name = "FirstCompany"),
-        Company(id = 2, name = "SecondCompany")
-    )
-
-    fun getCompanies(ids: List<Int>): List<Company> = companies
+/**
+ * Configuration interface that will create a [DataLoader] instance
+ * so we can have common logic around registering the loaders
+ * by return type and loading values in the data fetchers.
+ */
+interface KotlinDataLoader<K, V> {
+    val dataLoaderName: String
+    fun getBatchLoader(): BatchLoader<K, V>
+    fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions()
 }

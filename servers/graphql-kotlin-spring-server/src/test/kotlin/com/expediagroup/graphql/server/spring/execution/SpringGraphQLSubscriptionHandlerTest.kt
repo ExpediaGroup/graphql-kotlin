@@ -22,8 +22,8 @@ import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
-import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -32,7 +32,7 @@ import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.mockk
 import kotlinx.coroutines.reactor.asFlux
-import org.dataloader.DataLoader
+import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toFlux
@@ -58,7 +58,7 @@ class SpringGraphQLSubscriptionHandlerTest {
         .build()
     private val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
         override val dataLoaderName: String = "MockDataLoader"
-        override fun getDataLoader(): DataLoader<String, String> = DataLoader<String, String> { ids ->
+        override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { ids ->
             CompletableFuture.supplyAsync {
                 ids.map { "$it:value" }
             }

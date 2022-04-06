@@ -33,7 +33,8 @@ To help in the registration of these various `DataLoaders`, we have created a ba
 ```kotlin
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+    fun getBatchLoader(): BatchLoader<K, V>
+    fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions()
 }
 ```
 
@@ -43,11 +44,12 @@ but then allows common server code to handle the registration, generation on req
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
-    override fun getDataLoader() = DataLoader<ID, User>({ ids ->
+    override fun getBatchLoader() = BatchLoader<ID, User> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id -> userService.getUser(id) }
         }
-    }, DataLoaderOptions.newOptions().setCachingEnabled(false))
+    }
+    override fun getOptions() = DataLoaderOptions.newOptions().setCachingEnabled(false)
 }
 
 class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {

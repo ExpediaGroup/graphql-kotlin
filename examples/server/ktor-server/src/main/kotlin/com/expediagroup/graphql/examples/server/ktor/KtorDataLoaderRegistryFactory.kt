@@ -19,7 +19,8 @@ package com.expediagroup.graphql.examples.server.ktor
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 /**
@@ -29,9 +30,24 @@ class KtorDataLoaderRegistryFactory : DataLoaderRegistryFactory {
 
     override fun generate(): DataLoaderRegistry {
         val registry = DataLoaderRegistry()
-        registry.register(UniversityDataLoader.dataLoaderName, UniversityDataLoader.getDataLoader())
-        registry.register(CourseDataLoader.dataLoaderName, CourseDataLoader.getDataLoader())
-        registry.register(BookDataLoader.dataLoaderName, BookDataLoader.getDataLoader())
+        registry.register(
+            UniversityDataLoader.dataLoaderName,
+            DataLoaderFactory.newDataLoader(
+                UniversityDataLoader.getBatchLoader()
+            )
+        )
+        registry.register(
+            CourseDataLoader.dataLoaderName,
+            DataLoaderFactory.newDataLoader(
+                CourseDataLoader.getBatchLoader()
+            )
+        )
+        registry.register(
+            BookDataLoader.dataLoaderName,
+            DataLoaderFactory.newDataLoader(
+                BookDataLoader.getBatchLoader()
+            )
+        )
         return registry
     }
 }

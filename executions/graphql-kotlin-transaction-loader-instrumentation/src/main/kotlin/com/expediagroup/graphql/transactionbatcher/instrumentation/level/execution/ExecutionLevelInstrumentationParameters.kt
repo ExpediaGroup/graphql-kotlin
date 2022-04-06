@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.spring.dataloaders
+package com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution
 
-import com.expediagroup.graphql.examples.server.spring.model.Company
-import org.springframework.stereotype.Component
+import graphql.execution.ExecutionContext
 
-@Component("companyServiceBean")
-class CompanyService {
-    private val companies = listOf(
-        Company(id = 1, name = "FirstCompany"),
-        Company(id = 2, name = "SecondCompany")
-    )
+/**
+ * Source of level state calculation
+ */
+enum class ExecutionLevelCalculationSource { EXECUTION_STRATEGY, FIELD_FETCH }
 
-    fun getCompanies(ids: List<Int>): List<Company> = companies
-}
+/**
+ * Hold information that will be provided to an instance of [ExecutionLevelInstrumentation]
+ */
+data class ExecutionLevelInstrumentationParameters(
+    val executionContext: ExecutionContext,
+    val calculationSource: ExecutionLevelCalculationSource
+)

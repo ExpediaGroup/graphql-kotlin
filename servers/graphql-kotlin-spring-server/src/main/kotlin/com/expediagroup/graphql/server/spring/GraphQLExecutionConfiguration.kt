@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.server.execution.DataLoaderRegistryFactory
-import com.expediagroup.graphql.server.execution.DefaultDataLoaderRegistryFactory
-import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SimpleDataFetcherExceptionHandler
@@ -34,7 +34,7 @@ import java.util.Optional
 
 /**
  * The root configuration class that other configurations can import to get the basic
- * beans required to then create an exetuable GraphQL schema object.
+ * beans required to then create an executable GraphQL schema object.
  */
 @Configuration
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)

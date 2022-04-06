@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.expediagroup.graphql.examples.server.spring.dataloaders
 
 import com.expediagroup.graphql.examples.server.spring.model.Company
-import com.expediagroup.graphql.server.execution.KotlinDataLoader
-import org.dataloader.DataLoader
+import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import org.dataloader.BatchLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -29,7 +29,7 @@ class CompanyDataLoader(private val service: CompanyService) : KotlinDataLoader<
     }
 
     override val dataLoaderName = name
-    override fun getDataLoader() = DataLoader<Int, Company> { ids ->
+    override fun getBatchLoader() = BatchLoader<Int, Company> { ids ->
         CompletableFuture.supplyAsync { service.getCompanies(ids) }
     }
 }
