@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 package com.expediagroup.graphql.examples.server.ktor.schema.dataloaders
 
 import com.expediagroup.graphql.examples.server.ktor.schema.models.Book
-import com.expediagroup.graphql.server.execution.KotlinDataLoader
+import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
 import kotlinx.coroutines.runBlocking
-import org.dataloader.DataLoader
+import org.dataloader.BatchLoader
 import java.util.concurrent.CompletableFuture
 
 val BookDataLoader = object : KotlinDataLoader<List<Int>, List<Book>> {
     override val dataLoaderName = "BATCH_BOOK_LOADER"
-    override fun getDataLoader() = DataLoader<List<Int>, List<Book>> { ids ->
+    override fun getBatchLoader() = BatchLoader<List<Int>, List<Book>> { ids ->
         CompletableFuture.supplyAsync {
             val allBooks = runBlocking { Book.search(ids.flatten()).toMutableList() }
             // produce lists of results from returned books
