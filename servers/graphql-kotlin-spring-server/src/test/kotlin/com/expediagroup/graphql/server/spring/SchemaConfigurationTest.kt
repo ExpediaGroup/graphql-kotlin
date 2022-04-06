@@ -38,8 +38,7 @@ import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
-import org.dataloader.DataLoader
-import org.dataloader.DataLoaderOptions
+import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
@@ -193,13 +192,10 @@ class SchemaConfigurationTest {
         }
 
         override val dataLoaderName = name
-        override fun getDataLoader() = DataLoader<String, Foo>(
-            { keys ->
-                CompletableFuture.supplyAsync {
-                    keys.mapNotNull { Foo(it) }
-                }
-            },
-            DataLoaderOptions.newOptions().setCachingEnabled(false)
-        )
+        override fun getBatchLoader(): BatchLoader<String, Foo> = BatchLoader { keys ->
+            CompletableFuture.supplyAsync {
+                keys.mapNotNull { Foo(it) }
+            }
+        }
     }
 }

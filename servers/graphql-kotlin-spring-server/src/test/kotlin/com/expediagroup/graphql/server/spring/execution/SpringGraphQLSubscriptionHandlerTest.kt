@@ -32,7 +32,7 @@ import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.mockk
 import kotlinx.coroutines.reactor.asFlux
-import org.dataloader.DataLoader
+import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toFlux
@@ -58,7 +58,7 @@ class SpringGraphQLSubscriptionHandlerTest {
         .build()
     private val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
         override val dataLoaderName: String = "MockDataLoader"
-        override fun getDataLoader(): DataLoader<String, String> = DataLoader<String, String> { ids ->
+        override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { ids ->
             CompletableFuture.supplyAsync {
                 ids.map { "$it:value" }
             }
