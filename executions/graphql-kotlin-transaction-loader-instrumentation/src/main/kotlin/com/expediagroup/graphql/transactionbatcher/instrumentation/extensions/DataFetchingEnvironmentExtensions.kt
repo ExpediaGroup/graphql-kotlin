@@ -27,7 +27,7 @@ import org.dataloader.DataLoaderRegistry
  * @return [DataLoaderRegistry] instance
  * @throws [MissingDataLoaderRegistryException] if there is not a [DataLoaderRegistry] instance in the [GraphQLContext]
  */
-fun <K, V> DataFetchingEnvironment.getContextDataLoader(key: String): DataLoader<K, V> =
+fun <K, V> DataFetchingEnvironment.getDataLoaderFromContext(key: String): DataLoader<K, V> =
     this.graphQlContext
         .get<DataLoaderRegistry>(DataLoaderRegistry::class)
         ?.getDataLoader(key)
