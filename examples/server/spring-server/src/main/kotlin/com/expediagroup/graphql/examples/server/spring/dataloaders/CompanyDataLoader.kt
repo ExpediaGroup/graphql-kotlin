@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.examples.server.spring.dataloaders
 
 import com.expediagroup.graphql.examples.server.spring.model.Company
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import org.dataloader.BatchLoader
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture

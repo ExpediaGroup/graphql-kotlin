@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution.dataloader
+package com.expediagroup.graphql.dataloader
 
 import io.mockk.mockk
 import org.dataloader.BatchLoader

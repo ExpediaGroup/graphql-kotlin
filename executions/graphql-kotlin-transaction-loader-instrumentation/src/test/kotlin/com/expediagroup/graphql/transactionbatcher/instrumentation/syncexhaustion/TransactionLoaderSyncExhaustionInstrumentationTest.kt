@@ -1,27 +1,11 @@
-/*
- * Copyright 2022 Expedia, Inc
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.expediagroup.graphql.transactionbatcher.instrumentation.level
+package com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.dataloader.DefaultDataLoaderRegistryFactory
 import com.expediagroup.graphql.transactionbatcher.instrumentation.fixture.TestGraphQL
 import com.expediagroup.graphql.transactionbatcher.instrumentation.fixture.datafetcher.AstronautDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.fixture.datafetcher.MissionDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.fixture.datafetcher.MissionsByAstronautDataLoader
-import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.transactionbatcher.instrumentation.syncexhaustion.state.SyncExhaustionInstrumentationState
 import graphql.ExecutionInput
 import io.mockk.spyk
 import io.mockk.verify
@@ -33,9 +17,9 @@ import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class TransactionLoaderLevelInstrumentationTest {
+class TransactionLoaderSyncExhaustionInstrumentationTest {
     private val graphQL = TestGraphQL.builder
-        .instrumentation(TransactionLoaderLevelInstrumentation())
+        .instrumentation(TransactionLoaderSyncExhaustionInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
@@ -57,7 +41,10 @@ class TransactionLoaderLevelInstrumentationTest {
 
         val graphQLContext = mapOf(
             DataLoaderRegistry::class to dataLoaderRegistry,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+                queries.size,
+                dataLoaderRegistry
+            )
         )
 
         val results = runBlocking {
@@ -103,7 +90,10 @@ class TransactionLoaderLevelInstrumentationTest {
 
         val graphQLContext = mapOf(
             DataLoaderRegistry::class to dataLoaderRegistry,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+                queries.size,
+                dataLoaderRegistry
+            )
         )
 
         val results = runBlocking {
@@ -127,13 +117,13 @@ class TransactionLoaderLevelInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 3) {
+        verify(exactly = 2) {
             dataLoaderRegistry.dispatchAll()
         }
     }
 
     @Test
-    fun `Instrumentation should batch by level even if different levels attempt to use same dataFetchers`() {
+    fun `Instrumentation should batch transactions on different levels`() {
         val queries = listOf(
             // L2 astronaut - L3 missions
             "{ nasa { astronaut(id: 1) { id name missions { designation } } } }",
@@ -153,7 +143,10 @@ class TransactionLoaderLevelInstrumentationTest {
 
         val graphQLContext = mapOf(
             DataLoaderRegistry::class to dataLoaderRegistry,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+                queries.size,
+                dataLoaderRegistry
+            )
         )
 
         val results = runBlocking {
@@ -172,19 +165,19 @@ class TransactionLoaderLevelInstrumentationTest {
         val missionStatistics = dataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
         val missionsByAstronautStatistics = dataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
 
-        // 1 for Level 1, 1 for Level 2
-        assertEquals(2, astronautStatistics?.batchInvokeCount)
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        // Level 1 and 2
         assertEquals(2, astronautStatistics?.batchLoadCount)
 
-        // 1 for Level 1, 1 for Level 2
-        assertEquals(2, missionStatistics?.batchInvokeCount)
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        // Level 1 and 2
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        // 1 for Level 2, 1 for Level 3
-        assertEquals(2, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
+        // Level 2 and 3
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
-        verify(exactly = 4) {
+        verify(exactly = 3) {
             dataLoaderRegistry.dispatchAll()
         }
     }

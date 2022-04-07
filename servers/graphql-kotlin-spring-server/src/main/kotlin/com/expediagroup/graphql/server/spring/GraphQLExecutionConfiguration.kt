@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
-import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.SimpleDataFetcherExceptionHandler

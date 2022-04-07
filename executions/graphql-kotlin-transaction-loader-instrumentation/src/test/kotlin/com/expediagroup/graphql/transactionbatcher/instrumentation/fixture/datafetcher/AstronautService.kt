@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher
+package com.expediagroup.graphql.transactionbatcher.instrumentation.fixture.datafetcher
 
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getDataLoaderFromContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
