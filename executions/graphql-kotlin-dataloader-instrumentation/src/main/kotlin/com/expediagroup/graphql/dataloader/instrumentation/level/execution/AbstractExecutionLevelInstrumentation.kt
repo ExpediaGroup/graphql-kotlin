@@ -56,7 +56,7 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
                     )
                 )
             )
-            ?: com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
+            ?: NoOpExecutionStrategyInstrumentationContext
 
     override fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters
