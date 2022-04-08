@@ -22,9 +22,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Missio
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.MissionRepository
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
-import reactor.kotlin.core.publisher.toFlux
-import reactor.kotlin.core.publisher.toMono
-import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
