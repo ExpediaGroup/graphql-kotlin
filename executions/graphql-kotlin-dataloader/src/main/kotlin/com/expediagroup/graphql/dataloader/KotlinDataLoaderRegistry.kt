@@ -36,12 +36,12 @@ class KotlinDataLoaderRegistry(
     private val futuresToComplete: MutableList<CompletableFuture<*>> = mutableListOf()
 
     override fun register(key: String, dataLoader: DataLoader<*, *>): DataLoaderRegistry = registry.register(key, dataLoader)
-    override fun <K : Any, V : Any> computeIfAbsent(key: String, mappingFunction: Function<String, DataLoader<*, *>>): DataLoader<K, V> = registry.computeIfAbsent(key, mappingFunction)
+    override fun <K, V> computeIfAbsent(key: String, mappingFunction: Function<String, DataLoader<*, *>>): DataLoader<K, V> = registry.computeIfAbsent(key, mappingFunction)
     override fun combine(registry: DataLoaderRegistry): DataLoaderRegistry = this.registry.combine(registry)
     override fun getDataLoaders(): MutableList<DataLoader<*, *>> = registry.dataLoaders
     override fun getDataLoadersMap(): MutableMap<String, DataLoader<*, *>> = registry.dataLoadersMap
     override fun unregister(key: String): DataLoaderRegistry = registry.unregister(key)
-    override fun <K : Any, V : Any> getDataLoader(key: String?): DataLoader<K, V> = registry.getDataLoader(key)
+    override fun <K, V> getDataLoader(key: String?): DataLoader<K, V> = registry.getDataLoader(key)
     override fun getKeys(): MutableSet<String> = registry.keys
     override fun dispatchAllWithCount(): Int = registry.dispatchAllWithCount()
     override fun dispatchDepth(): Int = registry.dispatchDepth()
