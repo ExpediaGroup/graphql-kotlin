@@ -54,7 +54,7 @@ class AnyKSerializerTest {
         |    "nullVal": null
         |  }
         |}
-    """.trimMargin()
+        """.trimMargin()
 
     @Test
     @ExperimentalSerializationApi

@@ -50,7 +50,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    },
             |    "query": "FIRST_QUERY",
             |    "operationName": "FirstQuery"
-            |}""".trimMargin()
+            |}
+        """.trimMargin()
 
         assertEquals(expected, serialized)
     }
@@ -69,7 +70,8 @@ class GraphQLClientKotlinXSerializerTest {
             |},{
             |    "query": "OTHER_QUERY",
             |    "operationName": "OtherQuery"
-            |}]""".trimMargin()
+            |}]
+        """.trimMargin()
 
         assertEquals(expected, serialized)
     }
@@ -117,7 +119,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    "extNull": null,
             |    "extString": "extra"
             |  }
-            |}""".trimMargin()
+            |}
+            """.trimMargin()
 
         val result = serializer.deserialize(rawResponse, testQuery.responseType())
         assertEquals(expected, result)
@@ -145,7 +148,7 @@ class GraphQLClientKotlinXSerializerTest {
             |}, {
             |  "data": { "stringResult" : "goodbye world", "integerResult" : 42 }
             |}]
-        """.trimMargin()
+            """.trimMargin()
 
         val result = serializer.deserialize(rawResponses, listOf(testQuery.responseType(), otherQuery.responseType()))
         assertEquals(expected, result)
@@ -163,7 +166,7 @@ class GraphQLClientKotlinXSerializerTest {
             |    }
             |  }
             |}
-        """.trimMargin()
+            """.trimMargin()
 
         val result = serializer.deserialize(polymorphicResponse, PolymorphicQuery().responseType())
         assertEquals(SecondInterfaceImplementation(123, 1.2f), result.data?.polymorphicResult)
@@ -182,7 +185,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    },
             |    "query": "SCALAR_QUERY",
             |    "operationName": "ScalarQuery"
-            |}""".trimMargin()
+            |}
+        """.trimMargin()
         assertEquals(expected, serialized)
     }
 
@@ -197,7 +201,7 @@ class GraphQLClientKotlinXSerializerTest {
             |    "customScalarList": ["$expectedUUID"]
             |  }
             |}
-        """.trimMargin()
+            """.trimMargin()
 
         val result = serializer.deserialize(scalarResponse, ScalarQuery(ScalarQuery.Variables()).responseType())
         assertEquals("1234", result.data?.scalarAlias)
@@ -212,7 +216,7 @@ class GraphQLClientKotlinXSerializerTest {
             """{
             |  "data": { "enumResult": "INVALID" }
             |}
-        """.trimMargin()
+            """.trimMargin()
 
         val result = serializer.deserialize(unknownResponse, EnumQuery(EnumQuery.Variables()).responseType())
         assertEquals(TestEnum.__UNKNOWN, result.data?.enumResult)
@@ -229,7 +233,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    },
             |    "query": "ENUM_QUERY",
             |    "operationName": "EnumQuery"
-            |}""".trimMargin()
+            |}
+        """.trimMargin()
         assertEquals(expected, serialized)
     }
 
@@ -239,7 +244,7 @@ class GraphQLClientKotlinXSerializerTest {
             """{
             |  "data": { "enumResult": "three" }
             |}
-        """.trimMargin()
+            """.trimMargin()
         val deserialized = serializer.deserialize(rawResponse, EnumQuery(EnumQuery.Variables()).responseType())
         assertEquals(TestEnum.THREE, deserialized.data?.enumResult)
     }
@@ -270,7 +275,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    },
             |    "query": "OPTIONAL_INPUT_QUERY",
             |    "operationName": "OptionalInputQuery"
-            |}""".trimMargin()
+            |}
+            """.trimMargin()
 
         val serialized = serializer.serialize(query)
         assertEquals(rawQuery, serialized)
@@ -304,7 +310,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    },
             |    "query": "INPUT_QUERY",
             |    "operationName": "InputQuery"
-            |}""".trimMargin()
+            |}
+        """.trimMargin()
         val serialized = serializer.serialize(query)
         assertEquals(expected, serialized)
     }
@@ -320,7 +327,8 @@ class GraphQLClientKotlinXSerializerTest {
             |    },
             |    "query": "EMPTY_INPUT_QUERY",
             |    "operationName": "EmptyInputQuery"
-            |}""".trimMargin()
+            |}
+        """.trimMargin()
         val serialized = serializer.serialize(query)
         assertEquals(expected, serialized)
     }
