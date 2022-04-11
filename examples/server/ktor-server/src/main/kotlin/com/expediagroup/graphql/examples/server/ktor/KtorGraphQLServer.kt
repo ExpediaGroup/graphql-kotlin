@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.server.ktor
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.ktor.request.ApplicationRequest
+import io.ktor.server.request.ApplicationRequest
 
 /**
  * Helper method for how this Ktor example creates the common [GraphQLServer] object that

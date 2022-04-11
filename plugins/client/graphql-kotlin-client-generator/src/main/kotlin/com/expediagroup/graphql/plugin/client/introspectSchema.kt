@@ -19,16 +19,20 @@ package com.expediagroup.graphql.plugin.client
 import graphql.introspection.IntrospectionResultToSchema
 import graphql.schema.idl.SchemaPrinter
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.features.HttpRequestTimeoutException
-import io.ktor.client.features.HttpTimeout
-import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.runBlocking
 import java.net.UnknownHostException
 
@@ -137,21 +141,26 @@ fun introspectSchema(
         connectTimeoutMillis = connectTimeout
         requestTimeoutMillis = readTimeout
     }
-    install(feature = JsonFeature)
+    install(ContentNegotiation) {
+        jackson()
+    }
 }.use { client ->
     runBlocking {
         val introspectionResult = try {
-            client.post<Map<String, Any?>> {
+            client.post {
                 url(endpoint)
                 contentType(ContentType.Application.Json)
                 httpHeaders.forEach { (name, value) ->
                     header(name, value)
                 }
-                body = mapOf(
-                    "query" to INTROSPECTION_QUERY,
-                    "operationName" to "IntrospectionQuery"
+                setBody(
+                    mapOf(
+                        "query" to INTROSPECTION_QUERY,
+                        "operationName" to "IntrospectionQuery"
+                    )
                 )
-            }
+                expectSuccess = true
+            }.body<Map<String, Any?>>()
         } catch (e: Throwable) {
             when (e) {
                 is ClientRequestException, is HttpRequestTimeoutException, is UnknownHostException -> throw e

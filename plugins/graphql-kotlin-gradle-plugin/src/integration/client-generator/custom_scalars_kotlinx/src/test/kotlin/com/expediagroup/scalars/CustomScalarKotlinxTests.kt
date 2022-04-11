@@ -16,7 +16,7 @@ import com.expediagroup.scalars.queries.UNDEFINED_OBJECT
 import com.expediagroup.scalars.queries.UNDEFINED_STRING
 import com.expediagroup.scalars.queries.UNDEFINED_UUID
 import com.ibm.icu.util.ULocale
-import io.ktor.application.Application
+import io.ktor.server.application.Application
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import java.net.URL

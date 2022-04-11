@@ -10,7 +10,7 @@ import com.expediagroup.polymorphic.generated.partialpolymorphicquery.BasicInter
 import com.expediagroup.polymorphic.generated.partialpolymorphicquery.BasicUnion
 import com.expediagroup.polymorphic.generated.partialpolymorphicquery.DefaultBasicInterfaceImplementation
 import com.expediagroup.polymorphic.generated.partialpolymorphicquery.DefaultBasicUnionImplementation
-import io.ktor.application.Application
+import io.ktor.server.application.Application
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import java.net.URL

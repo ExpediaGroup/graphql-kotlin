@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,12 @@ import com.expediagroup.graphql.client.serializer.defaultGraphQLSerializer
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import java.io.Closeable
@@ -40,18 +43,20 @@ open class GraphQLKtorClient(
 ) : GraphQLClient<HttpRequestBuilder>, Closeable {
 
     override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: HttpRequestBuilder.() -> Unit): GraphQLClientResponse<T> {
-        val rawResult = httpClient.post<String>(url) {
+        val rawResult: String = httpClient.post(url) {
+            expectSuccess = true
             apply(requestCustomizer)
-            body = TextContent(serializer.serialize(request), ContentType.Application.Json)
-        }
+            setBody(TextContent(serializer.serialize(request), ContentType.Application.Json))
+        }.body()
         return serializer.deserialize(rawResult, request.responseType())
     }
 
     override suspend fun execute(requests: List<GraphQLClientRequest<*>>, requestCustomizer: HttpRequestBuilder.() -> Unit): List<GraphQLClientResponse<*>> {
-        val rawResult = httpClient.post<String>(url) {
+        val rawResult: String = httpClient.post(url) {
+            expectSuccess = true
             apply(requestCustomizer)
-            body = TextContent(serializer.serialize(requests), ContentType.Application.Json)
-        }
+            setBody(TextContent(serializer.serialize(requests), ContentType.Application.Json))
+        }.body()
         return serializer.deserialize(rawResult, requests.map { it.responseType() })
     }
 
