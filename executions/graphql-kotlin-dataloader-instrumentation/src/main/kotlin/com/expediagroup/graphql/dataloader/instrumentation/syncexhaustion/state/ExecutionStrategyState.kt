@@ -16,34 +16,94 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state
 
+import graphql.ExecutionInput
+import graphql.execution.ExecutionStrategy
 import graphql.language.Field
+import graphql.schema.DataFetcher
+import graphql.schema.GraphQLList
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
-enum class ExecutionStrategyExhaustionState { NOT_EXHAUSTED, EXHAUSTED }
-enum class FieldFetchState { NOT_DISPATCHED, DISPATCHED, COMPLETED }
-enum class FieldFetchType { UNKNOWN, ASYNC, SYNC }
-
-class ExecutionStrategyState(selections: List<Field>) {
+/**
+ * Hold and calculate the [fieldsState] of an [ExecutionStrategy]
+ * associated with an [ExecutionInput] complex field.
+ *
+ * Example:
+ *
+ * Given this [ExecutionInput]:
+ *
+ * ```
+ * query getAstronaut {
+ *   astronaut(id: 1) {
+ *      id
+ *      name
+ *   }
+ * }
+ * ```
+ *
+ * the [ExecutionStrategyState] of the root [ExecutionStrategy] would be this:
+ *
+ * ```
+ * {
+ *   "/": {
+ *     "dispatchedFetches": 1,
+ *       "fieldsState": {
+ *         "astronaut": {
+ *           "fetchState": "DISPATCHED",
+ *           "fetchType": "ASYNC",
+ *           "result": null,
+ *           "executionStrategyPaths": []
+ *         }
+ *      }
+ *   }
+ * }
+ * ```
+ */
+class ExecutionStrategyState(
+    selections: List<Field>
+) {
     private var dispatchedFields: Int = 0
     val fieldsState: ConcurrentHashMap<String, FieldState> = ConcurrentHashMap(
         selections.associateBy(Field::getResultKey) { FieldState() }
     )
-    var exhaustionState: ExecutionStrategyExhaustionState = ExecutionStrategyExhaustionState.NOT_EXHAUSTED
+    var syncState: ExecutionStrategySyncState = ExecutionStrategySyncState.NOT_EXHAUSTED
+
+    /**
+     * Check if the [syncState] was previously calculated as [ExecutionStrategySyncState.EXHAUSTED].
+     *
+     * @return Boolean result of checking if [syncState] is exhausted.
+     */
+    fun isSyncStateExhausted(): Boolean = syncState == ExecutionStrategySyncState.EXHAUSTED
+
+    /**
+     * Check if all the [Field]s associated with this [ExecutionStrategyState] were visited.
+     * A field is considered `"visited"` if at least was transitioned to [FieldFetchState.DISPATCHED] state
+     *
+     * @return Boolean result of checking if all fields were visited.
+     */
     fun allFieldsVisited(): Boolean = dispatchedFields == fieldsState.size
 
+    /**
+     * Hold, calculate and transition the state of a [Field] associated with a [ExecutionStrategyState].
+     */
     inner class FieldState {
-        var fetchState: FieldFetchState = FieldFetchState.NOT_DISPATCHED
-        var fetchType: FieldFetchType = FieldFetchType.UNKNOWN
-        var graphQLType: GraphQLType? = null
-        var result: Any? = null
+        private var fetchState: FieldFetchState = FieldFetchState.NOT_DISPATCHED
+        private var fetchType: FieldFetchType = FieldFetchType.UNKNOWN
+        private var graphQLType: GraphQLType? = null
+        private var result: Any? = null
         val executionStrategyPaths: MutableList<String> = mutableListOf()
 
-        fun isList(): Boolean = GraphQLTypeUtil.isList(graphQLType)
-        fun isLeaf(): Boolean = GraphQLTypeUtil.isLeaf(graphQLType)
-
+        /**
+         * Transition the [FieldState] to [FieldFetchState.DISPATCHED] state
+         * at this state we know the [GraphQLType] of the [Field] and have access to the result [CompletableFuture]
+         * of the [Field] [DataFetcher] in order to calculate the [Field] [FieldFetchType].
+         *
+         * @param graphQLType [GraphQLType] of the [Field] which [DataFetcher] was dispatched.
+         * @param result [CompletableFuture] result of the [DataFetcher.get] call.
+         * @return this [FieldState].
+         */
         fun toDispatchedState(
             graphQLType: GraphQLType,
             result: CompletableFuture<Any?>
@@ -54,9 +114,97 @@ class ExecutionStrategyState(selections: List<Field>) {
             this@ExecutionStrategyState.dispatchedFields++
         }
 
-        fun toCompletedState(result: Any?): FieldState = this.also {
+        /**
+         * Transition the [FieldState] to [FieldFetchState.COMPLETED]state
+         * at this state we know the result of the [CompletableFuture] [DataFetcher] call and potentially spin
+         * new [ExecutionStrategy]ies depending on the [GraphQLType] type and [result] nullability
+         *
+         * @param result nullable Object after the [DataFetcher] [CompletableFuture] associated with the [Field]
+         * completed.
+         *
+         * @return this [FieldState].
+         */
+        fun toCompletedState(
+            result: Any?
+        ): FieldState = this.also {
             this.fetchState = FieldFetchState.COMPLETED
             this.result = result
         }
+
+        /**
+         * Add the executionStrategy of a field that came out of the [result] object
+         *
+         * @param executionStrategyPath the execution strategy string representation of the field
+         * associated with the [result] of this state.
+         *
+         * Example:
+         *
+         * ```
+         * query allAstronauts {
+         *   astronauts {
+         *     id
+         *     name
+         *   }
+         * }
+         * ```
+         *
+         * `astronauts` [DataFetcher] will complete with a list of 3 object, the state will transition
+         * to completed and an ExecutionStrategy for each object will begin, this method will receive
+         * `"/astronauts[0]"` and it will add it to the state [executionStrategyPaths]
+         * ```
+         * {
+         *   "fetchState": "COMPLETED",
+         *   "fetchType": "ASYNC",
+         *   "GraphQLType": "GraphQLList",
+         *   "result": [{ "id": 1, ... }, { "id": 2, .... }, { "id": 3, .... }]
+         *   "executionStrategyPaths": ["/astronauts[0]"]
+         * }
+         * ```
+         */
+        fun addExecutionStrategyPath(
+            executionStrategyPath: String
+        ) {
+            executionStrategyPaths.add(executionStrategyPath)
+        }
+
+        /**
+         * field [fetchState] is completed with a non null [result] and
+         * [graphQLType] is not a leaf [GraphQLList] and
+         * all non null complex objects inside the [result] list started their own executionStrategy
+         *
+         * @return Boolean indicating if above sentence result
+         */
+        fun isCompletedListOfComplexObjects(): Boolean =
+            fetchState == FieldFetchState.COMPLETED && result != null &&
+                GraphQLTypeUtil.isList(graphQLType) && !GraphQLTypeUtil.isLeaf(graphQLType) &&
+                (result as? List<*>)?.filterNotNull()?.size == executionStrategyPaths.size
+
+        /**
+         * field [fetchState] is completed with a non null [result] and
+         * [graphQLType] is not a leaf complex type which executionStrategy was started.
+         *
+         * @return Boolean indicating if above sentence result
+         */
+        fun isCompletedComplexObject(): Boolean =
+            fetchState == FieldFetchState.COMPLETED && result != null &&
+                !GraphQLTypeUtil.isList(graphQLType) && !GraphQLTypeUtil.isLeaf(graphQLType) &&
+                executionStrategyPaths.isNotEmpty()
+
+        /**
+         * field [fetchState] is completed and [graphQLType] is a Leaf or null.
+         *
+         * @return Boolean indicating if above sentence result
+         */
+        fun isCompletedLeafOrNull(): Boolean =
+            fetchState == FieldFetchState.COMPLETED &&
+                (GraphQLTypeUtil.isLeaf(graphQLType) || result == null)
+
+        /**
+         * field [fetchType] is Async and [fetchState] is dispatched and
+         * is not a leaf
+         */
+        fun isAsyncDispatchedNotLeaf(): Boolean =
+            fetchType == FieldFetchType.ASYNC && fetchState == FieldFetchState.DISPATCHED &&
+                !GraphQLTypeUtil.isLeaf(graphQLType)
     }
 }

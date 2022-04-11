@@ -16,17 +16,99 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state
 
-import graphql.language.Field
+import graphql.ExecutionInput
 import graphql.execution.ResultPath
+import graphql.language.Field
+import graphql.schema.DataFetcher
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil.isList
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Hold and calculate the state of a given [ExecutionInput] by holding and tracking information of all Execution Strategies that
+ * were executed to resolve the [ExecutionInput].
+ *
+ * Example:
+ *
+ * given this [ExecutionInput]
+ *
+ * ```
+ * query getAstronaut {
+ *   astronaut(id: 1) {
+ *      id
+ *      name
+ *   }
+ * }
+ * ```
+ *
+ * When the [ExecutionBatchState] will be considered exhausted will have this state:
+ *
+ * ```
+ * {
+ *   "/": {
+ *     "dispatchedFetches": 1,
+ *       "fieldsState": {
+ *         "astronaut": {
+ *           "fetchState": "DISPATCHED",
+ *           "fetchType": "ASYNC",
+ *           "result": null,
+ *           "executionStrategyPaths": []
+ *         }
+ *      }
+ *   }
+ * }
+ * ```
+ *
+ * once astronaut [DataFetcher] completes his value starting a new ExecutionStrategy for `astronaut` field for
+ * the resolution of `id`, and `name`, once these fields are dispatched and completed
+ * and exhaustion will be calculated again and the state of [ExecutionBatchState] will be the following:
+ *
+ * ```
+ * {
+ *   "/": {
+ *     "dispatchedFetches": 1,
+ *       "fieldsState": {
+ *         "astronaut": {
+ *           "fetchState": "COMPLETED",
+ *           "fetchType": "ASYNC",
+ *           "result": { ... },
+ *           "executionStrategyPaths": ["/astronaut"]
+ *         }
+ *      }
+ *   },
+ *   "/astronaut": {
+ *     "dispatchedFetches": 2,
+ *     "fieldsState": {
+ *       "id": {
+ *         "fetchState": "COMPLETED",
+ *         "fetchType": "SYNC",
+ *         "executionStrategyPaths": []
+ *       },
+ *       "name": {
+ *         "fetchState": "COMPLETED",
+ *         "fetchType": "SYNC",
+ *         "executionStrategyPaths": []
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ */
 class ExecutionBatchState {
 
     private val executionStrategiesState: ConcurrentHashMap<String, ExecutionStrategyState> = ConcurrentHashMap()
 
+    /**
+     * This method will add an [ExecutionStrategyState] into [executionStrategiesState] which state will be changed when a field
+     * dispatches or completes
+     *
+     * @param field a nullable [Field] that represents the field that just started an executionStrategy, the ONLY use case where this
+     * param could be null is when the root executionStrategy starts.
+     * @param fieldExecutionStrategyPath the [ResultPath] of the field that just started an executionStrategy, example: `"/astronaut"`, `"/"`.
+     * @param fieldSelections the list of [Field]s that the executionStrategy will attempt to resolve.
+     * @param parentFieldGraphQLType the [GraphQLType] of the parent [field] that will start an execution strategy.
+     */
     fun addExecutionStrategyState(
         field: Field?,
         fieldExecutionStrategyPath: ResultPath,
@@ -47,7 +129,7 @@ class ExecutionBatchState {
         parentFieldExecutionStrategyPathString?.let {
             executionStrategiesState
                 .computeIfPresent(parentFieldExecutionStrategyPathString) { _, parentExecutionStrategyState ->
-                    parentExecutionStrategyState.fieldsState[field?.resultKey]?.executionStrategyPaths?.add(
+                    parentExecutionStrategyState.fieldsState[field?.resultKey]?.addExecutionStrategyPath(
                         fieldExecutionStrategyPathString
                     )
                     parentExecutionStrategyState
@@ -55,6 +137,14 @@ class ExecutionBatchState {
         }
     }
 
+    /**
+     * Apply a transition on the [field] to dispatched state.
+     *
+     * @param field the [Field] that will transition to dispatched state.
+     * @param fieldExecutionStrategyPath the [ResultPath] associated to the ExecutionStrategy that dispatched the [field].
+     * @param fieldGraphQLType the [GraphQLType] of the [field].
+     * @param result the [DataFetcher] [CompletableFuture] result.
+     */
     fun fieldToDispatchedState(
         field: Field,
         fieldExecutionStrategyPath: ResultPath,
@@ -68,6 +158,13 @@ class ExecutionBatchState {
         }
     }
 
+    /**
+     * Apply a transition on the [field] to completed state.
+     *
+     * @param field the [Field] that will transition to completed state.
+     * @param fieldExecutionStrategyPath the [ResultPath] associated to the ExecutionStrategy that completed the [field].
+     * @param result the nullable [Any] result of the [DataFetcher] when its completed
+     */
     fun fieldToCompletedState(
         field: Field,
         fieldExecutionStrategyPath: ResultPath,
@@ -80,65 +177,65 @@ class ExecutionBatchState {
         }
     }
 
+    /**
+     * Recursively calculate the sync state of this [ExecutionBatchState],
+     * by traversing all [executionStrategiesState].
+     *
+     * @param executionStrategyPath the string representation of the executionStrategy which state will be calculated,
+     * defaults to [ROOT_EXECUTION_STRATEGY_PATH] to start fom the root [ExecutionStrategyState].
+     */
     fun isSyncExecutionExhausted(
         executionStrategyPath: String = ROOT_EXECUTION_STRATEGY_PATH
     ): Boolean {
-        val executionStrategyState = this.executionStrategiesState[executionStrategyPath]
+        val executionStrategyState = this.executionStrategiesState[executionStrategyPath] ?: return false
 
-        if (executionStrategyState == null || !executionStrategyState.allFieldsVisited()) {
+        if (!executionStrategyState.allFieldsVisited()) {
             return false
         }
-        if (executionStrategyState.exhaustionState == ExecutionStrategyExhaustionState.EXHAUSTED) {
+        if (executionStrategyState.isSyncStateExhausted()) {
             return true
         }
 
         return executionStrategyState.fieldsState.all { (_, state) ->
             when {
-                // field is completed and is a non leaf list,
-                // so we need to check that non null results size equals to the executionStrategyPaths size
-                // and then check for isSyncExecutionExhausted for each executionStrategyPath
-                state.fetchState == FieldFetchState.COMPLETED && state.result != null &&
-                    state.isList() && !state.isLeaf() &&
-                    (state.result as? List<*>)?.filterNotNull()?.size == state.executionStrategyPaths.size -> {
+                state.isCompletedListOfComplexObjects() -> {
                     state.executionStrategyPaths.all { executionStrategyPath ->
                         isSyncExecutionExhausted(executionStrategyPath)
                     }
                 }
-                // field is completed and his type is not a list nor a leaf,
-                // so we need to check that results size equals to the executionStrategyPaths size
-                // and then check for isSyncExecutionExhausted of executionStrategyPath
-                state.fetchState == FieldFetchState.COMPLETED && state.result != null &&
-                    !state.isList() && !state.isLeaf() && state.executionStrategyPaths.isNotEmpty() -> {
+                state.isCompletedComplexObject() -> {
                     isSyncExecutionExhausted(state.executionStrategyPaths.first())
                 }
-                // field is completed and his type is leaf or null
-                state.fetchState == FieldFetchState.COMPLETED &&
-                    (state.isLeaf() || state.result == null) -> {
-                    true
-                }
-                // field is async, dispatched and his type is not leaf
-                state.fetchType == FieldFetchType.ASYNC &&
-                    state.fetchState == FieldFetchState.DISPATCHED &&
-                    !state.isLeaf() -> {
+                state.isCompletedLeafOrNull() || state.isAsyncDispatchedNotLeaf() -> {
                     true
                 }
                 else -> false
             }
         }.also { isExhausted ->
-            executionStrategyState.exhaustionState = when {
-                isExhausted -> ExecutionStrategyExhaustionState.EXHAUSTED
-                else -> ExecutionStrategyExhaustionState.NOT_EXHAUSTED
+            /**
+             * in order to avoid some computations we can store the [ExecutionStrategySyncState] that we
+             * just calculated.
+             */
+            executionStrategyState.syncState = when {
+                isExhausted -> ExecutionStrategySyncState.EXHAUSTED
+                else -> ExecutionStrategySyncState.NOT_EXHAUSTED
             }
         }
     }
 
+    /**
+     * Reset the [ExecutionStrategySyncState] of each [ExecutionStrategyState] from [origin] path to root.
+     *
+     * @param origin [ResultPath] from where the [ExecutionStrategySyncState] will be reset
+     * up to the root [ExecutionStrategyState]
+     */
     private fun setPathToNotExhaustedState(
         origin: ResultPath
     ) {
         var currentPath: ResultPath? = origin
         while (currentPath != null) {
-            executionStrategiesState[currentPath.toString()]?.exhaustionState =
-                ExecutionStrategyExhaustionState.NOT_EXHAUSTED
+            executionStrategiesState[currentPath.toString()]?.syncState =
+                ExecutionStrategySyncState.NOT_EXHAUSTED
             currentPath = currentPath.parent
         }
     }

@@ -23,6 +23,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execut
 import graphql.ExecutionInput
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.Instrumentation
+import graphql.schema.DataFetcher
 import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture
 
@@ -30,8 +31,8 @@ import java.util.concurrent.CompletableFuture
  * Custom GraphQL [Instrumentation] that will dispatch all [DataLoader]s inside a [KotlinDataLoaderRegistry]
  * when the synchronous execution of all [ExecutionInput] sharing a [GraphQLContext] was exhausted.
  *
- * A Synchronous Execution is considered Exhausted when all data fetchers of all paths were executed up until
- * an scalar leaf or a data fetcher that returns a [CompletableFuture]
+ * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
+ * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
  */
 class DataLoaderSyncExhaustionInstrumentation : AbstractSyncExhaustionInstrumentation() {
     override fun calculateSyncExhaustionState(

@@ -17,10 +17,11 @@
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExhaustionInstrumentationContext
 import com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExhaustionInstrumentationContext
 import graphql.ExecutionInput
 import graphql.ExecutionResult
+import graphql.GraphQLContext
 import graphql.execution.MergedField
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
@@ -28,11 +29,12 @@ import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
+import graphql.schema.DataFetcher
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same graphQLContext map,
+ * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same [GraphQLContext],
  * when a certain state is reached will invoke [SyncExhaustionInstrumentationContext]
  */
 class SyncExhaustionInstrumentationState(
@@ -54,6 +56,13 @@ class SyncExhaustionInstrumentationState(
         return SimpleInstrumentationContext.noOp()
     }
 
+    /**
+     * Add [ExecutionStrategyState] into operation [ExecutionBatchState] for the field that
+     * just started an ExecutionStrategy
+     *
+     * @param parameters contains information of which [ExecutionInput] started an executionStrategy
+     * @return a noop [ExecutionStrategyInstrumentationContext]
+     */
     fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters
     ): ExecutionStrategyInstrumentationContext {
@@ -73,6 +82,13 @@ class SyncExhaustionInstrumentationState(
         return NoOpExecutionStrategyInstrumentationContext
     }
 
+    /**
+     * This is called just before a field [DataFetcher] is invoked
+     *
+     * @param parameters contains information of which field will starting the fetching
+     * @return a [InstrumentationContext] object that will be called back when the [DataFetcher]
+     * dispatches and completes
+     */
     fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters,
         syncExhaustionContext: SyncExhaustionInstrumentationContext
@@ -109,6 +125,11 @@ class SyncExhaustionInstrumentationState(
         }
     }
 
+    /**
+     * Provide the information about when all [ExecutionInput] sharing a [GraphQLContext] exhausted their execution
+     * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
+     * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
+     */
     private fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
         when {
             executions.size < totalExecutions || !dataLoaderRegistry.isDispatchedAndCompleted() -> false

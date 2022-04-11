@@ -31,7 +31,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchPar
 
 /**
  * Custom GraphQL [Instrumentation] that calculate the synchronous execution state
- * of all queries sharing the same [GraphQLContext]
+ * of all GraphQL operations sharing the same [GraphQLContext]
  */
 abstract class AbstractSyncExhaustionInstrumentation : SimpleInstrumentation(), SyncExhaustionInstrumentation {
     override fun beginExecuteOperation(
@@ -48,7 +48,7 @@ abstract class AbstractSyncExhaustionInstrumentation : SimpleInstrumentation(), 
         parameters.executionContext
             .graphQLContext.get<SyncExhaustionInstrumentationState>(SyncExhaustionInstrumentationState::class)
             ?.beginExecutionStrategy(parameters)
-            ?: com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
+            ?: NoOpExecutionStrategyInstrumentationContext
 
     override fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters
