@@ -48,13 +48,13 @@ class KotlinDataLoaderRegistryTest {
             ).generate()
         )
 
-        registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ ->  }
-        registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase2").handle { _, _ ->  }
-        registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ ->  }
+        registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ -> }
+        registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase2").handle { _, _ -> }
+        registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ -> }
 
-        registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ ->  }
-        registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE2").handle { _, _ ->  }
-        registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ ->  }
+        registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ -> }
+        registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE2").handle { _, _ -> }
+        registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ -> }
 
         registry.dispatchAll()
         val futuresToComplete = registry.getFuturesToComplete()
