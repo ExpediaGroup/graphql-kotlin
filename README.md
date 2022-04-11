@@ -13,6 +13,7 @@ Visit our [documentation site](https://expediagroup.github.io/graphql-kotlin) fo
 
 * [clients](/clients) - Lightweight GraphQL Kotlin HTTP clients based on Ktor HTTP client and Spring WebClient
 * [examples](/examples) - Example apps that use graphql-kotlin libraries to test and demonstrate usages
+* [executions](/executions) - Custom instrumentations for a GraphQL operation
 * [generator](/generator) - Code-First schema generator and extensions to build Apollo Federation schemas
 * [plugins](/plugins) - Gradle and Maven plugins
 * [servers](/servers) - Common and library specific modules for running a GraphQL server

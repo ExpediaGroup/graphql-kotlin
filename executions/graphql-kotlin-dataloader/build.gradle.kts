@@ -7,6 +7,8 @@ val reactorExtensionsVersion: String by project
 
 dependencies {
     api("com.graphql-java:java-dataloader:$graphQLJavaDataLoaderVersion")
+    testImplementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
+    testImplementation("io.projectreactor:reactor-core:$reactorVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
@@ -18,12 +20,12 @@ tasks {
                 limit {
                     counter = "INSTRUCTION"
                     value = "COVEREDRATIO"
-                    minimum = "0.70".toBigDecimal()
+                    minimum = "0.62".toBigDecimal()
                 }
                 limit {
                     counter = "BRANCH"
                     value = "COVEREDRATIO"
-                    minimum = "0.70".toBigDecimal()
+                    minimum = "0.80".toBigDecimal()
                 }
             }
         }

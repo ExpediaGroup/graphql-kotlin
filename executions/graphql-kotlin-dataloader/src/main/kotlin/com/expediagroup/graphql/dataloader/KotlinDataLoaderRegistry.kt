@@ -60,6 +60,11 @@ class KotlinDataLoaderRegistry(
     }
 
     /**
+     * will return futures that are still pending for completion
+     */
+    fun getFuturesToComplete(): List<CompletableFuture<*>> = futuresToComplete
+
+    /**
      * Will signal when all dependants of all [futuresToComplete] were invoked,
      * [futuresToComplete] is the list of all [CompletableFuture]s that will complete because the [dispatchAll]
      * method was invoked
