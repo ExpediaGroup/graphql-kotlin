@@ -54,7 +54,7 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
 
 class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
     override val dataLoaderName = "FriendsDataLoader"
-    override fun getDataLoader() = DataLoader<ID, List<User>> { ids ->
+    override fun getBatchLoader() = BatchLoader<ID, List<User>> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id ->
                 val friends: List<ID> = friendService.getFriends(id)
