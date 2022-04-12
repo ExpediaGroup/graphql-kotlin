@@ -3,7 +3,7 @@ id: data-loaders
 title: Data Loaders
 ---
 Data Loaders are a popular caching pattern from the [JavaScript GraphQL implementation](https://github.com/graphql/dataloader).
-`graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/v16/batching/) using the `DataLoader` and `DataLoaderRegistry`.
+`graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/batching) using the `DataLoader` and `DataLoaderRegistry`.
 
 Since `graphql-kotlin` allows you to abstract the schema generation and data fetching code, you may not even need data loaders if instead you have some persistant cache on your server.
 
@@ -67,7 +67,7 @@ class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
 
 ## DefaultKotlinDataLoaderRegistryFactory
 
-Factory that facilitates the instantiation of a [KotlinDataLoaderRegistry](src/main/kotlin/com/expediagroup/graphql/dataloader/KotlinDataLoaderRegistry.kt) which is just
+Factory that facilitates the instantiation of a `KotlinDataLoaderRegistry` which is just
 a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java).
 with the addition of allowing access to the state of the `CacheMap` (futures cache) of each `DataLoader` in order to know
 all futures state.
