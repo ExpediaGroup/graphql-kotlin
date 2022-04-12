@@ -16,17 +16,17 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.level
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution.AbstractExecutionLevelInstrumentation
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution.ExecutionLevelInstrumentationContext
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.execution.ExecutionLevelInstrumentationParameters
 import com.expediagroup.graphql.transactionbatcher.instrumentation.level.state.Level
 import graphql.ExecutionInput
 import graphql.GraphQLContext
-import org.dataloader.DataLoaderRegistry
 
 /**
  * Once a certain [Level] is dispatched for all [ExecutionInput] sharing a [GraphQLContext] map
- * it will automatically dispatch a [DataLoaderRegistry] instance located in the GraphQLContext map.
+ * it will automatically dispatch a [KotlinDataLoaderRegistry] instance located in the GraphQLContext map.
  */
 class TransactionLoaderLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
     override fun calculateLevelState(
@@ -36,7 +36,7 @@ class TransactionLoaderLevelInstrumentation : AbstractExecutionLevelInstrumentat
             override fun onDispatched(level: Level, executions: List<ExecutionInput>) {
                 parameters
                     .executionContext
-                    .graphQLContext.get<DataLoaderRegistry>(DataLoaderRegistry::class)
+                    .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
                     ?.dispatchAll()
             }
         }
