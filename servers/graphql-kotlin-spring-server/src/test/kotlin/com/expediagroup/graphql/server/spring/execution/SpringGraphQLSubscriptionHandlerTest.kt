@@ -22,8 +22,8 @@ import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.DefaultKotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -64,7 +64,7 @@ class SpringGraphQLSubscriptionHandlerTest {
             }
         }
     }
-    private val dataLoaderRegistryFactory = DefaultDataLoaderRegistryFactory(listOf(mockLoader))
+    private val dataLoaderRegistryFactory = DefaultKotlinDataLoaderRegistryFactory(listOf(mockLoader))
     private val subscriptionHandler = SpringGraphQLSubscriptionHandler(testGraphQL, dataLoaderRegistryFactory)
 
     @Test

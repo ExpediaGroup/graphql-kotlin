@@ -21,10 +21,10 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory

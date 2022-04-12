@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
@@ -29,7 +29,7 @@ import kotlinx.coroutines.future.await
 
 open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
-    private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
+    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
 ) {
 
     /**
@@ -37,7 +37,11 @@ open class GraphQLRequestHandler(
      * This should only be used for queries and mutations.
      * Subscriptions require more specific server logic and will need to be handled separately.
      */
-    open suspend fun executeRequest(request: GraphQLRequest, context: GraphQLContext? = null, graphQLContext: Map<*, Any> = emptyMap<Any, Any>()): GraphQLResponse<*> {
+    open suspend fun executeRequest(
+        request: GraphQLRequest,
+        context: GraphQLContext? = null,
+        graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
+    ): GraphQLResponse<*> {
         // We should generate a new registry for every request
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
         val executionInput = request.toExecutionInput(context, dataLoaderRegistry, graphQLContext)
