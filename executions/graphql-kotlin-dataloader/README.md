@@ -4,11 +4,11 @@
 
 Data Loaders are a popular caching pattern from the [JavaScript GraphQL implementation](https://github.com/graphql/dataloader).
 
-Since `graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/v16/batching/)
+Since `graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/batching/)
 using the [DataLoader](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoader.java)
 and [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java).
 
-`graphql-kotlin` provides support for `DataLoaders` with this `graphql-kotlin-dataloader` module through common interfaces
+`graphql-kotlin` provides support for `DataLoaders` with this `graphql-kotlin-dataloader` module through common interfaces.
 
 
 ## KotlinDataLoader

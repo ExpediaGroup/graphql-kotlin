@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.DefaultKotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.server.spring.execution.SpringKotlinDataFetcherFactoryProvider
@@ -40,7 +40,6 @@ import java.util.Optional
 @EnableConfigurationProperties(GraphQLConfigurationProperties::class)
 @Import(JacksonAutoConfiguration::class)
 class GraphQLExecutionConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     fun dataFetcherFactoryProvider(applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
@@ -52,6 +51,6 @@ class GraphQLExecutionConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataLoaderRegistryFactory(dataLoaders: Optional<List<KotlinDataLoader<*, *>>>): DataLoaderRegistryFactory =
+    fun dataLoaderRegistryFactory(dataLoaders: Optional<List<KotlinDataLoader<*, *>>>): KotlinDataLoaderRegistryFactory =
         DefaultKotlinDataLoaderRegistryFactory(dataLoaders.orElse(emptyList()))
 }
