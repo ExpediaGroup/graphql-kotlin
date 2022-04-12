@@ -18,7 +18,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.AbstractSyncExhaustionInstrumentation
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExhaustionInstrumentationContext
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhausted
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExhaustionInstrumentationParameters
 import graphql.ExecutionInput
 import graphql.GraphQLContext
@@ -35,14 +35,12 @@ import java.util.concurrent.CompletableFuture
  * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
  */
 class DataLoaderSyncExhaustionInstrumentation : AbstractSyncExhaustionInstrumentation() {
-    override fun calculateSyncExhaustionState(
+    override fun calculateSyncExecutionExhaustion(
         parameters: SyncExhaustionInstrumentationParameters
-    ): SyncExhaustionInstrumentationContext = object : SyncExhaustionInstrumentationContext {
-        override fun onSyncExecutionExhausted(executions: List<ExecutionInput>) {
-            parameters
-                .executionContext
-                .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
-                ?.dispatchAll()
-        }
+    ): OnSyncExecutionExhausted = OnSyncExecutionExhausted {
+        parameters
+            .executionContext
+            .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
+            ?.dispatchAll()
     }
 }

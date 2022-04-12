@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.level.state
 
-import com.expediagroup.graphql.dataloader.instrumentation.level.execution.ExecutionLevelInstrumentationContext
+import com.expediagroup.graphql.dataloader.instrumentation.level.execution.OnLevelDispatched
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDocumentHeight
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.getExpectedStrategyCalls
 import graphql.ExecutionInput
@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same graphQLContext map,
- * when a certain state is reached will invoke [ExecutionLevelInstrumentationContext]
+ * when a certain state is reached will invoke [OnLevelDispatched]
  */
 class ExecutionLevelInstrumentationState(
     private val totalExecutions: Int
@@ -61,11 +61,11 @@ class ExecutionLevelInstrumentationState(
      * When a specific [ExecutionInput] begins an executionStrategy, modify the state of his [ExecutionBatchState]
      *
      * @param parameters contains information of which [ExecutionInput] will start an ExecutionStrategy
-     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionBatchState]
+     * @param onLevelDispatched invoke when certain level of all operations is dispatched
      */
     fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters,
-        executionLevelContext: ExecutionLevelInstrumentationContext
+        onLevelDispatched: OnLevelDispatched
     ): ExecutionStrategyInstrumentationContext {
         val executionInput = parameters.executionContext.executionInput
         val level = Level(parameters.executionStrategyParameters.path.level + 1)
@@ -100,7 +100,7 @@ class ExecutionLevelInstrumentationState(
 
                 val allExecutionsDispatched = synchronized(executions) { allExecutionsDispatched(nextLevel) }
                 if (allExecutionsDispatched) {
-                    executionLevelContext.onDispatched(nextLevel, executions.keys().toList())
+                    onLevelDispatched.invoke(nextLevel, executions.keys().toList())
                     executions.forEach { (_, executionState) -> executionState.completeDataFetchers(nextLevel) }
                 }
             }
@@ -119,11 +119,11 @@ class ExecutionLevelInstrumentationState(
      * When a specific [ExecutionInput] begins an fieldFetch, modify the state of his [ExecutionBatchState]
      *
      * @param parameters contains information of which [ExecutionInput] will start an ExecutionStrategy
-     * @param executionLevelContext invoke a method associated with an event calculated using the [ExecutionBatchState]
+     * @param onLevelDispatched invoke when certain level of all operations is dispatched
      */
     fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters,
-        executionLevelContext: ExecutionLevelInstrumentationContext
+        onLevelDispatched: OnLevelDispatched
     ): InstrumentationContext<Any> {
         val executionInput = parameters.executionContext.executionInput
         val path = parameters.environment.executionStepInfo.path
@@ -138,7 +138,7 @@ class ExecutionLevelInstrumentationState(
 
                 val allExecutionsDispatched = synchronized(executions) { allExecutionsDispatched(level) }
                 if (allExecutionsDispatched) {
-                    executionLevelContext.onDispatched(level, executions.keys().toList())
+                    onLevelDispatched.invoke(level, executions.keys().toList())
                     executions.forEach { (_, executionState) -> executionState.completeDataFetchers(level) }
                 }
             }

@@ -27,10 +27,10 @@ interface SyncExhaustionInstrumentation {
      * `beginFieldField.dispatch` or `beginFieldFetch.complete`.
      *
      * @param parameters contains information of which [ExecutionInput] caused the calculation
-     * @return an instance of [SyncExhaustionInstrumentationContext] that will be invoked when the synchronous
+     * @return an instance of [OnSyncExecutionExhausted] that will be invoked when the synchronous
      * execution was exhausted
      */
-    fun calculateSyncExhaustionState(
+    fun calculateSyncExecutionExhaustion(
         parameters: SyncExhaustionInstrumentationParameters
-    ): SyncExhaustionInstrumentationContext
+    ): OnSyncExecutionExhausted
 }

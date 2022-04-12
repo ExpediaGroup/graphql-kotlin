@@ -49,7 +49,7 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginExecutionStrategy(
                 parameters,
-                this.calculateLevelState(
+                this.calculateLevelDispatchedState(
                     ExecutionLevelInstrumentationParameters(
                         parameters.executionContext,
                         ExecutionLevelCalculationSource.EXECUTION_STRATEGY
@@ -65,7 +65,7 @@ abstract class AbstractExecutionLevelInstrumentation : SimpleInstrumentation(), 
             .graphQLContext.get<ExecutionLevelInstrumentationState>(ExecutionLevelInstrumentationState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.calculateLevelState(
+                this.calculateLevelDispatchedState(
                     ExecutionLevelInstrumentationParameters(
                         parameters.executionContext,
                         ExecutionLevelCalculationSource.FIELD_FETCH

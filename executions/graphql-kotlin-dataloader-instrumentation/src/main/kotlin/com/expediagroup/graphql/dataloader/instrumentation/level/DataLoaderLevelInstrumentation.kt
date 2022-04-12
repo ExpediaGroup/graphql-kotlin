@@ -18,7 +18,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.level
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.instrumentation.level.execution.AbstractExecutionLevelInstrumentation
-import com.expediagroup.graphql.dataloader.instrumentation.level.execution.ExecutionLevelInstrumentationContext
+import com.expediagroup.graphql.dataloader.instrumentation.level.execution.OnLevelDispatched
 import com.expediagroup.graphql.dataloader.instrumentation.level.execution.ExecutionLevelInstrumentationParameters
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
 import graphql.ExecutionInput
@@ -31,15 +31,12 @@ import org.dataloader.DataLoader
  * when certain [Level] is dispatched for all [ExecutionInput] sharing a [GraphQLContext]
  */
 class DataLoaderLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
-    override fun calculateLevelState(
+    override fun calculateLevelDispatchedState(
         parameters: ExecutionLevelInstrumentationParameters
-    ): ExecutionLevelInstrumentationContext =
-        object : ExecutionLevelInstrumentationContext {
-            override fun onDispatched(level: Level, executions: List<ExecutionInput>) {
-                parameters
-                    .executionContext
-                    .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
-                    ?.dispatchAll()
-            }
-        }
+    ): OnLevelDispatched = OnLevelDispatched { _, _ ->
+        parameters
+            .executionContext
+            .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
+            ?.dispatchAll()
+    }
 }

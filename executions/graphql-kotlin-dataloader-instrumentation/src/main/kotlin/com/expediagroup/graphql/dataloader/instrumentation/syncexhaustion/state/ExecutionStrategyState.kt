@@ -25,6 +25,7 @@ import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Hold and calculate the [fieldsState] of an [ExecutionStrategy]
@@ -64,7 +65,8 @@ import java.util.concurrent.ConcurrentHashMap
 class ExecutionStrategyState(
     selections: List<Field>
 ) {
-    private var dispatchedFields: Int = 0
+    private var dispatchedFields: AtomicReference<Int> = AtomicReference(0)
+
     val fieldsState: ConcurrentHashMap<String, FieldState> = ConcurrentHashMap(
         selections.associateBy(Field::getResultKey) { FieldState() }
     )
@@ -83,7 +85,7 @@ class ExecutionStrategyState(
      *
      * @return Boolean result of checking if all fields were visited.
      */
-    fun allFieldsVisited(): Boolean = dispatchedFields == fieldsState.size
+    fun allFieldsVisited(): Boolean = dispatchedFields.get() == fieldsState.size
 
     /**
      * Hold, calculate and transition the state of a [Field] associated with a [ExecutionStrategyState].
@@ -110,8 +112,12 @@ class ExecutionStrategyState(
         ): FieldState = this.also {
             this.fetchState = FieldFetchState.DISPATCHED
             this.graphQLType = graphQLType
-            this.fetchType = if (result.isDone) FieldFetchType.SYNC else FieldFetchType.ASYNC
-            this@ExecutionStrategyState.dispatchedFields++
+            this.fetchType = when {
+                result.isDone -> FieldFetchType.SYNC
+                else -> FieldFetchType.ASYNC
+            }
+
+            this@ExecutionStrategyState.dispatchedFields.updateAndGet { current -> current + 1 }
         }
 
         /**

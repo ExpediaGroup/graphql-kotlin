@@ -57,7 +57,7 @@ abstract class AbstractSyncExhaustionInstrumentation : SimpleInstrumentation(), 
             .graphQLContext.get<SyncExhaustionInstrumentationState>(SyncExhaustionInstrumentationState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.calculateSyncExhaustionState(
+                this.calculateSyncExecutionExhaustion(
                     SyncExhaustionInstrumentationParameters(parameters.executionContext)
                 )
             )

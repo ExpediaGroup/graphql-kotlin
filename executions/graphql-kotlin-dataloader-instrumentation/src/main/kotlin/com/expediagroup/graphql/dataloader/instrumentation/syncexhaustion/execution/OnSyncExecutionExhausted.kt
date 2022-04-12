@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.dataloader.instrumentation.level.execution
+package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution
 
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
 import graphql.ExecutionInput
+import graphql.GraphQLContext
+import java.util.concurrent.CompletableFuture
 
 /**
- * Defines the contract for the behavior that needs to be executed when a certain event happened
+ * Defines the contract for the behavior that needs to be executed when a SyncExhaustion is calculated
  */
-interface ExecutionLevelInstrumentationContext {
+fun interface OnSyncExecutionExhausted {
     /**
-     * this is invoked when all [ExecutionInput] in a GraphQLContext dispatched a certain level.
+     * this is invoked when all [ExecutionInput] sharing a [GraphQLContext] exhausted their synchronous execution.
+     * a synchronous execution is considered exhausted when all data fetchers of all paths were executed up until
+     * an scalar leaf or data fetcher that returns a [CompletableFuture]
      *
-     * @param level that was dispatched on all [ExecutionInput]
-     * @param executions list of executions that just dispatched a certain level
+     * @param executions list of executions that exhausted their sync execution.
      */
-    fun onDispatched(
-        level: Level,
+    fun invoke(
         executions: List<ExecutionInput>
     )
 }
