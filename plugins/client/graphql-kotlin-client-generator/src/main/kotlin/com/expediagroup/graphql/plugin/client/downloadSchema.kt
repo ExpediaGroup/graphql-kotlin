@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@ package com.expediagroup.graphql.plugin.client
 
 import graphql.schema.idl.SchemaParser
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.features.HttpRequestTimeoutException
-import io.ktor.client.features.HttpTimeout
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import kotlinx.coroutines.runBlocking
@@ -42,12 +44,13 @@ fun downloadSchema(
     }
 }.use { client ->
     runBlocking {
-        val sdl = try {
-            client.get<String>(urlString = endpoint) {
+        val sdl: String = try {
+            client.get(urlString = endpoint) {
                 httpHeaders.forEach { (name, value) ->
                     header(name, value)
                 }
-            }
+                expectSuccess = true
+            }.body()
         } catch (e: Throwable) {
             when (e) {
                 is ClientRequestException, is HttpRequestTimeoutException, is UnknownHostException -> throw e

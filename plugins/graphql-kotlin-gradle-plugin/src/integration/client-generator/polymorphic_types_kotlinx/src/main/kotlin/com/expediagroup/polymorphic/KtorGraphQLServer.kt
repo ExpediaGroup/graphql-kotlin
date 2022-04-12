@@ -12,8 +12,8 @@ import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.polymorphic.queries.PolymorphicQuery
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
-import io.ktor.request.ApplicationRequest
-import io.ktor.request.receiveText
+import io.ktor.server.request.ApplicationRequest
+import io.ktor.server.request.receiveText
 import java.io.IOException
 
 class KtorGraphQLServer(

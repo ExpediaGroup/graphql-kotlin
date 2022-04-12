@@ -80,7 +80,7 @@ internal fun generateKotlinxOptionalInputSerializer(
                         |  is %T ->
                         |    encoder.encodeNullableSerializableValue(delegate, value.value)
                         |}
-                        |""".trimMargin(),
+                        """.trimMargin(),
                         kotlinxUndefinedInput,
                         kotlinxDefinedInput
                     )
