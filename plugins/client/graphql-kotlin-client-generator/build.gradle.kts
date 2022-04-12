@@ -21,10 +21,11 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-jackson:$ktorVersion") {
+    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion") {
         exclude("com.fasterxml.jackson.core", "jackson-databind")
         exclude("com.fasterxml.jackson.module", "jackson-module-kotlin")
     }
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     testImplementation(project(path = ":graphql-kotlin-client-jackson"))
     testImplementation(project(path = ":graphql-kotlin-client-serialization"))

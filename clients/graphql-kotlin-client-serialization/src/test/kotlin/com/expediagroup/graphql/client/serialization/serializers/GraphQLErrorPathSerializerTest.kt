@@ -38,7 +38,7 @@ class GraphQLErrorPathSerializerTest {
         |    "leaf"
         |  ]
         |}
-    """.trimMargin()
+        """.trimMargin()
 
     @Test
     @ExperimentalSerializationApi

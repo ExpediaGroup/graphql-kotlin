@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.expediagroup.graphql.examples.server.ktor
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.ktor.request.ApplicationRequest
-import io.ktor.request.receiveText
+import io.ktor.server.request.ApplicationRequest
+import io.ktor.server.request.receiveText
 import java.io.IOException
 
 /**

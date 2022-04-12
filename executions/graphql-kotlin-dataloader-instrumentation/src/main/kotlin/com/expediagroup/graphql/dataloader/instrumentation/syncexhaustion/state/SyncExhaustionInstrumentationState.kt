@@ -86,12 +86,13 @@ class SyncExhaustionInstrumentationState(
      * This is called just before a field [DataFetcher] is invoked
      *
      * @param parameters contains information of which field will starting the fetching
+     * @param onSyncExecutionExhausted invoke when the sync execution fo all operations is exhausted
      * @return a [InstrumentationContext] object that will be called back when the [DataFetcher]
      * dispatches and completes
      */
     fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters,
-        onSyncExecutionExhaustedContext: OnSyncExecutionExhausted
+        onSyncExecutionExhausted: OnSyncExecutionExhausted
     ): InstrumentationContext<Any> {
         val executionInput = parameters.executionContext.executionInput
         val executionStepInfo = parameters.executionStepInfo
@@ -108,7 +109,7 @@ class SyncExhaustionInstrumentationState(
 
                 val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
                 if (allSyncExecutionsExhausted) {
-                    onSyncExecutionExhaustedContext.invoke(executions.keys().toList())
+                    onSyncExecutionExhausted.invoke(executions.keys().toList())
                 }
             }
             override fun onCompleted(result: Any?, t: Throwable?) {
@@ -119,7 +120,7 @@ class SyncExhaustionInstrumentationState(
 
                 val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
                 if (allSyncExecutionsExhausted) {
-                    onSyncExecutionExhaustedContext.invoke(executions.keys().toList())
+                    onSyncExecutionExhausted.invoke(executions.keys().toList())
                 }
             }
         }

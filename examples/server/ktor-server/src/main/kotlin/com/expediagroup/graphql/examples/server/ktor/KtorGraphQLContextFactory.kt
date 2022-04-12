@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.server.ktor
 import com.expediagroup.graphql.examples.server.ktor.schema.models.User
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
-import io.ktor.request.ApplicationRequest
+import io.ktor.server.request.ApplicationRequest
 
 /**
  * Custom logic for how this example app should create its context given the [ApplicationRequest]

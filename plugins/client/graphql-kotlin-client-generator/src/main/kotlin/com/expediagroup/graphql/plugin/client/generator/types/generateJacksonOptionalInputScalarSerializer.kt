@@ -125,7 +125,7 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
                         |} else {
                         |  serializers.findValueSerializer(clazz).serialize(value, gen, serializers)
                         |}
-                    """.trimMargin()
+                        """.trimMargin()
                     )
                 )
                 .build()
