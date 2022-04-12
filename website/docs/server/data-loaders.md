@@ -65,6 +65,50 @@ class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
 }
 ```
 
+## DefaultKotlinDataLoaderRegistryFactory
+
+Factory that facilitates the instantiation of a [KotlinDataLoaderRegistry](src/main/kotlin/com/expediagroup/graphql/dataloader/KotlinDataLoaderRegistry.kt) which is just
+a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java).
+with the addition of allowing access to the state of the `CacheMap` (futures cache) of each `DataLoader` in order to know
+all futures state.
+
+## Install it
+
+Using a JVM dependency manager, link `graphql-kotlin-dataloader` to your project.
+
+With Maven:
+
+```xml
+<dependency>
+  <groupId>com.expediagroup</groupId>
+  <artifactId>graphql-kotlin-dataloader</artifactId>
+  <version>${latestVersion}</version>
+</dependency>
+```
+
+With Gradle (example using kts):
+
+```kotlin
+implementation("com.expediagroup:graphql-kotlin-dataloader:$latestVersion")
+```
+
+## Use it
+
+Use `DefaultKotlinDataLoaderRegistryFactory`
+
+```kotlin
+    val kotlinDataLoaderRegistry = DefaultKotlinDataLoaderRegistryFactory(
+        UserDataLoader(), FriendsDataLoader()
+    ).generate()
+
+    val executionInput = ExecutionInput.newExecutionInput()
+        .query("query MyAwesomeQuery { foo { bar } }")
+        .dataLoaderRegistry(kotlinDataLoaderRegistry)
+        .build()
+
+    val result = graphQL.executeAsync(executionInput)
+```
+
 ## `getValueFromDataLoader`
 
 `graphql-kotlin-server` includes a helpful extension function on the `DataFetchingEnvironment` so that you can easily retrieve values from the data loaders in your schema code.

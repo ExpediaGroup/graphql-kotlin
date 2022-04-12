@@ -27,9 +27,7 @@ This allows for library users to still have full control over the creation of th
 and its various configuration options.
 
 ```kotlin
-class UserDataLoader(
-    private val userService: UserService
-) : KotlinDataLoader<ID, User> {
+class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
     override fun getBatchLoader() = BatchLoader<ID, User> { ids ->
         CompletableFuture.supplyAsync {
@@ -65,4 +63,21 @@ With Gradle (example using kts):
 
 ```kotlin
 implementation("com.expediagroup:graphql-kotlin-dataloader:$latestVersion")
+```
+
+## Use it
+
+Use `DefaultKotlinDataLoaderRegistryFactory`
+
+```kotlin
+    val kotlinDataLoaderRegistry = DefaultKotlinDataLoaderRegistryFactory(
+        UserDataLoader()
+    ).generate()
+
+    val executionInput = ExecutionInput.newExecutionInput()
+        .query("query MyAwesomeQuery { foo { bar } }")
+        .dataLoaderRegistry(kotlinDataLoaderRegistry)
+        .build()
+
+    val result = graphQL.executeAsync(executionInput)
 ```
