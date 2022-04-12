@@ -18,7 +18,7 @@ package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
@@ -117,7 +117,7 @@ class GraphQLSchemaConfiguration {
     @ConditionalOnMissingBean
     fun graphQLRequestHandler(
         graphql: GraphQL,
-        dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory
+        dataLoaderRegistryFactory: DataLoaderRegistryFactory
     ): GraphQLRequestHandler = GraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
 
     @Bean

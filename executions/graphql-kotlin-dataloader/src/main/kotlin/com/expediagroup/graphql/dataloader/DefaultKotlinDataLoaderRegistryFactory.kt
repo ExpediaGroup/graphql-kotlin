@@ -20,12 +20,12 @@ import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 /**
- * Default [KotlinDataLoaderRegistryFactory] that generates a [KotlinDataLoaderRegistry] with all
+ * Default [DataLoaderRegistryFactory] that generates a [KotlinDataLoaderRegistry] with all
  * the configuration provided by the [KotlinDataLoader]s.
  */
 class DefaultKotlinDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
-) : KotlinDataLoaderRegistryFactory {
+) : DataLoaderRegistryFactory {
 
     constructor(vararg dataLoaders: KotlinDataLoader<*, *>) : this(dataLoaders.toList())
 

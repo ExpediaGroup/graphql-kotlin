@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
@@ -29,7 +29,7 @@ import kotlinx.coroutines.future.await
 
 open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
-    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
+    private val dataLoaderRegistryFactory: DataLoaderRegistryFactory? = null
 ) {
 
     /**

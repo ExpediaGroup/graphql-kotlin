@@ -16,12 +16,14 @@
 
 package com.expediagroup.graphql.dataloader
 
+import org.dataloader.DataLoaderRegistry
+
 /**
- * Factory used to generate [KotlinDataLoaderRegistry] per GraphQL execution.
+ * Factory used to generate [DataLoaderRegistry] per GraphQL execution.
  */
-interface KotlinDataLoaderRegistryFactory {
+interface DataLoaderRegistryFactory {
     /**
-     * Generate [KotlinDataLoaderRegistry] to be used for GraphQL request execution.
+     * Generate [DataLoaderRegistry] to be used for GraphQL request execution.
      */
-    fun generate(): KotlinDataLoaderRegistry
+    fun generate(): DataLoaderRegistry
 }
