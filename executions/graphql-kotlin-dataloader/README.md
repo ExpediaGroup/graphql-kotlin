@@ -38,7 +38,7 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
 }
 ```
 
-## DefaultKotlinDataLoaderRegistryFactory
+## KotlinDataLoaderRegistryFactory
 
 Factory that facilitates the instantiation of a [KotlinDataLoaderRegistry](src/main/kotlin/com/expediagroup/graphql/dataloader/KotlinDataLoaderRegistry.kt) which is just
 a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java).
@@ -67,10 +67,10 @@ implementation("com.expediagroup:graphql-kotlin-dataloader:$latestVersion")
 
 ## Use it
 
-Use `DefaultKotlinDataLoaderRegistryFactory`
+Use `KotlinDataLoaderRegistryFactory`
 
 ```kotlin
-    val kotlinDataLoaderRegistry = DefaultKotlinDataLoaderRegistryFactory(
+    val kotlinDataLoaderRegistry = KotlinDataLoaderRegistryFactory(
         UserDataLoader()
     ).generate()
 

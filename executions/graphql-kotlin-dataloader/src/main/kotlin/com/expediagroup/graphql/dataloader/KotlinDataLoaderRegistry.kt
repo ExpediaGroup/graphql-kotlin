@@ -56,7 +56,7 @@ class KotlinDataLoaderRegistry(
         futuresToComplete.addAll(
             futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
         )
-        registry.dataLoaders.map(DataLoader<*, *>::dispatch)
+        registry.dispatchAll()
     }
 
     /**
