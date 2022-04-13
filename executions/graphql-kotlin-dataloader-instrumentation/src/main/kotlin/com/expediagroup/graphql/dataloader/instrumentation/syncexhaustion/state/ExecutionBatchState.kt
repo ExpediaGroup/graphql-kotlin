@@ -216,9 +216,9 @@ class ExecutionBatchState {
              * in order to avoid some computations we can store the [ExecutionStrategySyncState] that we
              * just calculated.
              */
-            executionStrategyState.syncState = when {
-                isExhausted -> ExecutionStrategySyncState.EXHAUSTED
-                else -> ExecutionStrategySyncState.NOT_EXHAUSTED
+            when {
+                isExhausted -> executionStrategyState.transitionTo(ExecutionStrategySyncState.EXHAUSTED)
+                else -> executionStrategyState.transitionTo(ExecutionStrategySyncState.NOT_EXHAUSTED)
             }
         }
     }
@@ -234,8 +234,7 @@ class ExecutionBatchState {
     ) {
         var currentPath: ResultPath? = origin
         while (currentPath != null) {
-            executionStrategiesState[currentPath.toString()]?.syncState =
-                ExecutionStrategySyncState.NOT_EXHAUSTED
+            executionStrategiesState[currentPath.toString()]?.transitionTo(ExecutionStrategySyncState.NOT_EXHAUSTED)
             currentPath = currentPath.parent
         }
     }

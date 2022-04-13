@@ -66,18 +66,23 @@ class ExecutionStrategyState(
     selections: List<Field>
 ) {
     private var dispatchedFields: AtomicReference<Int> = AtomicReference(0)
-
+    private var syncState: AtomicReference<ExecutionStrategySyncState> = AtomicReference(ExecutionStrategySyncState.NOT_EXHAUSTED)
     val fieldsState: ConcurrentHashMap<String, FieldState> = ConcurrentHashMap(
         selections.associateBy(Field::getResultKey) { FieldState() }
     )
-    var syncState: ExecutionStrategySyncState = ExecutionStrategySyncState.NOT_EXHAUSTED
+
+    /**
+     * Transition this [ExecutionStrategyState] to a new state
+     * @param newState the new [ExecutionStrategySyncState] that the executionStrategyState will transition
+     */
+    fun transitionTo(newState: ExecutionStrategySyncState): Unit = syncState.set(newState)
 
     /**
      * Check if the [syncState] was previously calculated as [ExecutionStrategySyncState.EXHAUSTED].
      *
      * @return Boolean result of checking if [syncState] is exhausted.
      */
-    fun isSyncStateExhausted(): Boolean = syncState == ExecutionStrategySyncState.EXHAUSTED
+    fun isSyncStateExhausted(): Boolean = syncState.get() == ExecutionStrategySyncState.EXHAUSTED
 
     /**
      * Check if all the [Field]s associated with this [ExecutionStrategyState] were visited.
