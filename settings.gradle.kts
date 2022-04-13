@@ -52,7 +52,7 @@ include(":graphql-kotlin-spring-server")
 
 // Executions
 include(":graphql-kotlin-dataloader")
-include(":graphql-kotlin-transaction-loader-instrumentation")
+include(":graphql-kotlin-dataloader-instrumentation")
 //
 // Project mappings so we don't need to create projects that group subprojects
 //
@@ -82,4 +82,4 @@ project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotl
 
 // Executions
 project(":graphql-kotlin-dataloader").projectDir = file("executions/graphql-kotlin-dataloader")
-project(":graphql-kotlin-transaction-loader-instrumentation").projectDir = file("executions/graphql-kotlin-transaction-loader-instrumentation")
+project(":graphql-kotlin-dataloader-instrumentation").projectDir = file("executions/graphql-kotlin-dataloader-instrumentation")
