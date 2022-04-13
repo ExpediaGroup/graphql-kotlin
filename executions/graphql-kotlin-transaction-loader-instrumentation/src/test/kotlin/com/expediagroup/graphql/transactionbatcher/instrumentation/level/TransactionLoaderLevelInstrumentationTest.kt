@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.level
 
-import com.expediagroup.graphql.dataloader.DefaultKotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.Astronaut
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautDataLoader
@@ -116,7 +116,7 @@ class TransactionLoaderLevelInstrumentationTest {
         )
 
         val dataLoaderRegistry = spyk(
-            DefaultKotlinDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(), MissionDataLoader()
             ).generate()
         )
@@ -162,7 +162,7 @@ class TransactionLoaderLevelInstrumentationTest {
         )
 
         val dataLoaderRegistry = spyk(
-            DefaultKotlinDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(), MissionDataLoader()
             ).generate()
         )
@@ -212,7 +212,7 @@ class TransactionLoaderLevelInstrumentationTest {
         )
 
         val dataLoaderRegistry = spyk(
-            DefaultKotlinDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader()
             ).generate()
         )

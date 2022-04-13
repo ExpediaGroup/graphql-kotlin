@@ -43,7 +43,7 @@ class KotlinDataLoaderRegistryTest {
         }
 
         val registry = spyk(
-            DefaultKotlinDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 stringToUpperCaseDataLoader, stringToLowerCaseDataLoader
             ).generate()
         )

@@ -41,7 +41,7 @@ class KotlinDataLoaderRegistry(
     override fun getDataLoaders(): MutableList<DataLoader<*, *>> = registry.dataLoaders
     override fun getDataLoadersMap(): MutableMap<String, DataLoader<*, *>> = registry.dataLoadersMap
     override fun unregister(key: String): DataLoaderRegistry = registry.unregister(key)
-    override fun <K, V> getDataLoader(key: String?): DataLoader<K, V> = registry.getDataLoader(key)
+    override fun <K, V> getDataLoader(key: String): DataLoader<K, V> = registry.getDataLoader(key)
     override fun getKeys(): MutableSet<String> = registry.keys
     override fun dispatchAllWithCount(): Int = registry.dispatchAllWithCount()
     override fun dispatchDepth(): Int = registry.dispatchDepth()
@@ -56,11 +56,12 @@ class KotlinDataLoaderRegistry(
         futuresToComplete.addAll(
             futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
         )
-        registry.dispatchAll()
+        registry.dataLoaders.map(DataLoader<*, *>::dispatch)
     }
 
     /**
-     * will return futures that are still pending for completion
+     * will return futures that are still waiting for completion
+     * @return list of completable futures that are waiting for completion
      */
     fun getFuturesToComplete(): List<CompletableFuture<*>> = futuresToComplete
 

@@ -20,10 +20,9 @@ import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 /**
- * Default [DataLoaderRegistryFactory] that generates a [KotlinDataLoaderRegistry] with all
- * the configuration provided by the [KotlinDataLoader]s.
+ * Generates a [KotlinDataLoaderRegistry] with the configuration provided by all [KotlinDataLoader]s.
  */
-class DefaultKotlinDataLoaderRegistryFactory(
+class KotlinDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
 ) : DataLoaderRegistryFactory {
 
@@ -36,7 +35,7 @@ class DefaultKotlinDataLoaderRegistryFactory(
         dataLoaders.forEach { dataLoader ->
             val options = dataLoader.getOptions()
 
-            // override DefaultCacheMap
+            // override DefaultCacheMap if no cache provided in options
             if (options.cachingEnabled() && options.cacheMap().isEmpty) {
                 val futureCacheMap = KotlinDefaultCacheMap<Any?, Any?>()
                 options.setCacheMap(futureCacheMap)

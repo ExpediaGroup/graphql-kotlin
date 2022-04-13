@@ -22,16 +22,16 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DefaultKotlinDataLoaderRegistryFactoryTest {
+class KotlinDataLoaderRegistryFactoryTest {
     @Test
     fun `generate registry with empty list`() {
-        val registry = DefaultKotlinDataLoaderRegistryFactory(emptyList()).generate()
+        val registry = KotlinDataLoaderRegistryFactory(emptyList()).generate()
         assertTrue(registry.dataLoaders.isEmpty())
     }
 
     @Test
     fun `generate registry with no args`() {
-        val registry = DefaultKotlinDataLoaderRegistryFactory().generate()
+        val registry = KotlinDataLoaderRegistryFactory().generate()
         assertTrue(registry.dataLoaders.isEmpty())
     }
 
@@ -42,7 +42,7 @@ class DefaultKotlinDataLoaderRegistryFactoryTest {
             override fun getBatchLoader(): BatchLoader<String, String> = mockk()
         }
 
-        val registry = DefaultKotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate()
+        val registry = KotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate()
         assertEquals(1, registry.dataLoaders.size)
     }
 }
