@@ -18,22 +18,26 @@ package com.expediagroup.graphql.dataloader.instrumentation.level
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.instrumentation.level.execution.AbstractExecutionLevelInstrumentation
-import com.expediagroup.graphql.dataloader.instrumentation.level.execution.OnLevelDispatched
-import com.expediagroup.graphql.dataloader.instrumentation.level.execution.ExecutionLevelInstrumentationParameters
+import com.expediagroup.graphql.dataloader.instrumentation.level.execution.ExecutionLevelDispatchedInstrumentationParameters
+import com.expediagroup.graphql.dataloader.instrumentation.level.execution.OnLevelDispatchedCallback
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
 import graphql.ExecutionInput
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.Instrumentation
+import graphql.schema.DataFetcher
 import org.dataloader.DataLoader
 
 /**
  * Custom GraphQL [Instrumentation] that will dispatch all [DataLoader]s inside a [KotlinDataLoaderRegistry]
  * when certain [Level] is dispatched for all [ExecutionInput] sharing a [GraphQLContext]
+ *
+ * A level is considered Dispatched when all [DataFetcher]s of a particular level of all [ExecutionInput]s
+ * were dispatched
  */
-class DataLoaderLevelInstrumentation : AbstractExecutionLevelInstrumentation() {
-    override fun calculateLevelDispatchedState(
-        parameters: ExecutionLevelInstrumentationParameters
-    ): OnLevelDispatched = OnLevelDispatched { _, _ ->
+class DataLoaderLevelDispatchedInstrumentation : AbstractExecutionLevelInstrumentation() {
+    override fun getOnLevelDispatchedCallback(
+        parameters: ExecutionLevelDispatchedInstrumentationParameters
+    ): OnLevelDispatchedCallback = { _, _ ->
         parameters
             .executionContext
             .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)

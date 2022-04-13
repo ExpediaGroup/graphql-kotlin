@@ -22,7 +22,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.TestGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionsByAstronautDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExhaustionInstrumentationState
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import io.mockk.spyk
 import io.mockk.verify
@@ -33,9 +33,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class DataLoaderSyncExhaustionInstrumentationTest {
+class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     private val graphQL = TestGraphQL.builder
-        .instrumentation(DataLoaderSyncExhaustionInstrumentation())
+        .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
@@ -57,7 +57,7 @@ class DataLoaderSyncExhaustionInstrumentationTest {
 
         val graphQLContext = mapOf(
             KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+            SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
                 queries.size,
                 kotlinDataLoaderRegistry
             )
@@ -106,7 +106,7 @@ class DataLoaderSyncExhaustionInstrumentationTest {
 
         val graphQLContext = mapOf(
             KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+            SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
                 queries.size,
                 kotlinDataLoaderRegistry
             )
@@ -159,7 +159,7 @@ class DataLoaderSyncExhaustionInstrumentationTest {
 
         val graphQLContext = mapOf(
             KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+            SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
                 queries.size,
                 kotlinDataLoaderRegistry
             )

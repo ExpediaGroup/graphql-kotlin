@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.AbstractSyncExhaustionInstrumentation
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhausted
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExhaustionInstrumentationParameters
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.AbstractSyncExecutionExhaustedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhaustedCallback
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.SyncExecutionExhaustedInstrumentationParameters
 import graphql.ExecutionInput
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.Instrumentation
@@ -34,10 +34,10 @@ import java.util.concurrent.CompletableFuture
  * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
  * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
  */
-class DataLoaderSyncExhaustionInstrumentation : AbstractSyncExhaustionInstrumentation() {
-    override fun calculateSyncExecutionExhaustion(
-        parameters: SyncExhaustionInstrumentationParameters
-    ): OnSyncExecutionExhausted = OnSyncExecutionExhausted {
+class DataLoaderSyncExecutionExhaustedInstrumentation : AbstractSyncExecutionExhaustedInstrumentation() {
+    override fun getOnSyncExecutionExhaustedCallback(
+        parameters: SyncExecutionExhaustedInstrumentationParameters
+    ): OnSyncExecutionExhaustedCallback = {
         parameters
             .executionContext
             .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)

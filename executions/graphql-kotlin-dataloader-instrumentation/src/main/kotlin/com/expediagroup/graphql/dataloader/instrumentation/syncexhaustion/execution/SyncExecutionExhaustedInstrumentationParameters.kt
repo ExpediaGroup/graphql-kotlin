@@ -16,11 +16,12 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution
 
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import graphql.execution.ExecutionContext
 
 /**
- * Hold information that will be provided to an instance of [SyncExhaustionInstrumentation]
+ * Hold information that will be provided to an instance of [DataLoaderSyncExecutionExhaustedInstrumentation]
  */
-data class SyncExhaustionInstrumentationParameters(
+data class SyncExecutionExhaustedInstrumentationParameters(
     val executionContext: ExecutionContext
 )

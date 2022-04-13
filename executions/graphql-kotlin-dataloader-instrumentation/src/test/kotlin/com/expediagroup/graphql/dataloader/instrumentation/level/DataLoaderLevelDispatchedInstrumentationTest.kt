@@ -22,7 +22,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.TestGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionsByAstronautDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelInstrumentationState
+import com.expediagroup.graphql.dataloader.instrumentation.level.state.LevelDispatchedState
 import graphql.ExecutionInput
 import io.mockk.spyk
 import io.mockk.verify
@@ -33,9 +33,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class DataLoaderLevelInstrumentationTest {
+class DataLoaderLevelDispatchedInstrumentationTest {
     private val graphQL = TestGraphQL.builder
-        .instrumentation(DataLoaderLevelInstrumentation())
+        .instrumentation(DataLoaderLevelDispatchedInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
@@ -57,7 +57,7 @@ class DataLoaderLevelInstrumentationTest {
 
         val graphQLContext = mapOf(
             KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            LevelDispatchedState::class to LevelDispatchedState(queries.size)
         )
 
         val results = runBlocking {
@@ -103,7 +103,7 @@ class DataLoaderLevelInstrumentationTest {
 
         val graphQLContext = mapOf(
             KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            LevelDispatchedState::class to LevelDispatchedState(queries.size)
         )
 
         val results = runBlocking {
@@ -153,7 +153,7 @@ class DataLoaderLevelInstrumentationTest {
 
         val graphQLContext = mapOf(
             KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
+            LevelDispatchedState::class to LevelDispatchedState(queries.size)
         )
 
         val results = runBlocking {

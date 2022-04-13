@@ -18,7 +18,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhausted
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhaustedCallback
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
@@ -35,9 +35,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Orchestrate the [ExecutionBatchState] of all [ExecutionInput] sharing the same [GraphQLContext],
- * when a certain state is reached will invoke [OnSyncExecutionExhausted]
+ * when a certain state is reached will invoke [OnSyncExecutionExhaustedCallback]
  */
-class SyncExhaustionInstrumentationState(
+class SyncExecutionExhaustedState(
     private val totalExecutions: Int,
     private val dataLoaderRegistry: KotlinDataLoaderRegistry
 ) {
@@ -92,7 +92,7 @@ class SyncExhaustionInstrumentationState(
      */
     fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters,
-        onSyncExecutionExhausted: OnSyncExecutionExhausted
+        onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
     ): InstrumentationContext<Any> {
         val executionInput = parameters.executionContext.executionInput
         val executionStepInfo = parameters.executionStepInfo
@@ -109,7 +109,7 @@ class SyncExhaustionInstrumentationState(
 
                 val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
                 if (allSyncExecutionsExhausted) {
-                    onSyncExecutionExhausted.invoke(executions.keys().toList())
+                    onSyncExecutionExhausted(executions.keys().toList())
                 }
             }
             override fun onCompleted(result: Any?, t: Throwable?) {
@@ -120,7 +120,7 @@ class SyncExhaustionInstrumentationState(
 
                 val allSyncExecutionsExhausted = allSyncExecutionsExhausted()
                 if (allSyncExecutionsExhausted) {
-                    onSyncExecutionExhausted.invoke(executions.keys().toList())
+                    onSyncExecutionExhausted(executions.keys().toList())
                 }
             }
         }

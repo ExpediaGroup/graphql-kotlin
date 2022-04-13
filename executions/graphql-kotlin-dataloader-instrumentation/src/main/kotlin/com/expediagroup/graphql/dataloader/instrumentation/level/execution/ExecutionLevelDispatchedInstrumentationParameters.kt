@@ -16,21 +16,17 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.level.execution
 
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
-import graphql.ExecutionInput
+import graphql.execution.ExecutionContext
 
 /**
- * Defines the contract for the behavior that needs to be executed when a level is dispatched
+ * Source of level state calculation
  */
-fun interface OnLevelDispatched {
-    /**
-     * this is invoked when all [ExecutionInput] in a GraphQLContext dispatched a certain level.
-     *
-     * @param level that was dispatched on all [ExecutionInput]
-     * @param executions list of executions that just dispatched a certain level
-     */
-    fun invoke(
-        level: Level,
-        executions: List<ExecutionInput>
-    )
-}
+enum class ExecutionLevelCalculationSource { EXECUTION_STRATEGY, FIELD_FETCH }
+
+/**
+ * Hold information that will be provided to an instance of [ExecutionLevelInstrumentation]
+ */
+data class ExecutionLevelDispatchedInstrumentationParameters(
+    val executionContext: ExecutionContext,
+    val calculationSource: ExecutionLevelCalculationSource
+)

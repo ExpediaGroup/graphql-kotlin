@@ -17,7 +17,8 @@
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution
 
 import com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
-import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExhaustionInstrumentationState
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
+import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
@@ -30,15 +31,31 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionStra
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 
 /**
- * Custom GraphQL [Instrumentation] that calculate the synchronous execution state
+ * typealias that represents the signature of a callback that will be executed when sync execution is exhausted
+ */
+internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionInput>) -> Unit
+
+/**
+ * Custom GraphQL [Instrumentation] that calculate the synchronous execution exhaustion
  * of all GraphQL operations sharing the same [GraphQLContext]
  */
-abstract class AbstractSyncExhaustionInstrumentation : SimpleInstrumentation(), SyncExhaustionInstrumentation {
+abstract class AbstractSyncExecutionExhaustedInstrumentation : SimpleInstrumentation() {
+    /**
+     * This is invoked each time instrumentation attempts to calculate exhaustion state, this can be called from either
+     * `beginFieldField.dispatch` or `beginFieldFetch.complete`.
+     *
+     * @param parameters contains information of which [ExecutionInput] caused the calculation
+     * @return [OnSyncExecutionExhaustedCallback] to invoke when the synchronous execution of all operations was exhausted
+     */
+    abstract fun getOnSyncExecutionExhaustedCallback(
+        parameters: SyncExecutionExhaustedInstrumentationParameters
+    ): OnSyncExecutionExhaustedCallback
+
     override fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> =
         parameters.executionContext
-            .graphQLContext.get<SyncExhaustionInstrumentationState>(SyncExhaustionInstrumentationState::class)
+            .graphQLContext.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginExecuteOperation(parameters)
             ?: SimpleInstrumentationContext.noOp()
 
@@ -46,7 +63,7 @@ abstract class AbstractSyncExhaustionInstrumentation : SimpleInstrumentation(), 
         parameters: InstrumentationExecutionStrategyParameters
     ): ExecutionStrategyInstrumentationContext =
         parameters.executionContext
-            .graphQLContext.get<SyncExhaustionInstrumentationState>(SyncExhaustionInstrumentationState::class)
+            .graphQLContext.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginExecutionStrategy(parameters)
             ?: NoOpExecutionStrategyInstrumentationContext
 
@@ -54,11 +71,11 @@ abstract class AbstractSyncExhaustionInstrumentation : SimpleInstrumentation(), 
         parameters: InstrumentationFieldFetchParameters
     ): InstrumentationContext<Any> =
         parameters.executionContext
-            .graphQLContext.get<SyncExhaustionInstrumentationState>(SyncExhaustionInstrumentationState::class)
+            .graphQLContext.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginFieldFetch(
                 parameters,
-                this.calculateSyncExecutionExhaustion(
-                    SyncExhaustionInstrumentationParameters(parameters.executionContext)
+                this.getOnSyncExecutionExhaustedCallback(
+                    SyncExecutionExhaustedInstrumentationParameters(parameters.executionContext)
                 )
             )
             ?: SimpleInstrumentationContext.noOp()
