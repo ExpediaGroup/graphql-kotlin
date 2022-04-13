@@ -2,7 +2,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-transaction-batcher-instrumentation%22)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation)
 
-`graphql-kotlin-data-loader-instrumentation` is set of custom instrumentations that will signal when is the right moment
+`graphql-kotlin-dataloader-instrumentation` is set of custom instrumentations that will signal when is the right moment
 to dispatch a `KotlinDataLoaderRegistry` located in the `GraphQLContext`.
 
 This instrumentation follows the same approach of the [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java).
@@ -12,14 +12,14 @@ whereas these custom instrumentations applies across a number of operations and 
 
 ## Install it
 
-Using a JVM dependency manager, link `graphql-kotlin-data-loader-instrumentation` to your project.
+Using a JVM dependency manager, link `graphql-kotlin-dataloader-instrumentation` to your project.
 
 With Maven:
 
 ```xml
 <dependency>
   <groupId>com.expediagroup</groupId>
-  <artifactId>graphql-kotlin-data-loader-instrumentation</artifactId>
+  <artifactId>graphql-kotlin-dataloader-instrumentation</artifactId>
   <version>${latestVersion}</version>
 </dependency>
 ```
@@ -27,7 +27,7 @@ With Maven:
 With Gradle (example using kts):
 
 ```kotlin
-implementation("com.expediagroup:graphql-kotlin-data-loader-instrumentation:$latestVersion")
+implementation("com.expediagroup:graphql-kotlin-dataloader-instrumentation:$latestVersion")
 ```
 
 ## Use it
