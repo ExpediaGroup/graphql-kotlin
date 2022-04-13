@@ -33,7 +33,7 @@ implementation("com.expediagroup:graphql-kotlin-dataloader-instrumentation:$late
 ## Use it
 
 When creating your `GraphQL` instance make sure to include either
-`DataLoaderLevelInstrumentation` or `DataLoaderSyncExhaustionInstrumentation`.
+`DataLoaderLevelDispatchedInstrumentation` or `DataLoaderSyncExhaustionInstrumentation`.
 
 ```kotlin
 GraphQL
@@ -79,7 +79,7 @@ val result1 = graphQL.executeAsync(executionInput1)
 val result2 = graphQL.executeAsync(executionInput2)
 ```
 
-- `DataLoaderLevelInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
+- `DataLoaderLevelDispatchedInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
   a certain level of all executionInputs was dispatched (all DataFetchers were invoked).
 - `DataLoaderSyncExhaustionInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
   the synchronous execution of an operation exhausted (synchronous execution will be exhausted when all data fetchers
