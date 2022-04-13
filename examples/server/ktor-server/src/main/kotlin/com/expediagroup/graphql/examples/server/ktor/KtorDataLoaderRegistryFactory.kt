@@ -19,7 +19,7 @@ package com.expediagroup.graphql.examples.server.ktor
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
-import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher
 
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.extensions.getDataLoaderFromContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader

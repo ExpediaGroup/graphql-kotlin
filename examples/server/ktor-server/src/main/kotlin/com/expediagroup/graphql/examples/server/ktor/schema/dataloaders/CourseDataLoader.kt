@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.examples.server.ktor.schema.dataloaders
 
 import com.expediagroup.graphql.examples.server.ktor.schema.models.Course
-import com.expediagroup.graphql.server.execution.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import kotlinx.coroutines.runBlocking
 import org.dataloader.BatchLoader
 import java.util.concurrent.CompletableFuture

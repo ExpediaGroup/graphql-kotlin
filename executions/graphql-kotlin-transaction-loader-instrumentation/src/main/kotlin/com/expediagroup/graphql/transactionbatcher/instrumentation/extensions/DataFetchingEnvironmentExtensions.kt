@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.extensions
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.transactionbatcher.instrumentation.exceptions.MissingDataLoaderRegistryException
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
@@ -24,11 +25,11 @@ import org.dataloader.DataLoaderRegistry
 
 /**
  * get an instance of [DataLoaderRegistry] from the [GraphQLContext]
- * @return [DataLoaderRegistry] instance
- * @throws [MissingDataLoaderRegistryException] if there is not a [DataLoaderRegistry] instance in the [GraphQLContext]
+ * @return [KotlinDataLoaderRegistry] instance
+ * @throws [MissingDataLoaderRegistryException] if there is not a [KotlinDataLoaderRegistry] instance in the [GraphQLContext]
  */
 fun <K, V> DataFetchingEnvironment.getDataLoaderFromContext(key: String): DataLoader<K, V> =
     this.graphQlContext
-        .get<DataLoaderRegistry>(DataLoaderRegistry::class)
+        .get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
         ?.getDataLoader(key)
         ?: throw MissingDataLoaderRegistryException()

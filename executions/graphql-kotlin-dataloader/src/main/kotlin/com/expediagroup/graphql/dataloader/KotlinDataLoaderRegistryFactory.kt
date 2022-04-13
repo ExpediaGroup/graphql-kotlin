@@ -14,43 +14,39 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution.dataloader
+package com.expediagroup.graphql.dataloader
 
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 /**
- * Factory used to generate [DataLoaderRegistry] per GraphQL execution.
+ * Generates a [KotlinDataLoaderRegistry] with the configuration provided by all [KotlinDataLoader]s.
  */
-interface DataLoaderRegistryFactory {
-
-    /**
-     * Generate [DataLoaderRegistry] to be used for GraphQL request execution.
-     */
-    fun generate(): DataLoaderRegistry
-}
-
-/**
- * Default [DataLoaderRegistryFactory] that generates a [DataLoaderRegistry] with all
- * the configuration provided by the [KotlinDataLoader]s.
- */
-class DefaultDataLoaderRegistryFactory(
+class KotlinDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
 ) : DataLoaderRegistryFactory {
 
     constructor(vararg dataLoaders: KotlinDataLoader<*, *>) : this(dataLoaders.toList())
 
-    override fun generate(): DataLoaderRegistry {
+    override fun generate(): KotlinDataLoaderRegistry {
+        val futureCacheMaps = mutableListOf<KotlinDefaultCacheMap<*, *>>()
+
         val registry = DataLoaderRegistry()
         dataLoaders.forEach { dataLoader ->
+            val options = dataLoader.getOptions()
+
+            // override DefaultCacheMap if no cache provided in options
+            if (options.cachingEnabled() && options.cacheMap().isEmpty) {
+                val futureCacheMap = KotlinDefaultCacheMap<Any?, Any?>()
+                options.setCacheMap(futureCacheMap)
+                futureCacheMaps += futureCacheMap
+            }
+
             registry.register(
                 dataLoader.dataLoaderName,
-                DataLoaderFactory.newDataLoader(
-                    dataLoader.getBatchLoader(),
-                    dataLoader.getOptions()
-                )
+                DataLoaderFactory.newDataLoader(dataLoader.getBatchLoader(), options)
             )
         }
-        return registry
+        return KotlinDataLoaderRegistry(registry, futureCacheMaps)
     }
 }

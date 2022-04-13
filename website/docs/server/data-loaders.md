@@ -22,11 +22,24 @@ class User(val id: ID) {
 
 If you still want to use data loaders though, they are supported through the common interfaces.
 
-## `KotlinDataLoader`
+`graphql-kotlin-dataloader` module provides convenient extensions to the `java-dataloader` module.
+
+## `KotlinDataLoaderRegistry`
+
+`KotlinDataLoaderRegistry` is a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java)
+that provides access to all underlying `DataLoader`s future states. By providing access to cache map containing returned futures,
+we get more granular control when to dispatch data loader calls.
+
+## `DataLoaderRegistryFactory`
 
 The [GraphQLRequestHandler](./graphql-request-handler.md) accepts an optional `DataLoaderRegistryFactory` that will be used on every request.
 The `DataLoaderRegistryFactory` generates a new `DataLoaderRegistry` on every request. The registry is a map of a unique data loader names to a `DataLoader` object that handles the cache for an output type in your graph.
 A `DataLoader` caches the types by some unique value, usually by the type id, and can handle different types of batch requests.
+
+`KotlinDataLoaderRegistryFactory` is the default factory implementation that generates new instances of `KotlinDataLoaderRegistry`
+for each request.
+
+## `KotlinDataLoader`
 
 To help in the registration of these various `DataLoaders`, we have created a basic interface `KotlinDataLoader`:
 
@@ -81,6 +94,6 @@ class User(val id: ID) {
 
 :::info
 Because the execution of data loaders is handled by `graphql-java`, which runs using `CompletionStage`, currently we can
-not support `suspend` functions when envoking data loaders. Instead, return the `CompletableFuture` directly from the `DataLoader`
+not support `suspend` functions when invoking data loaders. Instead, return the `CompletableFuture` directly from the `DataLoader`
 response in your schema functions. See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
 :::

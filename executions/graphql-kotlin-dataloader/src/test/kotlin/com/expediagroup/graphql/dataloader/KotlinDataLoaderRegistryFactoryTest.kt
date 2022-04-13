@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution.dataloader
+package com.expediagroup.graphql.dataloader
 
 import io.mockk.mockk
 import org.dataloader.BatchLoader
@@ -22,16 +22,16 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DefaultDataLoaderRegistryFactoryTest {
+class KotlinDataLoaderRegistryFactoryTest {
     @Test
     fun `generate registry with empty list`() {
-        val registry = DefaultDataLoaderRegistryFactory(emptyList()).generate()
+        val registry = KotlinDataLoaderRegistryFactory(emptyList()).generate()
         assertTrue(registry.dataLoaders.isEmpty())
     }
 
     @Test
     fun `generate registry with no args`() {
-        val registry = DefaultDataLoaderRegistryFactory().generate()
+        val registry = KotlinDataLoaderRegistryFactory().generate()
         assertTrue(registry.dataLoaders.isEmpty())
     }
 
@@ -42,7 +42,7 @@ class DefaultDataLoaderRegistryFactoryTest {
             override fun getBatchLoader(): BatchLoader<String, String> = mockk()
         }
 
-        val registry = DefaultDataLoaderRegistryFactory(listOf(mockLoader)).generate()
+        val registry = KotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate()
         assertEquals(1, registry.dataLoaders.size)
     }
 }

@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.transactionbatcher.instrumentation.level
 
-import com.expediagroup.graphql.server.execution.dataloader.DefaultDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.Astronaut
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautDataLoader
 import com.expediagroup.graphql.transactionbatcher.instrumentation.datafetcher.AstronautService
@@ -39,7 +40,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -116,13 +116,13 @@ class TransactionLoaderLevelInstrumentationTest {
         )
 
         val dataLoaderRegistry = spyk(
-            DefaultDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(), MissionDataLoader()
             ).generate()
         )
 
         val graphQLContext = mapOf(
-            DataLoaderRegistry::class to dataLoaderRegistry,
+            KotlinDataLoaderRegistry::class to dataLoaderRegistry,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
@@ -162,13 +162,13 @@ class TransactionLoaderLevelInstrumentationTest {
         )
 
         val dataLoaderRegistry = spyk(
-            DefaultDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(), MissionDataLoader()
             ).generate()
         )
 
         val graphQLContext = mapOf(
-            DataLoaderRegistry::class to dataLoaderRegistry,
+            KotlinDataLoaderRegistry::class to dataLoaderRegistry,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 
@@ -212,13 +212,13 @@ class TransactionLoaderLevelInstrumentationTest {
         )
 
         val dataLoaderRegistry = spyk(
-            DefaultDataLoaderRegistryFactory(
+            KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader()
             ).generate()
         )
 
         val graphQLContext = mapOf(
-            DataLoaderRegistry::class to dataLoaderRegistry,
+            KotlinDataLoaderRegistry::class to dataLoaderRegistry,
             ExecutionLevelInstrumentationState::class to ExecutionLevelInstrumentationState(queries.size)
         )
 

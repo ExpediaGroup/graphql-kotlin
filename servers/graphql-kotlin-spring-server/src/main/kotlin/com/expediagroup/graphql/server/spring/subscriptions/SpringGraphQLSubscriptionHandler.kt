@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.execution.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
