@@ -18,7 +18,7 @@ package com.expediagroup.graphql.generator.annotations
 
 import kotlin.reflect.KClass
 
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.ANNOTATION_CLASS)
 annotation class GraphQLUnion(
     val name: String,
     val possibleTypes: Array<KClass<*>>,

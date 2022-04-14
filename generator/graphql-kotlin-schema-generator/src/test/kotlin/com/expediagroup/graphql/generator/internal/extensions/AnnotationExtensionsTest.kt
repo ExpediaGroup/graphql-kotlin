@@ -19,11 +19,13 @@ package com.expediagroup.graphql.generator.internal.extensions
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -38,10 +40,19 @@ class AnnotationExtensionsTest {
         @property:Deprecated("property deprecated")
         @property:GraphQLDescription("property description")
         @property:GraphQLName("newName")
-        val id: String
+        val id: String,
+
+        @GraphQLUnion(name = "CustomUnion", possibleTypes = [NoAnnotations::class])
+        val union: Any,
+
+        @property:MetaUnion
+        val metaUnion: Any
     )
 
     private data class NoAnnotations(val id: String)
+
+    @GraphQLUnion(name = "MetaUnion", possibleTypes = [NoAnnotations::class])
+    annotation class MetaUnion
 
     @Test
     fun `verify @GraphQLName on classes`() {
@@ -83,6 +94,22 @@ class AnnotationExtensionsTest {
         @Suppress("DEPRECATION")
         assertTrue(WithAnnotations::class.isGraphQLIgnored())
         assertFalse(NoAnnotations::class.isGraphQLIgnored())
+    }
+
+    @Test
+    fun `verify @GraphQLUnion`() {
+        @Suppress("DEPRECATION")
+        assertNotNull(WithAnnotations::class.findMemberProperty("union")?.annotations?.getUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNull(WithAnnotations::class.findMemberProperty("union")?.annotations?.getCustomUnionClassWithMetaUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNotNull(WithAnnotations::class.findMemberProperty("metaUnion")?.annotations?.getUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNotNull(WithAnnotations::class.findMemberProperty("metaUnion")?.annotations?.getCustomUnionClassWithMetaUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNull(WithAnnotations::class.findMemberProperty("id")?.annotations?.getUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNull(WithAnnotations::class.findMemberProperty("id")?.annotations?.getCustomUnionClassWithMetaUnionAnnotation())
     }
 
     private fun KClass<*>.findMemberProperty(name: String) = this.declaredMemberProperties.find { it.name == name }
