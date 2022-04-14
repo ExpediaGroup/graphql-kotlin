@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.internal.types
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getCustomTypeAnnotation
+import com.expediagroup.graphql.generator.internal.extensions.getCustomUnionClassWithMetaUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isEnum
@@ -79,7 +80,12 @@ private fun getGraphQLType(
     return when {
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
         kClass.isListType() -> generateList(generator, type, typeInfo)
-        kClass.isUnion(typeInfo.fieldAnnotations) -> generateUnion(generator, kClass, typeInfo.fieldAnnotations.getUnionAnnotation())
+        kClass.isUnion(typeInfo.fieldAnnotations) -> generateUnion(
+            generator,
+            kClass,
+            typeInfo.fieldAnnotations.getUnionAnnotation(),
+            typeInfo.fieldAnnotations.getCustomUnionClassWithMetaUnionAnnotation()
+        )
         kClass.isInterface() -> generateInterface(generator, kClass)
         typeInfo.inputType -> generateInputObject(generator, kClass)
         else -> generateObject(generator, kClass)

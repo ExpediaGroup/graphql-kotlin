@@ -157,7 +157,16 @@ open class KClassExtensionsTest {
 
         @GraphQLUnion(name = "InvalidUnion", possibleTypes = [One::class, Two::class])
         fun invalidCustomUnion(): Int = 1
+
+        @MetaUnion
+        fun customMetaUnion(): Any = One("1")
+
+        @MetaUnion
+        fun invalidCustomMetaUnion(): Int = 1
     }
+
+    @GraphQLUnion(name = "MetaUnion", possibleTypes = [One::class, Two::class])
+    annotation class MetaUnion
 
     private class FilterHooks : SchemaGeneratorHooks {
         override fun isValidProperty(kClass: KClass<*>, property: KProperty<*>) =
@@ -283,11 +292,15 @@ open class KClassExtensionsTest {
         assertTrue(TestUnion::class.isUnion())
         val customAnnotationUnion = TestQuery::customUnion
         assertTrue(customAnnotationUnion.returnType.getKClass().isUnion(customAnnotationUnion.annotations))
+        val metaAnnotationUnion = TestQuery::customMetaUnion
+        assertTrue(metaAnnotationUnion.returnType.getKClass().isUnion(metaAnnotationUnion.annotations))
         assertFalse(InvalidPropertyUnionInterface::class.isUnion())
         assertFalse(InvalidFunctionUnionInterface::class.isUnion())
         assertFalse(Pet::class.isUnion())
         val invalidAnnotationUnion = TestQuery::invalidCustomUnion
         assertFalse(invalidAnnotationUnion.returnType.getKClass().isUnion(invalidAnnotationUnion.annotations))
+        val invalidMetaAnnotationUnion = TestQuery::invalidCustomMetaUnion
+        assertFalse(invalidMetaAnnotationUnion.returnType.getKClass().isUnion(invalidMetaAnnotationUnion.annotations))
     }
 
     @Test
