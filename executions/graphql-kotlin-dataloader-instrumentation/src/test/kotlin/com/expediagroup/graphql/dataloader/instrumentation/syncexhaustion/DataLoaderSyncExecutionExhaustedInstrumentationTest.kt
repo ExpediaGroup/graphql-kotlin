@@ -295,7 +295,6 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
-        assertEquals(32, missionsByAstronautStatistics?.batchLoadCount)
 
         verify(exactly = 2) {
             kotlinDataLoaderRegistry.dispatchAll()
