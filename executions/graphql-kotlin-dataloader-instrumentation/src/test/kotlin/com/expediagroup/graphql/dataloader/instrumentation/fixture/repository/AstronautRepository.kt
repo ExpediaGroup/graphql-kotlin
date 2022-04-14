@@ -21,6 +21,7 @@ import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
+import java.util.*
 
 object AstronautRepository {
     private val astronauts = listOf(
@@ -58,9 +59,23 @@ object AstronautRepository {
         Astronaut(32, "Alfred Worden")
     )
 
-    fun getAstronauts(astronautIds: List<Int>): Flux<Astronaut?> =
-        astronautIds
-            .map { astronautId -> astronauts[astronautId] }.toMono()
-            .delayElement(Duration.ofMillis(200))
-            .flatMapMany { astronauts -> astronauts.toFlux() }
+    fun getAstronauts(astronautIds: List<Int>): Flux<Optional<Astronaut>> = when {
+        astronautIds.isNotEmpty() -> {
+            astronautIds
+                .map { astronautId ->
+                    astronauts.getOrNull(astronautId)
+                        ?.let { Optional.of(it) }
+                        ?: Optional.empty<Astronaut>()
+                }.toMono()
+                .delayElement(Duration.ofMillis(200))
+                .flatMapMany { it.toFlux() }
+        }
+        else -> {
+            astronauts
+                .map { Optional.of(it) }
+                .toMono()
+                .delayElement(Duration.ofMillis(200))
+                .flatMapMany { it.toFlux() }
+        }
+    }
 }

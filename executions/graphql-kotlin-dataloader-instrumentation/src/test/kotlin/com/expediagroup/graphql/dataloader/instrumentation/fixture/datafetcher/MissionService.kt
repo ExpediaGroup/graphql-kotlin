@@ -19,20 +19,24 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.MissionRepository
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
+import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
 data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 
-class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission> {
+class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
     override val dataLoaderName: String = "MissionDataLoader"
-    override fun getBatchLoader(): BatchLoader<MissionServiceRequest, Mission> =
-        BatchLoader<MissionServiceRequest, Mission> { keys ->
+    override fun getBatchLoader(): BatchLoader<MissionServiceRequest, Mission?> =
+        BatchLoader<MissionServiceRequest, Mission?> { keys ->
             MissionRepository
                 .getMissions(keys.map(MissionServiceRequest::id))
-                .collectList().toFuture()
+                .collectList()
+                .map(List<Optional<Mission>>::toListOfNullables)
+                .toFuture()
         }
 }
 
@@ -54,6 +58,24 @@ class MissionService {
         environment
             .getDataLoaderFromContext<MissionServiceRequest, Mission>("MissionDataLoader")
             .load(request)
+
+    fun getMissions(
+        requests: List<MissionServiceRequest>,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Mission?>> = when {
+        requests.isNotEmpty() -> {
+            environment
+                .getDataLoaderFromContext<MissionServiceRequest, Mission>("MissionDataLoader")
+                .loadMany(requests)
+        }
+        else -> {
+            MissionRepository
+                .getMissions(emptyList())
+                .collectList()
+                .map(List<Optional<Mission>>::toListOfNullables)
+                .toFuture()
+        }
+    }
 
     fun getMissionsByAstronaut(
         request: MissionServiceRequest,

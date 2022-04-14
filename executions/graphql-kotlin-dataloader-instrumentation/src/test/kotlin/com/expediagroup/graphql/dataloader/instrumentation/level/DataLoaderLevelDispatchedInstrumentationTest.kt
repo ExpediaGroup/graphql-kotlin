@@ -16,20 +16,9 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.level
 
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.TestGraphQL
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionsByAstronautDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
-import graphql.ExecutionInput
-import io.mockk.spyk
 import io.mockk.verify
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -49,26 +38,11 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val kotlinDataLoaderRegistry = spyk(
-            KotlinDataLoaderRegistryFactory(
-                AstronautDataLoader(), MissionDataLoader()
-            ).generate()
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
         )
-
-        val graphQLContext = mapOf(
-            KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(queries.size)
-        )
-
-        val results = runBlocking {
-            queries.map { query ->
-                async {
-                    graphQL.executeAsync(
-                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
-                    ).await()
-                }
-            }.awaitAll()
-        }
 
         assertEquals(4, results.size)
 
@@ -95,26 +69,11 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val kotlinDataLoaderRegistry = spyk(
-            KotlinDataLoaderRegistryFactory(
-                AstronautDataLoader(), MissionDataLoader()
-            ).generate()
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
         )
-
-        val graphQLContext = mapOf(
-            KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(queries.size)
-        )
-
-        val results = runBlocking {
-            queries.map { query ->
-                async {
-                    graphQL.executeAsync(
-                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
-                    ).await()
-                }
-            }.awaitAll()
-        }
 
         assertEquals(4, results.size)
 
@@ -145,26 +104,11 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val kotlinDataLoaderRegistry = spyk(
-            KotlinDataLoaderRegistryFactory(
-                AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader()
-            ).generate()
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
         )
-
-        val graphQLContext = mapOf(
-            KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-            ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(queries.size)
-        )
-
-        val results = runBlocking {
-            queries.map { query ->
-                async {
-                    graphQL.executeAsync(
-                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
-                    ).await()
-                }
-            }.awaitAll()
-        }
 
         assertEquals(4, results.size)
 
