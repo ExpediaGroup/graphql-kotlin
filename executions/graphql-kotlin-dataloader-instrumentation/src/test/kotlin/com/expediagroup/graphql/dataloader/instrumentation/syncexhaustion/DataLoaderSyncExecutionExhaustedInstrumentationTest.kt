@@ -293,11 +293,12 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(1, results.size)
 
+        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
         val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
-        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
 
-        verify(exactly = 2) {
-            kotlinDataLoaderRegistry.dispatchAll()
-        }
+        assertEquals(0, astronautStatistics?.batchInvokeCount)
+        assertEquals(0, missionStatistics?.batchInvokeCount)
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
     }
 }
