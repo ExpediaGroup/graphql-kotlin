@@ -19,20 +19,24 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Astronaut
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
+import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
 data class AstronautServiceRequest(val id: Int)
 
-class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut> {
+class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?> {
     override val dataLoaderName: String = "AstronautDataLoader"
-    override fun getBatchLoader(): BatchLoader<AstronautServiceRequest, Astronaut> =
-        BatchLoader<AstronautServiceRequest, Astronaut> { keys ->
+    override fun getBatchLoader(): BatchLoader<AstronautServiceRequest, Astronaut?> =
+        BatchLoader<AstronautServiceRequest, Astronaut?> { keys ->
             AstronautRepository
                 .getAstronauts(keys.map(AstronautServiceRequest::id))
-                .collectList().toFuture()
+                .collectList()
+                .map(List<Optional<Astronaut>>::toListOfNullables)
+                .toFuture()
         }
 }
 
@@ -44,4 +48,22 @@ class AstronautService {
         environment
             .getDataLoaderFromContext<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
             .load(request)
+
+    fun getAstronauts(
+        requests: List<AstronautServiceRequest>,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Astronaut?>> = when {
+        requests.isNotEmpty() -> {
+            environment
+                .getDataLoaderFromContext<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+                .loadMany(requests)
+        }
+        else -> {
+            AstronautRepository
+                .getAstronauts(emptyList())
+                .collectList()
+                .map(List<Optional<Astronaut>>::toListOfNullables)
+                .toFuture()
+        }
+    }
 }

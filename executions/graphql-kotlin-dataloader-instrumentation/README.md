@@ -33,40 +33,43 @@ implementation("com.expediagroup:graphql-kotlin-dataloader-instrumentation:$late
 ## Use it
 
 When creating your `GraphQL` instance make sure to include either
-`DataLoaderLevelDispatchedInstrumentation` or `DataLoaderSyncExhaustionInstrumentation`.
+`DataLoaderLevelDispatchedInstrumentation` or `DataLoaderSyncExecutionExhaustedInstrumentation`.
 
 ```kotlin
 GraphQL
-    .instrumentation(DataLoaderSyncExhaustionInstrumentation())
+    .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
     // configure schema, type wiring, etc.
     .build()
 ```
 
-When ready to execute an operation or operations make sure to create a single instance of `KotlinDataLoaderRegistry`
-and an instance of either `ExecutionLevelInstrumentationState` or `SyncExhaustionInstrumentationState`
-and store them in the `graphQLContext`.
+When ready to execute an operation or operations create a `GraphQLContext` instance with the following entries:
+1. An instance of `KotlinDataLoaderRegistry`
+2. Either:
+    - An instance of `ExecutionLevelDispatchedState` if you choose `DataLoaderLevelDispatchedInstrumentation`.
+    - An instance of `SyncExecutionExhaustedState` if you choose `DataLoaderSyncExecutionExhaustedInstrumentation`.
+
 
 ```kotlin
 val queries = [
     """
-         query Query1 {
-           nasa {
-             astronaut(id: 1)
-           }
-         }
+      query Query1 {
+        nasa {
+          astronaut(id: 1)
+        }
+      }
     """,
     """
-         query Query1 {
-           nasa {
-             astronaut(id: 1)
-           }
-         }
+      query Query1 {
+        nasa {
+          astronaut(id: 2)
+        }
+      }
     """
 ]
 
 val graphQLContext = mapOf(
     KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
-    SyncExhaustionInstrumentationState::class to SyncExhaustionInstrumentationState(
+    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
         queries.size,
         kotlinDataLoaderRegistry
     )
@@ -81,9 +84,9 @@ val result2 = graphQL.executeAsync(executionInput2)
 
 - `DataLoaderLevelDispatchedInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
   a certain level of all executionInputs was dispatched (all DataFetchers were invoked).
-- `DataLoaderSyncExhaustionInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
+- `DataLoaderSyncExecutionExhaustedInstrumentation` will dispatch the `KotlinDataLoaderRegistry` instance when
   the synchronous execution of an operation exhausted (synchronous execution will be exhausted when all data fetchers
-  of all paths executed up until a scalar leaf, or a [CompletableFuture]).
+  of all paths executed up until a scalar leaf, or a `CompletableFuture`).
 
 This way even if you are executing 2 separate operations you can still batch operations triggered from a DataFetcher.
 
@@ -91,7 +94,7 @@ This way even if you are executing 2 separate operations you can still batch ope
 
 You can use the `DataFetchingEnvironment` which is passed to each
 `DataFetcher` and invoke the `getDataLoaderFromContext(dataLoaderName)` method which will access to the `KotlinDataLoaderRegistry`
-in the `GraphQLContext` and provide the `DataLaoder` that you specified as `dataLoaderName` argument.
+in the `GraphQLContext` and provide the `DataLoader` that you specified as `dataLoaderName` argument.
 
 ```kotlin
 class AstronautService {
