@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,18 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.execution.AbortExecutionException
+import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -47,10 +50,10 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query`() = runBlockingTest {
+    fun `execute graphQL query`() = runTest {
         val request = GraphQLRequest(query = "query { random }")
 
-        val response = graphQLRequestHandler.executeRequest(request)
+        val response = graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["random"] as? Int)
         }
@@ -60,10 +63,10 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with arguments`() = runBlockingTest {
+    fun `execute graphQL query with arguments`() = runTest {
         val request = GraphQLRequest(query = "query { hello(name: \"JUNIT\") }")
 
-        val response = graphQLRequestHandler.executeRequest(request)
+        val response = graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["hello"] as? String) { msg ->
                 assertEquals("Hello JUNIT!", msg)
@@ -75,14 +78,16 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with variables`() = runBlockingTest {
-        val request = GraphQLRequest(
-            query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
-            variables = mapOf("name" to "JUNIT with variables"),
-            operationName = "helloWorldQuery"
-        )
+    fun `execute graphQL query with variables`() {
+        val response = runBlocking {
+            val request = GraphQLRequest(
+                query = "query helloWorldQuery(\$name: String!) { hello(name: \$name) }",
+                variables = mapOf("name" to "JUNIT with variables"),
+                operationName = "helloWorldQuery"
+            )
+            graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
+        }
 
-        val response = graphQLRequestHandler.executeRequest(request)
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["hello"] as? String) { msg ->
                 assertEquals("Hello JUNIT with variables!", msg)
@@ -94,10 +99,12 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute failing graphQL query`() = runBlockingTest {
-        val request = GraphQLRequest(query = "query { alwaysThrows }")
+    fun `execute failing graphQL query`() {
+        val response = runBlocking {
+            val request = GraphQLRequest(query = "query { alwaysThrows }")
+            graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
+        }
 
-        val response = graphQLRequestHandler.executeRequest(request)
         assertNull(response.data)
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
@@ -109,11 +116,13 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with context`() = runBlockingTest {
-        val context = MyContext("JUNIT context value")
-        val request = GraphQLRequest(query = "query { contextualValue }")
+    fun `execute graphQL query with context`() {
+        val response = runBlocking {
+            val context = MyContext("JUNIT context value")
+            val request = GraphQLRequest(query = "query { contextualValue }")
+            graphQLRequestHandler.executeRequest(request, context) as GraphQLResponse<*>
+        }
 
-        val response = graphQLRequestHandler.executeRequest(request, context)
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["contextualValue"] as? String) { msg ->
                 assertEquals("JUNIT context value", msg)
@@ -125,11 +134,17 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query with graphql context map`() = runBlockingTest {
-        val context = mapOf("foo" to "JUNIT context value")
-        val request = GraphQLRequest(query = "query { graphQLContextualValue }")
+    fun `execute graphQL query with graphql context map`() {
+        val response = runBlocking {
+            val context = mapOf("foo" to "JUNIT context value")
+            val request = GraphQLRequest(query = "query { graphQLContextualValue }")
+            graphQLRequestHandler.executeRequest(
+                request,
+                context = null,
+                graphQLContext = context
+            ) as GraphQLResponse<*>
+        }
 
-        val response = graphQLRequestHandler.executeRequest(request, context = null, graphQLContext = context)
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["graphQLContextualValue"] as? String) { msg ->
                 assertEquals("JUNIT context value", msg)
@@ -141,29 +156,40 @@ class GraphQLRequestHandlerTest {
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query throwing uncaught exception`() = runBlockingTest {
-        val mockGraphQL: GraphQL = mockk {
-            every { executeAsync(any<ExecutionInput>()) } throws RuntimeException("Uncaught JUNIT")
+    fun `execute graphQL query throwing uncaught exception`() {
+        val response = runBlocking {
+            val mockGraphQL = mockk<GraphQL> {
+                every { executeAsync(any<ExecutionInput>()) } throws RuntimeException("Uncaught JUNIT")
+                every { instrumentation } returns ChainedInstrumentation()
+            }
+            val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
+            mockQueryHandler.executeRequest(
+                GraphQLRequest(query = "query { whatever }")
+            ) as GraphQLResponse<*>
         }
-        val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
-        val response = mockQueryHandler.executeRequest(GraphQLRequest(query = "query { whatever }"))
+
         assertNull(response.data)
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)
-            val error = errors.first()
-            assertEquals("Uncaught JUNIT", error.message)
+            assertEquals("Uncaught JUNIT", errors.first().message)
         }
         assertNull(response.extensions)
     }
 
     @Test
     @ExperimentalCoroutinesApi
-    fun `execute graphQL query throwing uncaught graphql exception`() = runBlockingTest {
-        val mockGraphQL: GraphQL = mockk {
-            every { executeAsync(any<ExecutionInput>()) } throws AbortExecutionException("Uncaught abort exception")
+    fun `execute graphQL query throwing uncaught graphql exception`() {
+        val response = runBlocking {
+            val mockGraphQL = mockk<GraphQL> {
+                every { executeAsync(any<ExecutionInput>()) } throws AbortExecutionException("Uncaught abort exception")
+                every { instrumentation } returns ChainedInstrumentation()
+            }
+            val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
+            mockQueryHandler.executeRequest(
+                GraphQLRequest(query = "query { whatever }")
+            )  as GraphQLResponse<*>
         }
-        val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
-        val response = mockQueryHandler.executeRequest(GraphQLRequest(query = "query { whatever }"))
+
         assertNull(response.data)
         assertNotNull(response.errors) { errors ->
             assertEquals(1, errors.size)

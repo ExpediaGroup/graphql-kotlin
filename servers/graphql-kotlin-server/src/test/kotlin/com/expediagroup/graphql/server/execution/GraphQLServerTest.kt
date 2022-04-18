@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 @ExperimentalCoroutinesApi
@@ -55,7 +55,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.execute(mockk()) }
+        runBlocking { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
@@ -89,14 +89,14 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.execute(mockk()) }
+        runBlocking { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
             mockContextFactory.generateContext(any())
             mockContextFactory.generateContextMap(any())
         }
-        coVerify(exactly = 2) {
+        coVerify(exactly = 1) {
             mockHandler.executeRequest(any(), any(), any())
         }
     }
@@ -118,7 +118,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.execute(mockk()) }
+        runBlocking { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
@@ -143,7 +143,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.execute(mockk()) }
+        runBlocking { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())
@@ -168,7 +168,7 @@ class GraphQLServerTest {
 
         val server = GraphQLServer(mockParser, mockContextFactory, mockHandler)
 
-        runBlockingTest { server.execute(mockk()) }
+        runBlocking { server.execute(mockk()) }
 
         coVerify(exactly = 1) {
             mockParser.parseRequest(any())

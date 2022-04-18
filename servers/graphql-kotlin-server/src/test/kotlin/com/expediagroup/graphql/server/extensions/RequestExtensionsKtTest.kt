@@ -16,8 +16,12 @@
 
 package com.expediagroup.graphql.server.extensions
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.mockk
+import org.dataloader.BatchLoader
 import org.dataloader.DataLoaderRegistry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -25,7 +29,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class RequestExtensionsKtTest {
-
     @Test
     fun `verify can convert simple request to execution input with defaults`() {
         val request = GraphQLRequest(query = "query { whatever }")
@@ -60,8 +63,13 @@ class RequestExtensionsKtTest {
     @Test
     fun `verify can convert request with data loader registry to execution input`() {
         val request = GraphQLRequest(query = "query { whatever }")
-        val dataLoaderRegistry = DataLoaderRegistry()
-        dataLoaderRegistry.register("abc", mockk())
+        val dataLoaderRegistry = KotlinDataLoaderRegistryFactory(
+            object: KotlinDataLoader<String, String> {
+                override val dataLoaderName: String = "abc"
+                override fun getBatchLoader(): BatchLoader<String, String> = mockk()
+
+            }
+        ).generate()
 
         val executionInput = request.toExecutionInput(dataLoaderRegistry = dataLoaderRegistry)
         assertEquals(request.query, executionInput.query)

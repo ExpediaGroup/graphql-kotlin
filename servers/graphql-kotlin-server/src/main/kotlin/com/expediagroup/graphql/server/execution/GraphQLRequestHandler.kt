@@ -81,29 +81,25 @@ open class GraphQLRequestHandler(
                         val contextWithDataLoaderInstrumentationState = graphQLContext + (
                             dataLoaderRegistry?.let {
                                 when (batchingInstrumentationStrategy) {
-                                    DataLoaderLevelDispatchedInstrumentation::javaClass -> {
-                                        mapOf(
-                                            ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
-                                                graphQLRequest.requests.size
-                                            )
+                                    DataLoaderLevelDispatchedInstrumentation::javaClass -> mapOf(
+                                        ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
+                                            graphQLRequest.requests.size
                                         )
-                                    }
-                                    DataLoaderSyncExecutionExhaustedInstrumentation::javaClass -> {
-                                        mapOf(
-                                            SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                                                graphQLRequest.requests.size,
-                                                dataLoaderRegistry
-                                            )
+                                    )
+                                    DataLoaderSyncExecutionExhaustedInstrumentation::javaClass -> mapOf(
+                                        SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
+                                            graphQLRequest.requests.size,
+                                            dataLoaderRegistry
                                         )
-                                    }
+                                    )
                                     else -> null
                                 }
                             } ?: emptyMap()
-                            )
+                        )
                         GraphQLBatchResponse(
                             execute(
                                 graphQLRequest.requests.map {
-                                    it.toExecutionInput(context, dataLoaderRegistry, contextWithDataLoaderInstrumentationState)
+                                    it.toExecutionInput(context, null, contextWithDataLoaderInstrumentationState)
                                 }
                             )
                         )

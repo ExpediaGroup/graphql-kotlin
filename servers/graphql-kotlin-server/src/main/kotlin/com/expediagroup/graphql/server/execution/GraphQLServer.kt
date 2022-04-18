@@ -41,19 +41,25 @@ open class GraphQLServer<Request>(
      * In the case of errors or exceptions, return a response with GraphQLErrors populated.
      * If you need custom logic inside this method you can override this class or choose not to use it.
      */
-    open suspend fun execute(request: Request): GraphQLServerResponse? = coroutineScope {
-        requestParser.parseRequest(request)?.let { graphQLRequest ->
-            val deprecatedContext = contextFactory.generateContext(request)
-            val contextMap = contextFactory.generateContextMap(request)
+    open suspend fun execute(
+        request: Request
+    ): GraphQLServerResponse? =
+        coroutineScope {
+            requestParser.parseRequest(request)?.let { graphQLRequest ->
+                val deprecatedContext = contextFactory.generateContext(request)
+                val contextMap = contextFactory.generateContextMap(request)
 
-            val customCoroutineContext: CoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
-                (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
-            val graphQLExecutionScope = CoroutineScope(coroutineContext + customCoroutineContext + SupervisorJob())
-            val graphQLContext = contextMap + mapOf(
-                CoroutineScope::class to graphQLExecutionScope
-            )
+                val customCoroutineContext =
+                    (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
+                    (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+                val graphQLExecutionScope = CoroutineScope(
+                    coroutineContext + customCoroutineContext + SupervisorJob()
+                )
+                val graphQLContext = contextMap + mapOf(
+                    CoroutineScope::class to graphQLExecutionScope
+                )
 
-            requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
+                requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
+            }
         }
-    }
 }
