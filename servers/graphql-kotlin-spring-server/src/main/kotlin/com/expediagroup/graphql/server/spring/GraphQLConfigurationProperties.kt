@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ data class GraphQLConfigurationProperties(
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
-    val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties()
+    val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
+    val batching: BatchingConfigurationProperties = BatchingConfigurationProperties()
 ) {
     /**
      * Apollo Federation configuration properties.
@@ -102,5 +103,20 @@ data class GraphQLConfigurationProperties(
     data class IntrospectionConfigurationProperties(
         /** Boolean flag indicating whether introspection queries are enabled. */
         val enabled: Boolean = true
+    )
+
+    /**
+     * Approaches for batching transactions of a set of GraphQL Operations.
+     */
+    enum class BatchingStrategy { LEVEL_DISPATCHED, SYNC_EXHAUSTION }
+
+    /**
+     * Batching configuration properties.
+     */
+    data class BatchingConfigurationProperties(
+        /** Boolean flag to enable or disable batching for a set of GraphQL Operations. */
+        val enabled: Boolean = false,
+        /** configure the [BatchingStrategy] that will be used when batching is enabled for a set of GraphQL Operations. */
+        val strategy: BatchingStrategy = BatchingStrategy.LEVEL_DISPATCHED
     )
 }

@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.extensions
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
 import org.dataloader.DataLoaderRegistry
@@ -25,7 +26,7 @@ import org.dataloader.DataLoaderRegistry
  */
 fun GraphQLRequest.toExecutionInput(
     graphQLContext: Any? = null,
-    dataLoaderRegistry: DataLoaderRegistry? = null,
+    dataLoaderRegistry: KotlinDataLoaderRegistry? = null,
     graphQLContextMap: Map<*, Any>? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
@@ -39,4 +40,7 @@ fun GraphQLRequest.toExecutionInput(
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()
 
+/**
+ * Without doing a parsing attempt to check if the [GraphQLRequest] is a mutation
+ */
 fun GraphQLRequest.isMutation(): Boolean = query.contains("mutation ")
