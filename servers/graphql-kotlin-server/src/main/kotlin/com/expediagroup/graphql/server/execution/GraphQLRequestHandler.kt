@@ -70,10 +70,8 @@ open class GraphQLRequestHandler(
     ): GraphQLServerResponse =
         when (graphQLRequest) {
             is GraphQLRequest -> {
-                GraphQLResponse(
-                    execute(
-                        graphQLRequest.toExecutionInput(context, dataLoaderRegistryFactory?.generate(), graphQLContext)
-                    )
+                execute(
+                    graphQLRequest.toExecutionInput(context, dataLoaderRegistryFactory?.generate(), graphQLContext)
                 )
             }
             is GraphQLBatchRequest -> {
@@ -135,8 +133,8 @@ open class GraphQLRequestHandler(
 
     private suspend fun execute(
         executionInputs: List<ExecutionInput>
-    ): List<GraphQLResponse<*>> =
-        supervisorScope {
+    ): List<GraphQLResponse<*>> {
+        return supervisorScope {
             executionInputs.map { executionInput ->
                 async {
                     try {
@@ -148,4 +146,5 @@ open class GraphQLRequestHandler(
                 }
             }.awaitAll()
         }
+    }
 }
