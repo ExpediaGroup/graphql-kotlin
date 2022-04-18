@@ -133,18 +133,12 @@ open class GraphQLRequestHandler(
 
     private suspend fun execute(
         executionInputs: List<ExecutionInput>
-    ): List<GraphQLResponse<*>> {
-        return supervisorScope {
+    ): List<GraphQLResponse<*>> =
+        supervisorScope {
             executionInputs.map { executionInput ->
                 async {
-                    try {
-                        execute(executionInput)
-                    } catch (exception: Exception) {
-                        val error = exception.toGraphQLError()
-                        GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType()))
-                    }
+                    execute(executionInput)
                 }
             }.awaitAll()
         }
-    }
 }
