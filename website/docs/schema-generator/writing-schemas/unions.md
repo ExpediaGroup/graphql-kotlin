@@ -103,11 +103,37 @@ class Query {
 }
 ```
 
+If directives are needed, this can also be used as a meta-annotation
+
+### Example Usage
+```kotlin
+// Defined in some other library
+class SharedModel(val foo: String)
+
+// Our code
+class ServiceModel(val bar: String)
+
+
+@SomeDirective
+@GraphQLUnion(
+    name = "CustomUnion",
+    possibleTypes = [SharedModel::class, ServiceModel::class],
+    description = "Return one or the other model"
+)
+annotation class CustomUnion
+
+class Query {
+    @CustomUnion
+    fun getModel(): Any = ServiceModel("abc")
+}
+```
+
 The annotation requires the `name` of the new union to create and the `possibleTypes` that this union can return.
 However since we can not enforce the type checks anymore, you must use `Any` as the return type.
 
 ### Limitations
-Since this union is defined with an added annotation it is not currently possible to add directives directly to this union definition.
+Even when using it as a meta-annotation, it is not always possible to add directives to the union definition
+if the directive annotation cannot apply to an annotation class.
 You will have to modify the type with [schema generator hooks](../customizing-schemas/generator-config.md).
 
 [@GraphQLType](../customizing-schemas/custom-type-reference.md) annotation can be used as a workaround to this issue.

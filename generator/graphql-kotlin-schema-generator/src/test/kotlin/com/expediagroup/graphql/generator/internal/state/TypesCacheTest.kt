@@ -24,6 +24,7 @@ import graphql.schema.GraphQLNamedType
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.findParameterByName
 import kotlin.reflect.full.starProjectedType
 import kotlin.test.assertEquals
@@ -49,6 +50,10 @@ class TypesCacheTest {
         every { name } returns "CustomUnion"
     }
 
+    private val metaUnionGraphQLType: GraphQLNamedType = mockk {
+        every { name } returns "MetaUnion"
+    }
+
     class MyClass {
         fun listFun(list: List<String>) = list.joinToString(separator = ",") { it }
 
@@ -57,9 +62,18 @@ class TypesCacheTest {
         @GraphQLUnion(name = "CustomUnion", possibleTypes = [MyType::class, Int::class])
         fun customUnion(): Any = MyType(1)
 
+        @MetaUnion
+        fun metaUnion(): Any = MyType(1)
+
         @GraphQLUnion(name = "InvalidUnion", possibleTypes = [MyType::class, Int::class])
         fun invalidUnion(): String = "foobar"
+
+        @MetaUnion
+        fun invalidMetaUnion(): String = "foobar"
     }
+
+    @GraphQLUnion(name = "MetaUnion", possibleTypes = [MyType::class, Int::class])
+    annotation class MetaUnion
 
     @Test
     fun `basic get and put with non input type`() {
@@ -151,6 +165,37 @@ class TypesCacheTest {
     }
 
     @Test
+    fun `meta unions are cached by special name`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
+        val type = MyClass::metaUnion.returnType
+        val annotations = MyClass::metaUnion.annotations
+        val typeInfo = GraphQLKTypeMetadata(inputType = false, fieldAnnotations = annotations)
+
+        val cacheKey = TypesCacheKey(type = type, typeInfo.inputType, name = "MetaUnion[MyType,Int]")
+        val cacheValue = KGraphQLType(type.getKClass(), metaUnionGraphQLType)
+
+        assertNull(cache.get(cacheKey))
+        assertNull(cache.get(type = type, typeInfo))
+        assertNotNull(cache.put(cacheKey, cacheValue))
+        assertNotNull(cache.get(type = type, typeInfo))
+    }
+
+    @Test
+    fun `invalid meta unions throw an exception`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
+        val type = MyClass::invalidMetaUnion.returnType
+        val annotations = MyClass::invalidMetaUnion.annotations
+        val typeInfo = GraphQLKTypeMetadata(fieldAnnotations = annotations)
+
+        val cacheKey = TypesCacheKey(type = type, inputType = typeInfo.inputType, name = "InvalidMetaUnion[MyType,Int]")
+
+        assertNull(cache.get(cacheKey))
+        assertFailsWith(InvalidCustomUnionException::class) {
+            cache.get(type = type, typeInfo)
+        }
+    }
+
+    @Test
     fun `verify doesNotContainGraphQLType()`() {
         val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
         val cacheKey = TypesCacheKey(MyType::class.starProjectedType, inputType = true)
@@ -196,5 +241,21 @@ class TypesCacheTest {
 
         assertNotNull(cacheHit)
         assertEquals(expected = cacheValue.graphQLType, actual = cacheHit)
+    }
+
+    @Test
+    fun `buildIfNotUnderConstruction puts custom union into the cache`() {
+        val cache = TypesCache(listOf("com.expediagroup.graphql.generator"))
+        val annotations = MyClass::customUnion.annotations
+        val typeInfo = GraphQLKTypeMetadata(inputType = false, fieldAnnotations = annotations)
+
+        val cacheKey = TypesCacheKey(type = Any::class.createType(), typeInfo.inputType, name = "CustomUnion[MyType,Int]")
+
+        cache.buildIfNotUnderConstruction(MyClass::customUnion.returnType.getKClass(), typeInfo) {
+            customUnionGraphQLType
+        }
+
+        val cacheValue = cache.get(cacheKey)
+        assertNotNull(cacheValue)
     }
 }
