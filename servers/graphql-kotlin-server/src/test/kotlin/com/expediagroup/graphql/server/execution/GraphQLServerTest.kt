@@ -25,7 +25,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 @ExperimentalCoroutinesApi
@@ -104,7 +103,6 @@ class GraphQLServerTest {
 
     @Test
     fun `null context is used and passed to the request handler`() {
-        runTest {  }
         val mockParser = mockk<GraphQLRequestParser<MockHttpRequest>> {
             coEvery { parseRequest(any()) } returns mockk<GraphQLRequest> {
                 every { query } returns "query OperationName { parent { child } }"
