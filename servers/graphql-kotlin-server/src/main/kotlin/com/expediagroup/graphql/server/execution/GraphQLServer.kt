@@ -49,8 +49,7 @@ open class GraphQLServer<Request>(
                 val deprecatedContext = contextFactory.generateContext(request)
                 val contextMap = contextFactory.generateContextMap(request)
 
-                val customCoroutineContext =
-                    (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
+                val customCoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
                     (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
                 val graphQLExecutionScope = CoroutineScope(
                     coroutineContext + customCoroutineContext + SupervisorJob()
