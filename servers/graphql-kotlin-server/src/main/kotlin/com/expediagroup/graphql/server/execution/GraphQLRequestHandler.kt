@@ -23,7 +23,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.state.Execution
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.extensions.isDataLoaderRelatedInstrumentation
+import com.expediagroup.graphql.server.extensions.isDataLoaderInstrumentation
 import com.expediagroup.graphql.server.extensions.isMutation
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
@@ -49,18 +49,18 @@ open class GraphQLRequestHandler(
     private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
 ) {
 
-    private val batchingInstrumentationStrategy: Class<Instrumentation>? by lazy {
-        val instrumentation = graphQL.instrumentation
-        when {
-            instrumentation is ChainedInstrumentation -> {
-                instrumentation.instrumentations
-                    .firstOrNull(Instrumentation::isDataLoaderRelatedInstrumentation)
-                    ?.javaClass
+    private val dataLoaderInstrumentationType: Class<Instrumentation>? =
+        graphQL.instrumentation?.let { instrumentation ->
+            when {
+                instrumentation is ChainedInstrumentation -> {
+                    instrumentation.instrumentations
+                        .firstOrNull(Instrumentation::isDataLoaderInstrumentation)
+                        ?.javaClass
+                }
+                instrumentation.isDataLoaderInstrumentation() -> instrumentation.javaClass
+                else -> null
             }
-            instrumentation.isDataLoaderRelatedInstrumentation() -> instrumentation.javaClass
-            else -> null
         }
-    }
 
     /**
      * Execute a GraphQL request in a non-blocking fashion.
@@ -80,7 +80,7 @@ open class GraphQLRequestHandler(
                 graphQLRequest.requests.none(GraphQLRequest::isMutation) -> {
                     val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
                     val batchingInstrumentationStateContext = dataLoaderRegistry?.let {
-                        when (batchingInstrumentationStrategy) {
+                        when (dataLoaderInstrumentationType) {
                             DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
                                 KotlinDataLoaderRegistry::class to dataLoaderRegistry,
                                 ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
@@ -107,7 +107,7 @@ open class GraphQLRequestHandler(
                                     // if there is a DataLoaderInstrumentation avoid providing the DataLoaderRegistry
                                     // since it will be stored in the GraphQLContext
                                     when {
-                                        batchingInstrumentationStrategy != null -> null
+                                        dataLoaderInstrumentationType != null -> null
                                         else -> dataLoaderRegistry
                                     },
                                     contextWithBatchingInstrumentationState

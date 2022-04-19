@@ -4,6 +4,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevel
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 
-internal fun Instrumentation.isDataLoaderRelatedInstrumentation(): Boolean =
+internal fun Instrumentation.isDataLoaderInstrumentation(): Boolean =
     javaClass == DataLoaderLevelDispatchedInstrumentation::class.java ||
         javaClass == DataLoaderSyncExecutionExhaustedInstrumentation::class.java
