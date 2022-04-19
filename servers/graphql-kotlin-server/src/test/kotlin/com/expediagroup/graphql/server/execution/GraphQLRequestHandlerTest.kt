@@ -16,24 +16,32 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
+import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.server.types.GraphQLBatchRequest
+import com.expediagroup.graphql.server.types.GraphQLBatchResponse
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.ExecutionInput
 import graphql.GraphQL
 import graphql.execution.AbortExecutionException
 import graphql.execution.instrumentation.ChainedInstrumentation
+import graphql.execution.instrumentation.Instrumentation
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
+import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -43,17 +51,36 @@ class GraphQLRequestHandlerTest {
 
     private val testSchema: GraphQLSchema = toSchema(
         config = SchemaGeneratorConfig(supportedPackages = listOf("com.expediagroup.graphql.server.execution")),
-        queries = listOf(TopLevelObject(BasicQuery()))
+        queries = listOf(TopLevelObject(BasicQuery())),
+        mutations = listOf(TopLevelObject(BasicMutation()))
     )
     private val testGraphQL: GraphQL = GraphQL.newGraphQL(testSchema).build()
     private val graphQLRequestHandler = GraphQLRequestHandler(testGraphQL)
 
-    @Test
-    @ExperimentalCoroutinesApi
-    fun `execute graphQL query`() = runTest {
-        val request = GraphQLRequest(query = "query { random }")
+    private fun getBatchingRequestHandler(instrumentation: Instrumentation): GraphQLRequestHandler =
+        GraphQLRequestHandler(
+            GraphQL.newGraphQL(testSchema).doNotAddDefaultInstrumentations().instrumentation(instrumentation).build(),
+            KotlinDataLoaderRegistryFactory(
+                object : KotlinDataLoader<Int, User> {
+                    override val dataLoaderName: String = "UserDataLoader"
+                    override fun getBatchLoader(): BatchLoader<Int, User> = BatchLoader {
+                        CompletableFuture.completedFuture(
+                            listOf(
+                                User(1, "John Doe"),
+                                User(2, "Jane Doe")
+                            )
+                        )
+                    }
+                }
+            )
+        )
 
-        val response = graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
+    @Test
+    fun `execute graphQL query`() {
+        val response = runBlocking {
+            val request = GraphQLRequest(query = "query { random }")
+            graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
+        }
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["random"] as? Int)
         }
@@ -62,11 +89,11 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
-    fun `execute graphQL query with arguments`() = runTest {
-        val request = GraphQLRequest(query = "query { hello(name: \"JUNIT\") }")
-
-        val response = graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
+    fun `execute graphQL query with arguments`() {
+        val response = runBlocking {
+            val request = GraphQLRequest(query = """query { hello(name: "JUNIT") }""")
+            graphQLRequestHandler.executeRequest(request) as GraphQLResponse<*>
+        }
         assertNotNull(response.data as? Map<*, *>) { data ->
             assertNotNull(data["hello"] as? String) { msg ->
                 assertEquals("Hello JUNIT!", msg)
@@ -77,7 +104,6 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `execute graphQL query with variables`() {
         val response = runBlocking {
             val request = GraphQLRequest(
@@ -98,7 +124,6 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `execute failing graphQL query`() {
         val response = runBlocking {
             val request = GraphQLRequest(query = "query { alwaysThrows }")
@@ -115,7 +140,6 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `execute graphQL query with context`() {
         val response = runBlocking {
             val context = MyContext("JUNIT context value")
@@ -133,7 +157,6 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `execute graphQL query with graphql context map`() {
         val response = runBlocking {
             val context = mapOf("foo" to "JUNIT context value")
@@ -155,7 +178,6 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `execute graphQL query throwing uncaught exception`() {
         val response = runBlocking {
             val mockGraphQL = mockk<GraphQL> {
@@ -177,7 +199,6 @@ class GraphQLRequestHandlerTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `execute graphQL query throwing uncaught graphql exception`() {
         val response = runBlocking {
             val mockGraphQL = mockk<GraphQL> {
@@ -187,7 +208,7 @@ class GraphQLRequestHandlerTest {
             val mockQueryHandler = GraphQLRequestHandler(mockGraphQL)
             mockQueryHandler.executeRequest(
                 GraphQLRequest(query = "query { whatever }")
-            )  as GraphQLResponse<*>
+            ) as GraphQLResponse<*>
         }
 
         assertNull(response.data)
@@ -199,8 +220,129 @@ class GraphQLRequestHandlerTest {
         assertNull(response.extensions)
     }
 
+    @Test
+    fun `executes graphQL batch with a mutation`() {
+        val response = runBlocking {
+            val request = GraphQLBatchRequest(
+                GraphQLRequest(query = """query { random }"""),
+                GraphQLRequest(query = """mutation { addUser(name: "John Doe") { id name } }"""),
+            )
+            graphQLRequestHandler.executeRequest(request) as GraphQLBatchResponse
+        }
+        assertEquals(2, response.responses.size)
+        assertNotNull(response.responses[0].data as? Map<*, *>) { data ->
+            assertNotNull(data["random"] as? Int)
+            assertNull(response.responses[0].errors)
+            assertNull(response.responses[0].extensions)
+        }
+        assertNotNull(response.responses[1].data as? Map<*, *>) { data ->
+            assertNotNull(data["addUser"] as? Map<*, *>) { addUser ->
+                assertEquals("John Doe", addUser["name"])
+                assertNotNull(addUser["id"] as? Int)
+                assertNull(response.responses[1].errors)
+                assertNull(response.responses[1].extensions)
+            }
+        }
+    }
+
+    @Test
+    fun `executes graphQL batch with queries`() {
+        val response = runBlocking {
+            val request = GraphQLBatchRequest(
+                GraphQLRequest(query = """query { random }"""),
+                GraphQLRequest(query = """query { hello(name: "JUNIT") }"""),
+            )
+            graphQLRequestHandler.executeRequest(request) as GraphQLBatchResponse
+        }
+        assertEquals(2, response.responses.size)
+        assertNotNull(response.responses[0].data as? Map<*, *>) { data ->
+            assertNotNull(data["random"] as? Int)
+            assertNull(response.responses[0].errors)
+            assertNull(response.responses[0].extensions)
+        }
+        assertNotNull(response.responses[1].data as? Map<*, *>) { data ->
+            assertNotNull(data["hello"] as? String) { msg ->
+                assertEquals("Hello JUNIT!", msg)
+                assertNull(response.responses[1].errors)
+                assertNull(response.responses[1].extensions)
+            }
+        }
+    }
+
+    @Test
+    fun `executes graphQL batch with queries and batching with DataLoaderSyncExecutionExhaustedInstrumentation`() {
+        val response = runBlocking {
+            val request = GraphQLBatchRequest(
+                GraphQLRequest(query = """query { user(id: 1) { id name } }"""),
+                GraphQLRequest(query = """query { user(id: 2) { id name } }"""),
+            )
+            val batchingRequestHandler = getBatchingRequestHandler(DataLoaderSyncExecutionExhaustedInstrumentation())
+            batchingRequestHandler.executeRequest(request) as GraphQLBatchResponse
+        }
+
+        assertEquals(2, response.responses.size)
+        assertNotNull(response.responses[0].data as? Map<*, *>) { data ->
+            assertNotNull(data["user"] as? Map<*, *>) { user ->
+                assertEquals(1, user["id"])
+                assertEquals("John Doe", user["name"])
+                assertNull(response.responses[0].errors)
+                assertNull(response.responses[0].extensions)
+            }
+        }
+        assertNotNull(response.responses[1].data as? Map<*, *>) { data ->
+            assertNotNull(data["user"] as? Map<*, *>) { user ->
+                assertEquals(2, user["id"])
+                assertEquals("Jane Doe", user["name"])
+                assertNull(response.responses[0].errors)
+                assertNull(response.responses[0].extensions)
+            }
+        }
+    }
+
+    @Test
+    fun `executes graphQL batch with queries and batching with ChainedInstrumentation`() {
+        val response = runBlocking {
+            val request = GraphQLBatchRequest(
+                GraphQLRequest(query = """query { user(id: 1) { id name } }"""),
+                GraphQLRequest(query = """query { user(id: 2) { id name } }"""),
+            )
+            val batchingRequestHandler = getBatchingRequestHandler(
+                ChainedInstrumentation(
+                    DataLoaderLevelDispatchedInstrumentation()
+                )
+            )
+            batchingRequestHandler.executeRequest(request) as GraphQLBatchResponse
+        }
+
+        assertEquals(2, response.responses.size)
+        assertNotNull(response.responses[0].data as? Map<*, *>) { data ->
+            assertNotNull(data["user"] as? Map<*, *>) { user ->
+                assertEquals(1, user["id"])
+                assertEquals("John Doe", user["name"])
+                assertNull(response.responses[0].errors)
+                assertNull(response.responses[0].extensions)
+            }
+        }
+        assertNotNull(response.responses[1].data as? Map<*, *>) { data ->
+            assertNotNull(data["user"] as? Map<*, *>) { user ->
+                assertEquals(2, user["id"])
+                assertEquals("Jane Doe", user["name"])
+                assertNull(response.responses[0].errors)
+                assertNull(response.responses[0].extensions)
+            }
+        }
+    }
+
+    data class User(val id: Int, val name: String)
+
     class BasicQuery {
         fun random(): Int = Random.nextInt()
+
+        fun user(
+            id: Int,
+            dataFetchingEnvironment: DataFetchingEnvironment
+        ): CompletableFuture<User> =
+            dataFetchingEnvironment.getDataLoaderFromContext<Int, User>("UserDataLoader").load(id)
 
         fun hello(name: String): String = "Hello $name!"
 
@@ -209,6 +351,10 @@ class GraphQLRequestHandlerTest {
         fun contextualValue(context: MyContext): String = context.value ?: "default"
 
         fun graphQLContextualValue(dataFetchingEnvironment: DataFetchingEnvironment): String = dataFetchingEnvironment.graphQlContext.get("foo") ?: "default"
+    }
+
+    class BasicMutation {
+        fun addUser(name: String): User = User(Random.nextInt(), name)
     }
 
     data class MyContext(val value: String? = null) : GraphQLContext
