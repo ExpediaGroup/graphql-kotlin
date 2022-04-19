@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.extensions
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
+import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
 import org.dataloader.DataLoaderRegistry
@@ -44,3 +45,8 @@ fun GraphQLRequest.toExecutionInput(
  * Without doing a parsing attempt to check if the [GraphQLRequest] is a mutation
  */
 fun GraphQLRequest.isMutation(): Boolean = query.contains("mutation ")
+
+/**
+ * Without doing a parsing attempt to check if the [GraphQLBatchRequest] contains a mutation
+ */
+fun GraphQLBatchRequest.containsMutation(): Boolean = requests.any(GraphQLRequest::isMutation)
