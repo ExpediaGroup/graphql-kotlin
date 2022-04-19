@@ -25,6 +25,7 @@ import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
@@ -85,8 +86,8 @@ class SchemaConfigurationTest {
                 assertNull(result["errors"])
                 assertNotNull(result["extensions"])
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
-                val registryFactory = ctx.getBean(DataLoaderRegistryFactory::class.java)
+                assertThat(ctx).hasSingleBean(KotlinDataLoaderRegistryFactory::class.java)
+                val registryFactory = ctx.getBean(KotlinDataLoaderRegistryFactory::class.java)
                 val registry = registryFactory.generate()
                 assertEquals(1, registry.dataLoaders.size)
                 assertEquals(FooDataLoader.name, registry.keys.first())
@@ -115,8 +116,8 @@ class SchemaConfigurationTest {
                 assertThat(ctx).getBean(GraphQL::class.java)
                     .isSameAs(customConfiguration.myGraphQL())
 
-                assertThat(ctx).hasSingleBean(DataLoaderRegistryFactory::class.java)
-                assertThat(ctx).getBean(DataLoaderRegistryFactory::class.java)
+                assertThat(ctx).hasSingleBean(KotlinDataLoaderRegistryFactory::class.java)
+                assertThat(ctx).getBean(KotlinDataLoaderRegistryFactory::class.java)
                     .isSameAs(customConfiguration.myDataLoaderRegistryFactory())
 
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
@@ -171,7 +172,7 @@ class SchemaConfigurationTest {
         fun myCustomContextFactory(): SpringGraphQLContextFactory<*> = mockk()
 
         @Bean
-        fun myDataLoaderRegistryFactory(): DataLoaderRegistryFactory = mockk()
+        fun myDataLoaderRegistryFactory(): KotlinDataLoaderRegistryFactory = mockk()
     }
 
     class BasicQuery : Query {
