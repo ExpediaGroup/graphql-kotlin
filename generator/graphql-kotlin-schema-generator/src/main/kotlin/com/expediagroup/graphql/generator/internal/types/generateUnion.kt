@@ -32,21 +32,27 @@ import graphql.schema.GraphQLUnionType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 
-internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>, unionAnnotation: GraphQLUnion? = null): GraphQLUnionType {
+internal fun generateUnion(generator: SchemaGenerator, kClass: KClass<*>, unionAnnotation: GraphQLUnion? = null, customUnionAnnotationClass: KClass<*>? = null): GraphQLUnionType {
     return if (unionAnnotation != null) {
-        generateUnionFromAnnotation(generator, unionAnnotation, kClass)
+        generateUnionFromAnnotation(generator, unionAnnotation, kClass, customUnionAnnotationClass)
     } else {
         generateUnionFromKClass(generator, kClass)
     }
 }
 
-private fun generateUnionFromAnnotation(generator: SchemaGenerator, unionAnnotation: GraphQLUnion, kClass: KClass<*>): GraphQLUnionType {
+private fun generateUnionFromAnnotation(generator: SchemaGenerator, unionAnnotation: GraphQLUnion, kClass: KClass<*>, customUnionAnnotationClass: KClass<*>?): GraphQLUnionType {
     val unionName = unionAnnotation.name
     validateGraphQLName(unionName, kClass)
 
     val builder = GraphQLUnionType.newUnionType()
     builder.name(unionName)
     builder.description(unionAnnotation.description)
+
+    customUnionAnnotationClass?.let {
+        generateDirectives(generator, customUnionAnnotationClass, DirectiveLocation.UNION).forEach {
+            builder.withAppliedDirective(it)
+        }
+    }
 
     val possibleTypes = unionAnnotation.possibleTypes.toList()
 
