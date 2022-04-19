@@ -77,7 +77,7 @@ open class GraphQLRequestHandler(
             }
             is GraphQLBatchRequest -> {
                 if (graphQLRequest.containsMutation()) {
-                    executeBatch(graphQLRequest, context, graphQLContext)
+                    executeBatchSequentially(graphQLRequest, context, graphQLContext)
                 } else {
                     executeBatchConcurrently(graphQLRequest, context, graphQLContext)
                 }
@@ -99,7 +99,7 @@ open class GraphQLRequestHandler(
         }
     }
 
-    private suspend fun executeBatch(
+    private suspend fun executeBatchSequentially(
         request: GraphQLBatchRequest,
         context: GraphQLContext?,
         graphQLContext: Map<*, Any>
