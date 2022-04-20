@@ -13,5 +13,5 @@ public data class BasicObject(
   /**
    * Object name
    */
-  public val name: String
+  public val name: String,
 )

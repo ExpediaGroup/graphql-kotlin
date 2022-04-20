@@ -22,6 +22,6 @@ public class ListQuery : GraphQLClientRequest<ListQuery.Result> {
     /**
      * Query returning list of simple objects
      */
-    public val listQuery: List<BasicObject>
+    public val listQuery: List<BasicObject>,
   )
 }

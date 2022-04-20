@@ -11,5 +11,5 @@ public data class DetailsObject2(
   /**
    * Unique identifier
    */
-  public val id: Int
+  public val id: Int,
 )

@@ -20,5 +20,5 @@ public data class ComplexObject(
   /**
    * Some object name
    */
-  public val name: String
+  public val name: String,
 )

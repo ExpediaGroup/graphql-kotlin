@@ -11,5 +11,5 @@ public data class DocObject(
   /**
    * An id with a comment containing % and $ as well
    */
-  public val id: Int
+  public val id: Int,
 )

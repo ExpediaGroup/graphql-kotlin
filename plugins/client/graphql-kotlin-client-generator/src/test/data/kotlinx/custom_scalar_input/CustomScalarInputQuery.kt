@@ -21,7 +21,7 @@ public const val CUSTOM_SCALAR_INPUT_QUERY: String =
 @Generated
 @Serializable
 public class CustomScalarInputQuery(
-  public override val variables: CustomScalarInputQuery.Variables
+  public override val variables: CustomScalarInputQuery.Variables,
 ) : GraphQLClientRequest<CustomScalarInputQuery.Result> {
   @Required
   public override val query: String = CUSTOM_SCALAR_INPUT_QUERY
@@ -41,7 +41,7 @@ public class CustomScalarInputQuery(
     public val optionalLocale: OptionalInput<@Serializable(with = ULocaleSerializer::class) ULocale>
         = OptionalInput.Undefined,
     @Serializable(with = OptionalScalarWrapperInputSerializer::class)
-    public val scalarWrapper: OptionalInput<ScalarWrapperInput> = OptionalInput.Undefined
+    public val scalarWrapper: OptionalInput<ScalarWrapperInput> = OptionalInput.Undefined,
   )
 
   @Generated
@@ -50,6 +50,6 @@ public class CustomScalarInputQuery(
     /**
      * Query that accepts a custom scalar input
      */
-    public val inputCustomScalarQuery: Boolean
+    public val inputCustomScalarQuery: Boolean,
   )
 }

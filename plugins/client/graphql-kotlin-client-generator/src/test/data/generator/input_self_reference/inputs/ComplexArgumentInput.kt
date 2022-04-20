@@ -19,5 +19,5 @@ public data class ComplexArgumentInput(
   /**
    * Next criteria
    */
-  public val next: ComplexArgumentInput? = null
+  public val next: ComplexArgumentInput? = null,
 )

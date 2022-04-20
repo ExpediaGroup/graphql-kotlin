@@ -36,5 +36,5 @@ public data class ScalarWrapper(
   /**
    * List of custom scalar Locales
    */
-  public val listLocale: List<@Serializable(with = ULocaleSerializer::class) ULocale>
+  public val listLocale: List<@Serializable(with = ULocaleSerializer::class) ULocale>,
 )

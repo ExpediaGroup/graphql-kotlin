@@ -15,7 +15,7 @@ import kotlin.String
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
   property = "__typename",
-  defaultImpl = DefaultBasicUnion2Implementation::class
+  defaultImpl = DefaultBasicUnion2Implementation::class,
 )
 @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     BasicObject2::class,
@@ -31,7 +31,7 @@ public data class BasicObject2(
   /**
    * Object name
    */
-  public val name: String
+  public val name: String,
 ) : BasicUnion2
 
 /**
@@ -44,7 +44,7 @@ public data class ComplexObject2(
   /**
    * Some object name
    */
-  public val name: String
+  public val name: String,
 ) : BasicUnion2
 
 /**

@@ -30,6 +30,6 @@ public class DeprecatedOptInQuery : GraphQLClientRequest<DeprecatedOptInQuery.Re
      * Deprecated query that should not be used anymore
      */
     @Deprecated(message = "old query should not be used")
-    public val deprecatedQuery: String
+    public val deprecatedQuery: String,
   )
 }

@@ -52,6 +52,6 @@ public class ReusedListTypesQuery : GraphQLClientRequest<ReusedListTypesQuery.Re
     /**
      * Query returning an object that references another object
      */
-    public val fourthComplex: ComplexObject3
+    public val fourthComplex: ComplexObject3,
   )
 }

@@ -22,7 +22,7 @@ public const val SECOND_QUERY: String =
 @Generated
 @Serializable
 public class SecondQuery(
-  public override val variables: SecondQuery.Variables
+  public override val variables: SecondQuery.Variables,
 ) : GraphQLClientRequest<SecondQuery.Result> {
   @Required
   public override val query: String = SECOND_QUERY
@@ -36,7 +36,7 @@ public class SecondQuery(
   @Serializable
   public data class Variables(
     @Serializable(with = OptionalComplexArgumentInputSerializer::class)
-    public val input: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
+    public val input: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined,
   )
 
   @Generated
@@ -61,6 +61,6 @@ public class SecondQuery(
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    public val scalarQuery: ScalarWrapper
+    public val scalarQuery: ScalarWrapper,
   )
 }

@@ -26,6 +26,6 @@ public class EnumQuery : GraphQLClientRequest<EnumQuery.Result> {
     /**
      * Query that returns other enum value
      */
-    public val otherEnumQuery: OtherEnum = OtherEnum.__UNKNOWN_VALUE
+    public val otherEnumQuery: OtherEnum = OtherEnum.__UNKNOWN_VALUE,
   )
 }

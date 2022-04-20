@@ -22,5 +22,5 @@ public data class SimpleArgumentInput(
   /**
    * New value to be set
    */
-  public val newName: OptionalInput<String> = OptionalInput.Undefined
+  public val newName: OptionalInput<String> = OptionalInput.Undefined,
 )

@@ -28,6 +28,6 @@ public class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectio
     /**
      * Query returning union
      */
-    public val second: BasicUnion2
+    public val second: BasicUnion2,
   )
 }

@@ -11,5 +11,5 @@ public data class BasicObject2(
   /**
    * Object name
    */
-  public val name: String
+  public val name: String,
 )

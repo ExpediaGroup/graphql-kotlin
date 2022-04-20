@@ -8,5 +8,5 @@ import kotlin.Int
  */
 @Generated
 public data class BasicObject3(
-  public val id: Int
+  public val id: Int,
 )

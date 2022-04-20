@@ -29,6 +29,6 @@ public class ComplexObjectQuery : GraphQLClientRequest<ComplexObjectQuery.Result
     /**
      * Query returning an object that references another object
      */
-    public val complexObjectQuery: ComplexObject
+    public val complexObjectQuery: ComplexObject,
   )
 }

@@ -24,6 +24,6 @@ public class ObjectWithNamedFragmentQuery :
     /**
      * Query returning an object that references another object
      */
-    public val complexObjectQuery: ComplexObject
+    public val complexObjectQuery: ComplexObject,
   )
 }

@@ -22,6 +22,6 @@ public class NestedQuery : GraphQLClientRequest<NestedQuery.Result> {
     /**
      * Query returning object referencing itself
      */
-    public val nestedObjectQuery: NestedObject
+    public val nestedObjectQuery: NestedObject,
   )
 }

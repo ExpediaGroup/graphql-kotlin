@@ -28,5 +28,5 @@ public data class ComplexArgumentInput(
    * Next criteria
    */
   @Serializable(with = OptionalComplexArgumentInputSerializer::class)
-  public val next: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined
+  public val next: OptionalInput<ComplexArgumentInput> = OptionalInput.Undefined,
 )

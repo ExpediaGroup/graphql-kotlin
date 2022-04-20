@@ -11,7 +11,7 @@ public const val INPUT_LIST_QUERY: String =
 
 @Generated
 public class InputListQuery(
-  public override val variables: InputListQuery.Variables
+  public override val variables: InputListQuery.Variables,
 ) : GraphQLClientRequest<InputListQuery.Result> {
   public override val query: String = INPUT_LIST_QUERY
 
@@ -23,7 +23,7 @@ public class InputListQuery(
   public data class Variables(
     public val nullableIds: List<String?>? = null,
     public val nullableIdList: List<String>? = null,
-    public val nonNullableIds: List<String>
+    public val nonNullableIds: List<String>,
   )
 
   @Generated
@@ -31,6 +31,6 @@ public class InputListQuery(
     /**
      * Query accepting list input
      */
-    public val listInputQuery: String? = null
+    public val listInputQuery: String? = null,
   )
 }

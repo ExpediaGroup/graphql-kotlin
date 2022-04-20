@@ -28,6 +28,6 @@ public class DifferentSelectionSetQuery : GraphQLClientRequest<DifferentSelectio
     /**
      * Query returning an interface
      */
-    public val second: BasicInterface2
+    public val second: BasicInterface2,
   )
 }

@@ -23,6 +23,6 @@ public class HardCodedInputQuery : GraphQLClientRequest<HardCodedInputQuery.Resu
     /**
      * Query that accepts some input arguments
      */
-    public val inputObjectQuery: Boolean
+    public val inputObjectQuery: Boolean,
   )
 }

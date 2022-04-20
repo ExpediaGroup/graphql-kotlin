@@ -26,6 +26,6 @@ public class AliasQuery : GraphQLClientRequest<AliasQuery.Result> {
     /**
      * Query that accepts some input arguments
      */
-    public val second: Boolean
+    public val second: Boolean,
   )
 }

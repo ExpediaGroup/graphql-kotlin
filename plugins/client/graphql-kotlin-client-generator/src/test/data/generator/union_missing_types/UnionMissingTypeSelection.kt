@@ -23,6 +23,6 @@ public class UnionMissingTypeSelection : GraphQLClientRequest<UnionMissingTypeSe
     /**
      * Query returning union
      */
-    public val unionQuery: BasicUnion
+    public val unionQuery: BasicUnion,
   )
 }

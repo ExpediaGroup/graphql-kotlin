@@ -41,6 +41,6 @@ public class ReusedTypesQuery : GraphQLClientRequest<ReusedTypesQuery.Result> {
     /**
      * Query returning an object that references another object
      */
-    public val fifth: ComplexObject2
+    public val fifth: ComplexObject2,
   )
 }

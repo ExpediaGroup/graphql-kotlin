@@ -19,6 +19,6 @@ public class AnonymousQuery : GraphQLClientRequest<AnonymousQuery.Result> {
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    public val scalarQuery: ScalarWrapper
+    public val scalarQuery: ScalarWrapper,
   )
 }

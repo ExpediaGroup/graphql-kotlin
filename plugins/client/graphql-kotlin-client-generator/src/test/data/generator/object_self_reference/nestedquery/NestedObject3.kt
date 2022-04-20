@@ -21,5 +21,5 @@ public data class NestedObject3(
   /**
    * Children elements
    */
-  public val children: List<NestedObject4>
+  public val children: List<NestedObject4>,
 )

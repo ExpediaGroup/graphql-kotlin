@@ -13,7 +13,7 @@ public const val INCLUDE_SKIP_DIRECTIVES_QUERY: String =
 
 @Generated
 public class IncludeSkipDirectivesQuery(
-  public override val variables: IncludeSkipDirectivesQuery.Variables
+  public override val variables: IncludeSkipDirectivesQuery.Variables,
 ) : GraphQLClientRequest<IncludeSkipDirectivesQuery.Result> {
   public override val query: String = INCLUDE_SKIP_DIRECTIVES_QUERY
 
@@ -25,7 +25,7 @@ public class IncludeSkipDirectivesQuery(
   @Generated
   public data class Variables(
     public val includeCondition: Boolean,
-    public val skipCondition: Boolean
+    public val skipCondition: Boolean,
   )
 
   @Generated
@@ -37,6 +37,6 @@ public class IncludeSkipDirectivesQuery(
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    public val scalarQuery: ScalarWrapper? = null
+    public val scalarQuery: ScalarWrapper? = null,
   )
 }

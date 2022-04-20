@@ -23,6 +23,6 @@ public class DocumentationQuery : GraphQLClientRequest<DocumentationQuery.Result
     /**
      * Query to test doc strings
      */
-    public val docQuery: DocObject
+    public val docQuery: DocObject,
   )
 }

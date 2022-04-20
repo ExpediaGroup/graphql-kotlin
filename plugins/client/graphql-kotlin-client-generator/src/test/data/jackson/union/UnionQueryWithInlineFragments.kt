@@ -24,6 +24,6 @@ public class UnionQueryWithInlineFragments :
     /**
      * Query returning union
      */
-    public val unionQuery: BasicUnion
+    public val unionQuery: BasicUnion,
   )
 }

@@ -161,7 +161,7 @@ class GraphQLClientGenerator(
                 operationTypeSpec.addProperty(variablesProperty)
 
                 val constructor = FunSpec.constructorBuilder()
-                    .addParameter("variables", variablesClassName, KModifier.OVERRIDE)
+                    .addParameter("variables", variablesClassName)
                     .build()
                 operationTypeSpec.primaryConstructor(constructor)
             }

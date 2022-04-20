@@ -24,6 +24,6 @@ public class InterfaceWithNamedFragmentsQuery :
     /**
      * Query returning an interface
      */
-    public val interfaceQuery: BasicInterface
+    public val interfaceQuery: BasicInterface,
   )
 }

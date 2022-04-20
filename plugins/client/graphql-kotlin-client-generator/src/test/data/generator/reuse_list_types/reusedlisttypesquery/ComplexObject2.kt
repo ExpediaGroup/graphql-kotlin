@@ -23,5 +23,5 @@ public data class ComplexObject2(
   /**
    * List of objects
    */
-  public val basicList: List<BasicObject2>
+  public val basicList: List<BasicObject2>,
 )
