@@ -184,7 +184,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
                     }
                     astronaut3: astronaut(id: 3) { ...AstronautFragment }
                 }
-            """.trimIndent(),
+            """,
             """
                 fragment AstronautFragment on Astronaut { name missions { designation } }
                 fragment MissionFragment on Mission { designation }
@@ -196,7 +196,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
                     }
                     mission3: mission(id: 3) { ...MissionFragment }
                 }
-            """.trimIndent()
+            """
         )
 
         val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
@@ -231,6 +231,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """
                 fragment AstronautFragment on Astronaut { name missions { designation } }
                 fragment MissionFragment on Mission { designation }
+
                 query ComplexQuery {
                     astronauts1And2: astronauts(ids: [1, 2]) { ...AstronautFragment }
                     missions1And2: missions(ids: [1, 2]) { ...MissionFragment }

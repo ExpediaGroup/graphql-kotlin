@@ -48,7 +48,7 @@ open class GraphQLRequestHandler(
     private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
 ) {
 
-    private val dataLoaderInstrumentationType: Class<Instrumentation>? =
+    private val batchDataLoaderInstrumentationType: Class<Instrumentation>? =
         graphQL.instrumentation?.let { instrumentation ->
             when {
                 instrumentation is ChainedInstrumentation -> {
@@ -72,9 +72,7 @@ open class GraphQLRequestHandler(
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
     ): GraphQLServerResponse =
         when (graphQLRequest) {
-            is GraphQLRequest -> {
-                execute(graphQLRequest, context, graphQLContext, dataLoaderRegistryFactory?.generate())
-            }
+            is GraphQLRequest -> execute(graphQLRequest, context, graphQLContext)
             is GraphQLBatchRequest -> {
                 if (graphQLRequest.containsMutation()) {
                     executeBatchSequentially(graphQLRequest, context, graphQLContext)
@@ -88,16 +86,16 @@ open class GraphQLRequestHandler(
         graphQLRequest: GraphQLRequest,
         context: GraphQLContext? = null,
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>(),
-        dataLoaderRegistry: KotlinDataLoaderRegistry? = null
-    ): GraphQLResponse<*> {
-        val executionInput = graphQLRequest.toExecutionInput(context, dataLoaderRegistry, graphQLContext)
-        return try {
-            graphQL.executeAsync(executionInput).await().toGraphQLResponse()
+        dataLoaderRegistry: KotlinDataLoaderRegistry? = dataLoaderRegistryFactory?.generate()
+    ): GraphQLResponse<*> =
+        try {
+            graphQL.executeAsync(
+                graphQLRequest.toExecutionInput(context, dataLoaderRegistry, graphQLContext)
+            ).await().toGraphQLResponse()
         } catch (exception: Exception) {
             val error = exception.toGraphQLError()
             GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType()))
         }
-    }
 
     private suspend fun executeBatchSequentially(
         request: GraphQLBatchRequest,
@@ -117,12 +115,13 @@ open class GraphQLRequestHandler(
         context: GraphQLContext?,
         graphQLContext: Map<*, Any>
     ): GraphQLBatchResponse {
-        val batchContext = getBatchContext(request, dataLoaderRegistryFactory?.generate())
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
+        val batchContext = getBatchContext(request, dataLoaderRegistry)
         val batchGraphQLContext = graphQLContext + batchContext
         val responses = supervisorScope {
             request.requests.map {
                 async {
-                    execute(it, context, batchGraphQLContext)
+                    execute(it, context, batchGraphQLContext, dataLoaderRegistry)
                 }
             }.awaitAll()
         }
@@ -132,23 +131,23 @@ open class GraphQLRequestHandler(
     private fun getBatchContext(
         batchRequest: GraphQLBatchRequest,
         dataLoaderRegistry: KotlinDataLoaderRegistry?
-    ): Map<*, Any> =
-        dataLoaderRegistry?.let {
-            when (dataLoaderInstrumentationType) {
-                DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
-                    KotlinDataLoaderRegistry::class to dataLoaderRegistry,
-                    ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
-                        batchRequest.requests.size
-                    )
+    ): Map<*, Any> {
+        if (dataLoaderRegistry == null) return emptyMap<Any, Any>()
+        return when (batchDataLoaderInstrumentationType) {
+            DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
+                KotlinDataLoaderRegistry::class to dataLoaderRegistry,
+                ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
+                    batchRequest.requests.size
                 )
-                DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
-                    KotlinDataLoaderRegistry::class to dataLoaderRegistry,
-                    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                        batchRequest.requests.size,
-                        dataLoaderRegistry
-                    )
+            )
+            DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
+                KotlinDataLoaderRegistry::class to dataLoaderRegistry,
+                SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
+                    batchRequest.requests.size,
+                    dataLoaderRegistry
                 )
-                else -> null
-            }
-        } ?: emptyMap<Any, Any>()
+            )
+            else -> emptyMap<Any, Any>()
+        }
+    }
 }
