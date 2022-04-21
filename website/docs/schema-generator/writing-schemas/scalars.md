@@ -130,6 +130,10 @@ It is often beneficial to create a wrapper around the underlying primitive type 
 to optimize such use cases - Kotlin compiler will attempt to use underlying type directly whenever possible and only keep the wrapper classes
 whenever it is necessary.
 
+:::note
+Nullable value class types may result in a runtime `IllegalArgumentException` due to https://youtrack.jetbrains.com/issue/KT-31141. This should be resolved in Kotlin 1.7.0+.
+:::
+
 #### Representing Unwrapped Value Classes in the Schema as the Underlying Type
 
 In order to represent unwrapped inline value classes in your schema as the underlying type, you need to register it using hooks and also provide value unboxer that will be used by
