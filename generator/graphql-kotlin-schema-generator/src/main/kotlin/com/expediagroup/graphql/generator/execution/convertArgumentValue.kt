@@ -104,5 +104,7 @@ private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> =
 
 private fun <T : Any> mapToInlineValueClass(value: Any?, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
-    return targetConstructor.call(value)
+    // if the user has registered a coercer for the value class, it may already be an instance of the target type
+    @Suppress("UNCHECKED_CAST")
+    return if (targetClass.isInstance(value)) value as T else targetConstructor.call(value)
 }
