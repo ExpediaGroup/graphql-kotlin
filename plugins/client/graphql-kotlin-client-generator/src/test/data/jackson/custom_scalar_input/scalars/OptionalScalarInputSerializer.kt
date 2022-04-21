@@ -30,7 +30,7 @@ public class OptionalScalarInputSerializer : JsonSerializer<OptionalInput<*>>() 
   public override fun serialize(
     `value`: OptionalInput<*>,
     gen: JsonGenerator,
-    serializers: SerializerProvider
+    serializers: SerializerProvider,
   ): Unit {
     when (value) {
       is OptionalInput.Undefined -> return
@@ -54,7 +54,7 @@ public class OptionalScalarInputSerializer : JsonSerializer<OptionalInput<*>>() 
   private fun serializeValue(
     `value`: Any,
     gen: JsonGenerator,
-    serializers: SerializerProvider
+    serializers: SerializerProvider,
   ): Unit {
     val clazz = value::class.java
     val converter = converters[clazz] as? ScalarConverter<Any>

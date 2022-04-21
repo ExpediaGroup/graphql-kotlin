@@ -18,7 +18,7 @@ public const val KOTLIN_X_INPUT_QUERY: String =
 @Generated
 @Serializable
 public class KotlinXInputQuery(
-  public override val variables: KotlinXInputQuery.Variables
+  public override val variables: KotlinXInputQuery.Variables,
 ) : GraphQLClientRequest<KotlinXInputQuery.Result> {
   @Required
   public override val query: String = KOTLIN_X_INPUT_QUERY
@@ -33,7 +33,7 @@ public class KotlinXInputQuery(
   @Serializable
   public data class Variables(
     @Serializable(with = OptionalSimpleArgumentInputSerializer::class)
-    public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined
+    public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined,
   )
 
   @Generated
@@ -42,6 +42,6 @@ public class KotlinXInputQuery(
     /**
      * Query that accepts some input arguments
      */
-    public val inputObjectQuery: Boolean
+    public val inputObjectQuery: Boolean,
   )
 }

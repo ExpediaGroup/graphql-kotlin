@@ -11,5 +11,5 @@ public data class ScalarWrapper(
   /**
    * UTF-8 character sequence
    */
-  public val name: String
+  public val name: String,
 )

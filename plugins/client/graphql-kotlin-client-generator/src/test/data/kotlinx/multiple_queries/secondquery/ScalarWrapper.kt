@@ -25,5 +25,5 @@ public data class ScalarWrapper(
   /**
    * ID represents unique identifier that is not intended to be human readable
    */
-  public val id: ID
+  public val id: ID,
 )

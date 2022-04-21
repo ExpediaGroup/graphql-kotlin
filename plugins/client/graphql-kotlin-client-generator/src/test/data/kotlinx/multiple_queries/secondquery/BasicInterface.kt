@@ -42,7 +42,7 @@ public data class FirstInterfaceImplementation(
   /**
    * Custom field integer value
    */
-  public val intValue: Int
+  public val intValue: Int,
 ) : BasicInterface()
 
 /**
@@ -63,7 +63,7 @@ public data class SecondInterfaceImplementation(
   /**
    * Custom field float value
    */
-  public val floatValue: Double
+  public val floatValue: Double,
 ) : BasicInterface()
 
 /**
@@ -83,5 +83,5 @@ public data class DefaultBasicInterfaceImplementation(
   /**
    * Name field
    */
-  public override val name: String
+  public override val name: String,
 ) : BasicInterface()

@@ -12,7 +12,7 @@ public const val SELF_REFERENCING_INPUT_QUERY: String =
 
 @Generated
 public class SelfReferencingInputQuery(
-  public override val variables: SelfReferencingInputQuery.Variables
+  public override val variables: SelfReferencingInputQuery.Variables,
 ) : GraphQLClientRequest<SelfReferencingInputQuery.Result> {
   public override val query: String = SELF_REFERENCING_INPUT_QUERY
 
@@ -23,7 +23,7 @@ public class SelfReferencingInputQuery(
 
   @Generated
   public data class Variables(
-    public val input: ComplexArgumentInput? = null
+    public val input: ComplexArgumentInput? = null,
   )
 
   @Generated
@@ -31,6 +31,6 @@ public class SelfReferencingInputQuery(
     /**
      * Query that accepts self referencing input object
      */
-    public val complexInputObjectQuery: Boolean
+    public val complexInputObjectQuery: Boolean,
   )
 }

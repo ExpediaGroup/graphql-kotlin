@@ -16,5 +16,5 @@ public data class NestedObject4(
   /**
    * Name of the object
    */
-  public val name: String
+  public val name: String,
 )

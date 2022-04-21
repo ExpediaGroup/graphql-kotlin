@@ -16,5 +16,5 @@ public data class DetailsObject(
   /**
    * Actual detail value
    */
-  public val `value`: String
+  public val `value`: String,
 )

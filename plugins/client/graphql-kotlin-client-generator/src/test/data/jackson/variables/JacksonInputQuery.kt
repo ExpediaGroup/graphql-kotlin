@@ -14,7 +14,7 @@ public const val JACKSON_INPUT_QUERY: String =
 
 @Generated
 public class JacksonInputQuery(
-  public override val variables: JacksonInputQuery.Variables
+  public override val variables: JacksonInputQuery.Variables,
 ) : GraphQLClientRequest<JacksonInputQuery.Result> {
   public override val query: String = JACKSON_INPUT_QUERY
 
@@ -25,7 +25,7 @@ public class JacksonInputQuery(
 
   @Generated
   public data class Variables(
-    public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined
+    public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined,
   )
 
   @Generated
@@ -33,6 +33,6 @@ public class JacksonInputQuery(
     /**
      * Query that accepts some input arguments
      */
-    public val inputObjectQuery: Boolean
+    public val inputObjectQuery: Boolean,
   )
 }

@@ -20,5 +20,5 @@ public data class SimpleArgumentInput(
   /**
    * New value to be set
    */
-  public val newName: String? = null
+  public val newName: String? = null,
 )

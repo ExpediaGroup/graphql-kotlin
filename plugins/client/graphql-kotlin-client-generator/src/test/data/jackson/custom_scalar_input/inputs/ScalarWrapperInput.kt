@@ -71,5 +71,5 @@ public data class ScalarWrapperInput(
    */
   @JsonSerialize(contentConverter = ULocaleToAnyConverter::class)
   @JsonDeserialize(contentConverter = AnyToULocaleConverter::class)
-  public val listLocale: List<ULocale>
+  public val listLocale: List<ULocale>,
 )

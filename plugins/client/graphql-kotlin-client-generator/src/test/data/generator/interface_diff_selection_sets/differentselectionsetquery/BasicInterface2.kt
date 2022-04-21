@@ -17,7 +17,7 @@ import kotlin.String
   use = JsonTypeInfo.Id.NAME,
   include = JsonTypeInfo.As.PROPERTY,
   property = "__typename",
-  defaultImpl = DefaultBasicInterface2Implementation::class
+  defaultImpl = DefaultBasicInterface2Implementation::class,
 )
 @JsonSubTypes(value = [com.fasterxml.jackson.annotation.JsonSubTypes.Type(value =
     FirstInterfaceImplementation2::class,
@@ -42,7 +42,7 @@ public data class FirstInterfaceImplementation2(
   /**
    * Custom field integer value
    */
-  public val intValue: Int
+  public val intValue: Int,
 ) : BasicInterface2
 
 /**
@@ -57,7 +57,7 @@ public data class SecondInterfaceImplementation2(
   /**
    * Custom field float value
    */
-  public val floatValue: Double
+  public val floatValue: Double,
 ) : BasicInterface2
 
 /**
@@ -69,5 +69,5 @@ public data class DefaultBasicInterface2Implementation(
   /**
    * Name field
    */
-  public override val name: String
+  public override val name: String,
 ) : BasicInterface2

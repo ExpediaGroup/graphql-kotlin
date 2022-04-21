@@ -11,5 +11,5 @@ public data class ScalarWrapper(
   /**
    * A signed 32-bit nullable integer value
    */
-  public val count: Int? = null
+  public val count: Int? = null,
 )

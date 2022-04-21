@@ -24,7 +24,7 @@ public data class BasicObject(
   /**
    * Object name
    */
-  public val name: String
+  public val name: String,
 ) : BasicUnion()
 
 /**
@@ -48,7 +48,7 @@ public data class ComplexObject(
    * Optional value
    * Second line of the description
    */
-  public val optional: String?
+  public val optional: String?,
 ) : BasicUnion()
 
 /**

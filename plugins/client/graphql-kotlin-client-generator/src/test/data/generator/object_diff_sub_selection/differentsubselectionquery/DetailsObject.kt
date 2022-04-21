@@ -21,5 +21,5 @@ public data class DetailsObject(
   /**
    * Boolean flag
    */
-  public val flag: Boolean
+  public val flag: Boolean,
 )

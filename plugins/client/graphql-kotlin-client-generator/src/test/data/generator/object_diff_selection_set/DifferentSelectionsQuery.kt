@@ -28,6 +28,6 @@ public class DifferentSelectionsQuery : GraphQLClientRequest<DifferentSelections
     /**
      * Query returning an object that references another object
      */
-    public val second: ComplexObject2
+    public val second: ComplexObject2,
   )
 }

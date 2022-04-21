@@ -33,6 +33,6 @@ public class CustomScalarQuery : GraphQLClientRequest<CustomScalarQuery.Result> 
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    public val second: ScalarWrapper
+    public val second: ScalarWrapper,
   )
 }

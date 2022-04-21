@@ -22,6 +22,6 @@ public class MiXEDcaSEQuery : GraphQLClientRequest<MiXEDcaSEQuery.Result> {
     /**
      * Query that returns wrapper object with all supported scalar types
      */
-    public val scalarQuery: ScalarWrapper
+    public val scalarQuery: ScalarWrapper,
   )
 }

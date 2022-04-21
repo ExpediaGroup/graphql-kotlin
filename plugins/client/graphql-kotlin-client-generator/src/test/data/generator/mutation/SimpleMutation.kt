@@ -12,7 +12,7 @@ public const val SIMPLE_MUTATION: String =
 
 @Generated
 public class SimpleMutation(
-  public override val variables: SimpleMutation.Variables
+  public override val variables: SimpleMutation.Variables,
 ) : GraphQLClientRequest<SimpleMutation.Result> {
   public override val query: String = SIMPLE_MUTATION
 
@@ -22,7 +22,7 @@ public class SimpleMutation(
 
   @Generated
   public data class Variables(
-    public val input: SimpleArgumentInput
+    public val input: SimpleArgumentInput,
   )
 
   @Generated
@@ -30,6 +30,6 @@ public class SimpleMutation(
     /**
      * Example of a muation
      */
-    public val simpleMutation: BasicObject
+    public val simpleMutation: BasicObject,
   )
 }

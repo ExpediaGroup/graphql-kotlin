@@ -29,5 +29,5 @@ public data class ComplexObject(
   /**
    * Some additional details
    */
-  public val details: DetailsObject
+  public val details: DetailsObject,
 )

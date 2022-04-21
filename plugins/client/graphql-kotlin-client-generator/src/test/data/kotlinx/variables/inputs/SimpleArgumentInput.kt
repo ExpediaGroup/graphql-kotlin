@@ -28,5 +28,5 @@ public data class SimpleArgumentInput(
    * New value to be set
    */
   @Serializable(with = OptionalScalarSerializer::class)
-  public val newName: OptionalInput<String> = OptionalInput.Undefined
+  public val newName: OptionalInput<String> = OptionalInput.Undefined,
 )
