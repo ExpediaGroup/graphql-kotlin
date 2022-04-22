@@ -96,7 +96,7 @@ class User(val id: ID) {
 ```
 
 :::info
-Because the execution of data loaders is handled by graphql-java, which runs using CompletionStage, currently we can not
-support suspend functions when invoking data loaders. Instead, return the CompletableFuture directly from the DataLoader response in your schema functions.
-See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
+Given that `graphql-java` relies on `CompletableFuture`s for scheduling and asynchronous execution of `DataLoader` calls,
+currently we don't provide any native support for `DataLoader` pattern using coroutines. Instead, return
+the `CompletableFuture` directly from your `DataLoader`s. See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
 :::
