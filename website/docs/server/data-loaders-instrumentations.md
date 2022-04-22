@@ -4,32 +4,26 @@ title: Data Loader Instrumentations
 ---
 
 `graphql-kotlin-dataloader-instrumentation` is set of custom [Instrumentations](https://www.graphql-java.com/documentation/instrumentation/)
-that will calculate when is the right moment to dispatch a `KotlinDataLoaderRegistry` located in a potentially shared `GraphQLContext`
-across multiple GraphQL operations.
+that will calculate when is the right moment to dispatch `KotlinDataLoader`s across single and batch GraphQL operations.
 
-These custom Instrumentations follow the same approach of the `grahql-java` [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java).
-
-the main difference is that regular `Instrumentation`s apply to a single `ExecutionInput` aka [GraphQL Operation](https://www.graphql-java.com/documentation/execution#queries),
+These custom instrumentations follow the similar approach as the default [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java)
+from `graphql-java`, the main difference is that regular instrumentations apply to a single `ExecutionInput` aka [GraphQL Operation](https://www.graphql-java.com/documentation/execution#queries),
 whereas these custom instrumentations applies to multiple GraphQL operations (say a BatchRequest) and stores its state in the `GraphQLContext`.
 allowing batching and deduplication of transactions across those multiple GraphQL operations.
 
-The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom DataLoader Instrumentations:
+The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom `DataLoader` instrumentations:
 
 1. **DataLoaderLevelDispatchedInstrumentation**
 
-   Will dispatch a [KotlinDataLoaderRegistry](data-loaders.md#kotlindataloaderregistry) instance when a certain **Level**
-   of all **ExecutionInputs** sharing a GraphQLContext was dispatched (all DataFetchers were invoked).
+   Dispatches all data loaders when a certain **Level** when a certain **Level**of all **ExecutionInputs** sharing a
+   GraphQLContext was dispatched (all DataFetchers were invoked).
 
 2. **DataLoaderSyncExecutionExhaustedInstrumentation**
 
-   Will dispatch a [KotlinDataLoaderRegistry](data-loaders.md#kotlindataloaderregistry) instance when the synchronous execution of an operation is exhausted,
-   a synchronous execution could be considered exhausted when all [DataFetcher](https://www.graphql-java.com/documentation/data-fetching)
-   of all paths completed up until a scalar leaf or dispatched a `CompletableFuture`.
+   Dispatches all data loaders when all synchronous execution paths across all operations are exhausted. Synchronous execution path
+   is considered exhausted when all currently processed data fetchers were either resolved to a scalar or dispatched a `CompletableFuture`.
 
-Given set of GraphQL queries, the server can execute them concurrently, by taking advantage of concurrency we can batch and deduplicate
-data fetching logic for multiple operations.
-
-## DataLoaderLevelDispatchedInstrumentation
+## Dispatching by level
 
  Consider the following example:
 
@@ -86,7 +80,7 @@ You can find additional examples in our [unit tests](https://github.com/ExpediaG
 This instrumentation is a good option if your GraphQL Server will receive a batched request with operations of the same type,
 in those cases batching by level is enough, however, this solution is far from being the most optimal as we don't necessarily want to dispatch by level.
 
-## DataLoaderSyncExecutionExhaustedInstrumentation
+## Dispatching by synchronous execution exhaustion
 
 The most optimal solution is to exhaust the synchronous execution of all operations, this means,
 that there is a specific moment when the execution of an operation went all the way down up to scalars or promises.
