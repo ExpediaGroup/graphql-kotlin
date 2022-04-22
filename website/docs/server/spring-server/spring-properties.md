@@ -21,3 +21,5 @@ details on the supported configuration properties.
 | graphql.sdl.endpoint                    | GraphQL SDL endpoint                                                                                             | sdl           |
 | graphql.subscriptions.endpoint          | GraphQL subscriptions endpoint                                                                                   | subscriptions |
 | graphql.subscriptions.keepAliveInterval | Keep the websocket alive and send a message to the client every interval in ms. Defaults to not sending messages | null          |
+| graphql.batching.enabled                | Boolean flag indicating whether to enable custom dataloader instrumentations for 1 or more GraphQL Operations    | false         |
+| graphql.batching.strategy               | Configure which custom dataloader instrumentation will be used (LEVEL_DISPATCHED or SYNC_EXHAUSTION)             | LEVEL_DISPATCHED |

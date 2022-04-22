@@ -71,6 +71,7 @@ module.exports = {
       'server/graphql-context-factory',
       'server/graphql-request-handler',
       'server/data-loaders',
+      'server/data-loaders-instrumentations',
       'server/server-subscriptions',
       {
         type: 'category',

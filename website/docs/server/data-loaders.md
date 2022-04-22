@@ -3,45 +3,14 @@ id: data-loaders
 title: Data Loaders
 ---
 Data Loaders are a popular caching pattern from the [JavaScript GraphQL implementation](https://github.com/graphql/dataloader).
-`graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/v16/batching/) using the `DataLoader` and `DataLoaderRegistry`.
+`graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/v16/batching/)
+using the `DataLoader` and `DataLoaderRegistry`.
 
-Since `graphql-kotlin` allows you to abstract the schema generation and data fetching code, you may not even need data loaders if instead you have some persistant cache on your server.
-
-```kotlin
-class User(val id: ID) {
-
-    // The friendService and userService, which have nothing to do with GraphQL,
-    // should be concerned with caching and batch calls instead of your schema classes
-    fun getFriends(): List<User> {
-        val friends: List<ID> = friendService.getFriends(id)
-        return userService.getUsers(friends)
-    }
-
-}
-```
-
-If you still want to use data loaders though, they are supported through the common interfaces.
-
-`graphql-kotlin-dataloader` module provides convenient extensions to the `java-dataloader` module.
-
-## `KotlinDataLoaderRegistry`
-
-`KotlinDataLoaderRegistry` is a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java)
-that provides access to all underlying `DataLoader`s future states. By providing access to cache map containing returned futures,
-we get more granular control when to dispatch data loader calls.
-
-## `DataLoaderRegistryFactory`
-
-The [GraphQLRequestHandler](./graphql-request-handler.md) accepts an optional `DataLoaderRegistryFactory` that will be used on every request.
-The `DataLoaderRegistryFactory` generates a new `DataLoaderRegistry` on every request. The registry is a map of a unique data loader names to a `DataLoader` object that handles the cache for an output type in your graph.
-A `DataLoader` caches the types by some unique value, usually by the type id, and can handle different types of batch requests.
-
-`KotlinDataLoaderRegistryFactory` is the default factory implementation that generates new instances of `KotlinDataLoaderRegistry`
-for each request.
+`graphql-kotlin-dataloader` module provides convenient abstractions over the [java-dataloader](https://github.com/graphql-java/java-dataloader).
 
 ## `KotlinDataLoader`
 
-To help in the registration of these various `DataLoaders`, we have created a basic interface `KotlinDataLoader`:
+To help in the registration of `DataLoaders`, we have created an interface `KotlinDataLoader`:
 
 ```kotlin
 interface KotlinDataLoader<K, V> {
@@ -51,13 +20,19 @@ interface KotlinDataLoader<K, V> {
 }
 ```
 
-This allows for library users to still have full control over the creation of the `DataLoader` and its various configuration options,
-but then allows common server code to handle the registration, generation on request, and execution.
+This allows for library users to still have full control over the creation of the `DataLoader` and his configuration options
+and allows server code to handle the registration, generation and execution by request.
+
+## `KotlinDataLoaderRegistryFactory`
+
+The [GraphQLRequestHandler](graphql-request-handler.md) accepts an optional `KotlinDataLoaderRegistryFactory`.
+which generates a new `KotlinDataLoaderRegistry` on every request. The registry is a map of a unique data loader names to a `DataLoader` object that handles the cache for an output type in your graph.
+A `DataLoader` caches the types by some unique value, usually by the type id, and can handle different types of batch requests.
 
 ```kotlin
-class UserDataLoader : KotlinDataLoader<ID, User> {
+class UserDataLoader : KotlinDataLoader<Int, User> {
     override val dataLoaderName = "UserDataLoader"
-    override fun getBatchLoader() = BatchLoader<ID, User> { ids ->
+    override fun getBatchLoader() = BatchLoader<Int, User> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id -> userService.getUser(id) }
         }
@@ -65,15 +40,44 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
     override fun getOptions() = DataLoaderOptions.newOptions().setCachingEnabled(false)
 }
 
-class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
+class FriendsDataLoader : KotlinDataLoader<Int, List<User>> {
     override val dataLoaderName = "FriendsDataLoader"
-    override fun getDataLoader() = DataLoader<ID, List<User>> { ids ->
+    override fun getDataLoader() = BatchLoader<Int, List<User>> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id ->
-                val friends: List<ID> = friendService.getFriends(id)
+                val friends: List<Int> = friendService.getFriends(id)
                 userService.getUsers(friends)
             }
         }
+    }
+}
+
+val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
+    UserDataLoader(), FriendsDataLoader()
+)
+
+val dataLoaderRegistry = dataLoaderRegistryFactory.generate()
+```
+
+## `KotlinDataLoaderRegistry`
+
+`KotlinDataLoaderRegistry` is a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java)
+that provides access to all underlying `DataLoader`s future states. By providing access to cache map containing returned futures,
+we get more granular control when to dispatch data loader calls.
+
+## `getDataLoaderFromContext`
+
+`getDataLoaderFromContext` is an extension function that allows you to access to a `KotlinDataLoaderRegistry` stored in the `GraphQLContext`
+instead of the `ExecutionInput` with the idea of having the `KotlinDataLoaderRegistry` shared across many `ExecutionInput` in case server
+needs to handle a [Batch Request](https://www.apollographql.com/blog/apollo-client/performance/batching-client-graphql-queries/).
+
+You should use this extension function if you are using the `graphql-kotlin` [custom data loader instrumentations](data-loaders-instrumentations.md)
+
+```kotlin
+class User(private val id: Int) {
+    @GraphQLDescription("Get the users friends using data loader")
+    fun getFriends(dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<List<User>> {
+        return dataFetchingEnvironment.getDataLoaderFromContext("FriendsDataLoader").load(id)
     }
 }
 ```
@@ -83,8 +87,7 @@ class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
 `graphql-kotlin-server` includes a helpful extension function on the `DataFetchingEnvironment` so that you can easily retrieve values from the data loaders in your schema code.
 
 ```kotlin
-class User(val id: ID) {
-
+class User(private val id: ID) {
     @GraphQLDescription("Get the users friends using data loader")
     fun getFriends(dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<List<User>> {
         return dataFetchingEnvironment.getValueFromDataLoader("FriendsDataLoader", id)
@@ -92,8 +95,12 @@ class User(val id: ID) {
 }
 ```
 
+You should use this extension function if you are using the default `graphql-java` DataLoaderDispatcherInstrumentation
+
 :::info
-Because the execution of data loaders is handled by `graphql-java`, which runs using `CompletionStage`, currently we can
-not support `suspend` functions when invoking data loaders. Instead, return the `CompletableFuture` directly from the `DataLoader`
-response in your schema functions. See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
+Given that `graphql-java` handles the execution of a GraphQL operation using `CompletableFuture` for async `DataFetchers`,
+currently we don't support `suspend` functions when invoking `DataLoader`s.
+Instead, return the `CompletableFuture` directly from the `DataLoader` response in your schema functions by taking advantage
+of the interoperability between coroutines, reactive streams or any async model to `CompletableFuture`.
+See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
 :::
