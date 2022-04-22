@@ -23,22 +23,22 @@ import graphql.ExecutionInput
 import org.dataloader.DataLoaderRegistry
 
 /**
- * Convert the common [GraphQLRequest] to the execution input used by graphql-java
+ * Convert the common [GraphQLRequest] to the [ExecutionInput] used by graphql-java
  */
 fun GraphQLRequest.toExecutionInput(
-    graphQLContext: Any? = null,
     dataLoaderRegistry: KotlinDataLoaderRegistry? = null,
-    graphQLContextMap: Map<*, Any>? = null
+    context: Any? = null,
+    graphQLContext: Map<*, Any>? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
-        .also { builder ->
-            graphQLContext?.let { builder.context(it) }
-            graphQLContextMap?.let { builder.graphQLContext(it) }
-        }
         .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
+        .also { builder ->
+            context?.let { builder.context(it) }
+            graphQLContext?.let { builder.graphQLContext(it) }
+        }
         .build()
 
 /**
