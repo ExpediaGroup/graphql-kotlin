@@ -72,12 +72,17 @@ open class GraphQLRequestHandler(
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
     ): GraphQLServerResponse =
         when (graphQLRequest) {
-            is GraphQLRequest -> execute(graphQLRequest, context, graphQLContext)
+            is GraphQLRequest -> {
+                val (dataLoaderRegistry, batchGraphQLContext) = getBatchContext(1, graphQLContext)
+                execute(graphQLRequest, context, batchGraphQLContext, dataLoaderRegistry)
+            }
             is GraphQLBatchRequest -> {
                 if (graphQLRequest.containsMutation()) {
-                    executeBatchSequentially(graphQLRequest, context, graphQLContext)
+                    val (dataLoaderRegistry, batchGraphQLContext) = getBatchContext(1, graphQLContext)
+                    executeSequentially(graphQLRequest, context, batchGraphQLContext, dataLoaderRegistry)
                 } else {
-                    executeBatchConcurrently(graphQLRequest, context, graphQLContext)
+                    val (dataLoaderRegistry, batchGraphQLContext) = getBatchContext(graphQLRequest.requests.size, graphQLContext)
+                    executeConcurrently(graphQLRequest, context, batchGraphQLContext, dataLoaderRegistry)
                 }
             }
         }
@@ -85,54 +90,36 @@ open class GraphQLRequestHandler(
     private suspend fun execute(
         graphQLRequest: GraphQLRequest,
         context: GraphQLContext? = null,
-        graphQLContext: Map<*, Any> = emptyMap<Any, Any>(),
-        dataLoaderRegistry: KotlinDataLoaderRegistry? = dataLoaderRegistryFactory?.generate()
+        batchGraphQLContext: Map<*, Any>,
+        registryForExecutionInput: KotlinDataLoaderRegistry?
     ): GraphQLResponse<*> =
         try {
             graphQL.executeAsync(
-                graphQLRequest.toExecutionInput(context, dataLoaderRegistry, graphQLContext)
+                graphQLRequest.toExecutionInput(context, registryForExecutionInput, batchGraphQLContext)
             ).await().toGraphQLResponse()
         } catch (exception: Exception) {
             val error = exception.toGraphQLError()
             GraphQLResponse<Any?>(errors = listOf(error.toGraphQLKotlinType()))
         }
 
-    private suspend fun executeBatchSequentially(
+    private suspend fun executeSequentially(
         batchRequest: GraphQLBatchRequest,
         context: GraphQLContext?,
-        graphQLContext: Map<*, Any>
-    ): GraphQLBatchResponse {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
-        // only 1 operation will be executed at a time, still we can use batching and deduplication
-        val batchContext = getBatchContext(1, dataLoaderRegistry)
-        val batchGraphQLContext = graphQLContext + (batchContext ?: emptyMap())
-        // if no batchContext provide dataLoaderRegistry to be added to ExecutionInput
-        val registryForExecutionInput = when (batchContext) {
-            null -> dataLoaderRegistry
-            else -> null
-        }
-
-        return GraphQLBatchResponse(
+        batchGraphQLContext: Map<*, Any>,
+        registryForExecutionInput: KotlinDataLoaderRegistry?
+    ): GraphQLBatchResponse =
+        GraphQLBatchResponse(
             batchRequest.requests.map { request ->
                 execute(request, context, batchGraphQLContext, registryForExecutionInput)
             }
         )
-    }
 
-    private suspend fun executeBatchConcurrently(
+    private suspend fun executeConcurrently(
         batchRequest: GraphQLBatchRequest,
         context: GraphQLContext?,
-        graphQLContext: Map<*, Any>
+        batchGraphQLContext: Map<*, Any>,
+        registryForExecutionInput: KotlinDataLoaderRegistry?
     ): GraphQLBatchResponse {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
-        val batchContext = getBatchContext(batchRequest.requests.size, dataLoaderRegistry)
-        val batchGraphQLContext = graphQLContext + (batchContext ?: emptyMap())
-        // if no batchContext provide dataLoaderRegistry to be added to ExecutionInput
-        val registryForExecutionInput = when (batchContext) {
-            null -> dataLoaderRegistry
-            else -> null
-        }
-
         val responses = supervisorScope {
             batchRequest.requests.map { request ->
                 async {
@@ -144,25 +131,34 @@ open class GraphQLRequestHandler(
     }
 
     private fun getBatchContext(
-        batchRequestSize: Int,
-        dataLoaderRegistry: KotlinDataLoaderRegistry?
-    ): Map<*, Any>? {
-        if (dataLoaderRegistry == null) return null
-        return when (batchDataLoaderInstrumentationType) {
+        batchSize: Int,
+        graphQLContext: Map<*, Any>
+    ): Pair<KotlinDataLoaderRegistry?, Map<*, Any>> {
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate() ?: return Pair(null, graphQLContext)
+
+        val batchContext = when (batchDataLoaderInstrumentationType) {
             DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
                 KotlinDataLoaderRegistry::class to dataLoaderRegistry,
-                ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(
-                    batchRequestSize
-                )
+                ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(batchSize)
             )
             DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
                 KotlinDataLoaderRegistry::class to dataLoaderRegistry,
-                SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
-                    batchRequestSize,
-                    dataLoaderRegistry
-                )
+                SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(batchSize, dataLoaderRegistry)
             )
             else -> null
         }
+
+        val batchGraphQLContext = graphQLContext + (batchContext ?: emptyMap())
+
+        // if no batchContext provide dataLoaderRegistry to be added to the ExecutionInput
+        val registryForExecutionInput = when (batchContext) {
+            null -> dataLoaderRegistry
+            else -> null
+        }
+
+        return Pair(
+            registryForExecutionInput,
+            batchGraphQLContext
+        )
     }
 }
