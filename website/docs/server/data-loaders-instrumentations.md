@@ -77,7 +77,9 @@ val result2 = graphQL.executeAsync(ExecutionInput.newExecutionInput(queries[1]).
 ```
 
 In this example, the `astronaut` DataFetcher uses a `AstronautDataLoader` which will be dispatched when Level 1 of those 2 operations
-is dispatched, causing the `AstronautDataLoader` to load 2 astronauts
+is dispatched, causing the `AstronautDataLoader` to load 2 astronauts.
+
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/level/DataLoaderLevelDispatchedInstrumentationTest.kt).
 
 ### Limitations
 
@@ -186,5 +188,8 @@ val result1 = graphQL.executeAsync(ExecutionInput.newExecutionInput(queries[0]).
 val result2 = graphQL.executeAsync(ExecutionInput.newExecutionInput(queries[1]).graphQLContext(graphQLContext).build())
 ```
 
-If you decide to use the `graphql-kotlin-spring-server`, you can decide which instrumentation to use through configurations
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
+
+
+If you are using [graphql-kotlin-spring-server](./spring-server/spring-overview.mdx), you can decide which instrumentation to use through configurations
 and spring will do the autoconfiguration for you, check [configuration properties of spring server](./spring-server/spring-properties.md).
