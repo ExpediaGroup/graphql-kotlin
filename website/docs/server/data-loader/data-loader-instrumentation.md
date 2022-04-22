@@ -29,8 +29,9 @@ The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom `DataLo
 
 ![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-dispatched-instrumentation.png)
 
-The `DataLoaderLevelDispatchedInstrumentation` will track the state of all `ExecutionInputs` and when a certain field dispatches
-it will calculate if all fields of all operations for a particular level were dispatched, if so, it will dispatch the `KotlinDataLoaderRegistry`.
+The `DataLoaderLevelDispatchedInstrumentation` tracks the state of all `ExecutionInputs` across operations. When a certain
+field dispatches, it will check if all fields across all operations for a particular level were dispatched and if the condition is met,
+it will dispatch all the data loaders.
 
 ### Usage
 
@@ -80,10 +81,11 @@ You can find additional examples in our [unit tests](https://github.com/ExpediaG
 This instrumentation is a good option if your GraphQL Server will receive a batched request with operations of the same type,
 in those cases batching by level is enough, however, this solution is far from being the most optimal as we don't necessarily want to dispatch by level.
 
-## Dispatching by synchronous execution exhaustion
+## Dispatching by execution exhaustion
 
-The most optimal solution is to exhaust the synchronous execution of all operations, this means,
-that there is a specific moment when the execution of an operation went all the way down up to scalars or promises.
+The most optimal time to dispatch all data loaders is when all possible synchronous execution paths across all batch
+operations were exhausted. Synchronous execution path is considered exhausted (or completed) when all currently processed
+data fetchers were either resolved to a scalar or a future promise.
 
 Let's analyze how GraphQL execution works, but first lets check some GraphQL concepts:
 
