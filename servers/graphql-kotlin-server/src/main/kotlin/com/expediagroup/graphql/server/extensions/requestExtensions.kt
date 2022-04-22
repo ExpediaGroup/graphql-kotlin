@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,32 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
-import org.dataloader.DataLoaderRegistry
 
 /**
  * Convert the common [GraphQLRequest] to the [ExecutionInput] used by graphql-java
  */
 fun GraphQLRequest.toExecutionInput(
     dataLoaderRegistry: KotlinDataLoaderRegistry? = null,
-    context: Any? = null,
-    graphQLContext: Map<*, Any>? = null
+    graphQLContext: Any? = null,
+    graphQLContextMap: Map<*, Any>? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
-        .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
+        .dataLoaderRegistry(dataLoaderRegistry ?: KotlinDataLoaderRegistry())
         .also { builder ->
-            context?.let { builder.context(it) }
-            graphQLContext?.let { builder.graphQLContext(it) }
+            graphQLContext?.let { builder.context(it) }
+            graphQLContextMap?.let { builder.graphQLContext(it) }
         }
         .build()
 
 /**
- * Without doing a parsing attempt to check if the [GraphQLRequest] is a mutation
+ * Without doing a parsing attempt checks if the [GraphQLRequest] is a mutation
  */
 fun GraphQLRequest.isMutation(): Boolean = query.contains("mutation ")
 
 /**
- * Without doing a parsing attempt to check if the [GraphQLBatchRequest] contains a mutation
+ * Without doing a parsing attempt checks if the [GraphQLBatchRequest] contains a mutation
  */
 fun GraphQLBatchRequest.containsMutation(): Boolean = requests.any(GraphQLRequest::isMutation)

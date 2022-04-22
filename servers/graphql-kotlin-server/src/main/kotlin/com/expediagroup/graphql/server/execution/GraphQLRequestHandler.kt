@@ -136,7 +136,9 @@ open class GraphQLRequestHandler(
         batchSize: Int,
         dataLoaderRegistry: KotlinDataLoaderRegistry?
     ): Map<*, Any> {
-        if (dataLoaderRegistry == null) return emptyMap<Any, Any>()
+        if (dataLoaderRegistry == null) {
+            return emptyMap<Any, Any>()
+        }
 
         val batchContext = when (batchDataLoaderInstrumentationType) {
             DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(

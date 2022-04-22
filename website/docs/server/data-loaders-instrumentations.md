@@ -99,6 +99,8 @@ Each field in GraphQL has a `DataFetcher` associated with it, some fields will u
 that knows how to go to a database or make a network request to get field information while most simply take
 data from the returned memory objects.
 
+Note: `DataFetcher`s are some times called "resolvers" in other graphql implementations.
+
 
 **Execution Strategy**
 
@@ -108,16 +110,16 @@ Now consider following GraphQL Query and the ExecutionStrategies:
 
 ```graphql
 query ComplexQuery {
-    astronaut(id: 1) {
+    astronaut(id: 1) { # async
         id
         name
     }
-    nasa {
-        astronaut(id: 2) {
+    nasa { #sync
+        astronaut(id: 2) { # async
             id
             name
         }
-        address {
+        address { # sync
             street
             zipCode
         }
@@ -125,11 +127,6 @@ query ComplexQuery {
     }
 }
 ```
-**Assuming that:**
-
-* **astronaut** `DataFetcher` returns an async object `CompletableFuture<Astronaut>` as it needs a network request to the "astronauts API".
-* **nasa** `DataFetcher` returns a sync object `Nasa`.
-* **address** `DataFetcher` returns a sync object `Address`.
 
 **The order of execution of the query will be:**
 1. Start an `ExecutionStrategy` for the `root` field of the query, to concurrently resolve `astronaut` and `nasa` fields.
@@ -143,8 +140,9 @@ query ComplexQuery {
     * `street` **DataFetcher** will return a scalar, so we can consider this path exhausted.
     * `zipCode` **DataFetcher** will return a scalar, so we can consider this path exhausted.
 
-The same logic will apply if we split that query in 2 because `graphql-kotlin-dataloader-instrumentations`
-are applied to multiple operations.
+By default, each GraphQL operation is processed independently of each other. Multiple operations can be processed
+together as if they were single GraphQL request if they are part of the same batch request and server
+is using one of the `graphql-kotlin-dataloader-instrumentation`s.
 
 ![Image of data loader level dispatched instrumentation](../assets/data-loader-level-sync-executon-exhausted-instrumentation.png)
 
