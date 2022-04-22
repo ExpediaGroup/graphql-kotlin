@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture
 class DataLoaderSyncExecutionExhaustedInstrumentation : AbstractSyncExecutionExhaustedInstrumentation() {
     override fun getOnSyncExecutionExhaustedCallback(
         parameters: SyncExecutionExhaustedInstrumentationParameters
-    ): OnSyncExecutionExhaustedCallback = { operations ->
+    ): OnSyncExecutionExhaustedCallback = { _ ->
         parameters
             .executionContext
             .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
