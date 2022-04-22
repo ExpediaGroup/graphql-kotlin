@@ -24,11 +24,14 @@ import org.dataloader.DataLoaderRegistry
  */
 class KotlinDataLoaderRegistryFactory(
     private val dataLoaders: List<KotlinDataLoader<*, *>>
-) : DataLoaderRegistryFactory {
+) {
 
     constructor(vararg dataLoaders: KotlinDataLoader<*, *>) : this(dataLoaders.toList())
 
-    override fun generate(): KotlinDataLoaderRegistry {
+    /**
+     * Generate [KotlinDataLoaderRegistry] to be used for GraphQL request execution.
+     */
+    fun generate(): KotlinDataLoaderRegistry {
         val futureCacheMaps = mutableListOf<KotlinDefaultCacheMap<*, *>>()
 
         val registry = DataLoaderRegistry()

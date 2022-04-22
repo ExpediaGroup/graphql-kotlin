@@ -1,5 +1,5 @@
 ---
-id: data-loaders-instrumentations
+id: data-loader-instrumentation
 title: Data Loader Instrumentations
 ---
 
@@ -27,7 +27,7 @@ The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom `DataLo
 
  Consider the following example:
 
-![Image of data loader level dispatched instrumentation](../assets/data-loader-level-dispatched-instrumentation.png)
+![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-dispatched-instrumentation.png)
 
 The `DataLoaderLevelDispatchedInstrumentation` will track the state of all `ExecutionInputs` and when a certain field dispatches
 it will calculate if all fields of all operations for a particular level were dispatched, if so, it will dispatch the `KotlinDataLoaderRegistry`.
@@ -138,7 +138,7 @@ By default, each GraphQL operation is processed independently of each other. Mul
 together as if they were single GraphQL request if they are part of the same batch request and server
 is using one of the `graphql-kotlin-dataloader-instrumentation`s.
 
-![Image of data loader level dispatched instrumentation](../assets/data-loader-level-sync-executon-exhausted-instrumentation.png)
+![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-executon-exhausted-instrumentation.png)
 
 ### Usage
 ```kotlin
@@ -183,5 +183,5 @@ val result2 = graphQL.executeAsync(ExecutionInput.newExecutionInput(queries[1]).
 You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
 
 
-If you are using [graphql-kotlin-spring-server](./spring-server/spring-overview.mdx), you can decide which instrumentation to use through configurations
-and spring will do the autoconfiguration for you, check [configuration properties of spring server](./spring-server/spring-properties.md).
+If you are using [graphql-kotlin-spring-server](../spring-server/spring-overview.mdx), you can decide which instrumentation to use through configurations
+and spring will do the autoconfiguration for you, check [configuration properties of spring server](../spring-server/spring-properties.md).

@@ -4,7 +4,7 @@ title: GraphQLRequestHandler
 ---
 The `GraphQLRequestHandler` is an open and extendable class that contains the basic logic to get a `GraphQLResponse`.
 
-It requires a `GraphQLSchema` and a [KotlinDataLoaderRegistryFactory](data-loaders.md) in the constructor.
+It requires a `GraphQLSchema` and a [KotlinDataLoaderRegistryFactory](./data-loader/data-loader.md) in the constructor.
 For each request, it accepts a `GraphQLRequest` and an optional [GraphQLContext](graphql-context-factory.md),
 and calls the `KotlinDataLoaderRegistryFactory` to generate a new `KotlinDataLoaderRegistry`.
 
