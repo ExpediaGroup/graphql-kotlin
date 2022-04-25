@@ -8,15 +8,15 @@ that will calculate when is the right moment to dispatch `KotlinDataLoader`s acr
 
 These custom instrumentations follow the similar approach as the default [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java)
 from `graphql-java`, the main difference is that regular instrumentations apply to a single `ExecutionInput` aka [GraphQL Operation](https://www.graphql-java.com/documentation/execution#queries),
-whereas these custom instrumentations applies to multiple GraphQL operations (say a BatchRequest) and stores its state in the `GraphQLContext`.
+whereas these custom instrumentations apply to multiple GraphQL operations (say a BatchRequest) and stores their state in the `GraphQLContext`.
 allowing batching and deduplication of transactions across those multiple GraphQL operations.
 
 The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom `DataLoader` instrumentations:
 
 1. **DataLoaderLevelDispatchedInstrumentation**
 
-   Dispatches all data loaders when a certain **Level** when a certain **Level**of all **ExecutionInputs** sharing a
-   GraphQLContext was dispatched (all DataFetchers were invoked).
+   Dispatches all data loaders when a certain **Level** of all **ExecutionInputs** sharing a
+   **GraphQLContext** was dispatched (all DataFetchers were invoked).
 
 2. **DataLoaderSyncExecutionExhaustedInstrumentation**
 
@@ -81,7 +81,7 @@ You can find additional examples in our [unit tests](https://github.com/ExpediaG
 This instrumentation is a good option if your GraphQL Server will receive a batched request with operations of the same type,
 in those cases batching by level is enough, however, this solution is far from being the most optimal as we don't necessarily want to dispatch by level.
 
-## Dispatching by execution exhaustion
+## Dispatching by synchronous execution exhaustion
 
 The most optimal time to dispatch all data loaders is when all possible synchronous execution paths across all batch
 operations were exhausted. Synchronous execution path is considered exhausted (or completed) when all currently processed
