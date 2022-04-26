@@ -69,18 +69,39 @@ query Q2 {
 * The `missions` `DataFetcher` uses a `MissionsByAstronautDataLoader` which will be dispatched when **Level 2** of those 2 operations
   is dispatched, causing the `MissionsByAstronautDataLoader` to load 2 lists of missions by astronaut.
 
-### Usage on spring server
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/level/DataLoaderLevelDispatchedInstrumentationTest.kt).
 
+### Usage
+
+In order to enable batching by level, you need to configure your GraphQL instance with the `DataLoaderLevelDispatchedInstrumentation`.
+
+```kotlin
+val graphQL = GraphQL.Builder()
+    .doNotAddDefaultInstrumentations()
+    .instrumentation(DataLoaderLevelDispatchedInstrumentation())
+    // configure schema, type wiring, etc.
+    .build()
+```
+
+This data loader instrumentation relies on a global state object that should be stored in the GraphQL context map
+
+```kotlin
+val graphQLContext = mapOf(
+    KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
+    SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(queries.size)
+)
+```
+
+:::info
+`graphql-kotlin-spring-server` provides convenient integration of batch loader functionality through simple configuration.
+Batching by level can be enabled by configuring following properties:
 ```yaml
 graphql:
   batching:
    enabled: true
    strategy: LEVEL_DISPATCHED
 ```
-
-this configuration will add a `DataLoaderLevelDispatchedInstrumentation` instance to the `GraphQL` instance.
-
-You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/level/DataLoaderLevelDispatchedInstrumentationTest.kt).
+:::
 
 ### Limitations
 
@@ -97,11 +118,9 @@ Let's analyze how GraphQL execution works, but first lets check some GraphQL con
 
 **DataFetcher**
 
-Each field in GraphQL has a `DataFetcher` associated with it, some fields will use specialized `DataFetcher`s
+Each field in GraphQL has a resolver aka `DataFetcher` associated with it, some fields will use specialized `DataFetcher`s
 that knows how to go to a database or make a network request to get field information while most simply take
 data from the returned memory objects.
-
-Note: `DataFetcher`s are some times called "resolvers" in other graphql implementations.
 
 
 **Execution Strategy**
@@ -180,12 +199,39 @@ if we proceed dispatching all data loaders the execution will continue to just r
 
 ![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-execution-exhausted-instrumentation.png)
 
-### Usage on spring server
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
+
+### Usage
+
+In order to enable batching by synchronous execution exhaustion, you need to configure your GraphQL instance with the `DataLoaderLevelDispatchedInstrumentation`.
+
+```kotlin
+val graphQL = GraphQL.Builder()
+    .doNotAddDefaultInstrumentations()
+    .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+    // configure schema, type wiring, etc.
+    .build()
+```
+
+This data loader instrumentation relies on a global state object that should be stored in the GraphQL context map
+
+```kotlin
+val graphQLContext = mapOf(
+    KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
+    SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(
+        queries.size,
+        kotlinDataLoaderRegistry
+    )
+)
+```
+
+:::info
+`graphql-kotlin-spring-server` provides convenient integration of batch loader functionality through simple configuration.
+Batching by synchronous execution exhaustion can be enabled by configuring following properties:
 ```yaml
 graphql:
   batching:
-    enabled: true
-    strategy: SYNC_EXHAUSTION
+   enabled: true
+   strategy: SYNC_EXHAUSTION
 ```
-
-You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
+:::
