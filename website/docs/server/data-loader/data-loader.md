@@ -6,7 +6,7 @@ Data Loaders are a popular caching pattern from the [JavaScript GraphQL implemen
 `graphql-java` provides [support for this pattern](https://www.graphql-java.com/documentation/v16/batching/)
 using the `DataLoader` and `DataLoaderRegistry`.
 
-Since graphql-kotlin allows you to abstract the schema generation and data fetching code, you may not even need
+Since `graphql-kotlin` allows you to abstract the schema generation and data fetching code, you may not even need
 data loaders if instead you have some persistant cache on your server.
 
 ```kotlin

@@ -3,28 +3,22 @@ id: data-loader-instrumentation
 title: Data Loader Instrumentations
 ---
 
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 `graphql-kotlin-dataloader-instrumentation` is set of custom [Instrumentations](https://www.graphql-java.com/documentation/instrumentation/)
 that will calculate when is the right moment to dispatch `KotlinDataLoader`s across single and batch GraphQL operations.
 
 These custom instrumentations follow the similar approach as the default [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java)
 from `graphql-java`, the main difference is that regular instrumentations apply to a single `ExecutionInput` aka [GraphQL Operation](https://www.graphql-java.com/documentation/execution#queries),
-whereas these custom instrumentations apply to multiple GraphQL operations (say a BatchRequest) and stores their state in the `GraphQLContext`.
+whereas these custom instrumentations apply to multiple GraphQL operations (say a BatchRequest) and stores their state in the `GraphQLContext`
 allowing batching and deduplication of transactions across those multiple GraphQL operations.
 
 By default, each GraphQL operation is processed independently of each other. Multiple operations can be processed
 together as if they were single GraphQL request if they are part of the same batch request.
 
-The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom `DataLoader` instrumentations:
-
-1. **DataLoaderLevelDispatchedInstrumentation**
-
-   Dispatches all data loaders when a certain **Level** of all **ExecutionInputs** sharing a
-   **GraphQLContext** was dispatched (all DataFetchers were invoked).
-
-2. **DataLoaderSyncExecutionExhaustedInstrumentation**
-
-   Dispatches all data loaders when all synchronous execution paths across all operations are exhausted. Synchronous execution path
-   is considered exhausted when all currently processed data fetchers were either resolved to a scalar or dispatched a `CompletableFuture`.
+The `graphql-kotlin-dataloader-instrumentation` module contains 2 custom `DataLoader` instrumentations.
 
 ## Dispatching by level
 
@@ -34,7 +28,17 @@ it will dispatch all the data loaders.
 
 ### Example
 
-**Queries**
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/level/DataLoaderLevelDispatchedInstrumentationTest.kt).
+
+<Tabs
+    defaultValue="by-level-queries"
+    values={[
+        { label: 'Queries', value: 'by-level-queries' },
+        { label: 'Execution', value: 'by-level-execution' }
+    ]}
+>
+
+<TabItem value="by-level-queries">
 
 ```graphql
 query Q1 {
@@ -60,16 +64,18 @@ query Q2 {
 }
 ```
 
-**Execution diagram**
+</TabItem>
+<TabItem value="by-level-execution">
 
 ![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-dispatched-instrumentation.png)
 
 * The `astronaut` `DataFetcher` uses a `AstronautDataLoader` which will be dispatched when **Level 1** of those 2 operations
-  is dispatched, causing the `AstronautDataLoader` to load 2 astronauts.
+is dispatched, causing the `AstronautDataLoader` to load 2 astronauts.
 * The `missions` `DataFetcher` uses a `MissionsByAstronautDataLoader` which will be dispatched when **Level 2** of those 2 operations
-  is dispatched, causing the `MissionsByAstronautDataLoader` to load 2 lists of missions by astronaut.
+is dispatched, causing the `MissionsByAstronautDataLoader` to load 2 lists of missions by astronaut.
 
-You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/level/DataLoaderLevelDispatchedInstrumentationTest.kt).
+</TabItem>
+</Tabs>
 
 ### Usage
 
@@ -129,7 +135,16 @@ The process of finding values for a list of fields from the GraphQL Query, using
 
 ### Example
 
-**Queries**
+You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
+
+<Tabs
+    defaultValue="by-sync-exhaustion-queries"
+    values={[
+        { label: 'Queries', value: 'by-sync-exhaustion-queries' },
+        { label: 'Execution', value: 'by-sync-exhaustion-execution' }
+    ]}
+>
+<TabItem value='by-sync-exhaustion-queries'>
 
 ```graphql
 query Q1 {
@@ -161,6 +176,10 @@ query Q2 {
     }
 }
 ```
+</TabItem>
+<TabItem value='by-sync-exhaustion-execution'>
+
+![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-execution-exhausted-instrumentation.png)
 
 **The order of execution of the queries will be:**
 
@@ -197,9 +216,8 @@ if we proceed dispatching all data loaders the execution will continue as follow
 **At this point we can consider the synchronous execution exhausted and the `MissionsByAstronautDataLoader` has 2 keys to be dispatched,
 if we proceed dispatching all data loaders the execution will continue to just resolve scalar fields.**
 
-![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-execution-exhausted-instrumentation.png)
-
-You can find additional examples in our [unit tests](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/test/kotlin/com/expediagroup/graphql/dataloader/instrumentation/syncexhaustion/DataLoaderSyncExecutionExhaustedInstrumentationTest.kt).
+</TabItem>
+</Tabs>
 
 ### Usage
 
