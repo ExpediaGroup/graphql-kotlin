@@ -178,7 +178,7 @@ if we proceed dispatching all data loaders the execution will continue as follow
 **At this point we can consider the synchronous execution exhausted and the `MissionsByAstronautDataLoader` has 2 keys to be dispatched,
 if we proceed dispatching all data loaders the execution will continue to just resolve scalar fields.**
 
-![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-executon-exhausted-instrumentation.png)
+![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-execution-exhausted-instrumentation.png)
 
 ### Usage on spring server
 ```yaml
