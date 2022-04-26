@@ -23,5 +23,6 @@ package com.expediagroup.graphql.generator.internal.types
 internal data class GraphQLKTypeMetadata(
     val inputType: Boolean = false,
     val fieldName: String? = null,
-    val fieldAnnotations: List<Annotation> = emptyList()
+    val fieldAnnotations: List<Annotation> = emptyList(),
+    val isDirective: Boolean = false
 )

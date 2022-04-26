@@ -1,3 +1,4 @@
+
 ---
 id: directives
 title: Directives
@@ -199,3 +200,12 @@ directive @directiveWithIgnoredArgs(
   string: String!
 ) on ...
 ```
+
+## Limitations
+
+GraphQL specification allows usage of any valid input objects as directive arguments. Since we rely on Kotlin annotation
+functionality to define our custom directives, we are limited in what can be used as annotation parameter - only primitives (or scalars),
+Strings, Enums, other annotations or an array of any of the above are supported.
+
+Support for input objects can be added by providing that object representation as an annotation class and then adding support
+for it through custom schema generator hooks.

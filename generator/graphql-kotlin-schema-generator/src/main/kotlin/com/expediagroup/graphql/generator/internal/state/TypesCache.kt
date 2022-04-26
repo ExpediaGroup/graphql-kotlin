@@ -77,8 +77,8 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
     }
 
     private fun generateCacheKey(type: KType, typeInfo: GraphQLKTypeMetadata): TypesCacheKey {
-        if (type.getKClass().isListType()) {
-            return TypesCacheKey(type, typeInfo.inputType)
+        if (type.getKClass().isListType(typeInfo.isDirective)) {
+            return TypesCacheKey(type, typeInfo.inputType, isDirective = typeInfo.isDirective)
         }
 
         val customTypeAnnotation = typeInfo.fieldAnnotations.getCustomTypeAnnotation()
@@ -125,7 +125,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
             val kClass = type.getKClass()
 
             when {
-                kClass.isListType() -> null
+                kClass.isListType(cacheKey.isDirective) -> null
                 kClass.isSubclassOf(Enum::class) -> kClass.getSimpleName()
                 isTypeNotSupported(type) -> throw TypeNotSupportedException(type, supportedPackages)
                 else -> type.getSimpleName(cacheKey.inputType)
@@ -136,7 +136,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
     private fun isTypeNotSupported(type: KType): Boolean = supportedPackages.none { type.qualifiedName.startsWith(it) }
 
     internal fun buildIfNotUnderConstruction(kClass: KClass<*>, typeInfo: GraphQLKTypeMetadata, build: (KClass<*>) -> GraphQLType): GraphQLType {
-        if (kClass.isListType()) {
+        if (kClass.isListType(typeInfo.isDirective)) {
             return build(kClass)
         }
 

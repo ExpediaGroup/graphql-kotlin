@@ -108,7 +108,7 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
 
 private fun generateDirectiveArgument(prop: KProperty<*>, generator: SchemaGenerator): GraphQLArgument {
     val propertyName = prop.name
-    val type = generateGraphQLType(generator, prop.returnType)
+    val type = generateGraphQLType(generator, prop.returnType, GraphQLKTypeMetadata(inputType = true, isDirective = true))
 
     // default directive argument values are unsupported
     // https://github.com/ExpediaGroup/graphql-kotlin/issues/53

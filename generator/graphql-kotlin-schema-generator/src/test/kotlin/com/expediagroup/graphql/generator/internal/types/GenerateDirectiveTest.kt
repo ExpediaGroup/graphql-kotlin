@@ -32,6 +32,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class GenerateDirectiveTest {
@@ -78,6 +79,12 @@ class GenerateDirectiveTest {
     @GraphQLDirective
     annotation class RepeatableDirective(val value: String)
 
+    @GraphQLDirective
+    annotation class DirectiveWithArray(val args: Array<String>)
+
+    @GraphQLDirective
+    annotation class DirectiveWithVarArg(vararg val args: String)
+
     class MyClass {
 
         fun noAnnotation(string: String) = string
@@ -112,6 +119,12 @@ class GenerateDirectiveTest {
         @RepeatableDirective("bar")
         @RepeatableDirective("baz")
         fun repeatedDirectives(string: String) = string
+
+        @DirectiveWithArray(args = ["foo", "bar"])
+        fun directiveWithArray(string: String) = string
+
+        @DirectiveWithVarArg(args = ["foo", "bar"])
+        fun directiveWithVararg(string: String) = string
     }
 
     data class MyClassWithConstructorArgs(
@@ -264,6 +277,36 @@ class GenerateDirectiveTest {
         assertEquals("bar", repeatableDirectiveResult[1].getArgument("value")?.argumentValue?.value)
         assertEquals("repeatableDirective", repeatableDirectiveResult[2].name)
         assertEquals("baz", repeatableDirectiveResult[2].getArgument("value")?.argumentValue?.value)
+    }
+
+    @Test
+    fun `directives that accept argument arrays are supported`() {
+        val directiveResult = generateDirectives(basicGenerator, MyClass::directiveWithArray, DirectiveLocation.FIELD_DEFINITION)
+        assertEquals(1, directiveResult.size)
+        assertEquals("directiveWithArray", directiveResult[0].name)
+        val argument = directiveResult[0].getArgument("args")
+        assertNotNull(argument)
+        assertTrue(argument.argumentValue.value?.javaClass?.isArray == true)
+        val arrayArgs = argument.argumentValue.value as? Array<*>
+        assertNotNull(arrayArgs)
+        assertEquals(2, arrayArgs.size)
+        assertEquals("foo", arrayArgs[0])
+        assertEquals("bar", arrayArgs[1])
+    }
+
+    @Test
+    fun `directives that accept vararg argument are supported`() {
+        val directiveResult = generateDirectives(basicGenerator, MyClass::directiveWithVararg, DirectiveLocation.FIELD_DEFINITION)
+        assertEquals(1, directiveResult.size)
+        assertEquals("directiveWithVarArg", directiveResult[0].name)
+        val argument = directiveResult[0].getArgument("args")
+        assertNotNull(argument)
+        assertTrue(argument.argumentValue.value?.javaClass?.isArray == true)
+        val arrayArgs = argument.argumentValue.value as? Array<*>
+        assertNotNull(arrayArgs)
+        assertEquals(2, arrayArgs.size)
+        assertEquals("foo", arrayArgs[0])
+        assertEquals("bar", arrayArgs[1])
     }
 
     companion object {
