@@ -50,7 +50,9 @@ data class GraphQLRequest(
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
-data class GraphQLBatchRequest @JsonCreator constructor(@get:JsonValue val requests: List<GraphQLRequest>) : GraphQLServerRequest()
+data class GraphQLBatchRequest @JsonCreator constructor(@get:JsonValue val requests: List<GraphQLRequest>) : GraphQLServerRequest() {
+    constructor(vararg requests: GraphQLRequest) : this(requests.toList())
+}
 
 class GraphQLServerRequestDeserializer : JsonDeserializer<GraphQLServerRequest>() {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): GraphQLServerRequest {

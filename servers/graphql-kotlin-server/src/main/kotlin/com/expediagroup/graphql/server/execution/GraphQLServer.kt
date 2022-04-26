@@ -16,21 +16,11 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.extensions.isMutation
-import com.expediagroup.graphql.server.extensions.toGraphQLError
-import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
-import com.expediagroup.graphql.server.types.GraphQLBatchRequest
-import com.expediagroup.graphql.server.types.GraphQLBatchResponse
-import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.supervisorScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -43,7 +33,6 @@ open class GraphQLServer<Request>(
     private val contextFactory: GraphQLContextFactory<*, Request>,
     private val requestHandler: GraphQLRequestHandler
 ) {
-
     /**
      * Default execution logic for handling a [Request] and returning a [GraphQLServerResponse].
      *
@@ -52,58 +41,24 @@ open class GraphQLServer<Request>(
      * In the case of errors or exceptions, return a response with GraphQLErrors populated.
      * If you need custom logic inside this method you can override this class or choose not to use it.
      */
-    open suspend fun execute(request: Request): GraphQLServerResponse? = coroutineScope {
-        val graphQLRequest = requestParser.parseRequest(request)
+    open suspend fun execute(
+        request: Request
+    ): GraphQLServerResponse? =
+        coroutineScope {
+            requestParser.parseRequest(request)?.let { graphQLRequest ->
+                val deprecatedContext = contextFactory.generateContext(request)
+                val contextMap = contextFactory.generateContextMap(request)
 
-        if (graphQLRequest != null) {
-            val deprecatedContext = contextFactory.generateContext(request)
-            val contextMap = contextFactory.generateContextMap(request)
+                val customCoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
+                    (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+                val graphQLExecutionScope = CoroutineScope(
+                    coroutineContext + customCoroutineContext + SupervisorJob()
+                )
+                val graphQLContext = contextMap + mapOf(
+                    CoroutineScope::class to graphQLExecutionScope
+                )
 
-            val customCoroutineContext: CoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
-                (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
-            val graphQLExecutionScope = CoroutineScope(coroutineContext + customCoroutineContext + SupervisorJob())
-            val graphQLContext = contextMap + mapOf(CoroutineScope::class to graphQLExecutionScope)
-
-            when (graphQLRequest) {
-                is GraphQLRequest -> requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
-                is GraphQLBatchRequest -> when {
-                    graphQLRequest.requests.any(GraphQLRequest::isMutation) -> GraphQLBatchResponse(
-                        graphQLRequest.requests.map {
-                            requestHandler.executeRequest(it, deprecatedContext, graphQLContext)
-                        }
-                    )
-                    else -> {
-                        GraphQLBatchResponse(
-                            handleConcurrently(graphQLRequest, deprecatedContext, graphQLContext)
-                        )
-                    }
-                }
+                requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
             }
-        } else {
-            null
         }
-    }
-
-    /**
-     * Concurrently execute a [batchRequest], a failure in an specific request will not cause the scope
-     * to fail and does not affect the other requests. The total execution time will be the time of the slowest
-     * request
-     */
-    private suspend fun handleConcurrently(
-        batchRequest: GraphQLBatchRequest,
-        context: GraphQLContext?,
-        graphQLContext: Map<*, Any>
-    ): List<GraphQLResponse<*>> = supervisorScope {
-        batchRequest.requests.map { request ->
-            async {
-                try {
-                    requestHandler.executeRequest(request, context, graphQLContext)
-                } catch (e: Exception) {
-                    GraphQLResponse<Any?>(
-                        errors = listOf(e.toGraphQLError().toGraphQLKotlinType())
-                    )
-                }
-            }
-        }.awaitAll()
-    }
 }

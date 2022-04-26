@@ -16,27 +16,36 @@
 
 package com.expediagroup.graphql.server.extensions
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
+import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
-import org.dataloader.DataLoaderRegistry
 
 /**
- * Convert the common [GraphQLRequest] to the execution input used by graphql-java
+ * Convert the common [GraphQLRequest] to the [ExecutionInput] used by graphql-java
  */
 fun GraphQLRequest.toExecutionInput(
+    dataLoaderRegistry: KotlinDataLoaderRegistry? = null,
     graphQLContext: Any? = null,
-    dataLoaderRegistry: DataLoaderRegistry? = null,
     graphQLContextMap: Map<*, Any>? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
+        .dataLoaderRegistry(dataLoaderRegistry ?: KotlinDataLoaderRegistry())
         .also { builder ->
             graphQLContext?.let { builder.context(it) }
             graphQLContextMap?.let { builder.graphQLContext(it) }
         }
-        .dataLoaderRegistry(dataLoaderRegistry ?: DataLoaderRegistry())
         .build()
 
+/**
+ * Without doing a parsing attempt checks if the [GraphQLRequest] is a mutation
+ */
 fun GraphQLRequest.isMutation(): Boolean = query.contains("mutation ")
+
+/**
+ * Without doing a parsing attempt checks if the [GraphQLBatchRequest] contains a mutation
+ */
+fun GraphQLBatchRequest.containsMutation(): Boolean = requests.any(GraphQLRequest::isMutation)

@@ -231,6 +231,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """
                 fragment AstronautFragment on Astronaut { name missions { designation } }
                 fragment MissionFragment on Mission { designation }
+
                 query ComplexQuery {
                     astronauts1And2: astronauts(ids: [1, 2]) { ...AstronautFragment }
                     missions1And2: missions(ids: [1, 2]) { ...MissionFragment }

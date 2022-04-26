@@ -16,6 +16,10 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,7 +36,9 @@ class KtorGraphQLServer(
 ) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
 
 fun getGraphQLServer(mapper: ObjectMapper): KtorGraphQLServer {
-    val dataLoaderRegistryFactory = KtorDataLoaderRegistryFactory()
+    val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
+        UniversityDataLoader, CourseDataLoader, BookDataLoader
+    )
     val requestParser = KtorGraphQLRequestParser(mapper)
     val contextFactory = KtorGraphQLContextFactory()
     val graphQL = getGraphQLObject()

@@ -70,8 +70,15 @@ module.exports = {
       'server/graphql-request-parser',
       'server/graphql-context-factory',
       'server/graphql-request-handler',
-      'server/data-loaders',
       'server/server-subscriptions',
+      {
+        type: 'category',
+        label: 'Data Loader',
+        items: [
+          'server/data-loader/data-loader',
+          'server/data-loader/data-loader-instrumentation'
+        ]
+      },
       {
         type: 'category',
         label: 'Spring Server',

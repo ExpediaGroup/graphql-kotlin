@@ -29,8 +29,8 @@ import java.util.function.Function
  * that way we can know if all dependants of the [CompletableFuture]s were executed.
  */
 class KotlinDataLoaderRegistry(
-    private val registry: DataLoaderRegistry,
-    private val futureCacheMaps: List<KotlinDefaultCacheMap<*, *>>
+    private val registry: DataLoaderRegistry = DataLoaderRegistry(),
+    private val futureCacheMaps: List<KotlinDefaultCacheMap<*, *>> = emptyList()
 ) : DataLoaderRegistry() {
 
     private val futuresToComplete: MutableList<CompletableFuture<*>> = mutableListOf()

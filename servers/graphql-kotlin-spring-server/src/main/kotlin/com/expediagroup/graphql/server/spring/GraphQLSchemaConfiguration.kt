@@ -18,7 +18,9 @@ package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
-import com.expediagroup.graphql.dataloader.DataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
+import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
@@ -60,45 +62,52 @@ const val DEFAULT_INSTRUMENTATION_ORDER = 0
     FederatedSchemaAutoConfiguration::class
 )
 class GraphQLSchemaConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     fun graphQL(
         schema: GraphQLSchema,
         dataFetcherExceptionHandler: DataFetcherExceptionHandler,
-        instrumentations: Optional<List<Instrumentation>>,
+        providedInstrumentations: Optional<List<Instrumentation>>,
         executionIdProvider: Optional<ExecutionIdProvider>,
         preparsedDocumentProvider: Optional<PreparsedDocumentProvider>,
         config: GraphQLConfigurationProperties,
         idValueUnboxer: IDValueUnboxer
     ): GraphQL {
-        val graphQL = GraphQL.newGraphQL(schema)
+        val graphQLBuilder = GraphQL.newGraphQL(schema)
             .queryExecutionStrategy(AsyncExecutionStrategy(dataFetcherExceptionHandler))
             .mutationExecutionStrategy(AsyncSerialExecutionStrategy(dataFetcherExceptionHandler))
             .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy(dataFetcherExceptionHandler))
             .valueUnboxer(idValueUnboxer)
+            .also { builder ->
+                executionIdProvider.ifPresent(builder::executionIdProvider)
+                preparsedDocumentProvider.ifPresent(builder::preparsedDocumentProvider)
 
-        instrumentations.ifPresent { unordered ->
-            if (unordered.size == 1) {
-                graphQL.instrumentation(unordered.first())
-            } else {
-                val sorted = unordered.sortedBy {
-                    if (it is Ordered) {
-                        it.order
-                    } else {
-                        DEFAULT_INSTRUMENTATION_ORDER
-                    }
+                val instrumentations = mutableListOf<Instrumentation>()
+                if (config.batching.enabled) {
+                    builder.doNotAddDefaultInstrumentations()
+                    instrumentations.add(
+                        when (config.batching.strategy) {
+                            GraphQLConfigurationProperties.BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()
+                            GraphQLConfigurationProperties.BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
+                        }
+                    )
                 }
-                graphQL.instrumentation(ChainedInstrumentation(sorted))
+
+                providedInstrumentations.ifPresent { unorderedInstrumentations ->
+                    instrumentations.addAll(
+                        unorderedInstrumentations.sortedBy { instrumentation ->
+                            when (instrumentation) {
+                                is Ordered -> instrumentation.order
+                                else -> DEFAULT_INSTRUMENTATION_ORDER
+                            }
+                        }
+                    )
+                }
+
+                builder.instrumentation(ChainedInstrumentation(instrumentations))
             }
-        }
-        executionIdProvider.ifPresent {
-            graphQL.executionIdProvider(it)
-        }
-        preparsedDocumentProvider.ifPresent {
-            graphQL.preparsedDocumentProvider(it)
-        }
-        return graphQL.build()
+
+        return graphQLBuilder.build()
     }
 
     @Bean
@@ -107,7 +116,8 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLRequestParser(objectMapper: ObjectMapper): SpringGraphQLRequestParser = SpringGraphQLRequestParser(objectMapper)
+    fun springGraphQLRequestParser(objectMapper: ObjectMapper): SpringGraphQLRequestParser =
+        SpringGraphQLRequestParser(objectMapper)
 
     @Bean
     @ConditionalOnMissingBean
@@ -117,8 +127,11 @@ class GraphQLSchemaConfiguration {
     @ConditionalOnMissingBean
     fun graphQLRequestHandler(
         graphql: GraphQL,
-        dataLoaderRegistryFactory: DataLoaderRegistryFactory
-    ): GraphQLRequestHandler = GraphQLRequestHandler(graphql, dataLoaderRegistryFactory)
+        dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory
+    ): GraphQLRequestHandler = GraphQLRequestHandler(
+        graphql,
+        dataLoaderRegistryFactory
+    )
 
     @Bean
     @ConditionalOnMissingBean
@@ -126,5 +139,9 @@ class GraphQLSchemaConfiguration {
         requestParser: SpringGraphQLRequestParser,
         contextFactory: SpringGraphQLContextFactory<*>,
         requestHandler: GraphQLRequestHandler
-    ): SpringGraphQLServer = SpringGraphQLServer(requestParser, contextFactory, requestHandler)
+    ): SpringGraphQLServer = SpringGraphQLServer(
+        requestParser,
+        contextFactory,
+        requestHandler
+    )
 }
