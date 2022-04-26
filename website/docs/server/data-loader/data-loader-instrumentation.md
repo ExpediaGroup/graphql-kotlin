@@ -97,7 +97,7 @@ Let's analyze how GraphQL execution works, but first lets check some GraphQL con
 
 **DataFetcher**
 
-Each field in GraphQL has a `DataFetcher` associated with it, some fields will use specialized `DataFetcher`s
+Each field in GraphQL has a resolver aka `DataFetcher` associated with it, some fields will use specialized `DataFetcher`s
 that knows how to go to a database or make a network request to get field information while most simply take
 data from the returned memory objects.
 
