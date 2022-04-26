@@ -21,5 +21,6 @@ import kotlin.reflect.KType
 internal data class TypesCacheKey(
     val type: KType,
     val inputType: Boolean = false,
-    val name: String? = null
+    val name: String? = null,
+    val isDirective: Boolean = false
 )

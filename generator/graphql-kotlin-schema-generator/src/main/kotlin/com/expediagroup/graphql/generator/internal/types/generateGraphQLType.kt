@@ -80,7 +80,7 @@ private fun getGraphQLType(
 
     return when {
         kClass.isEnum() -> @Suppress("UNCHECKED_CAST") (generateEnum(generator, kClass as KClass<Enum<*>>))
-        kClass.isListType() -> generateList(generator, type, typeInfo)
+        kClass.isListType(typeInfo.isDirective) -> generateList(generator, type, typeInfo)
         kClass.isUnion(typeInfo.fieldAnnotations) -> generateUnion(
             generator,
             kClass,
