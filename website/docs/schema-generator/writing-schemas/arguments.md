@@ -25,7 +25,8 @@ This behavior is true for all arguments except for the special classes for the [
 Query, Mutation, and Subscription function arguments are automatically converted to GraphQL input fields. GraphQL makes a
 distinction between input and output types and requires unique names for all the types. Since we can use the same
 objects for input and output in our Kotlin functions, `graphql-kotlin-schema-generator` will automatically append
-an `Input` suffix to the GraphQL name of input objects.
+an `Input` suffix to the GraphQL name of input objects, unless the type is [restricted to being used for
+input only](../customizing-schemas/restricting-input-output.md).
 
 For example, the following code:
 
