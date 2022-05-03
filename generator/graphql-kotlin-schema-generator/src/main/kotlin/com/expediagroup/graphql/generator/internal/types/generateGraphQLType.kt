@@ -17,12 +17,15 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.internal.extensions.getCustomTypeAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.getCustomUnionClassWithMetaUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
+import com.expediagroup.graphql.generator.internal.extensions.getMetaUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.internal.extensions.isAnnotation
+import com.expediagroup.graphql.generator.internal.extensions.isAnnotationUnion
 import com.expediagroup.graphql.generator.internal.extensions.isEnum
 import com.expediagroup.graphql.generator.internal.extensions.isInterface
 import com.expediagroup.graphql.generator.internal.extensions.isListType
@@ -32,6 +35,7 @@ import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 
 /**
  * Return a basic GraphQL type given all the information about the kotlin type.
@@ -63,7 +67,15 @@ private fun objectFromReflection(generator: SchemaGenerator, type: KType, typeIn
 
     return generator.cache.buildIfNotUnderConstruction(kClass, typeInfo) {
         val graphQLType = getGraphQLType(generator, kClass, type, typeInfo)
-        generator.config.hooks.willAddGraphQLTypeToSchema(type, graphQLType)
+
+        /*
+         * For a field using the meta union annotation, the `type` is `Any`, but we need to pass the annotation with the meta union annotation as the type
+         * since that is really the type generated from reflection and has any potential directives on it needed by the hook
+         */
+        val metaUnion: Annotation? = typeInfo.fieldAnnotations.firstOrNull { it.getMetaUnionAnnotation() != null }
+        val resolvedType = if (kClass.isInstance(Any::class) && metaUnion != null) metaUnion.annotationClass.createType() else type
+
+        generator.config.hooks.willAddGraphQLTypeToSchema(resolvedType, graphQLType)
     }
 }
 
