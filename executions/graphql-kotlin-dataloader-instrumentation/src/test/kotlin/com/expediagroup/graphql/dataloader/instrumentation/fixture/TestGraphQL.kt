@@ -26,6 +26,10 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.M
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionServiceRequest
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionsByAstronautDataLoader
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetsByMissionDataLoader
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetService
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PlanetServiceRequest
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Nasa
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
@@ -49,6 +53,7 @@ object TestGraphQL {
     private val schema = """
         type Query {
             astronaut(id: ID!): Astronaut
+            astronautByName(name: String!): Astronaut
             mission(id: ID!): Mission
             astronauts(ids: [ID!]): [Astronaut]!
             missions(ids: [ID!]): [Mission]!
@@ -64,13 +69,19 @@ object TestGraphQL {
         }
         type Astronaut {
             id: ID!
-            name: String
+            name: String!
             missions: [Mission!]!
+            planets: [Planet!]!
         }
         type Mission {
             id: ID!
             designation: String!
-            crew: [ID]!
+            crew: [ID!]!
+            planets: [Planet!]!
+        }
+        type Planet {
+            id: ID!
+            name: String!
         }
         type Address {
             street: String!
@@ -122,6 +133,22 @@ object TestGraphQL {
             )
     }
 
+    private val planetService = PlanetService()
+    private val planetsByMissionDataFetcher = DataFetcher { environment ->
+        val mission = environment.getSource<Mission>()
+        planetService.getPlanets(
+            PlanetServiceRequest(0, mission.id),
+            environment
+        )
+    }
+    private val planetsByAstronautDataFetcher = DataFetcher { environment ->
+        val astronaut = environment.getSource<Astronaut>()
+        astronautService.getPlanets(
+            AstronautServiceRequest(astronaut.id),
+            environment
+        )
+    }
+
     private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
         type(
             TypeRuntimeWiring.newTypeWiring("Query")
@@ -134,6 +161,11 @@ object TestGraphQL {
         type(
             TypeRuntimeWiring.newTypeWiring("Astronaut")
                 .dataFetcher("missions", missionsByAstronautDataFetcher)
+                .dataFetcher("planets", planetsByAstronautDataFetcher)
+        )
+        type(
+            TypeRuntimeWiring.newTypeWiring("Mission")
+                .dataFetcher("planets", planetsByMissionDataFetcher)
         )
         type(
             TypeRuntimeWiring.newTypeWiring("Nasa")
@@ -142,6 +174,13 @@ object TestGraphQL {
                 .dataFetcher("astronauts", astronautsDataFetcher)
                 .dataFetcher("missions", missionsDataFetcher)
         )
+        /*type(
+            TypeRuntimeWiring.newTypeWiring("Planet")
+                .dataFetcher("name") {
+                    val planet = it.getSource<Planet>()
+                    planet.name
+                }
+        )*/
     }.build()
 
     val builder: GraphQL.Builder = GraphQL.newGraphQL(
@@ -158,7 +197,9 @@ object TestGraphQL {
     ): Pair<List<ExecutionResult>, KotlinDataLoaderRegistry> {
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
-                AstronautDataLoader(), MissionDataLoader(), MissionsByAstronautDataLoader()
+                AstronautDataLoader(),
+                MissionDataLoader(), MissionsByAstronautDataLoader(),
+                PlanetsByMissionDataLoader()
             ).generate()
         )
 

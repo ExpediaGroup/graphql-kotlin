@@ -17,9 +17,8 @@
 package com.expediagroup.graphql.dataloader.instrumentation.exceptions
 
 import graphql.GraphQLContext
-import org.dataloader.DataLoaderRegistry
 
 /**
- * Thrown when an instance of [DataLoaderRegistry] does not exists in the [GraphQLContext].
+ * Thrown when an instance of a InstrumentationState does not exists in the [GraphQLContext].
  */
-class MissingDataLoaderRegistryException : RuntimeException("DataLoaderRegistry instance not found in the GraphQLContext")
+class MissingInstrumentationStateException : RuntimeException("InstrumentationState instance not found in the GraphQLContext")

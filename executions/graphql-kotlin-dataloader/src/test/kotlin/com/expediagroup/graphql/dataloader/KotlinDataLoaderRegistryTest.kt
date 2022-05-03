@@ -57,7 +57,7 @@ class KotlinDataLoaderRegistryTest {
         registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ -> }
 
         registry.dispatchAll()
-        val futuresToComplete = registry.getFuturesToComplete()
+        val futuresToComplete = registry.getOnDispatchFutures()
         assertEquals(4, futuresToComplete.size)
 
         assertEquals(2, futuresToComplete[0].numberOfDependents) // 2 dependants of touppercase1
@@ -65,9 +65,9 @@ class KotlinDataLoaderRegistryTest {
 
         assertEquals(2, futuresToComplete[2].numberOfDependents) // 2 dependants of TOLOWERCASE1
         assertEquals(1, futuresToComplete[3].numberOfDependents) // 1 dependant of TOLOWERCASE2
-        assertFalse(registry.isDispatchedAndCompleted())
+        assertFalse(registry.onDispatchFuturesHandled())
 
         Thread.sleep(500)
-        assertTrue(registry.isDispatchedAndCompleted())
+        assertTrue(registry.onDispatchFuturesHandled())
     }
 }

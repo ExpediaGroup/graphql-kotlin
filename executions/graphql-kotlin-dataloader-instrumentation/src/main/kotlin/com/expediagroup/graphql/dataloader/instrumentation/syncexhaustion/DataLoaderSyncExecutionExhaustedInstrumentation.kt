@@ -38,9 +38,10 @@ class DataLoaderSyncExecutionExhaustedInstrumentation : AbstractSyncExecutionExh
     override fun getOnSyncExecutionExhaustedCallback(
         parameters: SyncExecutionExhaustedInstrumentationParameters
     ): OnSyncExecutionExhaustedCallback = {
-        parameters
-            .executionContext
-            .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
-            ?.dispatchAll()
+        val kotlinDataLoaderRegistry =
+            parameters
+                .executionContext
+                .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
+        kotlinDataLoaderRegistry?.dispatchAll()
     }
 }

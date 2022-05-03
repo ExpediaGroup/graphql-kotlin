@@ -59,23 +59,25 @@ object AstronautRepository {
         Astronaut(32, "Alfred Worden")
     )
 
-    fun getAstronauts(astronautIds: List<Int>): Flux<Optional<Astronaut>> = when {
-        astronautIds.isNotEmpty() -> {
-            astronautIds
-                .map { astronautId ->
-                    astronauts.getOrNull(astronautId)
-                        ?.let { Optional.of(it) }
-                        ?: Optional.empty<Astronaut>()
-                }.toMono()
-                .delayElement(Duration.ofMillis(200))
-                .flatMapMany { it.toFlux() }
+    fun getAstronauts(astronautIds: List<Int>): Flux<Optional<Astronaut>> =
+        when {
+            astronautIds.isNotEmpty() -> {
+                astronautIds
+                    .map { astronautId ->
+                        astronauts
+                            .firstOrNull { it.id == astronautId }
+                            ?.let { Optional.of(it) }
+                            ?: Optional.empty<Astronaut>()
+                    }.toMono()
+                    .delayElement(Duration.ofMillis(200))
+                    .flatMapMany { it.toFlux() }
+            }
+            else -> {
+                astronauts
+                    .map { Optional.of(it) }
+                    .toMono()
+                    .delayElement(Duration.ofMillis(200))
+                    .flatMapMany { it.toFlux() }
+            }
         }
-        else -> {
-            astronauts
-                .map { Optional.of(it) }
-                .toMono()
-                .delayElement(Duration.ofMillis(200))
-                .flatMapMany { it.toFlux() }
-        }
-    }
 }

@@ -183,7 +183,7 @@ class ExecutionLevelDispatchedState(
      * @param level that execution state will be calculated
      * @return Boolean for allExecutionsDispatched statement
      */
-    private fun allExecutionsDispatched(level: Level): Boolean =
+    fun allExecutionsDispatched(level: Level): Boolean =
         executions
             .takeIf { executions -> executions.size == totalExecutions }
             ?.filter { (_, executionState) -> executionState.contains(level) }
