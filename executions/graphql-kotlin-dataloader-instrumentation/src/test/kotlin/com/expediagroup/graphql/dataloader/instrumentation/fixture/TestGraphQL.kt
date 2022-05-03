@@ -53,7 +53,6 @@ object TestGraphQL {
     private val schema = """
         type Query {
             astronaut(id: ID!): Astronaut
-            astronautByName(name: String!): Astronaut
             mission(id: ID!): Mission
             astronauts(ids: [ID!]): [Astronaut]!
             missions(ids: [ID!]): [Mission]!
@@ -174,13 +173,6 @@ object TestGraphQL {
                 .dataFetcher("astronauts", astronautsDataFetcher)
                 .dataFetcher("missions", missionsDataFetcher)
         )
-        /*type(
-            TypeRuntimeWiring.newTypeWiring("Planet")
-                .dataFetcher("name") {
-                    val planet = it.getSource<Planet>()
-                    planet.name
-                }
-        )*/
     }.build()
 
     val builder: GraphQL.Builder = GraphQL.newGraphQL(
