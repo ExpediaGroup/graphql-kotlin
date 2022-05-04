@@ -226,7 +226,7 @@ class SchemaGeneratorHooksTest {
                 return when {
                     generatedType is GraphQLObjectType && generatedType.name == "SomeData" && type.getKClass() == SomeData::class ->
                         GraphQLObjectType.newObject(generatedType).description("My custom description").build()
-                    generatedType is GraphQLInterfaceType && generatedType.name == "RandomData" &&  type.getKClass() == RandomData::class ->
+                    generatedType is GraphQLInterfaceType && generatedType.name == "RandomData" && type.getKClass() == RandomData::class ->
                         GraphQLInterfaceType.newInterface(generatedType).description("My custom interface description").build()
                     generatedType is GraphQLUnionType && generatedType.name == "MyMetaUnion" && type.getKClass() == MyMetaUnion::class ->
                         GraphQLUnionType.newUnionType(generatedType).description("My meta union description").build()
