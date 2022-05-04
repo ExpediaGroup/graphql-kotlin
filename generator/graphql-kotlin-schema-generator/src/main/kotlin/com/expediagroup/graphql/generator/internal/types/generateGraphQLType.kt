@@ -70,8 +70,12 @@ private fun objectFromReflection(generator: SchemaGenerator, type: KType, typeIn
          * For a field using the meta union annotation, the `type` is `Any`, but we need to pass the annotation with the meta union annotation as the type
          * since that is really the type generated from reflection and has any potential directives on it needed by the hook
          */
-        val metaUnion: Annotation? = typeInfo.fieldAnnotations.firstOrNull { it.getMetaUnionAnnotation() != null }
-        val resolvedType = if (kClass.isInstance(Any::class) && metaUnion != null) metaUnion.annotationClass.createType() else type
+        val metaUnion = typeInfo.fieldAnnotations.firstOrNull { it.getMetaUnionAnnotation() != null }
+        val resolvedType = if (kClass.isInstance(Any::class) && metaUnion != null) {
+            metaUnion.annotationClass.createType()
+        } else {
+            type
+        }
 
         generator.config.hooks.willAddGraphQLTypeToSchema(resolvedType, graphQLType)
     }
