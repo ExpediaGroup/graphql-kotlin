@@ -48,6 +48,23 @@ class KotlinDataLoaderRegistry(
     override fun getStatistics(): Statistics = registry.statistics
 
     /**
+     * will return a list of futures that represents the state of the [CompletableFuture]s from each
+     * [DataLoader] cacheMap when [dispatchAll] was invoked.
+     *
+     * @return list of current completable futures.
+     */
+    fun getOnDispatchFutures(): List<CompletableFuture<*>> = onDispatchFutures
+
+    /**
+     * will return a list of futures that represents the **current** state of the [CompletableFuture]s from each
+     * [DataLoader] cacheMap.
+     *
+     * @return list of current completable futures.
+     */
+    fun getCurrentFutures(): List<CompletableFuture<*>> =
+        futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
+
+    /**
      * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
      * it will start to keep track of the [CompletableFuture]s of each [DataLoader] by adding them to
      * [onDispatchFutures]
@@ -74,13 +91,4 @@ class KotlinDataLoaderRegistry(
      */
     fun dataLoadersInvokedOnDispatch(): Boolean =
         getCurrentFutures().size > onDispatchFutures.size
-
-    /**
-     * will return a list of futures that represents the **current** state of the [CompletableFuture]s from each
-     * [DataLoader] cacheMap.
-     *
-     * @return list of current completable futures.
-     */
-    private fun getCurrentFutures(): List<CompletableFuture<*>> =
-        futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
 }
