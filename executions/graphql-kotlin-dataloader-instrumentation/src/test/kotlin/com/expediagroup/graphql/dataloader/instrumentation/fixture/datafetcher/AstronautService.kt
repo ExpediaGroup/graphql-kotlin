@@ -74,15 +74,18 @@ class AstronautService {
     fun getPlanets(
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
-    ): CompletableFuture<List<Planet>> =
-        environment
-            .getDataLoaderFromContext<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+    ): CompletableFuture<List<Planet>> {
+        val missionsByAstronautDataLoader = environment.getDataLoaderFromContext<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+        val planetsByMissionDataLoader = environment.getDataLoaderFromContext<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
+        return missionsByAstronautDataLoader
             .load(MissionServiceRequest(0, astronautId = request.id))
             .thenCompose { missions ->
-                environment
-                    .getDataLoaderFromContext<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
+                planetsByMissionDataLoader
                     .loadMany(missions.map { PlanetServiceRequest(0, it.id) })
                     .dispatchIfNeeded(environment)
-                    .thenApply { planetsByMission -> planetsByMission.flatten().distinct() }
             }
+            .thenApply { planetsByMission ->
+                planetsByMission.flatten().distinct()
+            }
+    }
 }

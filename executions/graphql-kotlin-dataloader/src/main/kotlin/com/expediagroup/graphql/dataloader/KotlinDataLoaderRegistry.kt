@@ -25,7 +25,7 @@ import java.util.function.Function
 
 /**
  * Custom [DataLoaderRegistry] decorator that has access to the [CacheMap] of each registered [DataLoader]
- * in order to keep track of the [onDispatchAllFutures] when [dispatchAll] is invoked,
+ * in order to keep track of the [onDispatchFutures] when [dispatchAll] is invoked,
  * that way we can know if all dependants of the [CompletableFuture]s were executed.
  */
 class KotlinDataLoaderRegistry(
@@ -33,7 +33,7 @@ class KotlinDataLoaderRegistry(
     private val futureCacheMaps: List<KotlinDefaultCacheMap<*, *>> = emptyList()
 ) : DataLoaderRegistry() {
 
-    private val onDispatchAllFutures: MutableList<CompletableFuture<*>> = mutableListOf()
+    private val onDispatchFutures: MutableList<CompletableFuture<*>> = mutableListOf()
 
     override fun register(key: String, dataLoader: DataLoader<*, *>): DataLoaderRegistry = registry.register(key, dataLoader)
     override fun <K, V> computeIfAbsent(key: String, mappingFunction: Function<String, DataLoader<*, *>>): DataLoader<K, V> = registry.computeIfAbsent(key, mappingFunction)
@@ -50,21 +50,30 @@ class KotlinDataLoaderRegistry(
     /**
      * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
      * it will start to keep track of the [CompletableFuture]s of each [DataLoader] by adding them to
-     * [onDispatchAllFutures]
+     * [onDispatchFutures]
      */
     override fun dispatchAll() {
-        onDispatchAllFutures.clear()
-        onDispatchAllFutures.addAll(getCurrentFutures())
+        onDispatchFutures.clear()
+        onDispatchFutures.addAll(getCurrentFutures())
         registry.dispatchAll()
     }
 
     /**
-     * will return a list of futures that represents the state of the [CompletableFuture]s from each
-     * [DataLoader] cacheMap right before [dispatchAll] is invoked.
+     * Will signal when all dependants of all [onDispatchFutures] were invoked,
+     * [onDispatchFutures] is the list of all [CompletableFuture]s that will complete because the [dispatchAll]
+     * method was invoked
      *
-     * @return list of completable futures gathered right before calling [dispatchAll].
+     * @return weather or not all futures gathered before [dispatchAll] were handled
      */
-    fun getOnDispatchFutures(): List<CompletableFuture<*>> = onDispatchAllFutures
+    fun onDispatchFuturesHandled(): Boolean =
+        onDispatchFutures.all { it.numberOfDependents == 0 }
+
+    /**
+     * Will signal if more dataLoaders where invoked during the [dispatchAll] invocation
+     * @return weather or not futures where loaded during [dispatchAll]
+     */
+    fun dataLoadersInvokedOnDispatch(): Boolean =
+        getCurrentFutures().size > onDispatchFutures.size
 
     /**
      * will return a list of futures that represents the **current** state of the [CompletableFuture]s from each
@@ -72,20 +81,6 @@ class KotlinDataLoaderRegistry(
      *
      * @return list of current completable futures.
      */
-    fun getCurrentFutures(): List<CompletableFuture<*>> = futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
-
-    /**
-     * Will signal when all dependants of all [onDispatchAllFutures] were invoked,
-     * [onDispatchAllFutures] is the list of all [CompletableFuture]s that will complete because the [dispatchAll]
-     * method was invoked
-     *
-     * @return weather or not all futures gathered before [dispatchAll] were handled
-     */
-    fun onDispatchFuturesHandled(): Boolean = onDispatchAllFutures.all { it.numberOfDependents == 0 }
-
-    /**
-     * Will signal if more dataLoaders where invoked during the [dispatchAll] invocation
-     * @return weather or not futures where loaded during [dispatchAll]
-     */
-    fun dataLoadersInvokedOnDispatch(): Boolean = getCurrentFutures().size > getOnDispatchFutures().size
+    private fun getCurrentFutures(): List<CompletableFuture<*>> =
+        futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
 }

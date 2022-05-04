@@ -342,7 +342,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     }
 
     @Test
-    fun `Instrumentation multiple dataLoaders per field 2`() {
+    fun `Instrumentation should batch chained dataLoaders per field dataFetcher`() {
         val queries = listOf(
             """
                 fragment AstronautFragment on Astronaut { planets { name } }
@@ -374,6 +374,49 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
         val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(1, planetStatistics?.batchInvokeCount)
+    }
+
+    @Test
+    fun `Instrumentation should batch chained dataLoaders per field dataFetcher with different queries`() {
+        val queries = listOf(
+            """
+                {
+                    astronaut(id: 1) {
+                        name
+                        planets {
+                            name
+                        }
+                    }
+                }
+            """.trimIndent(),
+            """
+                {
+                    astronaut(id: 3) {
+                        name
+                        missions {
+                            designation
+                            planets {
+                                name
+                            }
+                        }
+                    }
+                }
+            """.trimIndent(),
+        )
+
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+
+        assertEquals(2, results.size)
 
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(1, planetStatistics?.batchInvokeCount)
