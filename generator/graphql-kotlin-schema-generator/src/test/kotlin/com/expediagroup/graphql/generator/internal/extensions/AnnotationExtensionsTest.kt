@@ -110,6 +110,10 @@ class AnnotationExtensionsTest {
         assertNull(WithAnnotations::class.findMemberProperty("id")?.annotations?.getUnionAnnotation())
         @Suppress("DEPRECATION")
         assertNull(WithAnnotations::class.findMemberProperty("id")?.annotations?.getCustomUnionClassWithMetaUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNotNull(WithAnnotations::class.findMemberProperty("metaUnion")?.annotations?.firstOrNull { it is MetaUnion }?.getMetaUnionAnnotation())
+        @Suppress("DEPRECATION")
+        assertNull(WithAnnotations::class.findMemberProperty("union")?.annotations?.firstOrNull { it is GraphQLUnion }?.getMetaUnionAnnotation())
     }
 
     private fun KClass<*>.findMemberProperty(name: String) = this.declaredMemberProperties.find { it.name == name }

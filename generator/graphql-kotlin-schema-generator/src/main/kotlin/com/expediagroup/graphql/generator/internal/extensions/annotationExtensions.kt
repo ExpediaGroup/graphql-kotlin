@@ -37,7 +37,7 @@ internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterI
 
 internal fun List<Annotation>.getCustomUnionClassWithMetaUnionAnnotation(): KClass<*>? = this.firstOrNull { it.getMetaUnionAnnotation() != null }?.annotationClass
 
-private fun Annotation.getMetaUnionAnnotation(): GraphQLUnion? = this.annotationClass.annotations.filterIsInstance(GraphQLUnion::class.java).firstOrNull()
+internal fun Annotation.getMetaUnionAnnotation(): GraphQLUnion? = this.annotationClass.annotations.filterIsInstance(GraphQLUnion::class.java).firstOrNull()
 
 internal fun List<Annotation>.getCustomTypeAnnotation(): GraphQLType? = this.filterIsInstance(GraphQLType::class.java).firstOrNull()
 
