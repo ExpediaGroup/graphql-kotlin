@@ -50,11 +50,6 @@ class GenerateInputObjectTest : TypeTestHelper() {
         val myField: String = "car"
     }
 
-    @GraphQLValidObjectLocations(locations = [GraphQLValidObjectLocations.Locations.INPUT_OBJECT, GraphQLValidObjectLocations.Locations.OBJECT])
-    class InputAndObjectLocation {
-        val myField: String = "car"
-    }
-
     @GraphQLValidObjectLocations(locations = [GraphQLValidObjectLocations.Locations.OBJECT])
     class OutputOnly {
         val myField: String = "car"
@@ -108,18 +103,6 @@ class GenerateInputObjectTest : TypeTestHelper() {
         assertDoesNotThrow {
             generateInputObject(generator, InputOnly::class)
         }
-    }
-
-    @Test
-    fun `input only objects are not suffixed with 'Input'`() {
-        val result = generateInputObject(generator, InputOnly::class)
-        assertEquals("InputOnly", result.name)
-    }
-
-    @Test
-    fun `input and object located objects are suffixed with 'Input'`() {
-        val result = generateInputObject(generator, InputAndObjectLocation::class)
-        assertEquals("InputAndObjectLocationInput", result.name)
     }
 
     @Test
