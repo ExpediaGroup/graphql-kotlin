@@ -60,9 +60,9 @@ class CustomUnionAnnotationTest {
         assertEquals("[Prime]", schema.queryType.getFieldDefinition("nullableListPrimes").type.deepName)
 
         val unionWithDirective = schema.getType("Prime") as GraphQLUnionType
-        assertNotNull(unionWithDirective.appliedDirectives)
-        assertEquals(1, unionWithDirective.appliedDirectives.size)
-        assertEquals("TestDirective", unionWithDirective.appliedDirectives[0].name)
+        assertNotNull(unionWithDirective.directives)
+        assertEquals(1, unionWithDirective.directives.size)
+        assertEquals("TestDirective", unionWithDirective.directives[0].name)
     }
 
     @Test
@@ -91,9 +91,9 @@ class CustomUnionAnnotationTest {
         assertEquals(2, types.size)
         val metaUnion = types.find { it.deepName == "Prime" } as GraphQLUnionType
         assertNotNull(metaUnion)
-        assertNotNull(metaUnion.appliedDirectives)
-        assertEquals(1, metaUnion.appliedDirectives.size)
-        assertEquals("TestDirective", metaUnion.appliedDirectives[0].name)
+        assertNotNull(metaUnion.directives)
+        assertEquals(1, metaUnion.directives.size)
+        assertEquals("TestDirective", metaUnion.directives[0].name)
         assertSame(metaUnion, (types.find { it.deepName != "Prime" } as GraphQLObjectType).getField("union").type.unwrapType())
     }
 

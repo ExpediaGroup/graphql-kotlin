@@ -148,9 +148,9 @@ class GenerateUnionTest : TypeTestHelper() {
         assertEquals(1, result.types.size)
         assertEquals("StrawBerryCake", result.types[0].name)
         assertEquals("meta union", result.description)
-        assertNotNull(result.appliedDirectives)
-        assertEquals(1, result.appliedDirectives.size)
-        assertEquals("simpleDirective", result.appliedDirectives.first().name)
+        assertNotNull(result.directives)
+        assertEquals(1, result.directives.size)
+        assertEquals("simpleDirective", result.directives.first().name)
     }
 
     @Test
