@@ -50,7 +50,7 @@ private fun generateUnionFromAnnotation(generator: SchemaGenerator, unionAnnotat
 
     customUnionAnnotationClass?.let {
         generateDirectives(generator, customUnionAnnotationClass, DirectiveLocation.UNION).forEach {
-            builder.withAppliedDirective(it)
+            builder.withDirective(it)
         }
     }
 
