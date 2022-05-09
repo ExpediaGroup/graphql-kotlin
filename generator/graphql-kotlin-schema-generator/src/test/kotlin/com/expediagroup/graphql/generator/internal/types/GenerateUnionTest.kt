@@ -21,6 +21,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.InvalidGraphQLNameException
 import com.expediagroup.graphql.generator.exceptions.InvalidUnionException
+import com.expediagroup.graphql.generator.internal.extensions.getUnionAnnotation
 import com.expediagroup.graphql.generator.test.utils.SimpleDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
@@ -60,6 +61,10 @@ class GenerateUnionTest : TypeTestHelper() {
         fun getUnionB(): NestedUnionB = NestedClass()
     }
 
+    @SimpleDirective
+    @GraphQLUnion(name = "MetaUnion", possibleTypes = [StrawBerryCake::class], description = "meta union")
+    annotation class MetaUnion
+
     class AnnotationUnion {
         @GraphQLUnion(name = "Foo", possibleTypes = [StrawBerryCakeCustomName::class, StrawBerryCake::class], description = "A custom cake")
         fun cake(withName: Boolean): Any = if (withName) StrawBerryCakeCustomName() else StrawBerryCake()
@@ -69,6 +74,9 @@ class GenerateUnionTest : TypeTestHelper() {
 
         @GraphQLUnion(name = "Invalid\$Name", possibleTypes = [StrawBerryCake::class])
         fun invalidUnion(): Any = StrawBerryCake()
+
+        @MetaUnion
+        fun metaUnion(): Any = StrawBerryCake()
     }
 
     interface `Invalid$UnionName`
@@ -129,6 +137,20 @@ class GenerateUnionTest : TypeTestHelper() {
         assertEquals("StrawBerryCakeRenamed", result.types[0].name)
         assertEquals("StrawBerryCake", result.types[1].name)
         assertEquals("A custom cake", result.description)
+    }
+
+    @Test
+    fun `custom union with meta union annotation and directives can be used`() {
+        val annotation = AnnotationUnion::metaUnion.annotations.first() as MetaUnion
+        val result = generateUnion(generator, Any::class, annotation.annotationClass.annotations.getUnionAnnotation(), annotation.annotationClass)
+
+        assertEquals("MetaUnion", result.name)
+        assertEquals(1, result.types.size)
+        assertEquals("StrawBerryCake", result.types[0].name)
+        assertEquals("meta union", result.description)
+        assertNotNull(result.directives)
+        assertEquals(1, result.directives.size)
+        assertEquals("simpleDirective", result.directives.first().name)
     }
 
     @Test

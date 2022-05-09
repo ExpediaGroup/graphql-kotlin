@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.annotations.GraphQLType
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import kotlin.reflect.KAnnotatedElement
+import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 internal fun KAnnotatedElement.getGraphQLDescription(): String? = this.findAnnotation<GraphQLDescription>()?.value
@@ -32,7 +33,11 @@ internal fun KAnnotatedElement.getDeprecationReason(): String? = this.findAnnota
 
 internal fun KAnnotatedElement.isGraphQLIgnored(): Boolean = this.findAnnotation<GraphQLIgnore>() != null
 
-internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterIsInstance(GraphQLUnion::class.java).firstOrNull()
+internal fun List<Annotation>.getUnionAnnotation(): GraphQLUnion? = this.filterIsInstance(GraphQLUnion::class.java).firstOrNull() ?: this.map { it.getMetaUnionAnnotation() }.firstOrNull()
+
+internal fun List<Annotation>.getCustomUnionClassWithMetaUnionAnnotation(): KClass<*>? = this.firstOrNull { it.getMetaUnionAnnotation() != null }?.annotationClass
+
+internal fun Annotation.getMetaUnionAnnotation(): GraphQLUnion? = this.annotationClass.annotations.filterIsInstance(GraphQLUnion::class.java).firstOrNull()
 
 internal fun List<Annotation>.getCustomTypeAnnotation(): GraphQLType? = this.filterIsInstance(GraphQLType::class.java).firstOrNull()
 

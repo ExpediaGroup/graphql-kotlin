@@ -34,6 +34,7 @@ import graphql.schema.GraphQLTypeReference
 import java.io.Closeable
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.starProjectedType
 
@@ -88,7 +89,7 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
         val unionAnnotation = typeInfo.fieldAnnotations.getUnionAnnotation()
         if (unionAnnotation != null) {
             if (type.getKClass().isAnnotationUnion(typeInfo.fieldAnnotations)) {
-                return TypesCacheKey(type, typeInfo.inputType, getCustomUnionNameKey(unionAnnotation))
+                return TypesCacheKey(Any::class.createType(), typeInfo.inputType, getCustomUnionNameKey(unionAnnotation))
             } else {
                 throw InvalidCustomUnionException(type)
             }
@@ -148,7 +149,8 @@ internal class TypesCache(private val supportedPackages: List<String>) : Closeab
                 typesUnderConstruction.add(cacheKey)
                 val newType = build(kClass)
                 if (newType !is GraphQLTypeReference && newType is GraphQLNamedType) {
-                    put(cacheKey, KGraphQLType(kClass, newType))
+                    val cacheKClass = if (kClass.isAnnotationUnion(typeInfo.fieldAnnotations)) Any::class else kClass
+                    put(cacheKey, KGraphQLType(cacheKClass, newType))
                 }
                 typesUnderConstruction.remove(cacheKey)
                 newType

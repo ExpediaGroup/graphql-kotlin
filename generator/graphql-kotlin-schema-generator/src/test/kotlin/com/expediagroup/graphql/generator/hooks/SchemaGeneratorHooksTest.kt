@@ -20,11 +20,13 @@ import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.exceptions.EmptyInputObjectTypeException
 import com.expediagroup.graphql.generator.exceptions.EmptyInterfaceTypeException
 import com.expediagroup.graphql.generator.exceptions.EmptyObjectTypeException
 import com.expediagroup.graphql.generator.extensions.deepName
 import com.expediagroup.graphql.generator.getTestSchemaConfigWithHooks
+import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.test.utils.graphqlUUIDType
 import com.expediagroup.graphql.generator.testSchemaConfig
@@ -36,6 +38,7 @@ import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLUnionType
 import graphql.schema.validation.InvalidSchemaException
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.reactive.asPublisher
@@ -221,19 +224,25 @@ class SchemaGeneratorHooksTest {
             override fun willAddGraphQLTypeToSchema(type: KType, generatedType: GraphQLType): GraphQLType {
                 hookCalled = true
                 return when {
-                    generatedType is GraphQLObjectType && generatedType.name == "SomeData" -> GraphQLObjectType.newObject(generatedType).description("My custom description").build()
-                    generatedType is GraphQLInterfaceType && generatedType.name == "RandomData" ->
+                    generatedType is GraphQLObjectType && generatedType.name == "SomeData" && type.getKClass() == SomeData::class ->
+                        GraphQLObjectType.newObject(generatedType).description("My custom description").build()
+                    generatedType is GraphQLInterfaceType && generatedType.name == "RandomData" && type.getKClass() == RandomData::class ->
                         GraphQLInterfaceType.newInterface(generatedType).description("My custom interface description").build()
+                    generatedType is GraphQLUnionType && generatedType.name == "MyMetaUnion" && type.getKClass() == MyMetaUnion::class ->
+                        GraphQLUnionType.newUnionType(generatedType).description("My meta union description").build()
+                    generatedType is GraphQLUnionType && generatedType.name == "MyAdditionalMetaUnion" && type.getKClass() == MyAdditionalMetaUnion::class ->
+                        GraphQLUnionType.newUnionType(generatedType).description("My additional meta union description").build()
                     else -> generatedType
                 }
             }
         }
 
         val hooks = MockSchemaGeneratorHooks()
-        val schema = toSchema(
-            queries = listOf(TopLevelObject(TestQuery())),
-            config = getTestSchemaConfigWithHooks(hooks)
-        )
+        val generator = SchemaGenerator(getTestSchemaConfigWithHooks(hooks))
+        val schema = generator.use {
+            it.generateSchema(queries = listOf(TopLevelObject(TestQuery())), additionalTypes = setOf(MyAdditionalMetaUnion::class.createType()))
+        }
+
         assertTrue(hooks.hookCalled)
 
         val type = schema.getObjectType("SomeData")
@@ -243,6 +252,14 @@ class SchemaGeneratorHooksTest {
         val interfaceType = schema.getType("RandomData") as? GraphQLInterfaceType
         assertNotNull(interfaceType)
         assertEquals(expected = "My custom interface description", actual = interfaceType.description)
+
+        val metaUnionType = schema.getType("MyMetaUnion") as? GraphQLUnionType
+        assertNotNull(metaUnionType)
+        assertEquals(expected = "My meta union description", actual = metaUnionType.description)
+
+        val additionalMetaUnionType = schema.getType("MyAdditionalMetaUnion") as? GraphQLUnionType
+        assertNotNull(additionalMetaUnionType)
+        assertEquals(expected = "My additional meta union description", actual = additionalMetaUnionType.description)
     }
 
     @Test
@@ -346,7 +363,15 @@ class SchemaGeneratorHooksTest {
 
     class TestQuery {
         fun query(): SomeData = SomeData("someData", 0)
+        @MyMetaUnion
+        fun unionQuery(): Any = SomeData("someData", 0)
     }
+
+    @GraphQLUnion(name = "MyMetaUnion", possibleTypes = [SomeData::class])
+    annotation class MyMetaUnion
+
+    @GraphQLUnion(name = "MyAdditionalMetaUnion", possibleTypes = [SomeData::class])
+    annotation class MyAdditionalMetaUnion
 
     class TestSubscription {
         fun subscription(): Publisher<SomeData> = flowOf(SomeData("someData", 0)).asPublisher()

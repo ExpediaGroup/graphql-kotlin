@@ -64,7 +64,10 @@ internal fun KClass<*>.isUnion(fieldAnnotations: List<Annotation> = emptyList())
 
 private fun KClass<*>.isDeclaredUnion() = this.isInterface() && this.declaredMemberProperties.isEmpty() && this.declaredMemberFunctions.isEmpty()
 
-internal fun KClass<*>.isAnnotationUnion(fieldAnnotations: List<Annotation>): Boolean = this.isInstance(Any::class) && fieldAnnotations.getUnionAnnotation() != null
+internal fun KClass<*>.isAnnotationUnion(fieldAnnotations: List<Annotation>): Boolean = (this.isInstance(Any::class) || this.isAnnotation()) &&
+    fieldAnnotations.getUnionAnnotation() != null
+
+internal fun KClass<*>.isAnnotation(): Boolean = this.isSubclassOf(Annotation::class)
 
 /**
  * Do not add interfaces as additional types if it expects all the types
