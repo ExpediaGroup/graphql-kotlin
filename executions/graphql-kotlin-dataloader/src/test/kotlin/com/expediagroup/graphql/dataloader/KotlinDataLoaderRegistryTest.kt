@@ -30,14 +30,14 @@ class KotlinDataLoaderRegistryTest {
         val stringToUpperCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToUppercaseDataLoader"
             override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { keys ->
-                keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(400)).toFuture()
+                keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
             }
         }
 
         val stringToLowerCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToLowercaseDataLoader"
             override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { keys ->
-                keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(400)).toFuture()
+                keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
             }
         }
 
