@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.dataloader
 
-import io.mockk.spyk
 import org.dataloader.BatchLoader
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
@@ -31,22 +30,20 @@ class KotlinDataLoaderRegistryTest {
         val stringToUpperCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToUppercaseDataLoader"
             override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { keys ->
-                keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(100)).toFuture()
+                keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(400)).toFuture()
             }
         }
 
         val stringToLowerCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToLowercaseDataLoader"
             override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { keys ->
-                keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
+                keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(400)).toFuture()
             }
         }
 
-        val registry = spyk(
-            KotlinDataLoaderRegistryFactory(
-                stringToUpperCaseDataLoader, stringToLowerCaseDataLoader
-            ).generate()
-        )
+        val registry = KotlinDataLoaderRegistryFactory(
+            stringToUpperCaseDataLoader, stringToLowerCaseDataLoader
+        ).generate()
 
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ -> }
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase2").handle { _, _ -> }
@@ -56,8 +53,7 @@ class KotlinDataLoaderRegistryTest {
         registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE2").handle { _, _ -> }
         registry.getDataLoader<String, String>("ToLowercaseDataLoader").load("TOLOWERCASE1").handle { _, _ -> }
 
-        registry.dispatchAll()
-        val futuresToComplete = registry.getOnDispatchFutures()
+        val futuresToComplete = registry.getCurrentFutures()
         assertEquals(4, futuresToComplete.size)
 
         assertEquals(2, futuresToComplete[0].numberOfDependents) // 2 dependants of touppercase1
@@ -65,6 +61,8 @@ class KotlinDataLoaderRegistryTest {
 
         assertEquals(2, futuresToComplete[2].numberOfDependents) // 2 dependants of TOLOWERCASE1
         assertEquals(1, futuresToComplete[3].numberOfDependents) // 1 dependant of TOLOWERCASE2
+
+        registry.dispatchAll()
         assertFalse(registry.onDispatchFuturesHandled())
 
         Thread.sleep(500)
