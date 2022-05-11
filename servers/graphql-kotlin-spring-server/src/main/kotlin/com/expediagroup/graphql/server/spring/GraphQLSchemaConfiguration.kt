@@ -47,7 +47,7 @@ const val DEFAULT_INSTRUMENTATION_ORDER = 0
 
 /**
  * Configuration class that loads both the federated and non-federation
- * configuraiton and creates the GraphQL schema object and request handler.
+ * configuration and creates the GraphQL schema object and request handler.
  *
  * This config can then be used by all Spring specific configuration classes
  * to handle incoming requests from HTTP routes or subscriptions and send them
