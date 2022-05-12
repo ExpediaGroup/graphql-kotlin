@@ -18,26 +18,32 @@ package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
+import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
+import graphql.schema.GraphQLArgument
 
 /**
  * ```graphql
+ * # federation v1 definition
  * directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+ *
+ * # federation v2 definition
+ * directive @key(fields: _FieldSet!, resolvable: Boolean) repeatable on OBJECT | INTERFACE
  * ```
  *
- * The @key directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. Key directive should be specified on the root base type as
+ * The @key directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. Key directive should be specified on the root entity type as
  * well as all the corresponding federated (i.e. extended) types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL interface/object.
  * Federated extended types should also instrument all the referenced key fields with @external directive.
  *
  * Example:
- * Given
+ * Given following entity type definition
  *
  * ```kotlin
  * @KeyDirective(FieldSet("id"))
  * class Product(val id: String, val name: String)
  * ```
  *
- * should generate
+ * it will generate following schema
  *
  * ```graphql
  * type Product @key(fields: "id") {
@@ -46,10 +52,39 @@ import graphql.introspection.Introspection.DirectiveLocation
  * }
  * ```
  *
+ * Entity types can be referenced from other subgraphs without contributing any additional fields, i.e. we can update type within our schema with a reference to a federated type. In order to generate
+ * a valid schema, we need to define **stub** for federated entity that contains only key fields and also mark it as not resolvable within our subgraph. For example, if we have `Review` entity defined
+ * in our supergraph, we can reference it in our product schema using following code
+ *
+ * ```kotlin
+ * @KeyDirective(fields = FieldSet("id"))
+ * class Product(val id: String, val name: String, val reviews: List<Review>)
+ *
+ * // review stub referencing just the key fields
+ * @KeyDirective(fields = FieldSet("id"), resolvable = false)
+ * class Review(val id: String)
+ * ```
+ *
+ * which will generate
+ *
+ * ```graphql
+ * type Product @key(fields: "id") {
+ *   id: String!
+ *   name: String!
+ *   reviews: [Review!]!
+ * }
+ *
+ * type Review @key(fields: "id", resolvable: false) {
+ *   id: String!
+ * }
+ * ```
+ *
+ * This allows end users to query GraphQL Gateway for any product review fields and they will be resolved by calling the appropriate subgraph.
+ *
  * @param fields field set that represents a set of fields forming the key
+ * @param resolvable boolean flag indicating whether this entity can be resolved within this subgraph, only available in Federation v2
  *
  * @see FieldSet
- * @see com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
  * @see ExtendsDirective
  * @see ExternalDirective
  */
@@ -59,7 +94,7 @@ import graphql.introspection.Introspection.DirectiveLocation
     description = KEY_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE]
 )
-annotation class KeyDirective(val fields: FieldSet)
+annotation class KeyDirective(val fields: FieldSet, val resolvable: Boolean = true)
 
 internal const val KEY_DIRECTIVE_NAME = "key"
 private const val KEY_DIRECTIVE_DESCRIPTION = "Space separated list of primary keys needed to access federated object"
@@ -69,5 +104,18 @@ internal val KEY_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schem
     .description(KEY_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE)
     .argument(FIELD_SET_ARGUMENT)
+    .repeatable(true)
+    .build()
+
+internal val KEY_DIRECTIVE_TYPE_V2: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(KEY_DIRECTIVE_NAME)
+    .description(KEY_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.INTERFACE)
+    .argument(FIELD_SET_ARGUMENT)
+    .argument(
+        GraphQLArgument.newArgument()
+            .name("resolvable")
+            .type(Scalars.GraphQLBoolean)
+    )
     .repeatable(true)
     .build()

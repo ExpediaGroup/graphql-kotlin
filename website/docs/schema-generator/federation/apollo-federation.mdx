@@ -13,12 +13,37 @@ feasible making it much harder to manage and leading to unnecessary bottlenecks.
 an API gateway and a number of smaller GraphQL services behind it alleviates some of those problems and allows teams to
 scale their graphs more easily.
 
-[Apollo Federation](https://www.apollographql.com/docs/apollo-server/federation/introduction/) is an architecture for
-composing multiple GraphQL services into a single graph. Federated schemas rely on a number of custom directives to
-instrument the behavior of the underlying graph and convey the relationships between different schema types. Each individual
-GraphQL server generates a valid GraphQL schema and can be run independently. This is in contrast with a traditional schema
-stitching approach where relationships between individual services, i.e. linking configuration, is configured at the GraphQL
-gateway level.
+[Apollo Federation](https://www.apollographql.com/docs/federation/) is an architecture for composing multiple GraphQL
+services into a single graph. Federated schemas rely on a number of custom directives to instrument the behavior of the
+underlying graph and convey the relationships between different schema types. Each individual GraphQL server generates a
+valid GraphQL schema and can be run independently. This is in contrast with a traditional schema stitching approach where
+relationships between individual services, i.e. linking configuration, is configured at the GraphQL gateway level.
+
+## Federation v1 vs Federation v2
+
+Federation v2 is an evolution of the Federation spec to make it more powerful, flexible and easier to adapt. While v1 and
+v2 schemas are similar in many ways, Federation v2 relaxes some of the constraints and adds additional capabilities. See
+[Apollo documentation](https://www.apollographql.com/docs/federation/federation-2/new-in-federation-2/) for details.
+
+By default, `graphql-kotlin-federation` library will generate Federation v1 compatible schema. In order to generate v2
+compatible schema you have to explicitly opt-in by specifying `optInFederationV2 = true` on your instance of `FederatedSchemaGeneratorHooks`.
+
+```kotlin
+val myHooks = FederatedSchemaGeneratorHooks(resolvers = myFederatedResolvers, optInFederationV2 = true)
+val myConfig = FederatedSchemaGeneratorConfig(
+  supportedPackages = "com.example",
+  hooks = myHooks
+)
+
+toFederatedSchema(
+  config = myConfig,
+  queries = listOf(TopLevelObject(MyQuery()))
+)
+```
+
+:::note
+Federation v2 compatible schemas, can be generated using `graphql-kotlin-spring-server` by configuring `graphql.federation.optInV2 = true` property.
+:::
 
 ## Install
 
@@ -54,17 +79,16 @@ implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
 
 ## Usage
 
-`graphql-kotlin-federation` build on top of `graphql-kotlin-schema-generator` and adds a few extra methods and class to use to generate federation
-compliant schemas.
+`graphql-kotlin-federation` is build on top of `graphql-kotlin-schema-generator` and adds a few extra methods and class to use to generate federation compliant schemas.
 
 ### `toFederatedSchema`
 
-Just like the basic [toSchema](../schema-generator-getting-started.mdx), `toFederatedSchema` accepts four parameters: `config`, `queries`, `mutations` and `subscriptions`.
+Just like the basic [toSchema](../schema-generator-getting-started.mdx), `toFederatedSchema` accepts five parameters: `config`, `queries`, `mutations`, `subscriptions` and `schemaObject`.
 The difference is that the `config` class is of type [FederatedSchemaGeneratorConfig](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/FederatedSchemaGeneratorConfig.kt).
 This class extends the [base configuration class](../customizing-schemas/generator-config.md) and adds some default logic. You can override the logic if needed, but do so with caution as you may no longer generate a spec compliant schema.
 
 You can see the definition for `toFederatedSchema` [in the
-source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt)
+source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt).
 
 ## Example
 
@@ -80,7 +104,8 @@ class Query {
 }
 
 val config = FederatedSchemaGeneratorConfig(
-  supportedPackages = "com.example"
+  supportedPackages = "com.example",
+  hooks = FederatedSchemaGeneratorHooks(emptyList())
 )
 
 toFederatedSchema(

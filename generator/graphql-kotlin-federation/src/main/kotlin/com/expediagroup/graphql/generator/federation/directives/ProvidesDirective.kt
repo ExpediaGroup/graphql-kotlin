@@ -26,11 +26,13 @@ import graphql.introspection.Introspection.DirectiveLocation
  * ```
  *
  * The @provides directive is used to annotate the expected returned fieldset from a field on a base type that is guaranteed to be selectable by the gateway. This allows you to expose only a subset
- * of fields from the underlying federated object type to be selectable from the federated schema. Provided fields specified in the directive field set should correspond to a valid field on the
- * underlying GraphQL interface/object type. @provides directive can only be used on fields returning federated extended objects.
+ * of fields from the underlying federated object type to be selectable from the federated schema without the need to call other subgraphs. Provided fields specified in the directive field set should
+ * correspond to a valid field on the underlying GraphQL interface/object type. @provides directive can only be used on fields returning federated extended objects.
  *
- * Example:
+ * Example 1:
  * We might want to expose only name of the user that submitted a review.
+ *
+ * >NOTE: Due to the smart entity type merging, Federation v2 does not require `@provides` directive if field can always be resolved locally.
  *
  * ```kotlin
  * @KeyDirective(FieldSet("id"))
@@ -61,10 +63,27 @@ import graphql.introspection.Introspection.DirectiveLocation
  * }
  * ```
  *
+ * Example 2:
+ * Within our service, one of the queries could resolve all fields locally while other requires resolution from other subgraph
+ *
+ * ```graphql
+ * type Query {
+ *   remoteResolution: Foo
+ *   localOnly: Foo @provides("baz")
+ * }
+ *
+ * type Foo @key("id") {
+ *   id: ID!
+ *   bar: Bar
+ *   baz: Baz @external
+ * }
+ * ```
+ *
+ * In the example above, if user selects `baz` field, it will be resolved locally from `localOnly` query but will require another subgraph invocation from `remoteResolution` query.
+ *
  * @param fields field set that represents a set of fields exposed from the underlying type
  *
  * @see FieldSet
- * @see com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
  * @see ExternalDirective
  * @see ExtendsDirective
  */

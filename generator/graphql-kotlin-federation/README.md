@@ -9,6 +9,17 @@ Once all the federated objects are annotated, you will also have to configure co
 that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function
 ([link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt#L34)).
 
+```mermaid
+graph TD;
+  gateway([Supergraph<br/>Gateway]);
+  serviceA[Products<br/>Subgraph];
+  serviceB[Reviews<br/>Subgraph];
+  gateway --- serviceA & serviceB;
+```
+
+>NOTE: `graphql-kotlin-federation` libraries allow you to build individual GraphQL services, aka Subgraphs. This library does not
+>provide capability to build a GraphQL Gateway, aka Supergraph.
+
 See more
 
 * [Federation Spec](https://www.apollographql.com/docs/apollo-server/federation/federation-spec/)
@@ -37,7 +48,31 @@ implementation("com.expediagroup", "graphql-kotlin-federation", latestVersion)
 
 In order to generate valid federated schemas, you will need to annotate both your base schema and the one extending it. Federated Gateway (e.g. Apollo) will then combine the individual graphs to form single federated graph.
 
-#### Base Schema
+### Federation v1 vs Federation v2
+
+Federation v2 is an evolution of the Federation spec to make it more powerful, flexible and easier to adapt. While v1 and
+v2 schemas are similar in many ways, Federation v2 relaxes some of the constraints and adds additional capabilities. See
+[Apollo documentation](https://www.apollographql.com/docs/federation/federation-2/new-in-federation-2/) for details.
+
+By default, `graphql-kotlin-federation` library will generate Federation v1 compatible schema. In order to generate v2
+compatible schema you have to explicitly opt-in by specifying `optInFederationV2 = true` on your instance of `FederatedSchemaGeneratorHooks`.
+
+```kotlin
+val myHooks = FederatedSchemaGeneratorHooks(resolvers = myFederatedResolvers, optInFederationV2 = true)
+val myConfig = FederatedSchemaGeneratorConfig(
+  supportedPackages = "com.example",
+  hooks = myHooks
+)
+
+toFederatedSchema(
+  config = myConfig,
+  queries = listOf(TopLevelObject(MyQuery()))
+)
+```
+
+>NOTE: Federation v2 compatible schemas, can be generated using `graphql-kotlin-spring-server` by configuring `graphql.federation.optInV2 = true` property.
+
+### Base Schema (Products Subgraph)
 
 Base schema defines GraphQL types that will be extended by schemas exposed by other GraphQL services. In the example below, we define base `Product` type with `id` and `description` fields. `id` is the primary key that uniquely identifies the `Product` type object and is specified in `@key` directive.
 
@@ -84,7 +119,7 @@ type _Service {
 }
 ```
 
-#### Extended Schema
+### Extended Schema (Reviews Subgraph)
 
 Extended federated GraphQL schemas provide additional functionality to the types already exposed by other GraphQL services. In the example below, `Product` type is extended to add new `reviews` field to it. Primary key needed to instantiate the `Product` type (i.e. `id`) has to match the `@key` definition on the base type. Since primary keys are defined on the base type and are only referenced from the extended type, all of the fields that are part of the field set specified in `@key` directive have to be marked as `@external`.
 
@@ -144,7 +179,7 @@ type _Service {
 
 Federated Gateway will then combine the schemas from the individual services to generate single schema.
 
-#### Federated GraphQL schema
+### Federated Supergraph schema
 
 ```graphql
 schema {

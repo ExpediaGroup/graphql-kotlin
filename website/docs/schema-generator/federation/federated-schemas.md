@@ -23,7 +23,7 @@ If you are using custom `Query` type then all of you federated GraphQL services 
 not possible for federated services to have different definitions of `Query` type.
 :::
 
-### Base Schema
+### Base Subgraph
 
 Base schema defines GraphQL types that will be extended by schemas exposed by other GraphQL services. In the example
 below, we define base `Product` type with `id` and `description` fields. `id` is the primary key that uniquely
@@ -73,14 +73,14 @@ type _Service {
 }
 ```
 
-#### Extended Schema
+### Extended Subgraph
 
 Extended federated GraphQL schemas provide additional functionality to the types already exposed by other GraphQL
 services. In the example below, `Product` type is extended to add new `reviews` field to it. Primary key needed to
 instantiate the `Product` type (i.e. `id`) has to match the `@key` definition on the base type. Since primary keys are
 defined on the base type and are only referenced from the extended type, all of the fields that are part of the field
 set specified in `@key` directive have to be marked as `@external`. Finally, we also need to specify an "entry point"
-for the federated type - we need to create a FederatedTypeResolver that will be used to instantiate the federated
+for the federated type - we need to create a FederatedTypeResolver that will be used to instantiate the federated
 `Product` type when processing federated queries.
 
 ```kotlin
@@ -139,10 +139,10 @@ type _Service {
 }
 ```
 
-#### Federated GraphQL schema
+### Federated Supergraph
 
 Once we have both base and extended GraphQL services up and running, we will also need to configure Federated Gateway
-to combine them into a single schema. Using the examples above, our final federated schema will be generated as:
+to combine them into a single supergraph schema. Using the examples above, our final federated schema will be generated as:
 
 ```graphql
 schema {

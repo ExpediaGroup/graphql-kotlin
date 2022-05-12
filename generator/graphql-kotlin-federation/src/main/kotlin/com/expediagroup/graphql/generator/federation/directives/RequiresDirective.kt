@@ -68,10 +68,8 @@ import graphql.introspection.Introspection.DirectiveLocation
  * @param fields field set that represents a set of additional external fields required to resolve target field
  *
  * @see FieldSet
- * @see com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
  * @see ExtendsDirective
  * @see ExternalDirective
- * @see kotlin.properties.Delegates.notNull
  */
 @GraphQLDirective(
     name = REQUIRES_DIRECTIVE_NAME,

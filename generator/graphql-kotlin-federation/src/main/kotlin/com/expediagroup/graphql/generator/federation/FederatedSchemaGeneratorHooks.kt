@@ -18,19 +18,35 @@ package com.expediagroup.graphql.generator.federation
 
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DEPRECATED_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE_V2
+import com.expediagroup.graphql.generator.federation.directives.LINK_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.LINK_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.LINK_SPEC_URL
+import com.expediagroup.graphql.generator.federation.directives.OVERRIDE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.OVERRIDE_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.SHAREABLE_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.TAG_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.appliedLinkDirective
+import com.expediagroup.graphql.generator.federation.exception.IncorrectFederatedDirectiveUsage
 import com.expediagroup.graphql.generator.federation.execution.EntityResolver
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.generator.federation.extensions.addDirectivesIfNotPresent
 import com.expediagroup.graphql.generator.federation.types.ANY_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
+import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_NAME
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
 import com.expediagroup.graphql.generator.federation.types.SERVICE_FIELD_DEFINITION
 import com.expediagroup.graphql.generator.federation.types._Service
@@ -52,21 +68,70 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Hooks for generating federated GraphQL schema.
  */
-open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>) : SchemaGeneratorHooks {
+open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>, private val optInFederationV2: Boolean = false) : SchemaGeneratorHooks {
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query @extends \\s*\\{\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val serviceFieldRegex = "\\s*_service: _Service!".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val serviceTypeRegex = "^type _Service\\s*\\{\\s*sdl: String!\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
-    private val federatedDirectiveTypes: List<GraphQLDirective> = listOf(EXTERNAL_DIRECTIVE_TYPE, REQUIRES_DIRECTIVE_TYPE, PROVIDES_DIRECTIVE_TYPE, KEY_DIRECTIVE_TYPE, EXTENDS_DIRECTIVE_TYPE)
-    private val directivesToInclude: List<String> = federatedDirectiveTypes.map { it.name }.plus(DEPRECATED_DIRECTIVE_NAME)
-    private val customDirectivePredicate: Predicate<String> = Predicate { directivesToInclude.contains(it) }
+    private val federationV2OnlyDirectiveNames: Set<String> = setOf(
+        INACCESSIBLE_DIRECTIVE_NAME,
+        LINK_DIRECTIVE_NAME,
+        OVERRIDE_DIRECTIVE_NAME,
+        SHAREABLE_DIRECTIVE_NAME
+    )
 
+    private val federatedDirectiveV1List: List<GraphQLDirective> = listOf(
+        EXTENDS_DIRECTIVE_TYPE,
+        EXTERNAL_DIRECTIVE_TYPE,
+        KEY_DIRECTIVE_TYPE,
+        PROVIDES_DIRECTIVE_TYPE,
+        REQUIRES_DIRECTIVE_TYPE
+    )
+    private val federatedDirectiveV2List: List<GraphQLDirective> = listOf(
+        EXTENDS_DIRECTIVE_TYPE,
+        EXTERNAL_DIRECTIVE_TYPE,
+        INACCESSIBLE_DIRECTIVE_TYPE,
+        KEY_DIRECTIVE_TYPE,
+        LINK_DIRECTIVE_TYPE,
+        OVERRIDE_DIRECTIVE_TYPE,
+        PROVIDES_DIRECTIVE_TYPE,
+        REQUIRES_DIRECTIVE_TYPE,
+        SHAREABLE_DIRECTIVE_TYPE,
+        TAG_DIRECTIVE_TYPE
+    )
+
+    /**
+     * Add support for _FieldSet scalar to the schema.
+     */
     override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier) {
         FieldSet::class -> FIELD_SET_SCALAR_TYPE
-        else -> null
+        else -> super.willGenerateGraphQLType(type)
     }
+
+    override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? =
+        if (optInFederationV2) {
+            willGenerateFederatedDirectiveV2(directiveInfo)
+        } else {
+            willGenerateFederatedDirective(directiveInfo)
+        }
+
+    private fun willGenerateFederatedDirective(directiveInfo: DirectiveMetaInformation) =
+        if (federationV2OnlyDirectiveNames.contains(directiveInfo.effectiveName)) {
+            throw IncorrectFederatedDirectiveUsage(directiveInfo.effectiveName)
+        } else if (KEY_DIRECTIVE_NAME == directiveInfo.effectiveName) {
+            KEY_DIRECTIVE_TYPE
+        } else {
+            super.willGenerateDirective(directiveInfo)
+        }
+
+    private fun willGenerateFederatedDirectiveV2(directiveInfo: DirectiveMetaInformation) =
+        if (KEY_DIRECTIVE_NAME == directiveInfo.effectiveName) {
+            KEY_DIRECTIVE_TYPE_V2
+        } else {
+            super.willGenerateDirective(directiveInfo)
+        }
 
     override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
         validator.validateGraphQLType(generatedType)
@@ -74,12 +139,21 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
     }
 
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
+        if (optInFederationV2) {
+            val fed2Imports = federatedDirectiveV2List.map { it.name }
+                .plus(FIELD_SET_SCALAR_NAME)
+
+            builder.withSchemaDirective(LINK_DIRECTIVE_TYPE)
+                .withSchemaAppliedDirective(appliedLinkDirective(LINK_SPEC_URL))
+                .withSchemaAppliedDirective(appliedLinkDirective(FEDERATION_SPEC_URL, fed2Imports))
+        }
+
         val originalSchema = builder.build()
         val originalQuery = originalSchema.queryType
         val federatedCodeRegistry = GraphQLCodeRegistry.newCodeRegistry(originalSchema.codeRegistry)
 
         // Add all the federation directives if they are not present
-        val federatedSchemaBuilder = originalSchema.addDirectivesIfNotPresent(federatedDirectiveTypes)
+        val federatedSchemaBuilder = originalSchema.addDirectivesIfNotPresent(federatedDirectiveList())
 
         // Register the data fetcher for the _service query
         val sdl = getFederatedServiceSdl(originalSchema)
@@ -99,6 +173,12 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
 
         return federatedSchemaBuilder.query(federatedQuery.build())
             .codeRegistry(federatedCodeRegistry.build())
+    }
+
+    private fun federatedDirectiveList(): List<GraphQLDirective> = if (optInFederationV2) {
+        federatedDirectiveV2List
+    } else {
+        federatedDirectiveV1List
     }
 
     /**
@@ -126,6 +206,8 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
      * https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#query_service
      */
     private fun getFederatedServiceSdl(schema: GraphQLSchema): String {
+        val directivesToInclude: List<String> = federatedDirectiveList().map { it.name }.plus(DEPRECATED_DIRECTIVE_NAME)
+        val customDirectivePredicate: Predicate<String> = Predicate { directivesToInclude.contains(it) }
         return schema.print(
             includeDefaultSchemaDefinition = false,
             includeDirectiveDefinitions = false,
