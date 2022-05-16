@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture
  * Check if all futures collected on [KotlinDataLoaderRegistry.dispatchAll] were handled and we have more futures than we
  * had when we started to dispatch, if so, means that [DataLoader]s were chained
  */
-internal fun <V> CompletableFuture<V>.dispatchIfNeeded(
+fun <V> CompletableFuture<V>.dispatchIfNeeded(
     environment: DataFetchingEnvironment
 ): CompletableFuture<V> {
     val dataLoaderRegistry =
