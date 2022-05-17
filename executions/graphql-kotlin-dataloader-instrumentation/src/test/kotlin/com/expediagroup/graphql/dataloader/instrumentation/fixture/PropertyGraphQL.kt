@@ -78,9 +78,7 @@ object PropertyGraphQL {
         propertyService.getProperty(
             PropertyServiceRequest(propertyId, selectionFields),
             environment
-        ).thenApply { property ->
-            property.summary
-        }
+        ).thenApply(Property::summary)
     }
 
     private val propertyDetailsDataFetcher = DataFetcher<CompletableFuture<PropertyDetails>> { environment ->
@@ -89,9 +87,7 @@ object PropertyGraphQL {
         propertyService.getProperty(
             PropertyServiceRequest(propertyId, selectionFields),
             environment
-        ).thenApply { property ->
-            property.details
-        }
+        ).thenApply(Property::details)
     }
 
     private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
