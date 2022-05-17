@@ -21,6 +21,9 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyServiceRequest
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Property
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.PropertyDetails
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.PropertySummary
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
@@ -37,11 +40,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.CompletableFuture
 
 object PropertyGraphQL {
     private val schema = """
         type Query {
             property(id: ID!): Property
+            propertySummary(propertyId: ID!): PropertySummary
+            propertyDetails(propertyId: ID!): PropertyDetails
         }
         type Property {
             summary: PropertySummary
@@ -56,7 +62,8 @@ object PropertyGraphQL {
     """.trimIndent()
 
     private val propertyService = PropertyService()
-    private val propertyDataFetcher = DataFetcher { environment ->
+
+    private val propertyDataFetcher = DataFetcher<CompletableFuture<Property>> { environment ->
         val propertyId = environment.getArgument<String>("id").toInt()
         val selectionFields = environment.selectionSet.immediateFields.map(SelectedField::getName)
         propertyService.getProperty(
@@ -65,10 +72,34 @@ object PropertyGraphQL {
         )
     }
 
+    private val propertySummaryDataFetcher = DataFetcher<CompletableFuture<PropertySummary>> { environment ->
+        val propertyId = environment.getArgument<String>("propertyId").toInt()
+        val selectionFields = listOf("summary")
+        propertyService.getProperty(
+            PropertyServiceRequest(propertyId, selectionFields),
+            environment
+        ).thenApply { property ->
+            property.summary
+        }
+    }
+
+    private val propertyDetailsDataFetcher = DataFetcher<CompletableFuture<PropertyDetails>> { environment ->
+        val propertyId = environment.getArgument<String>("propertyId").toInt()
+        val selectionFields = listOf("details")
+        propertyService.getProperty(
+            PropertyServiceRequest(propertyId, selectionFields),
+            environment
+        ).thenApply { property ->
+            property.details
+        }
+    }
+
     private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
         type(
             TypeRuntimeWiring.newTypeWiring("Query")
                 .dataFetcher("property", propertyDataFetcher)
+                .dataFetcher("propertySummary", propertySummaryDataFetcher)
+                .dataFetcher("propertyDetails", propertyDetailsDataFetcher)
         )
     }.build()
 

@@ -430,7 +430,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     }
 
     @Test
-    fun `Instrumentation should compose dataLoaders`() {
+    fun `Instrumentation should batch and deduplicate by field selections`() {
         val queries = listOf(
             """
                 {
@@ -447,6 +447,39 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
                         details {
                             rating
                         }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = PropertyGraphQL.execute(
+            propertyGraphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(2, results.size)
+
+        val propertyStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PropertyDataLoader"]?.statistics
+
+        assertEquals(1, propertyStatistics?.batchInvokeCount)
+        assertEquals(2, propertyStatistics?.batchLoadCount)
+    }
+
+    @Test
+    fun `Instrumentation should batch and deduplicate by field selections 2`() {
+        val queries = listOf(
+            """
+                {
+                    propertySummary(propertyId: 1) {
+                        name
+                    }
+                }
+            """.trimIndent(),
+            """
+                {
+                    propertyDetails(propertyId: 1) {
+                        rating
                     }
                 }
             """.trimIndent()
