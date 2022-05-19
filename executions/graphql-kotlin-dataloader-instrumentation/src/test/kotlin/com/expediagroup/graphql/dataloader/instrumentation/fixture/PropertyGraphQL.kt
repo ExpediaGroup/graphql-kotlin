@@ -70,6 +70,7 @@ object PropertyGraphQL {
             PropertyServiceRequest(propertyId, selectionFields),
             environment
         )
+
     }
 
     private val propertySummaryDataFetcher = DataFetcher<CompletableFuture<PropertySummary>> { environment ->
