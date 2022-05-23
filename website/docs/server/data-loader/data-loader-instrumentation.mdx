@@ -256,23 +256,28 @@ graphql:
 
 ## Multiple data loaders per field data fetcher
 
-There are some use cases where a GraphQL Schems doesn't match the datasource schema, a field can require data from multiple
-data sources to be fetched.
+There are some cases when a GraphQL Schema doesn't match the data source schema, a field can require data from multiple
+sources to be fetched and you will still want to do batching with data loaders.
+
+### DispatchIfNeeded
+
+`graphql-kotlin-dataloader-instrumentation` includes a helpful extension function of the `CompletableFuture` class
+so that you can easily instruct the [previously selected data loader instrumentation](./data-loader-instrumentation#dispatching-by-level)
+that you want to apply batching and deduplication to a chained `DataLoader` in your `DataFetcher` (resolver).
 
 ### Example
 
-An `Astronaut` can have multiple `Mission`s and a `Mission` can have multiple `Planet`s.
-
 ```graphql
+type Query {
+    astronaut(id: ID!): Astronaut
+}
+
+# In the data source, let's say a database,
+# an `Astronaut` can have multiple `Mission`s and a `Mission` can have multiple `Planet`s.
 type Astronaut {
     id: ID!
     name: String!
-    missions: [Mission!]!
-}
-
-type Mission {
-    id: ID!
-    designation: String!
+    # The schema exposes the `Astronaut` `Planet`s, without traversing his `Mission`s.
     planets: [Planet!]!
 }
 
@@ -280,39 +285,9 @@ type Planet {
     id: ID!
     name: String!
 }
-
-type Query {
-    astronaut(id: ID!): Astronaut
-}
 ```
-
-In order to access to an `Astronaut` planets we would need to retrieve all the `Astronaut` `Mission`s and
-for each `Mission` retrieve all the `Planet`s.
-
-The problem with this schema is that in order to access to the `Astronaut` `Planet`s we would need to
-access to his `Mission`s first.
-
-Instead we could have an schema like this:
-
-```graphql
-type Astronaut {
-    id: ID!
-    name: String!
-    planets: [Planet!]!
-}
-
-type Planet {
-    id: ID!
-    name: String!
-}
-
-type Query {
-    astronaut(id: ID!): Astronaut
-}
-```
-
-This `GraphQL Schema` allows to access to an `Astronaut` `Planet`s without traversing his `Missions`, so we can just focus
-on the logic to chain `DataLoaders` as we would still need to access to the `Astronaut` `Planet`s through his `Mission`s.
+The  `Astronaut` `planets` data fetcher (resolver) will contain the logic to chain two data loaders,
+first collect missions by astronaut, and then, planets by mission.
 
 **DataLoaders**
 
@@ -324,22 +299,20 @@ For this specific example we would need 2 `DataLoader`s
 **Fetching logic**
 ```kotlin
 class Astronaut {
-    fun getPlanets(astronautId: Int, environment: DataFetchingEnvironment): CompletableFuture<List<Planet>> {
+    fun getPlanets(
+        astronautId: Int,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Planet>> {
         val missionsByAstronautDataLoader = environment.getDataLoader("MissionsByAstronautDataLoader")
         val planetsByMissionDataLoader = environment.getDataLoader("PlanetsByMissionDataLoader")
         return missionsByAstronautDataLoader
             .load(astronautId)
+            // chain data loader
             .thenCompose { missions ->
                 planetsByMissionDataLoader
                     .loadMany(missions.map { mission -> mission.id })
+                    // extension function to schedule a dispatch of registry if needed
                     .dispatchIfNeeded(environment)
             }
-    }
+}
 ```
-
-### DispatchIfNeeded
-
-`graphql-kotlin-dataloader-instrumentation` includes a helpful extension function on the `CompletableFuture`
-so that you can easily instruct the [previously selected data loader instrumentation](./data-loader-instrumentation#dispatching-by-level) that you want
-to chain and still apply batching and deduplication to a chained `DataLoader`.
-
