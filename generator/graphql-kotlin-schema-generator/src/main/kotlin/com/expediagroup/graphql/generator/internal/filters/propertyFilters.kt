@@ -31,11 +31,11 @@ import kotlin.reflect.typeOf
 
 private typealias PropertyFilter = (KProperty<*>, KClass<*>) -> Boolean
 
-private val blacklistTypes: List<String> = listOf("kotlin.reflect.KClass")
+private val blockedTypes: List<String> = listOf("kotlin.reflect.KClass")
 
 private val isPropertyPublic: PropertyFilter = { prop, _ -> prop.isPublic() }
 private val isPropertyNotGraphQLIgnored: PropertyFilter = { prop, parentClass -> prop.isPropertyGraphQLIgnored(parentClass).not() }
-private val isNotBlacklistedType: PropertyFilter = { prop, _ -> blacklistTypes.contains(prop.returnType.qualifiedName).not() }
+private val isNotBlockedType: PropertyFilter = { prop, _ -> blockedTypes.contains(prop.returnType.qualifiedName).not() }
 private val isValidPropertyName: PropertyFilter = { prop, _ -> prop.name.matches(validGraphQLNameRegex) }
 @OptIn(ExperimentalStdlibApi::class)
 private val isNotLambda: PropertyFilter = { prop, parentClass ->
@@ -60,5 +60,5 @@ private val isNotIgnoredFromSuperClass: PropertyFilter = { prop, parentClass ->
     }
 }
 
-private val basicPropertyFilters = listOf(isPropertyPublic, isNotLambda, isNotBlacklistedType)
+private val basicPropertyFilters = listOf(isPropertyPublic, isNotLambda, isNotBlockedType)
 internal val propertyFilters: List<PropertyFilter> = listOf(isPropertyNotGraphQLIgnored) + basicPropertyFilters + isNotIgnoredFromSuperClass + isValidPropertyName

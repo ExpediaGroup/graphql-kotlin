@@ -130,7 +130,13 @@ It is often beneficial to create a wrapper around the underlying primitive type 
 to optimize such use cases - Kotlin compiler will attempt to use underlying type directly whenever possible and only keep the wrapper classes
 whenever it is necessary.
 
-In order to use inline value classes in your schema, you need to register it using hooks and also provide value unboxer that will be used by
+:::note
+Nullable value class types may result in a runtime `IllegalArgumentException` due to https://youtrack.jetbrains.com/issue/KT-31141. This should be resolved in Kotlin 1.7.0+.
+:::
+
+#### Representing Unwrapped Value Classes in the Schema as the Underlying Type
+
+In order to represent unwrapped inline value classes in your schema as the underlying type, you need to register it using hooks and also provide value unboxer that will be used by
 `graphql-java` when dealing with its wrapper object.
 
 ```kotlin
@@ -151,10 +157,9 @@ class MySchemaGeneratorHooks : SchemaGeneratorHooks {
 }
 
 class MyValueUnboxer : IDValueUnboxer() {
-    override fun unbox(`object`: Any?): Any? = if (`object` is MyValueClass) {
-        `object`.value
-    } else {
-        super.unbox(`object`)
+    override fun unbox(value: Any?): Any? = when (value) {
+        is MyValueClass -> `object`.value
+        else -> super.unbox(`object`)
     }
 }
 
@@ -171,7 +176,7 @@ val graphQL = GraphQL.newGraphQL(graphQLSchema)
     .build()
 ```
 
-This will generate the schema that exposes value classes as corresponding primitive types in the schema
+This will generate a schema that exposes value classes as the corresponding wrapped type:
 
 ```graphql
 type Query {
@@ -180,8 +185,7 @@ type Query {
 ```
 
 :::note
-GraphQL ID scalar type is represented using inline value class. When registering additional inline value classes you should extend the
-`IDValueUnboxer` to ensure IDs will be correctly processed.
+GraphQL ID scalar type is represented using inline value class. When registering additional inline value classes you should extend the `IDValueUnboxer` to ensure IDs will be correctly processed. Alternatively, extend `DefaultValueUnboxer` and handle the `ID` value class as above.
 
 If you are using `graphql-kotlin-spring-server` you should create an instance of your bean as
 
@@ -190,6 +194,67 @@ If you are using `graphql-kotlin-spring-server` you should create an instance of
 fun idValueUnboxer(): IDValueUnboxer = MyValueUnboxer()
 ```
 :::
+
+#### Representing Unwrapped Value Classes in the Schema as a Custom Scalar Type
+
+In many cases, it may be useful to represent value classes in the schema as a custom scalar type, as the additional type information is often useful for clients. In this form, the value class is unwrapped, but uses a custom scalar type to preserve the extra type information.
+
+To do this, define a coercer for the value class that transforms it to and from the underlying type, and register it with the custom schema hooks:
+
+```kotlin
+val graphqlMyValueClassType: GraphQLScalarType = GraphQLScalarType.newScalar()
+  .name("MyValueClass")
+  .description(
+    """
+    |Represents my value class as a String value.
+    |""".trimMargin()
+  )
+  .coercing(MyValueClassCoercing)
+  .build()
+
+object MyValueClassCoercing : Coercing<MyValueClass, String> {
+  override fun parseValue(input: Any): MyValueClass = ...
+  override fun parseLiteral(input: Any): MyValueClass = ...
+  override fun serialize(dataFetcherResult: Any): String = ...
+}
+
+class CustomSchemaGeneratorHooks : SchemaGeneratorHooks {
+  override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
+    MyValueClass::class -> graphqlMyValueClassType
+    else -> null
+  }
+}
+```
+
+This will generate the schema that exposes value classes as a scalar type:
+
+```graphql
+scalar MyValueClass
+
+type Query {
+  inlineValueClassQuery(value: MyValueClass): MyValueClass!
+}
+```
+
+#### Representing Value Classes in the Schema as Objects
+
+To do this, simply use the value class directly without defining any coercers or unboxers as in the previous sections.
+
+This will generate the schema that exposes value classes as a wrapped type, similar to a regular class:
+
+```graphql
+input MyValueClassInput {
+    value: String!
+}
+
+type MyValueClass {
+    value: String!
+}
+
+type Query {
+  inlineValueClassQuery(value: MyValueClassInput): MyValueClass!
+}
+```
 
 ## Common Issues
 
