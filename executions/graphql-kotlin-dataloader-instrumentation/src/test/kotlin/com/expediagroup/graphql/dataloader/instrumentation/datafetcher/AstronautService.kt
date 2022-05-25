@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.dataloader.instrumentation.datafetcher
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
 import reactor.kotlin.core.publisher.toFlux
@@ -46,7 +45,7 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
         environment
-            .getDataLoaderFromContext<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+            .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
             .load(request)
 
     companion object {

@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.MissionRepository
@@ -56,7 +55,7 @@ class MissionService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Mission> =
         environment
-            .getDataLoaderFromContext<MissionServiceRequest, Mission>("MissionDataLoader")
+            .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
             .load(request)
 
     fun getMissions(
@@ -65,7 +64,7 @@ class MissionService {
     ): CompletableFuture<List<Mission?>> = when {
         requests.isNotEmpty() -> {
             environment
-                .getDataLoaderFromContext<MissionServiceRequest, Mission>("MissionDataLoader")
+                .getDataLoader<MissionServiceRequest, Mission>("MissionDataLoader")
                 .loadMany(requests)
         }
         else -> {
@@ -82,6 +81,6 @@ class MissionService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Mission>> =
         environment
-            .getDataLoaderFromContext<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+            .getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
             .load(request)
 }

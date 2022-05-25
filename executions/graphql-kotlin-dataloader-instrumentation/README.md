@@ -3,7 +3,7 @@
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-transaction-batcher-instrumentation)
 
 `graphql-kotlin-dataloader-instrumentation` is set of custom instrumentations that will signal when is the right moment
-to dispatch a `KotlinDataLoaderRegistry` located in the `GraphQLContext`.
+to dispatch a `KotlinDataLoaderRegistry`.
 
 This instrumentation follows the same approach of the [DataLoaderDispatcherInstrumentation](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/instrumentation/dataloader/DataLoaderDispatcherInstrumentation.java).
 
@@ -42,11 +42,9 @@ GraphQL
     .build()
 ```
 
-When ready to execute an operation or operations create a `GraphQLContext` instance with the following entries:
-1. An instance of `KotlinDataLoaderRegistry`
-2. Either:
-    - An instance of `ExecutionLevelDispatchedState` if you choose `DataLoaderLevelDispatchedInstrumentation`.
-    - An instance of `SyncExecutionExhaustedState` if you choose `DataLoaderSyncExecutionExhaustedInstrumentation`.
+When ready to execute an operation or operations create a `GraphQLContext` instance with the one of the following entries:
+- An instance of `ExecutionLevelDispatchedState` if you choose `DataLoaderLevelDispatchedInstrumentation`.
+- An instance of `SyncExecutionExhaustedState` if you choose `DataLoaderSyncExecutionExhaustedInstrumentation`.
 
 
 ```kotlin
@@ -68,15 +66,14 @@ val queries = [
 ]
 
 val graphQLContext = mapOf(
-    KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
     SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
         queries.size,
         kotlinDataLoaderRegistry
     )
 )
 
-val executionInput1 = ExecutionInput.newExecutionInput(queries[0]).graphQLContext(graphQLContext).build()
-val executionInput2 = ExecutionInput.newExecutionInput(queries[1]).graphQLContext(graphQLContext).build()
+val executionInput1 = ExecutionInput.newExecutionInput(queries[0]).graphQLContext(graphQLContext).dataLoaderRegistry(kotlinDataLoaderRegistry).build()
+val executionInput2 = ExecutionInput.newExecutionInput(queries[1]).graphQLContext(graphQLContext).dataLoaderRegistry(kotlinDataLoaderRegistry).build()
 
 val result1 = graphQL.executeAsync(executionInput1)
 val result2 = graphQL.executeAsync(executionInput2)
@@ -92,9 +89,9 @@ This way even if you are executing 2 separate operations you can still batch ope
 
 ### Usage in DataFetcher
 
-You can use the `DataFetchingEnvironment` which is passed to each
-`DataFetcher` and invoke the `getDataLoaderFromContext(dataLoaderName)` method which will access to the `KotlinDataLoaderRegistry`
-in the `GraphQLContext` and provide the `DataLoader` that you specified as `dataLoaderName` argument.
+To access to a `DataLoader` you can use the `DataFetchingEnvironment` which is passed to each
+`DataFetcher` and invoke the `getDataLoader(dataLoaderName)` method which will access to the `KotlinDataLoaderRegistry`
+and provide the `DataLoader` that you specified as `dataLoaderName` argument.
 
 ```kotlin
 class AstronautService {
@@ -103,7 +100,7 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
         environment
-            .getDataLoaderFromContext<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+            .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
             .load(request)
 }
 ```

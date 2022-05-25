@@ -93,7 +93,6 @@ This data loader instrumentation relies on a global state object that should be 
 
 ```kotlin
 val graphQLContext = mapOf(
-    KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
     SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(queries.size)
 )
 ```
@@ -235,7 +234,6 @@ This data loader instrumentation relies on a global state object that should be 
 
 ```kotlin
 val graphQLContext = mapOf(
-    KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
     SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(
         queries.size,
         kotlinDataLoaderRegistry
