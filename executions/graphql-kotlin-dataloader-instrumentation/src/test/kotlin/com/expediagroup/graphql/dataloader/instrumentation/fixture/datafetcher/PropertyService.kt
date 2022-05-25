@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture
 class PropertyDataLoader : KotlinDataLoader<PropertyServiceRequest, Property?> {
     override val dataLoaderName: String = "PropertyDataLoader"
     override fun getBatchLoader(): BatchLoader<PropertyServiceRequest, Property?> =
-        BatchLoader<PropertyServiceRequest, Property?> { keys ->
+        BatchLoader<PropertyServiceRequest, Property?> { requests ->
             PropertyRepository
-                .getProperties(keys)
+                .getProperties(requests)
                 .collectList()
                 .map(List<Optional<Property>>::toListOfNullables)
                 .toFuture()
