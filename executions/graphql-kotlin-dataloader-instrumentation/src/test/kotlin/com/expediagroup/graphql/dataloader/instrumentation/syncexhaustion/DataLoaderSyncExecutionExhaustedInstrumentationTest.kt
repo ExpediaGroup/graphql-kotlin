@@ -302,4 +302,123 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         assertEquals(0, missionStatistics?.batchInvokeCount)
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
     }
+
+    @Test
+    fun `Instrumentation multiple dataLoaders per field`() {
+        val queries = listOf(
+            """
+                fragment MissionFragment on Mission { id designation planets { id name } }
+                {
+                    missions(ids: [1, 2]) { ...MissionFragment }
+                }
+            """.trimIndent(),
+            """
+                fragment MissionFragment on Mission { id designation planets { id name } }
+                {
+                    missions(ids: [3, 4]) { ...MissionFragment }
+                }
+            """.trimIndent(),
+            """
+                fragment MissionFragment on Mission { id designation planets { id name } }
+                {
+                    missions(ids: [2, 8, 9]) { ...MissionFragment }
+                }
+            """.trimIndent()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(3, results.size)
+
+        val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
+        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+
+        assertEquals(1, missionStatistics?.batchInvokeCount)
+        assertEquals(1, planetStatistics?.batchInvokeCount)
+    }
+
+    @Test
+    fun `Instrumentation should batch chained dataLoaders per field dataFetcher`() {
+        val queries = listOf(
+            """
+                fragment AstronautFragment on Astronaut { planets { name } }
+                {
+                    astronaut(id: 1) { ...AstronautFragment }
+                }
+            """.trimIndent(),
+            """
+                fragment AstronautFragment on Astronaut { planets { name } }
+                {
+                    astronaut(id: 3) { ...AstronautFragment }
+                }
+            """.trimIndent(),
+            """
+                fragment AstronautFragment on Astronaut { planets { name } }
+                {
+                    astronauts(ids: [4, 5]) { ...AstronautFragment }
+                }
+            """.trimIndent()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(3, results.size)
+
+        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(1, planetStatistics?.batchInvokeCount)
+    }
+
+    @Test
+    fun `Instrumentation should batch chained dataLoaders per field dataFetcher with different queries`() {
+        val queries = listOf(
+            """
+                {
+                    astronaut(id: 1) {
+                        name
+                        planets {
+                            name
+                        }
+                    }
+                }
+            """.trimIndent(),
+            """
+                {
+                    astronaut(id: 3) {
+                        name
+                        missions {
+                            designation
+                            planets {
+                                name
+                            }
+                        }
+                    }
+                }
+            """.trimIndent(),
+        )
+
+        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+        val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
+
+        assertEquals(2, results.size)
+
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(1, planetStatistics?.batchInvokeCount)
+    }
 }

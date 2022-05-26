@@ -131,9 +131,9 @@ class SyncExecutionExhaustedState(
      * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
      * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
      */
-    private fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
+    fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
         when {
-            executions.size < totalExecutions || !dataLoaderRegistry.isDispatchedAndCompleted() -> false
+            executions.size < totalExecutions || !dataLoaderRegistry.onDispatchFuturesHandled() -> false
             else -> executions.values.all(ExecutionBatchState::isSyncExecutionExhausted)
         }
     }

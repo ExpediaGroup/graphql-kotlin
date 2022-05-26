@@ -17,7 +17,10 @@
 package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.dataloader.instrumentation.extensions.dispatchIfNeeded
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Astronaut
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
 import graphql.schema.DataFetchingEnvironment
@@ -64,5 +67,23 @@ class AstronautService {
                 .map(List<Optional<Astronaut>>::toListOfNullables)
                 .toFuture()
         }
+    }
+
+    fun getPlanets(
+        request: AstronautServiceRequest,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Planet>> {
+        val missionsByAstronautDataLoader = environment.getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+        val planetsByMissionDataLoader = environment.getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
+        return missionsByAstronautDataLoader
+            .load(MissionServiceRequest(0, astronautId = request.id))
+            .thenCompose { missions ->
+                planetsByMissionDataLoader
+                    .loadMany(missions.map { PlanetServiceRequest(0, it.id) })
+                    .dispatchIfNeeded(environment)
+            }
+            .thenApply { planetsByMission ->
+                planetsByMission.flatten().distinct()
+            }
     }
 }
