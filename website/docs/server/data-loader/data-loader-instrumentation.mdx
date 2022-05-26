@@ -253,3 +253,66 @@ graphql:
    strategy: SYNC_EXHAUSTION
 ```
 :::
+
+## Multiple data loaders per field data fetcher
+
+There are some cases when a GraphQL Schema doesn't match the data source schema, a field can require data from multiple
+sources to be fetched and you will still want to do batching with data loaders.
+
+### DispatchIfNeeded
+
+`graphql-kotlin-dataloader-instrumentation` includes a helpful extension function of the `CompletableFuture` class
+so that you can easily instruct the [previously selected data loader instrumentation](./data-loader-instrumentation#dispatching-by-level)
+that you want to apply batching and deduplication to a chained `DataLoader` in your `DataFetcher` (resolver).
+
+### Example
+
+```graphql
+type Query {
+    astronaut(id: ID!): Astronaut
+}
+
+# In the data source, let's say a database,
+# an `Astronaut` can have multiple `Mission`s and a `Mission` can have multiple `Planet`s.
+type Astronaut {
+    id: ID!
+    name: String!
+    # The schema exposes the `Astronaut` `Planet`s, without traversing his `Mission`s.
+    planets: [Planet!]!
+}
+
+type Planet {
+    id: ID!
+    name: String!
+}
+```
+The  `Astronaut` `planets` data fetcher (resolver) will contain the logic to chain two data loaders,
+first collect missions by astronaut, and then, planets by mission.
+
+**DataLoaders**
+
+For this specific example we would need 2 `DataLoader`s
+
+1. **MissionsByAstronaut:** to retrieve `Mission`s by a given `Astronaut`.
+2. **PlanetsByMission:** to retrieve `Planet`s by a given `Mission`.
+
+**Fetching logic**
+```kotlin
+class Astronaut {
+    fun getPlanets(
+        astronautId: Int,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Planet>> {
+        val missionsByAstronautDataLoader = environment.getDataLoader("MissionsByAstronautDataLoader")
+        val planetsByMissionDataLoader = environment.getDataLoader("PlanetsByMissionDataLoader")
+        return missionsByAstronautDataLoader
+            .load(astronautId)
+            // chain data loader
+            .thenCompose { missions ->
+                planetsByMissionDataLoader
+                    .loadMany(missions.map { mission -> mission.id })
+                    // extension function to schedule a dispatch of registry if needed
+                    .dispatchIfNeeded(environment)
+            }
+}
+```

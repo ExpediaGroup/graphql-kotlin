@@ -42,25 +42,27 @@ object MissionRepository {
         Mission(15, "Apollo 17", listOf(6, 13, 24))
     )
 
-    fun getMissions(missionIds: List<Int>): Flux<Optional<Mission>> = when {
-        missionIds.isNotEmpty() -> {
-            missionIds
-                .map { astronautId ->
-                    missions.getOrNull(astronautId)
-                        ?.let { Optional.of(it) }
-                        ?: Optional.empty<Mission>()
-                }.toMono()
-                .delayElement(Duration.ofMillis(100))
-                .flatMapMany { it.toFlux() }
+    fun getMissions(missionIds: List<Int>): Flux<Optional<Mission>> =
+        when {
+            missionIds.isNotEmpty() -> {
+                missionIds
+                    .map { missionId ->
+                        missions
+                            .firstOrNull { it.id == missionId }
+                            ?.let { Optional.of(it) }
+                            ?: Optional.empty<Mission>()
+                    }.toMono()
+                    .delayElement(Duration.ofMillis(100))
+                    .flatMapMany { it.toFlux() }
+            }
+            else -> {
+                missions
+                    .map { Optional.of(it) }
+                    .toMono()
+                    .delayElement(Duration.ofMillis(100))
+                    .flatMapMany { it.toFlux() }
+            }
         }
-        else -> {
-            missions
-                .map { Optional.of(it) }
-                .toMono()
-                .delayElement(Duration.ofMillis(100))
-                .flatMapMany { it.toFlux() }
-        }
-    }
 
     fun getMissionsByAstronautIds(astronautIds: List<Int>): Flux<List<Mission>> =
         astronautIds.toFlux()
