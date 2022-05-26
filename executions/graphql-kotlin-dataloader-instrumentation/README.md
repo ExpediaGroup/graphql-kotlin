@@ -42,7 +42,7 @@ GraphQL
     .build()
 ```
 
-When ready to execute an operation or operations create a `GraphQLContext` instance with the one of the following entries:
+When ready to execute an operation or operations create a `GraphQLContext` instance with one of the following entries:
 - An instance of `ExecutionLevelDispatchedState` if you choose `DataLoaderLevelDispatchedInstrumentation`.
 - An instance of `SyncExecutionExhaustedState` if you choose `DataLoaderSyncExecutionExhaustedInstrumentation`.
 
