@@ -18,7 +18,6 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.dispatchIfNeeded
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Astronaut
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
@@ -49,34 +48,33 @@ class AstronautService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Astronaut> =
         environment
-            .getDataLoaderFromContext<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+            .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
             .load(request)
 
     fun getAstronauts(
         requests: List<AstronautServiceRequest>,
         environment: DataFetchingEnvironment
-    ): CompletableFuture<List<Astronaut?>> =
-        when {
-            requests.isNotEmpty() -> {
-                environment
-                    .getDataLoaderFromContext<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
-                    .loadMany(requests)
-            }
-            else -> {
-                AstronautRepository
-                    .getAstronauts(emptyList())
-                    .collectList()
-                    .map(List<Optional<Astronaut>>::toListOfNullables)
-                    .toFuture()
-            }
+    ): CompletableFuture<List<Astronaut?>> = when {
+        requests.isNotEmpty() -> {
+            environment
+                .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
+                .loadMany(requests)
         }
+        else -> {
+            AstronautRepository
+                .getAstronauts(emptyList())
+                .collectList()
+                .map(List<Optional<Astronaut>>::toListOfNullables)
+                .toFuture()
+        }
+    }
 
     fun getPlanets(
         request: AstronautServiceRequest,
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Planet>> {
-        val missionsByAstronautDataLoader = environment.getDataLoaderFromContext<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
-        val planetsByMissionDataLoader = environment.getDataLoaderFromContext<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
+        val missionsByAstronautDataLoader = environment.getDataLoader<MissionServiceRequest, List<Mission>>("MissionsByAstronautDataLoader")
+        val planetsByMissionDataLoader = environment.getDataLoader<PlanetServiceRequest, List<Planet>>("PlanetsByMissionDataLoader")
         return missionsByAstronautDataLoader
             .load(MissionServiceRequest(0, astronautId = request.id))
             .thenCompose { missions ->

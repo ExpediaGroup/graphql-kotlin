@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
@@ -342,7 +341,7 @@ class GraphQLRequestHandlerTest {
             id: Int,
             dataFetchingEnvironment: DataFetchingEnvironment
         ): CompletableFuture<User> =
-            dataFetchingEnvironment.getDataLoaderFromContext<Int, User>("UserDataLoader").load(id)
+            dataFetchingEnvironment.getDataLoader<Int, User>("UserDataLoader").load(id)
 
         fun hello(name: String): String = "Hello $name!"
 
