@@ -89,9 +89,8 @@ This way even if you are executing 2 separate operations you can still batch ope
 
 ### Usage in DataFetcher
 
-To access to a `DataLoader` you can use the `DataFetchingEnvironment` which is passed to each
-`DataFetcher` and invoke the `getDataLoader(dataLoaderName)` method which will access to the `KotlinDataLoaderRegistry`
-and provide the `DataLoader` that you specified as `dataLoaderName` argument.
+To access to a `DataLoader` you can use the `DataFetchingEnvironment.getDataLoader(dataLoaderName: String)` method
+which will retrieve target `DataLoader` from the `KotlinDataLoaderRegistry` based on the specified `dataLoaderName`.
 
 ```kotlin
 class AstronautService {
