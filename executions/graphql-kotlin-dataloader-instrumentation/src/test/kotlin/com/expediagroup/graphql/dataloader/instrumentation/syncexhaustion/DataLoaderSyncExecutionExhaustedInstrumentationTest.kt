@@ -467,7 +467,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     }
 
     @Test
-    fun `Instrumentation should batch and deduplicate by field selections 2`() {
+    fun `Instrumentation should batch and deduplicate root selection fields`() {
         val queries = listOf(
             """
                 {

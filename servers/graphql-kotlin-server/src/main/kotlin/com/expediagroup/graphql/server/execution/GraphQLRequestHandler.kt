@@ -142,11 +142,9 @@ open class GraphQLRequestHandler(
 
         val batchContext = when (batchDataLoaderInstrumentationType) {
             DataLoaderLevelDispatchedInstrumentation::class.java -> mapOf(
-                KotlinDataLoaderRegistry::class to dataLoaderRegistry,
                 ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(batchSize)
             )
             DataLoaderSyncExecutionExhaustedInstrumentation::class.java -> mapOf(
-                KotlinDataLoaderRegistry::class to dataLoaderRegistry,
                 SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(batchSize, dataLoaderRegistry)
             )
             else -> emptyMap<Any, Any>()

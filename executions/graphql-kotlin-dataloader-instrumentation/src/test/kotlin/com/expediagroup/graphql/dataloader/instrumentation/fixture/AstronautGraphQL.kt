@@ -194,7 +194,6 @@ object AstronautGraphQL {
         )
 
         val graphQLContext = mapOf(
-            KotlinDataLoaderRegistry::class to kotlinDataLoaderRegistry,
             when (dataLoaderInstrumentationStrategy) {
                 DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION ->
                     SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
@@ -212,7 +211,11 @@ object AstronautGraphQL {
             queries.map { query ->
                 async {
                     graphQL.executeAsync(
-                        ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build()
+                        ExecutionInput
+                            .newExecutionInput(query)
+                            .dataLoaderRegistry(kotlinDataLoaderRegistry)
+                            .graphQLContext(graphQLContext)
+                            .build()
                     ).await()
                 }
             }.awaitAll()

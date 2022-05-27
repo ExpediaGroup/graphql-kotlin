@@ -37,10 +37,10 @@ import org.dataloader.DataLoader
 class DataLoaderLevelDispatchedInstrumentation : AbstractExecutionLevelDispatchedInstrumentation() {
     override fun getOnLevelDispatchedCallback(
         parameters: ExecutionLevelDispatchedInstrumentationParameters
-    ): OnLevelDispatchedCallback = { _, _ ->
-        parameters
-            .executionContext
-            .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
+    ): OnLevelDispatchedCallback = { _, executions: List<ExecutionInput> ->
+        executions
+            .getOrNull(0)
+            ?.dataLoaderRegistry
             ?.dispatchAll()
     }
 }

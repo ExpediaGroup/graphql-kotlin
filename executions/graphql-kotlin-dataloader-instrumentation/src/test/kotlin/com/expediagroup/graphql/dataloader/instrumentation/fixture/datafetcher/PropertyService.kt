@@ -1,7 +1,6 @@
 package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDataLoaderFromContext
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Property
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.PropertyRepository
@@ -30,6 +29,6 @@ class PropertyService {
         environment: DataFetchingEnvironment
     ): CompletableFuture<Property> =
         environment
-            .getDataLoaderFromContext<PropertyServiceRequest, Property>("PropertyDataLoader")
+            .getDataLoader<PropertyServiceRequest, Property>("PropertyDataLoader")
             .load(request)
 }

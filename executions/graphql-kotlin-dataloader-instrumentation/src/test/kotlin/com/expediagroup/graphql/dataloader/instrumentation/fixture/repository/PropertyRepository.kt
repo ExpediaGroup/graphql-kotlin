@@ -60,9 +60,7 @@ object PropertyRepository {
                         }
                     )
                 }
-        }.associateBy {
-            it.id
-        }
+        }.associateBy(Property::id)
 
         return requests
             .toFlux()

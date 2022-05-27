@@ -32,15 +32,15 @@ import java.util.concurrent.CompletableFuture
  * when the synchronous execution of all [ExecutionInput] sharing a [GraphQLContext] was exhausted.
  *
  * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
- * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
+ * a scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
  */
 class DataLoaderSyncExecutionExhaustedInstrumentation : AbstractSyncExecutionExhaustedInstrumentation() {
     override fun getOnSyncExecutionExhaustedCallback(
         parameters: SyncExecutionExhaustedInstrumentationParameters
-    ): OnSyncExecutionExhaustedCallback = {
-        parameters
-            .executionContext
-            .graphQLContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
+    ): OnSyncExecutionExhaustedCallback = { executions: List<ExecutionInput> ->
+        executions
+            .getOrNull(0)
+            ?.dataLoaderRegistry
             ?.dispatchAll()
     }
 }

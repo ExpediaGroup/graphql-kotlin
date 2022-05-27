@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import kotlin.reflect.KCallable
 
 private typealias CallableFilter = (KCallable<*>) -> Boolean
 
-private val blacklistFunctions: List<String> = listOf("annotationType", "toString", "copy", "equals", "hashCode")
-private val componentFunctionRegex = Regex("component([0-9]+)")
+private val blockedFunctions: List<String> = listOf("annotationType", "toString", "copy", "equals", "hashCode")
+private val componentFunctionRegex = Regex("component(\\d+)")
 
 private val isPublic: CallableFilter = { it.isPublic() }
 private val isNotGraphQLIgnored: CallableFilter = { it.isGraphQLIgnored().not() }
-private val isBlacklistedFunction: CallableFilter = { blacklistFunctions.contains(it.name) }
+private val isBlockedFunction: CallableFilter = { blockedFunctions.contains(it.name) }
 private val isComponentFunction: CallableFilter = { it.name.matches(componentFunctionRegex) }
-private val isNotBlacklistedFunction: CallableFilter = { isBlacklistedFunction(it).not() && isComponentFunction(it).not() }
+private val isNotBlockedFunction: CallableFilter = { isBlockedFunction(it).not() && isComponentFunction(it).not() }
 private val isValidFunctionName: CallableFilter = { it.name.matches(validGraphQLNameRegex) }
 
-internal val functionFilters: List<CallableFilter> = listOf(isPublic, isNotGraphQLIgnored, isValidFunctionName, isNotBlacklistedFunction)
+internal val functionFilters: List<CallableFilter> = listOf(isPublic, isNotGraphQLIgnored, isValidFunctionName, isNotBlockedFunction)
