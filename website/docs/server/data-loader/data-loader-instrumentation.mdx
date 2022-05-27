@@ -38,43 +38,43 @@ You can find additional examples in our [unit tests](https://github.com/ExpediaG
     ]}
 >
 
-    <TabItem value="by-level-queries">
+<TabItem value="by-level-queries">
 
-        ```graphql
-        query Q1 {
-        astronaut(id: 1) { # async
+```graphql
+query Q1 {
+    astronaut(id: 1) { # async
         id
         name
         missions { # async
-        id
-        designation
+            id
+            designation
+        }
     }
-    }
-    }
+}
 
-        query Q2 {
-        astronaut(id: 2) { # async
+query Q2 {
+    astronaut(id: 2) { # async
         id
         name
         missions { # async
-        id
-        designation
+            id
+            designation
+        }
     }
-    }
-    }
-        ```
+}
+```
 
-    </TabItem>
-    <TabItem value="by-level-execution">
+</TabItem>
+<TabItem value="by-level-execution">
 
-        ![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-dispatched-instrumentation.png)
+![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-dispatched-instrumentation.png)
 
-        * The `astronaut` `DataFetcher` uses a `AstronautDataLoader` which will be dispatched when **Level 1** of those 2 operations
-        is dispatched, causing the `AstronautDataLoader` to load 2 astronauts.
-        * The `missions` `DataFetcher` uses a `MissionsByAstronautDataLoader` which will be dispatched when **Level 2** of those 2 operations
-        is dispatched, causing the `MissionsByAstronautDataLoader` to load 2 lists of missions by astronaut.
+* The `astronaut` `DataFetcher` uses a `AstronautDataLoader` which will be dispatched when **Level 1** of those 2 operations
+is dispatched, causing the `AstronautDataLoader` to load 2 astronauts.
+* The `missions` `DataFetcher` uses a `MissionsByAstronautDataLoader` which will be dispatched when **Level 2** of those 2 operations
+is dispatched, causing the `MissionsByAstronautDataLoader` to load 2 lists of missions by astronaut.
 
-    </TabItem>
+</TabItem>
 </Tabs>
 
 ### Usage
@@ -143,79 +143,79 @@ You can find additional examples in our [unit tests](https://github.com/ExpediaG
         { label: 'Execution', value: 'by-sync-exhaustion-execution' }
     ]}
 >
-    <TabItem value='by-sync-exhaustion-queries'>
+<TabItem value='by-sync-exhaustion-queries'>
 
-        ```graphql
-        query Q1 {
-        astronaut(id: 1) { # async
+```graphql
+query Q1 {
+    astronaut(id: 1) { # async
         id
         name
         missions { # async
-        id
-        designation
+            id
+            designation
+        }
     }
-    }
-    }
+}
 
-        query Q2 {
-        nasa { #sync
+query Q2 {
+    nasa { #sync
         astronaut(id: 2) { # async
-        id
-        name
-        missions { # async
-        id
-        designation
-    }
-    }
+            id
+            name
+            missions { # async
+                id
+                designation
+            }
+        }
         address { # sync
-        street
-        zipCode
-    }
+            street
+            zipCode
+        }
         phoneNumber
     }
-    }
-        ```
-    </TabItem>
-    <TabItem value='by-sync-exhaustion-execution'>
+}
+```
+</TabItem>
+<TabItem value='by-sync-exhaustion-execution'>
 
-        ![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-execution-exhausted-instrumentation.png)
+![Image of data loader level dispatched instrumentation](../../assets/data-loader-level-sync-execution-exhausted-instrumentation.png)
 
-        **The order of execution of the queries will be:**
+**The order of execution of the queries will be:**
 
-        ***for Q1***
-        1. Start an `ExecutionStrategy` for the `root` field of the query, to concurrently resolve `astronaut` field.
-        * `astronaut` **DataFetcher** will invoke the `AstronautDataLoader` and will return a `CompletableFuture<Astronaut>` so we can consider this path exhausted.
+***for Q1***
+1. Start an `ExecutionStrategy` for the `root` field of the query, to concurrently resolve `astronaut` field.
+    * `astronaut` **DataFetcher** will invoke the `AstronautDataLoader` and will return a `CompletableFuture<Astronaut>` so we can consider this path exhausted.
 
-        ***for Q2***
-        1. Start an `ExecutionStrategy` for the `root` field of the query, to concurrently resolve `nasa` field.
-        * `nasa` **DataFetcher** will synchronously return a `Nasa` object, so we can descend more that path.
-        2. Start an `ExecutionStrategy` for the `nasa` field of the `root` field of the query to concurrently resolve `astronaut`, `address` and `phoneNumber`.
-        * `astronaut` **DataFetcher**  will invoke the `AstronautDataLoader` and will return a `CompletableFuture<Astronaut>` so we can consider this path exhausted
-            * `address` **DataFetcher** will synchronously return an `Address` object, so we can descend more that path.
-            * `phoneNumber` **DataFetcher** will return a scalar, so we can consider this path exhausted.
-            3. Start an `ExecutionStrategy` for the `address` field of the `nasa` field to concurrently resolve `street` and `zipCode`.
-            * `street` **DataFetcher** will return a scalar, so we can consider this path exhausted.
-            * `zipCode` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+***for Q2***
+1. Start an `ExecutionStrategy` for the `root` field of the query, to concurrently resolve `nasa` field.
+    * `nasa` **DataFetcher** will synchronously return a `Nasa` object, so we can descend more that path.
+2. Start an `ExecutionStrategy` for the `nasa` field of the `root` field of the query to concurrently resolve `astronaut`, `address` and `phoneNumber`.
+    * `astronaut` **DataFetcher**  will invoke the `AstronautDataLoader` and will return a `CompletableFuture<Astronaut>` so we can consider this path exhausted
+    * `address` **DataFetcher** will synchronously return an `Address` object, so we can descend more that path.
+    * `phoneNumber` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+3. Start an `ExecutionStrategy` for the `address` field of the `nasa` field to concurrently resolve `street` and `zipCode`.
+    * `street` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+    * `zipCode` **DataFetcher** will return a scalar, so we can consider this path exhausted.
 
-            **At this point we can consider the synchronous execution exhausted and the `AstronautDataLoader` has 2 keys to be dispatched,
-            if we proceed dispatching all data loaders the execution will continue as following:**
+**At this point we can consider the synchronous execution exhausted and the `AstronautDataLoader` has 2 keys to be dispatched,
+if we proceed dispatching all data loaders the execution will continue as following:**
 
-            ***for Q1***
-            1. Start and `ExecutionStrategy` for the `astronaut` field of the `root` field of the query to concurrently resolve `id`, `name` and `mission` fields.
-            * `id` **DataFetcher** will return a scalar, so we can consider this path exhausted.
-            * `name` **DataFetcher** will return a scalar, so we can consider this path exhausted.
-            * `missions` **DataFetcher** will invoke the `MissionsByAstronautDataLoader` and will return a `CompletableFuture<List<Mission>>` so we can consider this path exhausted.
+***for Q1***
+1. Start and `ExecutionStrategy` for the `astronaut` field of the `root` field of the query to concurrently resolve `id`, `name` and `mission` fields.
+    * `id` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+    * `name` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+    * `missions` **DataFetcher** will invoke the `MissionsByAstronautDataLoader` and will return a `CompletableFuture<List<Mission>>` so we can consider this path exhausted.
 
-                ***for Q2***
-                1. Start and `ExecutionStrategy` for the `astronaut` field of the `nasa` field of the query to concurrently resolve `id`, `name` and `mission` fields.
-                * `id` **DataFetcher** will return a scalar, so we can consider this path exhausted.
-                * `name` **DataFetcher** will return a scalar, so we can consider this path exhausted.
-                * `missions` **DataFetcher** will invoke the `MissionsByAstronautDataLoader` and will return a `CompletableFuture<List<Mission>>` so we can consider this path exhausted.
+***for Q2***
+1. Start and `ExecutionStrategy` for the `astronaut` field of the `nasa` field of the query to concurrently resolve `id`, `name` and `mission` fields.
+    * `id` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+    * `name` **DataFetcher** will return a scalar, so we can consider this path exhausted.
+    * `missions` **DataFetcher** will invoke the `MissionsByAstronautDataLoader` and will return a `CompletableFuture<List<Mission>>` so we can consider this path exhausted.
 
-                    **At this point we can consider the synchronous execution exhausted and the `MissionsByAstronautDataLoader` has 2 keys to be dispatched,
-                    if we proceed dispatching all data loaders the execution will continue to just resolve scalar fields.**
+**At this point we can consider the synchronous execution exhausted and the `MissionsByAstronautDataLoader` has 2 keys to be dispatched,
+if we proceed dispatching all data loaders the execution will continue to just resolve scalar fields.**
 
-    </TabItem>
+</TabItem>
 </Tabs>
 
 ### Usage
@@ -224,20 +224,20 @@ In order to enable batching by synchronous execution exhaustion, you need to con
 
 ```kotlin
 val graphQL = GraphQL.Builder()
-.doNotAddDefaultInstrumentations()
-.instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
-// configure schema, type wiring, etc.
-.build()
+    .doNotAddDefaultInstrumentations()
+    .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+    // configure schema, type wiring, etc.
+    .build()
 ```
 
 This data loader instrumentation relies on a global state object that should be stored in the GraphQL context map
 
 ```kotlin
 val graphQLContext = mapOf(
-SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(
-queries.size,
-kotlinDataLoaderRegistry
-)
+    SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(
+        queries.size,
+        kotlinDataLoaderRegistry
+    )
 )
 ```
 
@@ -246,9 +246,9 @@ kotlinDataLoaderRegistry
 Batching by synchronous execution exhaustion can be enabled by configuring following properties:
 ```yaml
 graphql:
-batching:
-enabled: true
-strategy: SYNC_EXHAUSTION
+  batching:
+   enabled: true
+   strategy: SYNC_EXHAUSTION
 ```
 :::
 
@@ -274,14 +274,14 @@ type Query {
 # an `Astronaut` can have multiple `Mission`s and a `Mission` can have multiple `Planet`s.
 type Astronaut {
     id: ID!
-        name: String!
-# The schema exposes the `Astronaut` `Planet`s, without traversing his `Mission`s.
-        planets: [Planet!]!
+    name: String!
+    # The schema exposes the `Astronaut` `Planet`s, without traversing his `Mission`s.
+    planets: [Planet!]!
 }
 
 type Planet {
     id: ID!
-        name: String!
+    name: String!
 }
 ```
 The  `Astronaut` `planets` data fetcher (resolver) will contain the logic to chain two data loaders,
@@ -300,17 +300,17 @@ class Astronaut {
     fun getPlanets(
         astronautId: Int,
         environment: DataFetchingEnvironment
-): CompletableFuture<List<Planet>> {
+    ): CompletableFuture<List<Planet>> {
         val missionsByAstronautDataLoader = environment.getDataLoader("MissionsByAstronautDataLoader")
         val planetsByMissionDataLoader = environment.getDataLoader("PlanetsByMissionDataLoader")
         return missionsByAstronautDataLoader
             .load(astronautId)
             // chain data loader
             .thenCompose { missions ->
-        planetsByMissionDataLoader
-            .loadMany(missions.map { mission -> mission.id })
-        // extension function to schedule a dispatch of registry if needed
-    .dispatchIfNeeded(environment)
-    }
+                planetsByMissionDataLoader
+                    .loadMany(missions.map { mission -> mission.id })
+                    // extension function to schedule a dispatch of registry if needed
+                    .dispatchIfNeeded(environment)
+            }
 }
 ```
