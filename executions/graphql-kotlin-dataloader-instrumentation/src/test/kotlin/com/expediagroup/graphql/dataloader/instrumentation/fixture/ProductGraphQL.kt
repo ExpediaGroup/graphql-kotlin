@@ -18,12 +18,12 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyDataLoader
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyService
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyServiceRequest
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Property
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.PropertyDetails
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.PropertySummary
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.ProductDataLoader
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.ProductService
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.ProductServiceRequest
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductDetails
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductSummary
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
@@ -42,60 +42,60 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CompletableFuture
 
-object PropertyGraphQL {
+object ProductGraphQL {
     private val schema = """
         type Query {
-            property(id: ID!): Property
-            propertySummary(propertyId: ID!): PropertySummary
-            propertyDetails(propertyId: ID!): PropertyDetails
+            product(id: ID!): Product
+            productSummary(productId: ID!): ProductSummary
+            productDetails(productId: ID!): ProductDetails
         }
-        type Property {
-            summary: PropertySummary
-            details: PropertyDetails
+        type Product {
+            summary: ProductSummary
+            details: ProductDetails
         }
-        type PropertySummary {
+        type ProductSummary {
             name: String!
         }
-        type PropertyDetails {
+        type ProductDetails {
             rating: String!
         }
     """.trimIndent()
 
-    private val propertyService = PropertyService()
+    private val productService = ProductService()
 
-    private val propertyDataFetcher = DataFetcher<CompletableFuture<Property>> { environment ->
-        val propertyId = environment.getArgument<String>("id").toInt()
+    private val productDataFetcher = DataFetcher<CompletableFuture<Product>> { environment ->
+        val productId = environment.getArgument<String>("id").toInt()
         val selectionFields = environment.selectionSet.immediateFields.map(SelectedField::getName)
-        propertyService.getProperty(
-            PropertyServiceRequest(propertyId, selectionFields),
+        productService.getProduct(
+            ProductServiceRequest(productId, selectionFields),
             environment
         )
     }
 
-    private val propertySummaryDataFetcher = DataFetcher<CompletableFuture<PropertySummary>> { environment ->
-        val propertyId = environment.getArgument<String>("propertyId").toInt()
+    private val productSummaryDataFetcher = DataFetcher<CompletableFuture<ProductSummary>> { environment ->
+        val productId = environment.getArgument<String>("productId").toInt()
         val selectionFields = listOf("summary")
-        propertyService.getProperty(
-            PropertyServiceRequest(propertyId, selectionFields),
+        productService.getProduct(
+            ProductServiceRequest(productId, selectionFields),
             environment
-        ).thenApply(Property::summary)
+        ).thenApply(Product::summary)
     }
 
-    private val propertyDetailsDataFetcher = DataFetcher<CompletableFuture<PropertyDetails>> { environment ->
-        val propertyId = environment.getArgument<String>("propertyId").toInt()
+    private val productDetailsDataFetcher = DataFetcher<CompletableFuture<ProductDetails>> { environment ->
+        val productId = environment.getArgument<String>("productId").toInt()
         val selectionFields = listOf("details")
-        propertyService.getProperty(
-            PropertyServiceRequest(propertyId, selectionFields),
+        productService.getProduct(
+            ProductServiceRequest(productId, selectionFields),
             environment
-        ).thenApply(Property::details)
+        ).thenApply(Product::details)
     }
 
     private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
         type(
             TypeRuntimeWiring.newTypeWiring("Query")
-                .dataFetcher("property", propertyDataFetcher)
-                .dataFetcher("propertySummary", propertySummaryDataFetcher)
-                .dataFetcher("propertyDetails", propertyDetailsDataFetcher)
+                .dataFetcher("product", productDataFetcher)
+                .dataFetcher("productSummary", productSummaryDataFetcher)
+                .dataFetcher("productDetails", productDetailsDataFetcher)
         )
     }.build()
 
@@ -113,7 +113,7 @@ object PropertyGraphQL {
     ): Pair<List<ExecutionResult>, KotlinDataLoaderRegistry> {
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
-                PropertyDataLoader()
+                ProductDataLoader()
             ).generate()
         )
 

@@ -1,46 +1,45 @@
 package com.expediagroup.graphql.dataloader.instrumentation.fixture.repository
 
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.PropertyServiceRequest
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Property
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.PropertyDetails
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.PropertySummary
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.ProductServiceRequest
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Product
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductDetails
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.ProductSummary
 import reactor.core.publisher.Flux
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
 import java.util.Optional
 
-object PropertyRepository {
+object ProductRepository {
     private val properties = listOf(
-        Property(
+        Product(
             1,
-            PropertySummary("Property 1"),
-            PropertyDetails("5 out of 10")
+            ProductSummary("Product 1"),
+            ProductDetails("5 out of 10")
         ),
-        Property(
+        Product(
             2,
-            PropertySummary("Property 2"),
-            PropertyDetails("10 out of 10")
+            ProductSummary("Product 2"),
+            ProductDetails("10 out of 10")
         )
     )
 
-    fun getProperties(requests: List<PropertyServiceRequest>): Flux<Optional<Property>> {
-        // property service request: 1, summary
-        // property service request: 1, details
-
-        // property service request: 2, summary
-        // property service request: 2, details
-
-        // ==========
-
-        // property service request: 1, summary|details
-        // property service request: 2, summary|details
+    /**
+     * let's assume data batch loader provides 4 requests "keys" to getProducts
+     * - 2 for productId 1 fetching summary and details respectively
+     * - 2 for productId 2 fetching summary and details respectively
+     *
+     *  here we would need to aggregate 2 requests for each productId into 1 like this
+     *  - 1 request for productId 1 fetching summary and details
+     *  - 1 request for productId 1 fetching summary and details
+     */
+    fun getProducts(requests: List<ProductServiceRequest>): Flux<Optional<Product>> {
         val reducedRequests = requests
-            .groupBy(PropertyServiceRequest::id)
+            .groupBy(ProductServiceRequest::id)
             .mapValues { (propertyId, requests) ->
-                PropertyServiceRequest(
+                ProductServiceRequest(
                     propertyId,
-                    requests.map(PropertyServiceRequest::fields).flatten().distinct()
+                    requests.map(ProductServiceRequest::fields).flatten().distinct()
                 )
             }.values.toList()
 
@@ -48,7 +47,7 @@ object PropertyRepository {
             properties
                 .firstOrNull { it.id == propertyRequest.id }
                 ?.let { property ->
-                    Property(
+                    Product(
                         property.id,
                         when {
                             propertyRequest.fields.contains("summary") -> property.summary
@@ -60,7 +59,7 @@ object PropertyRepository {
                         }
                     )
                 }
-        }.associateBy(Property::id)
+        }.associateBy(Product::id)
 
         return requests
             .toFlux()

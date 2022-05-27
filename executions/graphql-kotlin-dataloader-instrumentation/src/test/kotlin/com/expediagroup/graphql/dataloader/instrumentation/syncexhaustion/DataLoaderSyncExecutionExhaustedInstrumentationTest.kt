@@ -18,7 +18,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.PropertyGraphQL
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -30,7 +30,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         .doNotAddDefaultInstrumentations()
         .build()
 
-    private val propertyGraphQL = PropertyGraphQL.builder
+    private val productGraphQL = ProductGraphQL.builder
         .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
@@ -434,7 +434,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         val queries = listOf(
             """
                 {
-                    property(id: 1) {
+                    product(id: 1) {
                         summary {
                             name
                         }
@@ -443,7 +443,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent(),
             """
                 {
-                    property(id: 1) {
+                    product(id: 1) {
                         details {
                             rating
                         }
@@ -452,18 +452,18 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = PropertyGraphQL.execute(
-            propertyGraphQL,
+        val (results, kotlinDataLoaderRegistry) = ProductGraphQL.execute(
+            productGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(2, results.size)
 
-        val propertyStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PropertyDataLoader"]?.statistics
+        val productStatistics = kotlinDataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
 
-        assertEquals(1, propertyStatistics?.batchInvokeCount)
-        assertEquals(2, propertyStatistics?.batchLoadCount)
+        assertEquals(1, productStatistics?.batchInvokeCount)
+        assertEquals(2, productStatistics?.batchLoadCount)
     }
 
     @Test
@@ -471,31 +471,31 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         val queries = listOf(
             """
                 {
-                    propertySummary(propertyId: 1) {
+                    productSummary(productId: 1) {
                         name
                     }
                 }
             """.trimIndent(),
             """
                 {
-                    propertyDetails(propertyId: 1) {
+                    productDetails(productId: 1) {
                         rating
                     }
                 }
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = PropertyGraphQL.execute(
-            propertyGraphQL,
+        val (results, kotlinDataLoaderRegistry) = ProductGraphQL.execute(
+            productGraphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
         assertEquals(2, results.size)
 
-        val propertyStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PropertyDataLoader"]?.statistics
+        val productStatistics = kotlinDataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
 
-        assertEquals(1, propertyStatistics?.batchInvokeCount)
-        assertEquals(2, propertyStatistics?.batchLoadCount)
+        assertEquals(1, productStatistics?.batchInvokeCount)
+        assertEquals(2, productStatistics?.batchLoadCount)
     }
 }
