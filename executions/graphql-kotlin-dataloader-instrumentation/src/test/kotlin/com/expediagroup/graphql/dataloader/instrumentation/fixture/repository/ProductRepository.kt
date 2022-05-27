@@ -11,7 +11,7 @@ import java.time.Duration
 import java.util.Optional
 
 object ProductRepository {
-    private val properties = listOf(
+    private val products = listOf(
         Product(
             1,
             ProductSummary("Product 1"),
@@ -36,25 +36,25 @@ object ProductRepository {
     fun getProducts(requests: List<ProductServiceRequest>): Flux<Optional<Product>> {
         val reducedRequests = requests
             .groupBy(ProductServiceRequest::id)
-            .mapValues { (propertyId, requests) ->
+            .mapValues { (productId, requests) ->
                 ProductServiceRequest(
-                    propertyId,
+                    productId,
                     requests.map(ProductServiceRequest::fields).flatten().distinct()
                 )
             }.values.toList()
 
-        val results = reducedRequests.mapNotNull { propertyRequest ->
-            properties
-                .firstOrNull { it.id == propertyRequest.id }
+        val results = reducedRequests.mapNotNull { productRequest ->
+            products
+                .firstOrNull { it.id == productRequest.id }
                 ?.let { property ->
                     Product(
                         property.id,
                         when {
-                            propertyRequest.fields.contains("summary") -> property.summary
+                            productRequest.fields.contains("summary") -> property.summary
                             else -> null
                         },
                         when {
-                            propertyRequest.fields.contains("details") -> property.details
+                            productRequest.fields.contains("details") -> property.details
                             else -> null
                         }
                     )
