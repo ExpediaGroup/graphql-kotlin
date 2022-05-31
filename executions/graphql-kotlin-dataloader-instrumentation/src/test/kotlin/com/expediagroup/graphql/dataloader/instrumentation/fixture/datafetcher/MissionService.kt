@@ -22,6 +22,8 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.to
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.MissionRepository
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
+import org.dataloader.DataLoaderOptions
+import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
@@ -29,6 +31,7 @@ data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 
 class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
     override val dataLoaderName: String = "MissionDataLoader"
+    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
     override fun getBatchLoader(): BatchLoader<MissionServiceRequest, Mission?> =
         BatchLoader<MissionServiceRequest, Mission?> { keys ->
             MissionRepository
@@ -41,6 +44,7 @@ class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
 
 class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, List<Mission>> {
     override val dataLoaderName: String = "MissionsByAstronautDataLoader"
+    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
     override fun getBatchLoader(): BatchLoader<MissionServiceRequest, List<Mission>> =
         BatchLoader<MissionServiceRequest, List<Mission>> { keys ->
             MissionRepository

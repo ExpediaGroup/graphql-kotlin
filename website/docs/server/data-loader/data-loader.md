@@ -49,12 +49,12 @@ A `DataLoader` caches the types by some unique value, usually by the type id, an
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
+    override fun getOptions() = DataLoaderOptions.newOptions().setCachingEnabled(false)
     override fun getBatchLoader() = BatchLoader<ID, User> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id -> userService.getUser(id) }
         }
     }
-    override fun getOptions() = DataLoaderOptions.newOptions().setCachingEnabled(false)
 }
 
 class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
@@ -78,8 +78,9 @@ val dataLoaderRegistry = dataLoaderRegistryFactory.generate()
 
 ## `KotlinDataLoaderRegistry`
 
-`KotlinDataLoaderRegistry` is a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java)
-that provides access to all underlying `DataLoader`s future states. By providing access to cache map containing returned futures,
+[KotlinDataLoaderRegistry](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader/src/main/kotlin/com/expediagroup/graphql/dataloader/KotlinDataLoaderRegistry.kt)
+is a decorator of the original `graphql-java` [DataLoaderRegistry](https://github.com/graphql-java/java-dataloader/blob/master/src/main/java/org/dataloader/DataLoaderRegistry.java)
+that keeps track of all underlying `DataLoader`s futures. By keeping track of to cache map containing returned futures,
 we get more granular control when to dispatch data loader calls.
 
 ## `getValueFromDataLoader`

@@ -21,8 +21,8 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions
 
 /**
- * Configuration interface that will create a [DataLoader] instance
- * so we can have common logic around registering the loaders
+ * Configuration interface that will create a [DataLoader] instance,
+ * so we can have common logic around registering the data loaders
  * by return type and loading values in the data fetchers.
  */
 interface KotlinDataLoader<K, V> {
