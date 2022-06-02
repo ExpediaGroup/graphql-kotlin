@@ -17,13 +17,20 @@
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.TestGraphQL
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DataLoaderSyncExecutionExhaustedInstrumentationTest {
-    private val graphQL = TestGraphQL.builder
+    private val graphQL = AstronautGraphQL.builder
+        .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+        // graphql java adds DataLoaderDispatcherInstrumentation by default
+        .doNotAddDefaultInstrumentations()
+        .build()
+
+    private val productGraphQL = ProductGraphQL.builder
         .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
@@ -38,7 +45,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -69,7 +76,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -104,7 +111,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -148,7 +155,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -199,7 +206,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -245,7 +252,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -286,7 +293,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -326,7 +333,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -364,7 +371,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent()
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -407,7 +414,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """.trimIndent(),
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
@@ -420,5 +427,75 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(1, planetStatistics?.batchInvokeCount)
+    }
+
+    @Test
+    fun `Instrumentation should batch and deduplicate by field selections`() {
+        val queries = listOf(
+            """
+                {
+                    product(id: 1) {
+                        summary {
+                            name
+                        }
+                    }
+                }
+            """.trimIndent(),
+            """
+                {
+                    product(id: 1) {
+                        details {
+                            rating
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = ProductGraphQL.execute(
+            productGraphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(2, results.size)
+
+        val productStatistics = kotlinDataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
+
+        assertEquals(1, productStatistics?.batchInvokeCount)
+        assertEquals(2, productStatistics?.batchLoadCount)
+    }
+
+    @Test
+    fun `Instrumentation should batch and deduplicate root selection fields`() {
+        val queries = listOf(
+            """
+                {
+                    productSummary(productId: 1) {
+                        name
+                    }
+                }
+            """.trimIndent(),
+            """
+                {
+                    productDetails(productId: 1) {
+                        rating
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = ProductGraphQL.execute(
+            productGraphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(2, results.size)
+
+        val productStatistics = kotlinDataLoaderRegistry.dataLoadersMap["ProductDataLoader"]?.statistics
+
+        assertEquals(1, productStatistics?.batchInvokeCount)
+        assertEquals(2, productStatistics?.batchLoadCount)
     }
 }
