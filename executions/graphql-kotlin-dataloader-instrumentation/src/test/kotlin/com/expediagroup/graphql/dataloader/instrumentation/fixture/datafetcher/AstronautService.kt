@@ -25,6 +25,8 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.to
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.BatchLoader
+import org.dataloader.DataLoaderOptions
+import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
@@ -32,6 +34,7 @@ data class AstronautServiceRequest(val id: Int)
 
 class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?> {
     override val dataLoaderName: String = "AstronautDataLoader"
+    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
     override fun getBatchLoader(): BatchLoader<AstronautServiceRequest, Astronaut?> =
         BatchLoader<AstronautServiceRequest, Astronaut?> { keys ->
             AstronautRepository

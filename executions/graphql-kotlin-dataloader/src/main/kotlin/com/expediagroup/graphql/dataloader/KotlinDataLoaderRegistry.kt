@@ -24,13 +24,12 @@ import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
 /**
- * Custom [DataLoaderRegistry] decorator that has access to the [CacheMap] of each registered [DataLoader]
+ * Custom [DataLoaderRegistry] decorator that access the [CacheMap] of each registered [DataLoader]
  * in order to keep track of the [onDispatchFutures] when [dispatchAll] is invoked,
  * that way we can know if all dependants of the [CompletableFuture]s were executed.
  */
 class KotlinDataLoaderRegistry(
-    private val registry: DataLoaderRegistry = DataLoaderRegistry(),
-    private val futureCacheMaps: List<KotlinDefaultCacheMap<*, *>> = emptyList()
+    private val registry: DataLoaderRegistry = DataLoaderRegistry()
 ) : DataLoaderRegistry() {
 
     private val onDispatchFutures: MutableList<CompletableFuture<*>> = mutableListOf()
@@ -57,12 +56,12 @@ class KotlinDataLoaderRegistry(
 
     /**
      * will return a list of futures that represents the **current** state of the [CompletableFuture]s from each
-     * [DataLoader] cacheMap.
+     * [DataLoader] [CacheMap].
      *
      * @return list of current completable futures.
      */
     fun getCurrentFutures(): List<CompletableFuture<*>> =
-        futureCacheMaps.map(KotlinDefaultCacheMap<*, *>::values).flatten()
+        registry.dataLoaders.map { it.cacheMap.all }.flatten()
 
     /**
      * This will invoke [DataLoader.dispatch] on each of the registered [DataLoader]s,
