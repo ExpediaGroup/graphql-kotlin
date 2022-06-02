@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
 /**
- * Custom [DataLoaderRegistry] decorator that access to the [CacheMap] of each registered [DataLoader]
+ * Custom [DataLoaderRegistry] decorator that access the [CacheMap] of each registered [DataLoader]
  * in order to keep track of the [onDispatchFutures] when [dispatchAll] is invoked,
  * that way we can know if all dependants of the [CompletableFuture]s were executed.
  */
