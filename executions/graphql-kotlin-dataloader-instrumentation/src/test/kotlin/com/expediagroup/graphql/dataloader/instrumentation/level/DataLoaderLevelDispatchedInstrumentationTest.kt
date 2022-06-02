@@ -17,13 +17,13 @@
 package com.expediagroup.graphql.dataloader.instrumentation.level
 
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.TestGraphQL
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DataLoaderLevelDispatchedInstrumentationTest {
-    private val graphQL = TestGraphQL.builder
+    private val graphQL = AstronautGraphQL.builder
         .instrumentation(DataLoaderLevelDispatchedInstrumentation())
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
@@ -38,7 +38,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -69,7 +69,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ nasa { mission(id: 4) { id designation } } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
@@ -104,7 +104,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             "{ mission(id: 4) { designation } }"
         )
 
-        val (results, kotlinDataLoaderRegistry) = TestGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED

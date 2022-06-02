@@ -47,9 +47,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 
-enum class DataLoaderInstrumentationStrategy { LEVEL_DISPATCHED, SYNC_EXHAUSTION }
-
-object TestGraphQL {
+object AstronautGraphQL {
     private val schema = """
         type Query {
             astronaut(id: ID!): Astronaut
