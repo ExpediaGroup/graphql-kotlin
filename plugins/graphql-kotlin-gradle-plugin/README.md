@@ -38,7 +38,7 @@ graphql {
       headers = mapOf("X-Custom-Header" to "Custom-Header-Value")
       // Target package name to be used for generated classes.
       packageName = "com.example.generated"
-      // Custom directory containing query files, defaults to src/main/resources
+      // Custom directory and all its subdirectories containing query files, defaults to src/main/resources
       queryFileDirectory = "${project.projectDir}/src/main/resources/queries"
       // Optional list of query files to be processed, takes precedence over queryFileDirectory
       queryFiles = listOf(file("${project.projectDir}/src/main/resources/queries/MyQuery.graphql"))

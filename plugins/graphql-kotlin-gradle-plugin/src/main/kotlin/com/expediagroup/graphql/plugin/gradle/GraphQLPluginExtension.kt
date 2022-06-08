@@ -71,7 +71,7 @@ open class GraphQLPluginClientExtension {
     var customScalars: List<GraphQLScalar> = emptyList()
     /** List of query files to be processed. */
     var queryFiles: List<File> = emptyList()
-    /** Directory containing GraphQL query files. */
+    /** Directory and all its subdirectories containing GraphQL query files. */
     var queryFileDirectory: String? = null
     /** JSON serializer that will be used to generate the data classes. */
     var serializer: GraphQLSerializer = GraphQLSerializer.JACKSON
