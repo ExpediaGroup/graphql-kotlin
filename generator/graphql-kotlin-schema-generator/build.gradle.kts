@@ -9,7 +9,11 @@ val junitVersion: String by project
 val slf4jVersion: String by project
 
 dependencies {
-    api("com.graphql-java:graphql-java:$graphQLJavaVersion")
+    api("com.graphql-java:graphql-java") {
+        version {
+            strictly(graphQLJavaVersion)
+        }
+    }
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinCoroutinesVersion")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("io.github.classgraph:classgraph:$classGraphVersion")

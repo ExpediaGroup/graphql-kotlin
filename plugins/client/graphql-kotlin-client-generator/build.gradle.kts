@@ -12,7 +12,10 @@ val wireMockVersion: String by project
 
 dependencies {
     api(project(path = ":graphql-kotlin-client"))
-    api("com.graphql-java:graphql-java:$graphQLJavaVersion") {
+    api("com.graphql-java:graphql-java") {
+        version {
+            strictly(graphQLJavaVersion)
+        }
         exclude(group = "com.graphql-java", module = "java-dataloader")
     }
     api("com.squareup:kotlinpoet:$kotlinPoetVersion")
