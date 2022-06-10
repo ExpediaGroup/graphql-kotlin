@@ -17,9 +17,9 @@
 package com.expediagroup.graphql.generator.internal.types
 
 import com.expediagroup.graphql.generator.SchemaGenerator
+import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.exceptions.InvalidDirectiveLocationException
 import com.expediagroup.graphql.generator.internal.extensions.getPropertyAnnotations
-import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
 import com.expediagroup.graphql.generator.internal.extensions.getValidProperties
 import com.expediagroup.graphql.generator.internal.extensions.safeCast
 import graphql.introspection.Introspection.DirectiveLocation
@@ -64,9 +64,12 @@ internal fun generateEnumValueDirectives(generator: SchemaGenerator, field: Fiel
             getDirective(generator, it)
         }
 
-private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInfo): GraphQLAppliedDirective {
+private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveMetaInformation): GraphQLAppliedDirective {
     val directiveName = directiveInfo.effectiveName
-    val directive = generator.directives.computeIfAbsent(directiveName) {
+    val directiveFromHook = generator.config.hooks.willGenerateDirective(directiveInfo)
+        ?.let { generator.directives.putIfAbsent(directiveName, it) }
+
+    val directive = directiveFromHook ?: generator.directives.computeIfAbsent(directiveName) {
         val builder = GraphQLDirective.newDirective()
             .name(directiveInfo.effectiveName)
             .description(directiveInfo.directiveAnnotation.description)
@@ -91,14 +94,15 @@ private fun getDirective(generator: SchemaGenerator, directiveInfo: DirectiveInf
     return if (directive.arguments.isNotEmpty()) {
         appliedDirective.transform { builder ->
             directiveInfo.directive.annotationClass.getValidProperties(generator.config.hooks).forEach { prop ->
-                val value = prop.call(directiveInfo.directive)
-                val directiveArgument = directive.getArgument(prop.name)
-                    .toAppliedArgument()
-                    .transform { argumentBuilder ->
+                directive.getArgument(prop.name)
+                    ?.toAppliedArgument()
+                    ?.transform { argumentBuilder ->
+                        val value = prop.call(directiveInfo.directive)
                         argumentBuilder.valueProgrammatic(value)
                     }
-
-                builder.argument(directiveArgument)
+                    ?.let { appliedDirectiveArgument ->
+                        builder.argument(appliedDirectiveArgument)
+                    }
             }
         }
     } else {
@@ -118,19 +122,10 @@ private fun generateDirectiveArgument(prop: KProperty<*>, generator: SchemaGener
         .build()
 }
 
-private fun String.normalizeDirectiveName() = this.replaceFirstChar { it.lowercase() }
-
-private fun Annotation.getDirectiveInfo(): DirectiveInfo? = this.annotationClass.annotations
+private fun Annotation.getDirectiveInfo(): DirectiveMetaInformation? = this.annotationClass.annotations
     .filterIsInstance(GraphQLDirectiveAnnotation::class.java)
     .map { graphqlDirective ->
         val isRepeatable = this.annotationClass.hasAnnotation<Repeatable>()
-        DirectiveInfo(this, graphqlDirective, isRepeatable)
+        DirectiveMetaInformation(this, graphqlDirective, isRepeatable)
     }
     .firstOrNull()
-
-private data class DirectiveInfo(val directive: Annotation, val directiveAnnotation: GraphQLDirectiveAnnotation, val repeatable: Boolean = false) {
-    val effectiveName: String = when {
-        directiveAnnotation.name.isNotEmpty() -> directiveAnnotation.name
-        else -> directive.annotationClass.getSimpleName().normalizeDirectiveName()
-    }
-}

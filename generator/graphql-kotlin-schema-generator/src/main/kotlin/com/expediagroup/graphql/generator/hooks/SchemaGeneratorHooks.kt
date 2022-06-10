@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.hooks
 
+import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.exceptions.EmptyInputObjectTypeException
 import com.expediagroup.graphql.generator.exceptions.EmptyInterfaceTypeException
@@ -27,6 +28,7 @@ import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
 import com.expediagroup.graphql.generator.internal.extensions.isValidAdditionalType
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLCodeRegistry
+import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLInterfaceType
@@ -60,6 +62,12 @@ interface SchemaGeneratorHooks {
      */
     @Suppress("Detekt.FunctionOnlyReturningConstant")
     fun willGenerateGraphQLType(type: KType): GraphQLType? = null
+
+    /**
+     * Called before generating a directive annotation information to the GraphQL directive.
+     * This allows for special handling of the directive annotations.
+     */
+    fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = null
 
     /**
      * Called after using reflection to generate the graphql object type but before returning it to the schema builder.

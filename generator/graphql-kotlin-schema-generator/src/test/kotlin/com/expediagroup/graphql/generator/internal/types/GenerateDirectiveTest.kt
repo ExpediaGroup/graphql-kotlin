@@ -56,6 +56,11 @@ class GenerateDirectiveTest {
         TWO
     }
 
+    enum class InvalidEnumValueDirective {
+        @DirectiveOnObjectOnly
+        INVALID
+    }
+
     @DirectiveOnInputObjectOnly
     @DirectiveOnObjectOnly
     data class MyExampleObject(val value: String)
@@ -196,12 +201,20 @@ class GenerateDirectiveTest {
     }
 
     @Test
-    fun `directives are empty on an enum with no valid annotations`() {
+    fun `directives are empty on an enum value with no valid annotations`() {
         val field = Type::class.java.getField("TWO")
 
         val directives = generateEnumValueDirectives(basicGenerator, field, "Type")
 
         assertEquals(0, directives.size)
+    }
+
+    @Test
+    fun `applying directives on enum values with invalid locations will throw exception`() {
+        val field = InvalidEnumValueDirective::class.java.getField("INVALID")
+        assertThrows<InvalidDirectiveLocationException> {
+            generateEnumValueDirectives(basicGenerator, field, "InvalidEnumValueDirective")
+        }
     }
 
     @Test
