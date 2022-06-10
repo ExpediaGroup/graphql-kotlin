@@ -69,7 +69,7 @@ class GenerateCustomSDLTest {
                   ) on SCALAR
 
                 type Query @extends {
-                  _service: _Service
+                  _service: _Service!
                   helloWorld(name: String): String!
                   randomUUID: UUID!
                 }

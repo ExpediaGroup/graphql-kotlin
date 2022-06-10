@@ -64,7 +64,7 @@ type Product @key(fields : "id") {
 
 type Query @extends {
   _entities(representations: [_Any!]!): [_Entity]!
-  _service: _Service
+  _service: _Service!
   product(id: Int!): Product
 }
 
@@ -126,7 +126,7 @@ type Product @extends @key(fields : "id") {
 
 type Query @extends {
   _entities(representations: [_Any!]!): [_Entity]!
-  _service: _Service
+  _service: _Service!
 }
 
 type Review {

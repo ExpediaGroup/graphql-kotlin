@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,9 @@ class ServiceTest {
         val serviceField = SERVICE_FIELD_DEFINITION
         assertEquals(expected = "_service", actual = serviceField.name)
 
-        val serviceObject = serviceField.type as? GraphQLObjectType
+        val wrappedServiceObject = serviceField.type as? GraphQLNonNull
+        assertNotNull(wrappedServiceObject)
+        val serviceObject = wrappedServiceObject.wrappedType as? GraphQLObjectType
         assertNotNull(serviceObject)
         assertEquals(expected = "_Service", actual = serviceObject.name)
         assertEquals(expected = 1, actual = serviceObject.fieldDefinitions.size)

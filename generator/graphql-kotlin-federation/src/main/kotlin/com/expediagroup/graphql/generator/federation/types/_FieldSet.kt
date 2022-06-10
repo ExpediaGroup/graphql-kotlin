@@ -25,7 +25,12 @@ import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingSerializeException
+import graphql.schema.GraphQLArgument
+import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLScalarType
+
+internal const val FIELD_SET_SCALAR_NAME = "_FieldSet"
+internal const val FIELD_SET_ARGUMENT_NAME = "fields"
 
 /**
  * Custom scalar type that is used to represent a set of fields. Grammatically, a field set is a selection set minus the braces.
@@ -33,9 +38,14 @@ import graphql.schema.GraphQLScalarType
  * "id organization { id }".
  */
 internal val FIELD_SET_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar(Scalars.GraphQLString)
-    .name("_FieldSet")
+    .name(FIELD_SET_SCALAR_NAME)
     .description("Federation type representing set of fields")
     .coercing(FieldSetCoercing)
+    .build()
+
+internal val FIELD_SET_ARGUMENT = GraphQLArgument.newArgument()
+    .name(FIELD_SET_ARGUMENT_NAME)
+    .type(GraphQLNonNull(FIELD_SET_SCALAR_TYPE))
     .build()
 
 private object FieldSetCoercing : Coercing<FieldSet, String> {

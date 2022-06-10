@@ -109,7 +109,7 @@ internal val FEDERATED_SCHEMA =
       ) on SCALAR
 
     type Query @extends {
-      _service: _Service
+      _service: _Service!
       helloWorld(name: String): String!
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 package com.expediagroup.graphql.generator.federation.directives
 
-import com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE
-import graphql.schema.GraphQLArgument
-import graphql.schema.GraphQLNonNull
-
 /**
  * Annotation representing _FieldSet scalar type that is used to represent a set of fields.
  *
@@ -33,10 +29,3 @@ import graphql.schema.GraphQLNonNull
  * @see [com.expediagroup.graphql.generator.federation.types.FIELD_SET_SCALAR_TYPE]
  */
 annotation class FieldSet(val value: String)
-
-internal const val FIELD_SET_ARGUMENT_NAME = "fields"
-
-internal val FIELD_SET_ARGUMENT = GraphQLArgument.newArgument()
-    .name(FIELD_SET_ARGUMENT_NAME)
-    .type(GraphQLNonNull(FIELD_SET_SCALAR_TYPE))
-    .build()
