@@ -32,8 +32,7 @@ To help in the registration of `DataLoaders`, we have created an interface `Kotl
 ```kotlin
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getBatchLoader(): BatchLoader<K, V>
-    fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions()
+    fun getDataLoader(): DataLoader<K, V>
 }
 ```
 
@@ -49,8 +48,7 @@ A `DataLoader` caches the types by some unique value, usually by the type id, an
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
-    override fun getOptions() = DataLoaderOptions.newOptions().setCachingEnabled(false)
-    override fun getBatchLoader() = BatchLoader<ID, User> { ids ->
+    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, User> { ids ->
         CompletableFuture.supplyAsync {
             ids.map { id -> userService.getUser(id) }
         }
@@ -59,14 +57,17 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
 
 class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
     override val dataLoaderName = "FriendsDataLoader"
-    override fun getDataLoader() = BatchLoader<ID, List<User>> { ids ->
-        CompletableFuture.supplyAsync {
-            ids.map { id ->
-                val friends: List<ID> = friendService.getFriends(id)
-                userService.getUsers(friends)
+    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, User>(
+        { ids ->
+            CompletableFuture.supplyAsync {
+                ids.map { id ->
+                    val friends: List<ID> = friendService.getFriends(id)
+                    userService.getUsers(friends)
+                }
             }
-        }
-    }
+        },
+        DataLoaderOptions.newOptions().setCachingEnabled(false)
+    )
 }
 
 val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(

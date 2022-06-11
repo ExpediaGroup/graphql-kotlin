@@ -38,7 +38,8 @@ import graphql.schema.GraphQLSchema
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
@@ -62,7 +63,7 @@ class GraphQLRequestHandlerTest {
             KotlinDataLoaderRegistryFactory(
                 object : KotlinDataLoader<Int, User> {
                     override val dataLoaderName: String = "UserDataLoader"
-                    override fun getBatchLoader(): BatchLoader<Int, User> = BatchLoader {
+                    override fun getDataLoader(): DataLoader<Int, User> = DataLoaderFactory.newDataLoader { _ ->
                         CompletableFuture.completedFuture(
                             listOf(
                                 User(1, "John Doe"),

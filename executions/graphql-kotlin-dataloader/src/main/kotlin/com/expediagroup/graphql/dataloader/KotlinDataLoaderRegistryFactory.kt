@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.dataloader
 
-import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 /**
@@ -36,10 +35,7 @@ class KotlinDataLoaderRegistryFactory(
         dataLoaders.forEach { dataLoader ->
             registry.register(
                 dataLoader.dataLoaderName,
-                DataLoaderFactory.newDataLoader(
-                    dataLoader.getBatchLoader(),
-                    dataLoader.getOptions()
-                )
+                dataLoader.getDataLoader()
             )
         }
         return KotlinDataLoaderRegistry(registry)
