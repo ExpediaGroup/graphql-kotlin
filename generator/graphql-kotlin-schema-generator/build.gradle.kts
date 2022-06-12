@@ -11,7 +11,7 @@ val slf4jVersion: String by project
 dependencies {
     api("com.graphql-java:graphql-java") {
         version {
-            strictly(graphQLJavaVersion)
+            strictly("[$graphQLJavaVersion, 18.0)")
         }
     }
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinCoroutinesVersion")
