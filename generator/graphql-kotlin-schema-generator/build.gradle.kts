@@ -9,13 +9,10 @@ val junitVersion: String by project
 val slf4jVersion: String by project
 
 dependencies {
-    api("com.graphql-java:graphql-java:$graphQLJavaVersion") {
-        exclude(group = "com.graphql-java", module = "java-dataloader")
-    }
+    api("com.graphql-java:graphql-java:$graphQLJavaVersion")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinCoroutinesVersion")
     implementation("io.github.classgraph:classgraph:$classGraphVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
-    testImplementation("com.graphql-java:java-dataloader:$graphQLJavaDataLoaderVersion")
     testImplementation("io.reactivex.rxjava3:rxjava:$rxjavaVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }
