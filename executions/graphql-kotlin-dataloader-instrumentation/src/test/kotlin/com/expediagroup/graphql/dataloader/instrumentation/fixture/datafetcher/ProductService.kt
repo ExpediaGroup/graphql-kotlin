@@ -5,7 +5,8 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Produc
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.ProductRepository
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.Optional
@@ -13,15 +14,16 @@ import java.util.concurrent.CompletableFuture
 
 class ProductDataLoader : KotlinDataLoader<ProductServiceRequest, Product?> {
     override val dataLoaderName: String = "ProductDataLoader"
-    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
-    override fun getBatchLoader(): BatchLoader<ProductServiceRequest, Product?> =
-        BatchLoader<ProductServiceRequest, Product?> { requests ->
+    override fun getDataLoader(): DataLoader<ProductServiceRequest, Product?> = DataLoaderFactory.newDataLoader(
+        { requests ->
             ProductRepository
                 .getProducts(requests)
                 .collectList()
                 .map(List<Optional<Product>>::toListOfNullables)
                 .toFuture()
-        }
+        },
+        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+    )
 }
 
 data class ProductServiceRequest(val id: Int, val fields: List<String>)

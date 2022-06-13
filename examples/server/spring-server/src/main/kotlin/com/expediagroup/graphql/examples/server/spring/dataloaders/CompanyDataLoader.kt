@@ -18,7 +18,7 @@ package com.expediagroup.graphql.examples.server.spring.dataloaders
 
 import com.expediagroup.graphql.examples.server.spring.model.Company
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoaderFactory
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 
@@ -29,7 +29,7 @@ class CompanyDataLoader(private val service: CompanyService) : KotlinDataLoader<
     }
 
     override val dataLoaderName = name
-    override fun getBatchLoader() = BatchLoader<Int, Company> { ids ->
+    override fun getDataLoader() = DataLoaderFactory.newDataLoader<Int, Company> { ids ->
         CompletableFuture.supplyAsync { service.getCompanies(ids) }
     }
 }

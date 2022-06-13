@@ -24,7 +24,8 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.Optional
@@ -34,15 +35,17 @@ data class AstronautServiceRequest(val id: Int)
 
 class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?> {
     override val dataLoaderName: String = "AstronautDataLoader"
-    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
-    override fun getBatchLoader(): BatchLoader<AstronautServiceRequest, Astronaut?> =
-        BatchLoader<AstronautServiceRequest, Astronaut?> { keys ->
-            AstronautRepository
-                .getAstronauts(keys.map(AstronautServiceRequest::id))
-                .collectList()
-                .map(List<Optional<Astronaut>>::toListOfNullables)
-                .toFuture()
-        }
+    override fun getDataLoader(): DataLoader<AstronautServiceRequest, Astronaut?> =
+        DataLoaderFactory.newDataLoader(
+            { keys ->
+                AstronautRepository
+                    .getAstronauts(keys.map(AstronautServiceRequest::id))
+                    .collectList()
+                    .map(List<Optional<Astronaut>>::toListOfNullables)
+                    .toFuture()
+            },
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+        )
 }
 
 class AstronautService {

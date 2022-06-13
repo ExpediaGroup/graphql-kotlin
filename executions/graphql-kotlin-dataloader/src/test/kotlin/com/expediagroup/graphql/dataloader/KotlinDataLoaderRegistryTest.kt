@@ -16,7 +16,8 @@
 
 package com.expediagroup.graphql.dataloader
 
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
 import java.time.Duration
@@ -29,14 +30,14 @@ class KotlinDataLoaderRegistryTest {
     fun `Decorator will keep track of DataLoaders futures`() {
         val stringToUpperCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToUppercaseDataLoader"
-            override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { keys ->
+            override fun getDataLoader(): DataLoader<String, String> = DataLoaderFactory.newDataLoader { keys ->
                 keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
             }
         }
 
         val stringToLowerCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToLowercaseDataLoader"
-            override fun getBatchLoader(): BatchLoader<String, String> = BatchLoader<String, String> { keys ->
+            override fun getDataLoader(): DataLoader<String, String> = DataLoaderFactory.newDataLoader { keys ->
                 keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
             }
         }

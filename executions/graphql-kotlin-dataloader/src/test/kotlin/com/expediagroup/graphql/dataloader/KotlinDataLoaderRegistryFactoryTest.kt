@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.dataloader
 
 import io.mockk.mockk
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -39,7 +39,7 @@ class KotlinDataLoaderRegistryFactoryTest {
     fun `generate registry with basic loader`() {
         val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "MockDataLoader"
-            override fun getBatchLoader(): BatchLoader<String, String> = mockk()
+            override fun getDataLoader(): DataLoader<String, String> = mockk()
         }
 
         val registry = KotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate()

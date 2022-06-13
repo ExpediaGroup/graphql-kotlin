@@ -19,12 +19,12 @@ package com.expediagroup.graphql.examples.server.ktor.schema.dataloaders
 import com.expediagroup.graphql.examples.server.ktor.schema.models.Course
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import kotlinx.coroutines.runBlocking
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoaderFactory
 import java.util.concurrent.CompletableFuture
 
 val CourseDataLoader = object : KotlinDataLoader<Int, Course?> {
     override val dataLoaderName = "COURSE_LOADER"
-    override fun getBatchLoader() = BatchLoader<Int, Course?> { ids ->
+    override fun getDataLoader() = DataLoaderFactory.newDataLoader<Int, Course?> { ids ->
         CompletableFuture.supplyAsync {
             runBlocking { Course.search(ids).toMutableList() }
         }

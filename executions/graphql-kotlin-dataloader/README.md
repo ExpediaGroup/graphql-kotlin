@@ -18,8 +18,7 @@ To help in the registration of  `DataLoaders`, we have created a basic interface
 ```kotlin
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getBatchLoader(): BatchLoader<K, V>
-    fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions()
+    fun getDataLoader(): DataLoader<K, V>
 }
 ```
 
@@ -29,12 +28,14 @@ and its various configuration options.
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
-    override fun getBatchLoader() = BatchLoader<ID, User> { ids ->
-        CompletableFuture.supplyAsync {
-            ids.map { id -> userService.getUser(id) }
-        }
-    }
-    override fun getOptions() = DataLoaderOptions.newOptions().setCachingEnabled(false)
+    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, User>(
+        { ids ->
+            CompletableFuture.supplyAsync {
+                ids.map { id -> userService.getUser(id) }
+            }
+        },
+        DataLoaderOptions.newOptions().setCachingEnabled(false)
+    )
 }
 ```
 

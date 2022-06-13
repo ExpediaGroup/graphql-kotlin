@@ -21,7 +21,8 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Missio
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.MissionRepository
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.Optional
@@ -31,26 +32,28 @@ data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 
 class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
     override val dataLoaderName: String = "MissionDataLoader"
-    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
-    override fun getBatchLoader(): BatchLoader<MissionServiceRequest, Mission?> =
-        BatchLoader<MissionServiceRequest, Mission?> { keys ->
+    override fun getDataLoader(): DataLoader<MissionServiceRequest, Mission?> = DataLoaderFactory.newDataLoader(
+        { keys ->
             MissionRepository
                 .getMissions(keys.map(MissionServiceRequest::id))
                 .collectList()
                 .map(List<Optional<Mission>>::toListOfNullables)
                 .toFuture()
-        }
+        },
+        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+    )
 }
 
 class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, List<Mission>> {
     override val dataLoaderName: String = "MissionsByAstronautDataLoader"
-    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
-    override fun getBatchLoader(): BatchLoader<MissionServiceRequest, List<Mission>> =
-        BatchLoader<MissionServiceRequest, List<Mission>> { keys ->
+    override fun getDataLoader(): DataLoader<MissionServiceRequest, List<Mission>> = DataLoaderFactory.newDataLoader(
+        { keys ->
             MissionRepository
                 .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
                 .collectList().toFuture()
-        }
+        },
+        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+    )
 }
 
 class MissionService {

@@ -20,7 +20,8 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.PlanetRepository
 import graphql.schema.DataFetchingEnvironment
-import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.stats.SimpleStatisticsCollector
 import java.util.concurrent.CompletableFuture
@@ -29,14 +30,15 @@ data class PlanetServiceRequest(val id: Int, val missionId: Int = -1)
 
 class PlanetsByMissionDataLoader : KotlinDataLoader<PlanetServiceRequest, List<Planet>> {
     override val dataLoaderName: String = "PlanetsByMissionDataLoader"
-    override fun getOptions(): DataLoaderOptions = DataLoaderOptions.newOptions().setStatisticsCollector { SimpleStatisticsCollector() }
-    override fun getBatchLoader(): BatchLoader<PlanetServiceRequest, List<Planet>> =
-        BatchLoader<PlanetServiceRequest, List<Planet>> { keys ->
+    override fun getDataLoader(): DataLoader<PlanetServiceRequest, List<Planet>> = DataLoaderFactory.newDataLoader(
+        { keys ->
             PlanetRepository
                 .getPlanetsByMissionIds(keys.map(PlanetServiceRequest::missionId))
                 .collectList()
                 .toFuture()
-        }
+        },
+        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+    )
 }
 
 class PlanetService {
