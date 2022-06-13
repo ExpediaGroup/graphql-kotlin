@@ -99,7 +99,7 @@ private val FEDERATED_SDL =
     type Query @extends {
       "Union of all types that use the @key directive, including both types native to the schema and extended types"
       _entities(representations: [_Any!]!): [_Entity]!
-      _service: _Service
+      _service: _Service!
     }
 
     type Review {
@@ -193,7 +193,7 @@ class FederatedSchemaGeneratorTest {
               ) on SCALAR
 
             type Query @extends {
-              _service: _Service
+              _service: _Service!
               hello(name: String!): String!
             }
 
@@ -223,7 +223,7 @@ class FederatedSchemaGeneratorTest {
             }
 
             type Query {
-              _service: _Service
+              _service: _Service!
               getSimpleNestedObject: [SelfReferenceObject]!
             }
 

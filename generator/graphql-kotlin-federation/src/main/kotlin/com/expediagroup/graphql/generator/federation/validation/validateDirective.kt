@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.generator.federation.validation
 
-import com.expediagroup.graphql.generator.federation.directives.FIELD_SET_ARGUMENT_NAME
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT_NAME
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
 

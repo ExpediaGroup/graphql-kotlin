@@ -55,7 +55,7 @@ import kotlin.reflect.full.findAnnotation
 open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>) : SchemaGeneratorHooks {
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val emptyQueryRegex = "^type Query @extends \\s*\\{\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val serviceFieldRegex = "\\s*_service: _Service".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val serviceFieldRegex = "\\s*_service: _Service!".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val serviceTypeRegex = "^type _Service\\s*\\{\\s*sdl: String!\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 

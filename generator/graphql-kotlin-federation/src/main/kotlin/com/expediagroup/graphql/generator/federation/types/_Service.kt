@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ private val SERVICE_OBJECT_TYPE = GraphQLObjectType.newObject()
 
 internal val SERVICE_FIELD_DEFINITION: GraphQLFieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
     .name("_service")
-    .type(SERVICE_OBJECT_TYPE)
+    .type(GraphQLNonNull.nonNull(SERVICE_OBJECT_TYPE))
     .build()
 
 @Suppress("ClassNaming", "ClassName")

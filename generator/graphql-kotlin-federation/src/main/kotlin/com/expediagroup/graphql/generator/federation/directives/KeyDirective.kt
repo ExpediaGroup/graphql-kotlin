@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.federation.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
+import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
 import graphql.introspection.Introspection.DirectiveLocation
 
 /**
