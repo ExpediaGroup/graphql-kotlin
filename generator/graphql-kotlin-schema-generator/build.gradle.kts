@@ -2,7 +2,6 @@ description = "Code-only GraphQL schema generation for Kotlin"
 
 val classGraphVersion: String by project
 val graphQLJavaVersion: String by project
-val graphQLJavaDataLoaderVersion: String by project
 val kotlinCoroutinesVersion: String by project
 val rxjavaVersion: String by project
 val junitVersion: String by project
