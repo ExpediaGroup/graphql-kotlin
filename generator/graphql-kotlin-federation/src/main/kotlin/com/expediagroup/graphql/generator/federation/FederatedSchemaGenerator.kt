@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,10 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
         mutations: List<TopLevelObject>,
         subscriptions: List<TopLevelObject>,
         additionalTypes: Set<KType>,
-        additionalInputTypes: Set<KType>
+        additionalInputTypes: Set<KType>,
+        schemaObject: TopLevelObject?
     ): GraphQLSchema {
         addAdditionalTypesWithAnnotation(ExtendsDirective::class, inputType = false)
-        return super.generateSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes)
+        return super.generateSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes, schemaObject)
     }
 }

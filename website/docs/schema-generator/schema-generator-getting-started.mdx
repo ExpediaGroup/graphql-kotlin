@@ -97,13 +97,14 @@ The generated `GraphQLSchema` can then be used to expose a GraphQL API endpoint.
 
 ## `toSchema`
 
-This function accepts four arguments: `config`, `queries`, `mutations` and `subscriptions`. The `queries`, `mutations`
-and `subscriptions` are a list of `TopLevelObject`s and will be used to generate corresponding GraphQL root types. See
-below on why we use this wrapper class. The `config` contains all the extra information you need to pass, including
-custom hooks, supported packages, and name overrides. See the [Generator Configuration](./customizing-schemas/generator-config.md) documentation for more information.
+This function accepts five arguments: `config`, `queries`, `mutations`, `subscriptions` and a `schemaObject`. The `queries`, `mutations`
+and `subscriptions` are a list of `TopLevelObject`s and will be used to generate corresponding GraphQL root types. `schemaObject` is an
+optional `TopLevelObject` reference to the annotated schema object. See below on why we use this wrapper class. The `config` contains all
+the extra information you need to pass, including custom hooks, supported packages, and name overrides. See the [Generator Configuration](./customizing-schemas/generator-config.md)
+documentation for more information.
 
 You can see the definition for `toSchema` [in the
-source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/toSchema.kt)
+source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/toSchema.kt).
 
 ## `TopLevelObject`
 

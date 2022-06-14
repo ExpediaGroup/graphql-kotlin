@@ -12,6 +12,7 @@ module.exports = {
         type: 'category',
         label: 'Writing schemas with Kotlin',
         items: [
+          'schema-generator/writing-schemas/schema',
           'schema-generator/writing-schemas/fields',
           'schema-generator/writing-schemas/nullability',
           'schema-generator/writing-schemas/arguments',
@@ -29,7 +30,7 @@ module.exports = {
         items: [
           'schema-generator/customizing-schemas/annotations',
           'schema-generator/customizing-schemas/generator-config',
-          'schema-generator/customizing-schemas/documenting-fields',
+          'schema-generator/customizing-schemas/documenting-schema',
           'schema-generator/customizing-schemas/excluding-fields',
           'schema-generator/customizing-schemas/renaming-fields',
           'schema-generator/customizing-schemas/directives',

@@ -3,11 +3,20 @@ id: spring-schema
 title: Writing Schemas with Spring
 ---
 
-In order to expose your queries, mutations, and subscriptions in the GraphQL schema create beans that
+In order to expose your schema directives, queries, mutations, and subscriptions in the GraphQL schema create beans that
 implement the corresponding marker interface and they will be automatically picked up by `graphql-kotlin-spring-server`
 auto-configuration library.
 
 ```kotlin
+@ContactDirective(
+    name = "My Team Name",
+    url = "https://myteam.slack.com/archives/teams-chat-room-url",
+    description = "send urgent issues to [#oncall](https://yourteam.slack.com/archives/oncall)."
+)
+@GraphQLDescription("My schema description")
+@Component
+class MySchema : Schema
+
 data class Widget(val id: ID, val value: String)
 
 @Component
@@ -29,7 +38,7 @@ class WidgetSubscription : Subscription {
 will result in a Spring Boot reactive GraphQL web application with following schema.
 
 ```graphql
-schema {
+schema @contact(description : "send urgent issues to [#oncall](https://yourteam.slack.com/archives/oncall).", name : "My Team Name", url : "https://myteam.slack.com/archives/teams-chat-room-url"){
   query: Query
   mutation: Mutation
   subscription: Subscription
