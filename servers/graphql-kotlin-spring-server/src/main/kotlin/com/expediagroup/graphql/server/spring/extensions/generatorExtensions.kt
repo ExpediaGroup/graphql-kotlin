@@ -24,14 +24,14 @@ import org.springframework.aop.support.AopUtils
  * Convert a list of spring objects into a list of [TopLevelObject]s that
  * the schema generator can use
  */
-internal fun List<Any>.toTopLevelObjects() = this.map {
+internal fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {
     it.toTopLevelObject()
 }
 
 /**
  * Converts given object to a [TopLevelObject] wrapper.
  */
-internal fun Any.toTopLevelObject() = this.let {
+internal fun Any.toTopLevelObject(): TopLevelObject = this.let {
     val klazz = if (AopUtils.isAopProxy(it) && it is Advised) {
         it.targetSource.target!!::class
     } else {

@@ -101,8 +101,8 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
                         .withSchemaDirectives(directives.values)
                 }
             }
-            .let { builder ->
-                config.hooks.willBuildSchema(builder)
+            .run {
+                config.hooks.willBuildSchema(this)
             }.build()
     }
 
