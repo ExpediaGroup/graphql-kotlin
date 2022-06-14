@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ package com.expediagroup.graphql.generator.hooks
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
+import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.exceptions.EmptyInputObjectTypeException
 import com.expediagroup.graphql.generator.exceptions.EmptyInterfaceTypeException
 import com.expediagroup.graphql.generator.exceptions.EmptyObjectTypeException
@@ -361,6 +363,27 @@ class SchemaGeneratorHooksTest {
         assertTrue(graphQLType is GraphQLScalarType)
     }
 
+    @Test
+    fun `calls hook before generating directive`() {
+        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
+            var hookCalled: Boolean = false
+
+            override fun willGenerateDirective(directiveInfo: DirectiveMetaInformation): graphql.schema.GraphQLDirective? {
+                hookCalled = true
+                return super.willGenerateDirective(directiveInfo)
+            }
+        }
+
+        val hooks = MockSchemaGeneratorHooks()
+        val schema = toSchema(
+            queries = listOf(TopLevelObject(TestDirectiveQuery())),
+            config = getTestSchemaConfigWithHooks(hooks)
+        )
+
+        assertTrue(hooks.hookCalled)
+        assertNotNull(schema.getDirective("custom"))
+    }
+
     class TestQuery {
         fun query(): SomeData = SomeData("someData", 0)
         @MyMetaUnion
@@ -423,4 +446,13 @@ class SchemaGeneratorHooksTest {
     }
 
     class EmptyImplementation(override val id: String) : EmptyInterface
+
+    @GraphQLDirective(name = "custom")
+    annotation class MyCustomDirective
+
+    class TestDirectiveQuery {
+
+        @MyCustomDirective
+        fun directiveQuery(): String = TODO()
+    }
 }
