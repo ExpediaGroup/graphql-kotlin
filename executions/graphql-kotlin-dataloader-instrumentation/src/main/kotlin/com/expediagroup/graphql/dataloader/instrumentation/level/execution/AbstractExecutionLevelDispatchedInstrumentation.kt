@@ -22,7 +22,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.state.Execution
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
 import graphql.ExecutionInput
 import graphql.ExecutionResult
-import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentation
