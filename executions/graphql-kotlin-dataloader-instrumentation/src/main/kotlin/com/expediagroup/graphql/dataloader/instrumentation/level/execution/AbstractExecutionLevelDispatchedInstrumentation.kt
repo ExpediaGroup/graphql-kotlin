@@ -17,10 +17,12 @@
 package com.expediagroup.graphql.dataloader.instrumentation.level.execution
 
 import com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
+import com.expediagroup.graphql.dataloader.instrumentation.extensions.isMutation
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.Level
 import graphql.ExecutionInput
 import graphql.ExecutionResult
+import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentation
@@ -54,16 +56,16 @@ abstract class AbstractExecutionLevelDispatchedInstrumentation : SimpleInstrumen
     override fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult> =
-        parameters.executionContext
-            .graphQLContext.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
+        parameters.executionContext.takeIf { !it.isMutation() }
+            ?.graphQLContext?.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
             ?.beginExecuteOperation(parameters)
             ?: SimpleInstrumentationContext.noOp()
 
     override fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters
     ): ExecutionStrategyInstrumentationContext =
-        parameters.executionContext
-            .graphQLContext.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
+        parameters.executionContext.takeIf { !it.isMutation() }
+            ?.graphQLContext?.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
             ?.beginExecutionStrategy(
                 parameters,
                 this.getOnLevelDispatchedCallback(
@@ -78,8 +80,8 @@ abstract class AbstractExecutionLevelDispatchedInstrumentation : SimpleInstrumen
     override fun beginFieldFetch(
         parameters: InstrumentationFieldFetchParameters
     ): InstrumentationContext<Any> =
-        parameters.executionContext
-            .graphQLContext.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
+        parameters.executionContext.takeIf { !it.isMutation() }
+            ?.graphQLContext?.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
             ?.beginFieldFetch(
                 parameters,
                 this.getOnLevelDispatchedCallback(
@@ -95,8 +97,8 @@ abstract class AbstractExecutionLevelDispatchedInstrumentation : SimpleInstrumen
         dataFetcher: DataFetcher<*>,
         parameters: InstrumentationFieldFetchParameters
     ): DataFetcher<*> =
-        parameters.executionContext
-            .graphQLContext.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
+        parameters.executionContext.takeIf { !it.isMutation() }
+            ?.graphQLContext?.get<ExecutionLevelDispatchedState>(ExecutionLevelDispatchedState::class)
             ?.instrumentDataFetcher(dataFetcher, parameters)
             ?: dataFetcher
 }
