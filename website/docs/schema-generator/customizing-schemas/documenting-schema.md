@@ -1,5 +1,5 @@
 ---
-id: documenting-fields
+id: documenting-schema
 title: Documenting Schema
 ---
 Since Javadocs are not available at runtime for introspection, `graphql-kotlin-schema-generator` includes an annotation

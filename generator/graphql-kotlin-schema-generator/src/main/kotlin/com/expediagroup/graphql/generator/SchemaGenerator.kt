@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.generator.exceptions.InvalidPackagesException
+import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.state.AdditionalType
 import com.expediagroup.graphql.generator.internal.state.ClassScanner
@@ -25,6 +26,7 @@ import com.expediagroup.graphql.generator.internal.types.GraphQLKTypeMetadata
 import com.expediagroup.graphql.generator.internal.types.generateGraphQLType
 import com.expediagroup.graphql.generator.internal.types.generateMutations
 import com.expediagroup.graphql.generator.internal.types.generateQueries
+import com.expediagroup.graphql.generator.internal.types.generateSchemaDirectives
 import com.expediagroup.graphql.generator.internal.types.generateSubscriptions
 import graphql.schema.GraphQLCodeRegistry
 import graphql.schema.GraphQLDirective
@@ -72,26 +74,36 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         mutations: List<TopLevelObject> = emptyList(),
         subscriptions: List<TopLevelObject> = emptyList(),
         additionalTypes: Set<KType> = emptySet(),
-        additionalInputTypes: Set<KType> = emptySet()
+        additionalInputTypes: Set<KType> = emptySet(),
+        schemaObject: TopLevelObject? = null
     ): GraphQLSchema {
 
         this.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
         this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
 
-        val builder = GraphQLSchema.newSchema()
-        builder.query(generateQueries(this, queries))
-        builder.mutation(generateMutations(this, mutations))
-        builder.subscription(generateSubscriptions(this, subscriptions))
-        builder.additionalTypes(generateAdditionalTypes())
-        builder.additionalDirectives(directives.values.toSet())
-
         if (!config.introspectionEnabled) {
             codeRegistry.fieldVisibility(NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY)
         }
 
-        builder.codeRegistry(codeRegistry.build())
+        return GraphQLSchema.newSchema()
+            .query(generateQueries(this, queries))
+            .mutation(generateMutations(this, mutations))
+            .subscription(generateSubscriptions(this, subscriptions))
+            .additionalTypes(generateAdditionalTypes())
+            .additionalDirectives(directives.values.toSet())
+            .codeRegistry(codeRegistry.build())
+            .also { builder ->
+                if (schemaObject != null) {
+                    directives.clear()
 
-        return config.hooks.willBuildSchema(builder).build()
+                    builder.description(schemaObject.kClass.getGraphQLDescription())
+                        .withSchemaAppliedDirectives(generateSchemaDirectives(this, schemaObject))
+                        .withSchemaDirectives(directives.values)
+                }
+            }
+            .run {
+                config.hooks.willBuildSchema(this)
+            }.build()
     }
 
     /**

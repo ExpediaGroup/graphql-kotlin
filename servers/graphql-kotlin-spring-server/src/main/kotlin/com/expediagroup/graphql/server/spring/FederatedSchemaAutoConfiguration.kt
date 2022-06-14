@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,11 @@ import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorCon
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
+import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.server.spring.extensions.toTopLevelObject
 import com.expediagroup.graphql.server.spring.extensions.toTopLevelObjects
 import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
@@ -75,13 +77,15 @@ class FederatedSchemaAutoConfiguration(
         queries: Optional<List<Query>>,
         mutations: Optional<List<Mutation>>,
         subscriptions: Optional<List<Subscription>>,
-        schemaConfig: FederatedSchemaGeneratorConfig
+        schemaConfig: FederatedSchemaGeneratorConfig,
+        schemaObject: Optional<Schema>
     ): GraphQLSchema {
         val schema = toFederatedSchema(
             config = schemaConfig,
             queries = queries.orElse(emptyList()).toTopLevelObjects(),
             mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
-            subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects()
+            subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
+            schemaObject = schemaObject.orElse(null)?.toTopLevelObject()
         )
 
         logger.info("\n${schema.print()}")

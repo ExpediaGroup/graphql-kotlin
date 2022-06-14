@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import graphql.schema.GraphQLSchema
  * @param queries list of [TopLevelObject] to use for GraphQL queries
  * @param mutations optional list of [TopLevelObject] to use for GraphQL mutations
  * @param subscriptions optional list of [TopLevelObject] to use for GraphQL subscriptions
+ * @param schemaObject optional [TopLevelObject] reference to the annotated schema class
  *
  * @return GraphQLSchema from graphql-java
  */
@@ -34,10 +35,16 @@ fun toSchema(
     config: SchemaGeneratorConfig,
     queries: List<TopLevelObject>,
     mutations: List<TopLevelObject> = emptyList(),
-    subscriptions: List<TopLevelObject> = emptyList()
+    subscriptions: List<TopLevelObject> = emptyList(),
+    schemaObject: TopLevelObject? = null
 ): GraphQLSchema {
     val generator = SchemaGenerator(config)
     return generator.use {
-        it.generateSchema(queries, mutations, subscriptions)
+        it.generateSchema(
+            queries = queries,
+            mutations = mutations,
+            subscriptions = subscriptions,
+            schemaObject = schemaObject
+        )
     }
 }

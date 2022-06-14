@@ -8,9 +8,10 @@ function accepts four arguments: config, queries, mutations and subscriptions.
 
 ## TopLevelObjects
 
-The queries, mutations and subscriptions are a list of
+* The queries, mutations and subscriptions are a list of
 [TopLevelObjects](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-schema-generator/src/main/kotlin/com/expediagroup/graphql/generator/TopLevelObject.kt)
 and will be used to generate corresponding GraphQL root types.
+* Annotated schema `TopLevelObject` will be used to generate any schema directives
 
 ## SchemaGeneratorConfig
 
@@ -27,6 +28,7 @@ schema.
 - `dataFetcherFactory` _[Optional]_ - Sets custom behavior for generating data fetchers
 - `introspectionEnabled` _[Optional]_ - Boolean flag indicating whether introspection queries are enabled, introspection queries are enabled by default
 - `additionalTypes` _[Optional]_ - Set of additional GraphQL types to include when generating the schema.
+- `schemaObject` _[Optional]_ - Object that contains schema directive information
 
 ## SchemaGeneratorHooks
 
