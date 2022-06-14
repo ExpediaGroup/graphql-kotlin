@@ -43,5 +43,9 @@ internal fun ExecutionContext.getDocumentHeight(): Int {
         )
 }
 
+/**
+ * Checks if the [ExecutionContext] is a [OperationDefinition.Operation.MUTATION]
+ * @return Boolean indicating if GraphQL Operation is a Mutation
+ */
 internal fun ExecutionContext.isMutation(): Boolean =
     this.operationDefinition.operation == OperationDefinition.Operation.MUTATION
