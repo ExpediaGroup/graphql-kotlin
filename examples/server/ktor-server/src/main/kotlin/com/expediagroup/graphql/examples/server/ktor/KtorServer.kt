@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -25,10 +26,10 @@ import io.ktor.server.response.respond
  * The Ktor specific code to handle incoming [ApplicationCall]s, send them to GraphQL,
  * and then format and send a correct response back.
  */
-class KtorServer {
-
-    private val mapper = jacksonObjectMapper()
-    private val ktorGraphQLServer = getGraphQLServer(mapper)
+class KtorServer(
+    private val mapper: ObjectMapper = jacksonObjectMapper(),
+    private val ktorGraphQLServer: KtorGraphQLServer = getGraphQLServer(mapper)
+) {
 
     /**
      * Handle incoming Ktor Http requests and send them back to the response methods.

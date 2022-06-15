@@ -13,10 +13,12 @@ application {
 
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-server")
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.netty)
-    implementation(libs.logback)
-    implementation(libs.kotlinx.coroutines.jdk8)
+    implementation("io.ktor", "ktor-server-core", ktorVersion)
+    implementation("io.ktor", "ktor-server-netty", ktorVersion)
+    implementation("io.ktor", "ktor-server-content-negotiation", ktorVersion)
+    implementation("io.ktor", "ktor-serialization-jackson", ktorVersion)
+    implementation("ch.qos.logback", "logback-classic", logbackVersion)
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", kotlinCoroutinesVersion)
 }
 
 graphql {

@@ -14,39 +14,63 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.expediagroup.graphql.examples.server.ktor
 
-import com.expediagroup.graphql.generator.extensions.print
-import io.ktor.http.ContentType
-import io.ktor.server.application.Application
-import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
+import com.expediagroup.graphql.examples.server.ktor.schema.BookQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.CourseQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.HelloQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
+import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.models.User
+import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.*
+import io.ktor.server.routing.*
 
 fun Application.graphQLModule() {
     install(Routing)
-
-    routing {
-        post("graphql") {
-            KtorServer().handle(this.call)
+    install(ContentNegotiation) {
+        jackson()
+    }
+    install(GraphQLKotlin) {
+        enablePlayground = true
+        queries = listOf(
+            HelloQueryService(),
+            BookQueryService(),
+            CourseQueryService(),
+            UniversityQueryService(),
+        )
+        mutations = listOf(
+            LoginMutationService()
+        )
+        schemaGeneratorConfig = SchemaGeneratorConfig(
+            supportedPackages = listOf(
+                "com.expediagroup.graphql.examples.server.ktor"
+            ),
+        )
+        configureGraphQL {
+            valueUnboxer(IDValueUnboxer())
         }
-
-        get("sdl") {
-            call.respondText(graphQLSchema.print())
-        }
-
-        get("playground") {
-            this.call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentType.Text.Html)
+        generateContextMap = { request: ApplicationRequest ->
+            myGenerateContextMap(request)
         }
     }
+    // TODO: this should be automatically called by the plugin. No global vars should be needed
+    installEndpoints(KtorGraphQLConfig.config)
 }
 
-private fun buildPlaygroundHtml(graphQLEndpoint: String, subscriptionsEndpoint: String) =
-    Application::class.java.classLoader.getResource("graphql-playground.html")?.readText()
-        ?.replace("\${graphQLEndpoint}", graphQLEndpoint)
-        ?.replace("\${subscriptionsEndpoint}", subscriptionsEndpoint)
-        ?: throw IllegalStateException("graphql-playground.html cannot be found in the classpath")
+fun myGenerateContextMap(request: ApplicationRequest) = mapOf(
+    User::class to User(
+        email = "fake@site.com",
+        firstName = "Someone",
+        lastName = "You Don't know",
+        universityId = 4
+    ),
+    "Header" to (request.headers["my-custom-header"] ?: "")
+)
+
