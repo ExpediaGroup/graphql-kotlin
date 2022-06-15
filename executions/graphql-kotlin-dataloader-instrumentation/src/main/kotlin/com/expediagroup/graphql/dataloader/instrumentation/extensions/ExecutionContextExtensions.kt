@@ -19,6 +19,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.extensions
 import graphql.analysis.QueryTraverser
 import graphql.analysis.QueryVisitorFieldEnvironment
 import graphql.execution.ExecutionContext
+import graphql.language.OperationDefinition
 import kotlin.math.max
 
 /**
@@ -41,3 +42,10 @@ internal fun ExecutionContext.getDocumentHeight(): Int {
             0
         )
 }
+
+/**
+ * Checks if the [ExecutionContext] is a [OperationDefinition.Operation.MUTATION]
+ * @return Boolean indicating if GraphQL Operation is a Mutation
+ */
+internal fun ExecutionContext.isMutation(): Boolean =
+    this.operationDefinition.operation == OperationDefinition.Operation.MUTATION
