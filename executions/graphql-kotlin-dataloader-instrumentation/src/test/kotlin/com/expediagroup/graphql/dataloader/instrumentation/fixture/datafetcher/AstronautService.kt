@@ -28,10 +28,13 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.stats.SimpleStatisticsCollector
+import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
 data class AstronautServiceRequest(val id: Int)
+data class CreateAstronautServiceRequest(val name: String)
 
 class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?> {
     override val dataLoaderName: String = "AstronautDataLoader"
@@ -56,6 +59,12 @@ class AstronautService {
         environment
             .getDataLoader<AstronautServiceRequest, Astronaut>("AstronautDataLoader")
             .load(request)
+
+    fun createAstronaut(
+        request: CreateAstronautServiceRequest,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<Astronaut> =
+        Astronaut(100, request.name).toMono().delayElement(Duration.ofMillis(100)).toFuture()
 
     fun getAstronauts(
         requests: List<AstronautServiceRequest>,

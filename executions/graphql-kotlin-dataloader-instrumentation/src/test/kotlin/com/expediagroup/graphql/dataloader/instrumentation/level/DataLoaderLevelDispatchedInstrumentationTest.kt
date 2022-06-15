@@ -16,18 +16,28 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.level
 
-import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
+import io.mockk.Called
+import io.mockk.clearAllMocks
+import io.mockk.spyk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DataLoaderLevelDispatchedInstrumentationTest {
+    private val dataLoaderLevelDispatchedInstrumentation = spyk(DataLoaderLevelDispatchedInstrumentation())
     private val graphQL = AstronautGraphQL.builder
-        .instrumentation(DataLoaderLevelDispatchedInstrumentation())
+        .instrumentation(dataLoaderLevelDispatchedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
+
+    @BeforeEach
+    fun clear() {
+        clearAllMocks()
+    }
 
     @Test
     fun `Instrumentation should batch transactions on async top level fields`() {
@@ -130,6 +140,24 @@ class DataLoaderLevelDispatchedInstrumentationTest {
 
         verify(exactly = 4) {
             kotlinDataLoaderRegistry.dispatchAll()
+        }
+    }
+
+    @Test
+    fun `Instrumentation should not apply to mutations`() {
+        val queries = listOf(
+            """mutation { createAstronaut(name: "spaceMan") { id name } }"""
+        )
+
+        val (results, _) = AstronautGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
+        )
+
+        assertEquals(1, results.size)
+        verify {
+            dataLoaderLevelDispatchedInstrumentation.getOnLevelDispatchedCallback(ofType()) wasNot Called
         }
     }
 }

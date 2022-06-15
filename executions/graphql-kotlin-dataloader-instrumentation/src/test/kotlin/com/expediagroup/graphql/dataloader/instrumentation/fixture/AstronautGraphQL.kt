@@ -22,6 +22,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.A
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Astronaut
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.AstronautServiceRequest
+import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.CreateAstronautServiceRequest
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionService
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher.MissionServiceRequest
@@ -55,6 +56,9 @@ object AstronautGraphQL {
             astronauts(ids: [ID!]): [Astronaut]!
             missions(ids: [ID!]): [Mission]!
             nasa: Nasa!
+        }
+        type Mutation {
+            createAstronaut(name: String!): Astronaut!
         }
         type Nasa {
             astronaut(id: ID!): Astronaut
@@ -91,6 +95,14 @@ object AstronautGraphQL {
         astronautService.getAstronaut(
             AstronautServiceRequest(
                 environment.getArgument<String>("id").toInt()
+            ),
+            environment
+        )
+    }
+    private val createAstronautDataFetcher = DataFetcher { environment ->
+        astronautService.createAstronaut(
+            CreateAstronautServiceRequest(
+                environment.getArgument("name")
             ),
             environment
         )
@@ -154,6 +166,10 @@ object AstronautGraphQL {
                 .dataFetcher("astronauts", astronautsDataFetcher)
                 .dataFetcher("missions", missionsDataFetcher)
                 .dataFetcher("nasa") { Nasa() }
+        )
+        type(
+            TypeRuntimeWiring.newTypeWiring("Mutation")
+                .dataFetcher("createAstronaut", createAstronautDataFetcher)
         )
         type(
             TypeRuntimeWiring.newTypeWiring("Astronaut")

@@ -19,13 +19,18 @@ package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
+import io.mockk.Called
+import io.mockk.clearAllMocks
+import io.mockk.spyk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DataLoaderSyncExecutionExhaustedInstrumentationTest {
+    private val dataLoaderSyncExecutionExhaustedInstrumentation = spyk(DataLoaderSyncExecutionExhaustedInstrumentation())
     private val graphQL = AstronautGraphQL.builder
-        .instrumentation(DataLoaderSyncExecutionExhaustedInstrumentation())
+        .instrumentation(dataLoaderSyncExecutionExhaustedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
@@ -35,6 +40,11 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         // graphql java adds DataLoaderDispatcherInstrumentation by default
         .doNotAddDefaultInstrumentations()
         .build()
+
+    @BeforeEach
+    fun clear() {
+        clearAllMocks()
+    }
 
     @Test
     fun `Instrumentation should batch transactions on async top level fields`() {
@@ -497,5 +507,23 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(1, productStatistics?.batchInvokeCount)
         assertEquals(2, productStatistics?.batchLoadCount)
+    }
+
+    @Test
+    fun `Instrumentation should not apply to mutations`() {
+        val queries = listOf(
+            """mutation { createAstronaut(name: "spaceMan") { id name } }"""
+        )
+
+        val (results, _) = AstronautGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
+        )
+
+        assertEquals(1, results.size)
+        verify {
+            dataLoaderSyncExecutionExhaustedInstrumentation.getOnSyncExecutionExhaustedCallback(ofType()) wasNot Called
+        }
     }
 }
