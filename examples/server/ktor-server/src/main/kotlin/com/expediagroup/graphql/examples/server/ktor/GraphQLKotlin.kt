@@ -13,6 +13,7 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
+import graphql.schema.GraphQLSchema
 import io.ktor.events.EventDefinition
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -56,29 +57,38 @@ class KtorGraphQLConfig private constructor() {
     lateinit var queries : List<Query>
     lateinit var mutations: List<Mutation>
     lateinit var schemaGeneratorConfig: SchemaGeneratorConfig
-    lateinit var generateContextMap: (ApplicationRequest) -> Map<Any, Any>
+
+    fun generateContextMap(operation: (ApplicationRequest) -> Map<Any, Any>) {
+        generateContextLambda = operation
+    }
 
     fun configureGraphQL(operation: GraphQL.Builder.() -> Unit) {
         configureGraphQLLambda=operation
     }
 
+    fun endpoints(operation: KtorGraphQLEndpointConfig.() -> Unit) {
+        endpoints.operation()
+    }
+
     // Optional
-    var enablePlayground: Boolean = true
     var dataLoaders: List<KotlinDataLoader<*, *>> = emptyList()
-    var endpoint: String = "graphql"
-    var endpointSdl: String = "sdl"
 
     // store things
+    val endpoints = KtorGraphQLEndpointConfig()
     lateinit var graphQL : GraphQL
         private set
-    private var configureGraphQLLambda: GraphQL.Builder.() -> Unit = {}
+    lateinit var graphQLSchema : GraphQLSchema
+        private set
+    private var configureGraphQLLambda: GraphQL.Builder.() -> Unit
+        = {}
+    private var generateContextLambda: (ApplicationRequest) -> Map<Any, Any>
+        = { emptyMap() }
 
     fun buildServer(): KtorServer {
         check(this::queries.isInitialized) { "queries is required" }
         check(this::mutations.isInitialized) { "mutations is required" }
         check(this::schemaGeneratorConfig.isInitialized) { "schemaGeneratorConfig is required" }
-        check(this::generateContextMap.isInitialized) { "generateContextMap is required" }
-        val graphQLSchema = toSchema(
+        graphQLSchema = toSchema(
             schemaGeneratorConfig,
             queries.map { TopLevelObject(it) },
             mutations.map { TopLevelObject(it) },
@@ -94,7 +104,7 @@ class KtorGraphQLConfig private constructor() {
         val mapper = jacksonObjectMapper()
         val requestParser = KtorGraphQLRequestParser(mapper)
 
-        val generateContextMapLambda = generateContextMap
+        val generateContextMapLambda = generateContextLambda
         val contextFactory = object : GraphQLContextFactory<GraphQLContext, ApplicationRequest> {
             override suspend fun generateContextMap(request: ApplicationRequest): Map<*, Any> {
                 return generateContextMapLambda(request)
@@ -107,6 +117,14 @@ class KtorGraphQLConfig private constructor() {
         )
     }
 }
+
+data class KtorGraphQLEndpointConfig(
+    var enablePlayground: Boolean = true,
+    var enableSdl: Boolean = true,
+    var graphql: String = "graphql",
+    var sdl: String = "sdl",
+    var playground: String = "playground",
+)
 
 /**
  * Event definition for [KtorGraphQLConfig] Started event
@@ -128,14 +146,16 @@ fun Application.installEndpoints(
 ) {
     val server = config.buildServer()
     routing {
-        post(config.endpoint) {
+        post(config.endpoints.graphql) {
             server.handle(this.call)
         }
-        get(config.endpointSdl) {
-            call.respondText(config.graphQL.graphQLSchema.print())
+        if (config.endpoints.enableSdl) {
+            get(config.endpoints.sdl) {
+                call.respondText(config.graphQL.graphQLSchema.print())
+            }
         }
-        if (config.enablePlayground) {
-            get("playground") {
+        if (config.endpoints.enablePlayground) {
+            get(config.endpoints.playground) {
                 this.call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentType.Text.Html)
             }
         }

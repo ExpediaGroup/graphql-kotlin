@@ -38,7 +38,6 @@ fun Application.graphQLModule() {
         jackson()
     }
     install(GraphQLKotlin) {
-        enablePlayground = true
         queries = listOf(
             HelloQueryService(),
             BookQueryService(),
@@ -53,24 +52,41 @@ fun Application.graphQLModule() {
                 "com.expediagroup.graphql.examples.server.ktor"
             ),
         )
+        generateContextMap { request: ApplicationRequest ->
+            mapOf(
+                User::class to generateUser(request),
+                MyHeaders::class to generateMyHeaders(request)
+            )
+        }
+
+        // OPTIONAL SETTINGS
         configureGraphQL {
             valueUnboxer(IDValueUnboxer())
         }
-        generateContextMap = { request: ApplicationRequest ->
-            myGenerateContextMap(request)
+        endpoints {
+            graphql = "graphql"
+            sdl = "sdl"
+            playground = "playground"
+
+            enableSdl = true
+            enablePlayground = true
         }
     }
     // TODO: this should be automatically called by the plugin. No global vars should be needed
     installEndpoints(KtorGraphQLConfig.config)
 }
 
-fun myGenerateContextMap(request: ApplicationRequest) = mapOf(
-    User::class to User(
-        email = "fake@site.com",
-        firstName = "Someone",
-        lastName = "You Don't know",
-        universityId = 4
-    ),
-    "Header" to (request.headers["my-custom-header"] ?: "")
+fun generateMyHeaders(request: ApplicationRequest) = MyHeaders(
+    myCustomHeader =  request.headers["my-custom-header"]
 )
 
+private fun generateUser(request: ApplicationRequest) = User(
+    email = "fake@site.com",
+    firstName = "Someone",
+    lastName = "You Don't know",
+    universityId = 4
+)
+
+data class MyHeaders(
+    val myCustomHeader: String?,
+)
