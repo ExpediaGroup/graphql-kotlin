@@ -48,7 +48,7 @@ data class GraphQLConfigurationProperties(
         /**
          * Boolean flag indicating whether we want to generate Federation v2 compatible schema.
          */
-        val optInV2: Boolean = true,
+        val optInV2: Boolean = false,
 
         /**
          * Federation tracing config
