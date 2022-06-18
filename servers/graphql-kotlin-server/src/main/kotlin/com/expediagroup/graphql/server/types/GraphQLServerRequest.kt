@@ -39,9 +39,10 @@ sealed class GraphQLServerRequest
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
 data class GraphQLRequest(
-    val query: String,
+    val query: String = "",
     val operationName: String? = null,
-    val variables: Map<String, Any?>? = null
+    val variables: Map<String, Any?>? = null,
+    val extensions: Map<String, Any?>? = null
 ) : GraphQLServerRequest()
 
 /**

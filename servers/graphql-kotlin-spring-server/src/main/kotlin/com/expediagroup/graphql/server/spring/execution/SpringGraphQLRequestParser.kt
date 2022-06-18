@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.awaitBody
+import org.springframework.web.reactive.function.server.bodyToMono
 
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
@@ -57,14 +58,14 @@ open class SpringGraphQLRequestParser(
     }
 
     /**
-     * We have have to suppress the warning due to a jackson issue
+     * We have to suppress the warning due to a jackson issue
      * https://github.com/FasterXML/jackson-module-kotlin/issues/221
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun getRequestFromPost(serverRequest: ServerRequest): GraphQLServerRequest? {
         val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
         return when {
-            contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.bodyToMono(GraphQLServerRequest::class.java).awaitFirst()
+            contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.bodyToMono<GraphQLServerRequest>().awaitFirst()
             contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
             else -> null
         }
