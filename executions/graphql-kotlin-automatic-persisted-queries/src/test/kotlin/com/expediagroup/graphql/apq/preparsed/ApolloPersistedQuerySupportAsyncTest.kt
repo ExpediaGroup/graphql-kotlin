@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 
 class ApolloPersistedQuerySupportAsyncTest {
     @Test
-    fun `ApolloPersistedQuerySupportAsync should return error when no query with provided hash is in the cache`() {
+    fun `Using ApolloPersistedQuerySupportAsync should return error when no query with provided hash is in the cache`() {
 
         // First execution fails to find persisted query string
 
@@ -71,6 +71,25 @@ class ApolloPersistedQuerySupportAsyncTest {
 
         val secondResultWithQueryId = ProductGraphQL.execute(executionInputWithQueryId).toSpecification()
         assertNotNull(secondResultWithQueryId["data"] as? Map<*, *>) { data ->
+            assertNotNull(data["product"] as? Map<*, *>) { product ->
+                assertNotNull(product["summary"] as? Map<*, *>) { summary ->
+                    assertEquals(summary["name"], "Product 1")
+                }
+                assertNotNull(product["details"] as? Map<*, *>) { details ->
+                    assertEquals(details["rating"], "4 out of 5")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `Using ApolloPersistedQuerySupportAsync should execute GraphQL operation normally when no persistedQueryId is provided`() {
+        val executionInput = ExecutionInput
+            .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
+            .build()
+        val result = ProductGraphQL.execute(executionInput).toSpecification()
+
+        assertNotNull(result["data"] as? Map<*, *>) { data ->
             assertNotNull(data["product"] as? Map<*, *>) { product ->
                 assertNotNull(product["summary"] as? Map<*, *>) { summary ->
                     assertEquals(summary["name"], "Product 1")
