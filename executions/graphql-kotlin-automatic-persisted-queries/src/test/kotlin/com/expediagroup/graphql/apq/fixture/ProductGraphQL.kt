@@ -1,19 +1,29 @@
+/*
+ * Copyright 2022 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.apq.fixture
 
-import com.expediagroup.graphql.apq.InMemoryAutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.preparsed.ApolloPersistedQuerySupportAsync
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQL
-import graphql.execution.preparsed.persisted.ApolloPersistedQuerySupport
-import graphql.schema.DataFetcher
 import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeRuntimeWiring
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
 
 object ProductGraphQL {
 
@@ -38,25 +48,17 @@ object ProductGraphQL {
         }
     """.trimIndent()
 
-    private val productDataFetcher = DataFetcher<Product?> { environment ->
-        val productId = environment.getArgument<String>("id").toInt()
-        products[productId]
-    }
-
     private val runtimeWiring = RuntimeWiring.newRuntimeWiring().apply {
         type(
             TypeRuntimeWiring.newTypeWiring("Query")
-                .dataFetcher("product", productDataFetcher)
+                .dataFetcher("product") { products[it.getArgument<String>("id").toInt()] }
         )
     }.build()
 
     private val graphQL = GraphQL
         .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-        .preparsedDocumentProvider(ApolloPersistedQuerySupport(InMemoryAutomaticPersistedQueryCache()))
+        .preparsedDocumentProvider(ApolloPersistedQuerySupportAsync(InMemoryAutomaticPersistedQueryCache()))
         .build()
 
-    fun execute(executionInput: ExecutionInput): ExecutionResult =
-        runBlocking {
-            graphQL.executeAsync(executionInput).await()
-        }
+    fun execute(executionInput: ExecutionInput): ExecutionResult = graphQL.executeAsync(executionInput).get()
 }

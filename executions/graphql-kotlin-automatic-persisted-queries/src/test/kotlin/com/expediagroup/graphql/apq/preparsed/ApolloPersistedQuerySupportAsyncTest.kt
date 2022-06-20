@@ -1,4 +1,20 @@
-package com.expediagroup.graphql.apq
+/*
+ * Copyright 2022 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.expediagroup.graphql.apq.preparsed
 
 import com.expediagroup.graphql.apq.fixture.ProductGraphQL
 import graphql.ExecutionInput
@@ -8,9 +24,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class AutomaticPersistentQueriesTest {
+class ApolloPersistedQuerySupportAsyncTest {
     @Test
-    fun `ApolloPersistedQuerySupport should return error when no query with provided hash is in the cache`() {
+    fun `ApolloPersistedQuerySupportAsync should return error when no query with provided hash is in the cache`() {
 
         // First execution fails to find persisted query string
 

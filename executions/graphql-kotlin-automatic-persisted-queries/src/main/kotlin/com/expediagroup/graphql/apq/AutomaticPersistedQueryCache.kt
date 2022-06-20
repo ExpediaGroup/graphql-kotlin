@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.expediagroup.graphql.apq
 
 import graphql.ExecutionInput
@@ -5,7 +21,6 @@ import graphql.execution.preparsed.PreparsedDocumentEntry
 import graphql.execution.preparsed.persisted.PersistedQueryCache
 import graphql.execution.preparsed.persisted.PersistedQueryCacheMiss
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
-import graphql.execution.preparsed.persisted.PersistedQuerySupport
 import java.util.concurrent.CompletableFuture
 
 abstract class AutomaticPersistedQueryCache : PersistedQueryCache {
@@ -27,15 +42,15 @@ abstract class AutomaticPersistedQueryCache : PersistedQueryCache {
         executionInput: ExecutionInput,
         onCacheMiss: PersistedQueryCacheMiss
     ): CompletableFuture<PreparsedDocumentEntry> =
-        getOrFromSupplier(persistedQueryId.toString()) {
-           when {
-               executionInput.query.isBlank() || executionInput.query == PersistedQuerySupport.PERSISTED_QUERY_MARKER -> {
-                   throw PersistedQueryNotFound(persistedQueryId)
-               }
-               else -> {
-                   onCacheMiss.apply(executionInput.query)
-               }
-           }
+        getOrElse(persistedQueryId.toString()) {
+            when {
+                executionInput.query.isBlank() -> {
+                    throw PersistedQueryNotFound(persistedQueryId)
+                }
+                else -> {
+                    onCacheMiss.apply(executionInput.query)
+                }
+            }
         }
 
     /**
@@ -47,7 +62,7 @@ abstract class AutomaticPersistedQueryCache : PersistedQueryCache {
      * @param key The hash of the requested query.
      * @param supplier that will provide the document in case there is a cache miss.
      */
-    abstract fun getOrFromSupplier(
+    abstract fun getOrElse(
         key: String,
         supplier: () -> PreparsedDocumentEntry
     ): CompletableFuture<PreparsedDocumentEntry>
