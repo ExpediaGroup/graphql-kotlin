@@ -8,10 +8,11 @@ metadata](https://docs.spring.io/spring-boot/docs/current/reference/html/configu
 details on the supported configuration properties.
 
 | Property                                | Description                                                                                                      | Default Value |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------- |
+|-----------------------------------------|------------------------------------------------------------------------------------------------------------------| ------------- |
 | graphql.endpoint                        | GraphQL server endpoint                                                                                          | graphql       |
 | graphql.packages                        | List of supported packages that can contain GraphQL schema type definitions                                      |               |
 | graphql.federation.enabled              | Boolean flag indicating whether to generate federated GraphQL model                                              | false         |
+| graphql.federation.optInV2              | Boolean flag indicating whether to generate Federation v2 GraphQL model                                          | false         |
 | graphql.federation.tracing.enabled      | Boolean flag indicating whether add federated tracing data to the extensions                                     | true (if federation enabled) |
 | graphql.federation.tracing.debug        | Boolean flag to log debug info in the federated tracing                                                          | false (if federation enabled) |
 | graphql.introspection.enabled           | Boolean flag indicating whether introspection queries are enabled                                                | true          |

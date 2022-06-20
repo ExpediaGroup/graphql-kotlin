@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * The @external directive is used to mark a field as owned by another service. This allows service A to use fields from service B while also knowing at runtime the types of that field. @external
  * directive is only applicable on federated extended types. All the external fields should either be referenced from the @key, @requires or @provides directives field sets.
+ *
+ * Due to the smart merging of entity types, `@external` directive is no longer required on `@key` fields and can be omitted from the schema. `@external` directive is only required on fields
+ * referenced by the `@requires` and `@provides` directive.
  *
  * Example:
  * Given

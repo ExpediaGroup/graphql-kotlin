@@ -48,7 +48,7 @@ import kotlin.reflect.full.createType
  *
  * This class should be used from a try-with-resouces block
  * or another closable object as the internals can take up a lot of resources.
-*/
+ */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
     internal val additionalTypes: MutableSet<AdditionalType> = mutableSetOf()
