@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.apq.fixture
 
+import com.expediagroup.graphql.apq.InMemoryAutomaticPersistedQueryCache
 import com.expediagroup.graphql.apq.preparsed.ApolloPersistedQuerySupportAsync
 import graphql.ExecutionInput
 import graphql.ExecutionResult

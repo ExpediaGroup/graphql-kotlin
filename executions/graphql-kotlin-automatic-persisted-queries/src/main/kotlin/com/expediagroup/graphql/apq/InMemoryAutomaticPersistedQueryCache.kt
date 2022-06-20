@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.apq.fixture
+package com.expediagroup.graphql.apq
 
-import com.expediagroup.graphql.apq.AutomaticPersistedQueryCache
 import graphql.execution.preparsed.PreparsedDocumentEntry
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 class InMemoryAutomaticPersistedQueryCache : AutomaticPersistedQueryCache() {
 
-    private val cache: ConcurrentHashMap<Any, PreparsedDocumentEntry> = ConcurrentHashMap()
+    private val cache: ConcurrentHashMap<String, PreparsedDocumentEntry> = ConcurrentHashMap()
 
     override fun getOrElse(
         key: String,
