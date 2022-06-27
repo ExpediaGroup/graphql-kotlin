@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
@@ -41,6 +43,7 @@ import java.time.Duration
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class SubscriptionConfigurationTest {
 
@@ -55,6 +58,7 @@ class SubscriptionConfigurationTest {
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 val schemaGeneratorConfig = ctx.getBean(SchemaGeneratorConfig::class.java)
                 assertEquals(listOf("com.expediagroup.graphql.server.spring"), schemaGeneratorConfig.supportedPackages)
+                assertTrue(schemaGeneratorConfig.hooks is FlowSubscriptionSchemaGeneratorHooks)
 
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 val schema = ctx.getBean(GraphQLSchema::class.java)
@@ -80,6 +84,9 @@ class SubscriptionConfigurationTest {
             .run { ctx ->
                 val customConfiguration = ctx.getBean(CustomSubscriptionConfiguration::class.java)
 
+                assertThat(ctx).hasSingleBean(SchemaGeneratorHooks::class.java)
+                assertThat(ctx).getBean(SchemaGeneratorHooks::class.java)
+                    .isSameAs(customConfiguration.customHooks())
                 assertThat(ctx).hasSingleBean(SchemaGeneratorConfig::class.java)
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
 
@@ -113,6 +120,11 @@ class SubscriptionConfigurationTest {
 
     @Configuration
     class CustomSubscriptionConfiguration {
+
+        @Bean
+        fun customHooks(): SchemaGeneratorHooks = object : FlowSubscriptionSchemaGeneratorHooks() {
+            // custom hooks
+        }
 
         // in regular apps object mapper will be created by JacksonAutoConfiguration
         @Bean

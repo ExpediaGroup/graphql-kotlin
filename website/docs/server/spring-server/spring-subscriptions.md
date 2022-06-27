@@ -7,12 +7,20 @@ This page lists the `graphql-kotlin-spring-server` specific features._
 
 ## Flow Support
 
-`graphql-kotlin-spring-server` provides automatic support for Kotlin `Flow` through `FlowSubscriptionExecutionStrategy`
-that supports existing `Publisher`s and relies on Kotlin reactive-streams interop to convert `Flow` to a `Publisher`.
+`graphql-kotlin-spring-server` provides automatic support for Kotlin `Flow` by automatically configuring `FlowSubscriptionSchemaGeneratorHooks`
+and `FlowSubscriptionExecutionStrategy` beans.
 
-## `graphql-ws` subprotocol
+:::info
+If you define your subscriptions using Kotlin `Flow`, make sure to extend `FlowSubscriptionSchemaGeneratorHooks` whenever you need to provide some custom hooks.
+:::
 
-We have implemented subscriptions in Spring WebSockets following the [`graphql-ws` subprotocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) defined by Apollo.
+## `subscriptions-transport-ws` subprotocol
+
+:::caution
+`subscriptions-transport-ws` was deprecated in favor of [`graphql-ws` protocol](https://github.com/enisdenjo/graphql-ws).
+:::
+
+We have implemented subscriptions in Spring WebSockets following the [`subscriptions-transport-ws` subprotocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) defined by Apollo.
 This requires that your client send and parse messages in a specific format.
 
 If you would like to implement your own subscription handler, you can provide a primary spring bean for `HandlerMapping` that overrides the [default one](./spring-beans.md) which sets the url for subscriptions to the Apollo subscription handler.

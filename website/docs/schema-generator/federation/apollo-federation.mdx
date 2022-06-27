@@ -90,7 +90,7 @@ This class extends the [base configuration class](../customizing-schemas/generat
 You can see the definition for `toFederatedSchema` [in the
 source](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt).
 
-## Example
+### Example
 
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
@@ -146,3 +146,8 @@ type User @key(fields : "id") {
    name: String!
 }
 ```
+
+## Limitations
+
+Apollo Federation currently does not support subscriptions. See [Apollo blog](https://www.apollographql.com/blog/backend/federation/using-subscriptions-with-your-federated-data-graph/)
+for a workaround.
