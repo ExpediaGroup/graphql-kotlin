@@ -17,6 +17,8 @@
 package com.expediagroup.graphql.server.spring
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionProtocolHandler
@@ -53,6 +55,10 @@ private const val URL_HANDLER_ORDER = 0
 @ConditionalOnBean(Subscription::class)
 @Import(GraphQLSchemaConfiguration::class)
 class SubscriptionAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun flowSubscriptionSchemaGeneratorHooks(): SchemaGeneratorHooks = FlowSubscriptionSchemaGeneratorHooks()
 
     @Bean
     @ConditionalOnMissingBean
