@@ -16,10 +16,9 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
+import io.ktor.server.application.*
+import io.ktor.server.response.*
 
 /**
  * The Ktor specific code to handle incoming [ApplicationCall]s, send them to GraphQL,
@@ -27,8 +26,7 @@ import io.ktor.response.respond
  */
 class KtorServer {
 
-    private val mapper = jacksonObjectMapper()
-    private val ktorGraphQLServer = getGraphQLServer(mapper)
+    private val ktorGraphQLServer = getGraphQLServer()
 
     /**
      * Handle incoming Ktor Http requests and send them back to the response methods.
@@ -39,8 +37,7 @@ class KtorServer {
 
         if (result != null) {
             // write response as json
-            val json = mapper.writeValueAsString(result)
-            applicationCall.response.call.respond(json)
+            applicationCall.response.call.respond(result)
         } else {
             applicationCall.response.call.respond(HttpStatusCode.BadRequest, "Invalid request")
         }

@@ -19,16 +19,16 @@ package com.expediagroup.graphql.plugin.client
 import graphql.introspection.IntrospectionResultToSchema
 import graphql.schema.idl.SchemaPrinter
 import io.ktor.client.HttpClient
+import io.ktor.client.call.*
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.features.HttpRequestTimeoutException
-import io.ktor.client.features.HttpTimeout
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.url
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.json.*
+import io.ktor.client.request.*
+import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import java.net.UnknownHostException
 
@@ -137,21 +137,24 @@ fun introspectSchema(
         connectTimeoutMillis = connectTimeout
         requestTimeoutMillis = readTimeout
     }
-    install(feature = JsonFeature)
+    install(ContentNegotiation) {
+        json() // or Jackson??
+    }
 }.use { client ->
     runBlocking {
         val introspectionResult = try {
-            client.post<Map<String, Any?>> {
+            val response = client.post {
                 url(endpoint)
                 contentType(ContentType.Application.Json)
                 httpHeaders.forEach { (name, value) ->
                     header(name, value)
                 }
-                body = mapOf(
+                setBody(mapOf(
                     "query" to INTROSPECTION_QUERY,
                     "operationName" to "IntrospectionQuery"
-                )
+                ))
             }
+            response.body<Map<String, Any?>>()
         } catch (e: Throwable) {
             when (e) {
                 is ClientRequestException, is HttpRequestTimeoutException, is UnknownHostException -> throw e

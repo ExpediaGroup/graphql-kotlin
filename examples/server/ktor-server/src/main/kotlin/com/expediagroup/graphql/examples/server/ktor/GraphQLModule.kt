@@ -16,18 +16,19 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.http.ContentType
-import io.ktor.response.respondText
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.routing
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.http.ContentType.Text.Html as ContentTypeHtml
+
 
 fun Application.graphQLModule() {
     install(Routing)
+    install(ContentNegotiation) {
+        jackson()
+    }
 
     routing {
         post("graphql") {
@@ -35,7 +36,7 @@ fun Application.graphQLModule() {
         }
 
         get("playground") {
-            this.call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentType.Text.Html)
+            this.call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentTypeHtml)
         }
     }
 }

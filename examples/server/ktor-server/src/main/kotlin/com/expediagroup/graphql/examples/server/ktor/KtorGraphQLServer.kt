@@ -18,8 +18,7 @@ package com.expediagroup.graphql.examples.server.ktor
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.ktor.request.ApplicationRequest
+import io.ktor.server.request.*
 
 /**
  * Helper method for how this Ktor example creates the common [GraphQLServer] object that
@@ -31,9 +30,9 @@ class KtorGraphQLServer(
     requestHandler: GraphQLRequestHandler
 ) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
 
-fun getGraphQLServer(mapper: ObjectMapper): KtorGraphQLServer {
+fun getGraphQLServer(): KtorGraphQLServer {
     val dataLoaderRegistryFactory = KtorDataLoaderRegistryFactory()
-    val requestParser = KtorGraphQLRequestParser(mapper)
+    val requestParser = KtorGraphQLRequestParser()
     val contextFactory = KtorGraphQLContextFactory()
     val graphQL = getGraphQLObject()
     val requestHandler = GraphQLRequestHandler(graphQL, dataLoaderRegistryFactory)

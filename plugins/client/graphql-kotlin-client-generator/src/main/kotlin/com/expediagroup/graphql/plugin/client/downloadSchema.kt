@@ -17,13 +17,12 @@
 package com.expediagroup.graphql.plugin.client
 
 import graphql.schema.idl.SchemaParser
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.features.HttpRequestTimeoutException
-import io.ktor.client.features.HttpTimeout
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import java.net.UnknownHostException
 
@@ -43,11 +42,11 @@ fun downloadSchema(
 }.use { client ->
     runBlocking {
         val sdl = try {
-            client.get<String>(urlString = endpoint) {
+            client.get(urlString = endpoint) {
                 httpHeaders.forEach { (name, value) ->
                     header(name, value)
                 }
-            }
+            }.bodyAsText()
         } catch (e: Throwable) {
             when (e) {
                 is ClientRequestException, is HttpRequestTimeoutException, is UnknownHostException -> throw e

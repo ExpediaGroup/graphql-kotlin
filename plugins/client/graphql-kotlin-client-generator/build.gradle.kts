@@ -17,8 +17,10 @@ dependencies {
     }
     api("com.squareup:kotlinpoet:$kotlinPoetVersion")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-jackson:$ktorVersion") {
+    implementation("io.ktor:ktor-client-apache-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-client-jackson-jvm:$ktorVersion") {
         exclude("com.fasterxml.jackson.core", "jackson-databind")
         exclude("com.fasterxml.jackson.module", "jackson-module-kotlin")
     }
