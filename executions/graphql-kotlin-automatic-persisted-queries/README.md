@@ -31,7 +31,7 @@ GraphQL Kotlin Server->>Client: Executes query and returns result
 The `APQ` implementation of `graphql-kotlin` relies on the [graphql-java PreparsedDocumentProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/preparsed/PreparsedDocumentProvider.java)
 which is an interface that allows clients to cache GraphQL Documents (AST) that were parsed and validated.
 
-The `ApolloPersistedQuerySupportAsync` class implements `PreparsedDocumentProvider` and contains all the logic required to fulfil the APQ spec.
+The `AutomaticPersistedQueryProvider` class implements `PreparsedDocumentProvider` and contains all the logic required to fulfil the APQ spec.
 
 ## Install it
 
@@ -55,22 +55,22 @@ implementation("com.expediagroup:graphql-kotlin-automatic-persisted-queries:$lat
 
 ## Use it
 
-1. Create an instance of `ApolloPersistedQuerySupportAsync` by specific as a constructor argument an implementation of an
+1. Create an instance of `AutomaticPersistedQueryProvider` by specific as a constructor argument an implementation of an
 `AutomaticPersistedQueryCache` abstract class, which is the class where the queries will be persisted by their unique identifier.
 
-**Note:** `graphql-kotlin` provides a default in-memory cache implementation `InMemoryAutomaticPersistedQueryCache` of `AutomaticPersistedQueryCache`.
+**Note:** `graphql-kotlin` provides a default in-memory cache implementation of `AutomaticPersistedQueryCache` called `DefaultAutomaticPersistedQueryCache`.
 
-2. Provide the instance of `ApolloPersistedQuerySupportAsync` to the [GraphQLBuilder preparsedDocumentProvider method](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/GraphQL.java#L261).
+2. Provide the instance of `AutomaticPersistedQueryProvider` to the [GraphQLBuilder preparsedDocumentProvider method](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/GraphQL.java#L261).
 
 **Note:** In order to take full advantage of APQ it's recommended to use a different cache mechanism like REDIS.
 
 ```kotlin
 val schema = "your schema"
 val runtimeWiring =  RuntimeWiring.newRuntimeWiring().build() // your runtime wiring
-val automaticPersistedQueriesProvider = ApolloPersistedQuerySupportAsync(InMemoryAutomaticPersistedQueryCache())
+val automaticPersistedQueryProvider = AutomaticPersistedQueryProvider(DefaultAutomaticPersistedQueryCache())
 
 val graphQL = GraphQL
     .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-    .preparsedDocumentProvider(automaticPersistedQueriesProvider)
+    .preparsedDocumentProvider(automaticPersistedQueryProvider)
     .build()
 ```
