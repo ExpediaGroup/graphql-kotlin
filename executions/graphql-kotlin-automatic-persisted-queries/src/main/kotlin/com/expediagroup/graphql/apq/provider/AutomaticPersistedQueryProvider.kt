@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.apq.preparsed
+package com.expediagroup.graphql.apq.provider
 
-import com.expediagroup.graphql.apq.AutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueryCache
 import graphql.ExecutionInput
 import graphql.GraphqlErrorBuilder
 import graphql.execution.preparsed.PreparsedDocumentEntry
@@ -31,8 +31,8 @@ import java.security.NoSuchAlgorithmException
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
-class ApolloPersistedQuerySupportAsync(
-    private val persistedQueryCache: AutomaticPersistedQueryCache
+class AutomaticPersistedQueryProvider(
+    private val cache: AutomaticPersistedQueryCache
 ) : PreparsedDocumentProvider {
 
     @Deprecated(
@@ -53,7 +53,7 @@ class ApolloPersistedQuerySupportAsync(
         parseAndValidateFunction: Function<ExecutionInput, PreparsedDocumentEntry>
     ): CompletableFuture<PreparsedDocumentEntry> = try {
         getPersistedQueryId(executionInput)?.let { persistedQueryId ->
-            persistedQueryCache.getPersistedQueryDocumentAsync(persistedQueryId, executionInput) { query ->
+            cache.getPersistedQueryDocumentAsync(persistedQueryId, executionInput) { query ->
                 when {
                     query.isNullOrBlank() -> {
                         throw PersistedQueryNotFound(persistedQueryId)

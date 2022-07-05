@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.apq.preparsed
+package com.expediagroup.graphql.apq.provider
 
 import com.expediagroup.graphql.apq.fixture.ProductGraphQL
 import graphql.ExecutionInput
@@ -24,9 +24,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class ApolloPersistedQuerySupportAsyncTest {
+class AutomaticPersistedQueryProviderTest {
     @Test
-    fun `Using ApolloPersistedQuerySupportAsync should return error when no query with provided hash is in the cache`() {
+    fun `Using AutomaticPersistedQueryProvider should return error when no query with provided hash is in the cache`() {
 
         // First execution fails to find persisted query string
 
@@ -83,7 +83,7 @@ class ApolloPersistedQuerySupportAsyncTest {
     }
 
     @Test
-    fun `Using ApolloPersistedQuerySupportAsync should execute GraphQL operation normally when no persistedQueryId is provided`() {
+    fun `Using AutomaticPersistedQueryProvider should execute GraphQL operation normally when no persistedQueryId is provided`() {
         val executionInput = ExecutionInput
             .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
             .build()

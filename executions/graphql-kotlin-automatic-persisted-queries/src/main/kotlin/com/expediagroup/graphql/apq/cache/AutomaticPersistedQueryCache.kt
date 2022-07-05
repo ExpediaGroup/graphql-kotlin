@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.apq
+package com.expediagroup.graphql.apq.cache
 
 import graphql.ExecutionInput
 import graphql.execution.preparsed.PreparsedDocumentEntry

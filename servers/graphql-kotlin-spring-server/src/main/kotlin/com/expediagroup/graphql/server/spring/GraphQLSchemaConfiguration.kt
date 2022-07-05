@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.apq.AutomaticPersistedQueryCache
-import com.expediagroup.graphql.apq.InMemoryAutomaticPersistedQueryCache
-import com.expediagroup.graphql.apq.preparsed.ApolloPersistedQuerySupportAsync
+import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.cache.DefaultAutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueryProvider
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
@@ -122,8 +122,8 @@ class GraphQLSchemaConfiguration {
     )
     fun preparsedDocumentProvider(
         persistedQueryCache: Optional<AutomaticPersistedQueryCache>
-    ): ApolloPersistedQuerySupportAsync = ApolloPersistedQuerySupportAsync(
-        persistedQueryCache.orElse(InMemoryAutomaticPersistedQueryCache())
+    ): AutomaticPersistedQueryProvider = AutomaticPersistedQueryProvider(
+        persistedQueryCache.orElse(DefaultAutomaticPersistedQueryCache())
     )
 
     @Bean
