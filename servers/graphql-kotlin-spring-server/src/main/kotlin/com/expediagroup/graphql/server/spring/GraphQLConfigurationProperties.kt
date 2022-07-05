@@ -34,7 +34,8 @@ data class GraphQLConfigurationProperties(
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
     val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
-    val batching: BatchingConfigurationProperties = BatchingConfigurationProperties()
+    val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
+    val automaticPersistedQueriesEnabled: Boolean = false
 ) {
     /**
      * Apollo Federation configuration properties.

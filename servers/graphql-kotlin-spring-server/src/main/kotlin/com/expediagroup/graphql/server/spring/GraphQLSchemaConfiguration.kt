@@ -16,6 +16,9 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.apq.AutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.InMemoryAutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.preparsed.ApolloPersistedQuerySupportAsync
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
@@ -37,6 +40,7 @@ import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -109,6 +113,18 @@ class GraphQLSchemaConfiguration {
 
         return graphQLBuilder.build()
     }
+
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "graphql",
+        name = ["automaticPersistedQueriesEnabled"],
+        havingValue = "true"
+    )
+    fun preparsedDocumentProvider(
+        persistedQueryCache: Optional<AutomaticPersistedQueryCache>
+    ): ApolloPersistedQuerySupportAsync = ApolloPersistedQuerySupportAsync(
+        persistedQueryCache.orElse(InMemoryAutomaticPersistedQueryCache())
+    )
 
     @Bean
     @ConditionalOnMissingBean
