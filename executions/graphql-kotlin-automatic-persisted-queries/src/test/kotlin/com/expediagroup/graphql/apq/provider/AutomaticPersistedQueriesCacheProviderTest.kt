@@ -24,9 +24,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class AutomaticPersistedQueryProviderTest {
+class AutomaticPersistedQueriesCacheProviderTest {
     @Test
-    fun `Using AutomaticPersistedQueryProvider should return error when no query with provided hash is in the cache`() {
+    fun `Using AutomaticPersistedQueriesProvider should return error when no query with provided hash is in the cache`() {
 
         // First execution fails to find persisted query string
 
@@ -83,7 +83,7 @@ class AutomaticPersistedQueryProviderTest {
     }
 
     @Test
-    fun `Using AutomaticPersistedQueryProvider should execute GraphQL operation normally when no persistedQueryId is provided`() {
+    fun `Using AutomaticPersistedQueriesProvider should execute GraphQL operation normally when no persistedQueryId is provided`() {
         val executionInput = ExecutionInput
             .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
             .build()

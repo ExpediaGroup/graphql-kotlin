@@ -35,7 +35,7 @@ data class GraphQLConfigurationProperties(
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
     val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
     val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
-    val automaticPersistedQueriesEnabled: Boolean = false
+    val automaticPersistedQueries: AutomaticPersistedQueriesConfigurationProperties = AutomaticPersistedQueriesConfigurationProperties()
 ) {
     /**
      * Apollo Federation configuration properties.
@@ -119,5 +119,10 @@ data class GraphQLConfigurationProperties(
         val enabled: Boolean = false,
         /** configure the [BatchingStrategy] that will be used when batching is enabled for a set of GraphQL Operations. */
         val strategy: BatchingStrategy = BatchingStrategy.LEVEL_DISPATCHED
+    )
+
+    data class AutomaticPersistedQueriesConfigurationProperties(
+        /** Boolean flag to enable or disable Automatic Persisted Queries. */
+        val enabled: Boolean = false
     )
 }

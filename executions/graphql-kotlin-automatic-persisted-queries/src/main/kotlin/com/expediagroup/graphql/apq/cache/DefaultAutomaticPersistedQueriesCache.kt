@@ -20,7 +20,7 @@ import graphql.execution.preparsed.PreparsedDocumentEntry
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
-class DefaultAutomaticPersistedQueryCache : AutomaticPersistedQueryCache() {
+class DefaultAutomaticPersistedQueriesCache : AutomaticPersistedQueriesCache() {
 
     private val cache: ConcurrentHashMap<String, PreparsedDocumentEntry> = ConcurrentHashMap()
 

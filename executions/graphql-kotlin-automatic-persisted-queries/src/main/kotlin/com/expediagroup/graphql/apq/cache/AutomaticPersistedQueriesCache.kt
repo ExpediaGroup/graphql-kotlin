@@ -23,7 +23,7 @@ import graphql.execution.preparsed.persisted.PersistedQueryCacheMiss
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
 import java.util.concurrent.CompletableFuture
 
-abstract class AutomaticPersistedQueryCache : PersistedQueryCache {
+abstract class AutomaticPersistedQueriesCache : PersistedQueryCache {
 
     @Deprecated(
         message = "deprecated in favor of async retrieval of PreparsedDocumentEntry",

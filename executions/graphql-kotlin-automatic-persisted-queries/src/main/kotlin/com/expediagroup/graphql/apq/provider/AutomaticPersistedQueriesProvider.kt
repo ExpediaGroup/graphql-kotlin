@@ -16,7 +16,9 @@
 
 package com.expediagroup.graphql.apq.provider
 
-import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueryCache
+import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueriesCache
+import com.expediagroup.graphql.apq.extensions.getAutomaticPersistedQueriesExtension
+import com.expediagroup.graphql.apq.extensions.isAutomaticPersistedQueriesExtensionInvalid
 import graphql.ExecutionInput
 import graphql.GraphqlErrorBuilder
 import graphql.execution.preparsed.PreparsedDocumentEntry
@@ -24,15 +26,11 @@ import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.execution.preparsed.persisted.PersistedQueryError
 import graphql.execution.preparsed.persisted.PersistedQueryIdInvalid
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
-import java.math.BigInteger
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
-class AutomaticPersistedQueryProvider(
-    private val cache: AutomaticPersistedQueryCache
+class AutomaticPersistedQueriesProvider(
+    private val cache: AutomaticPersistedQueriesCache
 ) : PreparsedDocumentProvider {
 
     @Deprecated(
@@ -52,14 +50,14 @@ class AutomaticPersistedQueryProvider(
         executionInput: ExecutionInput,
         parseAndValidateFunction: Function<ExecutionInput, PreparsedDocumentEntry>
     ): CompletableFuture<PreparsedDocumentEntry> = try {
-        getPersistedQueryId(executionInput)?.let { persistedQueryId ->
-            cache.getPersistedQueryDocumentAsync(persistedQueryId, executionInput) { query ->
+        executionInput.getAutomaticPersistedQueriesExtension()?.let { apqExtension ->
+            cache.getPersistedQueryDocumentAsync(apqExtension.sha256Hash, executionInput) { query ->
                 when {
                     query.isNullOrBlank() -> {
-                        throw PersistedQueryNotFound(persistedQueryId)
+                        throw PersistedQueryNotFound(apqExtension.sha256Hash)
                     }
-                    !isPersistedQueryIdValid(persistedQueryId, query) -> {
-                        throw PersistedQueryIdInvalid(persistedQueryId)
+                    executionInput.isAutomaticPersistedQueriesExtensionInvalid(apqExtension) -> {
+                        throw PersistedQueryIdInvalid(apqExtension.sha256Hash)
                     }
                     else -> {
                         val newExecutionInput = executionInput.transform { builder -> builder.query(query) }
@@ -87,24 +85,5 @@ class AutomaticPersistedQueryProvider(
                     ).build()
             )
         )
-    }
-
-    private fun getPersistedQueryId(
-        executionInput: ExecutionInput
-    ): String? =
-        (executionInput.extensions["persistedQuery"] as? Map<*, *>)?.get("sha256Hash") as? String
-
-    private fun isPersistedQueryIdValid(
-        persistedQueryId: String,
-        query: String
-    ): Boolean = try {
-        val bigInteger = BigInteger(
-            1,
-            MessageDigest.getInstance("SHA-256").digest(query.toByteArray(StandardCharsets.UTF_8))
-        )
-        val calculatedPersistedQueryId = String.format("%064x", bigInteger)
-        calculatedPersistedQueryId.equals(persistedQueryId, ignoreCase = true)
-    } catch (e: NoSuchAlgorithmException) {
-        false
     }
 }

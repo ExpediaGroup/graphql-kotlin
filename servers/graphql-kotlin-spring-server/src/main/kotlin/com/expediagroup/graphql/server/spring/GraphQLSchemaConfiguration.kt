@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueryCache
-import com.expediagroup.graphql.apq.cache.DefaultAutomaticPersistedQueryCache
-import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueryProvider
+import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueriesCache
+import com.expediagroup.graphql.apq.cache.DefaultAutomaticPersistedQueriesCache
+import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
@@ -116,14 +116,14 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnProperty(
-        prefix = "graphql",
-        name = ["automaticPersistedQueriesEnabled"],
+        prefix = "graphql.automaticPersistedQueries",
+        name = ["enabled"],
         havingValue = "true"
     )
     fun preparsedDocumentProvider(
-        persistedQueryCache: Optional<AutomaticPersistedQueryCache>
-    ): AutomaticPersistedQueryProvider = AutomaticPersistedQueryProvider(
-        persistedQueryCache.orElse(DefaultAutomaticPersistedQueryCache())
+        providedPersistedQueriesCache: Optional<AutomaticPersistedQueriesCache>
+    ): AutomaticPersistedQueriesProvider = AutomaticPersistedQueriesProvider(
+        providedPersistedQueriesCache.orElse(DefaultAutomaticPersistedQueriesCache())
     )
 
     @Bean

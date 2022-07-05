@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.apq.fixture
 
-import com.expediagroup.graphql.apq.cache.DefaultAutomaticPersistedQueryCache
-import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueryProvider
+import com.expediagroup.graphql.apq.cache.DefaultAutomaticPersistedQueriesCache
+import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQL
@@ -58,7 +58,7 @@ object ProductGraphQL {
 
     private val graphQL = GraphQL
         .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-        .preparsedDocumentProvider(AutomaticPersistedQueryProvider(DefaultAutomaticPersistedQueryCache()))
+        .preparsedDocumentProvider(AutomaticPersistedQueriesProvider(DefaultAutomaticPersistedQueriesCache()))
         .build()
 
     fun execute(executionInput: ExecutionInput): ExecutionResult = graphQL.executeAsync(executionInput).get()
