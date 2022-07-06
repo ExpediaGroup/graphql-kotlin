@@ -56,10 +56,19 @@ object ProductGraphQL {
         )
     }.build()
 
+    private val automaticPersistedQueriesProvider = AutomaticPersistedQueriesProvider(DefaultAutomaticPersistedQueriesCache())
     private val graphQL = GraphQL
         .newGraphQL(SchemaGenerator().makeExecutableSchema(SchemaParser().parse(schema), runtimeWiring))
-        .preparsedDocumentProvider(AutomaticPersistedQueriesProvider(DefaultAutomaticPersistedQueriesCache()))
+        .preparsedDocumentProvider(automaticPersistedQueriesProvider)
         .build()
 
-    fun execute(executionInput: ExecutionInput): ExecutionResult = graphQL.executeAsync(executionInput).get()
+    fun execute(
+        executionInput: ExecutionInput
+    ): ExecutionResult =
+        graphQL.executeAsync(executionInput).get()
+
+    fun executeAndReturnProvider(
+        executionInput: ExecutionInput
+    ): Pair<ExecutionResult, AutomaticPersistedQueriesProvider> =
+        Pair(graphQL.executeAsync(executionInput).get(), automaticPersistedQueriesProvider)
 }

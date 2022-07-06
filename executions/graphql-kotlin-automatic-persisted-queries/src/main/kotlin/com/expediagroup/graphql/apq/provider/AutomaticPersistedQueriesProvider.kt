@@ -18,6 +18,7 @@ package com.expediagroup.graphql.apq.provider
 
 import com.expediagroup.graphql.apq.cache.AutomaticPersistedQueriesCache
 import com.expediagroup.graphql.apq.extensions.getAutomaticPersistedQueriesExtension
+import com.expediagroup.graphql.apq.extensions.getQueryId
 import com.expediagroup.graphql.apq.extensions.isAutomaticPersistedQueriesExtensionInvalid
 import graphql.ExecutionInput
 import graphql.GraphqlErrorBuilder
@@ -49,42 +50,47 @@ class AutomaticPersistedQueriesProvider(
     override fun getDocumentAsync(
         executionInput: ExecutionInput,
         parseAndValidateFunction: Function<ExecutionInput, PreparsedDocumentEntry>
-    ): CompletableFuture<PreparsedDocumentEntry> = try {
-        executionInput.getAutomaticPersistedQueriesExtension()?.let { apqExtension ->
-            cache.getPersistedQueryDocumentAsync(apqExtension.sha256Hash, executionInput) { query ->
-                when {
-                    query.isBlank() -> {
-                        throw PersistedQueryNotFound(apqExtension.sha256Hash)
-                    }
-                    executionInput.isAutomaticPersistedQueriesExtensionInvalid(apqExtension) -> {
-                        throw PersistedQueryIdInvalid(apqExtension.sha256Hash)
-                    }
-                    else -> {
-                        parseAndValidateFunction.apply(
-                            executionInput.transform { builder -> builder.query(query) }
-                        )
+    ): CompletableFuture<PreparsedDocumentEntry> =
+        try {
+            executionInput.getAutomaticPersistedQueriesExtension()?.let { apqExtension ->
+                cache.getPersistedQueryDocumentAsync(apqExtension.sha256Hash, executionInput) { query ->
+                    when {
+                        query.isBlank() -> {
+                            throw PersistedQueryNotFound(apqExtension.sha256Hash)
+                        }
+                        executionInput.isAutomaticPersistedQueriesExtensionInvalid(apqExtension) -> {
+                            throw PersistedQueryIdInvalid(apqExtension.sha256Hash)
+                        }
+                        else -> {
+                            parseAndValidateFunction.apply(
+                                executionInput.transform { builder -> builder.query(query) }
+                            )
+                        }
                     }
                 }
+            } ?: run {
+                // no apqExtension, not a persisted query,
+                // but we still want to cache the parsed and validated document
+                cache.getOrElse(executionInput.getQueryId()) {
+                    parseAndValidateFunction.apply(executionInput)
+                }
             }
-        } ?: run {
-            // no persistedQueryId, not a persisted query, ready to go
-            CompletableFuture.completedFuture(parseAndValidateFunction.apply(executionInput))
-        }
-    } catch (persistedQueryError: PersistedQueryError) {
-        CompletableFuture.completedFuture(
-            PreparsedDocumentEntry(
-                GraphqlErrorBuilder.newError()
-                    .errorType(persistedQueryError).message(persistedQueryError.message)
-                    .extensions(
-                        when (persistedQueryError) {
-                            // persistedQueryError.getExtensions()
-                            // Cannot access 'getExtensions': it is package-private in 'PersistedQueryError'
-                            is PersistedQueryNotFound -> persistedQueryError.extensions
-                            is PersistedQueryIdInvalid -> persistedQueryError.extensions
-                            else -> emptyMap()
-                        }
-                    ).build()
+        } catch (persistedQueryError: PersistedQueryError) {
+            CompletableFuture.completedFuture(
+                PreparsedDocumentEntry(
+                    GraphqlErrorBuilder.newError()
+                        .errorType(persistedQueryError)
+                        .message(persistedQueryError.message)
+                        .extensions(
+                            when (persistedQueryError) {
+                                // persistedQueryError.getExtensions()
+                                // Cannot access 'getExtensions': it is package-private in 'PersistedQueryError'
+                                is PersistedQueryNotFound -> persistedQueryError.extensions
+                                is PersistedQueryIdInvalid -> persistedQueryError.extensions
+                                else -> emptyMap()
+                            }
+                        ).build()
+                )
             )
-        )
-    }
+        }
 }

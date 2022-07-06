@@ -18,10 +18,13 @@ package com.expediagroup.graphql.apq.provider
 
 import com.expediagroup.graphql.apq.fixture.ProductGraphQL
 import graphql.ExecutionInput
+import graphql.execution.AbortExecutionException
+import graphql.execution.preparsed.PreparsedDocumentEntry
 import graphql.execution.preparsed.persisted.PersistedQueryIdInvalid
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -121,5 +124,25 @@ class AutomaticPersistedQueriesCacheProviderTest {
         assertTrue(result.errors[0].errorType is PersistedQueryIdInvalid)
         assertEquals("PersistedQueryIdInvalid", result.errors[0].message)
         assertEquals("0000000000000000000000000000000000000000000000000000000000000000", result.errors[0].extensions["persistedQueryId"])
+    }
+
+    @Test
+    fun `AutomaticPersistedQueriesProvider should cache the parsed and validated document even if executionInput does not contain APQ extension`() {
+        val executionInput = ExecutionInput
+            .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
+            .build()
+
+        val firstResult = ProductGraphQL.execute(executionInput).toSpecification()
+        assertNotNull(firstResult["data"] as? Map<*, *>)
+
+        val pair = ProductGraphQL.executeAndReturnProvider(executionInput)
+        val secondResult = pair.first.toSpecification()
+        val automaticPersistedQueriesProvider = pair.second
+
+        val document = automaticPersistedQueriesProvider
+            .getDocumentAsync(executionInput) { PreparsedDocumentEntry(AbortExecutionException()) }.get()
+
+        assertNotNull(secondResult["data"] as? Map<*, *>)
+        assertFalse(document.hasErrors())
     }
 }

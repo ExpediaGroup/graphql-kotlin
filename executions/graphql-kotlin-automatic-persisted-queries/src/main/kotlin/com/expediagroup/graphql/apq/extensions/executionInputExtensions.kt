@@ -34,10 +34,13 @@ fun ExecutionInput.getAutomaticPersistedQueriesExtension(): AutomaticPersistedQu
         null
     }
 
+fun ExecutionInput.getQueryId(): String =
+    String.format(
+        "%064x",
+        BigInteger(1, MESSAGE_DIGEST.digest(this.query.toByteArray(StandardCharsets.UTF_8)))
+    )
+
 fun ExecutionInput.isAutomaticPersistedQueriesExtensionInvalid(
     extension: AutomaticPersistedQueriesExtension
-): Boolean {
-    val bigInteger = BigInteger(1, MESSAGE_DIGEST.digest(this.query.toByteArray(StandardCharsets.UTF_8)))
-    val calculatedPersistedQueryId = String.format("%064x", bigInteger)
-    return !calculatedPersistedQueryId.equals(extension.sha256Hash, ignoreCase = true)
-}
+): Boolean =
+    !this.getQueryId().equals(extension.sha256Hash, ignoreCase = true)

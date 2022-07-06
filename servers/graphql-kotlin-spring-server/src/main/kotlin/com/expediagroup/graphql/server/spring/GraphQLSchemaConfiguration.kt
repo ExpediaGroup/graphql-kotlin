@@ -116,8 +116,7 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnProperty(
-        prefix = "graphql.automaticPersistedQueries",
-        name = ["enabled"],
+        name = ["graphql.automaticPersistedQueries.enabled"],
         havingValue = "true"
     )
     fun preparsedDocumentProvider(
