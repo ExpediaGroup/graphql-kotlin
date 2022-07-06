@@ -53,15 +53,16 @@ class AutomaticPersistedQueriesProvider(
         executionInput.getAutomaticPersistedQueriesExtension()?.let { apqExtension ->
             cache.getPersistedQueryDocumentAsync(apqExtension.sha256Hash, executionInput) { query ->
                 when {
-                    query.isNullOrBlank() -> {
+                    query.isBlank() -> {
                         throw PersistedQueryNotFound(apqExtension.sha256Hash)
                     }
                     executionInput.isAutomaticPersistedQueriesExtensionInvalid(apqExtension) -> {
                         throw PersistedQueryIdInvalid(apqExtension.sha256Hash)
                     }
                     else -> {
-                        val newExecutionInput = executionInput.transform { builder -> builder.query(query) }
-                        parseAndValidateFunction.apply(newExecutionInput)
+                        parseAndValidateFunction.apply(
+                            executionInput.transform { builder -> builder.query(query) }
+                        )
                     }
                 }
             }
@@ -76,7 +77,7 @@ class AutomaticPersistedQueriesProvider(
                     .errorType(persistedQueryError).message(persistedQueryError.message)
                     .extensions(
                         when (persistedQueryError) {
-                            // persistedQueryError.getExtensions().
+                            // persistedQueryError.getExtensions()
                             // Cannot access 'getExtensions': it is package-private in 'PersistedQueryError'
                             is PersistedQueryNotFound -> persistedQueryError.extensions
                             is PersistedQueryIdInvalid -> persistedQueryError.extensions

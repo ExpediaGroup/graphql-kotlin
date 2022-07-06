@@ -20,7 +20,6 @@ import graphql.ExecutionInput
 import graphql.execution.preparsed.PreparsedDocumentEntry
 import graphql.execution.preparsed.persisted.PersistedQueryCache
 import graphql.execution.preparsed.persisted.PersistedQueryCacheMiss
-import graphql.execution.preparsed.persisted.PersistedQueryNotFound
 import java.util.concurrent.CompletableFuture
 
 abstract class AutomaticPersistedQueriesCache : PersistedQueryCache {
@@ -36,21 +35,13 @@ abstract class AutomaticPersistedQueriesCache : PersistedQueryCache {
     ): PreparsedDocumentEntry =
         getPersistedQueryDocumentAsync(persistedQueryId, executionInput, onCacheMiss).get()
 
-    @Throws(PersistedQueryNotFound::class)
     override fun getPersistedQueryDocumentAsync(
         persistedQueryId: Any,
         executionInput: ExecutionInput,
         onCacheMiss: PersistedQueryCacheMiss
     ): CompletableFuture<PreparsedDocumentEntry> =
         getOrElse(persistedQueryId.toString()) {
-            when {
-                executionInput.query.isBlank() -> {
-                    throw PersistedQueryNotFound(persistedQueryId)
-                }
-                else -> {
-                    onCacheMiss.apply(executionInput.query)
-                }
-            }
+            onCacheMiss.apply(executionInput.query)
         }
 
     /**

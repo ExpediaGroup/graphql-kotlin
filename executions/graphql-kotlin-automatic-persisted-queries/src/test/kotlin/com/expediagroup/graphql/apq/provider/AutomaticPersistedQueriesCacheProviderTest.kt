@@ -18,6 +18,7 @@ package com.expediagroup.graphql.apq.provider
 
 import com.expediagroup.graphql.apq.fixture.ProductGraphQL
 import graphql.ExecutionInput
+import graphql.execution.preparsed.persisted.PersistedQueryIdInvalid
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -26,7 +27,7 @@ import kotlin.test.assertTrue
 
 class AutomaticPersistedQueriesCacheProviderTest {
     @Test
-    fun `Using AutomaticPersistedQueriesProvider should return error when no query with provided hash is in the cache`() {
+    fun `AutomaticPersistedQueriesProvider should return error when no query with provided hash is in the cache`() {
 
         // First execution fails to find persisted query string
 
@@ -83,7 +84,7 @@ class AutomaticPersistedQueriesCacheProviderTest {
     }
 
     @Test
-    fun `Using AutomaticPersistedQueriesProvider should execute GraphQL operation normally when no persistedQueryId is provided`() {
+    fun `AutomaticPersistedQueriesProvider should execute GraphQL operation normally when no persistedQueryId is provided`() {
         val executionInput = ExecutionInput
             .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
             .build()
@@ -99,5 +100,26 @@ class AutomaticPersistedQueriesCacheProviderTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun `AutomaticPersistedQueriesProvider should return error when sending query with invalid persistedQueryId`() {
+        val executionInput = ExecutionInput
+            .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
+            .extensions(
+                mapOf(
+                    "persistedQuery" to mapOf(
+                        "version" to 1,
+                        "sha256Hash" to "0000000000000000000000000000000000000000000000000000000000000000"
+                    )
+                )
+            )
+            .build()
+
+        val result = ProductGraphQL.execute(executionInput)
+        assertEquals(result.errors.size, 1)
+        assertTrue(result.errors[0].errorType is PersistedQueryIdInvalid)
+        assertEquals("PersistedQueryIdInvalid", result.errors[0].message)
+        assertEquals("0000000000000000000000000000000000000000000000000000000000000000", result.errors[0].extensions["persistedQueryId"])
     }
 }
