@@ -56,7 +56,7 @@ implementation("com.expediagroup:graphql-kotlin-automatic-persisted-queries:$lat
 ## Use it
 
 1. Create an instance of `AutomaticPersistedQueriesProvider` by specific as a constructor argument an implementation of an
-`AutomaticPersistedQueriesCache` abstract class, which is the class where the queries will be persisted by their unique identifier.
+`AutomaticPersistedQueriesCache` interface, which is the place where the queries will be persisted by their unique identifier.
 
 **Note:** `graphql-kotlin` provides a default in-memory cache implementation of `AutomaticPersistedQueriesCache` called `DefaultAutomaticPersistedQueriesCache`.
 

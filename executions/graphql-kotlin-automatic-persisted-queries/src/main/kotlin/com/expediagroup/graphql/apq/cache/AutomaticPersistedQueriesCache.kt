@@ -22,7 +22,7 @@ import graphql.execution.preparsed.persisted.PersistedQueryCache
 import graphql.execution.preparsed.persisted.PersistedQueryCacheMiss
 import java.util.concurrent.CompletableFuture
 
-abstract class AutomaticPersistedQueriesCache : PersistedQueryCache {
+interface AutomaticPersistedQueriesCache : PersistedQueryCache {
 
     @Deprecated(
         message = "deprecated in favor of async retrieval of PreparsedDocumentEntry",
@@ -53,7 +53,7 @@ abstract class AutomaticPersistedQueriesCache : PersistedQueryCache {
      * @param key The hash of the requested query.
      * @param supplier that will provide the document in case there is a cache miss.
      */
-    abstract fun getOrElse(
+    fun getOrElse(
         key: String,
         supplier: () -> PreparsedDocumentEntry
     ): CompletableFuture<PreparsedDocumentEntry>
