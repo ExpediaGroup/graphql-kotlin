@@ -22,6 +22,7 @@ import graphql.execution.AbortExecutionException
 import graphql.execution.preparsed.PreparsedDocumentEntry
 import graphql.execution.preparsed.persisted.PersistedQueryIdInvalid
 import graphql.execution.preparsed.persisted.PersistedQueryNotFound
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -29,6 +30,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AutomaticPersistedQueriesCacheProviderTest {
+
+    @AfterEach
+    fun teardown() {
+        ProductGraphQL.clearCache()
+    }
+
     @Test
     fun `AutomaticPersistedQueriesProvider should return error when no query with provided hash is in the cache`() {
 
