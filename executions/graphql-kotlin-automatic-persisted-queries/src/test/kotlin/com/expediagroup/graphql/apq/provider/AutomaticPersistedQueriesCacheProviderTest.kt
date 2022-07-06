@@ -113,7 +113,7 @@ class AutomaticPersistedQueriesCacheProviderTest {
     }
 
     @Test
-    fun `AutomaticPersistedQueriesProvider should return error when sending query with invalid persistedQueryId`() {
+    fun `AutomaticPersistedQueriesProvider should return error when sending query with a persistedQueryId that does not match the query`() {
         val executionInput = ExecutionInput
             .newExecutionInput("{ product(id: 1) { summary { name } details { rating } } }")
             .extensions(
