@@ -4,11 +4,11 @@ title: Automatic Persisted Queries (APQ)
 ---
 
 [APQ is technique created by Apollo](https://www.apollographql.com/docs/apollo-server/performance/apq/) to improve
-GraphQL network performance with zero build-time configuration by sending smaller [GraphQL HTTP requests](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md),
-a smaller request payload reduces bandwidth utilization and speeds up GraphQL Client loading times.
+GraphQL network performance with zero build-time configuration by sending smaller [GraphQL HTTP requests](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md).
+A smaller request payload reduces bandwidth utilization and speeds up GraphQL Client loading times.
 
-A persisted query is a parsed and validated query document that is cached on a GraphQL Server, along with a unique identifier (SHA-256 hash), that way,
-Clients can send this identifier instead of his corresponding query which will drastically reduce the request size.
+A persisted query is a parsed and validated query document that is cached on a GraphQL Server, along with a unique identifier (SHA-256 hash).
+This way clients can send this identifier instead of the corresponding query which will drastically reduce the request size.
 
 To persist a query, a GraphQL Server must first receive it from a Client, then, subsequent requests can just include the identifier
 instead of the query.
@@ -36,15 +36,15 @@ sequenceDiagram;
 ## AutomaticPersistedQueriesProvider
 
 To support APQ we have created `AutomaticPersistedQueriesProvider` which is an implementation of
-the [graphql-java PreparsedDocumentProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/preparsed/PreparsedDocumentProvider.java)
+the [graphql-java PreparsedDocumentProvider](https://github.com/graphql-java/graphql-java/blob/master/src/main/java/graphql/execution/preparsed/PreparsedDocumentProvider.java),
 which is the interface that allows caching for parsed and validated GraphQL Documents (AST).
 
-The `AutomaticPersistedQueriesProvider` requires an implementation of `AutomaticPersistedQueriesCache` as a constructor argument,
-`AutomaticPersistedQueriesCache` is an interface that specifies the contract of how retrieving documents.
+`AutomaticPersistedQueriesProvider` requires the implementation of `AutomaticPersistedQueriesCache` as a constructor argument.
+`AutomaticPersistedQueriesCache` is an interface that specifies the contract of how to retrieve documents.
 
 **Note:** `graphql-kotlin-automatic-persisted-queries` provides a default in-memory cache implementation of `AutomaticPersistedQueriesCache`
-called `DefaultAutomaticPersistedQueriesCache`, In order to take full advantage of Automatic Persisted Queries it's recommended
-to use a different cache mechanism like REDIS.
+called `DefaultAutomaticPersistedQueriesCache`. In order to take full advantage of Automatic Persisted Queries, it's recommended
+to use an external cache mechanism like Redis.
 
 ### Usage in GraphQL Kotlin Server
 

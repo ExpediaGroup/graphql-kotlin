@@ -30,7 +30,7 @@ fun ExecutionInput.getAutomaticPersistedQueriesExtension(): AutomaticPersistedQu
     try {
         (this.extensions[APQ_EXTENSION_KEY] as? Map<String, Any?>)?.let(::AutomaticPersistedQueriesExtension)
     } catch (e: NoSuchElementException) {
-        // could not creat persistedQuery extension
+        // could not create persistedQuery extension
         null
     }
 
@@ -38,7 +38,9 @@ fun ExecutionInput.getQueryId(): String =
     String.format(
         "%064x",
         BigInteger(1, MESSAGE_DIGEST.digest(this.query.toByteArray(StandardCharsets.UTF_8)))
-    )
+    ).also {
+        MESSAGE_DIGEST.reset()
+    }
 
 fun ExecutionInput.isAutomaticPersistedQueriesExtensionInvalid(
     extension: AutomaticPersistedQueriesExtension
