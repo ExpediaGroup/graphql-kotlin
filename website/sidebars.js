@@ -72,6 +72,7 @@ module.exports = {
       'server/graphql-context-factory',
       'server/graphql-request-handler',
       'server/server-subscriptions',
+      'server/automatic-persisted-queries/automatic-persisted-queries',
       {
         type: 'category',
         label: 'Data Loader',

@@ -53,6 +53,7 @@ include(":graphql-kotlin-spring-server")
 // Executions
 include(":graphql-kotlin-dataloader")
 include(":graphql-kotlin-dataloader-instrumentation")
+include(":graphql-kotlin-automatic-persisted-queries")
 //
 // Project mappings so we don't need to create projects that group subprojects
 //
@@ -83,3 +84,4 @@ project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotl
 // Executions
 project(":graphql-kotlin-dataloader").projectDir = file("executions/graphql-kotlin-dataloader")
 project(":graphql-kotlin-dataloader-instrumentation").projectDir = file("executions/graphql-kotlin-dataloader-instrumentation")
+project(":graphql-kotlin-automatic-persisted-queries").projectDir = file("executions/graphql-kotlin-automatic-persisted-queries")

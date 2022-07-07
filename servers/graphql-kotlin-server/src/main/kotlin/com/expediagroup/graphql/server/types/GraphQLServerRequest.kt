@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,10 @@ sealed class GraphQLServerRequest
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(using = JsonDeserializer.None::class)
 data class GraphQLRequest(
-    val query: String,
+    val query: String = "",
     val operationName: String? = null,
-    val variables: Map<String, Any?>? = null
+    val variables: Map<String, Any?>? = null,
+    val extensions: Map<String, Any?>? = null
 ) : GraphQLServerRequest()
 
 /**
