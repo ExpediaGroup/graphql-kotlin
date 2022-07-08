@@ -33,6 +33,7 @@ fun GraphQLRequest.toExecutionInput(
         .query(this.query)
         .operationName(this.operationName)
         .variables(this.variables ?: emptyMap())
+        .extensions(this.extensions ?: emptyMap())
         .dataLoaderRegistry(dataLoaderRegistry ?: KotlinDataLoaderRegistry())
         .also { builder ->
             graphQLContext?.let { builder.context(it) }
