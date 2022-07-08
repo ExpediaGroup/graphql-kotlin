@@ -83,6 +83,24 @@ class RequestExtensionsKtTest {
     }
 
     @Test
+    fun `verify can convert request with extensions to execution input`() {
+        val request = GraphQLRequest(
+            variables = mapOf("foo" to 1),
+            extensions = mapOf(
+                "persistedQuery" to mapOf(
+                    "version" to 1,
+                    "sha256Hash" to "2ec03b0d1d2e458ffafa173a7e965de18e1c91e7c28546f0ef093778ddeeb49c"
+                )
+            )
+        )
+
+        val executionInput = request.toExecutionInput()
+        assertEquals("", request.query)
+        assertEquals(request.variables, executionInput.variables)
+        assertEquals(request.extensions, executionInput.extensions)
+    }
+
+    @Test
     fun `verify graphQLRequest is a mutation`() {
         val request = GraphQLRequest(
             query = """
