@@ -1,4 +1,4 @@
-# How To Contribute
+# How to Contribute
 
 We'd love to accept your patches and contributions to this project. There are just a few guidelines you need to follow which are described in detail below.
 
