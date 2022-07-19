@@ -151,9 +151,9 @@ subprojects {
                 }
                 create<MavenPublication>("mavenJava") {
                     from(jarComponent)
-                    // no need to publish sources or javadocs for SNAPSHOT builds
+                    artifact(sourcesJar.get())
+                    // no need to publish javadocs for SNAPSHOT builds
                     if (rootProject.extra["isReleaseVersion"] as Boolean) {
-                        artifact(sourcesJar.get())
                         artifact(javadocJar.get())
                     }
                 }
