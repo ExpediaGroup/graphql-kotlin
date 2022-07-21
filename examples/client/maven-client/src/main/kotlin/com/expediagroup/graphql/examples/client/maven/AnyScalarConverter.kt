@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.client.server
+package com.expediagroup.graphql.examples.client.maven
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
+import com.expediagroup.graphql.client.converter.ScalarConverter
 
-@SpringBootApplication
-class Application
-
-fun main(args: Array<String>) {
-    runApplication<Application>(*args)
+/**
+ * Simple pass-through converter to allow specifying arbitrary objects for custom scalars.
+ */
+class AnyScalarConverter : ScalarConverter<Any> {
+    override fun toScalar(rawValue: Any): Any = rawValue
+    override fun toJson(value: Any): Any = value
 }

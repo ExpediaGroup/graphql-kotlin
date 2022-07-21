@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,13 @@ import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * Generate [ScalarConverterInfo] data class that holds information about generated scalar Jackson converters/or kotlinx-serialization serializer.
@@ -121,10 +121,9 @@ private fun generateGraphQLCustomScalarKSerializer(
         .build()
     serializerTypeSpec.addProperty(converter)
 
-    val primitiveSerialDescriptor = MemberName("kotlinx.serialization.descriptors", "PrimitiveSerialDescriptor")
-    val stringKind = MemberName(PrimitiveKind::class.asClassName(), "STRING")
+    val scalarSerialDescriptor = MemberName("kotlinx.serialization.descriptors", "buildClassSerialDescriptor")
     val descriptor = PropertySpec.builder("descriptor", SerialDescriptor::class)
-        .initializer("%M(%S, %M)", primitiveSerialDescriptor, customScalarName, stringKind)
+        .initializer("%M(%S)", scalarSerialDescriptor, customScalarName)
         .addModifiers(KModifier.OVERRIDE)
         .build()
     serializerTypeSpec.addProperty(descriptor)
@@ -133,21 +132,38 @@ private fun generateGraphQLCustomScalarKSerializer(
         .addModifiers(KModifier.OVERRIDE)
         .addParameter("encoder", Encoder::class)
         .addParameter("value", scalarClassName)
-        .addStatement("val encoded = converter.toJson(value)")
-        .addStatement("encoder.encodeString(encoded.toString())")
+        .addCode(
+            """
+            |val encoded = converter.toJson(value)
+            |val serializer = %M(encoded::class.java)
+            |if (serializer != null) {
+            |  encoder.encodeSerializableValue(serializer, encoded)
+            |} else {
+            |  encoder.encodeString(encoded.toString())
+            |}
+            """.trimMargin(),
+            MemberName("kotlinx.serialization", "serializerOrNull")
+        )
         .build()
     serializerTypeSpec.addFunction(serializeFun)
 
-    val jsonDecoder = ClassName("kotlinx.serialization.json", "JsonDecoder")
-    val jsonPrimitive = ClassName("kotlinx.serialization.json", "jsonPrimitive")
     val deserializeFun = FunSpec.builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
         .returns(scalarClassName)
         .addParameter("decoder", Decoder::class)
-        .addStatement("val jsonDecoder = decoder as %T", jsonDecoder)
-        .addStatement("val element = jsonDecoder.decodeJsonElement()")
-        .addStatement("val rawContent = element.%T.content", jsonPrimitive)
-        .addStatement("return converter.toScalar(rawContent)")
+        .addCode(
+            """
+            |val jsonDecoder = decoder as %T
+            |val rawContent: Any = when (val element = jsonDecoder.decodeJsonElement()) {
+            |  is %T -> element.%M.content
+            |  else -> element
+            |}
+            |return converter.toScalar(rawContent)
+            """.trimMargin(),
+            JsonDecoder::class,
+            JsonPrimitive::class,
+            MemberName("kotlinx.serialization.json", "jsonPrimitive")
+        )
         .build()
     serializerTypeSpec.addFunction(deserializeFun)
 

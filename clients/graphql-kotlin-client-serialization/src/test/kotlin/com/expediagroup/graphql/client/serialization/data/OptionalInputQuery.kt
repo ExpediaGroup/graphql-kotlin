@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.client.serialization.data
 
-import com.expediagroup.graphql.client.serialization.data.scalars.OptionalInputSerializer
+import com.expediagroup.graphql.client.serialization.data.scalars.OptionalUUIDListSerializer
+import com.expediagroup.graphql.client.serialization.data.scalars.OptionalUUIDSerializer
 import com.expediagroup.graphql.client.serialization.data.scalars.UUIDSerializer
+import com.expediagroup.graphql.client.serialization.serializers.OptionalScalarSerializer
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import kotlinx.serialization.Required
@@ -40,15 +42,15 @@ class OptionalInputQuery(
     @Serializable
     data class Variables(
         val requiredInput: Int,
-        @Serializable(with = OptionalInputSerializer::class)
+        @Serializable(with = OptionalScalarSerializer::class)
         val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
-        @Serializable(with = OptionalInputSerializer::class)
+        @Serializable(with = OptionalScalarSerializer::class)
         val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
-        @Serializable(with = OptionalInputSerializer::class)
+        @Serializable(with = OptionalScalarSerializer::class)
         val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined,
-        @Serializable(with = OptionalInputSerializer::class)
+        @Serializable(with = OptionalUUIDSerializer::class)
         val optionalUUIDInput: OptionalInput<@Serializable(with = UUIDSerializer::class) UUID> = OptionalInput.Undefined,
-        @Serializable(with = OptionalInputSerializer::class)
+        @Serializable(with = OptionalUUIDListSerializer::class)
         val optionalUUIDListInput: OptionalInput<List<@Serializable(with = UUIDSerializer::class) UUID>> = OptionalInput.Undefined,
     )
 

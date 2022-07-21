@@ -41,7 +41,7 @@ class SimpleQueries(private val repository: BasicObjectRepository) : Query {
     private val random = Random
 
     @GraphQLDescription("Basic `HelloWorld` Query")
-    fun helloWorld(@GraphQLDescription("optional name, defaults to `World` if not specified") name: String?) =
+    fun helloWorld(@GraphQLDescription("optional name, defaults to `World` if not specified") name: String? = null) =
         "Hello ${name ?: "World"}"
 
     @GraphQLDescription("Query that returns enum value")
@@ -128,7 +128,7 @@ class SimpleQueries(private val repository: BasicObjectRepository) : Query {
     }
 
     @GraphQLDescription("Query that accepts some input arguments")
-    fun inputObjectQuery(criteria: SimpleArgument?): Boolean = random.nextBoolean()
+    fun inputObjectQuery(criteria: SimpleArgument? = null): Boolean = random.nextBoolean()
 
     @Deprecated(message = "old query should not be used")
     @GraphQLDescription("Deprecated query that should not be used anymore")

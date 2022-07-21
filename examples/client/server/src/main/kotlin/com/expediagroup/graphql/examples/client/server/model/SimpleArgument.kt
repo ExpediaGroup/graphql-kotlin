@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 @GraphQLDescription("Test input object")
 data class SimpleArgument(
     @GraphQLDescription("New value to be set")
-    val newName: String?,
+    val newName: String? = null,
     @GraphQLDescription("Minimum value for test criteria")
-    val min: Float?,
+    val min: Double? = null,
     @GraphQLDescription("Maximum value for test criteria")
-    val max: Float?
+    val max: Double? = null
 )

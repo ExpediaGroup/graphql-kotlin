@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,24 @@
 package com.expediagroup.graphql.client.jackson.data.scalars
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.databind.util.StdConverter
+import java.util.UUID
+import kotlin.Any
 
-data class UUID(
-    val value: java.util.UUID
-) {
-    @JsonValue
-    fun rawValue() = converter.toJson(value)
+class AnyToUUIDConverter : StdConverter<Any, UUID>() {
+    private val converter: UUIDScalarConverter = UUIDScalarConverter()
 
-    companion object {
-        val converter: UUIDScalarConverter = UUIDScalarConverter()
+    override fun convert(`value`: Any): UUID = converter.toScalar(value)
+}
 
-        @JsonCreator
-        @JvmStatic
-        fun create(rawValue: Any) = UUID(converter.toScalar(rawValue))
-    }
+class UUIDToAnyConverter : StdConverter<UUID, Any>() {
+    private val converter: UUIDScalarConverter = UUIDScalarConverter()
+
+    override fun convert(`value`: UUID): Any = converter.toJson(value)
 }
 
 // scalar converter would not be part of the generated sources
-class UUIDScalarConverter : ScalarConverter<java.util.UUID> {
-    override fun toScalar(rawValue: Any): java.util.UUID = java.util.UUID.fromString(rawValue.toString())
-    override fun toJson(value: java.util.UUID): String = value.toString()
+class UUIDScalarConverter : ScalarConverter<UUID> {
+    override fun toScalar(rawValue: Any): UUID = UUID.fromString(rawValue.toString())
+    override fun toJson(value: UUID): String = value.toString()
 }

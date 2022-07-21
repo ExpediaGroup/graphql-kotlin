@@ -24,6 +24,7 @@ you can build it as
 
 ## Running locally
 
+* Start server in `server-client-example`, see project README for details
 * **[only works after project is build]** Run `Application.kt` directly from your IDE
 * Alternatively you can also use the Maven exec plugin by running `./mvnw exec:java` from the command line
 

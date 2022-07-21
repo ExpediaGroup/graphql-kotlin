@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.jackson
 
 import com.expediagroup.graphql.client.jackson.data.EmptyInputQuery
+import com.expediagroup.graphql.client.jackson.data.EntitiesQuery
 import com.expediagroup.graphql.client.jackson.data.EnumQuery
 import com.expediagroup.graphql.client.jackson.data.FirstQuery
 import com.expediagroup.graphql.client.jackson.data.InputQuery
@@ -26,6 +27,7 @@ import com.expediagroup.graphql.client.jackson.data.PolymorphicQuery
 import com.expediagroup.graphql.client.jackson.data.ScalarQuery
 import com.expediagroup.graphql.client.jackson.data.enums.TestEnum
 import com.expediagroup.graphql.client.jackson.data.polymorphicquery.SecondInterfaceImplementation
+import com.expediagroup.graphql.client.jackson.data.scalars.ProductEntityRepresentation
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLError
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLResponse
 import com.expediagroup.graphql.client.jackson.types.JacksonGraphQLSourceLocation
@@ -178,7 +180,7 @@ class GraphQLClientJacksonSerializerTest {
     @Test
     fun `verify we can serialize custom scalars`() {
         val randomUUID = UUID.randomUUID()
-        val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = com.expediagroup.graphql.client.jackson.data.scalars.UUID(randomUUID)))
+        val scalarQuery = ScalarQuery(variables = ScalarQuery.Variables(alias = "1234", custom = randomUUID))
         val expected =
             """{
             |  "variables" : {
@@ -208,7 +210,7 @@ class GraphQLClientJacksonSerializerTest {
 
         val result = serializer.deserialize(scalarResponse, ScalarQuery(ScalarQuery.Variables()).responseType())
         assertEquals("1234", result.data?.scalarAlias)
-        assertEquals(expectedUUID, result.data?.customScalar?.value)
+        assertEquals(expectedUUID, result.data?.customScalar)
     }
 
     @Test
@@ -318,6 +320,26 @@ class GraphQLClientJacksonSerializerTest {
             |}
         """.trimMargin()
         val serialized = serializer.serialize(query)
+        assertEquals(expected, serialized)
+    }
+
+    @Test
+    fun `verify we can serialize non-primitive custom scalars`() {
+        val entitiesQuery = EntitiesQuery(variables = EntitiesQuery.Variables(representations = listOf(ProductEntityRepresentation(id = "apollo-federation"))))
+        val expected =
+            """{
+            |  "variables" : {
+            |    "representations" : [ {
+            |      "id" : "apollo-federation",
+            |      "__typename" : "Product"
+            |    } ]
+            |  },
+            |  "query" : "ENTITIES_QUERY",
+            |  "operationName" : "EntitiesQuery"
+            |}
+            """.trimMargin()
+
+        val serialized = serializer.serialize(entitiesQuery)
         assertEquals(expected, serialized)
     }
 }

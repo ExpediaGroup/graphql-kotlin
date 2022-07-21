@@ -19,10 +19,12 @@ package com.expediagroup.graphql.examples.client.gradle
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.expediagroup.graphql.generated.AddObjectMutation
+import com.expediagroup.graphql.generated.EntitiesQuery
 import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
+import com.expediagroup.graphql.generated.entitiesquery.Product
 import com.expediagroup.graphql.generated.inputs.BasicObjectInput
 import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
 import io.ktor.client.HttpClient
@@ -32,10 +34,19 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
 fun main() {
+    /*
+     * ************************************************************
+     * Make sure to start example server before running this code
+     * https://github.com/dariuszkuc/graphql-kotlin/blob/client-custom-scalars/examples/client/server/src/main/kotlin/com/expediagroup/graphql/examples/client/server/Application.kt
+     * ************************************************************
+     */
     val httpClient = HttpClient(engineFactory = OkHttp) {
         engine {
             config {
@@ -57,6 +68,8 @@ fun main() {
     runBlocking {
         val helloWorldQuery = HelloWorldQuery(variables = HelloWorldQuery.Variables())
         val helloWorldResult = client.execute(helloWorldQuery)
+        println("\tquery without parameters result: ${helloWorldResult.data?.helloWorld}")
+
         val helloWorldResultImplicit: GraphQLClientResponse<HelloWorldQuery.Result> = client.execute(helloWorldQuery)
 
         val results = client.execute(
@@ -68,7 +81,7 @@ fun main() {
 
         val resultsNoParam = results[0].data as? HelloWorldQuery.Result
         val resultsWithParam = results[1].data as? HelloWorldQuery.Result
-        println("\tquery without parameters result: ${resultsNoParam?.helloWorld}")
+        println("\tquery with null name result: ${resultsNoParam?.helloWorld}")
         println("\tquery with parameters result: ${resultsWithParam?.helloWorld}")
     }
 
@@ -93,6 +106,24 @@ fun main() {
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")
         println("\tretrieved scalar: ${exampleData.data?.scalarQuery}")
         println("\tretrieved example list: [${exampleData.data?.listQuery?.joinToString { it.name }}]")
+    }
+
+    println("entities query")
+    runBlocking {
+        val entity = Json.decodeFromString<JsonObject>(
+            """
+            |{
+            |  "__typename": "Product",
+            |  "id": "apollo-federation"
+            |}
+            """.trimMargin()
+        )
+        val entityData = client.execute(EntitiesQuery(variables = EntitiesQuery.Variables(representations = listOf(entity))))
+        val product = entityData.data?._entities?.get(0) as? Product
+        println("\tretrieved product SKU: ${product?.sku}")
+        println("\tretrieved product package: ${product?.`package`}")
+        println("\tretrieved product variation ID: ${product?.variation?.id}")
+        println("\tretrieved product dimensions: size=${product?.dimensions?.size}, weight=${product?.dimensions?.weight}")
     }
 
     client.close()
