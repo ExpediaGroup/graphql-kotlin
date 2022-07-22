@@ -87,6 +87,44 @@ type SelfReferenceObject {
 }
 """
 
+const val FEDERATED_SERVICE_SDL_V2 =
+"""
+schema @link(url : "https://specs.apollo.dev/link/v1.0/") @link(import : ["extends", "external", "inaccessible", "key", "link", "override", "provides", "requires", "shareable", "tag", "_FieldSet"], url : "https://www.apollographql.com/docs/federation/federation-spec/"){
+  query: Query
+}
+
+interface Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
+  id: String! @external
+  reviews: [Review!]!
+  upc: String! @external
+}
+
+type Book implements Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
+  author: User! @provides(fields : "name")
+  id: String! @external
+  reviews: [Review!]!
+  shippingCost: String! @requires(fields : "weight")
+  upc: String! @external
+  weight: Float! @external
+}
+
+type CustomScalar {
+  value: String!
+}
+
+type Review {
+  body: String!
+  content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
+  customScalar: CustomScalar!
+  id: String!
+}
+
+type User @extends @key(fields : "userId", resolvable : true) {
+  name: String! @external
+  userId: Int! @external
+}
+"""
+
 class ServiceQueryResolverTest {
 
     class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(emptyList()) {
@@ -174,6 +212,36 @@ class ServiceQueryResolverTest {
             assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
                 val sdl = queryResult["sdl"] as? String
                 assertEquals(BASE_SERVICE_SDL.trim(), sdl)
+            }
+        }
+    }
+
+    @Test
+    fun `verify can retrieve Federation v2 SDL using _service query`() {
+        val config = FederatedSchemaGeneratorConfig(
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
+            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = true)
+        )
+
+        val schema = toFederatedSchema(config = config)
+        val query =
+            """
+                query sdlQuery {
+                  _service {
+                    sdl
+                  }
+                }
+            """.trimIndent()
+        val executionInput = ExecutionInput.newExecutionInput()
+            .query(query)
+            .build()
+        val graphQL = GraphQL.newGraphQL(schema).build()
+        val result = graphQL.executeAsync(executionInput).get().toSpecification()
+
+        assertNotNull(result["data"] as? Map<*, *>) { data ->
+            assertNotNull(data["_service"] as? Map<*, *>) { queryResult ->
+                val sdl = queryResult["sdl"] as? String
+                assertEquals(FEDERATED_SERVICE_SDL_V2.trim(), sdl)
             }
         }
     }
