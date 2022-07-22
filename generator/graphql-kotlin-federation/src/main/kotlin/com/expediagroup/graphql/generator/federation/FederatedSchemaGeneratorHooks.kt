@@ -209,7 +209,7 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
         val directivesToInclude: List<String> = federatedDirectiveList().map { it.name }.plus(DEPRECATED_DIRECTIVE_NAME)
         val customDirectivePredicate: Predicate<String> = Predicate { directivesToInclude.contains(it) }
         return schema.print(
-            includeDefaultSchemaDefinition = false,
+            includeDefaultSchemaDefinition = optInFederationV2,
             includeDirectiveDefinitions = false,
             includeDirectivesFilter = customDirectivePredicate
         ).replace(scalarDefinitionRegex, "")
