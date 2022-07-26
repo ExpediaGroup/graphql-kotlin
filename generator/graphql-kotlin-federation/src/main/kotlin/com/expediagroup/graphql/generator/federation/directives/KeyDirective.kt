@@ -28,7 +28,7 @@ import graphql.schema.GraphQLArgument
  * directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
  *
  * # federation v2 definition
- * directive @key(fields: _FieldSet!, resolvable: Boolean) repeatable on OBJECT | INTERFACE
+ * directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
  * ```
  *
  * The @key directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. Key directive should be specified on the root entity type as
@@ -116,6 +116,7 @@ internal val KEY_DIRECTIVE_TYPE_V2: graphql.schema.GraphQLDirective = graphql.sc
         GraphQLArgument.newArgument()
             .name("resolvable")
             .type(Scalars.GraphQLBoolean)
+            .defaultValueProgrammatic(true)
     )
     .repeatable(true)
     .build()
