@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization
 
 import com.expediagroup.graphql.client.serialization.data.EmptyInputQuery
+import com.expediagroup.graphql.client.serialization.data.EntitiesQuery
 import com.expediagroup.graphql.client.serialization.data.EnumQuery
 import com.expediagroup.graphql.client.serialization.data.FirstQuery
 import com.expediagroup.graphql.client.serialization.data.InputQuery
@@ -30,6 +31,9 @@ import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLError
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLResponse
 import com.expediagroup.graphql.client.serialization.types.KotlinxGraphQLSourceLocation
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -330,6 +334,36 @@ class GraphQLClientKotlinXSerializerTest {
             |}
         """.trimMargin()
         val serialized = serializer.serialize(query)
+        assertEquals(expected, serialized)
+    }
+
+    @Test
+    fun `verify we can serialize non-primitive custom scalars`() {
+        val entity = Json.decodeFromString<JsonObject>(
+            """
+            |{
+            |  "__typename": "Product",
+            |  "id": "apollo-federation"
+            |}
+            """.trimMargin()
+        )
+        val entitiesQuery = EntitiesQuery(variables = EntitiesQuery.Variables(representations = listOf(entity)))
+        val expected =
+            """{
+            |    "variables": {
+            |        "representations": [
+            |            {
+            |                "__typename": "Product",
+            |                "id": "apollo-federation"
+            |            }
+            |        ]
+            |    },
+            |    "query": "ENTITIES_QUERY",
+            |    "operationName": "EntitiesQuery"
+            |}
+            """.trimMargin()
+
+        val serialized = serializer.serialize(entitiesQuery)
         assertEquals(expected, serialized)
     }
 }

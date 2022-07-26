@@ -1,0 +1,7 @@
+query EntitiesQuery($representations: [_Any!]!) {
+    _entities(representations: $representations) {
+        __typename
+        ...on Product {sku package variation { id } dimensions { size weight }
+        }
+    }
+}

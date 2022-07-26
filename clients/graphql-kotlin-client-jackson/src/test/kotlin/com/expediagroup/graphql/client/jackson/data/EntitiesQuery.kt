@@ -16,37 +16,33 @@
 
 package com.expediagroup.graphql.client.jackson.data
 
-import com.expediagroup.graphql.client.jackson.data.scalars.AnyToUUIDConverter
-import com.expediagroup.graphql.client.jackson.data.scalars.UUIDToAnyConverter
+import com.expediagroup.graphql.client.jackson.data.entitiesquery._Entity
+import com.expediagroup.graphql.client.jackson.data.scalars.AnyToAnyConverter
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import java.util.UUID
 import kotlin.reflect.KClass
 
-// typealiases would be in separate file
-typealias ID = String
+class EntitiesQuery(
+    override val variables: Variables,
+) : GraphQLClientRequest<EntitiesQuery.Result> {
+    override val query: String = "ENTITIES_QUERY"
 
-class ScalarQuery(
-    override val variables: Variables
-) : GraphQLClientRequest<ScalarQuery.Result> {
-    override val query: String = "SCALAR_QUERY"
-
-    override val operationName: String = "ScalarQuery"
+    override val operationName: String = "EntitiesQuery"
 
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
-        val alias: ID? = null,
-        @JsonSerialize(converter = UUIDToAnyConverter::class)
-        @JsonDeserialize(converter = AnyToUUIDConverter::class)
-        val custom: UUID? = null
+        @JsonSerialize(contentConverter = AnyToAnyConverter::class)
+        @JsonDeserialize(contentConverter = AnyToAnyConverter::class)
+        public val representations: List<Any>,
     )
 
     data class Result(
-        val scalarAlias: ID,
-        @JsonSerialize(converter = UUIDToAnyConverter::class)
-        @JsonDeserialize(converter = AnyToUUIDConverter::class)
-        val customScalar: UUID
+        /**
+         * Union of all types that use the @key directive, including both types native to the schema and
+         * extended types
+         */
+        val _entities: List<_Entity?>,
     )
 }

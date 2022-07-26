@@ -16,6 +16,7 @@ gradle clean build
 
 ## Running locally
 
+* Start server in `server-client-example`, see project README for details
 * **[only works after project is build]** Run `Application.kt` directly from your IDE
 * Alternatively you can also use the Gradle application plugin by running `gradle run` from the command line
 

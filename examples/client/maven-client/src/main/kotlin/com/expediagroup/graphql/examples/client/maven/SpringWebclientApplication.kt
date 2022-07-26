@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ package com.expediagroup.graphql.examples.client.maven
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import com.expediagroup.graphql.generated.AddObjectMutation
+import com.expediagroup.graphql.generated.EntitiesQuery
 import com.expediagroup.graphql.generated.ExampleQuery
 import com.expediagroup.graphql.generated.HelloWorldQuery
 import com.expediagroup.graphql.generated.RetrieveObjectQuery
 import com.expediagroup.graphql.generated.UpdateObjectMutation
+import com.expediagroup.graphql.generated.entitiesquery.Product
 import com.expediagroup.graphql.generated.inputs.BasicObjectInput
 import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
 import io.netty.channel.ChannelOption
@@ -34,6 +36,12 @@ import reactor.netty.http.client.HttpClient
 import java.time.Duration
 
 fun main() {
+    /*
+     * ************************************************************
+     * Make sure to start example server before running this code
+     * https://github.com/dariuszkuc/graphql-kotlin/blob/client-custom-scalars/examples/client/server/src/main/kotlin/com/expediagroup/graphql/examples/client/server/Application.kt
+     * ************************************************************
+     */
     val httpClient: HttpClient = HttpClient.create()
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
         .responseTimeout(Duration.ofMillis(60_000))
@@ -81,5 +89,15 @@ fun main() {
         println("\tretrieved union: ${exampleData.data?.unionQuery} ")
         println("\tretrieved enum: ${exampleData.data?.enumQuery} ")
         println("\tretrieved example list: [${exampleData.data?.listQuery?.joinToString { it.name }}]")
+    }
+
+    println("entities query")
+    runBlocking {
+        val entityData = client.execute(EntitiesQuery(variables = EntitiesQuery.Variables(representations = listOf(ProductEntityRepresentation(id = "apollo-federation")))))
+        val product = entityData.data?._entities?.get(0) as? Product
+        println("\tretrieved product SKU: ${product?.sku}")
+        println("\tretrieved product package: ${product?.`package`}")
+        println("\tretrieved product variation ID: ${product?.variation?.id}")
+        println("\tretrieved product dimensions: size=${product?.dimensions?.size}, weight=${product?.dimensions?.weight}")
     }
 }

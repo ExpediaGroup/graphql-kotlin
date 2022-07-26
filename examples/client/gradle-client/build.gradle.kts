@@ -32,8 +32,9 @@ graphql {
         allowDeprecatedFields = true
         headers = mapOf("X-Custom-Header" to "My-Custom-Header")
         customScalars = listOf(
-            GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.examples.client.gradle.UUIDScalarConverter"),
+            GraphQLScalar("_Any", "kotlinx.serialization.json.JsonObject", "com.expediagroup.graphql.examples.client.gradle.AnyScalarConverter"),
             GraphQLScalar("Locale", "com.ibm.icu.util.ULocale", "com.expediagroup.graphql.examples.client.gradle.ULocaleScalarConverter"),
+            GraphQLScalar("UUID", "java.util.UUID", "com.expediagroup.graphql.examples.client.gradle.UUIDScalarConverter"),
         )
         serializer = GraphQLSerializer.KOTLINX
     }

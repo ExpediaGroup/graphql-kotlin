@@ -1,48 +1,80 @@
-schema {
-  query: Query
-  mutation: Mutation
+schema @link(url : "https://specs.apollo.dev/link/v1.0/") @link(import : ["extends", "external", "inaccessible", "key", "link", "override", "provides", "requires", "shareable", "tag", "_FieldSet"], url : "https://www.apollographql.com/docs/federation/federation-spec/"){
+    query: Query
+    mutation: Mutation
 }
+
+"Marks the field, argument, input field or enum value as deprecated"
+directive @deprecated(
+    "The reason for the deprecation"
+    reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+"Marks target object as extending part of the federated schema"
+directive @extends on OBJECT | INTERFACE
+
+"Marks target field as external meaning it will be resolved by federated schema"
+directive @external on FIELD_DEFINITION
+
+"Marks location within schema as inaccessible from the GraphQL Gateway"
+directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 "Directs the executor to include this field or fragment only when the `if` argument is true"
 directive @include(
     "Included when true."
     if: Boolean!
-  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Space separated list of primary keys needed to access federated object"
+directive @key(fields: _FieldSet!, resolvable: Boolean) repeatable on OBJECT | INTERFACE
+
+"Links definitions within the document to external schemas."
+directive @link(import: [String], url: String) repeatable on SCHEMA
+
+"Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
+directive @override(from: String!) repeatable on FIELD_DEFINITION
+
+"Specifies the base type field set that will be selectable by the gateway"
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+"Specifies required input field set from the base type for a resolver"
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+
+"Indicates that given object and/or field can be resolved by multiple subgraphs"
+directive @shareable on OBJECT | FIELD_DEFINITION
 
 "Directs the executor to skip this field or fragment when the `if`'argument is true."
 directive @skip(
     "Skipped when true."
     if: Boolean!
-  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-"Marks the field or enum value as deprecated"
-directive @deprecated(
-    "The reason for the deprecation"
-    reason: String = "No longer supported"
-  ) on FIELD_DEFINITION | ENUM_VALUE
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 "Exposes a URL that specifies the behaviour of this scalar."
 directive @specifiedBy(
     "The URL that specifies the behaviour of this scalar."
     url: String!
-  ) on SCALAR
+) on SCALAR
+
+"Allows users to annotate fields and types with additional metadata information"
+directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 "Very basic interface"
 interface BasicInterface {
-  "Unique identifier of an interface"
-  id: Int!
-  "Name field"
-  name: String!
+    "Unique identifier of an interface"
+    id: Int!
+    "Name field"
+    name: String!
 }
 
 "Very basic union of BasicObject and ComplexObject"
 union BasicUnion = BasicObject | ComplexObject
 
+union _Entity = Product | User
+
 "Some basic description"
 type BasicObject {
-  id: Int!
-  "Object name"
-  name: String!
+    id: Int!
+    "Object name"
+    name: String!
 }
 
 """
@@ -51,147 +83,187 @@ This is a second line of the paragraph.
 This is final line of the description.
 """
 type ComplexObject {
-  "Some additional details"
-  details: DetailsObject!
-  "Some unique identifier"
-  id: Int!
-  "Some object name"
-  name: String!
-  """
-  Optional value
-  Second line of the description
-  """
-  optional: String
+    "Some additional details"
+    details: DetailsObject!
+    "Some unique identifier"
+    id: Int!
+    "Some object name"
+    name: String!
+    """
+    Optional value
+    |Second line of the description
+    """
+    optional: String
 }
 
 "Inner type object description"
 type DetailsObject {
-  "Boolean flag"
-  flag: Boolean!
-  "Unique identifier"
-  id: Int!
-  "Actual detail value"
-  value: String!
+    "Boolean flag"
+    flag: Boolean!
+    "Unique identifier"
+    id: Int!
+    "Actual detail value"
+    value: String!
 }
 
 "Example interface implementation where value is an integer"
 type FirstInterfaceImplementation implements BasicInterface {
-  "Unique identifier of the first implementation"
-  id: Int!
-  "Custom field integer value"
-  intValue: Int!
-  "Name of the first implementation"
-  name: String!
+    "Unique identifier of the first implementation"
+    id: Int!
+    "Custom field integer value"
+    intValue: Int!
+    "Name of the first implementation"
+    name: String!
 }
 
 type Mutation {
-  "Add object to the repository"
-  addBasicObject(newObject: BasicObjectInput!): BasicObject
-  "Delete object from repository"
-  deleteBasicObject(id: Int!): BasicObject
-  "Update existing object in the repository"
-  updateBasicObject(updatedObject: BasicObjectInput!): BasicObject
+    "Add object to the repository"
+    addBasicObject(newObject: BasicObjectInput!): BasicObject
+    "Delete object from repository"
+    deleteBasicObject(id: Int!): BasicObject
+    "Update existing object in the repository"
+    updateBasicObject(updatedObject: BasicObjectInput!): BasicObject
 }
 
 "Example of an object self-referencing itself"
 type NestedObject {
-  "Children elements"
-  children: [NestedObject!]!
-  "Unique identifier"
-  id: Int!
-  "Name of the object"
-  name: String!
+    "Children elements"
+    children: [NestedObject!]!
+    "Unique identifier"
+    id: Int!
+    "Name of the object"
+    name: String!
 }
 
-type Query {
-  "Query returning an object that references another object"
-  complexObjectQuery: ComplexObject!
-  "Deprecated query that should not be used anymore"
-  deprecatedQuery: String! @deprecated(reason : "old query should not be used")
-  "Query that returns enum value"
-  enumQuery: CustomEnum!
-  "Basic `HelloWorld` Query"
-  helloWorld(
-    "optional name, defaults to `World` if not specified"
-    name: String
-  ): String!
-  "Query that accepts some input arguments"
-  inputObjectQuery(criteria: SimpleArgumentInput): Boolean!
-  "Query returning an interface"
-  interfaceQuery: BasicInterface!
-  "Query returning list of simple objects"
-  listQuery: [BasicObject!]!
-  "Query returning object referencing itself"
-  nestedObjectQuery: NestedObject!
-  "Retrieve simple object from the repository"
-  retrieveBasicObject(id: Int!): BasicObject
-  "Query that returns wrapper object with all supported scalar types"
-  scalarQuery: ScalarWrapper!
-  "Query returning union"
-  unionQuery: BasicUnion!
+type Product @key(fields : "id", resolvable : true) {
+    createdBy: User @provides(fields : "totalProductsCreated")
+    dimensions: ProductDimension
+    id: ID!
+    notes: String @tag(name : "internal")
+    package: String
+    sku: String
+    variation: ProductVariation
+}
+
+type ProductDimension @shareable {
+    size: String
+    unit: String @inaccessible
+    weight: Float
+}
+
+type ProductVariation {
+    id: ID!
+}
+
+type Query @extends {
+    "Union of all types that use the @key directive, including both types native to the schema and extended types"
+    _entities(representations: [_Any!]!): [_Entity]!
+    _service: _Service!
+    "Query returning an object that references another object"
+    complexObjectQuery: ComplexObject!
+    "Deprecated query that should not be used anymore"
+    deprecatedQuery: String! @deprecated(reason : "old query should not be used")
+    "Query that returns enum value"
+    enumQuery: CustomEnum!
+    "Basic `HelloWorld` Query"
+    helloWorld(
+        "optional name, defaults to `World` if not specified"
+        name: String
+    ): String!
+    "Query that accepts some input arguments"
+    inputObjectQuery(criteria: SimpleArgumentInput): Boolean!
+    "Query returning an interface"
+    interfaceQuery: BasicInterface!
+    "Query returning list of simple objects"
+    listQuery: [BasicObject!]!
+    "Query returning object referencing itself"
+    nestedObjectQuery: NestedObject!
+    product(id: ID!): Product
+    "Retrieve simple object from the repository"
+    retrieveBasicObject(id: Int!): BasicObject
+    "Query that returns wrapper object with all supported scalar types"
+    scalarQuery: ScalarWrapper!
+    "Query returning union"
+    unionQuery: BasicUnion!
 }
 
 "Wrapper that holds all supported scalar types"
 type ScalarWrapper {
-  "A signed 32-bit nullable integer value"
-  count: Int
-  "Custom scalar"
-  custom: UUID!
-  "List of custom scalars"
-  customList: [UUID!]!
-  "ID represents unique identifier that is not intended to be human readable"
-  id: ID!
-  "UTF-8 character sequence"
-  name: String!
-  "A nullable signed double-precision floating-point value"
-  rating: Float
-  "Either true or false"
-  valid: Boolean!
-  "Custom scalar of Locale"
-  locale: Locale!
-  "List of custom scalar Locales"
-  listLocale: [Locale!]!
+    "A signed 32-bit nullable integer value"
+    count: Int
+    "Custom scalar of UUID"
+    custom: UUID!
+    "List of custom scalar UUIDs"
+    customList: [UUID!]!
+    "ID represents unique identifier that is not intended to be human readable"
+    id: ID!
+    "List of custom scalar Locales"
+    listLocale: [Locale!]!
+    "Custom scalar of Locale"
+    locale: Locale!
+    "UTF-8 character sequence"
+    name: String!
+    "A nullable signed double-precision floating-point value"
+    rating: Float
+    "Either true or false"
+    valid: Boolean!
 }
 
 "Example interface implementation where value is a float"
 type SecondInterfaceImplementation implements BasicInterface {
-  "Custom field float value"
-  floatValue: Float!
-  "Unique identifier of the second implementation"
-  id: Int!
-  "Name of the second implementation"
-  name: String!
+    "Custom field float value"
+    floatValue: Float!
+    "Unique identifier of the second implementation"
+    id: Int!
+    "Name of the second implementation"
+    name: String!
+}
+
+type User @extends @key(fields : "email", resolvable : true) {
+    email: String! @external
+    name: String! @override(from : "users")
+    totalProductsCreated: Int @external
+}
+
+type _Service {
+    sdl: String!
 }
 
 "Custom enum description"
 enum CustomEnum {
-  "First enum value"
-  ONE
-  "Third enum value"
-  THREE @deprecated(reason : "only goes up to two")
-  "Second enum value"
-  TWO
+    "First enum value"
+    ONE
+    "Third enum value"
+    THREE @deprecated(reason : "only goes up to two")
+    "Second enum value"
+    TWO
 }
-
-"Custom scalar representing UUID"
-scalar UUID
 
 "A type representing a Locale such as en_US or fr_FR"
 scalar Locale
 
+"Custom scalar representing UUID"
+scalar UUID
+
+"Federation scalar type used to represent any external entities passed to _entities query."
+scalar _Any
+
+"Federation type representing set of fields"
+scalar _FieldSet
+
 "Some basic description"
 input BasicObjectInput {
-  id: Int!
-  "Object name"
-  name: String!
+    id: Int!
+    "Object name"
+    name: String!
 }
 
 "Test input object"
 input SimpleArgumentInput {
-  "Maximum value for test criteria"
-  max: Float
-  "Minimum value for test criteria"
-  min: Float
-  "New value to be set"
-  newName: String
+    "Maximum value for test criteria"
+    max: Float
+    "Minimum value for test criteria"
+    min: Float
+    "New value to be set"
+    newName: String
 }
