@@ -26,7 +26,7 @@ import org.dataloader.DataLoaderFactory
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 
-class BatchLoaderEnvironmentExtensions {
+class BatchLoaderEnvironmentExtensionsTest {
     @Test
     fun `BatchLoaderEnvironment should access to the DataFetchingEnvironment`() {
         val stringMapperDataLoader = DataLoaderFactory.newDataLoader<String, String> { keys, batchLoaderEnvironment ->
