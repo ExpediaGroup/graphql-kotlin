@@ -55,7 +55,7 @@ private val FEDERATED_SDL_V2 =
       ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     "Space separated list of primary keys needed to access federated object"
-    directive @key(fields: _FieldSet!, resolvable: Boolean) repeatable on OBJECT | INTERFACE
+    directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
     "Links definitions within the document to external schemas."
     directive @link(import: [String], url: String) repeatable on SCHEMA

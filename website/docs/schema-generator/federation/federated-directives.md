@@ -168,7 +168,7 @@ type Product {
 directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 
 # federation v2 definition
-directive @key(fields: _FieldSet!, resolvable: Boolean) repeatable on OBJECT | INTERFACE
+directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 ```
 
 The `@key` directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an
