@@ -81,10 +81,11 @@ class PolymorphicQueryIT(@Autowired private val testClient: WebTestClient) {
             .bodyValue("query { $query(type: $unknownType) { type, sound } }")
             .exchange()
             .expectStatus().isOk
+            .verifyError("Validation error")
+            .verifyError("WrongType")
             .verifyError(
-                "Validation error of type WrongType: " +
-                    "argument 'type' with value 'EnumValue{name='$unknownType'}' is not a valid 'AnimalType' - " +
-                    "Expected enum literal value not in allowable values -  'EnumValue{name='HELLO'}'. @ 'animal'"
+                "argument 'type' with value 'EnumValue{name='$unknownType'}' is not a valid 'AnimalType' - " +
+                    "Expected enum literal value not in allowable values -  'EnumValue{name='HELLO'}'"
             )
     }
 

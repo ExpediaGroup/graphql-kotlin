@@ -25,6 +25,8 @@ import graphql.execution.ExecutionStrategy
 import graphql.execution.ExecutionStrategyParameters
 import graphql.execution.SimpleDataFetcherExceptionHandler
 import graphql.execution.SubscriptionExecutionStrategy
+import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
+import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters
@@ -55,7 +57,9 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         val instrumentation = executionContext.instrumentation
         val instrumentationParameters = InstrumentationExecutionStrategyParameters(executionContext, parameters)
-        val executionStrategyCtx = instrumentation.beginExecutionStrategy(instrumentationParameters)
+        val executionStrategyCtx = ExecutionStrategyInstrumentationContext.nonNullCtx(
+            instrumentation.beginExecutionStrategy(instrumentationParameters, executionContext.instrumentationState)
+        )
 
         val sourceEventStream = createSourceEventStream(executionContext, parameters)
 
@@ -142,7 +146,9 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         val subscribedFieldStepInfo = createSubscribedFieldStepInfo(executionContext, newParameters)
 
         val i13nFieldParameters = InstrumentationFieldParameters(executionContext) { subscribedFieldStepInfo }
-        val subscribedFieldCtx = instrumentation.beginSubscribedFieldEvent(i13nFieldParameters)
+        val subscribedFieldCtx = SimpleInstrumentationContext.nonNullCtx(
+            instrumentation.beginSubscribedFieldEvent(i13nFieldParameters, executionContext.instrumentationState)
+        )
 
         val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, parameters, eventPayload)
 
@@ -161,7 +167,7 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         )
 
         return overallResult.thenCompose { executionResult ->
-            instrumentation.instrumentExecutionResult(executionResult, i13ExecutionParameters)
+            instrumentation.instrumentExecutionResult(executionResult, i13ExecutionParameters, executionContext.instrumentationState)
         }
     }
 

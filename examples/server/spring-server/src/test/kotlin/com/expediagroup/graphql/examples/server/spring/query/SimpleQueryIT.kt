@@ -73,8 +73,9 @@ class SimpleQueryIT(@Autowired private val testClient: WebTestClient) {
     @Test
     fun `verify notPartOfSchema query`() {
         val query = "notPartOfSchema"
-        val expectedError = "Validation error of type FieldUndefined: " +
-            "Field 'notPartOfSchema' in type 'Query' is undefined @ 'notPartOfSchema'"
+        val expectedErrorOne = "Validation error"
+        val expectedErrorTwo = "FieldUndefined"
+        val expectedErrorThree = "Field 'notPartOfSchema' in type 'Query' is undefined"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
@@ -82,14 +83,17 @@ class SimpleQueryIT(@Autowired private val testClient: WebTestClient) {
             .contentType(GRAPHQL_MEDIA_TYPE)
             .bodyValue("query { $query }")
             .exchange()
-            .verifyError(expectedError)
+            .verifyError(expectedErrorOne)
+            .verifyError(expectedErrorTwo)
+            .verifyError(expectedErrorThree)
     }
 
     @Test
     fun `verify privateFunctionsAreNotVisible query`() {
         val query = "privateFunctionsAreNotVisible"
-        val expectedError = "Validation error of type FieldUndefined: " +
-            "Field 'privateFunctionsAreNotVisible' in type 'Query' is undefined @ 'privateFunctionsAreNotVisible'"
+        val expectedErrorOne = "Validation error"
+        val expectedErrorTwo = "FieldUndefined"
+        val expectedErrorThree = "Field 'privateFunctionsAreNotVisible' in type 'Query' is undefined"
 
         testClient.post()
             .uri(GRAPHQL_ENDPOINT)
@@ -97,7 +101,9 @@ class SimpleQueryIT(@Autowired private val testClient: WebTestClient) {
             .contentType(GRAPHQL_MEDIA_TYPE)
             .bodyValue("query { $query }")
             .exchange()
-            .verifyError(expectedError)
+            .verifyError(expectedErrorOne)
+            .verifyError(expectedErrorTwo)
+            .verifyError(expectedErrorThree)
     }
 
     @Test
