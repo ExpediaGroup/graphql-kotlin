@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,10 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         val instrumentation = executionContext.instrumentation
         val instrumentationParameters = InstrumentationExecutionStrategyParameters(executionContext, parameters)
         val executionStrategyCtx = ExecutionStrategyInstrumentationContext.nonNullCtx(
-            instrumentation.beginExecutionStrategy(instrumentationParameters, executionContext.instrumentationState)
+            instrumentation.beginExecutionStrategy(
+                instrumentationParameters,
+                executionContext.instrumentationState
+            )
         )
 
         val sourceEventStream = createSourceEventStream(executionContext, parameters)
@@ -147,7 +150,9 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
 
         val i13nFieldParameters = InstrumentationFieldParameters(executionContext) { subscribedFieldStepInfo }
         val subscribedFieldCtx = SimpleInstrumentationContext.nonNullCtx(
-            instrumentation.beginSubscribedFieldEvent(i13nFieldParameters, executionContext.instrumentationState)
+            instrumentation.beginSubscribedFieldEvent(
+                i13nFieldParameters, executionContext.instrumentationState
+            )
         )
 
         val fetchedValue = unboxPossibleDataFetcherResult(newExecutionContext, parameters, eventPayload)
@@ -162,12 +167,12 @@ class FlowSubscriptionExecutionStrategy(dfe: DataFetcherExceptionHandler) : Exec
         overallResult.whenComplete(subscribedFieldCtx::onCompleted)
 
         // allow them to instrument each ER should they want to
-        val i13ExecutionParameters = InstrumentationExecutionParameters(
+        val i13nExecutionParameters = InstrumentationExecutionParameters(
             executionContext.executionInput, executionContext.graphQLSchema, executionContext.instrumentationState
         )
 
         return overallResult.thenCompose { executionResult ->
-            instrumentation.instrumentExecutionResult(executionResult, i13ExecutionParameters, executionContext.instrumentationState)
+            instrumentation.instrumentExecutionResult(executionResult, i13nExecutionParameters, executionContext.instrumentationState)
         }
     }
 
