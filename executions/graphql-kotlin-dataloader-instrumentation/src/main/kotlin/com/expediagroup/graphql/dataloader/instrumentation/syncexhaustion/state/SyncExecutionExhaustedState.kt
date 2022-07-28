@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
-import com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution.OnSyncExecutionExhaustedCallback
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -25,7 +24,6 @@ import graphql.GraphQLContext
 import graphql.execution.MergedField
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
-import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -51,9 +49,9 @@ class SyncExecutionExhaustedState(
      */
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
-    ): InstrumentationContext<ExecutionResult> {
+    ): InstrumentationContext<ExecutionResult>? {
         executions[parameters.executionContext.executionInput] = ExecutionBatchState()
-        return SimpleInstrumentationContext.noOp()
+        return null
     }
 
     /**
@@ -65,7 +63,7 @@ class SyncExecutionExhaustedState(
      */
     fun beginExecutionStrategy(
         parameters: InstrumentationExecutionStrategyParameters
-    ): ExecutionStrategyInstrumentationContext {
+    ): ExecutionStrategyInstrumentationContext? {
         val executionInput = parameters.executionContext.executionInput
 
         executions.computeIfPresent(executionInput) { _, executionState ->
@@ -79,7 +77,8 @@ class SyncExecutionExhaustedState(
             executionState.addExecutionStrategyState(field, path, selectionFields, parentGraphQLType)
             executionState
         }
-        return NoOpExecutionStrategyInstrumentationContext
+
+        return null
     }
 
     /**
@@ -129,7 +128,7 @@ class SyncExecutionExhaustedState(
     /**
      * Provide the information about when all [ExecutionInput] sharing a [GraphQLContext] exhausted their execution
      * A Synchronous Execution is considered Exhausted when all [DataFetcher]s of all paths were executed up until
-     * an scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
+     * a scalar leaf or a [DataFetcher] that returns a [CompletableFuture]
      */
     fun allSyncExecutionsExhausted(): Boolean = synchronized(executions) {
         when {

@@ -16,17 +16,16 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.execution
 
-import com.expediagroup.graphql.dataloader.instrumentation.NoOpExecutionStrategyInstrumentationContext
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.isMutation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
 import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.GraphQLContext
+import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
-import graphql.execution.instrumentation.SimpleInstrumentation
-import graphql.execution.instrumentation.SimpleInstrumentationContext
+import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -40,7 +39,7 @@ internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionInput>) -> 
  * Custom GraphQL [Instrumentation] that calculate the synchronous execution exhaustion
  * of all GraphQL operations sharing the same [GraphQLContext]
  */
-abstract class AbstractSyncExecutionExhaustedInstrumentation : SimpleInstrumentation() {
+abstract class AbstractSyncExecutionExhaustedInstrumentation : Instrumentation {
     /**
      * This is invoked each time instrumentation attempts to calculate exhaustion state, this can be called from either
      * `beginFieldField.dispatch` or `beginFieldFetch.complete`.
@@ -53,25 +52,26 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimpleInstrumenta
     ): OnSyncExecutionExhaustedCallback
 
     override fun beginExecuteOperation(
-        parameters: InstrumentationExecuteOperationParameters
-    ): InstrumentationContext<ExecutionResult> =
-        parameters.executionContext.takeIf { !it.isMutation() }
+        parameters: InstrumentationExecuteOperationParameters,
+        state: InstrumentationState?
+    ): InstrumentationContext<ExecutionResult>? =
+        parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginExecuteOperation(parameters)
-            ?: SimpleInstrumentationContext.noOp()
 
     override fun beginExecutionStrategy(
-        parameters: InstrumentationExecutionStrategyParameters
-    ): ExecutionStrategyInstrumentationContext =
-        parameters.executionContext.takeIf { !it.isMutation() }
+        parameters: InstrumentationExecutionStrategyParameters,
+        state: InstrumentationState?
+    ): ExecutionStrategyInstrumentationContext? =
+        parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginExecutionStrategy(parameters)
-            ?: NoOpExecutionStrategyInstrumentationContext
 
     override fun beginFieldFetch(
-        parameters: InstrumentationFieldFetchParameters
-    ): InstrumentationContext<Any> =
-        parameters.executionContext.takeIf { !it.isMutation() }
+        parameters: InstrumentationFieldFetchParameters,
+        state: InstrumentationState?
+    ): InstrumentationContext<Any>? =
+        parameters.executionContext.takeUnless(ExecutionContext::isMutation)
             ?.graphQLContext?.get<SyncExecutionExhaustedState>(SyncExecutionExhaustedState::class)
             ?.beginFieldFetch(
                 parameters,
@@ -79,5 +79,4 @@ abstract class AbstractSyncExecutionExhaustedInstrumentation : SimpleInstrumenta
                     SyncExecutionExhaustedInstrumentationParameters(parameters.executionContext)
                 )
             )
-            ?: SimpleInstrumentationContext.noOp()
 }

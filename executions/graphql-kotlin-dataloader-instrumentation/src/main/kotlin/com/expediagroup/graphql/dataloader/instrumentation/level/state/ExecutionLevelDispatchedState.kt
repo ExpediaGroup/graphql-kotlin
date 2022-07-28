@@ -24,7 +24,6 @@ import graphql.ExecutionResult
 import graphql.execution.FieldValueInfo
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.InstrumentationContext
-import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -49,12 +48,9 @@ class ExecutionLevelDispatchedState(
      */
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
-    ): InstrumentationContext<ExecutionResult> {
-        val executionState = ExecutionBatchState(parameters.executionContext.getDocumentHeight())
-        executions.computeIfAbsent(parameters.executionContext.executionInput) {
-            executionState
-        }
-        return SimpleInstrumentationContext.noOp()
+    ): InstrumentationContext<ExecutionResult>? {
+        executions[parameters.executionContext.executionInput] = ExecutionBatchState(parameters.executionContext.getDocumentHeight())
+        return null
     }
 
     /**
