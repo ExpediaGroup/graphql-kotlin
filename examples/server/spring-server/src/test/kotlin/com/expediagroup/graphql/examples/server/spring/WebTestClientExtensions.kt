@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring
 
+import org.hamcrest.core.StringContains
 import org.springframework.test.web.reactive.server.WebTestClient
 
 fun WebTestClient.ResponseSpec.verifyOnlyDataExists(expectedQuery: String): WebTestClient.BodyContentSpec {
@@ -34,10 +35,14 @@ fun WebTestClient.ResponseSpec.verifyData(
         .jsonPath("$DATA_JSON_PATH.$expectedQuery").isEqualTo(expectedData)
 }
 
-fun WebTestClient.ResponseSpec.verifyError(expectedError: String): WebTestClient.BodyContentSpec {
+fun WebTestClient.ResponseSpec.verifyError(expectedErrorSubString: String): WebTestClient.BodyContentSpec {
     return this.expectStatus().isOk
         .expectBody()
-        .jsonPath(DATA_JSON_PATH).doesNotExist()
-        .jsonPath("$ERRORS_JSON_PATH.[0].message").isEqualTo(expectedError)
+        .verifyError(expectedErrorSubString)
+}
+
+fun WebTestClient.BodyContentSpec.verifyError(expectedErrorSubString: String): WebTestClient.BodyContentSpec {
+    return this.jsonPath(DATA_JSON_PATH).doesNotExist()
+        .jsonPath("$ERRORS_JSON_PATH.[0].message").value(StringContains.containsString(expectedErrorSubString))
         .jsonPath(EXTENSIONS_JSON_PATH).doesNotExist()
 }
