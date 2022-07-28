@@ -49,7 +49,9 @@ class ExecutionLevelDispatchedState(
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult>? {
-        executions[parameters.executionContext.executionInput] = ExecutionBatchState(parameters.executionContext.getDocumentHeight())
+        executions.computeIfAbsent(parameters.executionContext.executionInput) {
+            ExecutionBatchState(parameters.executionContext.getDocumentHeight())
+        }
         return null
     }
 

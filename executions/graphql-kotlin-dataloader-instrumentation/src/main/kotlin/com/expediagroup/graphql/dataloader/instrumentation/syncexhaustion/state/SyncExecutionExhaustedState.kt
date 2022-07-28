@@ -50,7 +50,9 @@ class SyncExecutionExhaustedState(
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult>? {
-        executions[parameters.executionContext.executionInput] = ExecutionBatchState()
+        executions.computeIfAbsent(parameters.executionContext.executionInput) {
+            ExecutionBatchState()
+        }
         return null
     }
 
