@@ -48,11 +48,11 @@ class GraphQLGradlePluginAndroidIT {
             )
             .withEnvironment(
                 System.getenv() +
-                mapOf(
-                    "GRAPHQL_KOTLIN_VERSION" to DEFAULT_PLUGIN_VERSION,
-                    "KOTLIN_VERSION" to kotlinVersion,
-                    "ANDROID_PLUGIN_VERSION" to androidPluginVersion
-                )
+                    mapOf(
+                        "GRAPHQL_KOTLIN_VERSION" to DEFAULT_PLUGIN_VERSION,
+                        "KOTLIN_VERSION" to kotlinVersion,
+                        "ANDROID_PLUGIN_VERSION" to androidPluginVersion
+                    )
             )
             .forwardOutput()
             .build()
