@@ -42,7 +42,17 @@ class GraphQLGradlePluginAndroidIT {
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
-            .withArguments("build", "--stacktrace", "-PGRAPHQL_KOTLIN_VERSION=$DEFAULT_PLUGIN_VERSION", "-PKOTLIN_VERSION=$kotlinVersion", "-PANDROID_PLUGIN_VERSION=$androidPluginVersion")
+            .withArguments(
+                "build",
+                "--stacktrace"
+            )
+            .withEnvironment(
+                mapOf(
+                    "GRAPHQL_KOTLIN_VERSION" to DEFAULT_PLUGIN_VERSION,
+                    "KOTLIN_VERSION" to kotlinVersion,
+                    "ANDROID_PLUGIN_VERSION" to androidPluginVersion
+                )
+            )
             .forwardOutput()
             .build()
 
