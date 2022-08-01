@@ -7,6 +7,7 @@ val reactorExtensionsVersion: String by project
 
 dependencies {
     api("com.graphql-java:java-dataloader:$graphQLJavaDataLoaderVersion")
+    testImplementation(project(path = ":graphql-kotlin-schema-generator"))
     testImplementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
     testImplementation("io.projectreactor:reactor-core:$reactorVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

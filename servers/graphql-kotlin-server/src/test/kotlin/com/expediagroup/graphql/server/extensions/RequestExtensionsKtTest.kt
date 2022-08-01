@@ -21,6 +21,7 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.mockk
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderOptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -64,7 +65,7 @@ class RequestExtensionsKtTest {
         val dataLoaderRegistry = KotlinDataLoaderRegistryFactory(
             object : KotlinDataLoader<String, String> {
                 override val dataLoaderName: String = "abc"
-                override fun getDataLoader(): DataLoader<String, String> = mockk()
+                override fun getDataLoader(options: DataLoaderOptions): DataLoader<String, String> = mockk()
             }
         ).generate()
 

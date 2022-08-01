@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.dataloader
 
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderOptions
 
 /**
  * Wrapper around the [DataLoader] class so we can have common logic around registering the loaders
@@ -24,5 +25,10 @@ import org.dataloader.DataLoader
  */
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+    fun getDataLoader(options: DataLoaderOptions): DataLoader<K, V> = getDataLoader()
+    @Deprecated(
+        "Should use getDataLoader(options) instead",
+        replaceWith = ReplaceWith("getDataLoader(DataLoaderOptions.newOptions)")
+    )
+    fun getDataLoader(): DataLoader<K, V> = TODO("${this::class} needs to implement getDataLoader")
 }

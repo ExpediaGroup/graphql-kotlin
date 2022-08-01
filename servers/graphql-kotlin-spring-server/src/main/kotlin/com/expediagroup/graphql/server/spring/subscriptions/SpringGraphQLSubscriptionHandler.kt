@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderOptionsFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.extensions.toExecutionInput
@@ -35,7 +36,8 @@ import kotlinx.coroutines.flow.map
  */
 open class SpringGraphQLSubscriptionHandler(
     private val graphQL: GraphQL,
-    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
+    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null,
+    private val dataLoaderOptions: KotlinDataLoaderOptionsFactory = KotlinDataLoaderOptionsFactory()
 ) {
 
     fun executeSubscription(
@@ -43,7 +45,7 @@ open class SpringGraphQLSubscriptionHandler(
         context: GraphQLContext?,
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
     ): Flow<GraphQLResponse<*>> {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(dataLoaderOptions.generate(graphQLContext))
         val input = graphQLRequest.toExecutionInput(dataLoaderRegistry, context, graphQLContext)
 
         return graphQL.execute(input)

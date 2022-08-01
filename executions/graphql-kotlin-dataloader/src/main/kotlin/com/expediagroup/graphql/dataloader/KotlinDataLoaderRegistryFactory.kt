@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.dataloader
 
+import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
 
 /**
@@ -30,12 +31,12 @@ class KotlinDataLoaderRegistryFactory(
     /**
      * Generate [KotlinDataLoaderRegistry] to be used for GraphQL request execution.
      */
-    fun generate(): KotlinDataLoaderRegistry {
+    fun generate(options: DataLoaderOptions = DataLoaderOptions.newOptions()): KotlinDataLoaderRegistry {
         val registry = DataLoaderRegistry()
         dataLoaders.forEach { dataLoader ->
             registry.register(
                 dataLoader.dataLoaderName,
-                dataLoader.getDataLoader()
+                dataLoader.getDataLoader(options)
             )
         }
         return KotlinDataLoaderRegistry(registry)

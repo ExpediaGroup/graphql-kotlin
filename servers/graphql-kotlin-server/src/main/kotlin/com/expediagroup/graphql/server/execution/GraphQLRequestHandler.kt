@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderOptionsFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
@@ -45,7 +46,8 @@ import kotlinx.coroutines.supervisorScope
 
 open class GraphQLRequestHandler(
     private val graphQL: GraphQL,
-    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null
+    private val dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory? = null,
+    private val dataLoaderOptions: KotlinDataLoaderOptionsFactory = KotlinDataLoaderOptionsFactory()
 ) {
 
     private val batchDataLoaderInstrumentationType: Class<Instrumentation>? =
@@ -71,7 +73,7 @@ open class GraphQLRequestHandler(
         context: GraphQLContext? = null,
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
     ): GraphQLServerResponse {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(dataLoaderOptions.generate(graphQLContext))
         return when (graphQLRequest) {
             is GraphQLRequest -> {
                 val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)

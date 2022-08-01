@@ -15,11 +15,18 @@
  */
 
 package com.expediagroup.graphql.dataloader
-
+import com.expediagroup.graphql.generator.extensions.get
+import graphql.GraphQLContext
 import io.mockk.mockk
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
+import org.dataloader.DataLoaderOptions
 import org.junit.jupiter.api.Test
+import reactor.kotlin.core.publisher.toMono
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class KotlinDataLoaderRegistryFactoryTest {
@@ -44,5 +51,34 @@ class KotlinDataLoaderRegistryFactoryTest {
 
         val registry = KotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate()
         assertEquals(1, registry.dataLoaders.size)
+    }
+
+    @Test
+    fun `generate registry with minimal compilable loader throws TODO`() {
+        val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
+            override val dataLoaderName = "Unimplemented"
+        }
+        assertFailsWith(NotImplementedError::class) {
+            KotlinDataLoaderRegistryFactory(listOf(mockLoader)).generate()
+        }
+    }
+
+    @Test
+    fun `generate registry with context in options`() = runBlocking {
+        val mockLoader = object : KotlinDataLoader<String, String> {
+            override val dataLoaderName = "withGraphQLContext"
+            override fun getDataLoader(options: DataLoaderOptions): DataLoader<String, String> {
+                return DataLoaderFactory.newDataLoader({ keys, environment ->
+                    keys.map { (environment.getContext() as GraphQLContext).get<String>() }.toMono().toFuture()
+                }, options)
+            }
+        }
+        val options = DataLoaderOptions.newOptions().setBatchLoaderContextProvider {
+            GraphQLContext.of(mapOf(String::class to "blah"))
+        }
+        val registry = KotlinDataLoaderRegistryFactory(mockLoader).generate(options)
+        val result = registry.getDataLoader<String, String>(mockLoader.dataLoaderName).load("123")
+        registry.dispatchAll()
+        assertEquals(result.await(), "blah")
     }
 }
