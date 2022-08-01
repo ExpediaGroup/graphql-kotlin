@@ -44,10 +44,7 @@ class GraphQLGradlePluginAndroidIT {
             .withPluginClasspath()
             .withArguments(
                 "build",
-                "--stacktrace",
-                "-PGRAPHQL_KOTLIN_VERSION=$DEFAULT_PLUGIN_VERSION",
-                "-PKOTLIN_VERSION=$kotlinVersion",
-                "-PANDROID_PLUGIN_VERSION=$androidPluginVersion"
+                "--stacktrace"
             )
             .withEnvironment(
                 mapOf(
