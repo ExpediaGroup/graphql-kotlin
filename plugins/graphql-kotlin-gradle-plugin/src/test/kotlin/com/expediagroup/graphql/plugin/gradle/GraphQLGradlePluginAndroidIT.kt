@@ -46,6 +46,7 @@ class GraphQLGradlePluginAndroidIT {
             .forwardOutput()
             .build()
 
+        println("test PR")
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":app:$GENERATE_CLIENT_TASK_NAME")?.outcome)
     }
 
