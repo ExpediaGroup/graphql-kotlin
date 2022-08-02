@@ -42,11 +42,15 @@ class GraphQLGenerateClientIT {
             .withPluginClasspath()
             .withArguments(
                 "build",
-                "--stacktrace",
-                "-PGRAPHQL_KOTLIN_VERSION=$DEFAULT_PLUGIN_VERSION",
-                "-PKOTLIN_VERSION=$kotlinVersion",
-                "-PJUNIT_VERSION=$junitVersion",
-                "-PMOCKK_VERSION=$mockkVersion"
+                "--stacktrace"
+            )
+            .withEnvironment(
+                mapOf(
+                    "GRAPHQL_KOTLIN_VERSION" to DEFAULT_PLUGIN_VERSION,
+                    "KOTLIN_VERSION" to kotlinVersion,
+                    "JUNIT_VERSION" to junitVersion,
+                    "MOCKK_VERSION" to mockkVersion
+                )
             )
             .forwardOutput()
             .build()

@@ -25,10 +25,19 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 }
 
+java {
+    withSourcesJar()
+    if (rootProject.extra["isReleaseVersion"] as Boolean) {
+        withJavadocJar()
+    }
+}
+
 gradlePlugin {
     plugins {
         register("graphQLPlugin") {
             id = "com.expediagroup.graphql"
+            displayName = "GraphQL Kotlin Gradle Plugin"
+            description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
             implementationClass = "com.expediagroup.graphql.plugin.gradle.GraphQLGradlePlugin"
         }
     }
@@ -37,14 +46,7 @@ gradlePlugin {
 pluginBundle {
     website = "https://expediagroup.github.io/graphql-kotlin"
     vcsUrl = "https://github.com/ExpediaGroup/graphql-kotlin"
-
-    (plugins) {
-        "graphQLPlugin" {
-            displayName = "GraphQL Kotlin Gradle Plugin"
-            description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
-            tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
-        }
-    }
+    tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
 }
 
 sourceSets {
@@ -84,19 +86,6 @@ tasks {
             System.setProperty("gradle.publish.secret", System.getenv("PLUGIN_PORTAL_SECRET"))
         }
     }
-    publishing {
-        publications {
-            afterEvaluate {
-                named<MavenPublication>("graphQLPluginPluginMarkerMaven") {
-                    // update auto-generated pom.xml for plugin marker with required information
-                    pom {
-                        name.set(artifactId)
-                        description.set("Plugin descriptor for GraphQL Kotlin Gradle plugin")
-                    }
-                }
-            }
-        }
-    }
     test {
         // ensure we always run tests by setting new inputs
         //
@@ -114,5 +103,19 @@ tasks {
         systemProperty("kotlinVersion", kotlinVersion)
         systemProperty("springBootVersion", springBootVersion)
         systemProperty("junitVersion", junitVersion)
+    }
+
+    publishing {
+        afterEvaluate {
+            publications {
+                named<MavenPublication>("graphQLPluginPluginMarkerMaven") {
+                    // update auto-generated pom.xml for plugin marker with required information
+                    pom {
+                        name.set(artifactId)
+                        description.set("Plugin descriptor for GraphQL Kotlin Gradle plugin")
+                    }
+                }
+            }
+        }
     }
 }

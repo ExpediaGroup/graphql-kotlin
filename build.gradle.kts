@@ -99,7 +99,7 @@ subprojects {
             sourceCompatibility = JavaVersion.VERSION_1_8
         }
 
-        // published artifacts
+        // published sources and javadoc artifacts
         val jarComponent = currentProject.components.getByName("java")
         val sourcesJar by registering(Jar::class) {
             archiveClassifier.set("sources")
@@ -149,12 +149,15 @@ subprojects {
                         }
                     }
                 }
-                create<MavenPublication>("mavenJava") {
-                    from(jarComponent)
-                    artifact(sourcesJar.get())
-                    // no need to publish javadocs for SNAPSHOT builds
-                    if (rootProject.extra["isReleaseVersion"] as Boolean) {
-                        artifact(javadocJar.get())
+                // com.gradle.plugin-publish creates publication automatically
+                if (currentProject.name != "graphql-kotlin-gradle-plugin") {
+                    create<MavenPublication>("mavenJava") {
+                        from(jarComponent)
+                        artifact(sourcesJar.get())
+                        // no need to publish javadocs for SNAPSHOT builds
+                        if (rootProject.extra["isReleaseVersion"] as Boolean) {
+                            artifact(javadocJar.get())
+                        }
                     }
                 }
             }
