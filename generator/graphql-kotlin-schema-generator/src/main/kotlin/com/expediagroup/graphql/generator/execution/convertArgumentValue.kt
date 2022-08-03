@@ -88,15 +88,20 @@ private fun convertValue(
 }
 
 /**
- * At this point all custom scalars have been converted by graphql-java so the only thing left to parse is object maps into the nested Kotlin classes
+ * At this point all custom scalars have been converted by graphql-java so
+ * the only thing left to parse is object maps into the nested Kotlin classes
  */
-private fun <T : Any> mapToKotlinObject(inputMap: Map<String, *>, targetClass: KClass<T>): T {
+private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
-    val params = targetConstructor.parameters
-    val constructorValues: Map<KParameter, Any?> = params.associateWith { parameter ->
-        convertArgumentValue(parameter.getName(), parameter, inputMap)
+    // filter parameters that are actually in the input in order to rely on parameters default values
+    // in target constructor
+    val constructorParametersInInput = targetConstructor.parameters.filter { parameter ->
+        input.containsKey(parameter.getName())
     }
-    return targetConstructor.callBy(constructorValues)
+    val constructorArguments = constructorParametersInInput.associateWith { parameter ->
+        convertArgumentValue(parameter.getName(), parameter, input)
+    }
+    return targetConstructor.callBy(constructorArguments)
 }
 
 private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> =
