@@ -35,14 +35,7 @@ type Query {
 
 ## GraphQLDeprecated
 
-A side-effect of using `@Deprecated` is that it marks your own code as being deprecated, which may not be what you want.
-
-![](https://user-images.githubusercontent.com/459464/182555658-49c5252a-b421-437a-b7a7-93c17d778a09.png)
-
-Find yourself using `Suppress("DEPRECATION")` everywhere?
-
-Then you may want to use `@GraphQLDeprecated` instead. It works just the same:
-
+A side-effect of using `@Deprecated` is that it marks your own Kotlin code as being deprecated, which may not be what you want. Using `@GraphQLDeprecated` you can add the `@deprecated` directive to the GraphQL schema, but not have your Kotlin code show up as deprecated in your editor.
 
 ```kotlin
 class SimpleQuery {
@@ -51,4 +44,3 @@ class SimpleQuery {
 
   fun shinyNewQuery(): Boolean = true
 }
-```
