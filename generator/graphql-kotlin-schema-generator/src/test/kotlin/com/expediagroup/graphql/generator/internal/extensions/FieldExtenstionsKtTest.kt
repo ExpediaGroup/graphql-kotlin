@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import org.junit.jupiter.api.Test
@@ -29,7 +30,9 @@ class FieldExtenstionsKtTest {
         @Deprecated("do not use", ReplaceWith("TWO"))
         @GraphQLName("customOne")
         ONE,
-        TWO
+        TWO,
+        @GraphQLDeprecated("do not use", ReplaceWith("TWO"))
+        THREE
     }
 
     @Test
@@ -43,6 +46,12 @@ class FieldExtenstionsKtTest {
     @Test
     fun `verify @Deprecated on fields`() {
         val propertyDeprecation = AnnotatedEnum::class.java.getField("ONE").getDeprecationReason()
+        assertEquals(expected = "do not use, replace with TWO", actual = propertyDeprecation)
+    }
+
+    @Test
+    fun `verify @GraphQLDeprecated on fields`() {
+        val propertyDeprecation = AnnotatedEnum::class.java.getField("THREE").getDeprecationReason()
         assertEquals(expected = "do not use, replace with TWO", actual = propertyDeprecation)
     }
 

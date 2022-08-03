@@ -16,12 +16,15 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import java.lang.reflect.Field
 
 internal fun Field.getGraphQLDescription(): String? = this.getAnnotation(GraphQLDescription::class.java)?.value
 
-internal fun Field.getDeprecationReason(): String? = this.getDeclaredAnnotation(Deprecated::class.java)?.getReason()
+internal fun Field.getDeprecationReason(): String? =
+    this.getDeclaredAnnotation(Deprecated::class.java)?.getReason()
+        ?: this.getDeclaredAnnotation(GraphQLDeprecated::class.java)?.getReason()
 
 internal fun Field.getGraphQLName(): String = this.getAnnotation(GraphQLName::class.java)?.value ?: this.name
