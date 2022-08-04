@@ -56,7 +56,6 @@ class AnnotationExtensionsTest {
     annotation class MetaUnion
 
     @GraphQLDeprecated("class deprecated", ReplaceWith("WithAnnotations"))
-    @GraphQLIgnore
     private data class WithGraphQLDeprecated(
         @property:GraphQLDeprecated("property deprecated", ReplaceWith("uuid"))
         val id: String,
