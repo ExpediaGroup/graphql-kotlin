@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.directives
 
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
@@ -39,19 +40,25 @@ class DirectiveTests {
         val query = topLevelQuery.getFieldDefinition("deprecatedFieldQuery")
         val result = (query.type as? GraphQLNonNull)?.wrappedType as? GraphQLObjectType
         val deprecatedField = result?.getFieldDefinition("deprecatedField")
+        val graphqlDeprecatedField = result?.getFieldDefinition("graphqlDeprecatedField")
 
         assertEquals(deprecatedField?.isDeprecated, true)
+        assertEquals(graphqlDeprecatedField?.isDeprecated, true)
         assertEquals("this field is deprecated", deprecatedField?.deprecationReason)
+        assertEquals("this field is also deprecated", graphqlDeprecatedField?.deprecationReason)
     }
 
     @Test
     fun `SchemaGenerator marks deprecated queries and documents replacement`() {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
         val topLevelQuery = schema.getObjectType("Query")
-        val query = topLevelQuery.getFieldDefinition("deprecatedQueryWithReplacement")
+        val deprecatedQueryWithReplacement = topLevelQuery.getFieldDefinition("deprecatedQueryWithReplacement")
+        val graphqlDeprecatedQueryWithReplacement = topLevelQuery.getFieldDefinition("graphqlDeprecatedQueryWithReplacement")
 
-        assertTrue(query.isDeprecated)
-        assertEquals("this query is also deprecated, replace with shinyNewQuery", query.deprecationReason)
+        assertTrue(deprecatedQueryWithReplacement.isDeprecated)
+        assertTrue(graphqlDeprecatedQueryWithReplacement.isDeprecated)
+        assertEquals("this query is also deprecated, replace with shinyNewQuery", deprecatedQueryWithReplacement.deprecationReason)
+        assertEquals("this query is also deprecated, replace with shinyNewQuery", graphqlDeprecatedQueryWithReplacement.deprecationReason)
     }
 
     @Test
@@ -59,8 +66,12 @@ class DirectiveTests {
         val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDeprecatedFields())), config = testSchemaConfig)
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("deprecatedQuery")
+        val graphqlDeprecatedQuery = topLevelQuery.getFieldDefinition("graphqlDeprecatedQuery")
+
         assertTrue(query.isDeprecated)
+        assertTrue(graphqlDeprecatedQuery.isDeprecated)
         assertEquals("this query is deprecated", query.deprecationReason)
+        assertEquals("this query is also deprecated", graphqlDeprecatedQuery.deprecationReason)
     }
 
     @Test
@@ -127,6 +138,7 @@ class QueryObject {
     fun query(value: Int): Geography = Geography(value, GeoType.CITY, listOf())
 }
 
+@Suppress("unused")
 class QueryWithDeprecatedFields {
     @Deprecated("this query is deprecated")
     fun deprecatedQuery(something: String) = something
@@ -137,10 +149,18 @@ class QueryWithDeprecatedFields {
     fun deprecatedFieldQuery(something: String) = ClassWithDeprecatedField(something, something.reversed())
 
     fun deprecatedArgumentQuery(input: ClassWithDeprecatedField) = input.something
+
+    @GraphQLDeprecated("this query is also deprecated")
+    fun graphqlDeprecatedQuery(something: String) = something
+
+    @Deprecated("this query is also deprecated", replaceWith = ReplaceWith("shinyNewQuery"))
+    fun graphqlDeprecatedQueryWithReplacement(something: String) = something
 }
 
 data class ClassWithDeprecatedField(
     val something: String,
     @Deprecated("this field is deprecated")
-    val deprecatedField: String
+    val deprecatedField: String,
+    @GraphQLDeprecated("this field is also deprecated")
+    val graphqlDeprecatedField: String = ""
 )

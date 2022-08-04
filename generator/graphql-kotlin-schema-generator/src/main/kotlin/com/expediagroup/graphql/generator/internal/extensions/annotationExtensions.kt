@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
@@ -29,7 +30,9 @@ internal fun KAnnotatedElement.getGraphQLDescription(): String? = this.findAnnot
 
 internal fun KAnnotatedElement.getGraphQLName(): String? = this.findAnnotation<GraphQLName>()?.value
 
-internal fun KAnnotatedElement.getDeprecationReason(): String? = this.findAnnotation<Deprecated>()?.getReason()
+internal fun KAnnotatedElement.getDeprecationReason(): String? =
+    this.findAnnotation<Deprecated>()?.getReason()
+        ?: this.findAnnotation<GraphQLDeprecated>()?.getReason()
 
 internal fun KAnnotatedElement.isGraphQLIgnored(): Boolean = this.findAnnotation<GraphQLIgnore>() != null
 
@@ -41,14 +44,12 @@ internal fun Annotation.getMetaUnionAnnotation(): GraphQLUnion? = this.annotatio
 
 internal fun List<Annotation>.getCustomTypeAnnotation(): GraphQLType? = this.filterIsInstance(GraphQLType::class.java).firstOrNull()
 
-internal fun Deprecated.getReason(): String {
-    val builder = StringBuilder()
-    builder.append(this.message)
+internal fun GraphQLDeprecated.getReason(): String = when {
+    replaceWith.expression.isBlank() -> message
+    else -> "$message, replace with ${replaceWith.expression}"
+}
 
-    if (this.replaceWith.expression.isBlank().not()) {
-        builder.append(", replace with ")
-        builder.append(this.replaceWith.expression)
-    }
-
-    return builder.toString()
+internal fun Deprecated.getReason(): String = when {
+    replaceWith.expression.isBlank() -> message
+    else -> "$message, replace with ${replaceWith.expression}"
 }

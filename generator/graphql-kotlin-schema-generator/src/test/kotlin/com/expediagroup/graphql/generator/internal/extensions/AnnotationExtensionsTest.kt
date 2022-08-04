@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.extensions
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
@@ -54,6 +55,13 @@ class AnnotationExtensionsTest {
     @GraphQLUnion(name = "MetaUnion", possibleTypes = [NoAnnotations::class])
     annotation class MetaUnion
 
+    @GraphQLDeprecated("class deprecated", ReplaceWith("WithAnnotations"))
+    private data class WithGraphQLDeprecated(
+        @property:GraphQLDeprecated("property deprecated", ReplaceWith("uuid"))
+        val id: String,
+        val uuid: String,
+    )
+
     @Test
     fun `verify @GraphQLName on classes`() {
         @Suppress("DEPRECATION")
@@ -87,6 +95,15 @@ class AnnotationExtensionsTest {
         assertEquals(expected = "property deprecated", actual = classPropertyDeprecation)
         assertNull(NoAnnotations::class.getDeprecationReason())
         assertNull(NoAnnotations::class.findMemberProperty("id")?.getDeprecationReason())
+    }
+
+    @Test
+    fun `verify @GraphQLDeprecated`() {
+        val classDeprecation = WithGraphQLDeprecated::class.getDeprecationReason()
+        val classPropertyDeprecation = WithGraphQLDeprecated::class.findMemberProperty("id")?.getDeprecationReason()
+
+        assertEquals(expected = "class deprecated, replace with WithAnnotations", actual = classDeprecation)
+        assertEquals(expected = "property deprecated, replace with uuid", actual = classPropertyDeprecation)
     }
 
     @Test

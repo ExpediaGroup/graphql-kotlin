@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.model
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDeprecated
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 
@@ -25,7 +26,7 @@ data class Widget(
     @GraphQLDescription("The widget's value that can be null")
     var value: Int? = null,
 
-    @Deprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
+    @GraphQLDeprecated(message = "This field is deprecated", replaceWith = ReplaceWith("value"))
     @GraphQLDescription("The widget's deprecated value that shouldn't be used")
     val deprecatedValue: Int? = value,
 
