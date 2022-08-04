@@ -152,7 +152,7 @@ class FunctionDataFetcherTest {
     }
 
     @Test
-    fun `default values are overridden when arument is passed in`() {
+    fun `default values are overridden when argument is passed in`() {
         val dataFetcher = FunctionDataFetcher(target = null, fn = MyClass::printDefault)
         val mockEnvironment: DataFetchingEnvironment = mockk {
             every { getSource<Any>() } returns MyClass()
@@ -313,7 +313,7 @@ class FunctionDataFetcherTest {
     @Test
     fun `optional inputs inside class return undefined when arguments are empty`() {
         val dataFetcher = FunctionDataFetcher(target = MyClass(), fn = MyClass::optionalWrapperClass)
-        val mockEnvironment: DataFetchingEnvironment = mockk {
+        val mockEnvironment = mockk<DataFetchingEnvironment> {
             every { arguments } returns mapOf("input" to mapOf("required" to "hello"))
             every { containsArgument("input") } returns true
         }

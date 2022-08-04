@@ -93,10 +93,11 @@ private fun convertValue(
  */
 private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
+    val constructorParameters = targetConstructor.parameters
     // filter parameters that are actually in the input in order to rely on parameters default values
     // in target constructor
-    val constructorParametersInInput = targetConstructor.parameters.filter { parameter ->
-        input.containsKey(parameter.getName())
+    val constructorParametersInInput = constructorParameters.filter { parameter ->
+        input.containsKey(parameter.getName()) || parameter.type.isOptionalInputType()
     }
     val constructorArguments = constructorParametersInInput.associateWith { parameter ->
         convertArgumentValue(parameter.getName(), parameter, input)

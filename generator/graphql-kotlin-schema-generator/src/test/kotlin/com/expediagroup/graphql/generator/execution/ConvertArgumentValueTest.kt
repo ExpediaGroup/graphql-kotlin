@@ -21,13 +21,14 @@ import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.full.findParameterByName
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 class ConvertArgumentValueTest {
-
     @Test
     fun `string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::stringInput.findParameterByName("input"))
@@ -66,18 +67,88 @@ class ConvertArgumentValueTest {
         assertEquals("hello", castResult.foo)
         assertEquals("world", castResult.bar)
         assertEquals(listOf("!"), castResult.baz)
-        assertEquals("1234", castResult.qux?.value)
+        assertEquals("1234", castResult.qux)
     }
 
     @Test
     fun `generic map object is parsed and defaults are used`() {
         val kParam = assertNotNull(TestFunctions::inputObject.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to mapOf("foo" to "hello")))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "foo" to "hello"
+                )
+            )
+        )
+
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
         assertEquals(null, castResult.bar)
         assertEquals(null, castResult.baz)
         assertEquals(null, castResult.qux)
+    }
+
+    @Test
+    fun `generic map object is parsed and all defaults are used`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNested.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to emptyMap<String, Any>()
+            )
+        )
+
+        val castResult = assertIs<TestInputNested>(result)
+        assertEquals("foo", castResult.foo)
+        assertEquals("bar", castResult.bar)
+        assertEquals("nested default value", castResult.nested?.value)
+    }
+
+    /**
+     * this will be solved in Kotlin 1.7
+     * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
+     * https://youtrack.jetbrains.com/issue/KT-27598
+     * https://github.com/JetBrains/kotlin/pull/4746
+     */
+    @Test
+    fun `generic map object is parsed and will assign null to nullable custom scalar type`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNullableScalar.findParameterByName("input"))
+        assertThrows<KotlinReflectionInternalError> {
+            convertArgumentValue(
+                "input",
+                kParam,
+                mapOf(
+                    "input" to mapOf(
+                        "foo" to "foo"
+                    )
+                )
+            )
+        }
+    }
+
+    /**
+     * this will be solved in Kotlin 1.7
+     * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
+     * https://youtrack.jetbrains.com/issue/KT-27598
+     * https://github.com/JetBrains/kotlin/pull/4746
+     */
+    @Test
+    fun `generic map object is parsed and will throw exception for non nullable custom scalar type`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNotNullableScalar.findParameterByName("input"))
+        assertThrows<KotlinReflectionInternalError> {
+            convertArgumentValue(
+                "input",
+                kParam,
+                mapOf(
+                    "input" to mapOf(
+                        "foo" to "foo"
+                    )
+                )
+            )
+        }
     }
 
     @Test
@@ -143,6 +214,9 @@ class ConvertArgumentValueTest {
         fun enumInput(input: Foo): String = TODO()
         fun idInput(input: ID): String = TODO()
         fun inputObject(input: TestInput): String = TODO()
+        fun inputObjectNested(input: TestInputNested): String = TODO()
+        fun inputObjectNullableScalar(input: TestInputNullableScalar): String = TODO()
+        fun inputObjectNotNullableScalar(input: TestInputNotNullableScalar): String = TODO()
         fun listStringInput(input: List<String>): String = TODO()
         fun optionalInput(input: OptionalInput<String>): String = TODO()
         fun optionalInputObject(input: OptionalInput<TestInput>): String = TODO()
@@ -150,12 +224,11 @@ class ConvertArgumentValueTest {
         fun stringInput(input: String): String = TODO()
     }
 
-    class TestInput(
-        val foo: String,
-        val bar: String? = null,
-        val baz: List<String>? = null,
-        val qux: ID? = null
-    )
+    class TestInput(val foo: String, val bar: String? = null, val baz: List<String>? = null, val qux: String? = null)
+    class TestInputNested(val foo: String? = "foo", val bar: String? = "bar", val nested: TestInputNestedType? = TestInputNestedType())
+    class TestInputNestedType(val value: String = "nested default value")
+    class TestInputNullableScalar(val foo: String, val id: ID? = null)
+    class TestInputNotNullableScalar(val foo: String, val id: ID = ID("1234"))
 
     enum class Foo {
         BAR,
