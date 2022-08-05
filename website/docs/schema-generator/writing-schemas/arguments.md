@@ -112,9 +112,9 @@ If you need logic to determine when a client passed in a value vs when the defau
 Default values with custom scalars are not supported, regardless if the type is nullable or non-nullable, as they use kotlin value classes,
 `callBy` does not support invoking constructors that have value classes as arguments.
 
-See: https://youtrack.jetbrains.com/issue/KT-27598,
+See: https://youtrack.jetbrains.com/issue/KT-27598
 
-which was partially fixed in:https://github.com/JetBrains/kotlin/pull/4746
+which was partially fixed in: https://github.com/JetBrains/kotlin/pull/4746
 
 This will be fixed once `graphql-kotlin` updates to kotlin 1.7
 :::
