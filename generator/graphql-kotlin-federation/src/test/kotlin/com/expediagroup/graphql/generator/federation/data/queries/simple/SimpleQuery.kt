@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,15 @@
  */
 
 package com.expediagroup.graphql.generator.federation.data.queries.simple
+
+import com.expediagroup.graphql.generator.federation.directives.ContactDirective
+
+@ContactDirective(
+    name = "My Team Name",
+    url = "https://myteam.slack.com/archives/teams-chat-room-url",
+    description = "send urgent issues to [#oncall](https://yourteam.slack.com/archives/oncall)."
+)
+class SimpleSchema
 
 /*
 type Query {

@@ -45,13 +45,13 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @param name subgraph owner name
  * @param url optional URL where the subgraph's owner can be reached
- * @param description optional additional information about contacting the owners, can include markdown links
+ * @param description optional additional information about contacting the owners, can include Markdown links
  *
  * @see <a href="https://www.apollographql.com/docs/studio/federated-graphs/#subgraph-contact-info">Subgraph Contact Info</a>
  */
 @GraphQLDirective(
-    name = "contact",
-    description = "Provides contact information of the owner responsible for this subgraph schema.",
+    name = CONTACT_DIRECTIVE_NAME,
+    description = CONTACT_DIRECTIVE_DESCRIPTION,
     locations = [DirectiveLocation.SCHEMA]
 )
 annotation class ContactDirective(
@@ -59,6 +59,9 @@ annotation class ContactDirective(
     val name: String,
     /** URL where the subgraph's owner can be reached */
     val url: String = "",
-    /** Other relevant notes can be included here; supports markdown links */
+    /** Other relevant notes can be included here; supports Markdown links */
     val description: String = ""
 )
+
+internal const val CONTACT_DIRECTIVE_NAME = "contact"
+private const val CONTACT_DIRECTIVE_DESCRIPTION = "Provides contact information of the owner responsible for this subgraph schema."
