@@ -98,7 +98,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
 
                     builder.description(schemaObject.kClass.getGraphQLDescription())
                         .withSchemaAppliedDirectives(generateSchemaDirectives(this, schemaObject))
-                        .withSchemaDirectives(directives.values)
+                        .additionalDirectives(directives.values.toSet())
                 }
             }
             .run {
