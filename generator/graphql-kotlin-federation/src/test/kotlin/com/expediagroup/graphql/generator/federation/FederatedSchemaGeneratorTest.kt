@@ -20,8 +20,6 @@ import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.data.queries.simple.NestedQuery
 import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleQuery
-import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleSchema
-import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.types.ENTITY_UNION_NAME
 import graphql.schema.GraphQLUnionType
@@ -35,12 +33,9 @@ class FederatedSchemaGeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @contact(description : "send urgent issues to [#oncall](https://yourteam.slack.com/archives/oncall).", name : "My Team Name", url : "https://myteam.slack.com/archives/teams-chat-room-url"){
+            schema {
               query: Query
             }
-
-            "Provides contact information of the owner responsible for this subgraph schema."
-            directive @contact(description: String!, name: String!, url: String!) on SCHEMA
 
             directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
@@ -138,10 +133,8 @@ class FederatedSchemaGeneratorTest {
             hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
-        val schema = toFederatedSchema(
-            config = config,
-            schemaObject = TopLevelObject(SimpleSchema())
-        )
+        val schema = toFederatedSchema(config = config)
+
         assertEquals(expectedSchema, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
@@ -150,9 +143,6 @@ class FederatedSchemaGeneratorTest {
         val entityUnion = schema.getType(ENTITY_UNION_NAME) as? GraphQLUnionType
         assertNotNull(entityUnion)
         assertTrue(entityUnion.types.contains(productType))
-
-        val contactDirective = schema.getSchemaAppliedDirective(CONTACT_DIRECTIVE_NAME)
-        assertNotNull(contactDirective)
     }
 
     @Test

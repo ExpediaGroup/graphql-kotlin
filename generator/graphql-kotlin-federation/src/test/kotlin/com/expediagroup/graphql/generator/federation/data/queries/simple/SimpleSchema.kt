@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.generator.federation.data.queries.simple
 
-/*
-type Query {
-  hello: String!
-}
- */
-class SimpleQuery {
-    fun hello(name: String): String = "Hello $name"
-}
+import com.expediagroup.graphql.generator.federation.directives.ContactDirective
+
+@ContactDirective(
+    name = "My Team Name",
+    url = "https://myteam.slack.com/archives/teams-chat-room-url",
+    description = "send urgent issues to [#oncall](https://yourteam.slack.com/archives/oncall)."
+)
+class SimpleSchema
