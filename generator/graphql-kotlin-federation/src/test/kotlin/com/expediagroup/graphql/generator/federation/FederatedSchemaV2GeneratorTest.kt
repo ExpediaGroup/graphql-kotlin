@@ -18,7 +18,6 @@ package com.expediagroup.graphql.generator.federation
 
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.extensions.print
-import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleQuery
 import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleSchema
 import com.expediagroup.graphql.generator.federation.directives.CONTACT_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
