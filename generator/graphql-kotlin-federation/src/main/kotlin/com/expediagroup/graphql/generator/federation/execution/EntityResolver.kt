@@ -34,12 +34,12 @@ private const val REPRESENTATIONS = "representations"
 /**
  * Federated _entities query resolver.
  */
-open class EntityResolver(resolvers: List<FederatedTypeResolver<*>>) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
+open class EntityResolver(resolvers: List<FederatedTypeFetcher<*>>) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
 
     /**
-     * Pre-compute the resolves by typename so we don't have to search on every request
+     * Pre-compute the resolves by typename so, we don't have to search on every request
      */
-    private val resolverMap: Map<String, FederatedTypeResolver<*>> = resolvers.associateBy { it.typeName }
+    private val resolverMap: Map<String, FederatedTypeFetcher<*>> = resolvers.associateBy(FederatedTypeFetcher<*>::typeName)
 
     /**
      * Resolves entities based on the passed in representations argument. Entities are resolved in the same order
