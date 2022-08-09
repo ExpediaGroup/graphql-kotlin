@@ -29,14 +29,13 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 class SchemaGeneratorTest {
-
     @Test
     fun addAdditionalTypesWithAnnotation() {
         val config = SchemaGeneratorConfig(listOf("com.expediagroup.graphql.generator"))
         val generator = CustomSchemaGenerator(config)
         assertEquals(0, generator.additionalTypes.size)
 
-        // Add a non-existant annotaiton
+        // Add a non-existent annotation
         generator.addTypes(MyOtherCustomAnnotation::class)
         assertEquals(0, generator.additionalTypes.size)
 
