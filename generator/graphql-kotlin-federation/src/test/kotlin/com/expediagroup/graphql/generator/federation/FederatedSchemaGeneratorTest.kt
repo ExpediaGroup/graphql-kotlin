@@ -28,114 +28,114 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-private val FEDERATED_SDL =
-    """
-    schema {
-      query: Query
-    }
-
-    directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
-
-    "Marks the field, argument, input field or enum value as deprecated"
-    directive @deprecated(
-        "The reason for the deprecation"
-        reason: String = "No longer supported"
-      ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
-
-    "Marks target object as extending part of the federated schema"
-    directive @extends on OBJECT | INTERFACE
-
-    "Marks target field as external meaning it will be resolved by federated schema"
-    directive @external on FIELD_DEFINITION
-
-    "Directs the executor to include this field or fragment only when the `if` argument is true"
-    directive @include(
-        "Included when true."
-        if: Boolean!
-      ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-    "Space separated list of primary keys needed to access federated object"
-    directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
-
-    "Specifies the base type field set that will be selectable by the gateway"
-    directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
-
-    "Specifies required input field set from the base type for a resolver"
-    directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
-
-    "Directs the executor to skip this field or fragment when the `if`'argument is true."
-    directive @skip(
-        "Skipped when true."
-        if: Boolean!
-      ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-    "Exposes a URL that specifies the behaviour of this scalar."
-    directive @specifiedBy(
-        "The URL that specifies the behaviour of this scalar."
-        url: String!
-      ) on SCALAR
-
-    interface Product @extends @key(fields : "id") @key(fields : "upc") {
-      id: String! @external
-      reviews: [Review!]!
-      upc: String! @external
-    }
-
-    union _Entity = Book | User
-
-    type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
-      author: User! @provides(fields : "name")
-      id: String! @external
-      reviews: [Review!]!
-      shippingCost: String! @requires(fields : "weight")
-      upc: String! @external
-      weight: Float! @external
-    }
-
-    type CustomScalar {
-      value: String!
-    }
-
-    type Query @extends {
-      "Union of all types that use the @key directive, including both types native to the schema and extended types"
-      _entities(representations: [_Any!]!): [_Entity]!
-      _service: _Service!
-    }
-
-    type Review {
-      body: String! @custom
-      content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
-      customScalar: CustomScalar!
-      id: String!
-    }
-
-    type User @extends @key(fields : "userId") {
-      name: String! @external
-      userId: Int! @external
-    }
-
-    type _Service {
-      sdl: String!
-    }
-
-    "Federation scalar type used to represent any external entities passed to _entities query."
-    scalar _Any
-
-    "Federation type representing set of fields"
-    scalar _FieldSet
-    """.trimIndent()
-
 class FederatedSchemaGeneratorTest {
-
     @Test
     fun `verify can generate federated schema`() {
+        val expectedSchema =
+            """
+            schema {
+              query: Query
+            }
+
+            directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+            "Marks the field, argument, input field or enum value as deprecated"
+            directive @deprecated(
+                "The reason for the deprecation"
+                reason: String = "No longer supported"
+              ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+            "Marks target object as extending part of the federated schema"
+            directive @extends on OBJECT | INTERFACE
+
+            "Marks target field as external meaning it will be resolved by federated schema"
+            directive @external on FIELD_DEFINITION
+
+            "Directs the executor to include this field or fragment only when the `if` argument is true"
+            directive @include(
+                "Included when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Space separated list of primary keys needed to access federated object"
+            directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+
+            "Specifies the base type field set that will be selectable by the gateway"
+            directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+            "Specifies required input field set from the base type for a resolver"
+            directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+
+            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            directive @skip(
+                "Skipped when true."
+                if: Boolean!
+              ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Exposes a URL that specifies the behaviour of this scalar."
+            directive @specifiedBy(
+                "The URL that specifies the behaviour of this scalar."
+                url: String!
+              ) on SCALAR
+
+            interface Product @extends @key(fields : "id") @key(fields : "upc") {
+              id: String! @external
+              reviews: [Review!]!
+              upc: String! @external
+            }
+
+            union _Entity = Book | User
+
+            type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
+              author: User! @provides(fields : "name")
+              id: String! @external
+              reviews: [Review!]!
+              shippingCost: String! @requires(fields : "weight")
+              upc: String! @external
+              weight: Float! @external
+            }
+
+            type CustomScalar {
+              value: String!
+            }
+
+            type Query @extends {
+              "Union of all types that use the @key directive, including both types native to the schema and extended types"
+              _entities(representations: [_Any!]!): [_Entity]!
+              _service: _Service!
+            }
+
+            type Review {
+              body: String! @custom
+              content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
+              customScalar: CustomScalar!
+              id: String!
+            }
+
+            type User @extends @key(fields : "userId") {
+              name: String! @external
+              userId: Int! @external
+            }
+
+            type _Service {
+              sdl: String!
+            }
+
+            "Federation scalar type used to represent any external entities passed to _entities query."
+            scalar _Any
+
+            "Federation type representing set of fields"
+            scalar _FieldSet
+            """.trimIndent()
+
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
             hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config = config)
-        assertEquals(FEDERATED_SDL, schema.print().trim())
+
+        assertEquals(expectedSchema, schema.print().trim())
         val productType = schema.getObjectType("Book")
         assertNotNull(productType)
         assertNotNull(productType.hasAppliedDirective(KEY_DIRECTIVE_NAME))

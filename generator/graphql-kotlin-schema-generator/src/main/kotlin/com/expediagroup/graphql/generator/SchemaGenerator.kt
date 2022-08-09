@@ -41,12 +41,12 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 
 /**
- * Generate a schema object given some configuration and top level objects for the queries, mutaitons, and subscriptions.
+ * Generate a schema object given some configuration and top level objects for the queries, mutations, and subscriptions.
  *
- * This class maintains the state of the schema while generation is taking place. It is passed into the internal functions
+ * This class maintains the state of the schema while generation is taking place. It is passed into the internal functions,
  * so they can use the cache and add additional types and directives into the schema as they parse the Kotlin code.
  *
- * This class should be used from a try-with-resouces block
+ * This class should be used from a try-with-resources block
  * or another closable object as the internals can take up a lot of resources.
  */
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
@@ -98,7 +98,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
 
                     builder.description(schemaObject.kClass.getGraphQLDescription())
                         .withSchemaAppliedDirectives(generateSchemaDirectives(this, schemaObject))
-                        .withSchemaDirectives(directives.values)
+                        .additionalDirectives(directives.values.toSet())
                 }
             }
             .run {
