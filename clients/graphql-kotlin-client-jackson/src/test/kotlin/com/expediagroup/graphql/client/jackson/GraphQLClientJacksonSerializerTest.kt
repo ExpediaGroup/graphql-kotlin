@@ -259,8 +259,8 @@ class GraphQLClientJacksonSerializerTest {
             variables = OptionalInputQuery.Variables(
                 requiredInput = 123,
                 optionalIntInput = OptionalInput.Defined(123),
-                optionalStringInput = OptionalInput.Defined(null)
-                // optionalBooleanInput = OptionalInput.Undefined // use default
+                optionalStringInput = OptionalInput.Defined(null),
+                optionalBooleanInput = OptionalInput.Defined(true)
             )
         )
         val expected =
@@ -268,7 +268,8 @@ class GraphQLClientJacksonSerializerTest {
             |  "variables" : {
             |    "requiredInput" : 123,
             |    "optionalIntInput" : 123,
-            |    "optionalStringInput" : null
+            |    "optionalStringInput" : null,
+            |    "optionalBooleanInput" : true
             |  },
             |  "query" : "OPTIONAL_INPUT_QUERY",
             |  "operationName" : "OptionalInputQuery"
