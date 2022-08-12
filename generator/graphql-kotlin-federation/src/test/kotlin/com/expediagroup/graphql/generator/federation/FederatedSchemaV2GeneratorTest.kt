@@ -96,7 +96,12 @@ class FederatedSchemaV2GeneratorTest {
               upc: String! @external
             }
 
-            union _Entity = Book | User
+            union _Entity = Author | Book | User
+
+            type Author @extends @key(fields : "authorId", resolvable : true) {
+              authorId: Int! @external
+              name: String! @external
+            }
 
             type Book implements Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
               author: User! @provides(fields : "name")

@@ -45,6 +45,11 @@ interface Product @extends @key(fields : "id") @key(fields : "upc") {
   upc: String! @external
 }
 
+type Author @extends @key(fields : "authorId") {
+  authorId: Int! @external
+  name: String! @external
+}
+
 type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
   author: User! @provides(fields : "name")
   id: String! @external
@@ -97,6 +102,11 @@ interface Product @extends @key(fields : "id", resolvable : true) @key(fields : 
   id: String! @external
   reviews: [Review!]!
   upc: String! @external
+}
+
+type Author @extends @key(fields : "authorId", resolvable : true) {
+  authorId: Int! @external
+  name: String! @external
 }
 
 type Book implements Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
