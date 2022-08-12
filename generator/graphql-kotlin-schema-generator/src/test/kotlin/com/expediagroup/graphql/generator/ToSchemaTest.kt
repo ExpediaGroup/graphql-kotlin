@@ -17,17 +17,20 @@
 package com.expediagroup.graphql.generator
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.ConflictingTypesException
 import com.expediagroup.graphql.generator.exceptions.GraphQLKotlinException
 import com.expediagroup.graphql.generator.extensions.deepName
+import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQL
 import graphql.Scalars
 import graphql.execution.DataFetcherResult
 import graphql.execution.ResultPath
+import graphql.introspection.Introspection
 import graphql.introspection.IntrospectionQuery
 import graphql.language.SourceLocation
 import graphql.schema.GraphQLNonNull
@@ -35,6 +38,7 @@ import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import java.net.CookieManager
 import java.util.UUID
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -326,6 +330,41 @@ class ToSchemaTest {
         val result = graphql.execute(IntrospectionQuery.INTROSPECTION_QUERY)
         assertFalse(result.isDataPresent)
         assertTrue(result.errors?.isEmpty() == false)
+    }
+
+    @Test
+    fun `SchemaGenerator supports Schema Directives`() {
+        val schema = toSchema(
+            queries = listOf(TopLevelObject(SimpleQuery())),
+            schemaObject = TopLevelObject(SimpleSchema()),
+            config = testSchemaConfig
+        )
+
+        val schemaString = schema.print()
+        assertContains(
+            schemaString,
+            """
+            schema @schemaDirective(arg : "foo"){
+              query: Query
+            }
+            """.trimIndent()
+        )
+        assertContains(schemaString, "directive @schemaDirective(arg: String!) on SCHEMA")
+        val directive = schema.getSchemaAppliedDirective("schemaDirective")
+        assertNotNull(directive)
+    }
+
+    @GraphQLDirective(
+        name = "schemaDirective",
+        locations = [Introspection.DirectiveLocation.SCHEMA]
+    )
+    annotation class SchemaDirective(val arg: String)
+
+    @SchemaDirective(arg = "foo")
+    class SimpleSchema
+
+    class SimpleQuery {
+        fun foo(): String = "bar"
     }
 
     class QueryObject {
