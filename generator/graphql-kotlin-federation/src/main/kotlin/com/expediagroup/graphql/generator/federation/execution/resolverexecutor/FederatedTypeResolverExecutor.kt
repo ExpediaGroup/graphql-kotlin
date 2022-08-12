@@ -1,0 +1,65 @@
+/*
+ * Copyright 2022 Expedia, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
+
+import com.expediagroup.graphql.generator.extensions.getOrDefault
+import com.expediagroup.graphql.generator.federation.exception.FederatedRequestFailure
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.future.future
+import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.EmptyCoroutineContext
+
+internal object FederatedTypeResolverExecutor : TypeResolverExecutor<FederatedTypeResolver<*>> {
+    override fun execute(
+        resolvableEntities: List<ResolvableEntity<FederatedTypeResolver<*>>>,
+        environment: DataFetchingEnvironment
+    ): CompletableFuture<List<Map<Int, Any?>>> =
+        resolvableEntities.takeUnless(List<ResolvableEntity<FederatedTypeResolver<*>>>::isEmpty)
+            ?.let {
+                environment.graphQlContext.getOrDefault(CoroutineScope(EmptyCoroutineContext)).future {
+                    coroutineScope {
+                        resolvableEntities.map { resolvableEntity ->
+                            async {
+                                resolveEntity(resolvableEntity, environment)
+                            }
+                        }.awaitAll()
+                    }
+                }
+            } ?: CompletableFuture.completedFuture(emptyList())
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun resolveEntity(
+        resolvableEntity: ResolvableEntity<FederatedTypeResolver<*>>,
+        environment: DataFetchingEnvironment,
+    ): Map<Int, Any?> {
+        val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
+        val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)
+        val results = try {
+            resolvableEntity.resolver.resolve(environment, representations)
+        } catch (e: Exception) {
+            representations.map {
+                FederatedRequestFailure("Exception was thrown while trying to resolve federated type, representation=$it", e)
+            }
+        }
+        return handleResults(resolvableEntity.typeName, indexes, results)
+    }
+}

@@ -17,17 +17,15 @@
 package com.expediagroup.graphql.generator.federation.execution
 
 import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 
-interface FederatedTypeResolver<out T> : TypeResolver {
-
-    override val typeName: String
-
+interface FederatedTypePromiseResolver<T> : TypeResolver {
     /**
-     * Resolves underlying federated types by using suspending functions
+     * Resolves underlying federated types by returning a CompletableFuture
      *
      * @param environment DataFetchingEnvironment for executing this query
      * @param representations _entity query representations that are required to instantiate the target type
-     * @return list of the target federated type instances
+     * @return promise of list of the target federated type instances
      */
-    suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<T?>
+    fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): CompletableFuture<List<T?>>
 }

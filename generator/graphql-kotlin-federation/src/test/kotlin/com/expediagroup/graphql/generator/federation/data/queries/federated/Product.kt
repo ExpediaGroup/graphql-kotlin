@@ -124,6 +124,19 @@ data class User(
     @ExternalDirective val name: String
 )
 
+/*
+type Author {
+  authorId: Int!
+  name: String!
+}
+ */
+@ExtendsDirective
+@KeyDirective(FieldSet("authorId"))
+data class Author(
+    @ExternalDirective val authorId: Int,
+    @ExternalDirective val name: String
+)
+
 @GraphQLDirective(name = "custom")
 @GraphQLDescription(
     """

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package com.expediagroup.graphql.generator.federation.data
 
+import com.expediagroup.graphql.generator.federation.data.queries.federated.Author
 import com.expediagroup.graphql.generator.federation.data.queries.federated.Book
 import com.expediagroup.graphql.generator.federation.data.queries.federated.User
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypePromiseResolver
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 
 internal class BookResolver : FederatedTypeResolver<Book> {
     override val typeName: String = "Book"
@@ -49,5 +52,28 @@ internal class UserResolver : FederatedTypeResolver<User> {
             results.add(User(id, name))
         }
         return results
+    }
+}
+
+internal class AuthorResolver : FederatedTypePromiseResolver<Author> {
+
+    override val typeName: String = "Author"
+
+    override fun resolve(
+        environment: DataFetchingEnvironment,
+        representations: List<Map<String, Any>>
+    ): CompletableFuture<List<Author?>> {
+        val results = mutableListOf<Author?>()
+        for (keys in representations) {
+            results.add(authors[keys["authorId"].toString().toInt()])
+        }
+        return CompletableFuture.completedFuture(results)
+    }
+
+    companion object {
+        private val authors = mapOf(
+            1 to Author(1, "Author 1"),
+            2 to Author(2, "Author 2"),
+        )
     }
 }
