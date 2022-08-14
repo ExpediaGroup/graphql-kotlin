@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.execution
 
 import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
+import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
@@ -105,8 +106,17 @@ private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KCla
     return targetConstructor.callBy(constructorArguments)
 }
 
-private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> =
-    paramType.getKClass().java.enumConstants.filterIsInstance(Enum::class.java).first { it.name == enumValue }
+private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> = paramType.getKClass()
+    .java
+    .enumConstants
+    .filterIsInstance(Enum::class.java)
+    .map { enum ->
+        val enumValueField = paramType.getKClass().java.getField(enum.name)
+        enumValueField.getGraphQLName() to enum
+    }
+    .first { (name, _) -> name == enumValue}
+    .second
+
 
 private fun <T : Any> mapToInlineValueClass(value: Any?, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
