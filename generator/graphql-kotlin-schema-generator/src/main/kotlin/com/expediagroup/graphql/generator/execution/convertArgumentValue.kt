@@ -114,9 +114,8 @@ private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> = param
         val enumValueField = paramType.getKClass().java.getField(enum.name)
         enumValueField.getGraphQLName() to enum
     }
-    .first { (name, _) -> name == enumValue}
+    .first { (name, _) -> name == enumValue }
     .second
-
 
 private fun <T : Any> mapToInlineValueClass(value: Any?, targetClass: KClass<T>): T {
     val targetConstructor = targetClass.primaryConstructor ?: throw PrimaryConstructorNotFound(targetClass)
