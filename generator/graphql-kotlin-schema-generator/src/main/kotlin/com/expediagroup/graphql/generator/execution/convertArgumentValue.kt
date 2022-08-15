@@ -93,9 +93,9 @@ private fun convertValue(
  * the only thing left to parse is object maps into the nested Kotlin classes
  */
 private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
-    val targetConstructor = targetClass.primaryConstructor ?: run {
-        targetClass.constructors.firstOrNull()
-    } ?: throw PrimaryConstructorNotFound(targetClass)
+    val targetConstructor = targetClass.primaryConstructor
+        ?: targetClass.constructors.firstOrNull()
+        ?: throw PrimaryConstructorNotFound(targetClass)
 
     val constructorParameters = targetConstructor.parameters
     // filter parameters that are actually in the input in order to rely on parameters default values
