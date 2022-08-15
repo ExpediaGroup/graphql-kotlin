@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
@@ -51,6 +52,15 @@ class ConvertArgumentValueTest {
         val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
         val castResult = assertIs<Foo>(result)
         assertEquals(Foo.BAR, castResult)
+    }
+
+    @Test
+    fun `renamed enum object is parsed`() {
+        val kParam = assertNotNull(TestFunctions::enumInput.findParameterByName("input"))
+        val inputValue = "baz"
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
+        val castResult = assertIs<Foo>(result)
+        assertEquals(Foo.BAZ, castResult)
     }
 
     @Test
@@ -210,6 +220,23 @@ class ConvertArgumentValueTest {
         assertEquals("1234", result.value)
     }
 
+    @Test
+    fun `input object with renamed fields is correctly deserialized`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectRenamed.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "bar" to "renamed"
+                )
+            )
+        )
+
+        val castResult = assertIs<TestInputRenamed>(result)
+        assertEquals("renamed", castResult.foo)
+    }
+
     class TestFunctions {
         fun enumInput(input: Foo): String = TODO()
         fun idInput(input: ID): String = TODO()
@@ -222,16 +249,20 @@ class ConvertArgumentValueTest {
         fun optionalInputObject(input: OptionalInput<TestInput>): String = TODO()
         fun optionalInputListObject(input: OptionalInput<List<TestInput>>): String = TODO()
         fun stringInput(input: String): String = TODO()
+        fun inputObjectRenamed(input: TestInputRenamed): String = TODO()
     }
 
     class TestInput(val foo: String, val bar: String? = null, val baz: List<String>? = null, val qux: String? = null)
     class TestInputNested(val foo: String? = "foo", val bar: String? = "bar", val nested: TestInputNestedType? = TestInputNestedType())
     class TestInputNestedType(val value: String = "nested default value")
-    class TestInputNullableScalar(val foo: String, val id: ID? = null)
+    class TestInputNullableScalar(val foo: String? = null, val id: ID? = null)
     class TestInputNotNullableScalar(val foo: String, val id: ID = ID("1234"))
+
+    class TestInputRenamed(@GraphQLName("bar") val foo: String)
 
     enum class Foo {
         BAR,
+        @GraphQLName("baz")
         BAZ
     }
 }
