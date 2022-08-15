@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
@@ -93,9 +94,16 @@ private fun convertValue(
  * the only thing left to parse is object maps into the nested Kotlin classes
  */
 private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
-    val targetConstructor = targetClass.primaryConstructor
-        ?: targetClass.constructors.firstOrNull()
-        ?: throw PrimaryConstructorNotFound(targetClass)
+
+    val targetConstructor = targetClass.primaryConstructor ?: run {
+        if (targetClass.constructors.size == 1) {
+            targetClass.constructors.first()
+        } else if (targetClass.constructors.size > 1) {
+            throw MultipleConstructorsFound(targetClass)
+        } else {
+            throw PrimaryConstructorNotFound(targetClass)
+        }
+    }
 
     val constructorParameters = targetConstructor.parameters
     // filter parameters that are actually in the input in order to rely on parameters default values

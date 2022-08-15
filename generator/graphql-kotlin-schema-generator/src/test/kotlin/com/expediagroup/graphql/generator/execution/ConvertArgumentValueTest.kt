@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.execution
 
 import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
@@ -132,6 +133,22 @@ class ConvertArgumentValueTest {
 
         val castResult = assertIs<TestInputNoPrimaryConstructor>(result)
         assertEquals("hello", castResult.value)
+    }
+
+    @Test
+    fun `exception is thrown when multiple constructors were found`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectMultipleConstructors.findParameterByName("input"))
+        assertThrows<MultipleConstructorsFound> {
+            convertArgumentValue(
+                "input",
+                kParam,
+                mapOf(
+                    "input" to mapOf(
+                        "value" to "hello"
+                    )
+                )
+            )
+        }
     }
 
     /**
@@ -259,6 +276,7 @@ class ConvertArgumentValueTest {
         fun idInput(input: ID): String = TODO()
         fun inputObject(input: TestInput): String = TODO()
         fun inputObjectNoPrimaryConstructor(input: TestInputNoPrimaryConstructor): String = TODO()
+        fun inputObjectMultipleConstructors(input: TestInputMultipleConstructors): String = TODO()
         fun inputObjectNested(input: TestInputNested): String = TODO()
         fun inputObjectNullableScalar(input: TestInputNullableScalar): String = TODO()
         fun inputObjectNotNullableScalar(input: TestInputNotNullableScalar): String = TODO()
@@ -278,6 +296,17 @@ class ConvertArgumentValueTest {
     class TestInputRenamed(@GraphQLName("bar") val foo: String)
     class TestInputNoPrimaryConstructor {
         val value: String
+        constructor(value: String) {
+            this.value = value
+        }
+    }
+    class TestInputMultipleConstructors {
+        val value: String
+
+        constructor() {
+            this.value = "Default Value"
+        }
+
         constructor(value: String) {
             this.value = value
         }
