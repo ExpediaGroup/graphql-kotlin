@@ -117,6 +117,23 @@ class ConvertArgumentValueTest {
         assertEquals("nested default value", castResult.nested?.value)
     }
 
+    @Test
+    fun `generic map object is parsed without using primary constructor`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNoPrimaryConstructor.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "value" to "hello"
+                )
+            )
+        )
+
+        val castResult = assertIs<TestInputNoPrimaryConstructor>(result)
+        assertEquals("hello", castResult.value)
+    }
+
     /**
      * this will be solved in Kotlin 1.7
      * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
@@ -241,6 +258,7 @@ class ConvertArgumentValueTest {
         fun enumInput(input: Foo): String = TODO()
         fun idInput(input: ID): String = TODO()
         fun inputObject(input: TestInput): String = TODO()
+        fun inputObjectNoPrimaryConstructor(input: TestInputNoPrimaryConstructor): String = TODO()
         fun inputObjectNested(input: TestInputNested): String = TODO()
         fun inputObjectNullableScalar(input: TestInputNullableScalar): String = TODO()
         fun inputObjectNotNullableScalar(input: TestInputNotNullableScalar): String = TODO()
@@ -257,8 +275,13 @@ class ConvertArgumentValueTest {
     class TestInputNestedType(val value: String = "nested default value")
     class TestInputNullableScalar(val foo: String? = null, val id: ID? = null)
     class TestInputNotNullableScalar(val foo: String, val id: ID = ID("1234"))
-
     class TestInputRenamed(@GraphQLName("bar") val foo: String)
+    class TestInputNoPrimaryConstructor {
+        val value: String
+        constructor(value: String) {
+            this.value = value
+        }
+    }
 
     enum class Foo {
         BAR,
