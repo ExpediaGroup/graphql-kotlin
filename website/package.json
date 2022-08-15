@@ -16,8 +16,8 @@
     "swizzle": "docusaurus swizzle"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.0.0-beta.17",
-    "@docusaurus/preset-classic": "^2.0.0-beta.17",
+    "@docusaurus/core": "^2.0.0",
+    "@docusaurus/preset-classic": "^2.0.0",
     "mdx-mermaid": "^1.2.3",
     "mermaid": "^8.11.5"
   }
