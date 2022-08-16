@@ -23,8 +23,6 @@ import com.expediagroup.graphql.generator.internal.extensions.isGraphQLContext
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.future.future
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.EmptyCoroutineContext
@@ -33,6 +31,8 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.callSuspendBy
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.valueParameters
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.future.future
 
 /**
  * Simple DataFetcher that invokes target function on the given object.
@@ -98,12 +98,14 @@ open class FunctionDataFetcher(
             else -> {
                 val name = param.getName()
                 if (environment.containsArgument(name) || param.type.isOptionalInputType()) {
-                    param to convertArgumentValue(name, param, environment.arguments)
+                    param to convertArgumentValue(name, param, environment.arguments, ::mapToJavaObject)
                 } else {
                     null
                 }
             }
         }
+
+    protected open fun mapToJavaObject(arguments: Map<String, *>, clazz: Class<*>): Any? = null
 
     /**
      * Once all parameters values are properly converted, this function will be called to run a suspendable function using

@@ -18,14 +18,14 @@ package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
 import graphql.schema.DataFetchingEnvironment
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.ApplicationContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.javaType
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.ApplicationContext
 
 /**
  * Spring aware function data fetcher that automatically autowires Spring beans as function parameters.

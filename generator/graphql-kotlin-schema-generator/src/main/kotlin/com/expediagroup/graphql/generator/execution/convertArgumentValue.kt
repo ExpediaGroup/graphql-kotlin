@@ -19,6 +19,7 @@ package com.expediagroup.graphql.generator.execution
 import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
+import com.expediagroup.graphql.generator.internal.extensions.getJavaClass
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
@@ -35,7 +36,8 @@ import kotlin.reflect.full.primaryConstructor
 internal fun convertArgumentValue(
     argumentName: String,
     param: KParameter,
-    argumentMap: Map<String, Any?>
+    argumentMap: Map<String, Any?>,
+    mapToJavaObject: (Map<String, *>, Class<*>) -> Any?
 ): Any? {
     val argumentValue = argumentMap[argumentName]
     return when {
@@ -45,12 +47,13 @@ internal fun convertArgumentValue(
                 argumentValue == null -> OptionalInput.Defined(null)
                 else -> {
                     val paramType = param.type.getTypeOfFirstArgument()
-                    val value = convertValue(paramType, argumentValue)
+                    val value = convertValue(paramType, argumentValue, mapToJavaObject)
                     OptionalInput.Defined(value)
                 }
             }
         }
-        else -> convertValue(param.type, argumentValue)
+
+        else -> convertValue(param.type, argumentValue, mapToJavaObject)
     }
 }
 
@@ -59,20 +62,29 @@ internal fun convertArgumentValue(
  */
 private fun convertValue(
     paramType: KType,
-    argumentValue: Any?
+    argumentValue: Any?,
+    mapToJavaObject: (Map<String, *>, Class<*>) -> Any?
 ): Any? {
     // The input given is a list, iterate over each value to return a parsed list
     if (argumentValue is Iterable<*>) {
         return argumentValue.map {
             val wrappedType = paramType.getTypeOfFirstArgument()
-            convertValue(wrappedType, it)
+            convertValue(wrappedType, it, mapToJavaObject)
         }
     }
 
     // If the value is a generic map, parse each entry which may have some values already parsed
     if (argumentValue is Map<*, *>) {
-        @Suppress("UNCHECKED_CAST")
-        return mapToKotlinObject(argumentValue as Map<String, *>, paramType.getKClass())
+        if (paramType.getKClass().primaryConstructor == null &&
+            !paramType.getJavaClass().declaredAnnotations.any {
+                it.annotationClass.qualifiedName == "kotlin.Metadata"
+            }
+        ) {
+            return mapToJavaObject(argumentValue as Map<String, *>, paramType.getJavaClass())
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            return mapToKotlinObject(argumentValue as Map<String, *>, paramType.getKClass(), mapToJavaObject)
+        }
     }
 
     // If the value is enum we need to find the correct value
@@ -93,7 +105,7 @@ private fun convertValue(
  * At this point all custom scalars have been converted by graphql-java so
  * the only thing left to parse is object maps into the nested Kotlin classes
  */
-private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
+private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>, mapToJavaObject: (Map<String, *>, Class<*>) -> Any?): T {
 
     val targetConstructor = targetClass.primaryConstructor ?: run {
         if (targetClass.constructors.size == 1) {
@@ -112,7 +124,7 @@ private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KCla
         input.containsKey(parameter.getName()) || parameter.type.isOptionalInputType()
     }
     val constructorArguments = constructorParametersInInput.associateWith { parameter ->
-        convertArgumentValue(parameter.getName(), parameter, input)
+        convertArgumentValue(parameter.getName(), parameter, input, mapToJavaObject)
     }
     return targetConstructor.callBy(constructorArguments)
 }

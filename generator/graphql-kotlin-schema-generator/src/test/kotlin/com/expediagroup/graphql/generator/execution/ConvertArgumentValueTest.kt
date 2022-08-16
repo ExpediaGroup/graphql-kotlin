@@ -31,17 +31,20 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 class ConvertArgumentValueTest {
+
+    val mapToJavaObject: (Map<String, *>, Class<*>) -> Any? = { _, _ -> null }
+
     @Test
     fun `string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::stringInput.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"), mapToJavaObject)
         assertEquals("hello", result)
     }
 
     @Test
     fun `pre-parsed object is returned`() {
         val kParam = assertNotNull(TestFunctions::inputObject.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to TestInput("hello")))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to TestInput("hello")), mapToJavaObject)
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
     }
@@ -50,7 +53,7 @@ class ConvertArgumentValueTest {
     fun `enum object is parsed`() {
         val kParam = assertNotNull(TestFunctions::enumInput.findParameterByName("input"))
         val inputValue = "BAR"
-        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue), mapToJavaObject)
         val castResult = assertIs<Foo>(result)
         assertEquals(Foo.BAR, castResult)
     }
@@ -59,7 +62,7 @@ class ConvertArgumentValueTest {
     fun `renamed enum object is parsed`() {
         val kParam = assertNotNull(TestFunctions::enumInput.findParameterByName("input"))
         val inputValue = "baz"
-        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue), mapToJavaObject)
         val castResult = assertIs<Foo>(result)
         assertEquals(Foo.BAZ, castResult)
     }
@@ -73,7 +76,7 @@ class ConvertArgumentValueTest {
             "baz" to listOf("!"),
             "qux" to "1234"
         )
-        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue), mapToJavaObject)
         val castResult = assertIs<TestInput>(result)
         assertEquals("hello", castResult.foo)
         assertEquals("world", castResult.bar)
@@ -91,7 +94,8 @@ class ConvertArgumentValueTest {
                 "input" to mapOf(
                     "foo" to "hello"
                 )
-            )
+            ),
+            mapToJavaObject
         )
 
         val castResult = assertIs<TestInput>(result)
@@ -109,7 +113,8 @@ class ConvertArgumentValueTest {
             kParam,
             mapOf(
                 "input" to emptyMap<String, Any>()
-            )
+            ),
+            mapToJavaObject
         )
 
         val castResult = assertIs<TestInputNested>(result)
@@ -128,7 +133,8 @@ class ConvertArgumentValueTest {
                 "input" to mapOf(
                     "value" to "hello"
                 )
-            )
+            ),
+            mapToJavaObject
         )
 
         val castResult = assertIs<TestInputNoPrimaryConstructor>(result)
@@ -146,7 +152,8 @@ class ConvertArgumentValueTest {
                     "input" to mapOf(
                         "value" to "hello"
                     )
-                )
+                ),
+                mapToJavaObject
             )
         }
     }
@@ -168,7 +175,8 @@ class ConvertArgumentValueTest {
                     "input" to mapOf(
                         "foo" to "foo"
                     )
-                )
+                ),
+                mapToJavaObject
             )
         }
     }
@@ -190,7 +198,8 @@ class ConvertArgumentValueTest {
                     "input" to mapOf(
                         "foo" to "foo"
                     )
-                )
+                ),
+                mapToJavaObject
             )
         }
     }
@@ -198,21 +207,21 @@ class ConvertArgumentValueTest {
     @Test
     fun `list string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::listStringInput.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to listOf("hello")))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to listOf("hello")), mapToJavaObject)
         assertEquals(listOf("hello"), result)
     }
 
     @Test
     fun `optional input when undefined is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInput.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf())
+        val result = convertArgumentValue("input", kParam, mapOf(), mapToJavaObject)
         assertEquals(OptionalInput.Undefined, result)
     }
 
     @Test
     fun `optional input with defined null is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInput.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to null))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to null), mapToJavaObject)
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         assertEquals(null, castResult.value)
     }
@@ -223,7 +232,7 @@ class ConvertArgumentValueTest {
         val mockEnv = mockk<DataFetchingEnvironment> {
             every { containsArgument("input") } returns true
         }
-        val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"), mapToJavaObject)
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         assertEquals("hello", castResult.value)
     }
@@ -231,7 +240,7 @@ class ConvertArgumentValueTest {
     @Test
     fun `optional input with object is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInputObject.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to TestInput("hello")))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to TestInput("hello")), mapToJavaObject)
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         val castResult2 = assertIs<TestInput>(castResult.value)
         assertEquals("hello", castResult2.foo)
@@ -240,7 +249,7 @@ class ConvertArgumentValueTest {
     @Test
     fun `optional input with list object is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInputListObject.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to listOf(TestInput("hello"))))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to listOf(TestInput("hello"))), mapToJavaObject)
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         val castResult2 = assertIs<List<TestInput>>(castResult.value)
         assertEquals("hello", castResult2.firstOrNull()?.foo)
@@ -249,7 +258,7 @@ class ConvertArgumentValueTest {
     @Test
     fun `id input is parsed`() {
         val kParam = assertNotNull(TestFunctions::idInput.findParameterByName("input"))
-        val result = convertArgumentValue("input", kParam, mapOf("input" to "1234"))
+        val result = convertArgumentValue("input", kParam, mapOf("input" to "1234"), mapToJavaObject)
         assertIs<ID>(result)
         assertEquals("1234", result.value)
     }
@@ -264,7 +273,8 @@ class ConvertArgumentValueTest {
                 "input" to mapOf(
                     "bar" to "renamed"
                 )
-            )
+            ),
+            mapToJavaObject
         )
 
         val castResult = assertIs<TestInputRenamed>(result)
