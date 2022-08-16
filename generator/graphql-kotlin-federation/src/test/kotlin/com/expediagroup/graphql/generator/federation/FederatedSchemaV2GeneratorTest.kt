@@ -75,7 +75,7 @@ class FederatedSchemaV2GeneratorTest {
             "Indicates that given object and/or field can be resolved by multiple subgraphs"
             directive @shareable on OBJECT | FIELD_DEFINITION
 
-            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
                 "Skipped when true."
                 if: Boolean!
