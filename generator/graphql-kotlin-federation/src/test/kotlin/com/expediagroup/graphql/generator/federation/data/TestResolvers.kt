@@ -20,11 +20,11 @@ import com.expediagroup.graphql.generator.federation.data.queries.federated.Auth
 import com.expediagroup.graphql.generator.federation.data.queries.federated.Book
 import com.expediagroup.graphql.generator.federation.data.queries.federated.User
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypePromiseResolver
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
-internal class BookResolver : FederatedTypeResolver<Book> {
+internal class BookResolver : FederatedTypeSuspendResolver<Book> {
     override val typeName: String = "Book"
 
     override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Book? {
@@ -36,7 +36,7 @@ internal class BookResolver : FederatedTypeResolver<Book> {
     }
 }
 
-internal class UserResolver : FederatedTypeResolver<User> {
+internal class UserResolver : FederatedTypeSuspendResolver<User> {
     override val typeName: String = "User"
 
     override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): User? {

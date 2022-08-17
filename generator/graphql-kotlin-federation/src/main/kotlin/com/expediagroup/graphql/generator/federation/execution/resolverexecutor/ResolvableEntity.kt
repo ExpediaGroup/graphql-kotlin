@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
 
-import com.expediagroup.graphql.generator.federation.execution.TypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 
-data class ResolvableEntity<T : TypeResolver>(
+data class ResolvableEntity<T : FederatedTypeResolver>(
     val typeName: String,
     val indexedRepresentations: List<IndexedValue<Map<String, Any>>>,
     val resolver: T

@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
 
 import com.expediagroup.graphql.generator.federation.exception.FederatedRequestFailure
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.coEvery
@@ -29,13 +29,13 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class FederatedTypeResolverExecutorTest {
+class FederatedTypeSuspendResolverExecutorTest {
     @Test
     fun `resolver executor should invoke the resolver and provide results in order`() {
         val environment = mockk<DataFetchingEnvironment> {
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
-        val mockResolverA = mockk<FederatedTypeResolver<*>> {
+        val mockResolverA = mockk<FederatedTypeSuspendResolver<*>> {
             every { typeName } returns "MyTypeA"
             coEvery { resolve(environment, mapOf("key" to "keyA1")) } coAnswers {
                 delay(100)
@@ -52,7 +52,7 @@ class FederatedTypeResolverExecutorTest {
             mockResolverA
         )
 
-        val mockResolverB = mockk<FederatedTypeResolver<*>> {
+        val mockResolverB = mockk<FederatedTypeSuspendResolver<*>> {
             every { typeName } returns "MyTypeB"
             coEvery { resolve(environment, mapOf("key" to "keyB1")) } coAnswers {
                 delay(300)
@@ -69,7 +69,7 @@ class FederatedTypeResolverExecutorTest {
             mockResolverB
         )
 
-        val result = FederatedTypeResolverExecutor.execute(
+        val result = FederatedTypeSuspendResolverExecutor.execute(
             listOf(resolvableEntityA, resolvableEntityB),
             environment
         ).get()
@@ -98,7 +98,7 @@ class FederatedTypeResolverExecutorTest {
     fun `resolver executor maps the value to a failure when the resolver throws an exception`() {
         val representation = emptyMap<String, Any>()
         val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(IndexedValue(7, representation))
-        val mockResolver: FederatedTypeResolver<*> = mockk {
+        val mockResolver: FederatedTypeSuspendResolver<*> = mockk {
             every { typeName } returns "MyType"
             coEvery { resolve(any(), any()) } throws Exception("custom exception")
         }
@@ -108,7 +108,7 @@ class FederatedTypeResolverExecutorTest {
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
-        val result = FederatedTypeResolverExecutor.execute(listOf(resolvableEntity), environment).get()
+        val result = FederatedTypeSuspendResolverExecutor.execute(listOf(resolvableEntity), environment).get()
         assertTrue(result.isNotEmpty())
         val mappedValue = result.first()
         val response = mappedValue[7]

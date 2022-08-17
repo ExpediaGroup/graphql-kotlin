@@ -10,7 +10,7 @@ import com.expediagroup.graphql.generator.federation.directives.OverrideDirectiv
 import com.expediagroup.graphql.generator.federation.directives.ProvidesDirective
 import com.expediagroup.graphql.generator.federation.directives.ShareableDirective
 import com.expediagroup.graphql.generator.federation.directives.TagDirective
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
@@ -105,7 +105,7 @@ data class User(
 )
 
 @Component
-class ProductsResolver : FederatedTypeResolver<Product> {
+class ProductsResolver : FederatedTypeSuspendResolver<Product> {
     override val typeName: String = "Product"
 
     override suspend fun resolve(
@@ -115,7 +115,7 @@ class ProductsResolver : FederatedTypeResolver<Product> {
 }
 
 @Component
-class UserResolver : FederatedTypeResolver<User> {
+class UserResolver : FederatedTypeSuspendResolver<User> {
     override val typeName: String = "User"
 
     override suspend fun resolve(

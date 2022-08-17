@@ -94,12 +94,14 @@ data class Product(@ExternalDirective val id: Int) {
 data class Review(val reviewId: String, val text: String)
 
 // Resolve a "Product" type from the _entities query
-class ProductResolver : FederatedTypeResolver<Product> {
+class ProductResolver : FederatedTypeSuspendResolver<Product> {
     override val typeName = "Product"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Product?> = representations.map { keys ->
-        keys["id"]?.toString()?.toIntOrNull()?.let { id -> Product(id) }
-    }
+    override suspend fun resolve(
+        environment: DataFetchingEnvironment,
+        representation: Map<String, Any>
+    ): Product? =
+        representation["id"]?.toString()?.toIntOrNull()?.let { id -> Product(id) }
 }
 
 // Generate the schema

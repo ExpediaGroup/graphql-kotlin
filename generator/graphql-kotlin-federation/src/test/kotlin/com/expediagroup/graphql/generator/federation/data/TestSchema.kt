@@ -19,13 +19,13 @@ package com.expediagroup.graphql.generator.federation.data
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
 
 internal fun federatedTestSchema(
     queries: List<TopLevelObject> = emptyList(),
-    federatedTypeResolvers: List<FederatedTypeResolver<*>> = emptyList()
+    federatedTypeResolvers: List<FederatedTypeSuspendResolver<*>> = emptyList()
 ): GraphQLSchema {
     val config = FederatedSchemaGeneratorConfig(
         supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),

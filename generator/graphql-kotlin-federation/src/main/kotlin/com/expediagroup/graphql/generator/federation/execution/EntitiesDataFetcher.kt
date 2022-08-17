@@ -18,7 +18,7 @@ package com.expediagroup.graphql.generator.federation.execution
 
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedRequest
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypePromiseResolverExecutor
-import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypeResolverExecutor
+import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypeSuspendResolverExecutor
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.ResolvableEntity
 import com.expediagroup.graphql.generator.federation.extensions.collectAll
 import com.expediagroup.graphql.generator.federation.extensions.toDataFetcherResult
@@ -34,14 +34,14 @@ private const val REPRESENTATIONS = "representations"
  * Federated _entities field data fetcher.
  */
 open class EntitiesDataFetcher(
-    resolvers: List<TypeResolver>
+    resolvers: List<FederatedTypeResolver>
 ) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
 
-    constructor(vararg resolvers: TypeResolver) : this(resolvers.toList())
+    constructor(vararg resolvers: FederatedTypeResolver) : this(resolvers.toList())
     /**
      * Pre-compute resolvers by typename so, we don't have to search on every request
      */
-    private val resolversByType: Map<String, TypeResolver> = resolvers.associateBy(TypeResolver::typeName)
+    private val resolversByType: Map<String, FederatedTypeResolver> = resolvers.associateBy(FederatedTypeResolver::typeName)
 
     /**
      * Resolves entities based on the passed in representations argument. Entities are resolved in the same order
@@ -58,7 +58,7 @@ open class EntitiesDataFetcher(
 
         val representationsWithoutResolver = mutableListOf<IndexedValue<Map<String, Any>>>()
         val entitiesWithPromiseResolver = mutableListOf<ResolvableEntity<FederatedTypePromiseResolver<*>>>()
-        val entitiesWithSuspendResolver = mutableListOf<ResolvableEntity<FederatedTypeResolver<*>>>()
+        val entitiesWithSuspendResolver = mutableListOf<ResolvableEntity<FederatedTypeSuspendResolver<*>>>()
 
         representations.withIndex()
             .groupBy { (_, representation) -> representation[TYPENAME_FIELD].toString() }
@@ -67,7 +67,7 @@ open class EntitiesDataFetcher(
                     is FederatedTypePromiseResolver<*> -> {
                         entitiesWithPromiseResolver += ResolvableEntity(typeName, indexedRequests, resolver)
                     }
-                    is FederatedTypeResolver<*> -> {
+                    is FederatedTypeSuspendResolver<*> -> {
                         entitiesWithSuspendResolver += ResolvableEntity(typeName, indexedRequests, resolver)
                     }
                     null -> {
@@ -86,7 +86,7 @@ open class EntitiesDataFetcher(
 
         val promises: List<CompletableFuture<List<Map<Int, Any?>>>> = listOf(
             FederatedTypePromiseResolverExecutor.execute(entitiesWithPromiseResolver, env),
-            FederatedTypeResolverExecutor.execute(entitiesWithSuspendResolver, env),
+            FederatedTypeSuspendResolverExecutor.execute(entitiesWithSuspendResolver, env),
             noResolverErrors
         )
 

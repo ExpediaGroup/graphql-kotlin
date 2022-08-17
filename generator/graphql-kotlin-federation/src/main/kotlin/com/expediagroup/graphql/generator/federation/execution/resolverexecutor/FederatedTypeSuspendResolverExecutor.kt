@@ -18,7 +18,7 @@ package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
 
 import com.expediagroup.graphql.generator.extensions.getOrDefault
 import com.expediagroup.graphql.generator.federation.exception.FederatedRequestFailure
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -28,12 +28,12 @@ import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.EmptyCoroutineContext
 
-internal object FederatedTypeResolverExecutor : TypeResolverExecutor<FederatedTypeResolver<*>> {
+internal object FederatedTypeSuspendResolverExecutor : TypeResolverExecutor<FederatedTypeSuspendResolver<*>> {
     override fun execute(
-        resolvableEntities: List<ResolvableEntity<FederatedTypeResolver<*>>>,
+        resolvableEntities: List<ResolvableEntity<FederatedTypeSuspendResolver<*>>>,
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Map<Int, Any?>>> =
-        resolvableEntities.takeUnless(List<ResolvableEntity<FederatedTypeResolver<*>>>::isEmpty)
+        resolvableEntities.takeUnless(List<ResolvableEntity<FederatedTypeSuspendResolver<*>>>::isEmpty)
             ?.let {
                 environment.graphQlContext.getOrDefault(CoroutineScope(EmptyCoroutineContext)).future {
                     coroutineScope {
@@ -48,7 +48,7 @@ internal object FederatedTypeResolverExecutor : TypeResolverExecutor<FederatedTy
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun resolveEntity(
-        resolvableEntity: ResolvableEntity<FederatedTypeResolver<*>>,
+        resolvableEntity: ResolvableEntity<FederatedTypeSuspendResolver<*>>,
         environment: DataFetchingEnvironment,
     ): Map<Int, Any?> {
         val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)

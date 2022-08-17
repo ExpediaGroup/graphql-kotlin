@@ -82,8 +82,8 @@ class EntitiesDataFetcherTest {
 
     @Test
     fun `verify entities data fetcher returns GraphQLError if __typename is not specified`() {
-        val mockBookResolver = mockk<FederatedTypeResolver<*>> { every { typeName } returns "Book" }
-        val mockUserResolver = mockk<FederatedTypeResolver<*>> { every { typeName } returns "User" }
+        val mockBookResolver = mockk<FederatedTypeSuspendResolver<*>> { every { typeName } returns "Book" }
+        val mockUserResolver = mockk<FederatedTypeSuspendResolver<*>> { every { typeName } returns "User" }
         val resolver = EntitiesDataFetcher(mockBookResolver, mockUserResolver)
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns listOf(emptyMap<String, Any>())
@@ -111,7 +111,7 @@ class EntitiesDataFetcherTest {
 
     @Test
     fun `verify entities data fetcher returns GraphQLError if exception is thrown during type resolution`() {
-        val mockUserResolver: FederatedTypeResolver<User> = mockk {
+        val mockUserResolver: FederatedTypeSuspendResolver<User> = mockk {
             every { typeName } returns "User"
             coEvery { resolve(any(), any()) } throws RuntimeException("JUnit exception")
         }

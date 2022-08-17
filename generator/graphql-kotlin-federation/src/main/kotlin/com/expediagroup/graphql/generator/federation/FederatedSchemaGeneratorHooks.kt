@@ -69,7 +69,7 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(
-    private val resolvers: List<FederatedTypeResolver<*>>,
+    private val resolvers: List<FederatedTypeResolver>,
     private val optInFederationV2: Boolean = false
 ) : SchemaGeneratorHooks {
     private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))

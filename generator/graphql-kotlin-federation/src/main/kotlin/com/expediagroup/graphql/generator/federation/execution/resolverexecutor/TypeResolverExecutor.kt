@@ -16,11 +16,11 @@
 
 package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
 
-import com.expediagroup.graphql.generator.federation.execution.TypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
-sealed interface TypeResolverExecutor<T : TypeResolver> {
+sealed interface TypeResolverExecutor<T : FederatedTypeResolver> {
     fun execute(
         resolvableEntities: List<ResolvableEntity<T>>,
         environment: DataFetchingEnvironment

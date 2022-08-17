@@ -121,13 +121,16 @@ type _Service {
 
 ### Extended Schema (Reviews Subgraph)
 
-Extended federated GraphQL schemas provide additional functionality to the types already exposed by other GraphQL services. In the example below, `Product` type is extended to add new `reviews` field to it. Primary key needed to instantiate the `Product` type (i.e. `id`) has to match the `@key` definition on the base type. Since primary keys are defined on the base type and are only referenced from the extended type, all of the fields that are part of the field set specified in `@key` directive have to be marked as `@external`.
+Extended federated GraphQL schemas provide additional functionality to the types already exposed by other GraphQL services.
+In the example below, `Product` type is extended to add new `reviews` field to it. Primary key needed to instantiate
+the `Product` type (i.e. `id`) has to match the `@key` definition on the base type.
+Since primary keys are defined on the base type and are only referenced from the extended type,
+all the fields that are part of the field set specified in `@key` directive have to be marked as `@external`.
 
 ```kotlin
 @KeyDirective(fields = FieldSet("id"))
 @ExtendsDirective
 data class Product(@ExternalDirective val id: Int) {
-
     fun reviews(): List<Review> {
         // returns list of product reviews
     }
@@ -136,9 +139,12 @@ data class Product(@ExternalDirective val id: Int) {
 data class Review(val reviewId: String, val text: String)
 
 // Generate the schema
-val productResolver = object: FederatedTypeResolver<Product> {
-    override fun resolve(keys: Map<String, Any>): Product {
-        val id = keys["id"]?.toString()?.toIntOrNull()
+val productResolver = object: FederatedTypeSuspendResolver<Product> {
+    override fun resolve(
+        environment: DataFetchingEnvironment,
+        representation: Map<String, Any>
+    ): Product {
+        val id = representation["id"]?.toString()?.toIntOrNull()
         // instantiate product using id
     }
 }

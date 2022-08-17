@@ -19,7 +19,7 @@ package com.expediagroup.graphql.generator.federation.execution
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
-interface FederatedTypePromiseResolver<T> : TypeResolver {
+interface FederatedTypePromiseResolver<T> : FederatedTypeResolver {
     /**
      * Resolves underlying federated types by returning a CompletableFuture
      *

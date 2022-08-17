@@ -17,16 +17,19 @@
 package com.expediagroup.graphql.examples.federation.extend.schema
 
 import com.expediagroup.graphql.examples.federation.extend.service.RandomNumberService
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
 
 @Component
-class WidgetResolver(private val randomNumberService: RandomNumberService) : FederatedTypeResolver<Widget> {
+class WidgetResolver(private val randomNumberService: RandomNumberService) : FederatedTypeSuspendResolver<Widget> {
     override val typeName: String = "Widget"
 
     @Suppress("UNCHECKED_CAST")
-    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Widget? {
+    override suspend fun resolve(
+        environment: DataFetchingEnvironment,
+        representation: Map<String, Any>
+    ): Widget? {
         // Extract the 'id' from the representation map provided by the other service
         val id = representation["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
         val listOfValues = representation["listOfValues"] as? List<Int>
