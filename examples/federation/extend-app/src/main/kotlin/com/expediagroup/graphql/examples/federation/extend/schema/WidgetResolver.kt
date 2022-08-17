@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ class WidgetResolver(private val randomNumberService: RandomNumberService) : Fed
     override val typeName: String = "Widget"
 
     @Suppress("UNCHECKED_CAST")
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Widget?> = representations.map {
-        // Extract the 'id' from the other service
-        val id = it["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
-        val listOfValues = it["listOfValues"] as? List<Int>
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Widget? {
+        // Extract the 'id' from the representation map provided by the other service
+        val id = representation["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
+        val listOfValues = representation["listOfValues"] as? List<Int>
 
         // If we needed to construct a Widget which has data from other APIs,
         // this is the place where we could call them with the widget id
