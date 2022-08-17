@@ -26,8 +26,8 @@ interface FederatedTypeResolver<out T> : TypeResolver {
      * Resolves underlying federated types by using suspending functions
      *
      * @param environment DataFetchingEnvironment for executing this query
-     * @param representations _entity query representations that are required to instantiate the target type
+     * @param representation entity representation that is required to resolve the target type
      * @return list of the target federated type instances
      */
-    suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<T?>
+    suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): T?
 }

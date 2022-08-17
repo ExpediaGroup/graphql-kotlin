@@ -54,12 +54,14 @@ internal object FederatedTypeResolverExecutor : TypeResolverExecutor<FederatedTy
         val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
         val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)
         val results = try {
-            resolvableEntity.resolver.resolve(environment, representations)
+            representations.map { representation ->
+                resolvableEntity.resolver.resolve(environment, representation)
+            }
         } catch (e: Exception) {
             representations.map {
                 FederatedRequestFailure("Exception was thrown while trying to resolve federated type, representation=$it", e)
             }
         }
-        return handleResults(resolvableEntity.typeName, indexes, results)
+        return indexes.zip(results).toMap()
     }
 }

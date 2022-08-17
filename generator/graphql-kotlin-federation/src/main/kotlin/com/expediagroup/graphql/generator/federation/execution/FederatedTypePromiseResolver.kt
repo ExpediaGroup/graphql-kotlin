@@ -24,8 +24,8 @@ interface FederatedTypePromiseResolver<T> : TypeResolver {
      * Resolves underlying federated types by returning a CompletableFuture
      *
      * @param environment DataFetchingEnvironment for executing this query
-     * @param representations _entity query representations that are required to instantiate the target type
+     * @param representation entity representation that is required to resolve the target type
      * @return promise of list of the target federated type instances
      */
-    fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): CompletableFuture<List<T?>>
+    fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): CompletableFuture<T?>
 }

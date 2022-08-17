@@ -27,31 +27,22 @@ import java.util.concurrent.CompletableFuture
 internal class BookResolver : FederatedTypeResolver<Book> {
     override val typeName: String = "Book"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Book?> {
-        val results = mutableListOf<Book?>()
-        for (keys in representations) {
-            val book = Book(keys["id"].toString())
-            keys["weight"]?.toString()?.toDoubleOrNull()?.let {
-                book.weight = it
-            }
-            results.add(book)
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Book? {
+        val book = Book(representation["id"].toString())
+        representation["weight"]?.toString()?.toDoubleOrNull()?.let {
+            book.weight = it
         }
-
-        return results
+        return book
     }
 }
 
 internal class UserResolver : FederatedTypeResolver<User> {
     override val typeName: String = "User"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<User?> {
-        val results = mutableListOf<User?>()
-        for (keys in representations) {
-            val id = keys["userId"].toString().toInt()
-            val name = keys["name"].toString()
-            results.add(User(id, name))
-        }
-        return results
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): User? {
+        val id = representation["userId"].toString().toInt()
+        val name = representation["name"].toString()
+        return User(id, name)
     }
 }
 
@@ -61,13 +52,9 @@ internal class AuthorResolver : FederatedTypePromiseResolver<Author> {
 
     override fun resolve(
         environment: DataFetchingEnvironment,
-        representations: List<Map<String, Any>>
-    ): CompletableFuture<List<Author?>> {
-        val results = mutableListOf<Author?>()
-        for (keys in representations) {
-            results.add(authors[keys["authorId"].toString().toInt()])
-        }
-        return CompletableFuture.completedFuture(results)
+        representation: Map<String, Any>
+    ): CompletableFuture<Author?> {
+        return CompletableFuture.completedFuture(authors[representation["authorId"].toString().toInt()])
     }
 
     companion object {

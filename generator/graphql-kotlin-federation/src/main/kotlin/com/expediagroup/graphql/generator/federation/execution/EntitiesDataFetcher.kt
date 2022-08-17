@@ -20,6 +20,7 @@ import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedR
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypePromiseResolverExecutor
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypeResolverExecutor
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.ResolvableEntity
+import com.expediagroup.graphql.generator.federation.extensions.collectAll
 import com.expediagroup.graphql.generator.federation.extensions.toDataFetcherResult
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetcher
@@ -77,31 +78,28 @@ open class EntitiesDataFetcher(
 
         val noResolverErrors: CompletableFuture<List<Map<Int, Any?>>> = CompletableFuture.completedFuture(
             listOf(
-                representationsWithoutResolver.map(IndexedValue<Map<String, Any>>::index).zip(
-                    representationsWithoutResolver.map(IndexedValue<Map<String, Any>>::value).map { representation ->
-                        InvalidFederatedRequest("Unable to resolve federated type, representation=$representation")
-                    }
-                ).toMap()
+                representationsWithoutResolver.associateBy(IndexedValue<Map<String, Any>>::index) { (_, representation) ->
+                    InvalidFederatedRequest("Unable to resolve federated type, representation=$representation")
+                }
             )
         )
 
-        val allPromises: List<CompletableFuture<List<Map<Int, Any?>>>> = listOf(
+        val promises: List<CompletableFuture<List<Map<Int, Any?>>>> = listOf(
             FederatedTypePromiseResolverExecutor.execute(entitiesWithPromiseResolver, env),
             FederatedTypeResolverExecutor.execute(entitiesWithSuspendResolver, env),
             noResolverErrors
         )
 
-        return CompletableFuture.allOf(
-            *allPromises.toTypedArray()
-        ).thenApply {
-            allPromises.asSequence()
-                .map(CompletableFuture<List<Map<Int, Any?>>>::join)
-                .flatten()
-                .map(Map<Int, Any?>::toList)
-                .flatten()
-                .sortedBy(Pair<Int, Any?>::first)
-                .map(Pair<Int, Any?>::second)
-                .toDataFetcherResult()
-        }
+        return promises
+            .collectAll()
+            .thenApply { results ->
+                results.asSequence()
+                    .flatten()
+                    .map(Map<Int, Any?>::toList)
+                    .flatten()
+                    .sortedBy(Pair<Int, Any?>::first)
+                    .map(Pair<Int, Any?>::second)
+                    .toDataFetcherResult()
+            }
     }
 }

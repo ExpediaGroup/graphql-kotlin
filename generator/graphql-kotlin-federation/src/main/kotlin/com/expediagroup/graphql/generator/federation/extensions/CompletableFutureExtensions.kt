@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.expediagroup.graphql.generator.federation.extensions
 
-package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
-
-import com.expediagroup.graphql.generator.federation.execution.TypeResolver
-import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
-sealed interface TypeResolverExecutor<T : TypeResolver> {
-    fun execute(
-        resolvableEntities: List<ResolvableEntity<T>>,
-        environment: DataFetchingEnvironment
-    ): CompletableFuture<List<Map<Int, Any?>>>
-}
+/**
+ * Returns a new CompletableFuture of a list with the resolved values of the given CompletableFutures.
+ * the returned completableFuture will complete when all given CompletableFutures complete.
+ */
+internal fun <T : Any?> List<CompletableFuture<out T>>.collectAll(): CompletableFuture<List<T>> =
+    CompletableFuture.allOf(
+        *toTypedArray()
+    ).thenApply {
+        map(CompletableFuture<out T>::join)
+    }

@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.federation.execution.resolverexecutor
 
 import com.expediagroup.graphql.generator.federation.exception.FederatedRequestFailure
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypePromiseResolver
+import com.expediagroup.graphql.generator.federation.extensions.collectAll
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
@@ -25,16 +26,10 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
     override fun execute(
         resolvableEntities: List<ResolvableEntity<FederatedTypePromiseResolver<*>>>,
         environment: DataFetchingEnvironment
-    ): CompletableFuture<List<Map<Int, Any?>>> {
-        val futures: List<CompletableFuture<Map<Int, Any?>>> = resolvableEntities.map { resolvableEntity ->
+    ): CompletableFuture<List<Map<Int, Any?>>> =
+        resolvableEntities.map { resolvableEntity ->
             resolveEntity(resolvableEntity, environment)
-        }
-        return CompletableFuture.allOf(
-            *futures.toTypedArray()
-        ).thenApply {
-            futures.map(CompletableFuture<Map<Int, Any?>>::join)
-        }
-    }
+        }.collectAll()
 
     @Suppress("TooGenericExceptionCaught")
     private fun resolveEntity(
@@ -44,7 +39,9 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
         val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
         val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)
         val resultsPromise = try {
-            resolvableEntity.resolver.resolve(environment, representations)
+            representations.map { representation ->
+                resolvableEntity.resolver.resolve(environment, representation)
+            }.collectAll()
         } catch (e: Exception) {
             CompletableFuture.completedFuture(
                 representations.map {
@@ -53,7 +50,7 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
             )
         }
         return resultsPromise.thenApply { results ->
-            handleResults(resolvableEntity.typeName, indexes, results)
+            indexes.zip(results).toMap()
         }
     }
 }

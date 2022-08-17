@@ -148,9 +148,10 @@ class EntitiesDataFetcherTest {
         verifyData(result.data, user1, book, user2)
         verifyErrors(result.errors)
 
-        coVerify {
-            spyUserResolver.resolve(any(), listOf(user1.toRepresentation(), user2.toRepresentation()))
-            spyBookResolver.resolve(any(), listOf(book.toRepresentation()))
+        coVerify(exactly = 1) {
+            spyUserResolver.resolve(any(), user1.toRepresentation())
+            spyUserResolver.resolve(any(), user2.toRepresentation())
+            spyBookResolver.resolve(any(), book.toRepresentation())
         }
     }
 
@@ -178,36 +179,8 @@ class EntitiesDataFetcherTest {
         verifyErrors(result.errors, "Exception was thrown while trying to resolve federated type, representation={__typename=Book, id=988, weight=1.0}")
 
         coVerify {
-            spyUserResolver.resolve(any(), listOf(user.toRepresentation()))
-            mockBookResolver.resolve(any(), listOf(book.toRepresentation()))
-        }
-    }
-
-    @Test
-    fun `verify entities data fetcher returns error when different number of entities is returned than requested`() {
-        val user = User(123, "testName1")
-        val representations = listOf(user.toRepresentation(), user.toRepresentation())
-        val env = mockk<DataFetchingEnvironment> {
-            every { getArgument<Any>(any()) } returns representations
-            every { graphQlContext } returns GraphQLContext.newContext().build()
-        }
-
-        val mockUserResolver: UserResolver = mockk {
-            every { typeName } returns "User"
-            coEvery { resolve(any(), any()) } returns listOf(user)
-        }
-        val resolver = EntitiesDataFetcher(listOf(mockUserResolver))
-        val result = resolver.get(env).get()
-
-        verifyData(result.data, null, null)
-        verifyErrors(
-            result.errors,
-            "Federation batch request for User generated different number of results than requested, representations=2, results=1",
-            "Federation batch request for User generated different number of results than requested, representations=2, results=1"
-        )
-
-        coVerify {
-            mockUserResolver.resolve(any(), listOf(user.toRepresentation(), user.toRepresentation()))
+            spyUserResolver.resolve(any(), user.toRepresentation())
+            mockBookResolver.resolve(any(), book.toRepresentation())
         }
     }
 
