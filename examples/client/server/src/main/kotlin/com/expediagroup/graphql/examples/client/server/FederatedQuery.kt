@@ -110,10 +110,8 @@ class ProductsResolver : FederatedTypeResolver<Product> {
 
     override suspend fun resolve(
         environment: DataFetchingEnvironment,
-        representations: List<Map<String, Any>>
-    ): List<Product?> = representations.map {
-        Product.byReference(it)
-    }
+        representation: Map<String, Any>
+    ): Product? = Product.byReference(it)
 }
 
 @Component
@@ -122,11 +120,9 @@ class UserResolver : FederatedTypeResolver<User> {
 
     override suspend fun resolve(
         environment: DataFetchingEnvironment,
-        representations: List<Map<String, Any>>
+        representation: Map<String, Any>
     ): List<User?> {
-        return representations.map {
-            val email = it["email"]?.toString() ?: throw RuntimeException("invalid entity reference")
-            User(email = email, name = "default", totalProductsCreated = 1337)
-        }
+        val email = representation["email"]?.toString() ?: throw RuntimeException("invalid entity reference")
+        return User(email = email, name = "default", totalProductsCreated = 1337)
     }
 }
