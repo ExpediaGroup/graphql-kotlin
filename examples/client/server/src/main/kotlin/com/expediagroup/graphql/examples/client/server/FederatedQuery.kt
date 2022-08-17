@@ -111,7 +111,7 @@ class ProductsResolver : FederatedTypeResolver<Product> {
     override suspend fun resolve(
         environment: DataFetchingEnvironment,
         representation: Map<String, Any>
-    ): Product? = Product.byReference(it)
+    ): Product? = Product.byReference(representation)
 }
 
 @Component
