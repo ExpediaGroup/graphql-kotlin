@@ -121,7 +121,7 @@ class UserResolver : FederatedTypeResolver<User> {
     override suspend fun resolve(
         environment: DataFetchingEnvironment,
         representation: Map<String, Any>
-    ): List<User?> {
+    ): User? {
         val email = representation["email"]?.toString() ?: throw RuntimeException("invalid entity reference")
         return User(email = email, name = "default", totalProductsCreated = 1337)
     }
