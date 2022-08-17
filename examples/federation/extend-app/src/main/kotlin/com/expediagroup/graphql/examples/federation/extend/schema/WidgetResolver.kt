@@ -34,7 +34,7 @@ class WidgetResolver(private val randomNumberService: RandomNumberService) : Fed
         // If we needed to construct a Widget which has data from other APIs,
         // this is the place where we could call them with the widget id
         val valueFromExtend = randomNumberService.getInt()
-        Widget(id, listOfValues, valueFromExtend)
+        return Widget(id, listOfValues, valueFromExtend)
     }
 
     class InvalidWidgetIdException : RuntimeException()
