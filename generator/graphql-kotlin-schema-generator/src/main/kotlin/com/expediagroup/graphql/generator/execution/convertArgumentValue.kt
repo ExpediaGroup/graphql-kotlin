@@ -109,7 +109,11 @@ private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KCla
     // filter parameters that are actually in the input in order to rely on parameters default values
     // in target constructor
     val constructorParametersInInput = constructorParameters.filter { parameter ->
-        input.containsKey(parameter.getName()) || parameter.type.isOptionalInputType()
+        input.containsKey(parameter.getName()) ||
+            parameter.type.isOptionalInputType() ||
+
+            // for nullable parameters that have no explicit default, we pass in null if not in input
+            (parameter.type.isMarkedNullable && !parameter.isOptional)
     }
     val constructorArguments = constructorParametersInInput.associateWith { parameter ->
         convertArgumentValue(parameter.getName(), parameter, input)
