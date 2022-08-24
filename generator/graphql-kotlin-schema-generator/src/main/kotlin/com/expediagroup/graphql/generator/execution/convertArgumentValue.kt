@@ -22,6 +22,7 @@ import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
+import com.expediagroup.graphql.generator.internal.extensions.isNotOptionalNullable
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
 import kotlin.reflect.KClass
@@ -105,17 +106,16 @@ private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KCla
         }
     }
 
-    val constructorParameters = targetConstructor.parameters
     // filter parameters that are actually in the input in order to rely on parameters default values
     // in target constructor
-    val constructorParametersInInput = constructorParameters.filter { parameter ->
+    val constructorParameters = targetConstructor.parameters.filter { parameter ->
         input.containsKey(parameter.getName()) ||
             parameter.type.isOptionalInputType() ||
 
             // for nullable parameters that have no explicit default, we pass in null if not in input
-            (parameter.type.isMarkedNullable && !parameter.isOptional)
+            parameter.isNotOptionalNullable()
     }
-    val constructorArguments = constructorParametersInInput.associateWith { parameter ->
+    val constructorArguments = constructorParameters.associateWith { parameter ->
         convertArgumentValue(parameter.getName(), parameter, input)
     }
     return targetConstructor.callBy(constructorArguments)

@@ -29,6 +29,8 @@ internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(
 
 internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == DataFetchingEnvironment::class
 
+internal fun KParameter.isNotOptionalNullable() = type.isMarkedNullable && !isOptional
+
 @Throws(CouldNotGetNameOfKParameterException::class)
 internal fun KParameter.getName(): String =
     this.getGraphQLName() ?: this.name ?: throw CouldNotGetNameOfKParameterException(this)
