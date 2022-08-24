@@ -119,6 +119,22 @@ class ConvertArgumentValueTest {
     }
 
     @Test
+    fun `generic map object is parsed and correct defaults are used for nullables`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNullableWithAndWithoutDefaults.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to emptyMap<String, Any>()
+            )
+        )
+
+        val castResult = assertIs<TestInputNullableWithAndWithoutDefaults>(result)
+        assertEquals(null, castResult.iHaveNoDefault)
+        assertEquals("DEFAULT", castResult.iHaveADefault)
+    }
+
+    @Test
     fun `generic map object is parsed without using primary constructor`() {
         val kParam = assertNotNull(TestFunctions::inputObjectNoPrimaryConstructor.findParameterByName("input"))
         val result = convertArgumentValue(
@@ -278,6 +294,7 @@ class ConvertArgumentValueTest {
         fun inputObjectNoPrimaryConstructor(input: TestInputNoPrimaryConstructor): String = TODO()
         fun inputObjectMultipleConstructors(input: TestInputMultipleConstructors): String = TODO()
         fun inputObjectNested(input: TestInputNested): String = TODO()
+        fun inputObjectNullableWithAndWithoutDefaults(input: TestInputNullableWithAndWithoutDefaults): String = TODO()
         fun inputObjectNullableScalar(input: TestInputNullableScalar): String = TODO()
         fun inputObjectNotNullableScalar(input: TestInputNotNullableScalar): String = TODO()
         fun listStringInput(input: List<String>): String = TODO()
@@ -291,6 +308,7 @@ class ConvertArgumentValueTest {
     class TestInput(val foo: String, val bar: String? = null, val baz: List<String>? = null, val qux: String? = null)
     class TestInputNested(val foo: String? = "foo", val bar: String? = "bar", val nested: TestInputNestedType? = TestInputNestedType())
     class TestInputNestedType(val value: String = "nested default value")
+    class TestInputNullableWithAndWithoutDefaults(val iHaveNoDefault: String?, val iHaveADefault: String? = "DEFAULT")
     class TestInputNullableScalar(val foo: String? = null, val id: ID? = null)
     class TestInputNotNullableScalar(val foo: String, val id: ID = ID("1234"))
     class TestInputRenamed(@GraphQLName("bar") val foo: String)
