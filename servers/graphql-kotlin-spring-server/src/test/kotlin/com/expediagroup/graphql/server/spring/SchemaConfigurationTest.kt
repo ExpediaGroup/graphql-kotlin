@@ -36,6 +36,7 @@ import graphql.execution.instrumentation.tracing.TracingInstrumentation
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLTypeUtil
+import graphql.schema.idl.SchemaPrinter
 import io.mockk.mockk
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.dataloader.DataLoader
@@ -77,6 +78,8 @@ class SchemaConfigurationTest {
                 assertNotNull(helloWorldQuery)
                 assertEquals("String", GraphQLTypeUtil.unwrapAll(helloWorldQuery.type).name)
 
+                assertThat(ctx).hasSingleBean(SchemaPrinter::class.java)
+
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 val graphQL = ctx.getBean(GraphQL::class.java)
                 val result = graphQL.execute("query { hello }").toSpecification()
@@ -111,6 +114,10 @@ class SchemaConfigurationTest {
                 assertThat(ctx).hasSingleBean(GraphQLSchema::class.java)
                 assertThat(ctx).getBean(GraphQLSchema::class.java)
                     .isSameAs(customConfiguration.mySchema())
+
+                assertThat(ctx).hasSingleBean(SchemaPrinter::class.java)
+                assertThat(ctx).getBean(SchemaPrinter::class.java)
+                    .isSameAs(customConfiguration.myCustomSchemaPrinter())
 
                 assertThat(ctx).hasSingleBean(GraphQL::class.java)
                 assertThat(ctx).getBean(GraphQL::class.java)
@@ -173,6 +180,9 @@ class SchemaConfigurationTest {
 
         @Bean
         fun myDataLoaderRegistryFactory(): KotlinDataLoaderRegistryFactory = mockk()
+
+        @Bean
+        fun myCustomSchemaPrinter(): SchemaPrinter = mockk(relaxed = true)
     }
 
     class BasicQuery : Query {

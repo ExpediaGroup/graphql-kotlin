@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.server.spring
 
-import com.expediagroup.graphql.generator.extensions.print
 import graphql.schema.GraphQLSchema
+import graphql.schema.idl.SchemaPrinter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -33,10 +33,11 @@ import org.springframework.web.reactive.function.server.coRouter
 @Import(GraphQLSchemaConfiguration::class)
 class SdlRouteConfiguration(
     private val config: GraphQLConfigurationProperties,
+    schemaPrinter: SchemaPrinter,
     schema: GraphQLSchema
 ) {
 
-    private val sdl = schema.print()
+    private val sdl = schemaPrinter.print(schema)
 
     @Bean
     @ConditionalOnProperty(value = ["graphql.sdl.enabled"], havingValue = "true", matchIfMissing = true)

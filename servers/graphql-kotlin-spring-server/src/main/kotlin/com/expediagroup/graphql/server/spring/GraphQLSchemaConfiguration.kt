@@ -39,6 +39,7 @@ import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
+import graphql.schema.idl.SchemaPrinter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -159,4 +160,18 @@ class GraphQLSchemaConfiguration {
         contextFactory,
         requestHandler
     )
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun schemaPrinter(): SchemaPrinter {
+        return SchemaPrinter(
+            SchemaPrinter.Options.defaultOptions()
+                .includeIntrospectionTypes(false)
+                .includeScalarTypes(true)
+                .includeSchemaDefinition(true)
+                .includeDirectives(true)
+                .includeDirectives { true }
+                .includeDirectiveDefinitions(true)
+        )
+    }
 }
