@@ -163,7 +163,16 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun schemaPrinter(): SchemaPrinter {
+    fun schemaPrinter(): SchemaPrinter  = 
+      SchemaPrinter(
+            SchemaPrinter.Options.defaultOptions()
+                .includeIntrospectionTypes(false)
+                .includeScalarTypes(true)
+                .includeSchemaDefinition(true)
+                .includeDirectives(true)
+                .includeDirectives { true }
+                .includeDirectiveDefinitions(true)
+        )
         return SchemaPrinter(
             SchemaPrinter.Options.defaultOptions()
                 .includeIntrospectionTypes(false)
