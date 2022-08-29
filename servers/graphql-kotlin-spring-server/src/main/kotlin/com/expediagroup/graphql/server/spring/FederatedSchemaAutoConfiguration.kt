@@ -22,7 +22,7 @@ import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProv
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
@@ -54,7 +54,7 @@ class FederatedSchemaAutoConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedSchemaGeneratorHooks(resolvers: Optional<List<FederatedTypeSuspendResolver<*>>>): FederatedSchemaGeneratorHooks =
+    fun federatedSchemaGeneratorHooks(resolvers: Optional<List<FederatedTypeResolver>>): FederatedSchemaGeneratorHooks =
         FederatedSchemaGeneratorHooks(resolvers.orElse(emptyList()), config.federation.optInV2)
 
     @Bean
