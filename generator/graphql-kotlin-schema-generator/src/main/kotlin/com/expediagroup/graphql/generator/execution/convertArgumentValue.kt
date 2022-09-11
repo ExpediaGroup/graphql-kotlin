@@ -16,15 +16,14 @@
 
 package com.expediagroup.graphql.generator.execution
 
-import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.exceptions.PrimaryConstructorNotFound
+import com.expediagroup.graphql.generator.execution.spi.ArgumentObjectConverter
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLName
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
-import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.getTypeOfFirstArgument
-import com.expediagroup.graphql.generator.internal.extensions.isNotOptionalNullable
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import com.expediagroup.graphql.generator.internal.extensions.isSubclassOf
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
@@ -51,6 +50,7 @@ internal fun convertArgumentValue(
                 }
             }
         }
+
         else -> convertValue(param.type, argumentValue)
     }
 }
@@ -90,35 +90,24 @@ private fun convertValue(
     return argumentValue
 }
 
+private val argumentObjectConverters = ServiceLoader
+    .load(ArgumentObjectConverter::class.java)
+    .sortedBy { it.priority }
+
 /**
  * At this point all custom scalars have been converted by graphql-java so
  * the only thing left to parse is object maps into the nested Kotlin classes
  */
 private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KClass<T>): T {
+    val argumentObjectConverter: ArgumentObjectConverter
 
-    val targetConstructor = targetClass.primaryConstructor ?: run {
-        if (targetClass.constructors.size == 1) {
-            targetClass.constructors.first()
-        } else if (targetClass.constructors.size > 1) {
-            throw MultipleConstructorsFound(targetClass)
-        } else {
-            throw PrimaryConstructorNotFound(targetClass)
-        }
+    try {
+        argumentObjectConverter = argumentObjectConverters.first { it.doesSupport(targetClass) }
+    } catch (exception: NoSuchElementException) {
+        throw IllegalStateException("can not find converter for targetClass class $targetClass", exception)
     }
 
-    // filter parameters that are actually in the input in order to rely on parameters default values
-    // in target constructor
-    val constructorParameters = targetConstructor.parameters.filter { parameter ->
-        input.containsKey(parameter.getName()) ||
-            parameter.type.isOptionalInputType() ||
-
-            // for nullable parameters that have no explicit default, we pass in null if not in input
-            parameter.isNotOptionalNullable()
-    }
-    val constructorArguments = constructorParameters.associateWith { parameter ->
-        convertArgumentValue(parameter.getName(), parameter, input)
-    }
-    return targetConstructor.callBy(constructorArguments)
+    return argumentObjectConverter.convert(input, targetClass)
 }
 
 private fun mapToEnumValue(paramType: KType, enumValue: String): Enum<*> = paramType.getKClass()

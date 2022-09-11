@@ -18,6 +18,7 @@ package com.expediagroup.graphql.generator.execution
 
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
+import com.expediagroup.graphql.generator.execution.spi.ArgumentObjectConverter
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
@@ -149,6 +150,23 @@ class ConvertArgumentValueTest {
 
         val castResult = assertIs<TestInputNoPrimaryConstructor>(result)
         assertEquals("hello", castResult.value)
+    }
+
+    @Test
+    fun `registered ArgumentObjectConverter are used to convert the input argument`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectCustomConvertedInput.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    TestInputCustomConverted::class.toString() to "hello"
+                )
+            )
+        )
+
+        val castResult = assertIs<TestInputCustomConverted>(result)
+        assertEquals("hello" + ArgumentObjectConverter::class, castResult.foo)
     }
 
     @Test
@@ -293,6 +311,7 @@ class ConvertArgumentValueTest {
         fun inputObject(input: TestInput): String = TODO()
         fun inputObjectNoPrimaryConstructor(input: TestInputNoPrimaryConstructor): String = TODO()
         fun inputObjectMultipleConstructors(input: TestInputMultipleConstructors): String = TODO()
+        fun inputObjectCustomConvertedInput(input: TestInputCustomConverted): String = TODO()
         fun inputObjectNested(input: TestInputNested): String = TODO()
         fun inputObjectNullableWithAndWithoutDefaults(input: TestInputNullableWithAndWithoutDefaults): String = TODO()
         fun inputObjectNullableScalar(input: TestInputNullableScalar): String = TODO()
@@ -314,10 +333,12 @@ class ConvertArgumentValueTest {
     class TestInputRenamed(@GraphQLName("bar") val foo: String)
     class TestInputNoPrimaryConstructor {
         val value: String
+
         constructor(value: String) {
             this.value = value
         }
     }
+
     class TestInputMultipleConstructors {
         val value: String
 
@@ -330,8 +351,11 @@ class ConvertArgumentValueTest {
         }
     }
 
+    class TestInputCustomConverted(val foo: String)
+
     enum class Foo {
         BAR,
+
         @GraphQLName("baz")
         BAZ
     }

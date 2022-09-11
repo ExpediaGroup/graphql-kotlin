@@ -49,6 +49,7 @@ module.exports = {
           'schema-generator/execution/exceptions',
           'schema-generator/execution/data-fetching-environment',
           'schema-generator/execution/contextual-data',
+          'schema-generator/execution/argument-object-converter',
           'schema-generator/execution/optional-undefined-arguments',
           'schema-generator/execution/subscriptions',
           'schema-generator/execution/introspection'
