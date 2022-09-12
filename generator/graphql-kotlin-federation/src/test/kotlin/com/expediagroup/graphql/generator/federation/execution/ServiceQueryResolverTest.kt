@@ -39,6 +39,10 @@ import kotlin.test.assertNotNull
 // SDL is returned without _entity and _service queries
 const val FEDERATED_SERVICE_SDL =
 """
+schema {
+  query: Query
+}
+
 interface Product @extends @key(fields : "id") @key(fields : "upc") {
   id: String! @external
   reviews: [Review!]!
@@ -53,6 +57,8 @@ type Book implements Product @extends @key(fields : "id") @key(fields : "upc") {
   upc: String! @external
   weight: Float! @external
 }
+
+type Query @extends
 
 type Review {
   body: String!
@@ -75,6 +81,10 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
+schema {
+  query: Query
+}
+
 type Query @extends {
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!
@@ -92,6 +102,23 @@ const val FEDERATED_SERVICE_SDL_V2 =
 schema @link(url : "https://specs.apollo.dev/link/v1.0/") @link(import : ["extends", "external", "inaccessible", "key", "link", "override", "provides", "requires", "shareable", "tag", "_FieldSet"], url : "https://www.apollographql.com/docs/federation/federation-spec/"){
   query: Query
 }
+
+directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+"Marks target object as extending part of the federated schema"
+directive @extends on OBJECT | INTERFACE
+
+"Marks target field as external meaning it will be resolved by federated schema"
+directive @external on FIELD_DEFINITION
+
+"Space separated list of primary keys needed to access federated object"
+directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+
+"Specifies the base type field set that will be selectable by the gateway"
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+"Specifies required input field set from the base type for a resolver"
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
 interface Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
   id: String! @external
@@ -112,8 +139,12 @@ type CustomScalar {
   value: String!
 }
 
+type Query @extends {
+  _service: _Service!
+}
+
 type Review {
-  body: String!
+  body: String! @custom
   content: String @deprecated(reason : "no longer supported, replace with use Review.body instead")
   customScalar: CustomScalar!
   id: String!
@@ -123,6 +154,13 @@ type User @extends @key(fields : "userId", resolvable : true) {
   name: String! @external
   userId: Int! @external
 }
+
+type _Service {
+  sdl: String!
+}
+
+"Federation type representing set of fields"
+scalar _FieldSet
 """
 
 class ServiceQueryResolverTest {
