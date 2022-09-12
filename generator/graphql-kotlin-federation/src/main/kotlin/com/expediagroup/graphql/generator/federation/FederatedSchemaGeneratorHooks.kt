@@ -16,10 +16,10 @@
 
 package com.expediagroup.graphql.generator.federation
 
+import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.generateServiceSDL
+import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.generateServiceSDLV2
 import com.expediagroup.graphql.generator.annotations.GraphQLName
-import com.expediagroup.graphql.generator.directives.DEPRECATED_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
-import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL
@@ -61,7 +61,6 @@ import graphql.schema.GraphQLDirective
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLSchema
 import graphql.schema.GraphQLType
-import java.util.function.Predicate
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 
@@ -69,10 +68,6 @@ import kotlin.reflect.full.findAnnotation
  * Hooks for generating federated GraphQL schema.
  */
 open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTypeResolver<*>>, private val optInFederationV2: Boolean = false) : SchemaGeneratorHooks {
-    private val scalarDefinitionRegex = "(^\".+\"$[\\r\\n])?^scalar (_FieldSet|_Any)$[\\r\\n]*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val emptyQueryRegex = "^type Query @extends \\s*\\{\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val serviceFieldRegex = "\\s*_service: _Service!".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
-    private val serviceTypeRegex = "^type _Service\\s*\\{\\s*sdl: String!\\s*}\\s*".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
     private val validator = FederatedSchemaValidator()
 
     private val federationV2OnlyDirectiveNames: Set<String> = setOf(
@@ -206,17 +201,11 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
      * https://www.apollographql.com/docs/apollo-server/federation/federation-spec/#query_service
      */
     private fun getFederatedServiceSdl(schema: GraphQLSchema): String {
-        val directivesToInclude: List<String> = federatedDirectiveList().map { it.name }.plus(DEPRECATED_DIRECTIVE_NAME)
-        val customDirectivePredicate: Predicate<String> = Predicate { directivesToInclude.contains(it) }
-        return schema.print(
-            includeDefaultSchemaDefinition = optInFederationV2,
-            includeDirectiveDefinitions = false,
-            includeDirectivesFilter = customDirectivePredicate
-        ).replace(scalarDefinitionRegex, "")
-            .replace(serviceFieldRegex, "")
-            .replace(serviceTypeRegex, "")
-            .replace(emptyQueryRegex, "")
-            .trim()
+        return if (optInFederationV2) {
+            generateServiceSDLV2(schema)
+        } else {
+            generateServiceSDL(schema, false)
+        }
     }
 
     /**
