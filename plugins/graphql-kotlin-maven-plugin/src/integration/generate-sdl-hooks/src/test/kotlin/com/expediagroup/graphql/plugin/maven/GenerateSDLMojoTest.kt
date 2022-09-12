@@ -67,7 +67,7 @@ class GenerateSDLMojoTest {
             "Specifies required input field set from the base type for a resolver"
             directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
-            "Directs the executor to skip this field or fragment when the `if`'argument is true."
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
                 "Skipped when true."
                 if: Boolean!

@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.generator.execution
 
+import com.expediagroup.graphql.generator.annotations.GraphQLName
+import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
@@ -51,6 +53,15 @@ class ConvertArgumentValueTest {
         val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
         val castResult = assertIs<Foo>(result)
         assertEquals(Foo.BAR, castResult)
+    }
+
+    @Test
+    fun `renamed enum object is parsed`() {
+        val kParam = assertNotNull(TestFunctions::enumInput.findParameterByName("input"))
+        val inputValue = "baz"
+        val result = convertArgumentValue("input", kParam, mapOf("input" to inputValue))
+        val castResult = assertIs<Foo>(result)
+        assertEquals(Foo.BAZ, castResult)
     }
 
     @Test
@@ -105,6 +116,55 @@ class ConvertArgumentValueTest {
         assertEquals("foo", castResult.foo)
         assertEquals("bar", castResult.bar)
         assertEquals("nested default value", castResult.nested?.value)
+    }
+
+    @Test
+    fun `generic map object is parsed and correct defaults are used for nullables`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNullableWithAndWithoutDefaults.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to emptyMap<String, Any>()
+            )
+        )
+
+        val castResult = assertIs<TestInputNullableWithAndWithoutDefaults>(result)
+        assertEquals(null, castResult.iHaveNoDefault)
+        assertEquals("DEFAULT", castResult.iHaveADefault)
+    }
+
+    @Test
+    fun `generic map object is parsed without using primary constructor`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNoPrimaryConstructor.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "value" to "hello"
+                )
+            )
+        )
+
+        val castResult = assertIs<TestInputNoPrimaryConstructor>(result)
+        assertEquals("hello", castResult.value)
+    }
+
+    @Test
+    fun `exception is thrown when multiple constructors were found`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectMultipleConstructors.findParameterByName("input"))
+        assertThrows<MultipleConstructorsFound> {
+            convertArgumentValue(
+                "input",
+                kParam,
+                mapOf(
+                    "input" to mapOf(
+                        "value" to "hello"
+                    )
+                )
+            )
+        }
     }
 
     /**
@@ -210,11 +270,31 @@ class ConvertArgumentValueTest {
         assertEquals("1234", result.value)
     }
 
+    @Test
+    fun `input object with renamed fields is correctly deserialized`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectRenamed.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "bar" to "renamed"
+                )
+            )
+        )
+
+        val castResult = assertIs<TestInputRenamed>(result)
+        assertEquals("renamed", castResult.foo)
+    }
+
     class TestFunctions {
         fun enumInput(input: Foo): String = TODO()
         fun idInput(input: ID): String = TODO()
         fun inputObject(input: TestInput): String = TODO()
+        fun inputObjectNoPrimaryConstructor(input: TestInputNoPrimaryConstructor): String = TODO()
+        fun inputObjectMultipleConstructors(input: TestInputMultipleConstructors): String = TODO()
         fun inputObjectNested(input: TestInputNested): String = TODO()
+        fun inputObjectNullableWithAndWithoutDefaults(input: TestInputNullableWithAndWithoutDefaults): String = TODO()
         fun inputObjectNullableScalar(input: TestInputNullableScalar): String = TODO()
         fun inputObjectNotNullableScalar(input: TestInputNotNullableScalar): String = TODO()
         fun listStringInput(input: List<String>): String = TODO()
@@ -222,16 +302,37 @@ class ConvertArgumentValueTest {
         fun optionalInputObject(input: OptionalInput<TestInput>): String = TODO()
         fun optionalInputListObject(input: OptionalInput<List<TestInput>>): String = TODO()
         fun stringInput(input: String): String = TODO()
+        fun inputObjectRenamed(input: TestInputRenamed): String = TODO()
     }
 
     class TestInput(val foo: String, val bar: String? = null, val baz: List<String>? = null, val qux: String? = null)
     class TestInputNested(val foo: String? = "foo", val bar: String? = "bar", val nested: TestInputNestedType? = TestInputNestedType())
     class TestInputNestedType(val value: String = "nested default value")
-    class TestInputNullableScalar(val foo: String, val id: ID? = null)
+    class TestInputNullableWithAndWithoutDefaults(val iHaveNoDefault: String?, val iHaveADefault: String? = "DEFAULT")
+    class TestInputNullableScalar(val foo: String? = null, val id: ID? = null)
     class TestInputNotNullableScalar(val foo: String, val id: ID = ID("1234"))
+    class TestInputRenamed(@GraphQLName("bar") val foo: String)
+    class TestInputNoPrimaryConstructor {
+        val value: String
+        constructor(value: String) {
+            this.value = value
+        }
+    }
+    class TestInputMultipleConstructors {
+        val value: String
+
+        constructor() {
+            this.value = "Default Value"
+        }
+
+        constructor(value: String) {
+            this.value = value
+        }
+    }
 
     enum class Foo {
         BAR,
+        @GraphQLName("baz")
         BAZ
     }
 }
