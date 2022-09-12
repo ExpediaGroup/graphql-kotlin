@@ -168,7 +168,7 @@ type Product {
 directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
 
 # federation v2 definition
-directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 ```
 
 The `@key` directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an
@@ -293,7 +293,11 @@ type Product @key(fields: "id") {
 ## `@provides` directive
 
 ```graphql
+# federation v1 definition
 directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+# federation v2 definition
+directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 ```
 
 The `@provides` directive is used to annotate the expected returned field set from a field on a base type that is
@@ -361,7 +365,11 @@ In the example above, if user selects `baz` field, it will be resolved locally f
 ## `@requires` directive
 
 ```graphql
+# federation v1 definition
 directive @requires(fields: _FieldSet!) on FIELD_DEFINITON
+
+# federation v2 definition
+directive @requires(fields: FieldSet!) on FIELD_DEFINITON
 ```
 
 The `@requires` directive is used to annotate the required input field set from a base type for a resolver. It is used

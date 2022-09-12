@@ -28,8 +28,14 @@ import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLScalarType
+import graphql.schema.GraphQLSchemaElement
+import graphql.schema.GraphQLTypeReference
+import graphql.schema.GraphQLTypeVisitorStub
+import graphql.util.TraversalControl
+import graphql.util.TraverserContext
+import graphql.util.TreeTransformerUtil
 
-internal const val FIELD_SET_SCALAR_NAME = "_FieldSet"
+internal const val FIELD_SET_SCALAR_NAME = "FieldSet"
 internal const val FIELD_SET_ARGUMENT_NAME = "fields"
 
 /**
@@ -70,5 +76,20 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
         StringValue.newStringValue(input.value).build()
     } else {
         throw CoercingValueToLiteralException(_FieldSet::class, input)
+    }
+}
+
+/**
+ * Renames FieldSet scalar (used in Federation V2) to _FieldSet (used in Federation V1).
+ */
+class FieldSetTransformer : GraphQLTypeVisitorStub() {
+    override fun visitGraphQLScalarType(node: GraphQLScalarType, context: TraverserContext<GraphQLSchemaElement>): TraversalControl {
+        if (node.name == "FieldSet") {
+            val legacyFieldSetScalar = node.transform {
+                it.name("_FieldSet")
+            }
+            return changeNode(context, legacyFieldSetScalar)
+        }
+        return super.visitGraphQLScalarType(node, context)
     }
 }
