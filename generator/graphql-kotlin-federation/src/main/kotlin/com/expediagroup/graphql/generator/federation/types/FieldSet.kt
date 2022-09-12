@@ -29,11 +29,9 @@ import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLNonNull
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLSchemaElement
-import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeVisitorStub
 import graphql.util.TraversalControl
 import graphql.util.TraverserContext
-import graphql.util.TreeTransformerUtil
 
 internal const val FIELD_SET_SCALAR_NAME = "FieldSet"
 internal const val FIELD_SET_ARGUMENT_NAME = "fields"
