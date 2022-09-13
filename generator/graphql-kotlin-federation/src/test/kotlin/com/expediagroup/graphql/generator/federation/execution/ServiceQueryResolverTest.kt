@@ -146,13 +146,12 @@ interface Product @extends @key(fields : "id", resolvable : true) @key(fields : 
   upc: String! @external
 }
 
+union _Entity = Author | Book | User
 
 type Author @extends @key(fields : "authorId", resolvable : true) {
   authorId: Int! @external
   name: String! @external
 }
-
-union _Entity = Book | User | Author
 
 type Book implements Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
   author: User! @provides(fields : "name")
