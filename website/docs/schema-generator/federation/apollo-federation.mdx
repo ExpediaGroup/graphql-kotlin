@@ -105,7 +105,7 @@ class Query {
 
 val config = FederatedSchemaGeneratorConfig(
   supportedPackages = "com.example",
-  hooks = FederatedSchemaGeneratorHooks(emptyList())
+  hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = true)
 )
 
 toFederatedSchema(
@@ -119,7 +119,7 @@ will generate
 ```graphql
 # Federation spec types
 scalar _Any
-scalar _FieldSet
+scalar FieldSet
 
 union _Entity
 
@@ -128,9 +128,9 @@ type _Service {
 }
 
 directive @external on FIELD_DEFINITION
-directive @requires(fields: _FieldSet) on FIELD_DEFINITION
-directive @provides(fields: _FieldSet) on FIELD_DEFINITION
-directive @key(fields: _FieldSet) on OBJECT | INTERFACE
+directive @requires(fields: FieldSet) on FIELD_DEFINITION
+directive @provides(fields: FieldSet) on FIELD_DEFINITION
+directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 directive @extends on OBJECT | INTERFACE
 
 # Schema types

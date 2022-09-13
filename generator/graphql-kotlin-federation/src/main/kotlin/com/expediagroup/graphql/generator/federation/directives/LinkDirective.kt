@@ -23,7 +23,7 @@ import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLList
 
 const val LINK_SPEC_URL = "https://specs.apollo.dev/link/v1.0/"
-const val FEDERATION_SPEC_URL = "https://www.apollographql.com/docs/federation/federation-spec/"
+const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.0"
 
 /**
  * ```graphql
