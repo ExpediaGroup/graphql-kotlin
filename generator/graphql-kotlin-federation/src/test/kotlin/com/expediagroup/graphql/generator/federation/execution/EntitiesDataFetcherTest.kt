@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.generator.federation.execution
 
+import com.expediagroup.graphql.generator.federation.data.AuthorResolver
 import com.expediagroup.graphql.generator.federation.data.BookResolver
 import com.expediagroup.graphql.generator.federation.data.UserResolver
+import com.expediagroup.graphql.generator.federation.data.queries.federated.Author
 import com.expediagroup.graphql.generator.federation.data.queries.federated.Book
 import com.expediagroup.graphql.generator.federation.data.queries.federated.User
 import graphql.GraphQLContext
@@ -31,12 +33,13 @@ import io.mockk.spyk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class EntityQueryResolverTest {
-
+class EntitiesDataFetcherTest {
     @Test
     fun `verify can resolve federated entities`() {
-        val resolver = EntityResolver(listOf(UserResolver()))
-        val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
+        val resolver = EntitiesDataFetcher(UserResolver())
+        val representations = listOf(
+            mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
+        )
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
@@ -48,14 +51,40 @@ class EntityQueryResolverTest {
     }
 
     @Test
-    fun `verify federated entity resolver returns GraphQLError if __typename is not specified`() {
-        val mockBookResolver: FederatedTypeResolver<*> = mockk {
-            every { typeName } returns "Book"
+    fun `verify can resolve federated entities with promises`() {
+        val resolver = EntitiesDataFetcher(AuthorResolver())
+        val representations = listOf(
+            mapOf<String, Any>("__typename" to "Author", "authorId" to 1)
+        )
+        val env = mockk<DataFetchingEnvironment> {
+            every { getArgument<Any>(any()) } returns representations
         }
-        val mockUserResolver: FederatedTypeResolver<*> = mockk {
-            every { typeName } returns "User"
+        val result = resolver.get(env).get()
+        verifyData(result.data, Author(1, "Author 1"))
+        verifyErrors(result.errors)
+    }
+
+    @Test
+    fun `verify entities data fetcher returns GraphQLError if no resolver is found`() {
+        val resolver = EntitiesDataFetcher()
+
+        val representations = listOf(
+            mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName")
+        )
+        val env = mockk<DataFetchingEnvironment> {
+            every { getArgument<Any>(any()) } returns representations
         }
-        val resolver = EntityResolver(listOf(mockBookResolver, mockUserResolver))
+
+        val result = resolver.get(env).get()
+        verifyData(result.data, null)
+        verifyErrors(result.errors, "Unable to resolve federated type, representation={__typename=User, userId=123, name=testName}")
+    }
+
+    @Test
+    fun `verify entities data fetcher returns GraphQLError if __typename is not specified`() {
+        val mockBookResolver = mockk<FederatedTypeSuspendResolver<*>> { every { typeName } returns "Book" }
+        val mockUserResolver = mockk<FederatedTypeSuspendResolver<*>> { every { typeName } returns "User" }
+        val resolver = EntitiesDataFetcher(mockBookResolver, mockUserResolver)
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns listOf(emptyMap<String, Any>())
             every { graphQlContext } returns GraphQLContext.newContext().build()
@@ -67,8 +96,8 @@ class EntityQueryResolverTest {
     }
 
     @Test
-    fun `verify federated entity resolver returns GraphQLError if __typename cannot be resolved`() {
-        val resolver = EntityResolver(emptyList())
+    fun `verify entities data fetcher returns GraphQLError if __typename cannot be resolved`() {
+        val resolver = EntitiesDataFetcher(emptyList())
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
@@ -81,12 +110,12 @@ class EntityQueryResolverTest {
     }
 
     @Test
-    fun `verify federated entity resolver returns GraphQLError if exception is thrown during type resolution`() {
-        val mockUserResolver: FederatedTypeResolver<User> = mockk {
+    fun `verify entities data fetcher returns GraphQLError if exception is thrown during type resolution`() {
+        val mockUserResolver: FederatedTypeSuspendResolver<User> = mockk {
             every { typeName } returns "User"
             coEvery { resolve(any(), any()) } throws RuntimeException("JUnit exception")
         }
-        val resolver = EntityResolver(listOf(mockUserResolver))
+        val resolver = EntitiesDataFetcher(listOf(mockUserResolver))
         val representations = listOf(mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"))
         val env: DataFetchingEnvironment = mockk {
             every { getArgument<Any>(any()) } returns representations
@@ -99,7 +128,7 @@ class EntityQueryResolverTest {
     }
 
     @Test
-    fun `verify federated entity resolver processed representations in batches`() {
+    fun `verify entities data fetcher processed representations in batches`() {
         val user1 = User(123, "testName1")
         val user2 = User(124, "testName2")
         val book = Book("988").apply {
@@ -113,20 +142,21 @@ class EntityQueryResolverTest {
 
         val spyUserResolver = spyk(UserResolver())
         val spyBookResolver = spyk(BookResolver())
-        val resolver = EntityResolver(listOf(spyUserResolver, spyBookResolver))
+        val resolver = EntitiesDataFetcher(listOf(spyUserResolver, spyBookResolver))
         val result = resolver.get(env).get()
 
         verifyData(result.data, user1, book, user2)
         verifyErrors(result.errors)
 
-        coVerify {
-            spyUserResolver.resolve(any(), listOf(user1.toRepresentation(), user2.toRepresentation()))
-            spyBookResolver.resolve(any(), listOf(book.toRepresentation()))
+        coVerify(exactly = 1) {
+            spyUserResolver.resolve(any(), user1.toRepresentation())
+            spyUserResolver.resolve(any(), user2.toRepresentation())
+            spyBookResolver.resolve(any(), book.toRepresentation())
         }
     }
 
     @Test
-    fun `verify federated entity resolver returns both data and errors`() {
+    fun `verify entities data fetcher returns both data and errors`() {
         val user = User(123, "testName")
         val book = Book("988").apply {
             weight = 1.0
@@ -142,44 +172,42 @@ class EntityQueryResolverTest {
             every { typeName } returns "Book"
             coEvery { resolve(any(), any()) } throws RuntimeException("JUnit")
         }
-        val resolver = EntityResolver(listOf(spyUserResolver, mockBookResolver))
+        val resolver = EntitiesDataFetcher(listOf(spyUserResolver, mockBookResolver))
         val result = resolver.get(env).get()
 
         verifyData(result.data, user, null)
         verifyErrors(result.errors, "Exception was thrown while trying to resolve federated type, representation={__typename=Book, id=988, weight=1.0}")
 
         coVerify {
-            spyUserResolver.resolve(any(), listOf(user.toRepresentation()))
-            mockBookResolver.resolve(any(), listOf(book.toRepresentation()))
+            spyUserResolver.resolve(any(), user.toRepresentation())
+            mockBookResolver.resolve(any(), book.toRepresentation())
         }
     }
 
     @Test
-    fun `verify federated entity resolver returns error when different number of entities is returned than requested`() {
-        val user = User(123, "testName1")
-        val representations = listOf(user.toRepresentation(), user.toRepresentation())
+    fun `verify entities data fetcher can process suspend and promise resolvers asynchronously`() {
+        val resolver = EntitiesDataFetcher(UserResolver(), AuthorResolver())
+        val representations = listOf(
+            mapOf<String, Any>("__typename" to "User", "userId" to 123, "name" to "testName"),
+            mapOf<String, Any>("__typename" to "User", "userId" to 456, "name" to "testName 2"),
+            mapOf<String, Any>("__typename" to "Author", "authorId" to 1),
+            mapOf<String, Any>("__typename" to "Author", "authorId" to 2)
+        )
+
         val env = mockk<DataFetchingEnvironment> {
             every { getArgument<Any>(any()) } returns representations
             every { graphQlContext } returns GraphQLContext.newContext().build()
         }
 
-        val mockUserResolver: UserResolver = mockk {
-            every { typeName } returns "User"
-            coEvery { resolve(any(), any()) } returns listOf(user)
-        }
-        val resolver = EntityResolver(listOf(mockUserResolver))
         val result = resolver.get(env).get()
-
-        verifyData(result.data, null, null)
-        verifyErrors(
-            result.errors,
-            "Federation batch request for User generated different number of results than requested, representations=2, results=1",
-            "Federation batch request for User generated different number of results than requested, representations=2, results=1"
+        verifyData(
+            result.data,
+            User(123, "testName"),
+            User(456, "testName 2"),
+            Author(1, "Author 1"),
+            Author(2, "Author 2"),
         )
-
-        coVerify {
-            mockUserResolver.resolve(any(), listOf(user.toRepresentation(), user.toRepresentation()))
-        }
+        verifyErrors(result.errors)
     }
 
     private fun verifyData(data: List<Any?>, vararg expected: Any?) {
@@ -198,4 +226,5 @@ class EntityQueryResolverTest {
 
     private fun Book.toRepresentation() = mapOf("__typename" to "Book", "id" to id, "weight" to weight)
     private fun User.toRepresentation() = mapOf("__typename" to "User", "userId" to userId, "name" to name)
+    private fun Author.toRepresentation() = mapOf("__typename" to "Author", "authorId" to authorId)
 }

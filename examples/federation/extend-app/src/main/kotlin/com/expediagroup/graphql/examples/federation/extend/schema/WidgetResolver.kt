@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,27 @@
 package com.expediagroup.graphql.examples.federation.extend.schema
 
 import com.expediagroup.graphql.examples.federation.extend.service.RandomNumberService
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
 
 @Component
-class WidgetResolver(private val randomNumberService: RandomNumberService) : FederatedTypeResolver<Widget> {
+class WidgetResolver(private val randomNumberService: RandomNumberService) : FederatedTypeSuspendResolver<Widget> {
     override val typeName: String = "Widget"
 
     @Suppress("UNCHECKED_CAST")
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Widget?> = representations.map {
-        // Extract the 'id' from the other service
-        val id = it["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
-        val listOfValues = it["listOfValues"] as? List<Int>
+    override suspend fun resolve(
+        environment: DataFetchingEnvironment,
+        representation: Map<String, Any>
+    ): Widget? {
+        // Extract the 'id' from the representation map provided by the other service
+        val id = representation["id"]?.toString()?.toIntOrNull() ?: throw InvalidWidgetIdException()
+        val listOfValues = representation["listOfValues"] as? List<Int>
 
         // If we needed to construct a Widget which has data from other APIs,
         // this is the place where we could call them with the widget id
         val valueFromExtend = randomNumberService.getInt()
-        Widget(id, listOfValues, valueFromExtend)
+        return Widget(id, listOfValues, valueFromExtend)
     }
 
     class InvalidWidgetIdException : RuntimeException()

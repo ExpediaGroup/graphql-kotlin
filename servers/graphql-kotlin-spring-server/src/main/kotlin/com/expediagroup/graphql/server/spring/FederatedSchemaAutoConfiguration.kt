@@ -54,7 +54,7 @@ class FederatedSchemaAutoConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedSchemaGeneratorHooks(resolvers: Optional<List<FederatedTypeResolver<*>>>): FederatedSchemaGeneratorHooks =
+    fun federatedSchemaGeneratorHooks(resolvers: Optional<List<FederatedTypeResolver>>): FederatedSchemaGeneratorHooks =
         FederatedSchemaGeneratorHooks(resolvers.orElse(emptyList()), config.federation.optInV2)
 
     @Bean

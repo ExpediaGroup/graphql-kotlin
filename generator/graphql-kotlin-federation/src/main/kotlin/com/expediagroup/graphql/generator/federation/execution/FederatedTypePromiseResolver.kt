@@ -16,16 +16,16 @@
 
 package com.expediagroup.graphql.generator.federation.execution
 
-/**
- * Abstraction that provides a convenient way to resolve underlying federated types based on the passed
- * in _entities query representations. Entities need to be resolved in the same order they were specified
- * by the list of representations. Each passed in representation should either be resolved to a target
- * entity OR NULL if entity cannot be resolved.
- */
-sealed interface FederatedTypeResolver {
+import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
+
+interface FederatedTypePromiseResolver<T> : FederatedTypeResolver {
     /**
-     * This is the GraphQL name of the type. It is used when running the resolvers and inspecting the
-     * GraphQL "__typename" property during the entities requests
+     * Resolves underlying federated types by returning a CompletableFuture
+     *
+     * @param environment DataFetchingEnvironment for executing this query
+     * @param representation entity representation that is required to resolve the target type
+     * @return promise of list of the target federated type instances
      */
-    val typeName: String
+    fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): CompletableFuture<T?>
 }

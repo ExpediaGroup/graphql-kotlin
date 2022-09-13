@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,51 @@
 
 package com.expediagroup.graphql.generator.federation.data
 
+import com.expediagroup.graphql.generator.federation.data.queries.federated.Author
 import com.expediagroup.graphql.generator.federation.data.queries.federated.Book
 import com.expediagroup.graphql.generator.federation.data.queries.federated.User
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypePromiseResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 
-internal class BookResolver : FederatedTypeResolver<Book> {
+internal class BookResolver : FederatedTypeSuspendResolver<Book> {
     override val typeName: String = "Book"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Book?> {
-        val results = mutableListOf<Book?>()
-        for (keys in representations) {
-            val book = Book(keys["id"].toString())
-            keys["weight"]?.toString()?.toDoubleOrNull()?.let {
-                book.weight = it
-            }
-            results.add(book)
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): Book? {
+        val book = Book(representation["id"].toString())
+        representation["weight"]?.toString()?.toDoubleOrNull()?.let {
+            book.weight = it
         }
-
-        return results
+        return book
     }
 }
 
-internal class UserResolver : FederatedTypeResolver<User> {
+internal class UserResolver : FederatedTypeSuspendResolver<User> {
     override val typeName: String = "User"
 
-    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<User?> {
-        val results = mutableListOf<User?>()
-        for (keys in representations) {
-            val id = keys["userId"].toString().toInt()
-            val name = keys["name"].toString()
-            results.add(User(id, name))
-        }
-        return results
+    override suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): User? {
+        val id = representation["userId"].toString().toInt()
+        val name = representation["name"].toString()
+        return User(id, name)
+    }
+}
+
+internal class AuthorResolver : FederatedTypePromiseResolver<Author> {
+
+    override val typeName: String = "Author"
+
+    override fun resolve(
+        environment: DataFetchingEnvironment,
+        representation: Map<String, Any>
+    ): CompletableFuture<Author?> {
+        return CompletableFuture.completedFuture(authors[representation["authorId"].toString().toInt()])
+    }
+
+    companion object {
+        private val authors = mapOf(
+            1 to Author(1, "Author 1"),
+            2 to Author(2, "Author 2"),
+        )
     }
 }

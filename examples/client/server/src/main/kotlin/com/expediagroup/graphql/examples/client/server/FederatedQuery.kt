@@ -10,7 +10,7 @@ import com.expediagroup.graphql.generator.federation.directives.OverrideDirectiv
 import com.expediagroup.graphql.generator.federation.directives.ProvidesDirective
 import com.expediagroup.graphql.generator.federation.directives.ShareableDirective
 import com.expediagroup.graphql.generator.federation.directives.TagDirective
-import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
+import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment
@@ -105,28 +105,24 @@ data class User(
 )
 
 @Component
-class ProductsResolver : FederatedTypeResolver<Product> {
+class ProductsResolver : FederatedTypeSuspendResolver<Product> {
     override val typeName: String = "Product"
 
     override suspend fun resolve(
         environment: DataFetchingEnvironment,
-        representations: List<Map<String, Any>>
-    ): List<Product?> = representations.map {
-        Product.byReference(it)
-    }
+        representation: Map<String, Any>
+    ): Product? = Product.byReference(representation)
 }
 
 @Component
-class UserResolver : FederatedTypeResolver<User> {
+class UserResolver : FederatedTypeSuspendResolver<User> {
     override val typeName: String = "User"
 
     override suspend fun resolve(
         environment: DataFetchingEnvironment,
-        representations: List<Map<String, Any>>
-    ): List<User?> {
-        return representations.map {
-            val email = it["email"]?.toString() ?: throw RuntimeException("invalid entity reference")
-            User(email = email, name = "default", totalProductsCreated = 1337)
-        }
+        representation: Map<String, Any>
+    ): User? {
+        val email = representation["email"]?.toString() ?: throw RuntimeException("invalid entity reference")
+        return User(email = email, name = "default", totalProductsCreated = 1337)
     }
 }

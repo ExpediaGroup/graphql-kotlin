@@ -16,16 +16,18 @@
 
 package com.expediagroup.graphql.generator.federation.execution
 
-/**
- * Abstraction that provides a convenient way to resolve underlying federated types based on the passed
- * in _entities query representations. Entities need to be resolved in the same order they were specified
- * by the list of representations. Each passed in representation should either be resolved to a target
- * entity OR NULL if entity cannot be resolved.
- */
-sealed interface FederatedTypeResolver {
+import graphql.schema.DataFetchingEnvironment
+
+interface FederatedTypeSuspendResolver<out T> : FederatedTypeResolver {
+
+    override val typeName: String
+
     /**
-     * This is the GraphQL name of the type. It is used when running the resolvers and inspecting the
-     * GraphQL "__typename" property during the entities requests
+     * Resolves underlying federated types by using suspending functions
+     *
+     * @param environment DataFetchingEnvironment for executing this query
+     * @param representation entity representation that is required to resolve the target type
+     * @return list of the target federated type instances
      */
-    val typeName: String
+    suspend fun resolve(environment: DataFetchingEnvironment, representation: Map<String, Any>): T?
 }
