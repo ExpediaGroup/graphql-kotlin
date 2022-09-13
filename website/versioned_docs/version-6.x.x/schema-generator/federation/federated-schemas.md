@@ -35,9 +35,9 @@ any extended functionality our FederatedTypeRegistry does not include any federa
 data class Product(val id: Int, val description: String)
 
 class ProductQuery {
-  fun product(id: Int): Product? {
-    // grabs product from a data source, might return null
-  }
+    fun product(id: Int): Product? {
+        // grabs product from a data source, might return null
+    }
 }
 
 // Generate the schema
@@ -52,24 +52,24 @@ Example above generates the following schema with additional federated types:
 
 ```graphql
 schema {
-  query: Query
+    query: Query
 }
 
 union _Entity = Product
 
 type Product @key(fields : "id") {
-  description: String!
-  id: Int!
+    description: String!
+    id: Int!
 }
 
 type Query @extends {
-  _entities(representations: [_Any!]!): [_Entity]!
-  _service: _Service!
-  product(id: Int!): Product
+    _entities(representations: [_Any!]!): [_Entity]!
+    _service: _Service!
+    product(id: Int!): Product
 }
 
 type _Service {
-  sdl: String!
+    sdl: String!
 }
 ```
 
@@ -94,14 +94,12 @@ data class Product(@ExternalDirective val id: Int) {
 data class Review(val reviewId: String, val text: String)
 
 // Resolve a "Product" type from the _entities query
-class ProductResolver : FederatedTypeSuspendResolver<Product> {
+class ProductResolver : FederatedTypeResolver<Product> {
     override val typeName = "Product"
 
-    override suspend fun resolve(
-        environment: DataFetchingEnvironment,
-        representation: Map<String, Any>
-    ): Product? =
-        representation["id"]?.toString()?.toIntOrNull()?.let { id -> Product(id) }
+    override suspend fun resolve(environment: DataFetchingEnvironment, representations: List<Map<String, Any>>): List<Product?> = representations.map { keys ->
+        keys["id"]?.toString()?.toIntOrNull()?.let { id -> Product(id) }
+    }
 }
 
 // Generate the schema
