@@ -10,7 +10,7 @@ buildscript {
     }
 
     val androidPluginVersion = System.getenv("ANDROID_PLUGIN_VERSION") ?: "7.0.1"
-    val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "6.0.0-SNAPSHOT"
+    val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "7.0.0-SNAPSHOT"
     val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.6.10"
     dependencies {
         classpath("com.android.tools.build:gradle:$androidPluginVersion")

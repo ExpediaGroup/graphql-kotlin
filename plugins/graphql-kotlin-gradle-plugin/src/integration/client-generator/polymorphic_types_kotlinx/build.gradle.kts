@@ -11,7 +11,7 @@ buildscript {
         }
     }
 
-    val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "6.0.0-SNAPSHOT"
+    val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "7.0.0-SNAPSHOT"
     dependencies {
         classpath("com.expediagroup:graphql-kotlin-gradle-plugin:$graphQLKotlinVersion")
     }
@@ -36,7 +36,7 @@ repositories {
     }
 }
 
-val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "6.0.0-SNAPSHOT"
+val graphQLKotlinVersion = System.getenv("GRAPHQL_KOTLIN_VERSION") ?: "7.0.0-SNAPSHOT"
 val junitVersion = System.getenv("JUNIT_VERSION") ?: "5.8.2"
 val kotlinVersion = System.getenv("KOTLIN_VERSION") ?: "1.6.20"
 val ktorVersion = System.getenv("KTOR_VERSION") ?: "2.0.0"
