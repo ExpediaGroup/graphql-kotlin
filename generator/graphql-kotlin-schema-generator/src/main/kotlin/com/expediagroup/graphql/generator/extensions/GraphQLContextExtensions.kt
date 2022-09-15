@@ -16,24 +16,35 @@
 
 package com.expediagroup.graphql.generator.extensions
 
+import com.expediagroup.graphql.generator.exceptions.KeyNotFoundInGraphQLContextException
 import graphql.GraphQLContext
 
 /**
  * Returns a value in the context by KClass key
  * @return a value or null
  */
-inline fun <reified T> GraphQLContext.get(): T? = get(T::class)
+inline fun <reified T> GraphQLContext.get(): T? =
+    get(T::class)
 
 /**
  * Returns a value in the context by KClass key
  * @param defaultValue the default value to use if there is no KClass key entry
  * @return a value or default value
  */
-inline fun <reified T> GraphQLContext.getOrDefault(defaultValue: T): T = getOrDefault(T::class, defaultValue)
+inline fun <reified T> GraphQLContext.getOrDefault(defaultValue: T): T =
+    getOrDefault(T::class, defaultValue)
 
 /**
  * Returns a value in the context by KClass key
  * @param defaultValue function to invoke if there is no KClass key entry
  * @return a value or result of [defaultValue] function
  */
-inline fun <reified T> GraphQLContext.getOrElse(defaultValue: () -> T): T = get(T::class) ?: defaultValue.invoke()
+inline fun <reified T> GraphQLContext.getOrElse(defaultValue: () -> T): T =
+    get(T::class) ?: defaultValue.invoke()
+
+/**
+ * Returns a value in the context by KClass key or [KeyNotFoundInGraphQLContextException] if key was not found
+ * @return a value or [KeyNotFoundInGraphQLContextException]
+ */
+inline fun <reified T> GraphQLContext.getOrThrow(): T =
+    get(T::class) ?: throw KeyNotFoundInGraphQLContextException(T::class)
