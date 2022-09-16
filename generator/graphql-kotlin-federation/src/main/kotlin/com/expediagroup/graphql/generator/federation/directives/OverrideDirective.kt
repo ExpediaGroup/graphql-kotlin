@@ -28,7 +28,7 @@ import graphql.schema.GraphQLNonNull
  * ```
  *
  * The @override directive is used to indicate that the current subgraph is taking responsibility for resolving the marked field away from the subgraph specified in the from argument. Name of the subgraph
- * to be overriden has to match the name of the subgraph that was used to publish their schema.
+ * to be overridden has to match the name of the subgraph that was used to publish their schema.
  *
  * >NOTE: Only one subgraph can `@override` any given field. If multiple subgraphs attempt to `@override` the same field, a composition error occurs.
  *
@@ -36,7 +36,6 @@ import graphql.schema.GraphQLNonNull
  *
  * @see <a href="https://www.apollographql.com/docs/rover/subgraphs/#publishing-a-subgraph-schema-to-apollo-studio">Publishing schema to Apollo Studio</a>
  */
-@Repeatable
 @GraphQLDirective(
     name = OVERRIDE_DIRECTIVE_NAME,
     description = OVERRIDE_DIRECTIVE_DESCRIPTION,
@@ -56,5 +55,4 @@ internal val OVERRIDE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.
             .name("from")
             .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
     )
-    .repeatable(true)
     .build()
