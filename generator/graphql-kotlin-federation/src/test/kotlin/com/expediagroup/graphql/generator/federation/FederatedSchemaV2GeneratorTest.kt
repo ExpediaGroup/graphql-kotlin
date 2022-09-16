@@ -64,7 +64,7 @@ class FederatedSchemaV2GeneratorTest {
             directive @link(import: [String], url: String) repeatable on SCHEMA
 
             "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
-            directive @override(from: String!) repeatable on FIELD_DEFINITION
+            directive @override(from: String!) on FIELD_DEFINITION
 
             "Specifies the base type field set that will be selectable by the gateway"
             directive @provides(fields: FieldSet!) on FIELD_DEFINITION
