@@ -89,11 +89,11 @@ val graphQL = GraphQL.Builder()
     .build()
 ```
 
-This data loader instrumentation relies on a global state object that should be stored in the GraphQL context map
+This data loader instrumentation relies on a global state object that needs be stored in the GraphQLContext map
 
 ```kotlin
 val graphQLContext = mapOf(
-    SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(queries.size)
+    ExecutionLevelDispatchedState::class to ExecutionLevelDispatchedState(queries.size)
 )
 ```
 
@@ -220,7 +220,7 @@ if we proceed dispatching all data loaders the execution will continue to just r
 
 ### Usage
 
-In order to enable batching by synchronous execution exhaustion, you need to configure your GraphQL instance with the `DataLoaderLevelDispatchedInstrumentation`.
+In order to enable batching by synchronous execution exhaustion, you need to configure your GraphQL instance with the `DataLoaderSyncExecutionExhaustedInstrumentation`.
 
 ```kotlin
 val graphQL = GraphQL.Builder()
@@ -230,11 +230,11 @@ val graphQL = GraphQL.Builder()
     .build()
 ```
 
-This data loader instrumentation relies on a global state object that should be stored in the GraphQL context map
+This data loader instrumentation relies on a global state object that needs be stored in the GraphQLContext map
 
 ```kotlin
 val graphQLContext = mapOf(
-    SyncExecutionExhaustedState::class to ExecutionLevelDispatchedState(
+    SyncExecutionExhaustedState::class to SyncExecutionExhaustedState(
         queries.size,
         kotlinDataLoaderRegistry
     )
