@@ -85,7 +85,6 @@ import graphql.schema.GraphQLArgument
  * @param resolvable boolean flag indicating whether this entity can be resolved within this subgraph, only available in Federation v2
  *
  * @see FieldSet
- * @see ExtendsDirective
  * @see ExternalDirective
  */
 @Repeatable

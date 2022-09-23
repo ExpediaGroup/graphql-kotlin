@@ -85,7 +85,6 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @see FieldSet
  * @see ExternalDirective
- * @see ExtendsDirective
  */
 @GraphQLDirective(
     name = PROVIDES_DIRECTIVE_NAME,

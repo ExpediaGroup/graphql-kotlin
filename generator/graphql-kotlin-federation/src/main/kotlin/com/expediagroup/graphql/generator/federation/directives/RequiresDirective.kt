@@ -68,7 +68,6 @@ import graphql.introspection.Introspection.DirectiveLocation
  * @param fields field set that represents a set of additional external fields required to resolve target field
  *
  * @see FieldSet
- * @see ExtendsDirective
  * @see ExternalDirective
  */
 @GraphQLDirective(
