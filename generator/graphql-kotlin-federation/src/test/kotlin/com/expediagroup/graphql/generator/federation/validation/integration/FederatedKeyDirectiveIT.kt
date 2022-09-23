@@ -105,15 +105,6 @@ class FederatedKeyDirectiveIT {
     }
 
     @Test
-    fun `@extended type should specify @key directive`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._01"))
-        }
-        val expected = "Invalid federated schema:\n - @key directive is missing on federated FederatedMissingKey type"
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
     fun `@key directive field set cannot be empty`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(

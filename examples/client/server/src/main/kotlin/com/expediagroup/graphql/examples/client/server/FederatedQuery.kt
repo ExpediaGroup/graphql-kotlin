@@ -1,7 +1,6 @@
 package com.expediagroup.graphql.examples.client.server
 
 import com.expediagroup.graphql.generator.annotations.GraphQLName
-import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.InaccessibleDirective
@@ -94,7 +93,6 @@ data class ProductVariation(
 )
 
 @KeyDirective(fields = FieldSet("email"))
-@ExtendsDirective
 data class User(
     @ExternalDirective
     val email: String,

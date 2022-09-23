@@ -18,7 +18,7 @@ package com.expediagroup.graphql.generator.federation
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import graphql.schema.GraphQLSchema
 import kotlin.reflect.KType
 
@@ -39,7 +39,7 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
         additionalInputTypes: Set<KType>,
         schemaObject: TopLevelObject?
     ): GraphQLSchema {
-        addAdditionalTypesWithAnnotation(ExtendsDirective::class, inputType = false)
+        addAdditionalTypesWithAnnotation(KeyDirective::class, inputType = false)
         return super.generateSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes, schemaObject)
     }
 }

@@ -44,8 +44,8 @@ schema @contact(description : "send urgent issues to [#oncall](https://yourteam.
 ## `@extends` directive
 
 :::caution
-While Federation v2 no longer requires `@extends` directive due to the smart entity type merging. `graphql-kotlin` still
-requires `@extends` directive to programmatically locate all federated  entity types in order to add them to the schema.
+**`@extends` directive is deprecated**. Federation v2 no longer requires `@extends` directive due to the smart entity type
+merging. All usage of `@extends` directive should be removed from your Federation v2 schemas.
 :::
 
 ```graphql
@@ -93,7 +93,6 @@ from the schema. `@external` directive is only required on fields referenced by 
 
 ```kotlin
 @KeyDirective(FieldSet("id"))
-@ExtendsDirective
 class Product(@ExternalDirective val id: String) {
   fun newFunctionality(): String = "whatever"
 }
@@ -102,7 +101,7 @@ class Product(@ExternalDirective val id: String) {
 will generate
 
 ```graphql
-type Product @key(fields : "id") @extends {
+type Product @key(fields : "id") {
   id: String! @external
   newFunctionality: String!
 }
@@ -322,7 +321,6 @@ class Review(val id: String) {
 }
 
 @KeyDirective(FieldSet("userId"))
-@ExtendsDirective
 class User(
   @ExternalDirective val userId: String,
   @ExternalDirective val name: String
@@ -337,7 +335,7 @@ type Review @key(fields : "id") {
   user: User! @provides(fields : "name")
 }
 
-type User @key(fields : "userId") @extends {
+type User @key(fields : "userId") {
   userId: String! @external
   name: String! @external
 }
@@ -391,7 +389,6 @@ that exception will be thrown if queries attempt to resolve fields that referenc
 
 ```kotlin
 @KeyDirective(FieldSet("id"))
-@ExtendsDirective
 class Product(@ExternalDirective val id: String) {
   @ExternalDirective
   var weight: Double by Delegates.notNull()
@@ -406,7 +403,7 @@ class Product(@ExternalDirective val id: String) {
 will generate
 
 ```graphql
-type Product @key(fields : "id") @extends  {
+type Product @key(fields : "id") {
   additionalInfo: String!
   id: String! @external
   shippingCost: String! @requires(fields : "weight")

@@ -27,9 +27,6 @@ import graphql.introspection.Introspection.DirectiveLocation
  * Extends directive is used to represent type extensions in the schema. Native type extensions are currently unsupported by the graphql-kotlin libraries. Federated extended types should have
  * corresponding @key directive defined that specifies primary key required to fetch the underlying object.
  *
- * >NOTE: While Federation v2 no longer requires `@extends` directive due to the smart entity type merging. `graphql-kotlin` still requires `@extends` directive to programmatically locate all federated
- * entity types in order to add them to the schema.
- *
  * Example:
  * Given
  *
@@ -52,6 +49,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  *
  * @see KeyDirective
  */
+@Deprecated(message = "@extends is only required in Federation v1 and can be safely omitted from Federation v2 schemas")
 @GraphQLDirective(
     name = EXTENDS_DIRECTIVE_NAME,
     description = DESCRIPTION,

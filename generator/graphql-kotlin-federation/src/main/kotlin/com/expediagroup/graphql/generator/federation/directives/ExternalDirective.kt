@@ -50,7 +50,6 @@ import graphql.introspection.Introspection.DirectiveLocation
  * }
  * ```
  *
- * @see ExtendsDirective
  * @see KeyDirective
  * @see RequiresDirective
  */
