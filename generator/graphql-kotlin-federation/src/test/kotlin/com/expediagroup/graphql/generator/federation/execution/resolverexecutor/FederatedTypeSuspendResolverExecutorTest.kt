@@ -27,7 +27,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertIs
 
 class FederatedTypeSuspendResolverExecutorTest {
     @Test
@@ -96,11 +96,18 @@ class FederatedTypeSuspendResolverExecutorTest {
 
     @Test
     fun `resolver executor maps the value to a failure when the resolver throws an exception`() {
-        val representation = emptyMap<String, Any>()
-        val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(IndexedValue(7, representation))
-        val mockResolver: FederatedTypeSuspendResolver<*> = mockk {
+        val representation1 = mapOf("__typename" to "MyType", "id" to 1)
+        val representation2 = mapOf("__typename" to "MyType", "id" to 2)
+
+        val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(
+            IndexedValue(1, representation1),
+            IndexedValue(2, representation2)
+        )
+
+        val mockResolver = mockk<FederatedTypeSuspendResolver<*>> {
             every { typeName } returns "MyType"
-            coEvery { resolve(any(), any()) } throws Exception("custom exception")
+            coEvery { resolve(any(), representation1) } returns "MyType1"
+            coEvery { resolve(any(), representation2) } throws Exception("custom exception")
         }
 
         val resolvableEntity = ResolvableEntity("MyType", indexedRequests, mockResolver)
@@ -109,10 +116,16 @@ class FederatedTypeSuspendResolverExecutorTest {
         }
 
         val result = FederatedTypeSuspendResolverExecutor.execute(listOf(resolvableEntity), environment).get()
-        assertTrue(result.isNotEmpty())
-        val mappedValue = result.first()
-        val response = mappedValue[7]
-        assertTrue(response is FederatedRequestFailure)
-        coVerify(exactly = 1) { mockResolver.resolve(any(), any()) }
+        assertEquals(1, result.size)
+
+        val resolverResults = result[0]
+
+        assertEquals("MyType1", resolverResults[1])
+        assertIs<FederatedRequestFailure>(resolverResults[2])
+
+        coVerify(exactly = 1) {
+            mockResolver.resolve(any(), representation1)
+            mockResolver.resolve(any(), representation2)
+        }
     }
 }

@@ -25,6 +25,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.future
+import kotlinx.coroutines.supervisorScope
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -50,18 +51,19 @@ internal object FederatedTypeSuspendResolverExecutor : TypeResolverExecutor<Fede
     private suspend fun resolveEntity(
         resolvableEntity: ResolvableEntity<FederatedTypeSuspendResolver<*>>,
         environment: DataFetchingEnvironment,
-    ): Map<Int, Any?> {
-        val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
-        val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)
-        val results = try {
-            representations.map { representation ->
-                resolvableEntity.resolver.resolve(environment, representation)
-            }
-        } catch (e: Exception) {
-            representations.map {
-                FederatedRequestFailure("Exception was thrown while trying to resolve federated type, representation=$it", e)
+    ): Map<Int, Any?> =
+        supervisorScope {
+            resolvableEntity.indexedRepresentations.associateBy(
+                IndexedValue<Map<String, Any>>::index
+            ) { (_, representation) ->
+                try {
+                    resolvableEntity.resolver.resolve(environment, representation)
+                } catch (e: Exception) {
+                    FederatedRequestFailure(
+                        "Exception was thrown while trying to resolve federated type, representation=$representation",
+                        e
+                    )
+                }
             }
         }
-        return indexes.zip(results).toMap()
-    }
 }
