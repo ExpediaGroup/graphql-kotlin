@@ -167,50 +167,6 @@ class ConvertArgumentValueTest {
         }
     }
 
-    /**
-     * this will be solved in Kotlin 1.7
-     * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
-     * https://youtrack.jetbrains.com/issue/KT-27598
-     * https://github.com/JetBrains/kotlin/pull/4746
-     */
-    @Test
-    fun `generic map object is parsed and will assign null to nullable custom scalar type`() {
-        val kParam = assertNotNull(TestFunctions::inputObjectNullableScalar.findParameterByName("input"))
-        assertThrows<KotlinReflectionInternalError> {
-            convertArgumentValue(
-                "input",
-                kParam,
-                mapOf(
-                    "input" to mapOf(
-                        "foo" to "foo"
-                    )
-                )
-            )
-        }
-    }
-
-    /**
-     * this will be solved in Kotlin 1.7
-     * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
-     * https://youtrack.jetbrains.com/issue/KT-27598
-     * https://github.com/JetBrains/kotlin/pull/4746
-     */
-    @Test
-    fun `generic map object is parsed and will throw exception for non nullable custom scalar type`() {
-        val kParam = assertNotNull(TestFunctions::inputObjectNotNullableScalar.findParameterByName("input"))
-        assertThrows<KotlinReflectionInternalError> {
-            convertArgumentValue(
-                "input",
-                kParam,
-                mapOf(
-                    "input" to mapOf(
-                        "foo" to "foo"
-                    )
-                )
-            )
-        }
-    }
-
     @Test
     fun `list string input is parsed`() {
         val kParam = assertNotNull(TestFunctions::listStringInput.findParameterByName("input"))
