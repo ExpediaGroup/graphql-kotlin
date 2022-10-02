@@ -35,7 +35,7 @@ class GraphQLGenerateClientIT {
         sourceDirectory.copyRecursively(testProjectDirectory)
 
         val junitVersion = System.getProperty("junitVersion") ?: "5.8.2"
-        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.6.10"
+        val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.7.20"
         val mockkVersion = System.getProperty("mockkVersion") ?: "1.12.2"
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
