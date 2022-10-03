@@ -25,7 +25,7 @@ package com.expediagroup.graphql.generator.federation.execution
 sealed interface FederatedTypeResolver {
     /**
      * This is the GraphQL name of the type. It is used when running the resolvers and inspecting the
-     * GraphQL "__typename" property during the entities requests
+     * GraphQL "__typename" property during the entities requests.
      */
     val typeName: String
 }
