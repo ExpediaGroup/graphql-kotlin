@@ -23,5 +23,8 @@ import graphql.schema.GraphQLFieldDefinition
 // [OK]    @requires specified on base type
 // [ERROR] @requires specifies non-existent fields
 internal fun validateRequiresDirective(validatedType: String, validatedField: GraphQLFieldDefinition, fieldMap: Map<String, GraphQLFieldDefinition>, extendedType: Boolean): List<String> {
-    return validateDirective("$validatedType.${validatedField.name}", REQUIRES_DIRECTIVE_NAME, validatedField.allAppliedDirectivesByName, fieldMap, extendedType)
+    if (extendedType) {
+        return validateDirective("$validatedType.${validatedField.name}", REQUIRES_DIRECTIVE_NAME, validatedField.allAppliedDirectivesByName, fieldMap, extendedType)
+    }
+    return mutableListOf()
 }

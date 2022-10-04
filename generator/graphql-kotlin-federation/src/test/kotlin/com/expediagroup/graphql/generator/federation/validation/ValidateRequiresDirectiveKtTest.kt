@@ -45,7 +45,7 @@ class ValidateRequiresDirectiveKtTest {
      * }
      */
     @Test
-    fun `Verify non extended types and non requires fields returns an error`() {
+    fun `Verify non extended types and non requires fields returns no error`() {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
@@ -58,8 +58,7 @@ class ValidateRequiresDirectiveKtTest {
             extendedType = false
         )
 
-        assertEquals(1, errors.size)
-        assertEquals("@requires directive is missing on federated Foo.shippingCost type", errors.first())
+        assertEquals(0, errors.size)
     }
 
     /**
@@ -68,7 +67,7 @@ class ValidateRequiresDirectiveKtTest {
      * }
      */
     @Test
-    fun `Verify non extended types return an error`() {
+    fun `Verify non extended types return no error`() {
         val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
@@ -82,8 +81,7 @@ class ValidateRequiresDirectiveKtTest {
             extendedType = false
         )
 
-        assertEquals(1, errors.size)
-        assertEquals("@requires(fields = weight) directive on Foo.shippingCost specifies invalid field set - field set specifies field that does not exist, field=weight", errors.first())
+        assertEquals(0, errors.size)
     }
 
     /**
