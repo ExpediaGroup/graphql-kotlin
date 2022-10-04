@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class FederatedSchemaValidatorTest {
 
@@ -225,7 +226,7 @@ class FederatedSchemaValidatorTest {
      * }
      */
     @Test
-    fun `validate local GraphQLObjectType with valid key directive and field with invalid external directive`() {
+    fun `validate local GraphQLObjectType with valid key directive and field with external directive`() {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
             .field(
@@ -246,12 +247,6 @@ class FederatedSchemaValidatorTest {
             FederatedSchemaValidator().validateGraphQLType(typeToValidate)
         }
 
-        val expectedError =
-            """
-                Invalid federated schema:
-                 - base Foo type has fields marked with @external directive, fields=[bar]
-            """.trimIndent()
-
-        assertEquals(expectedError, result.exceptionOrNull()?.message)
+        assertNull(result.exceptionOrNull()?.message)
     }
 }

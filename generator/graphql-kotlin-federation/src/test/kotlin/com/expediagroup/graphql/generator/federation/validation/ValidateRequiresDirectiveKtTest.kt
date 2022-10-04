@@ -59,7 +59,7 @@ class ValidateRequiresDirectiveKtTest {
         )
 
         assertEquals(1, errors.size)
-        assertEquals("base Foo type has fields marked with @requires directive, validatedField=shippingCost", errors.first())
+        assertEquals("@requires directive is missing on federated Foo.shippingCost type", errors.first())
     }
 
     /**
@@ -83,7 +83,7 @@ class ValidateRequiresDirectiveKtTest {
         )
 
         assertEquals(1, errors.size)
-        assertEquals("base Foo type has fields marked with @requires directive, validatedField=shippingCost", errors.first())
+        assertEquals("@requires(fields = weight) directive on Foo.shippingCost specifies invalid field set - field set specifies field that does not exist, field=weight", errors.first())
     }
 
     /**
