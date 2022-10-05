@@ -32,6 +32,7 @@ import com.expediagroup.graphql.generator.federation.data.integration.key.succes
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.schema.GraphQLSchema
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
@@ -128,7 +129,7 @@ class FederatedKeyDirectiveIT {
         assertEquals(expected, exception.message)
     }
 
-    @Test
+    @Disabled("This is a valid case according to Federation 2 spec")
     fun `@key directive on local type cannot reference external fields`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
