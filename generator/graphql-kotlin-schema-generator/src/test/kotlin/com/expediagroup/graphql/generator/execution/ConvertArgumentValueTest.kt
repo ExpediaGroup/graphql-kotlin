@@ -25,7 +25,6 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.full.findParameterByName
-import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -165,6 +164,40 @@ class ConvertArgumentValueTest {
                 )
             )
         }
+    }
+
+    @Test
+    fun `generic map object is parsed and will assign null to nullable custom scalar type`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNullableScalar.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "foo" to "foo"
+                )
+            )
+        )
+        val castResult = assertIs<TestInputNullableScalar>(result)
+        assertEquals(null, castResult.id)
+        assertEquals("foo", castResult.foo)
+    }
+
+    @Test
+    fun `generic map object is parsed and will assign default value to non nullable custom scalar type`() {
+        val kParam = assertNotNull(TestFunctions::inputObjectNotNullableScalar.findParameterByName("input"))
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "foo" to "foo"
+                )
+            )
+        )
+        val castResult = assertIs<TestInputNotNullableScalar>(result)
+        assertEquals("1234", castResult.id.value)
+        assertEquals("foo", castResult.foo)
     }
 
     @Test

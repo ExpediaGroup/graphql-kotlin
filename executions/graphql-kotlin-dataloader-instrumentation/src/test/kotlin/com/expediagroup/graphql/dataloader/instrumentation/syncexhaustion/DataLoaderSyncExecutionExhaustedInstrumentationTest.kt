@@ -19,16 +19,14 @@ package com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.ProductGraphQL
-import io.mockk.Called
 import io.mockk.clearAllMocks
-import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DataLoaderSyncExecutionExhaustedInstrumentationTest {
-    private val dataLoaderSyncExecutionExhaustedInstrumentation = spyk(DataLoaderSyncExecutionExhaustedInstrumentation())
+    private val dataLoaderSyncExecutionExhaustedInstrumentation = DataLoaderSyncExecutionExhaustedInstrumentation()
     private val graphQL = AstronautGraphQL.builder
         .instrumentation(dataLoaderSyncExecutionExhaustedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
@@ -515,15 +513,15 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, _) = AstronautGraphQL.execute(
+        val (results, dataLoaderSyncExecutionExhaustedInstrumentation) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
         )
 
         assertEquals(1, results.size)
-        verify {
-            dataLoaderSyncExecutionExhaustedInstrumentation.getOnSyncExecutionExhaustedCallback(ofType()) wasNot Called
+        verify(exactly = 0) {
+            dataLoaderSyncExecutionExhaustedInstrumentation.dispatchAll()
         }
     }
 }

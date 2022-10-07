@@ -36,7 +36,7 @@ internal fun ExecutionContext.getDocumentHeight(): Int {
         }
         height
     }
-    return QueryTraverser.Builder().schema(graphQLSchema).document(document).variables(variables).build()
+    return QueryTraverser.Builder().schema(graphQLSchema).document(document).variables(coercedVariables.toMap()).build()
         .reducePreOrder(
             { queryVisitor, height -> max(getFieldDepth(queryVisitor.parentEnvironment), height) },
             0
