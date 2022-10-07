@@ -16,7 +16,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.7.20"
     jacoco
 }
 

@@ -138,6 +138,7 @@ class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(INTROSPECT_SCHEMA_TASK_NAME, "--stacktrace")
+            .withDebug(true)
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)
