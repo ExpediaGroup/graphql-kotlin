@@ -7,7 +7,7 @@ val graphQLJavaVersion: String by project
 val junitVersion: String by project
 val kotlinJvmVersion: String by project
 val kotlinVersion: String by project
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val kotlinPoetVersion: String by project
 val kotlinxSerializationVersion: String by project
 val ktorVersion: String by project
@@ -33,7 +33,7 @@ plugins {
 dependencies {
     api(project(path = ":graphql-kotlin-client-generator"))
     api(project(path = ":graphql-kotlin-sdl-generator"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
     implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
     implementation("org.apache.maven:maven-project:$mavenProjectVersion")
     implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
@@ -59,7 +59,7 @@ tasks {
         "graphqlJavaVersion" to graphQLJavaVersion,
         "kotlinJvmTarget" to kotlinJvmVersion,
         "kotlinVersion" to kotlinVersion,
-        "kotlinCoroutinesVersion" to kotlinCoroutinesVersion,
+        "kotlinxCoroutinesVersion" to kotlinxCoroutinesVersion,
         "kotlinPoetVersion" to kotlinPoetVersion,
         "kotlinxSerializationVersion" to kotlinxSerializationVersion,
         "ktorVersion" to ktorVersion,

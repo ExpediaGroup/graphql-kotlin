@@ -4,7 +4,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val springVersion: String by project
 val springBootVersion: String by project
 val wireMockVersion: String by project
@@ -12,7 +12,7 @@ val wireMockVersion: String by project
 dependencies {
     api(project(path = ":graphql-kotlin-client"))
     api(project(path = ":graphql-kotlin-client-jackson"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinCoroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinxCoroutinesVersion")
     api("org.springframework:spring-webflux:$springVersion")
     api("org.springframework.boot:spring-boot-starter-reactor-netty:$springBootVersion")
     testImplementation(project(path = ":graphql-kotlin-client-serialization"))

@@ -19,7 +19,7 @@
         <junit.version>${junitVersion}</junit.version>
         <kotlin.version>${kotlinVersion}</kotlin.version>
         <kotlin.jvmTarget>${kotlinJvmTarget}</kotlin.jvmTarget>
-        <kotlin-coroutines.version>${kotlinCoroutinesVersion}</kotlin-coroutines.version>
+        <kotlin-coroutines.version>${kotlinxCoroutinesVersion}</kotlin-coroutines.version>
         <kotlin-serialization.version>${kotlinxSerializationVersion}</kotlin-serialization.version>
         <kotlinpoet.version>${kotlinPoetVersion}</kotlinpoet.version>
         <ktor.version>${ktorVersion}</ktor.version>

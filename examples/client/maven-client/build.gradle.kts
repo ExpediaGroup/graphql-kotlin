@@ -4,7 +4,7 @@ description = "Example usage of Maven plugin to generate GraphQL Kotlin Client"
 
 val kotlinJvmVersion: String by project
 val kotlinVersion: String by project
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val reactorVersion: String by project
 
 dependencies {
@@ -17,7 +17,7 @@ tasks {
         "graphqlKotlinVersion" to project.version,
         "kotlinJvmTarget" to kotlinJvmVersion,
         "kotlinVersion" to kotlinVersion,
-        "kotlinCoroutinesVersion" to kotlinCoroutinesVersion,
+        "kotlinxCoroutinesVersion" to kotlinxCoroutinesVersion,
         "reactorVersion" to reactorVersion
     )
     val wireMockServerPort: Int? = ext.get("wireMockServerPort") as? Int

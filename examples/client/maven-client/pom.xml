@@ -12,7 +12,7 @@
         <!-- lib versions -->
         <kotlin.jvmTarget>${kotlinJvmTarget}</kotlin.jvmTarget>
         <kotlin.version>${kotlinVersion}</kotlin.version>
-        <kotlin-coroutines.version>${kotlinCoroutinesVersion}</kotlin-coroutines.version>
+        <kotlin-coroutines.version>${kotlinxCoroutinesVersion}</kotlin-coroutines.version>
         <reactor.version>${reactorVersion}</reactor.version>
 
         <!-- environment settings -->
