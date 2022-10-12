@@ -9,7 +9,7 @@ plugins {
 
 val androidPluginVersion: String by project
 val junitVersion: String by project
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val wireMockVersion: String by project
 val mustacheVersion: String by project
 

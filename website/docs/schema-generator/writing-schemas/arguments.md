@@ -107,16 +107,3 @@ query PrintMessages {
 ```
 
 If you need logic to determine when a client passed in a value vs when the default value was used (aka the argument was missing in the request), see [optional undefined arguments](../execution/optional-undefined-arguments.md).
-
-:::info
-Default values with custom scalars are not supported, regardless if the type is nullable or non-nullable, as they use kotlin value classes,
-`callBy` does not support invoking constructors that have value classes as arguments.
-
-See: https://youtrack.jetbrains.com/issue/KT-27598
-
-which was partially fixed in: https://github.com/JetBrains/kotlin/pull/4746
-
-This will be fixed once `graphql-kotlin` updates to kotlin 1.7.
-
-More info: https://github.com/ExpediaGroup/graphql-kotlin/issues/1564
-:::

@@ -2,7 +2,7 @@ import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 
 description = "Common code for running a GraphQL server in any HTTP server framework"
 
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val kotlinxBenchmarkVersion: String by project
 
 plugins {
@@ -15,7 +15,7 @@ dependencies {
     api(project(path = ":graphql-kotlin-dataloader-instrumentation"))
     api(project(path = ":graphql-kotlin-automatic-persisted-queries"))
     api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
 }
 
 // Benchmarks

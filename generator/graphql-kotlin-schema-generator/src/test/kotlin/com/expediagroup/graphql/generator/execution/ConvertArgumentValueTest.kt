@@ -25,7 +25,6 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.full.findParameterByName
-import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -167,48 +166,38 @@ class ConvertArgumentValueTest {
         }
     }
 
-    /**
-     * this will be solved in Kotlin 1.7
-     * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
-     * https://youtrack.jetbrains.com/issue/KT-27598
-     * https://github.com/JetBrains/kotlin/pull/4746
-     */
     @Test
     fun `generic map object is parsed and will assign null to nullable custom scalar type`() {
         val kParam = assertNotNull(TestFunctions::inputObjectNullableScalar.findParameterByName("input"))
-        assertThrows<KotlinReflectionInternalError> {
-            convertArgumentValue(
-                "input",
-                kParam,
-                mapOf(
-                    "input" to mapOf(
-                        "foo" to "foo"
-                    )
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "foo" to "foo"
                 )
             )
-        }
+        )
+        val castResult = assertIs<TestInputNullableScalar>(result)
+        assertEquals(null, castResult.id)
+        assertEquals("foo", castResult.foo)
     }
 
-    /**
-     * this will be solved in Kotlin 1.7
-     * "KotlinReflectionInternalError" when using `callBy` on constructor that has inline class parameters
-     * https://youtrack.jetbrains.com/issue/KT-27598
-     * https://github.com/JetBrains/kotlin/pull/4746
-     */
     @Test
-    fun `generic map object is parsed and will throw exception for non nullable custom scalar type`() {
+    fun `generic map object is parsed and will assign default value to non nullable custom scalar type`() {
         val kParam = assertNotNull(TestFunctions::inputObjectNotNullableScalar.findParameterByName("input"))
-        assertThrows<KotlinReflectionInternalError> {
-            convertArgumentValue(
-                "input",
-                kParam,
-                mapOf(
-                    "input" to mapOf(
-                        "foo" to "foo"
-                    )
+        val result = convertArgumentValue(
+            "input",
+            kParam,
+            mapOf(
+                "input" to mapOf(
+                    "foo" to "foo"
                 )
             )
-        }
+        )
+        val castResult = assertIs<TestInputNotNullableScalar>(result)
+        assertEquals("1234", castResult.id.value)
+        assertEquals("foo", castResult.foo)
     }
 
     @Test

@@ -18,16 +18,14 @@ package com.expediagroup.graphql.dataloader.instrumentation.level
 
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.AstronautGraphQL
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.DataLoaderInstrumentationStrategy
-import io.mockk.Called
 import io.mockk.clearAllMocks
-import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class DataLoaderLevelDispatchedInstrumentationTest {
-    private val dataLoaderLevelDispatchedInstrumentation = spyk(DataLoaderLevelDispatchedInstrumentation())
+    private val dataLoaderLevelDispatchedInstrumentation = DataLoaderLevelDispatchedInstrumentation()
     private val graphQL = AstronautGraphQL.builder
         .instrumentation(dataLoaderLevelDispatchedInstrumentation)
         // graphql java adds DataLoaderDispatcherInstrumentation by default
@@ -149,15 +147,15 @@ class DataLoaderLevelDispatchedInstrumentationTest {
             """mutation { createAstronaut(name: "spaceMan") { id name } }"""
         )
 
-        val (results, _) = AstronautGraphQL.execute(
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
             graphQL,
             queries,
             DataLoaderInstrumentationStrategy.LEVEL_DISPATCHED
         )
 
         assertEquals(1, results.size)
-        verify {
-            dataLoaderLevelDispatchedInstrumentation.getOnLevelDispatchedCallback(ofType()) wasNot Called
+        verify(exactly = 0) {
+            kotlinDataLoaderRegistry.dispatchAll()
         }
     }
 }

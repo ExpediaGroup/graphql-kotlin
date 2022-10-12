@@ -37,7 +37,7 @@ allprojects {
 }
 
 subprojects {
-    val kotlinCoroutinesVersion: String by project
+    val kotlinxCoroutinesVersion: String by project
     val kotlinJvmVersion: String by project
     val kotlinVersion: String by project
     val junitVersion: String by project
@@ -181,7 +181,7 @@ subprojects {
     dependencies {
         implementation(kotlin("stdlib", kotlinVersion))
         implementation(kotlin("reflect", kotlinVersion))
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinCoroutinesVersion")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinxCoroutinesVersion")
         testImplementation(kotlin("test", kotlinVersion))
         testImplementation(kotlin("test-junit5", kotlinVersion))
         testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

@@ -9,7 +9,7 @@ application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
 
@@ -18,7 +18,7 @@ dependencies {
     implementation("io.ktor", "ktor-server-core", ktorVersion)
     implementation("io.ktor", "ktor-server-netty", ktorVersion)
     implementation("ch.qos.logback", "logback-classic", logbackVersion)
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", kotlinCoroutinesVersion)
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", kotlinxCoroutinesVersion)
 }
 
 graphql {
