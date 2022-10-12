@@ -19,9 +19,6 @@ package com.expediagroup.graphql.generator.federation.execution
 import graphql.schema.DataFetchingEnvironment
 
 interface FederatedTypeSuspendResolver<out T> : FederatedTypeResolver {
-
-    override val typeName: String
-
     /**
      * Resolves underlying federated types by using suspending functions
      *

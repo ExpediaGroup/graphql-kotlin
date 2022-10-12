@@ -38,17 +38,18 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
     ): CompletableFuture<Map<Int, Any?>> {
         val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
         val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)
-        val resultsPromise = try {
-            representations.map { representation ->
+        val resultsPromise = representations.map { representation ->
+            try {
                 resolvableEntity.resolver.resolve(environment, representation)
-            }.collectAll()
-        } catch (e: Exception) {
-            CompletableFuture.completedFuture(
-                representations.map {
-                    FederatedRequestFailure("Exception was thrown while trying to resolve federated type, representation=$it", e)
-                }
-            )
-        }
+            } catch (e: Exception) {
+                CompletableFuture.completedFuture(
+                    FederatedRequestFailure(
+                        "Exception was thrown while trying to resolve federated type, representation=$representation",
+                        e
+                    )
+                )
+            }
+        }.collectAll()
         return resultsPromise.thenApply { results ->
             indexes.zip(results).toMap()
         }
