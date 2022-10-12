@@ -116,5 +116,7 @@ See: https://youtrack.jetbrains.com/issue/KT-27598
 
 which was partially fixed in: https://github.com/JetBrains/kotlin/pull/4746
 
-This will be fixed once `graphql-kotlin` updates to kotlin 1.7
+This will be fixed once `graphql-kotlin` updates to kotlin 1.7.
+
+More info: https://github.com/ExpediaGroup/graphql-kotlin/issues/1564
 :::
