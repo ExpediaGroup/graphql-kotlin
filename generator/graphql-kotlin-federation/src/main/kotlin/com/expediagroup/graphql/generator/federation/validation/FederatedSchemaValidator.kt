@@ -68,7 +68,7 @@ internal class FederatedSchemaValidator {
 
         for (field in fields) {
             if (field.getAppliedDirective(REQUIRES_DIRECTIVE_NAME) != null) {
-                errors.addAll(validateRequiresDirective(federatedType, field, fieldMap, extendedType))
+                errors.addAll(validateDirective("$federatedType.${field.name}", REQUIRES_DIRECTIVE_NAME, field.allAppliedDirectivesByName, fieldMap, extendedType))
             }
 
             if (field.getAppliedDirective(PROVIDES_DIRECTIVE_NAME) != null) {

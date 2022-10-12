@@ -218,35 +218,4 @@ class FederatedSchemaValidatorTest {
 
         assertEquals(expectedError, result.exceptionOrNull()?.message)
     }
-
-    /**
-     * type Foo @key(fields: "id") {
-     *   id: String
-     *   bar: String @external
-     * }
-     */
-    @Test
-    fun `validate local GraphQLObjectType with valid key directive and field with external directive`() {
-        val typeToValidate = GraphQLObjectType.newObject()
-            .name("Foo")
-            .field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name("id")
-                    .type(GraphQLString)
-            )
-            .field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name("bar")
-                    .type(GraphQLString)
-                    .withAppliedDirective(externalDirective)
-            )
-            .withAppliedDirective(getKeyDirective("id"))
-            .build()
-
-        val result = kotlin.runCatching {
-            FederatedSchemaValidator().validateGraphQLType(typeToValidate)
-        }
-
-        assertNull(result.exceptionOrNull()?.message)
-    }
 }

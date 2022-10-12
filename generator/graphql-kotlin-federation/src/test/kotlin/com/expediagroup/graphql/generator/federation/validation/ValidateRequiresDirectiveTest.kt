@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.federation.validation
 
+import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.externalDirective
 import com.expediagroup.graphql.generator.federation.getKeyDirective
 import com.expediagroup.graphql.generator.federation.getRequiresDirective
@@ -26,7 +27,7 @@ import graphql.schema.GraphQLObjectType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class ValidateRequiresDirectiveKtTest {
+class ValidateRequiresDirectiveTest {
 
     private val weight = GraphQLFieldDefinition.newFieldDefinition()
         .name("weight")
@@ -38,51 +39,6 @@ class ValidateRequiresDirectiveKtTest {
         .type(GraphQLString)
         .withAppliedDirective(externalDirective)
         .build()
-
-    /**
-     * type Foo {
-     *   shippingCost: String
-     * }
-     */
-    @Test
-    fun `Verify non extended types and non requires fields returns no error`() {
-        val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
-            .name("shippingCost")
-            .type(GraphQLString)
-            .build()
-
-        val errors = validateRequiresDirective(
-            validatedType = "Foo",
-            fieldMap = emptyMap(),
-            validatedField = shippingCost,
-            extendedType = false
-        )
-
-        assertEquals(0, errors.size)
-    }
-
-    /**
-     * type Foo {
-     *   shippingCost: String @requires(fields: "weight")
-     * }
-     */
-    @Test
-    fun `Verify non extended types return no error`() {
-        val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
-            .name("shippingCost")
-            .type(GraphQLString)
-            .withAppliedDirective(getRequiresDirective("weight"))
-            .build()
-
-        val errors = validateRequiresDirective(
-            validatedType = "Foo",
-            fieldMap = emptyMap(),
-            validatedField = shippingCost,
-            extendedType = false
-        )
-
-        assertEquals(0, errors.size)
-    }
 
     /**
      * type Foo @extends {
@@ -104,10 +60,11 @@ class ValidateRequiresDirectiveKtTest {
             .field(weight)
             .build()
 
-        val errors = validateRequiresDirective(
-            validatedType = validatedType.name,
+        val errors = validateDirective(
+            "${validatedType.name}.${shippingCost.name}",
+            REQUIRES_DIRECTIVE_NAME,
+            shippingCost.allAppliedDirectivesByName,
             fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
-            validatedField = shippingCost,
             extendedType = true
         )
 
@@ -135,10 +92,11 @@ class ValidateRequiresDirectiveKtTest {
             .field(weight)
             .build()
 
-        val errors = validateRequiresDirective(
-            validatedType = validatedType.name,
+        val errors = validateDirective(
+            "${validatedType.name}.${shippingCost.name}",
+            REQUIRES_DIRECTIVE_NAME,
+            shippingCost.allAppliedDirectivesByName,
             fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
-            validatedField = shippingCost,
             extendedType = true
         )
 
@@ -169,10 +127,11 @@ class ValidateRequiresDirectiveKtTest {
             .field(modifiedWeight)
             .build()
 
-        val errors = validateRequiresDirective(
-            validatedType = validatedType.name,
+        val errors = validateDirective(
+            "${validatedType.name}.${shippingCost.name}",
+            REQUIRES_DIRECTIVE_NAME,
+            shippingCost.allAppliedDirectivesByName,
             fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
-            validatedField = shippingCost,
             extendedType = true
         )
 
@@ -215,10 +174,11 @@ class ValidateRequiresDirectiveKtTest {
             .field(barField)
             .build()
 
-        val errors = validateRequiresDirective(
-            validatedType = validatedType.name,
+        val errors = validateDirective(
+            "${validatedType.name}.${shippingCost.name}",
+            REQUIRES_DIRECTIVE_NAME,
+            shippingCost.allAppliedDirectivesByName,
             fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
-            validatedField = shippingCost,
             extendedType = true
         )
 
@@ -239,7 +199,7 @@ class ValidateRequiresDirectiveKtTest {
      */
     @Test
     fun `Verify valid requires directive with valid nested field set selection`() {
-        val shippingCostField = GraphQLFieldDefinition.newFieldDefinition()
+        val shippingCost = GraphQLFieldDefinition.newFieldDefinition()
             .name("shippingCost")
             .type(GraphQLString)
             .withAppliedDirective(getRequiresDirective("bar { weight }"))
@@ -266,15 +226,16 @@ class ValidateRequiresDirectiveKtTest {
         val validatedType = GraphQLObjectType.newObject()
             .name("Foo")
             .field(idExternalField)
-            .field(shippingCostField)
+            .field(shippingCost)
             .field(barField)
             .withAppliedDirective(getKeyDirective("id"))
             .build()
 
-        val errors = validateRequiresDirective(
-            validatedType = validatedType.name,
+        val errors = validateDirective(
+            "${validatedType.name}.${shippingCost.name}",
+            REQUIRES_DIRECTIVE_NAME,
+            shippingCost.allAppliedDirectivesByName,
             fieldMap = validatedType.fieldDefinitions.associateBy { it.name },
-            validatedField = shippingCostField,
             extendedType = true
         )
 

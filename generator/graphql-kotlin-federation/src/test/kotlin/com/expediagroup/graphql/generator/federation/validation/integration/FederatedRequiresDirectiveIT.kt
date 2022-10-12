@@ -16,11 +16,8 @@
 
 package com.expediagroup.graphql.generator.federation.validation.integration
 
-import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.federation.data.integration.requires.failure._3.RequiresOnLocalTypeQuery
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
@@ -69,22 +66,6 @@ class FederatedRequiresDirectiveIT {
                  - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies field that does not exist, field=zipCode
             """.trimIndent()
         assertEquals(expected, exception.message)
-    }
-
-    @Disabled("this is a valid use case according to Federation 2 spec")
-    fun `@requires directive cannot be applied on local type`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.failure._3"),
-                queries = listOf(TopLevelObject(RequiresOnLocalTypeQuery()))
-            )
-        }
-        val expectedMessage =
-            """
-                Invalid federated schema:
-                 - base RequiresOnLocalType type has fields marked with @requires directive, validatedField=shippingCost
-            """.trimIndent()
-        assertEquals(expectedMessage, exception.message)
     }
 
     @Test
