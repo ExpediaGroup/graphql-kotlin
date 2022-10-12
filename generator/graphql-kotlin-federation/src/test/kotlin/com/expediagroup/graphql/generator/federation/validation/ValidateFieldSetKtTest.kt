@@ -88,7 +88,7 @@ class ValidateFieldSetKtTest {
      * }
      */
     @Test
-    fun `@key returns an error on a local type with external directive`() {
+    fun `@key returns no error on a local type with external directive`() {
         val errors = mutableListOf<String>()
         val target = GraphQLFieldDefinition.newFieldDefinition()
             .name("foo")
@@ -104,8 +104,7 @@ class ValidateFieldSetKtTest {
             validatedDirective = mockKeyDirectiveInfo
         )
 
-        assertEquals(1, errors.size)
-        assertEquals("@key(fields = foo) directive on Parent specifies invalid field set - type incorrectly references external field=foo", errors.first())
+        assertEquals(0, errors.size)
     }
 
     /**

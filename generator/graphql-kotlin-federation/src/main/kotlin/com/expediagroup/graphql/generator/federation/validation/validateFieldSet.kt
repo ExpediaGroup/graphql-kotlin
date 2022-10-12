@@ -29,8 +29,6 @@ internal fun validateFieldSet(fieldName: String, targetField: GraphQLFieldDefini
         val externalField = targetField.getAppliedDirective(EXTERNAL_DIRECTIVE_NAME) != null
         if (extendedType && !externalField) {
             errors.add("$errorMessage specifies invalid field set - extended type incorrectly references local field=${targetField.name}")
-        } else if (!extendedType && externalField) {
-            errors.add("$errorMessage specifies invalid field set - type incorrectly references external field=${targetField.name}")
         }
 
         /**

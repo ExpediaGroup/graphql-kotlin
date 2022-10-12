@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
-import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
@@ -69,19 +68,11 @@ internal class FederatedSchemaValidator {
 
         for (field in fields) {
             if (field.getAppliedDirective(REQUIRES_DIRECTIVE_NAME) != null) {
-                errors.addAll(validateRequiresDirective(federatedType, field, fieldMap, extendedType))
+                errors.addAll(validateDirective("$federatedType.${field.name}", REQUIRES_DIRECTIVE_NAME, field.allAppliedDirectivesByName, fieldMap, extendedType))
             }
 
             if (field.getAppliedDirective(PROVIDES_DIRECTIVE_NAME) != null) {
                 errors.addAll(validateProvidesDirective(federatedType, field))
-            }
-        }
-
-        // [ERROR] federated base type references @external fields
-        if (!extendedType) {
-            val externalFields = fields.filter { it.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME) }.map { it.name }
-            if (externalFields.isNotEmpty()) {
-                errors.add("base $federatedType type has fields marked with @external directive, fields=$externalFields")
             }
         }
 

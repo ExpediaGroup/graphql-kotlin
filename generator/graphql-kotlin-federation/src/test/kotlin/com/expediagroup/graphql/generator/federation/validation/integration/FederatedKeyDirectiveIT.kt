@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.federation.validation.integration
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.federation.data.integration.key.failure._02.KeyMissingFieldSelectionQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.failure._03.InvalidKeyQuery
-import com.expediagroup.graphql.generator.federation.data.integration.key.failure._04.BaseKeyReferencingExternalFieldsQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.failure._06.KeyReferencingListQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.failure._07.KeyReferencingInterfaceQuery
 import com.expediagroup.graphql.generator.federation.data.integration.key.failure._08.KeyReferencingUnionQuery
@@ -125,20 +124,6 @@ class FederatedKeyDirectiveIT {
             )
         }
         val expected = "Invalid federated schema:\n - @key(fields = id) directive on InvalidKey specifies invalid field set - field set specifies field that does not exist, field=id"
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
-    fun `@key directive on local type cannot reference external fields`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.failure._04"),
-                queries = listOf(TopLevelObject(BaseKeyReferencingExternalFieldsQuery()))
-            )
-        }
-        val expected = "Invalid federated schema:\n" +
-            " - @key(fields = id) directive on BaseKeyReferencingExternalFields specifies invalid field set - type incorrectly references external field=id\n" +
-            " - base BaseKeyReferencingExternalFields type has fields marked with @external directive, fields=[id]"
         assertEquals(expected, exception.message)
     }
 
