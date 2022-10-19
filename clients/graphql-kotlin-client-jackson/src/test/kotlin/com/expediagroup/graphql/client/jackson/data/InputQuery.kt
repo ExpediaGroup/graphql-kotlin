@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package com.expediagroup.graphql.client.jackson.data
 
+import com.expediagroup.graphql.client.jackson.data.inputs.InputObject
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlin.String
 import kotlin.collections.List
 import kotlin.reflect.KClass
@@ -31,12 +33,20 @@ class InputQuery(
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
+        @get:JsonProperty("requiredInput")
         val requiredInput: Int,
+        @get:JsonProperty("nullableId")
         val nullableId: Int? = null,
+        @get:JsonProperty("nullableListNullableElements")
         val nullableListNullableElements: List<String?>? = null,
+        @get:JsonProperty("nullableListNonNullableElements")
         val nullableListNonNullableElements: List<String>? = null,
+        @get:JsonProperty("nullableElementList")
         val nullableElementList: List<String?>,
-        val nonNullableElementList: List<String>
+        @get:JsonProperty("nonNullableElementList")
+        val nonNullableElementList: List<String>,
+        @get:JsonProperty("inputObject")
+        val inputObject: InputObject = InputObject()
     )
 
     data class Result(

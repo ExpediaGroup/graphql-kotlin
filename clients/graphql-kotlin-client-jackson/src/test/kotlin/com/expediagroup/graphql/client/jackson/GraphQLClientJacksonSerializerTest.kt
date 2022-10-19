@@ -297,7 +297,12 @@ class GraphQLClientJacksonSerializerTest {
             |    "requiredInput" : 123,
             |    "nullableListNullableElements" : [ null ],
             |    "nullableElementList" : [ "foo", null ],
-            |    "nonNullableElementList" : [ ]
+            |    "nonNullableElementList" : [ ],
+            |    "inputObject" : {
+            |      "isNotBoolean" : "yes",
+            |      "NOT" : false,
+            |      "pID" : "1"
+            |    }
             |  },
             |  "query" : "INPUT_QUERY",
             |  "operationName" : "InputQuery"

@@ -19,6 +19,7 @@ package com.expediagroup.graphql.client.jackson.data
 import com.expediagroup.graphql.client.jackson.data.scalars.AnyToUUIDConverter
 import com.expediagroup.graphql.client.jackson.data.scalars.UUIDToAnyConverter
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import java.util.UUID
@@ -37,9 +38,11 @@ class ScalarQuery(
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
+        @get:JsonProperty("alias")
         val alias: ID? = null,
         @JsonSerialize(converter = UUIDToAnyConverter::class)
         @JsonDeserialize(converter = AnyToUUIDConverter::class)
+        @get:JsonProperty("custom")
         val custom: UUID? = null
     )
 

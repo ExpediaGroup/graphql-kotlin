@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.jackson.data
 
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlin.reflect.KClass
 
 class OptionalInputQuery(
@@ -30,9 +31,13 @@ class OptionalInputQuery(
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
+        @get:JsonProperty("requiredInput")
         val requiredInput: Int,
+        @get:JsonProperty("optionalIntInput")
         val optionalIntInput: OptionalInput<Int> = OptionalInput.Undefined,
+        @get:JsonProperty("optionalStringInput")
         val optionalStringInput: OptionalInput<String> = OptionalInput.Undefined,
+        @get:JsonProperty("optionalBooleanInput")
         val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined
     )
 

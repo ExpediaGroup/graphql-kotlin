@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.client.jackson.data
+package com.expediagroup.graphql.client.jackson.data.inputs
 
-import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.expediagroup.graphql.client.jackson.data.ID
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlin.reflect.KClass
 
-class FirstQuery(
-    override val variables: Variables
-) : GraphQLClientRequest<FirstQuery.Result> {
-    override val query: String = "FIRST_QUERY"
-
-    override val operationName: String = "FirstQuery"
-
-    override fun responseType(): KClass<Result> = Result::class
-
-    data class Variables(
-        @get:JsonProperty("input")
-        val input: Float? = null
-    )
-
-    data class Result(
-        val stringResult: String
-    )
-}
+data class InputObject(
+    @get:JsonProperty("isNotBoolean")
+    val isNotBoolean: String = "yes",
+    @get:JsonProperty("NOT")
+    val NOT: Boolean = false,
+    @get:JsonProperty("pID")
+    val pID: ID = "1",
+)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.expediagroup.graphql.client.jackson.data
 
 import com.expediagroup.graphql.client.jackson.data.enums.TestEnum
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlin.reflect.KClass
 
 class EnumQuery(
@@ -30,6 +31,7 @@ class EnumQuery(
     override fun responseType(): KClass<Result> = Result::class
 
     data class Variables(
+        @get:JsonProperty("enum")
         val enum: TestEnum? = null
     )
 

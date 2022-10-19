@@ -5,6 +5,7 @@ import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.jackson.types.OptionalInput.Undefined
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.SimpleArgumentInput
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
@@ -25,6 +26,7 @@ public class JacksonInputQuery(
 
   @Generated
   public data class Variables(
+    @get:JsonProperty(value = "input")
     public val input: OptionalInput<SimpleArgumentInput> = OptionalInput.Undefined,
   )
 
