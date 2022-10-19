@@ -3,6 +3,7 @@ package com.expediagroup.graphql.generated
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.inputs.ComplexArgumentInput
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
@@ -23,6 +24,7 @@ public class SelfReferencingInputQuery(
 
   @Generated
   public data class Variables(
+    @get:JsonProperty(value = "input")
     public val input: ComplexArgumentInput? = null,
   )
 

@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.generated.enums.CustomEnum
 import com.expediagroup.graphql.generated.includeskipdirectivesquery.ScalarWrapper
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.Boolean
 import kotlin.String
 import kotlin.reflect.KClass
@@ -24,7 +25,9 @@ public class IncludeSkipDirectivesQuery(
 
   @Generated
   public data class Variables(
+    @get:JsonProperty(value = "includeCondition")
     public val includeCondition: Boolean,
+    @get:JsonProperty(value = "skipCondition")
     public val skipCondition: Boolean,
   )
 

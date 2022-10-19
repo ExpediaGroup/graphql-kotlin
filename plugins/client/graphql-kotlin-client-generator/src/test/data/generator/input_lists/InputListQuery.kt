@@ -2,6 +2,7 @@ package com.expediagroup.graphql.generated
 
 import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.`annotation`.JsonProperty
 import kotlin.String
 import kotlin.collections.List
 import kotlin.reflect.KClass
@@ -21,8 +22,11 @@ public class InputListQuery(
 
   @Generated
   public data class Variables(
+    @get:JsonProperty(value = "nullableIds")
     public val nullableIds: List<String?>? = null,
+    @get:JsonProperty(value = "nullableIdList")
     public val nullableIdList: List<String>? = null,
+    @get:JsonProperty(value = "nonNullableIds")
     public val nonNullableIds: List<String>,
   )
 
