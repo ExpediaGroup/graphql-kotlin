@@ -20,6 +20,7 @@ import com.expediagroup.graphql.client.Generated
 import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorContext
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.expediagroup.graphql.plugin.client.generator.ScalarConverterInfo
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
@@ -165,6 +166,17 @@ internal fun createInputPropertySpec(
                 }
             } else {
                 builder.addAnnotations(scalarAnnotations)
+            }
+
+            if (context.serializer == GraphQLSerializer.JACKSON) {
+                // always add @get:JsonProperty annotation as a workaround to Jackson limitations
+                // related to JavaBean naming conventions
+                builder.addAnnotation(
+                    AnnotationSpec.builder(JsonProperty::class)
+                        .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
+                        .addMember("value = \"$graphqlFieldName\"")
+                        .build()
+                )
             }
         }
         .build()

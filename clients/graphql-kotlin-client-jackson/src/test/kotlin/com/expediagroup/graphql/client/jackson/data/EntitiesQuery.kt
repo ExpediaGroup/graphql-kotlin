@@ -19,6 +19,7 @@ package com.expediagroup.graphql.client.jackson.data
 import com.expediagroup.graphql.client.jackson.data.entitiesquery._Entity
 import com.expediagroup.graphql.client.jackson.data.scalars.AnyToAnyConverter
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import kotlin.reflect.KClass
@@ -35,6 +36,7 @@ class EntitiesQuery(
     data class Variables(
         @JsonSerialize(contentConverter = AnyToAnyConverter::class)
         @JsonDeserialize(contentConverter = AnyToAnyConverter::class)
+        @get:JsonProperty("representations")
         public val representations: List<Any>,
     )
 
