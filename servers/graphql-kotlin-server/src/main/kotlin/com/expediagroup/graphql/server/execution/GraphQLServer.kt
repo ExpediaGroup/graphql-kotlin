@@ -30,7 +30,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 open class GraphQLServer<Request>(
     private val requestParser: GraphQLRequestParser<Request>,
-    private val contextFactory: GraphQLContextFactory<*, Request>,
+    private val contextFactory: GraphQLContextFactory<Request>,
     private val requestHandler: GraphQLRequestHandler
 ) {
     /**
@@ -46,11 +46,9 @@ open class GraphQLServer<Request>(
     ): GraphQLServerResponse? =
         coroutineScope {
             requestParser.parseRequest(request)?.let { graphQLRequest ->
-                val deprecatedContext = contextFactory.generateContext(request)
                 val contextMap = contextFactory.generateContextMap(request)
 
-                val customCoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
-                    (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+                val customCoroutineContext = (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
                 val graphQLExecutionScope = CoroutineScope(
                     coroutineContext + customCoroutineContext + SupervisorJob()
                 )
@@ -58,7 +56,7 @@ open class GraphQLServer<Request>(
                     CoroutineScope::class to graphQLExecutionScope
                 )
 
-                requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
+                requestHandler.executeRequest(graphQLRequest, graphQLContext)
             }
         }
 }

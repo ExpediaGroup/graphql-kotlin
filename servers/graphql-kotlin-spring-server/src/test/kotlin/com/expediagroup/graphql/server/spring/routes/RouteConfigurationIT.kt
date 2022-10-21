@@ -20,7 +20,6 @@ import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_VARIABLES
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -53,7 +52,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         fun query(): Query = SimpleQuery()
 
         @Bean
-        fun customContextFactory(): SpringGraphQLContextFactory<SpringGraphQLContext> = object : SpringGraphQLContextFactory<SpringGraphQLContext>() {
+        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
             override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
                 "value" to (request.headers().firstHeader("X-Custom-Header") ?: "default")
             )
@@ -61,9 +60,8 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
     }
 
     class SimpleQuery : Query {
-        fun hello(name: String) = "Hello $name!"
-
-        fun context(env: DataFetchingEnvironment) = env.graphQlContext.getOrDefault("value", "default")
+        fun hello(name: String): String = "Hello $name!"
+        fun context(env: DataFetchingEnvironment): String = env.graphQlContext.getOrDefault("value", "default")
     }
 
     val expectedSchema =
@@ -131,7 +129,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
     @Test
     fun `verify GET graphQL request`() {
-        val query = "query { hello(name: \"JUNIT GET\") }"
+        val query = """query { hello(name: "JUNIT GET") }"""
         testClient.get()
             .uri { builder ->
                 builder.path("/graphql")

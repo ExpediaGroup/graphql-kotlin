@@ -22,7 +22,6 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevel
 import com.expediagroup.graphql.dataloader.instrumentation.level.state.ExecutionLevelDispatchedState
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.state.SyncExecutionExhaustedState
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.extensions.containsMutation
 import com.expediagroup.graphql.server.extensions.isBatchDataLoaderInstrumentation
 import com.expediagroup.graphql.server.extensions.toExecutionInput
@@ -68,22 +67,21 @@ open class GraphQLRequestHandler(
      */
     open suspend fun executeRequest(
         graphQLRequest: GraphQLServerRequest,
-        context: GraphQLContext? = null,
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
     ): GraphQLServerResponse {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
         return when (graphQLRequest) {
             is GraphQLRequest -> {
                 val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
-                execute(graphQLRequest, dataLoaderRegistry, context, batchGraphQLContext)
+                execute(graphQLRequest, dataLoaderRegistry, batchGraphQLContext)
             }
             is GraphQLBatchRequest -> {
                 if (graphQLRequest.containsMutation()) {
                     val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)
-                    executeSequentially(graphQLRequest, dataLoaderRegistry, context, batchGraphQLContext)
+                    executeSequentially(graphQLRequest, dataLoaderRegistry, batchGraphQLContext)
                 } else {
                     val batchGraphQLContext = graphQLContext + getBatchContext(graphQLRequest.requests.size, dataLoaderRegistry)
-                    executeConcurrently(graphQLRequest, dataLoaderRegistry, context, batchGraphQLContext)
+                    executeConcurrently(graphQLRequest, dataLoaderRegistry, batchGraphQLContext)
                 }
             }
         }
@@ -92,12 +90,11 @@ open class GraphQLRequestHandler(
     private suspend fun execute(
         graphQLRequest: GraphQLRequest,
         dataLoaderRegistry: KotlinDataLoaderRegistry?,
-        context: GraphQLContext? = null,
         batchGraphQLContext: Map<*, Any>
     ): GraphQLResponse<*> =
         try {
             graphQL.executeAsync(
-                graphQLRequest.toExecutionInput(dataLoaderRegistry, context, batchGraphQLContext)
+                graphQLRequest.toExecutionInput(dataLoaderRegistry, batchGraphQLContext)
             ).await().toGraphQLResponse()
         } catch (exception: Exception) {
             val error = exception.toGraphQLError()
@@ -107,25 +104,23 @@ open class GraphQLRequestHandler(
     private suspend fun executeSequentially(
         batchRequest: GraphQLBatchRequest,
         dataLoaderRegistry: KotlinDataLoaderRegistry?,
-        context: GraphQLContext?,
         batchGraphQLContext: Map<*, Any>
     ): GraphQLBatchResponse =
         GraphQLBatchResponse(
             batchRequest.requests.map { request ->
-                execute(request, dataLoaderRegistry, context, batchGraphQLContext)
+                execute(request, dataLoaderRegistry, batchGraphQLContext)
             }
         )
 
     private suspend fun executeConcurrently(
         batchRequest: GraphQLBatchRequest,
         dataLoaderRegistry: KotlinDataLoaderRegistry?,
-        context: GraphQLContext?,
         batchGraphQLContext: Map<*, Any>
     ): GraphQLBatchResponse {
         val responses = supervisorScope {
             batchRequest.requests.map { request ->
                 async {
-                    execute(request, dataLoaderRegistry, context, batchGraphQLContext)
+                    execute(request, dataLoaderRegistry, batchGraphQLContext)
                 }
             }.awaitAll()
         }

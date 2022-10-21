@@ -169,7 +169,7 @@ class SchemaConfigurationTest {
             .build()
 
         @Bean
-        fun myCustomContextFactory(): SpringGraphQLContextFactory<*> = mockk()
+        fun myCustomContextFactory(): SpringGraphQLContextFactory = mockk()
 
         @Bean
         fun myDataLoaderRegistryFactory(): KotlinDataLoaderRegistryFactory = mockk()

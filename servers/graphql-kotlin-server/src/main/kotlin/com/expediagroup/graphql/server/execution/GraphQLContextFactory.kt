@@ -16,20 +16,10 @@
 
 package com.expediagroup.graphql.server.execution
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
-
 /**
  * Factory that generates GraphQL context.
  */
-interface GraphQLContextFactory<out Context : GraphQLContext, Request> {
-
-    /**
-     * Generate GraphQL context based on the incoming request and the corresponding response.
-     * If no context should be generated and used in the request, return null.
-     */
-    @Deprecated(message = "The generic context object is deprecated in favor of the context map", replaceWith = ReplaceWith("generateContextMap(request)"))
-    suspend fun generateContext(request: Request): Context? = null
-
+interface GraphQLContextFactory<Request> {
     /**
      * Generate GraphQL context based on the incoming request and the corresponding response.
      * If no context should be generated and used in the request, return empty map.

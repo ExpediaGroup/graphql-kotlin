@@ -15,7 +15,6 @@
  */
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
@@ -23,19 +22,6 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * https://www.apollographql.com/docs/graphql-subscriptions/lifecycle-events/
  */
 interface ApolloSubscriptionHooks {
-
-    /**
-     * Allows validation of connectionParams prior to starting the connection.
-     * You can reject the connection by throwing an exception.
-     * If you need to forward state to execution, update and return the [GraphQLContext].
-     */
-    @Deprecated(message = "The generic context object is deprecated in favor of the context map", ReplaceWith("onConnectWithContext"))
-    fun onConnect(
-        connectionParams: Map<String, String>,
-        session: WebSocketSession,
-        graphQLContext: GraphQLContext?
-    ): GraphQLContext? = graphQLContext
-
     /**
      * Allows validation of connectionParams prior to starting the connection.
      * You can reject the connection by throwing an exception.
@@ -46,17 +32,6 @@ interface ApolloSubscriptionHooks {
         session: WebSocketSession,
         graphQLContext: Map<*, Any>
     ): Map<*, Any> = graphQLContext
-
-    /**
-     * Called when the client executes a GraphQL operation.
-     * The context can not be updated here, it is read only.
-     */
-    @Deprecated("The generic context object is deprecated in favor of the context map", replaceWith = ReplaceWith("onOperationWithContext"))
-    fun onOperation(
-        operationMessage: SubscriptionOperationMessage,
-        session: WebSocketSession,
-        graphQLContext: GraphQLContext?
-    ): Unit = Unit
 
     /**
      * Called when the client executes a GraphQL operation.

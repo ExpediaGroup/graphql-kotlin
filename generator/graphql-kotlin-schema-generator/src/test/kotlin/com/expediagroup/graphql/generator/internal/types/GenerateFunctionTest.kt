@@ -22,7 +22,6 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.TypeNotSupportedException
 import com.expediagroup.graphql.generator.execution.FunctionDataFetcher
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.scalars.ID
 import graphql.ExceptionWhileDataFetching
 import graphql.Scalars
@@ -60,8 +59,6 @@ class GenerateFunctionTest : TypeTestHelper() {
         override fun nestedReturnType(): MyImplementation = MyImplementation()
     }
 
-    internal class MyContext(val value: String) : GraphQLContext
-
     @GraphQLDirective(locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
     internal annotation class FunctionDirective(val arg: String)
 
@@ -76,8 +73,6 @@ class GenerateFunctionTest : TypeTestHelper() {
 
         @GraphQLName("renamedFunction")
         fun originalName(input: String) = input
-
-        fun context(context: MyContext, string: String) = "${context.value} and $string"
 
         fun ignoredParameter(color: String, @GraphQLIgnore ignoreMe: String) = "$color and $ignoreMe"
 
@@ -96,7 +91,7 @@ class GenerateFunctionTest : TypeTestHelper() {
 
         fun listDataFetcherResult(): DataFetcherResult<List<String>> = DataFetcherResult.newResult<List<String>>().data(listOf("Hello")).build()
 
-        fun nullalbeListDataFetcherResult(): DataFetcherResult<List<String?>?> = DataFetcherResult.newResult<List<String?>?>().data(listOf("Hello")).build()
+        fun nullableListDataFetcherResult(): DataFetcherResult<List<String?>?> = DataFetcherResult.newResult<List<String?>?>().data(listOf("Hello")).build()
 
         fun dataFetcherCompletableFutureResult(): DataFetcherResult<CompletableFuture<String>> {
             val completedFuture = CompletableFuture.completedFuture("Hello")
@@ -155,17 +150,6 @@ class GenerateFunctionTest : TypeTestHelper() {
             schemaDirective?.validLocations()?.toSet(),
             setOf(Introspection.DirectiveLocation.FIELD_DEFINITION)
         )
-    }
-
-    @Test
-    fun `test context on argument`() {
-        val kFunction = Happy::context
-        val result = generateFunction(generator, kFunction, "Query", target = null, abstract = false)
-
-        assertTrue(result.directives.isEmpty())
-        assertEquals(expected = 1, actual = result.arguments.size)
-        val arg = result.arguments.firstOrNull()
-        assertEquals(expected = "string", actual = arg?.name)
     }
 
     @Test
@@ -262,7 +246,7 @@ class GenerateFunctionTest : TypeTestHelper() {
 
     @Test
     fun `DataFetcherResult of a nullable List is valid and unwrapped in the schema`() {
-        val kFunction = Happy::nullalbeListDataFetcherResult
+        val kFunction = Happy::nullableListDataFetcherResult
         val result = generateFunction(generator, fn = kFunction, parentName = "Query", target = null, abstract = false)
 
         val listType = result.type

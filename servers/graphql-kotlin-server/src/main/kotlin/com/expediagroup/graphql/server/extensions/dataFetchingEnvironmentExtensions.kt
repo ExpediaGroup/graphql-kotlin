@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture
  */
 fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {
     val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
-    return loader.load(key, this.getContext())
+    return loader.load(key, this.graphQlContext)
 }
 
 /**
@@ -39,7 +39,7 @@ fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String
 */
 fun <K, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> {
     val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
-    return loader.loadMany(keys, listOf(this.getContext()))
+    return loader.loadMany(keys, listOf(this.graphQlContext))
 }
 
 /**

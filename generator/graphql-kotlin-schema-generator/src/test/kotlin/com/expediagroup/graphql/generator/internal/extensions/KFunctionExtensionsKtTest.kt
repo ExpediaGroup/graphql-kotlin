@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -26,28 +25,21 @@ internal class KFunctionExtensionsKtTest {
 
     @Test
     fun getValidArguments() {
-        val args = TestingClass::happyPath.getValidArguments("TestingClass")
+        val args = TestingClass::happyPath.getValidArguments()
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "color", actual = args.first().getName())
     }
 
     @Test
     fun `getValidArguments should ignore @GraphQLIgnore`() {
-        val args = TestingClass::ignored.getValidArguments("TestingClass")
+        val args = TestingClass::ignored.getValidArguments()
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notIgnored", actual = args.first().getName())
     }
 
     @Test
-    fun `getValidArguments should ignore GraphQLContext classes`() {
-        val args = TestingClass::context.getValidArguments("TestingClass")
-        assertEquals(expected = 1, actual = args.size)
-        assertEquals(expected = "notContext", actual = args.first().getName())
-    }
-
-    @Test
     fun `getValidArguments should ignore DataFetchingEnvironment`() {
-        val args = TestingClass::dataFetchingEnvironment.getValidArguments("TestingClass")
+        val args = TestingClass::dataFetchingEnvironment.getValidArguments()
         assertEquals(expected = 1, actual = args.size)
         assertEquals(expected = "notEnvironment", actual = args.first().getName())
     }
@@ -57,10 +49,6 @@ internal class KFunctionExtensionsKtTest {
 
         fun ignored(@GraphQLIgnore ignoredArg: String, notIgnored: String) = "$ignoredArg and $notIgnored"
 
-        fun context(contextClass: TestContext, notContext: String) = "Context was $contextClass and value was $notContext"
-
         fun dataFetchingEnvironment(environment: DataFetchingEnvironment, notEnvironment: String): String = "${environment.field.name} and $notEnvironment"
     }
-
-    private class TestContext : GraphQLContext
 }

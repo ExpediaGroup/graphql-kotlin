@@ -26,7 +26,6 @@ import graphql.ExecutionInput
  */
 fun GraphQLRequest.toExecutionInput(
     dataLoaderRegistry: KotlinDataLoaderRegistry? = null,
-    graphQLContext: Any? = null,
     graphQLContextMap: Map<*, Any>? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
@@ -36,7 +35,6 @@ fun GraphQLRequest.toExecutionInput(
         .extensions(this.extensions ?: emptyMap())
         .dataLoaderRegistry(dataLoaderRegistry ?: KotlinDataLoaderRegistry())
         .also { builder ->
-            graphQLContext?.let { builder.context(it) }
             graphQLContextMap?.let { builder.graphQLContext(it) }
         }
         .build()

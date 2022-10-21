@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.extensions.toExecutionInput
 import com.expediagroup.graphql.server.extensions.toGraphQLError
 import com.expediagroup.graphql.server.extensions.toGraphQLKotlinType
@@ -40,11 +39,10 @@ open class SpringGraphQLSubscriptionHandler(
 
     open fun executeSubscription(
         graphQLRequest: GraphQLRequest,
-        context: GraphQLContext?,
         graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
     ): Flow<GraphQLResponse<*>> {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
-        val input = graphQLRequest.toExecutionInput(dataLoaderRegistry, context, graphQLContext)
+        val input = graphQLRequest.toExecutionInput(dataLoaderRegistry, graphQLContext)
 
         return graphQL.execute(input)
             .getData<Flow<ExecutionResult>>()

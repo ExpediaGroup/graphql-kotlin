@@ -27,7 +27,6 @@ import java.nio.file.Path
 import kotlin.test.assertEquals
 
 class GraphQLGenerateClientIT {
-
     @ParameterizedTest
     @MethodSource("generateClientTests")
     fun `verify gradle plugin can generate client code`(sourceDirectory: File, @TempDir tempDir: Path) {

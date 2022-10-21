@@ -77,12 +77,12 @@ class SubscriptionAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springSubscriptionGraphQLContextFactory(): SpringSubscriptionGraphQLContextFactory<*> = DefaultSpringSubscriptionGraphQLContextFactory()
+    fun springSubscriptionGraphQLContextFactory(): SpringSubscriptionGraphQLContextFactory = DefaultSpringSubscriptionGraphQLContextFactory()
 
     @Bean
     fun apolloSubscriptionProtocolHandler(
         config: GraphQLConfigurationProperties,
-        subscriptionContextFactory: SpringSubscriptionGraphQLContextFactory<*>,
+        subscriptionContextFactory: SpringSubscriptionGraphQLContextFactory,
         handler: SpringGraphQLSubscriptionHandler,
         objectMapper: ObjectMapper,
         apolloSubscriptionHooks: ApolloSubscriptionHooks

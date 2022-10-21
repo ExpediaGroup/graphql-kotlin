@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.context
 
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.schema.DataFetchingEnvironment
@@ -47,11 +46,9 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
             .header("X-Second-Header", "JUNIT_SECOND")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(GraphQLRequest("query { context contextMap }"))
+            .bodyValue(GraphQLRequest("query { contextMap }"))
             .exchange()
             .expectBody()
-            .jsonPath("$.data.context").exists()
-            .jsonPath("$.data.context").isEqualTo("JUNIT_FIRST,JUNIT_SECOND")
             .jsonPath("$.data.contextMap").exists()
             .jsonPath("$.data.contextMap").isEqualTo("JUNIT_FIRST,JUNIT_SECOND")
             .jsonPath("$.errors").doesNotExist()
@@ -66,15 +63,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
 
         @Bean
         @ExperimentalCoroutinesApi
-        fun customContextFactory(): SpringGraphQLContextFactory<CustomContext> = object : SpringGraphQLContextFactory<CustomContext>() {
-            override suspend fun generateContext(request: ServerRequest): CustomContext {
-                return CustomContext(
-                    first = request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST",
-                    second = request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND",
-                    request = request
-                )
-            }
-
+        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
             override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
                 "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
                 "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
@@ -83,13 +72,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
     }
 
     class ContextualQuery : Query {
-        fun context(ctx: CustomContext): String = "${ctx.first},${ctx.second}"
-        fun contextMap(env: DataFetchingEnvironment): String = "${env.graphQlContext.getOrDefault("first", null)},${env.graphQlContext.getOrDefault("second", null)}"
+        fun contextMap(env: DataFetchingEnvironment): String =
+            "${env.graphQlContext.getOrDefault("first", null)},${env.graphQlContext.getOrDefault("second", null)}"
     }
-
-    class CustomContext(
-        val first: String?,
-        val second: String?,
-        request: ServerRequest
-    ) : SpringGraphQLContext(request)
 }

@@ -5,7 +5,6 @@ title: Generating GraphQL Context
 `graphql-kotlin-spring-server` provides a Spring specific implementation of [GraphQLContextFactory](../graphql-context-factory.md)
 and the context.
 
-* `SpringGraphQLContext` **(deprecated)** - Implements the Spring `ServerRequest` and federation tracing `HTTPRequestHeaders`
 * `SpringGraphQLContextFactory` - Generates GraphQL context map with federated tracing information per request
 
 If you are using `graphql-kotlin-spring-server`, you should extend `DefaultSpringGraphQLContextFactory` to automatically
@@ -14,9 +13,10 @@ support federated tracing.
 ```kotlin
 @Component
 class MyGraphQLContextFactory : DefaultSpringGraphQLContextFactory() {
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = super.generateContextMap(request) + mapOf(
-        "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
-    )
+    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> =
+        super.generateContextMap(request) + mapOf(
+            "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
+        )
 }
 ```
 

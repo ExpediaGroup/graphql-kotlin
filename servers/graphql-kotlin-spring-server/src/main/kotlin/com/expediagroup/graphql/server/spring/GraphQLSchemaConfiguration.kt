@@ -136,7 +136,7 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLContextFactory(): SpringGraphQLContextFactory<*> = DefaultSpringGraphQLContextFactory()
+    fun springGraphQLContextFactory(): SpringGraphQLContextFactory = DefaultSpringGraphQLContextFactory()
 
     @Bean
     @ConditionalOnMissingBean
@@ -152,7 +152,7 @@ class GraphQLSchemaConfiguration {
     @ConditionalOnMissingBean
     fun springGraphQLServer(
         requestParser: SpringGraphQLRequestParser,
-        contextFactory: SpringGraphQLContextFactory<*>,
+        contextFactory: SpringGraphQLContextFactory,
         requestHandler: GraphQLRequestHandler
     ): SpringGraphQLServer = SpringGraphQLServer(
         requestParser,

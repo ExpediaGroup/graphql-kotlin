@@ -23,12 +23,12 @@ import org.springframework.web.reactive.function.server.ServerRequest
 /**
  * Wrapper class for specifically handling the Spring [ServerRequest]
  */
-abstract class SpringGraphQLContextFactory<out T : SpringGraphQLContext> : GraphQLContextFactory<T, ServerRequest>
+abstract class SpringGraphQLContextFactory : GraphQLContextFactory<ServerRequest>
 
 /**
  * Basic implementation of [SpringGraphQLContextFactory] that populates Apollo tracing header.
  */
-open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
+open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory() {
     override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mutableMapOf<Any, Any>()
         .also { map ->
             request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->

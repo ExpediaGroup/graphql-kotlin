@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization.data.scalars
 
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.UUID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.nullable
@@ -25,6 +26,7 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
+@OptIn(ExperimentalSerializationApi::class)
 object OptionalUUIDSerializer : KSerializer<OptionalInput<UUID>> {
     private val `delegate`: KSerializer<UUID> = UUIDSerializer
 

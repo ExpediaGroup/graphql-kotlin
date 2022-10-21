@@ -19,9 +19,6 @@ package com.expediagroup.graphql.generator.execution
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.exceptions.MultipleConstructorsFound
 import com.expediagroup.graphql.generator.scalars.ID
-import graphql.schema.DataFetchingEnvironment
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.full.findParameterByName
@@ -225,9 +222,6 @@ class ConvertArgumentValueTest {
     @Test
     fun `optional input with defined value is parsed`() {
         val kParam = assertNotNull(TestFunctions::optionalInput.findParameterByName("input"))
-        val mockEnv = mockk<DataFetchingEnvironment> {
-            every { containsArgument("input") } returns true
-        }
         val result = convertArgumentValue("input", kParam, mapOf("input" to "hello"))
         val castResult = assertIs<OptionalInput.Defined<*>>(result)
         assertEquals("hello", castResult.value)
