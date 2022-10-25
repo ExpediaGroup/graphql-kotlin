@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.routes
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_OPERATION_NAME
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
@@ -24,6 +25,7 @@ import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFact
 import com.expediagroup.graphql.server.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -53,9 +55,10 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
         @Bean
         fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
-            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
-                "value" to (request.headers().firstHeader("X-Custom-Header") ?: "default")
-            )
+            override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+                mapOf(
+                    "value" to (request.headers().firstHeader("X-Custom-Header") ?: "default")
+                ).toGraphQLContext()
         }
     }
 

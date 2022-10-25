@@ -22,6 +22,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevel
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLBatchResponse
@@ -141,11 +142,11 @@ class GraphQLRequestHandlerTest {
     @Test
     fun `execute graphQL query with graphql context map`() {
         val response = runBlocking {
-            val context = mapOf("foo" to "JUNIT context value")
+            val context = mapOf("foo" to "JUNIT context value").toGraphQLContext()
             val request = GraphQLRequest(query = "query { graphQLContextualValue }")
             graphQLRequestHandler.executeRequest(
                 request,
-                graphQLContext = context
+                context
             ) as GraphQLResponse<*>
         }
 

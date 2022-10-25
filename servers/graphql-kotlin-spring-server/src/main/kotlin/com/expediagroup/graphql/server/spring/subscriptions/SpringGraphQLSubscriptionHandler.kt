@@ -25,6 +25,7 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.ExecutionResult
 import graphql.GraphQL
+import graphql.GraphQLContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -39,10 +40,10 @@ open class SpringGraphQLSubscriptionHandler(
 
     open fun executeSubscription(
         graphQLRequest: GraphQLRequest,
-        graphQLContext: Map<*, Any> = emptyMap<Any, Any>()
+        graphQLContext: GraphQLContext = GraphQLContext.of(emptyMap<Any, Any>())
     ): Flow<GraphQLResponse<*>> {
         val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
-        val input = graphQLRequest.toExecutionInput(dataLoaderRegistry, graphQLContext)
+        val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
 
         return graphQL.execute(input)
             .getData<Flow<ExecutionResult>>()

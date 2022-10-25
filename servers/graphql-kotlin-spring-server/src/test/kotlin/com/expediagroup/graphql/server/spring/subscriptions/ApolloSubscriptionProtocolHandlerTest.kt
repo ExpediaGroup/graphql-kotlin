@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_INIT
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages.GQL_CONNECTION_TERMINATE
@@ -53,7 +54,7 @@ class ApolloSubscriptionProtocolHandlerTest {
     private val subscriptionHooks = SimpleSubscriptionHooks()
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)
     private val nullContextFactory: SpringSubscriptionGraphQLContextFactory = mockk {
-        coEvery { generateContextMap(any()) } returns emptyMap<Any, Any>()
+        coEvery { generateContext(any()) } returns emptyMap<Any, Any>().toGraphQLContext()
     }
     private val simpleInitMessage = SubscriptionOperationMessage(GQL_CONNECTION_INIT.type)
 
@@ -460,7 +461,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>()
+            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>().toGraphQLContext()
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(simpleInitMessage.toJson(), session)
@@ -482,7 +483,7 @@ class ApolloSubscriptionProtocolHandlerTest {
         }
         val subscriptionHandler: SpringGraphQLSubscriptionHandler = mockk()
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>()
+            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>().toGraphQLContext()
         }
         val handler = ApolloSubscriptionProtocolHandler(config, nullContextFactory, subscriptionHandler, objectMapper, subscriptionHooks)
         val flux = handler.handle(operationMessage, session)
@@ -507,7 +508,7 @@ class ApolloSubscriptionProtocolHandlerTest {
             every { executeSubscription(eq(graphQLRequest), any()) } returns flowOf(expectedResponse)
         }
         val subscriptionHooks: ApolloSubscriptionHooks = mockk {
-            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>()
+            every { onConnectWithContext(any(), any(), any()) } returns emptyMap<Any, Any>().toGraphQLContext()
             every { onOperationWithContext(any(), any(), any()) } returns Unit
             every { onOperationComplete(any()) } returns Unit
         }

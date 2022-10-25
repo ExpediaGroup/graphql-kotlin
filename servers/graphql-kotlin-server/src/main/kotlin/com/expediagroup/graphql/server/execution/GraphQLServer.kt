@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.generator.extensions.get
+import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import kotlinx.coroutines.CoroutineScope
@@ -46,17 +48,18 @@ open class GraphQLServer<Request>(
     ): GraphQLServerResponse? =
         coroutineScope {
             requestParser.parseRequest(request)?.let { graphQLRequest ->
-                val contextMap = contextFactory.generateContextMap(request)
+                val graphQLContext = contextFactory.generateContext(request)
 
-                val customCoroutineContext = (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+                val customCoroutineContext = (graphQLContext.get<CoroutineContext>() ?: EmptyCoroutineContext)
                 val graphQLExecutionScope = CoroutineScope(
                     coroutineContext + customCoroutineContext + SupervisorJob()
                 )
-                val graphQLContext = contextMap + mapOf(
+
+                val graphQLContextWithCoroutineScope = graphQLContext + mapOf(
                     CoroutineScope::class to graphQLExecutionScope
                 )
 
-                requestHandler.executeRequest(graphQLRequest, graphQLContext)
+                requestHandler.executeRequest(graphQLRequest, graphQLContextWithCoroutineScope)
             }
         }
 }

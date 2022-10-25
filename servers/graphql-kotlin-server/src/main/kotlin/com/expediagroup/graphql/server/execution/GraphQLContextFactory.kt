@@ -16,13 +16,16 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import graphql.GraphQLContext
+
 /**
- * Factory that generates GraphQL context.
+ * Factory that generates a GraphQL context.
  */
 interface GraphQLContextFactory<Request> {
     /**
-     * Generate GraphQL context based on the incoming request and the corresponding response.
-     * If no context should be generated and used in the request, return empty map.
+     * Generate GraphQL context based on the incoming request.
+     * If no context should be generated and used in the request, return context from empty map.
      */
-    suspend fun generateContextMap(request: Request): Map<*, Any> = emptyMap<Any, Any>()
+    suspend fun generateContext(request: Request): GraphQLContext = emptyMap<Any, Any>().toGraphQLContext()
 }

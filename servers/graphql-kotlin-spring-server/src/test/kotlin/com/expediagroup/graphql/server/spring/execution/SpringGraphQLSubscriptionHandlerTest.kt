@@ -23,6 +23,7 @@ import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStr
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -69,7 +70,10 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription`() {
         val request = GraphQLRequest(query = "subscription { ticker }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, emptyMap<Any, Any>()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(
+            request,
+            emptyMap<Any, Any>().toGraphQLContext()
+        ).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -87,7 +91,10 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription with data loader`() {
         val request = GraphQLRequest(query = "subscription { dataLoaderValue }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, emptyMap<Any, Any>()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(
+            request,
+            emptyMap<Any, Any>().toGraphQLContext()
+        ).asFlux()
 
         StepVerifier.create(responseFlux)
             .thenConsumeWhile { response ->
@@ -107,7 +114,7 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription with context map`() {
         val request = GraphQLRequest(query = "subscription { contextualMapTicker }")
-        val graphQLContext = mapOf("foo" to "junitHandler")
+        val graphQLContext = mapOf("foo" to "junitHandler").toGraphQLContext()
         val responseFlux = subscriptionHandler.executeSubscription(request, graphQLContext).asFlux()
 
         StepVerifier.create(responseFlux)
@@ -129,7 +136,10 @@ class SpringGraphQLSubscriptionHandlerTest {
     @Test
     fun `verify subscription to failing publisher`() {
         val request = GraphQLRequest(query = "subscription { alwaysThrows }")
-        val responseFlux = subscriptionHandler.executeSubscription(request, emptyMap<Any, Any>()).asFlux()
+        val responseFlux = subscriptionHandler.executeSubscription(
+            request,
+            emptyMap<Any, Any>().toGraphQLContext()
+        ).asFlux()
 
         StepVerifier.create(responseFlux)
             .assertNext { response ->

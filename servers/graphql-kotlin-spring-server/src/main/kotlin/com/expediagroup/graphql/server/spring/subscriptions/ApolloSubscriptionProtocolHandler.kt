@@ -161,9 +161,9 @@ class ApolloSubscriptionProtocolHandler(
     private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
         runBlocking {
             val connectionParams = castToMapOfStringString(operationMessage.payload)
-            val graphQLContext = contextFactory.generateContextMap(session)
+            val graphQLContext = contextFactory.generateContext(session)
             val onConnectGraphQLContext = subscriptionHooks.onConnectWithContext(connectionParams, session, graphQLContext)
-            sessionState.saveContextMap(session, onConnectGraphQLContext)
+            sessionState.saveContext(session, onConnectGraphQLContext)
         }
     }
 

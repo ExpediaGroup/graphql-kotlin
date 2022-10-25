@@ -16,7 +16,9 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages.GQL_COMPLETE
+import graphql.GraphQLContext
 import org.reactivestreams.Subscription
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
@@ -31,25 +33,25 @@ internal class ApolloSubscriptionSessionState {
     internal val activeOperations = ConcurrentHashMap<String, ConcurrentHashMap<String, Subscription>>()
 
     // The graphQL context is saved by web socket session id
-    private val cachedGraphQLContext = ConcurrentHashMap<String, Map<*, Any>>()
+    private val cachedGraphQLContext = ConcurrentHashMap<String, GraphQLContext>()
 
     /**
      * Save the context created from the factory and possibly updated in the onConnect hook.
      * This allows us to include some initial state to be used when handling all the messages.
      * This will be removed in [terminateSession].
      */
-    fun saveContextMap(session: WebSocketSession, graphQLContext: Map<*, Any>) {
+    fun saveContext(session: WebSocketSession, graphQLContext: GraphQLContext) {
         cachedGraphQLContext[session.id] = graphQLContext
     }
 
     /**
      * Return the graphQL context for this session.
      */
-    fun getGraphQLContext(session: WebSocketSession): Map<*, Any> = cachedGraphQLContext[session.id] ?: emptyMap<Any, Any>()
+    fun getGraphQLContext(session: WebSocketSession): GraphQLContext = cachedGraphQLContext[session.id] ?: emptyMap<Any, Any>().toGraphQLContext()
 
     /**
      * Save the session that is sending keep alive messages.
-     * This will override values without cancelling the subscription so it is the responsibility of the consumer to cancel.
+     * This will override values without cancelling the subscription, so it is the responsibility of the consumer to cancel.
      * These messages will be stopped on [terminateSession].
      */
     fun saveKeepAliveSubscription(session: WebSocketSession, subscription: Subscription) {

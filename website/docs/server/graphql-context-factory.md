@@ -11,12 +11,12 @@ If you are using `graphql-kotlin-spring-server`, see the [Spring specific docume
 
 ```kotlin
 interface GraphQLContextFactory<Request> {
-    suspend fun generateContextMap(request: Request): Map<*, Any> = emptyMap<Any, Any>()
+    suspend fun generateContext(request: Request): GraphQLContext =
+        emptyMap<Any, Any>().toGraphQLContext()
 }
 ```
 
-Given the generic server request, the interface should attempt to create a context map `Map<*, Any>` to be used for every new operation.
-The legacy context class must implement the `GraphQLContext`
+Given the generic server request, the interface should attempt to create a `GraphQLContext` to be used for every new operation.
 interface from `graphql-kotlin-schema-generator`. See [execution context](../schema-generator/execution/contextual-data.md)
 for more info on how the context can be used in the schema functions.
 
@@ -29,9 +29,10 @@ or by implementing `graphQLCoroutineContext()` (deprecated) on a custom context 
 ```kotlin
 @Component
 class MyCustomContextFactory : GraphQLContextFactory() {
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
-        CoroutineContext::class to MDCContext()
-    )
+    override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+        mapOf(
+            CoroutineContext::class to MDCContext()
+        ).toGraphQLContext()
 }
 ```
 
@@ -45,7 +46,8 @@ This may be helpful if you need to call some other services to calculate a conte
 
 ## Server-Specific Abstractions
 
-A specific `graphql-kotlin-*-server` library may provide an abstract class on top of this interface so users only have to be concerned with the context class and not the server class type.
+A specific `graphql-kotlin-*-server` library may provide an abstract class on top of this interface so users only have to
+be concerned with the context class and not the server class type.
 For example the `graphql-kotlin-spring-server` provides the following class, which sets the request type:
 
 ```kotlin

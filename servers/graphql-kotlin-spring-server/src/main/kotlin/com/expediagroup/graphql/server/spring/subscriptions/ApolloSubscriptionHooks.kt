@@ -15,6 +15,7 @@
  */
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import graphql.GraphQLContext
 import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
@@ -30,8 +31,8 @@ interface ApolloSubscriptionHooks {
     fun onConnectWithContext(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any>
-    ): Map<*, Any> = graphQLContext
+        graphQLContext: GraphQLContext
+    ): GraphQLContext = graphQLContext
 
     /**
      * Called when the client executes a GraphQL operation.
@@ -40,7 +41,7 @@ interface ApolloSubscriptionHooks {
     fun onOperationWithContext(
         operationMessage: SubscriptionOperationMessage,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any>
+        graphQLContext: GraphQLContext
     ): Unit = Unit
 
     /**

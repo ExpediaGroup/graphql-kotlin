@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages
@@ -23,6 +24,7 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -185,9 +187,10 @@ class SubscriptionWebSocketHandlerIT(
     }
 
     class CustomContextFactory : SpringSubscriptionGraphQLContextFactory() {
-        override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any> = mapOf(
-            "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
-        )
+        override suspend fun generateContext(request: WebSocketSession): GraphQLContext =
+            mapOf(
+                "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
+            ).toGraphQLContext()
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)

@@ -48,3 +48,26 @@ inline fun <reified T> GraphQLContext.getOrElse(defaultValue: () -> T): T =
  */
 inline fun <reified T> GraphQLContext.getOrThrow(): T =
     get(T::class) ?: throw KeyNotFoundInGraphQLContextException(T::class)
+
+/**
+ * Puts all the values of [graphQLContext] into [this] GraphQLContext
+ * @param graphQLContext which values will be added into [this] GraphQLContext
+ * @return current GraphQLContext with values of [graphQLContext] added
+ */
+operator fun GraphQLContext.plus(graphQLContext: GraphQLContext): GraphQLContext =
+    putAll(graphQLContext)
+
+/**
+ * Puts all the values of [map] into [this] GraphQLContext
+ * @param map which values will be added into [this] GraphQLContext
+ * @return current GraphQLContext with values of [map] added
+ */
+operator fun GraphQLContext.plus(map: Map<*, Any?>): GraphQLContext =
+    putAll(map)
+
+/**
+ * Create a [GraphQLContext] from [this] map
+ * @return a new [GraphQLContext]
+ */
+fun Map<*, Any?>.toGraphQLContext(): GraphQLContext =
+    GraphQLContext.of(this)

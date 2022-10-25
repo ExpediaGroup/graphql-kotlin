@@ -16,9 +16,11 @@
 
 package com.expediagroup.graphql.server.spring.context
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.Test
@@ -64,10 +66,11 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         @Bean
         @ExperimentalCoroutinesApi
         fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
-            override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mapOf(
-                "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
-                "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
-            )
+            override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+                mapOf(
+                    "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
+                    "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
+                ).toGraphQLContext()
         }
     }
 
