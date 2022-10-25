@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.examples.server.spring.context
 
+import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import org.springframework.stereotype.Component

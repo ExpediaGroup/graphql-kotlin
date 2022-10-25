@@ -16,8 +16,10 @@
 
 package com.expediagroup.graphql.examples.server.spring.execution
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.spring.subscriptions.ApolloSubscriptionHooks
 import org.springframework.web.reactive.socket.WebSocketSession
+import graphql.GraphQLContext
 
 /**
  * A simple implementation of Apollo Subscription Lifecycle Events.
@@ -27,10 +29,11 @@ class MySubscriptionHooks : ApolloSubscriptionHooks {
     override fun onConnectWithContext(
         connectionParams: Map<String, String>,
         session: WebSocketSession,
-        graphQLContext: Map<*, Any>
-    ): Map<*, Any> = mutableMapOf<Any, Any>().also { contextMap ->
-        connectionParams["Authorization"]?.let { authValue ->
-            contextMap["auth"] = authValue
-        }
-    }
+        graphQLContext: GraphQLContext
+    ): GraphQLContext =
+        mutableMapOf<Any, Any>().also { contextMap ->
+            connectionParams["Authorization"]?.let { authValue ->
+                contextMap["auth"] = authValue
+            }
+        }.toGraphQLContext()
 }
