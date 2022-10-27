@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT_NAME
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -26,7 +27,6 @@ internal fun validateDirective(
     targetDirective: String,
     directiveMap: Map<String, List<GraphQLAppliedDirective>>,
     fieldMap: Map<String, GraphQLFieldDefinition>,
-    extendedType: Boolean
 ): List<String> {
     val validationErrors = mutableListOf<String>()
     val directives = directiveMap[targetDirective]
@@ -35,20 +35,57 @@ internal fun validateDirective(
         validationErrors.add("@$targetDirective directive is missing on federated $validatedType type")
     } else {
         for (directive in directives) {
-            val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.argumentValue?.value as? FieldSet)?.value
-            val fieldSet = fieldSetValue?.split(" ")?.filter { it.isNotEmpty() }.orEmpty()
+            val fieldSetValue = (directive.getArgument(FIELD_SET_ARGUMENT_NAME)?.argumentValue?.value as? FieldSet)?.value ?: ""
+            val fieldSet = fieldSetValue.split(" ").filter { it.isNotEmpty() }
             if (fieldSet.isEmpty()) {
                 validationErrors.add("@$targetDirective directive on $validatedType is missing field information")
             } else {
-                // validate directive field set selection
                 val directiveInfo = DirectiveInfo(
                     directiveName = targetDirective,
-                    fieldSet = fieldSet.joinToString(" "),
+                    fieldSet = fieldSetValue,
                     typeName = validatedType
                 )
-                validateFieldSelection(directiveInfo, fieldSet.iterator(), fieldMap, extendedType, validationErrors)
+                validateFieldSet(directiveInfo, fieldSet)
+                val selections = parseFieldSet(directiveInfo, fieldSet.iterator())
+                validateFieldSetSelection(directiveInfo, selections, fieldMap, validationErrors)
             }
         }
     }
     return validationErrors
+}
+
+private fun validateFieldSet(directiveInfo: DirectiveInfo, fieldSet: List<String>) {
+    var isOpen = 0
+    for (field in fieldSet) {
+        when (field) {
+            "{" -> isOpen++
+            "}" -> isOpen--
+        }
+
+        if (isOpen < 0) {
+            break
+        }
+    }
+
+    if (isOpen != 0) {
+        throw InvalidFederatedSchema(listOf("$directiveInfo specifies malformed field set: ${directiveInfo.fieldSet}"))
+    }
+}
+
+internal fun parseFieldSet(directiveInfo: DirectiveInfo, iterator: Iterator<String>): List<FieldSetSelection> {
+    val selections = mutableListOf<FieldSetSelection>()
+    var previous: FieldSetSelection? = null
+    while (iterator.hasNext()) {
+        when (val currentField = iterator.next()) {
+            "{" -> previous?.subSelections?.addAll(parseFieldSet(directiveInfo, iterator))
+            "}" -> break
+            else -> {
+                val current = FieldSetSelection(currentField)
+                selections.add(current)
+
+                previous = current
+            }
+        }
+    }
+    return selections
 }

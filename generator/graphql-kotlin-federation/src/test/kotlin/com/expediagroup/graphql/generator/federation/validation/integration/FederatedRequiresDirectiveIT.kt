@@ -43,6 +43,51 @@ class FederatedRequiresDirectiveIT {
     }
 
     @Test
+    fun `verifies @requires directive can be applied on a list field`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._2"))
+            val validatedType = schema.getObjectType("RequiresSelectionOnList")
+            assertTrue(validatedType.hasAppliedDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.hasAppliedDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("reviews")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.hasAppliedDirective("requires"))
+        }
+    }
+
+    @Test
+    fun `verifies @requires directive can be applied on an interface field`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._3"))
+            val validatedType = schema.getObjectType("RequiresSelectionOnInterface")
+            assertTrue(validatedType.hasAppliedDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.hasAppliedDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("review")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.hasAppliedDirective("requires"))
+        }
+    }
+
+    @Test
+    fun `verifies @requires directive can be applied on a union field`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._4"))
+            val validatedType = schema.getObjectType("RequiresSelectionOnUnion")
+            assertTrue(validatedType.hasAppliedDirective("key"))
+            val externalField = validatedType.getFieldDefinition("email")
+            assertNotNull(externalField)
+            assertNotNull(externalField.hasAppliedDirective("external"))
+            val requiresField = validatedType.getFieldDefinition("review")
+            assertNotNull(requiresField)
+            assertNotNull(requiresField.hasAppliedDirective("requires"))
+        }
+    }
+
+    @Test
     fun `@requires directive cannot reference local fields`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.failure._1"))
@@ -50,7 +95,7 @@ class FederatedRequiresDirectiveIT {
         val expected =
             """
                 Invalid federated schema:
-                 - @requires(fields = weight) directive on RequiresLocalField.shippingCost specifies invalid field set - extended type incorrectly references local field=weight
+                 - @requires(fields = "weight") directive on RequiresLocalField.shippingCost specifies invalid field set - @requires should reference only @external fields, field=weight
             """.trimIndent()
         assertEquals(expected, exception.message)
     }
@@ -63,53 +108,8 @@ class FederatedRequiresDirectiveIT {
         val expected =
             """
                 Invalid federated schema:
-                 - @requires(fields = zipCode) directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies field that does not exist, field=zipCode
+                 - @requires(fields = "zipCode") directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies field that does not exist, field=zipCode
             """.trimIndent()
         assertEquals(expected, exception.message)
-    }
-
-    @Test
-    fun `verifies @requires directive on list does not throw`() {
-        assertDoesNotThrow {
-            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._2"))
-            val validatedType = schema.getObjectType("User")
-            assertTrue(validatedType.hasAppliedDirective("key"))
-            val externalField = validatedType.getFieldDefinition("email")
-            assertNotNull(externalField)
-            assertNotNull(externalField.hasAppliedDirective("external"))
-            val requiresField = validatedType.getFieldDefinition("reviews")
-            assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
-        }
-    }
-
-    @Test
-    fun `verifies @requires directive on interface does not throw`() {
-        assertDoesNotThrow {
-            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._3"))
-            val validatedType = schema.getObjectType("User")
-            assertTrue(validatedType.hasAppliedDirective("key"))
-            val externalField = validatedType.getFieldDefinition("email")
-            assertNotNull(externalField)
-            assertNotNull(externalField.hasAppliedDirective("external"))
-            val requiresField = validatedType.getFieldDefinition("reviews")
-            assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
-        }
-    }
-
-    @Test
-    fun `verifies @requires directive on union does not throw`() {
-        assertDoesNotThrow {
-            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._4"))
-            val validatedType = schema.getObjectType("User")
-            assertTrue(validatedType.hasAppliedDirective("key"))
-            val externalField = validatedType.getFieldDefinition("email")
-            assertNotNull(externalField)
-            assertNotNull(externalField.hasAppliedDirective("external"))
-            val requiresField = validatedType.getFieldDefinition("reviews")
-            assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
-        }
     }
 }

@@ -16,17 +16,17 @@
 
 package com.expediagroup.graphql.generator.federation.validation
 
-import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
-import com.expediagroup.graphql.generator.federation.extensions.isFederatedType
 import graphql.schema.GraphQLAppliedDirective
+import graphql.schema.GraphQLDirectiveContainer
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import graphql.schema.GraphQLTypeUtil
 
 /**
@@ -38,11 +38,11 @@ internal class FederatedSchemaValidator {
      * Validates target GraphQLType whether it is a valid federated object.
      *
      * Verifies:
-     * - base type doesn't declare any @external fields
-     * - @key directive references existing fields
-     * - @key directive on extended types references @external fields
-     * - @requires directive is only applicable on extended types and references @external fields
-     * - @provides directive references valid @external fields
+     * - @key, @provides and @requires field sets reference existing fields
+     * - @requires references @external fields
+     * - @provides references an object
+     * - field sets cannot reference unions
+     * - list and interfaces can only be referenced from `@requires` and `@provides`
      */
     internal fun validateGraphQLType(type: GraphQLType) {
         val unwrappedType = GraphQLTypeUtil.unwrapAll(type)
@@ -56,23 +56,30 @@ internal class FederatedSchemaValidator {
     private fun validate(federatedType: String, fields: List<GraphQLFieldDefinition>, directiveMap: Map<String, List<GraphQLAppliedDirective>>) {
         val errors = mutableListOf<String>()
         val fieldMap = fields.associateBy { it.name }
-        val extendedType = directiveMap.containsKey(EXTENDS_DIRECTIVE_NAME)
 
-        // [OK]    @key directive is specified
-        // [OK]    @key references valid existing fields
-        // [OK]    @key on @extended type references @external fields
-        // [ERROR] @key references fields resulting in list
-        // [ERROR] @key references fields resulting in union
-        // [ERROR] @key references fields resulting in interface
-        errors.addAll(validateDirective(federatedType, KEY_DIRECTIVE_NAME, directiveMap, fieldMap, extendedType))
-
+        errors.addAll(validateDirective(federatedType, KEY_DIRECTIVE_NAME, directiveMap, fieldMap))
         for (field in fields) {
             if (field.getAppliedDirective(REQUIRES_DIRECTIVE_NAME) != null) {
-                errors.addAll(validateDirective("$federatedType.${field.name}", REQUIRES_DIRECTIVE_NAME, field.allAppliedDirectivesByName, fieldMap, extendedType))
+                errors.addAll(validateDirective("$federatedType.${field.name}", REQUIRES_DIRECTIVE_NAME, field.allAppliedDirectivesByName, fieldMap))
             }
 
             if (field.getAppliedDirective(PROVIDES_DIRECTIVE_NAME) != null) {
-                errors.addAll(validateProvidesDirective(federatedType, field))
+                when (val returnType = GraphQLTypeUtil.unwrapAll(field.type)) {
+                    is GraphQLObjectType -> {
+                        val returnTypeFields = returnType.fieldDefinitions.associateBy { it.name }
+                        errors.addAll(
+                            validateDirective(
+                                "$federatedType.${field.name}",
+                                PROVIDES_DIRECTIVE_NAME,
+                                field.allAppliedDirectivesByName,
+                                returnTypeFields
+                            )
+                        )
+                    }
+                    // skip validation for nested object types as they are still under construction
+                    is GraphQLTypeReference -> continue
+                    else -> errors.add("@provides directive is specified on a $federatedType.${field.name} field but it does not return an object type")
+                }
             }
         }
 
@@ -80,4 +87,6 @@ internal class FederatedSchemaValidator {
             throw InvalidFederatedSchema(errors)
         }
     }
+
+    private fun GraphQLDirectiveContainer.isFederatedType() = this.getAppliedDirectives(KEY_DIRECTIVE_NAME).isNotEmpty()
 }

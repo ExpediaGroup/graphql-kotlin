@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,38 @@
 
 package com.expediagroup.graphql.generator.federation.data.integration.requires.success._4
 
-import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
 import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
+import io.mockk.mockk
 import kotlin.properties.Delegates
 
-class RequiresSelectionOnUnion {
-
-    @KeyDirective(fields = FieldSet("id"))
-    @ExtendsDirective
-    data class User(@ExternalDirective val id: Int) {
-
-        @ExternalDirective
-        var email: String by Delegates.notNull()
-
-        @RequiresDirective(FieldSet("email"))
-        var reviews: List<UserReview> by Delegates.notNull()
-    }
-
-    interface UserReview
-
-    data class ProductUserReview(val id: Int) : UserReview
+/*
+# example of proper usage of @requires directive - @requires applied on a field returning interface
+type RequiresSelectionOnUnion @key(fields : "id") {
+  id: Int!
+  review: Review! @requires(fields : "email")
+  email: String! @external
 }
+
+union Review = ProductReview
+
+type ProductReview {
+  id: Int!
+  text: String!
+}
+ */
+@KeyDirective(fields = FieldSet("id"))
+data class RequiresSelectionOnUnion(val id: Int) {
+
+    @ExternalDirective
+    var email: String by Delegates.notNull()
+
+    @RequiresDirective(FieldSet("email"))
+    var review: Review = mockk()
+}
+
+interface Review
+
+data class ProductReview(val id: Int, val text: String) : Review

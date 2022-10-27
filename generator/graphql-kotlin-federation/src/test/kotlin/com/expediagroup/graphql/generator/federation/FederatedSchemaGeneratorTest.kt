@@ -134,7 +134,7 @@ class FederatedSchemaGeneratorTest {
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v1"),
             hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 

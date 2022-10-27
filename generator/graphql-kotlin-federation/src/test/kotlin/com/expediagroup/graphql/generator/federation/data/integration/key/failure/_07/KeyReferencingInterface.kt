@@ -21,22 +21,29 @@ import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import io.mockk.mockk
 
 /*
-# example usage of invalid @key directive - field set references interface
-type KeyReferencingInterface @key(fields : "id") {
+# example invalid usage of @key directive - field set references a union
+type KeyReferencingInterface @key(fields : "key") {
   description: String!
   id: KeyInterface!
+}
+
+type Key implements KeyInterface {
+  id: String!
 }
 
 interface KeyInterface {
   id: String!
 }
  */
-@KeyDirective(fields = FieldSet("id"))
-data class KeyReferencingInterface(val id: KeyInterface, val description: String)
+@KeyDirective(fields = FieldSet("key { id }"))
+data class KeyReferencingInterface(val key: KeyInterface, val description: String)
 
 interface KeyInterface {
     val id: String
 }
+
+@Suppress("UnusedPrivateClass")
+data class Key(override val id: String) : KeyInterface
 
 class KeyReferencingInterfaceQuery {
     fun keyQuery(): KeyReferencingInterface = mockk()

@@ -90,25 +90,25 @@ class FederatedSchemaV2GeneratorTest {
             "Allows users to annotate fields and types with additional metadata information"
             directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-            interface Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
-              id: String! @external
+            interface Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
+              id: String!
               reviews: [Review!]!
-              upc: String! @external
+              upc: String!
             }
 
             union _Entity = Author | Book | User
 
-            type Author @extends @key(fields : "authorId", resolvable : true) {
-              authorId: Int! @external
-              name: String! @external
+            type Author @key(fields : "authorId", resolvable : true) {
+              authorId: Int!
+              name: String!
             }
 
-            type Book implements Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
+            type Book implements Product @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
               author: User! @provides(fields : "name")
-              id: String! @external
+              id: String!
               reviews: [Review!]!
               shippingCost: String! @requires(fields : "weight")
-              upc: String! @external
+              upc: String!
               weight: Float! @external
             }
 
@@ -129,9 +129,9 @@ class FederatedSchemaV2GeneratorTest {
               id: String!
             }
 
-            type User @extends @key(fields : "userId", resolvable : true) {
-              name: String! @external
-              userId: Int! @external
+            type User @key(fields : "userId", resolvable : true) {
+              name: String!
+              userId: Int!
             }
 
             type _Service {
@@ -146,7 +146,7 @@ class FederatedSchemaV2GeneratorTest {
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
+            supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v2"),
             hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = true)
         )
 

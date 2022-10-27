@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.generator.federation.data
 
-import com.expediagroup.graphql.generator.federation.data.queries.federated.Author
-import com.expediagroup.graphql.generator.federation.data.queries.federated.Book
-import com.expediagroup.graphql.generator.federation.data.queries.federated.User
+import com.expediagroup.graphql.generator.federation.data.queries.federated.v1.Author
+import com.expediagroup.graphql.generator.federation.data.queries.federated.v1.Book
+import com.expediagroup.graphql.generator.federation.data.queries.federated.v1.User
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypePromiseResolver
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeSuspendResolver
 import graphql.schema.DataFetchingEnvironment

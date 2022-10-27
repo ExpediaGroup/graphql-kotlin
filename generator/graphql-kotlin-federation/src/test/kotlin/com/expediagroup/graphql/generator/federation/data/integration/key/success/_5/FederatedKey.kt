@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.validation
+package com.expediagroup.graphql.generator.federation.data.integration.key.success._5
 
-/**
- * Internal class to represent all the extracted info
- * about a directive that we are validating for federation.
- */
-internal data class DirectiveInfo(
-    val directiveName: String,
-    val fieldSet: String,
-    val typeName: String
-) {
-    private val formattedString: String by lazy {
-        "@$directiveName(fields = \"$fieldSet\") directive on $typeName"
-    }
+import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 
-    override fun toString(): String {
-        return formattedString
-    }
+/*
+# example usage of a valid @key directive referencing single field on an entity type without query
+type FederatedKey @key(fields : "id") {
+  description: String!
+  id: String!
 }
+ */
+@KeyDirective(fields = FieldSet("id"))
+data class FederatedKey(val id: String, val description: String)

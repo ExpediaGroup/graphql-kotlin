@@ -25,10 +25,15 @@ import graphql.schema.GraphQLSchema
 
 internal fun federatedTestSchema(
     queries: List<TopLevelObject> = emptyList(),
-    federatedTypeResolvers: List<FederatedTypeSuspendResolver<*>> = emptyList()
+    federatedTypeResolvers: List<FederatedTypeSuspendResolver<*>> = emptyList(),
+    isV1: Boolean = true
 ): GraphQLSchema {
     val config = FederatedSchemaGeneratorConfig(
-        supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated"),
+        supportedPackages = if (isV1) {
+            listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v1")
+        } else {
+            listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v2")
+        },
         hooks = FederatedSchemaGeneratorHooks(federatedTypeResolvers)
     )
     return toFederatedSchema(config = config, queries = queries)
