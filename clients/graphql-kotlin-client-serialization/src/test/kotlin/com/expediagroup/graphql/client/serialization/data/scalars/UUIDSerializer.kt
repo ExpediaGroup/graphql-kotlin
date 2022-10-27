@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization.data.scalars
 
 import com.expediagroup.graphql.client.converter.ScalarConverter
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.UUID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -28,6 +29,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializerOrNull
 
+@OptIn(ExperimentalSerializationApi::class)
 object UUIDSerializer : KSerializer<UUID> {
     private val converter: UUIDScalarConverter = UUIDScalarConverter()
 

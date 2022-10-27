@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.server.execution
 
+import com.expediagroup.graphql.generator.extensions.get
+import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +32,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 open class GraphQLServer<Request>(
     private val requestParser: GraphQLRequestParser<Request>,
-    private val contextFactory: GraphQLContextFactory<*, Request>,
+    private val contextFactory: GraphQLContextFactory<Request>,
     private val requestHandler: GraphQLRequestHandler
 ) {
     /**
@@ -46,19 +48,18 @@ open class GraphQLServer<Request>(
     ): GraphQLServerResponse? =
         coroutineScope {
             requestParser.parseRequest(request)?.let { graphQLRequest ->
-                val deprecatedContext = contextFactory.generateContext(request)
-                val contextMap = contextFactory.generateContextMap(request)
+                val graphQLContext = contextFactory.generateContext(request)
 
-                val customCoroutineContext = (deprecatedContext?.graphQLCoroutineContext() ?: EmptyCoroutineContext) +
-                    (contextMap[CoroutineContext::class] as? CoroutineContext ?: EmptyCoroutineContext)
+                val customCoroutineContext = (graphQLContext.get<CoroutineContext>() ?: EmptyCoroutineContext)
                 val graphQLExecutionScope = CoroutineScope(
                     coroutineContext + customCoroutineContext + SupervisorJob()
                 )
-                val graphQLContext = contextMap + mapOf(
+
+                val graphQLContextWithCoroutineScope = graphQLContext + mapOf(
                     CoroutineScope::class to graphQLExecutionScope
                 )
 
-                requestHandler.executeRequest(graphQLRequest, deprecatedContext, graphQLContext)
+                requestHandler.executeRequest(graphQLRequest, graphQLContextWithCoroutineScope)
             }
         }
 }

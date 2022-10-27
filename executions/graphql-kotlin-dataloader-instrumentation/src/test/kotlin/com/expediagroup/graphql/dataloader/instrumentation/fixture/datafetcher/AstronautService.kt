@@ -61,8 +61,7 @@ class AstronautService {
             .load(request)
 
     fun createAstronaut(
-        request: CreateAstronautServiceRequest,
-        environment: DataFetchingEnvironment
+        request: CreateAstronautServiceRequest
     ): CompletableFuture<Astronaut> =
         Astronaut(100, request.name).toMono().delayElement(Duration.ofMillis(100)).toFuture()
 

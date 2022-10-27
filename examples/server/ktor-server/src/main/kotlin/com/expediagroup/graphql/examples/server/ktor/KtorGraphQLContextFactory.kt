@@ -16,26 +16,27 @@
 
 package com.expediagroup.graphql.examples.server.ktor
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.examples.server.ktor.schema.models.User
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import io.ktor.server.request.ApplicationRequest
+import graphql.GraphQLContext
 
 /**
  * Custom logic for how this example app should create its context given the [ApplicationRequest]
  */
-class KtorGraphQLContextFactory : GraphQLContextFactory<GraphQLContext, ApplicationRequest> {
-
-    override suspend fun generateContextMap(request: ApplicationRequest): Map<Any, Any> = mutableMapOf<Any, Any>(
-        "user" to User(
-            email = "fake@site.com",
-            firstName = "Someone",
-            lastName = "You Don't know",
-            universityId = 4
-        )
-    ).also { map ->
-        request.headers["my-custom-header"]?.let { customHeader ->
-            map["customHeader"] = customHeader
-        }
-    }
+class KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest> {
+    override suspend fun generateContext(request: ApplicationRequest): GraphQLContext =
+        mutableMapOf<Any, Any>(
+            "user" to User(
+                email = "fake@site.com",
+                firstName = "Someone",
+                lastName = "You Don't know",
+                universityId = 4
+            )
+        ).also { map ->
+            request.headers["my-custom-header"]?.let { customHeader ->
+                map["customHeader"] = customHeader
+            }
+        }.toGraphQLContext()
 }

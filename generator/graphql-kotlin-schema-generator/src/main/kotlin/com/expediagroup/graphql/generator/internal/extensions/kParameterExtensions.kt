@@ -17,15 +17,10 @@
 package com.expediagroup.graphql.generator.internal.extensions
 
 import com.expediagroup.graphql.generator.exceptions.CouldNotGetNameOfKParameterException
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.isSubclassOf
 
 internal fun KParameter.isInterface() = this.type.getKClass().isInterface()
-
-@Deprecated("GraphQLContext parameter injection is deprecated and will be removed in next major release")
-internal fun KParameter.isGraphQLContext() = this.type.getKClass().isSubclassOf(GraphQLContext::class)
 
 internal fun KParameter.isDataFetchingEnvironment() = this.type.classifier == DataFetchingEnvironment::class
 

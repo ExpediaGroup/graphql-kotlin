@@ -103,8 +103,7 @@ object AstronautGraphQL {
         astronautService.createAstronaut(
             CreateAstronautServiceRequest(
                 environment.getArgument("name")
-            ),
-            environment
+            )
         )
     }
     private val astronautsDataFetcher = DataFetcher { environment ->

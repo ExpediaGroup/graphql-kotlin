@@ -29,17 +29,25 @@ import java.util.concurrent.CompletableFuture
  * Helper method to get a value from a registered DataLoader.
  * The provided key should be the cache key object used to save the value for that particular data loader.
  */
+@Deprecated(
+    message = "Custom DataLoader extension functions are deprecated and will be removed in next major release",
+    replaceWith = ReplaceWith("getDataLoader<K, V>(dataLoaderName)")
+)
 fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> {
     val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
-    return loader.load(key, this.getContext())
+    return loader.load(key, this.graphQlContext)
 }
 
 /**
 * Helper method to get values from a registered DataLoader.
 */
+@Deprecated(
+    message = "Custom DataLoader extension functions are deprecated and will be removed in next major release",
+    replaceWith = ReplaceWith("getDataLoader<K, V>(dataLoaderName)")
+)
 fun <K, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> {
     val loader = getDataLoader<K, V>(dataLoaderName) ?: throw MissingDataLoaderException(dataLoaderName)
-    return loader.loadMany(keys, listOf(this.getContext()))
+    return loader.loadMany(keys, listOf(this.graphQlContext))
 }
 
 /**

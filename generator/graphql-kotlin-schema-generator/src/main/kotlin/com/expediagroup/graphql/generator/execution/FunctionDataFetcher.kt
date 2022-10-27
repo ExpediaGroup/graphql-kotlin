@@ -19,7 +19,6 @@ package com.expediagroup.graphql.generator.execution
 import com.expediagroup.graphql.generator.extensions.getOrDefault
 import com.expediagroup.graphql.generator.internal.extensions.getName
 import com.expediagroup.graphql.generator.internal.extensions.isDataFetchingEnvironment
-import com.expediagroup.graphql.generator.internal.extensions.isGraphQLContext
 import com.expediagroup.graphql.generator.internal.extensions.isOptionalInputType
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -88,12 +87,10 @@ open class FunctionDataFetcher(
      *
      * If the parameter is of a special type then we do not read the input and instead just pass on that value.
      * The special values include:
-     *   - If the parameter is marked as a [com.expediagroup.graphql.generator.execution.GraphQLContext], then return the environment context
      *   - The entire environment is returned if the parameter is of type [DataFetchingEnvironment]
      */
     protected open fun mapParameterToValue(param: KParameter, environment: DataFetchingEnvironment): Pair<KParameter, Any?>? =
         when {
-            param.isGraphQLContext() -> param to environment.getContext()
             param.isDataFetchingEnvironment() -> param to environment
             else -> {
                 val name = param.getName()

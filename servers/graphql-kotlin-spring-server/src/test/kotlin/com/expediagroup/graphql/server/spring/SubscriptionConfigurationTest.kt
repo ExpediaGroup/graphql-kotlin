@@ -138,7 +138,7 @@ class SubscriptionConfigurationTest {
 
         @Bean
         fun subscriptionHandler(): SpringGraphQLSubscriptionHandler = mockk {
-            every { executeSubscription(any(), any(), any()) } returns flowOf()
+            every { executeSubscription(any(), any()) } returns flowOf()
         }
 
         @Bean

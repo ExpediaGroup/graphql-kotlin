@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.extensions
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.mockk
 import org.dataloader.DataLoader
@@ -52,10 +53,10 @@ class RequestExtensionsKtTest {
     @Test
     fun `verify can convert request with context to execution input`() {
         val request = GraphQLRequest(query = "query { whatever }")
-        val context = mapOf("contextValue" to 12_345)
-        val executionInput = request.toExecutionInput(graphQLContext = context)
+        val context = mapOf("contextValue" to 12_345).toGraphQLContext()
+        val executionInput = request.toExecutionInput(context)
         assertEquals(request.query, executionInput.query)
-        assertEquals(context, executionInput.context)
+        assertEquals(context.get<String>("contextValue"), executionInput.graphQLContext.get("contextValue"))
     }
 
     @Test
@@ -76,9 +77,9 @@ class RequestExtensionsKtTest {
     @Test
     fun `verify can convert request with context map to execution input`() {
         val request = GraphQLRequest(query = "query { whatever }")
-        val context = mapOf("foo" to 1)
+        val context = mapOf("foo" to 1).toGraphQLContext()
 
-        val executionInput = request.toExecutionInput(graphQLContextMap = context)
+        val executionInput = request.toExecutionInput(context)
         assertEquals(1, executionInput.graphQLContext.get("foo"))
     }
 

@@ -35,29 +35,6 @@ val executionInput = ExecutionInput.newExecutionInput()
     .graphQLContext(contextMap)
     .query(queryString)
     .build()
-graphql.executeAsync(executionInput)
-```
 
-### `FederatedGraphQLContext` (Deprecated)
-
-:::danger
-Support for custom GraphQL context object is deprecated and will be removed in future releases. Please migrate to use
-generic GraphQL context map.
-:::
-
-To best support tracing, the context must implement a specific method to get the HTTP headers from the request.
-This is done by implementing the `FederatedGraphQLContext` interface instead of just the `GraphQLContext` interface
-from `graphql-kotlin-schema-generator`.
-
-```kotlin
-class MyFederatedGraphQLContext(private val request: ServerRequest) : FederatedGraphQLContext {
-    override fun getHTTPRequestHeader(caseInsensitiveHeaderName: String): String? =
-        request.headers().firstHeader(caseInsensitiveHeaderName)
-}
-
-val executionInput = ExecutionInput.newExecutionInput()
-    .context(MyFederatedGraphQLContext(httpRequest))
-    .query(queryString)
-    .build()
 graphql.executeAsync(executionInput)
 ```

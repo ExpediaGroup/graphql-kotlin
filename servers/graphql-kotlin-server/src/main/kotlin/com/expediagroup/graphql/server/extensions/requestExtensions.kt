@@ -17,17 +17,18 @@
 package com.expediagroup.graphql.server.extensions
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistry
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.ExecutionInput
+import graphql.GraphQLContext
 
 /**
  * Convert the common [GraphQLRequest] to the [ExecutionInput] used by graphql-java
  */
 fun GraphQLRequest.toExecutionInput(
-    dataLoaderRegistry: KotlinDataLoaderRegistry? = null,
-    graphQLContext: Any? = null,
-    graphQLContextMap: Map<*, Any>? = null
+    graphQLContext: GraphQLContext = emptyMap<Any, Any>().toGraphQLContext(),
+    dataLoaderRegistry: KotlinDataLoaderRegistry? = null
 ): ExecutionInput =
     ExecutionInput.newExecutionInput()
         .query(this.query)
@@ -35,9 +36,8 @@ fun GraphQLRequest.toExecutionInput(
         .variables(this.variables ?: emptyMap())
         .extensions(this.extensions ?: emptyMap())
         .dataLoaderRegistry(dataLoaderRegistry ?: KotlinDataLoaderRegistry())
-        .also { builder ->
-            graphQLContext?.let { builder.context(it) }
-            graphQLContextMap?.let { builder.graphQLContext(it) }
+        .graphQLContext { graphQLContextBuilder ->
+            graphQLContextBuilder.of(graphQLContext)
         }
         .build()
 

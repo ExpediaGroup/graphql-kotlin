@@ -17,22 +17,24 @@
 package com.expediagroup.graphql.server.spring.execution
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
+import graphql.GraphQLContext
 import org.springframework.web.reactive.function.server.ServerRequest
 
 /**
  * Wrapper class for specifically handling the Spring [ServerRequest]
  */
-abstract class SpringGraphQLContextFactory<out T : SpringGraphQLContext> : GraphQLContextFactory<T, ServerRequest>
+abstract class SpringGraphQLContextFactory : GraphQLContextFactory<ServerRequest>
 
 /**
  * Basic implementation of [SpringGraphQLContextFactory] that populates Apollo tracing header.
  */
-open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory<SpringGraphQLContext>() {
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = mutableMapOf<Any, Any>()
-        .also { map ->
+open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory() {
+    override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+        mutableMapOf<Any, Any>().also { map ->
             request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
                 map[FEDERATED_TRACING_HEADER_NAME] = headerValue
             }
-        }
+        }.toGraphQLContext()
 }

@@ -16,17 +16,20 @@
 
 package com.expediagroup.graphql.examples.server.spring.context
 
+import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
+import graphql.GraphQLContext
 
 /**
  * [GraphQLContextFactory] that populates GraphQL context map that will be available when processing GraphQL requests.
  */
 @Component
 class MyGraphQLContextFactory : DefaultSpringGraphQLContextFactory() {
-    override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> = super.generateContextMap(request) + mapOf(
-        "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
-    )
+    override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+        super.generateContext(request) + mapOf(
+            "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
+        )
 }

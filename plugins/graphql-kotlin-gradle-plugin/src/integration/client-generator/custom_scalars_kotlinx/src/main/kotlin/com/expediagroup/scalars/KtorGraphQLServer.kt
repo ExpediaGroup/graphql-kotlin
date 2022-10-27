@@ -2,7 +2,6 @@ package com.expediagroup.scalars
 
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.generator.toSchema
@@ -22,7 +21,7 @@ import java.io.IOException
 
 class KtorGraphQLServer(
     requestParser: GraphQLRequestParser<ApplicationRequest>,
-    contextFactory: GraphQLContextFactory<GraphQLContext, ApplicationRequest>,
+    contextFactory: GraphQLContextFactory<ApplicationRequest>,
     requestHandler: GraphQLRequestHandler
 ) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler) {
 
@@ -36,7 +35,7 @@ class KtorGraphQLServer(
                     throw IOException("Unable to parse GraphQL payload.")
                 }
             }
-            val contextFactory = object: GraphQLContextFactory<GraphQLContext, ApplicationRequest> {}
+            val contextFactory = object: GraphQLContextFactory<ApplicationRequest> {}
 
             val config = SchemaGeneratorConfig(
                 supportedPackages = listOf("com.expediagroup.scalars"),

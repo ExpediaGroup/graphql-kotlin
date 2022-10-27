@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages
@@ -24,6 +24,7 @@ import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperatio
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -71,11 +72,11 @@ class SubscriptionWebSocketHandlerIT(
 
         StepVerifier.create(dataOutput)
             .expectSubscription()
-            .expectNext("{\"data\":{\"characters\":\"Alice\"}}")
-            .expectNext("{\"data\":{\"characters\":\"Bob\"}}")
-            .expectNext("{\"data\":{\"characters\":\"Chuck\"}}")
-            .expectNext("{\"data\":{\"characters\":\"Dave\"}}")
-            .expectNext("{\"data\":{\"characters\":\"Eve\"}}")
+            .expectNext("""{"data":{"characters":"Alice"}}""")
+            .expectNext("""{"data":{"characters":"Bob"}}""")
+            .expectNext("""{"data":{"characters":"Chuck"}}""")
+            .expectNext("""{"data":{"characters":"Dave"}}""")
+            .expectNext("""{"data":{"characters":"Eve"}}""")
             .expectComplete()
             .verify()
 
@@ -120,7 +121,7 @@ class SubscriptionWebSocketHandlerIT(
         }.subscribe()
 
         StepVerifier.create(dataOutput)
-            .expectNextMatches { it.matches("\\{\"data\":\\{\"ticker\":\"junit:-?\\d+\"}}".toRegex()) }
+            .expectNextMatches { it.matches("""\{"data":\{"ticker":"junit:-?\d+"}}""".toRegex()) }
             .expectComplete()
             .verify()
 
@@ -161,7 +162,7 @@ class SubscriptionWebSocketHandlerIT(
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory<GraphQLContext> = CustomContextFactory()
+        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory = CustomContextFactory()
     }
 
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
@@ -185,10 +186,11 @@ class SubscriptionWebSocketHandlerIT(
         fun ticker(env: DataFetchingEnvironment): Flux<String> = Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
     }
 
-    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory<GraphQLContext>() {
-        override suspend fun generateContextMap(request: WebSocketSession): Map<*, Any> = mapOf(
-            "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
-        )
+    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory() {
+        override suspend fun generateContext(request: WebSocketSession): GraphQLContext =
+            mapOf(
+                "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
+            ).toGraphQLContext()
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)

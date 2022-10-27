@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class DataFetchingEnvironmentExtensionsKtTest {
-
     @Test
     fun `getting a dataloader passes when a matching name is found`() {
-        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
-            every { getContext<Any>() } returns mockk()
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
             every { getDataLoader<String, String>("foo") } returns mockk {
                 every { load("bar", any()) } returns CompletableFuture.completedFuture("123")
             }
@@ -43,8 +42,8 @@ class DataFetchingEnvironmentExtensionsKtTest {
 
     @Test
     fun `getting values from a dataloader based on a list of keys`() {
-        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
-            every { getContext<Any>() } returns mockk()
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
             every { getDataLoader<String, String>("foo") } returns mockk {
                 every { loadMany(listOf("bar"), any()) } returns CompletableFuture.completedFuture(listOf("123"))
             }
@@ -58,12 +57,12 @@ class DataFetchingEnvironmentExtensionsKtTest {
 
     @Test
     fun `getting a dataloader throws exception when name not found`() {
-        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
-            every { getContext<Any>() } returns mockk()
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns mockk()
             every { getDataLoader<String, String>("foo") } returns null
         }
 
-        assertFailsWith(MissingDataLoaderException::class) {
+        assertFailsWith<MissingDataLoaderException> {
             dataFetchingEnvironment.getValueFromDataLoader<String, String>("foo", "bar")
         }
     }
