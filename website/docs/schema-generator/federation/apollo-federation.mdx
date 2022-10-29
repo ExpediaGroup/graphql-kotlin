@@ -25,11 +25,12 @@ Federation v2 is an evolution of the Federation spec to make it more powerful, f
 v2 schemas are similar in many ways, Federation v2 relaxes some of the constraints and adds additional capabilities. See
 [Apollo documentation](https://www.apollographql.com/docs/federation/federation-2/new-in-federation-2/) for details.
 
-By default, `graphql-kotlin-federation` library will generate Federation v1 compatible schema. In order to generate v2
-compatible schema you have to explicitly opt-in by specifying `optInFederationV2 = true` on your instance of `FederatedSchemaGeneratorHooks`.
+By default, `graphql-kotlin-federation` library will generate Federation v2 compatible schema. In order to generate v1
+compatible schema you have to explicitly opt-out by specifying `optInFederationV2 = false` on your instance of
+`FederatedSchemaGeneratorHooks`.
 
 ```kotlin
-val myHooks = FederatedSchemaGeneratorHooks(resolvers = myFederatedResolvers, optInFederationV2 = true)
+val myHooks = FederatedSchemaGeneratorHooks(resolvers = myFederatedResolvers)
 val myConfig = FederatedSchemaGeneratorConfig(
   supportedPackages = "com.example",
   hooks = myHooks
@@ -42,7 +43,8 @@ toFederatedSchema(
 ```
 
 :::note
-Federation v2 compatible schemas, can be generated using `graphql-kotlin-spring-server` by configuring `graphql.federation.optInV2 = true` property.
+When generating federated schemas, `graphql-kotlin-spring-server` defaults to Federation v2. If you want to generate Federation
+v1 schema, you have to explicitly opt-out by configuring `graphql.federation.optInV2 = false` property.
 :::
 
 ## Install
@@ -105,7 +107,7 @@ class Query {
 
 val config = FederatedSchemaGeneratorConfig(
   supportedPackages = "com.example",
-  hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = true)
+  hooks = FederatedSchemaGeneratorHooks(emptyList())
 )
 
 toFederatedSchema(
@@ -117,34 +119,41 @@ toFederatedSchema(
 will generate
 
 ```graphql
-# Federation spec types
-scalar _Any
-scalar FieldSet
-
-union _Entity
-
-type _Service {
-   sdl: String!
+schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+  query: Query
 }
 
-directive @external on FIELD_DEFINITION
-directive @requires(fields: FieldSet) on FIELD_DEFINITION
-directive @provides(fields: FieldSet) on FIELD_DEFINITION
-directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 directive @extends on OBJECT | INTERFACE
+directive @external on FIELD_DEFINITION
+directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+directive @link(import: [String], url: String) repeatable on SCHEMA
+directive @override(from: String!) on FIELD_DEFINITION
+directive @provides(fields: FieldSet!) on FIELD_DEFINITION
+directive @requires(fields: FieldSet!) on FIELD_DEFINITION
+directive @shareable on OBJECT | FIELD_DEFINITION
+directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-# Schema types
-type Query @extends {
+type Query {
    getUsers: [User!]!
 
    _entities(representations: [_Any!]!): [_Entity]!
    _service: _Service!
 }
 
-type User @key(fields : "id") {
+type User @key(fields : "id", resolvable : true) {
    id: ID!
    name: String!
 }
+
+union _Entity = User
+
+type _Service {
+   sdl: String!
+}
+
+scalar FieldSet
+scalar _Any
 ```
 
 ## Limitations

@@ -86,11 +86,42 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
-schema {
+schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
   query: Query
 }
 
+"Marks target object as extending part of the federated schema"
+directive @extends on OBJECT | INTERFACE
+
+"Marks target field as external meaning it will be resolved by federated schema"
+directive @external on FIELD_DEFINITION
+
+"Marks location within schema as inaccessible from the GraphQL Gateway"
+directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+"Space separated list of primary keys needed to access federated object"
+directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
+
+"Links definitions within the document to external schemas."
+directive @link(import: [String], url: String) repeatable on SCHEMA
+
+"Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
+directive @override(from: String!) on FIELD_DEFINITION
+
+"Specifies the base type field set that will be selectable by the gateway"
+directive @provides(fields: FieldSet!) on FIELD_DEFINITION
+
+"Specifies required input field set from the base type for a resolver"
+directive @requires(fields: FieldSet!) on FIELD_DEFINITION
+
+"Indicates that given object and/or field can be resolved by multiple subgraphs"
+directive @shareable on OBJECT | FIELD_DEFINITION
+
+"Allows users to annotate fields and types with additional metadata information"
+directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
 type Query @extends {
+  _service: _Service!
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!
 }
@@ -100,6 +131,13 @@ type SelfReferenceObject {
   id: Int!
   nextObject: [SelfReferenceObject]!
 }
+
+type _Service {
+  sdl: String!
+}
+
+"Federation type representing set of fields"
+scalar FieldSet
 """
 
 const val FEDERATED_SERVICE_SDL_V2 =
@@ -197,7 +235,7 @@ scalar _Any
 
 class ServiceQueryResolverTest {
 
-    class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(emptyList()) {
+    class CustomScalarFederatedHooks : FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false) {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? = when (type.classifier as? KClass<*>) {
             CustomScalar::class -> graphqlCustomScalar
             else -> super.willGenerateGraphQLType(type)
@@ -290,7 +328,7 @@ class ServiceQueryResolverTest {
     fun `verify can retrieve Federation v2 SDL using _service query`() {
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v2"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = true)
+            hooks = FederatedSchemaGeneratorHooks(emptyList())
         )
 
         val schema = toFederatedSchema(config = config)
