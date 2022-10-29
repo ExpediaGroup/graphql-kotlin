@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.requires.success._1
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._03
 
-import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
-import kotlin.properties.Delegates
+import io.mockk.mockk
 
 /*
-# example of proper usage of @requires directive - @requires external field
-type SimpleRequires @key(fields : "id") {
+# example usage of invalid @key directive - field set references type without specifying fields
+type KeyReferencingInterface @key(fields : "product") {
   description: String!
+  product: Product!
+}
+
+type Product {
   id: String!
-  shippingCost: String! @requires(fields : "weight")
-  weight: Float! @external
 }
  */
-@KeyDirective(fields = FieldSet("id"))
-class SimpleRequires(val id: String, val description: String) {
-    @ExternalDirective
-    var weight: Double by Delegates.notNull()
+@KeyDirective(fields = FieldSet("product"))
+data class IncompleteSelectionSet(val product: Product, val description: String)
 
-    @RequiresDirective(FieldSet("weight"))
-    fun shippingCost(): String = "$${weight * 9.99}"
+data class Product(val id: Int)
+
+class IncompleteSelectionSetQuery {
+    fun keyQuery(): IncompleteSelectionSet = mockk()
 }

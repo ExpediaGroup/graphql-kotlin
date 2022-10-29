@@ -14,24 +14,40 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.requires.failure._2
+package com.expediagroup.graphql.generator.federation.data.integration.provides.success._1
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
+import com.expediagroup.graphql.generator.federation.directives.ProvidesDirective
 import io.mockk.mockk
 
 /*
-# example of invalid usage of @requires directive when it references non-existent field
-type RequiresNonExistentField @key(fields : "id") {
+# example of proper usage of @provides directive - type exposes some object with a field
+#  from other federated type that can be resolved locally
+type ProvidesSingleField @key(fields : "id") {
   description: String!
   id: String!
-  shippingCost: String! @requires(fields : "zipCode")
+  provided: ProvidedType! @provides(fields : "text")
+}
+
+type ProvidedType @key(fields : "id") {
+  id: String!
+  text: String!
 }
  */
 @KeyDirective(fields = FieldSet("id"))
-class RequiresNonExistentField(val id: String, val description: String) {
+class ProvidesSingleField(val id: String, val description: String) {
 
-    @RequiresDirective(FieldSet("zipCode"))
-    fun shippingCost(): String = mockk()
+    @ProvidesDirective(fields = FieldSet("text"))
+    fun provided(): ProvidedType = mockk()
+}
+
+@KeyDirective(fields = FieldSet("id"))
+data class ProvidedType(
+    val id: String,
+    val text: String
+)
+
+class ProvidesSingleFieldQuery {
+    fun providesQuery(): ProvidesSingleField = mockk()
 }

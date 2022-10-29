@@ -1,166 +1,221 @@
-/*
- * Copyright 2020 Expedia, Inc
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.expediagroup.graphql.generator.federation.validation
 
+import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import graphql.Scalars
+import graphql.schema.GraphQLEnumType
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLInterfaceType
+import graphql.schema.GraphQLList
 import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ValidateFieldSelectionKtTest {
-
-    private val mockDirectiveInfo = DirectiveInfo(
-        directiveName = "foo",
-        fieldSet = "id",
-        typeName = "Bar"
+    private val stubDirectiveInfo = DirectiveInfo(
+        directiveName = "custom",
+        fieldSet = "foo",
+        typeName = "Foo"
     )
 
     @Test
-    fun `empty list returns no errors`() {
+    fun `selection set on GraphQLScalar returns an error`() {
         val errors = mutableListOf<String>()
         validateFieldSelection(
-            validatedDirective = mockDirectiveInfo,
-            iterator = emptyList<String>().iterator(),
-            fields = emptyMap(),
-            extendedType = false,
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo", mutableListOf(FieldSetSelection("bar"))),
+            targetType = Scalars.GraphQLString,
+            errors = errors
+        )
+
+        assertEquals(1, errors.size)
+        assertEquals("@custom(fields = \"foo\") directive on Foo specifies invalid field set - field set specifies selection set on a leaf node, field=foo", errors[0])
+    }
+
+    @Test
+    fun `selection set on GraphQLEnum returns an error`() {
+        val errors = mutableListOf<String>()
+        val enum = GraphQLEnumType.newEnum()
+            .name("Bar")
+            .value("ONE")
+            .build()
+        validateFieldSelection(
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo", mutableListOf(FieldSetSelection("bar"))),
+            targetType = enum,
+            errors = errors
+        )
+
+        assertEquals(1, errors.size)
+        assertEquals("@custom(fields = \"foo\") directive on Foo specifies invalid field set - field set specifies selection set on a leaf node, field=foo", errors[0])
+    }
+
+    @Test
+    fun `selection set on GraphQLUnion returns an error`() {
+        val errors = mutableListOf<String>()
+        val union = GraphQLUnionType.newUnionType()
+            .name("CustomUnion")
+            .possibleType(
+                GraphQLObjectType.newObject()
+                    .name("Bar")
+                    .field(
+                        GraphQLFieldDefinition.newFieldDefinition()
+                            .name("bar")
+                            .type(Scalars.GraphQLString)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+        validateFieldSelection(
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo", mutableListOf(FieldSetSelection("bar"))),
+            targetType = union,
+            errors = errors
+        )
+
+        assertEquals(1, errors.size)
+        assertEquals("@custom(fields = \"foo\") directive on Foo specifies invalid field set - field set references GraphQLUnionType, field=foo", errors[0])
+    }
+
+    @Test
+    fun `@key selection set on a List return an error`() {
+        val errors = mutableListOf<String>()
+        validateFieldSelection(
+            validatedDirective = DirectiveInfo(KEY_DIRECTIVE_NAME, "foo", "Foo"),
+            selection = FieldSetSelection("foo"),
+            targetType = GraphQLList.list(Scalars.GraphQLString),
+            errors = errors
+        )
+
+        assertEquals(1, errors.size)
+        assertEquals("@key(fields = \"foo\") directive on Foo specifies invalid field set - field set references GraphQLList, field=foo", errors[0])
+    }
+
+    @Test
+    fun `non @key selection set on a List does not return an error`() {
+        val errors = mutableListOf<String>()
+        validateFieldSelection(
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo"),
+            targetType = GraphQLList.list(Scalars.GraphQLString),
             errors = errors
         )
 
         assertTrue(errors.isEmpty())
     }
 
-    /**
-     * interface MyInterface {
-     *   bar: String
-     * }
-     *
-     * type Parent @taco("foo { bar }") {
-     *   foo: MyInterface
-     * }
-     */
     @Test
-    fun `GraphQLInterface type is unwrapped, and returns a single error`() {
-        val interfaceField = GraphQLFieldDefinition.newFieldDefinition()
-            .name("bar")
-            .type(Scalars.GraphQLString)
-            .build()
-        val interfaceDefinition = GraphQLInterfaceType.newInterface()
-            .name("MyInterface")
-            .field(interfaceField)
-            .build()
-        val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
-            .name("foo")
-            .type(interfaceDefinition)
-            .build()
+    fun `@key selection set on interface return an error`() {
         val errors = mutableListOf<String>()
+        val intf = GraphQLInterfaceType.newInterface()
+            .name("CustomInterface")
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("bar")
+                    .type(Scalars.GraphQLString)
+                    .build()
+            )
+            .build()
         validateFieldSelection(
-            validatedDirective = mockDirectiveInfo,
-            iterator = listOf("foo", "{", "bar", "}").iterator(),
-            fields = mapOf("foo" to fieldDefinition),
-            extendedType = false,
+            validatedDirective = DirectiveInfo(KEY_DIRECTIVE_NAME, "foo", "Foo"),
+            selection = FieldSetSelection("foo", mutableListOf(FieldSetSelection("bar"))),
+            targetType = intf,
             errors = errors
         )
 
-        assertEquals(expected = 1, actual = errors.size)
-        assertEquals(expected = "@foo(fields = id) directive on Bar specifies invalid field set - field set references GraphQLInterfaceType, field=foo", actual = errors.first())
+        assertEquals(1, errors.size)
+        assertEquals("@key(fields = \"foo\") directive on Foo specifies invalid field set - field set references GraphQLInterfaceType, field=foo", errors[0])
     }
 
-    /**
-     * type MyObject {
-     *   bar: String
-     * }
-     *
-     * type Parent @taco("foo { bar }") {
-     *   foo: MyObject
-     * }
-     */
     @Test
-    fun `GraphQLObjectType type is unwrapped, and returns no errors on a valid selection`() {
-        val field = GraphQLFieldDefinition.newFieldDefinition()
-            .name("bar")
-            .type(Scalars.GraphQLString)
-            .build()
-        val objectDefinition = GraphQLObjectType.newObject()
-            .name("MyObject")
-            .field(field)
-            .build()
-        val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
-            .name("foo")
-            .type(objectDefinition)
-            .build()
+    fun `empty sub-selection on interface return an error`() {
         val errors = mutableListOf<String>()
+        val intf = GraphQLInterfaceType.newInterface()
+            .name("CustomInterface")
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("bar")
+                    .type(Scalars.GraphQLString)
+                    .build()
+            )
+            .build()
         validateFieldSelection(
-            validatedDirective = mockDirectiveInfo,
-            iterator = listOf("foo", "{", "bar", "}").iterator(),
-            fields = mapOf("foo" to fieldDefinition),
-            extendedType = false,
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo"),
+            targetType = intf,
             errors = errors
         )
 
-        assertEquals(expected = 0, actual = errors.size)
+        assertEquals(1, errors.size)
+        assertEquals("@custom(fields = \"foo\") directive on Foo specifies invalid field set - foo interface does not specify selection set", errors[0])
     }
 
-    /**
-     * type Parent @taco("foo") {
-     *   foo: String
-     * }
-     */
     @Test
-    fun `A valid field definition returns no errors`() {
-        val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
-            .name("foo")
-            .type(Scalars.GraphQLString)
-            .build()
+    fun `valid sub-selection on interface does not return an error`() {
         val errors = mutableListOf<String>()
+        val intf = GraphQLInterfaceType.newInterface()
+            .name("CustomInterface")
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("bar")
+                    .type(Scalars.GraphQLString)
+                    .build()
+            )
+            .build()
         validateFieldSelection(
-            validatedDirective = mockDirectiveInfo,
-            iterator = listOf("foo").iterator(),
-            fields = mapOf("foo" to fieldDefinition),
-            extendedType = false,
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo", mutableListOf(FieldSetSelection("bar"))),
+            targetType = intf,
             errors = errors
         )
 
         assertTrue(errors.isEmpty())
     }
 
-    /**
-     * type Parent @taco("bar { foo }") {
-     *   foo: String
-     * }
-     */
     @Test
-    fun `A valid field definition but with invalid sub fields returns two errors`() {
-        val fieldDefinition = GraphQLFieldDefinition.newFieldDefinition()
-            .name("foo")
-            .type(Scalars.GraphQLString)
-            .build()
-
+    fun `empty sub-selection set on object returns an error`() {
         val errors = mutableListOf<String>()
+        val obj = GraphQLObjectType.newObject()
+            .name("Custom")
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("bar")
+                    .type(Scalars.GraphQLString)
+                    .build()
+            )
+            .build()
         validateFieldSelection(
-            validatedDirective = mockDirectiveInfo,
-            iterator = listOf("bar", "{", "foo", "}").iterator(),
-            fields = mapOf("foo" to fieldDefinition),
-            extendedType = false,
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo"),
+            targetType = obj,
             errors = errors
         )
 
-        assertEquals(expected = 2, actual = errors.size)
+        assertEquals(1, errors.size)
+        assertEquals("@custom(fields = \"foo\") directive on Foo specifies invalid field set - foo object does not specify selection set", errors[0])
+    }
+
+    @Test
+    fun `valid sub-selection on object does not return an error`() {
+        val errors = mutableListOf<String>()
+        val obj = GraphQLObjectType.newObject()
+            .name("Custom")
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name("bar")
+                    .type(Scalars.GraphQLString)
+                    .build()
+            )
+            .build()
+        validateFieldSelection(
+            validatedDirective = stubDirectiveInfo,
+            selection = FieldSetSelection("foo", mutableListOf(FieldSetSelection("bar"))),
+            targetType = obj,
+            errors = errors
+        )
+
+        assertTrue(errors.isEmpty())
     }
 }

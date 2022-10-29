@@ -17,13 +17,13 @@
 package com.expediagroup.graphql.generator.federation.validation.integration
 
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._1.ProvidesLocalTypeQuery
-import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._2.ProvidesLocalFieldQuery
-import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._3.ProvidesInterfaceQuery
-import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._4.ProvidesListFieldQuery
-import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._5.ProvidesInterfaceFieldQuery
-import com.expediagroup.graphql.generator.federation.data.integration.provides.success._1.SimpleProvidesQuery
-import com.expediagroup.graphql.generator.federation.data.integration.provides.success._2.ProvidesListQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._1.ProvidesNonExistentFieldQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.failure._2.ProvidesNotObjectQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.success._1.ProvidesSingleFieldQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.success._2.ProvidesMultipleFieldsQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.success._3.ProvidesOnAListQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.success._4.ProvidesListQuery
+import com.expediagroup.graphql.generator.federation.data.integration.provides.success._5.ProvidesInterfaceQuery
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.schema.GraphQLObjectType
@@ -43,20 +43,53 @@ class FederatedProvidesDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.success._1"),
-                queries = listOf(TopLevelObject(SimpleProvidesQuery()))
+                queries = listOf(TopLevelObject(ProvidesSingleFieldQuery()))
             )
-            validateTypeWasCreatedWithProvidesDirective(schema, "SimpleProvides")
+            validateTypeWasCreatedWithProvidesDirective(schema, "ProvidesSingleField")
         }
     }
 
     @Test
-    fun `verifies @provides directive can specify list of fields`() {
+    fun `verifies @provides directive can specify multiple fields`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.success._2"),
+                queries = listOf(TopLevelObject(ProvidesMultipleFieldsQuery()))
+            )
+            validateTypeWasCreatedWithProvidesDirective(schema, "ProvidesMultipleFields")
+        }
+    }
+
+    @Test
+    fun `verifies @provides directive can be applied on a list field`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.success._3"),
+                queries = listOf(TopLevelObject(ProvidesOnAListQuery()))
+            )
+            validateTypeWasCreatedWithProvidesDirective(schema, "ProvidesOnAList")
+        }
+    }
+
+    @Test
+    fun `verifies @provides directive can reference list field`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.success._4"),
                 queries = listOf(TopLevelObject(ProvidesListQuery()))
             )
             validateTypeWasCreatedWithProvidesDirective(schema, "ProvidesList")
+        }
+    }
+
+    @Test
+    fun `verifies @provides directive can reference interfaces`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.success._5"),
+                queries = listOf(TopLevelObject(ProvidesInterfaceQuery()))
+            )
+            validateTypeWasCreatedWithProvidesDirective(schema, "ProvidesInterface")
         }
     }
 
@@ -69,70 +102,30 @@ class FederatedProvidesDirectiveIT {
         assertNotNull(providedField.getAppliedDirective("provides"))
         val providedType = GraphQLTypeUtil.unwrapAll(providedField.type) as? GraphQLObjectType
         assertNotNull(providedType)
-        assertNotNull(providedType.getAppliedDirective("extends"))
     }
 
     @Test
-    fun `@provides field set cannot reference local objects`() {
+    fun `@provides field set should reference valid fields`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.failure._1"),
-                queries = listOf(TopLevelObject(ProvidesLocalTypeQuery()))
+                queries = listOf(TopLevelObject(ProvidesNonExistentFieldQuery()))
             )
         }
-        val expected = "Invalid federated schema:\n - @provides directive is specified on a ProvidesLocalType.providedLocal field references local object"
+        val expected = "Invalid federated schema:" +
+            "\n - @provides(fields = \"description\") directive on ProvidesNonExistentField.provided specifies invalid field set - field set specifies field that does not exist, field=description"
         assertEquals(expected, exception.message)
     }
 
     @Test
-    fun `@provides field set cannot reference local fields on extended types`() {
+    fun `@provides field set should reference objects`() {
         val exception = assertFailsWith<InvalidFederatedSchema> {
             toFederatedSchema(
                 config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.failure._2"),
-                queries = listOf(TopLevelObject(ProvidesLocalFieldQuery()))
+                queries = listOf(TopLevelObject(ProvidesNotObjectQuery()))
             )
         }
-        val expected = "Invalid federated schema:\n" +
-            " - @provides(fields = text) directive on ProvidesLocalField.provided specifies invalid field set - extended type incorrectly references local field=text"
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
-    fun `@provides field set cannot reference fields from interface`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.failure._3"),
-                queries = listOf(TopLevelObject(ProvidesInterfaceQuery()))
-            )
-        }
-        val expected = "Invalid federated schema:\n" +
-            " - @provides directive is specified on a ProvidesInterface.providedInterface field but it does not return an object type"
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
-    fun `@provides field set cannot reference fields returning lists`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.failure._4"),
-                queries = listOf(TopLevelObject(ProvidesListFieldQuery()))
-            )
-        }
-        val expected = "Invalid federated schema:\n" +
-            " - @provides(fields = text) directive on ProvidesListField.provided specifies invalid field set - field set references GraphQLList, field=text"
-        assertEquals(expected, exception.message)
-    }
-
-    @Test
-    fun `@provides field set cannot reference fields returning interface`() {
-        val exception = assertFailsWith<InvalidFederatedSchema> {
-            toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.provides.failure._5"),
-                queries = listOf(TopLevelObject(ProvidesInterfaceFieldQuery()))
-            )
-        }
-        val expected = "Invalid federated schema:\n" +
-            " - @provides(fields = data) directive on ProvidesInterfaceField.provided specifies invalid field set - field set references GraphQLInterfaceType, field=data"
+        val expected = "Invalid federated schema:\n - @provides directive is specified on a ProvidesNotObject.provided field but it does not return an object type"
         assertEquals(expected, exception.message)
     }
 }

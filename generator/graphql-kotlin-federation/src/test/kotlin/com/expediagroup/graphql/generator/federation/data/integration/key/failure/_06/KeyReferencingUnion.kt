@@ -14,28 +14,33 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.requires.success._1
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._06
 
-import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
-import kotlin.properties.Delegates
+import io.mockk.mockk
 
 /*
-# example of proper usage of @requires directive - @requires external field
-type SimpleRequires @key(fields : "id") {
+# example invalid usage of @key directive - field set references a union
+type KeyReferencingUnion @key(fields : "id") {
   description: String!
-  id: String!
-  shippingCost: String! @requires(fields : "weight")
-  weight: Float! @external
+  id: KeyUnion!
 }
+
+type Key {
+  id: String!
+}
+
+union KeyUnion = Key
  */
 @KeyDirective(fields = FieldSet("id"))
-class SimpleRequires(val id: String, val description: String) {
-    @ExternalDirective
-    var weight: Double by Delegates.notNull()
+data class KeyReferencingUnion(val id: KeyUnion, val description: String)
 
-    @RequiresDirective(FieldSet("weight"))
-    fun shippingCost(): String = "$${weight * 9.99}"
+interface KeyUnion
+
+@Suppress("UnusedPrivateClass")
+data class Key(val id: String) : KeyUnion
+
+class KeyReferencingUnionQuery {
+    fun keyQuery(): KeyReferencingUnion = mockk()
 }

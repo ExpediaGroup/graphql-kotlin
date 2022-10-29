@@ -17,12 +17,14 @@
 package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import graphql.Scalars
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -34,8 +36,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "",
             directiveMap = emptyMap(),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -55,8 +56,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -78,8 +78,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -101,8 +100,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -126,8 +124,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -151,8 +148,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -176,8 +172,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = emptyMap(),
-            extendedType = false
+            fieldMap = emptyMap()
         )
 
         assertEquals(expected = 1, actual = validationErrors.size)
@@ -208,8 +203,7 @@ internal class ValidateDirectiveKtTest {
             validatedType = "MyType",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = mapOf("bar" to graphqlField),
-            extendedType = false
+            fieldMap = mapOf("bar" to graphqlField)
         )
 
         assertTrue(validationErrors.isEmpty())
@@ -246,10 +240,34 @@ internal class ValidateDirectiveKtTest {
             validatedType = "MyType",
             targetDirective = "foo",
             directiveMap = mapOf("foo" to listOf(directive)),
-            fieldMap = mapOf("bar" to graphqlField1, "baz" to graphqlField2),
-            extendedType = false
+            fieldMap = mapOf("bar" to graphqlField1, "baz" to graphqlField2)
         )
 
         assertTrue(validationErrors.isEmpty())
+    }
+
+    @Test
+    fun `if directive specifies malformed field set, throws an error`() {
+        val directive: GraphQLAppliedDirective = mockk {
+            every { name } returns "foo"
+            every { getArgument(eq("fields")) } returns mockk {
+                every { argumentValue.value } returns mockk<FieldSet> {
+                    every { value } returns "bar } foo {"
+                }
+            }
+        }
+
+        val exception = assertThrows<InvalidFederatedSchema> {
+            validateDirective(
+                validatedType = "",
+                targetDirective = "foo",
+                directiveMap = mapOf("foo" to listOf(directive)),
+                fieldMap = emptyMap()
+            )
+        }
+        assertEquals(
+            expected = "Invalid federated schema:\n - @foo(fields = \"bar } foo {\") directive on  specifies malformed field set: bar } foo {",
+            actual = exception.message
+        )
     }
 }

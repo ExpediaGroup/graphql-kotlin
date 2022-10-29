@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.data.integration.requires.success._1
+package com.expediagroup.graphql.generator.federation.data.integration.provides.failure._2
 
-import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
-import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
-import kotlin.properties.Delegates
+import com.expediagroup.graphql.generator.federation.directives.ProvidesDirective
+import io.mockk.mockk
 
 /*
-# example of proper usage of @requires directive - @requires external field
-type SimpleRequires @key(fields : "id") {
+# example of invalid usage of @provides directive - @provides applied on a scalar return type
+type ProvidesNonExistentField @key(fields : "id") {
   description: String!
   id: String!
-  shippingCost: String! @requires(fields : "weight")
-  weight: Float! @external
+  provided: String! @provides(fields : "description")
 }
  */
 @KeyDirective(fields = FieldSet("id"))
-class SimpleRequires(val id: String, val description: String) {
-    @ExternalDirective
-    var weight: Double by Delegates.notNull()
+class ProvidesNotObject(val id: String, val description: String) {
 
-    @RequiresDirective(FieldSet("weight"))
-    fun shippingCost(): String = "$${weight * 9.99}"
+    @ProvidesDirective(fields = FieldSet("description"))
+    fun provided(): String = mockk()
+}
+
+class ProvidesNotObjectQuery {
+    fun providesQuery(): ProvidesNotObject = mockk()
 }

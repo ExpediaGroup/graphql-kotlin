@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
 
 package com.expediagroup.graphql.generator.federation.data.integration.requires.failure._1
 
-import com.expediagroup.graphql.generator.federation.directives.ExtendsDirective
-import com.expediagroup.graphql.generator.federation.directives.ExternalDirective
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import com.expediagroup.graphql.generator.federation.directives.RequiresDirective
 
 /*
 # example of invalid usage of @requires directive when it references local field
-type RequiresLocalField @extends @key(fields : "id") {
+type RequiresLocalField @key(fields : "id") {
   description: String!
-  id: String! @external
+  id: String!
   shippingCost: String! @requires(fields : "weight")
   weight: Float!
 }
  */
 @KeyDirective(fields = FieldSet("id"))
-@ExtendsDirective
-class RequiresLocalField(@ExternalDirective val id: String, val description: String) {
+class RequiresLocalField(val id: String, val description: String) {
 
     var weight: Double = 0.0
 

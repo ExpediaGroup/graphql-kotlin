@@ -18,11 +18,13 @@ package com.expediagroup.graphql.generator.federation.validation
 
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE_V2
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.externalDirective
 import com.expediagroup.graphql.generator.federation.getKeyDirective
+import com.expediagroup.graphql.generator.federation.types.FIELD_SET_ARGUMENT
 import graphql.Scalars.GraphQLString
 import graphql.schema.GraphQLAppliedDirective
 import graphql.schema.GraphQLFieldDefinition
@@ -73,29 +75,17 @@ class FederatedSchemaValidatorTest {
     fun `validate federated GraphQLObjectType with no fields`() {
         val typeToValidate = GraphQLObjectType.newObject()
             .name("Foo")
-            .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
-            .build()
-
-        assertFailsWith<InvalidFederatedSchema> {
-            FederatedSchemaValidator().validateGraphQLType(typeToValidate)
-        }
-    }
-
-    /**
-     * type Foo @extends {
-     *   bar: String
-     * }
-     */
-    @Test
-    fun `validate federated GraphQLObjectType with no key directive`() {
-        val field = GraphQLFieldDefinition.newFieldDefinition()
-            .name("bar")
-            .type(GraphQLString)
-
-        val typeToValidate = GraphQLObjectType.newObject()
-            .name("Foo")
-            .field(field)
-            .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
+            .withAppliedDirective(
+                KEY_DIRECTIVE_TYPE_V2.toAppliedDirective()
+                    .transform { directive ->
+                        directive.argument(
+                            FIELD_SET_ARGUMENT.toAppliedArgument()
+                                .transform { argument ->
+                                    argument.valueProgrammatic("foo")
+                                }
+                        )
+                    }
+            )
             .build()
 
         assertFailsWith<InvalidFederatedSchema> {

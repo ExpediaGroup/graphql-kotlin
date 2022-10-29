@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.generator.federation.validation
+package com.expediagroup.graphql.generator.federation.data.integration.key.failure._01
 
-/**
- * Internal class to represent all the extracted info
- * about a directive that we are validating for federation.
+import com.expediagroup.graphql.generator.federation.directives.FieldSet
+import com.expediagroup.graphql.generator.federation.directives.KeyDirective
+import io.mockk.mockk
+
+/*
+# example invalid usage of @key directive - does not specify any fields
+type EmptySelectionSet @key(fields : "") {
+  description: String!
+  id: String!
+}
  */
-internal data class DirectiveInfo(
-    val directiveName: String,
-    val fieldSet: String,
-    val typeName: String
-) {
-    private val formattedString: String by lazy {
-        "@$directiveName(fields = \"$fieldSet\") directive on $typeName"
-    }
+@KeyDirective(FieldSet(""))
+data class EmptySelectionSet(val id: String, val description: String)
 
-    override fun toString(): String {
-        return formattedString
-    }
+class EmptySelectionSetQuery {
+    fun keyQuery(): EmptySelectionSet = mockk()
 }
