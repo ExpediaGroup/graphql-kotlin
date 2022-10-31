@@ -36,7 +36,7 @@ class GenerateSDLMojoTest {
         assertTrue(schemaFile.exists(), "schema file was generated")
 
         val expectedSchema = """
-            schema {
+            schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
               query: Query
             }
 
@@ -52,6 +52,9 @@ class GenerateSDLMojoTest {
             "Marks target field as external meaning it will be resolved by federated schema"
             directive @external on FIELD_DEFINITION
 
+            "Marks location within schema as inaccessible from the GraphQL Gateway"
+            directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
                 "Included when true."
@@ -59,13 +62,22 @@ class GenerateSDLMojoTest {
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+            directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
+
+            "Links definitions within the document to external schemas."
+            directive @link(import: [String], url: String) repeatable on SCHEMA
+
+            "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
+            directive @override(from: String!) on FIELD_DEFINITION
 
             "Specifies the base type field set that will be selectable by the gateway"
-            directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+            directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 
             "Specifies required input field set from the base type for a resolver"
-            directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+            directive @requires(fields: FieldSet!) on FIELD_DEFINITION
+
+            "Indicates that given object and/or field can be resolved by multiple subgraphs"
+            directive @shareable on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
@@ -79,6 +91,9 @@ class GenerateSDLMojoTest {
                 url: String!
               ) on SCALAR
 
+            "Allows users to annotate fields and types with additional metadata information"
+            directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
             type Query @extends {
               _service: _Service!
               helloWorld(name: String): String!
@@ -89,7 +104,7 @@ class GenerateSDLMojoTest {
             }
 
             "Federation type representing set of fields"
-            scalar _FieldSet
+            scalar FieldSet
         """.trimIndent()
         assertEquals(expectedSchema, schemaFile.readText().trim())
     }
