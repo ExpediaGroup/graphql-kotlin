@@ -142,6 +142,19 @@ graphql {
         // Read timeout in milliseconds
         read = 15_000
     }
+    // Override options that GraphQL Java uses when parsing GraphQL queries and schema definition language documents.
+    parserOptions {
+        // Override the maximum number of tokens read to prevent processing extremely large queries.
+        maxTokens = 15000
+        // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
+        maxWhitespaceTokens = 200000
+        // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
+        captureLineComments = false
+        // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
+        captureIgnoredChars = false
+        // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
+        captureSourceLocation = true
+    }
     // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
     useOptionalInputWrapper = false
   }
@@ -187,6 +200,19 @@ graphql {
             // Connect timeout in milliseconds
             t.connect = 5000
             t.read = 15000
+        }
+        // Override options that GraphQL Java uses when parsing GraphQL queries and schema definition language documents.
+        parserOptions { options ->
+            // Override the maximum number of tokens read to prevent processing extremely large queries.
+            options.maxTokens = 15000
+            // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
+            options.maxWhitespaceTokens = 200000
+            // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
+            options.captureLineComments = false
+            // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
+            options.captureIgnoredChars = false
+            // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
+            options.captureSourceLocation = true
         }
         // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
         useOptionalInputWrapper = false
@@ -263,6 +289,7 @@ resulting generated code will be automatically added to the project main source 
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
+| `parserOptions` | GraphQLParserOptions | | Configures the settings used when parsing GraphQL queries and schema definition language documents. |
 
 By default, this task will generate Jackson compatible data models. See [client serialization documentation](../client/client-serialization.mdx)
 for details on how to update this process to use `kotlinx.serialization` instead.
@@ -312,6 +339,7 @@ test source set.
 | `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
 | `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
+| `parserOptions` | GraphQLParserOptions | | Configures the settings used when parsing GraphQL queries and schema definition language documents. |
 
 By default, this task will generate Jackson compatible data models. See [client serialization documentation](../client/client-serialization.mdx)
 for details on how to update this process to use `kotlinx.serialization` instead.

@@ -78,6 +78,13 @@
                         <configuration>
                             <packageName>com.expediagroup.graphql.plugin.generated</packageName>
                             <schemaFile>schema.graphql</schemaFile>
+                            <parserOptions>
+                                <maxTokens>15000</maxTokens>
+                                <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+                                <captureIgnoredChars>false</captureIgnoredChars>
+                                <captureLineComments>false</captureLineComments>
+                                <captureSourceLocation>true</captureSourceLocation>
+                            </parserOptions>
                         </configuration>
                     </execution>
                 </executions>

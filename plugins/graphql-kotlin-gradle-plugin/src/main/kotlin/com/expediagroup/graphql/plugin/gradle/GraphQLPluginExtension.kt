@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle
 
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLParserOptions
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
@@ -83,6 +84,17 @@ open class GraphQLPluginClientExtension {
 
     fun timeout(action: Action<TimeoutConfiguration>) {
         action.execute(timeoutConfig)
+    }
+
+    /** Configure options for parsing GraphQL queries and schema definition language documents. */
+    internal val parserOptions: GraphQLParserOptions = GraphQLParserOptions()
+
+    /**
+     * Configure options for parsing GraphQL queries and schema definition language documents. Settings
+     * here override the defaults set by GraphQL Java.
+     */
+    fun parserOptions(action: Action<GraphQLParserOptions>) {
+        action.execute(parserOptions)
     }
 }
 

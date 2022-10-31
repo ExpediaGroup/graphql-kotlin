@@ -33,6 +33,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.ObjectTypeDefinition
 import graphql.language.OperationDefinition
 import graphql.parser.Parser
+import graphql.parser.ParserOptions
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
 import kotlinx.serialization.Required
@@ -53,6 +54,7 @@ class GraphQLClientGenerator(
     private val sharedTypes: MutableMap<ClassName, List<TypeSpec>> = mutableMapOf()
     private var generateOptionalSerializer: Boolean = false
     private val graphQLSchema: TypeDefinitionRegistry
+    private val parserOptions: ParserOptions = ParserOptions.newParserOptions().also { this.config.parserOptions(it) }.build()
 
     init {
         graphQLSchema = parseSchema(schemaPath)
@@ -92,7 +94,7 @@ class GraphQLClientGenerator(
      */
     internal fun generate(queryFile: File): List<FileSpec> {
         val queryConst = queryFile.readText().trim()
-        val queryDocument = documentParser.parseDocument(queryConst)
+        val queryDocument = documentParser.parseDocument(queryConst, parserOptions)
 
         val operationDefinitions = queryDocument.definitions.filterIsInstance(OperationDefinition::class.java)
         if (operationDefinitions.size > 1) {
