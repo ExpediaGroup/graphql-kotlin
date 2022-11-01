@@ -69,7 +69,7 @@ import kotlin.reflect.full.findAnnotation
  */
 open class FederatedSchemaGeneratorHooks(
     private val resolvers: List<FederatedTypeResolver>,
-    private val optInFederationV2: Boolean = false
+    private val optInFederationV2: Boolean = true
 ) : SchemaGeneratorHooks {
     private val validator = FederatedSchemaValidator()
 

@@ -135,7 +135,7 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.federated.v1"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList())
+            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false)
         )
 
         val schema = toFederatedSchema(config = config)
@@ -212,7 +212,7 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList())
+            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false)
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(SimpleQuery())))
@@ -248,7 +248,7 @@ class FederatedSchemaGeneratorTest {
 
         val config = FederatedSchemaGeneratorConfig(
             supportedPackages = listOf("com.expediagroup.graphql.generator.federation.data.queries.simple"),
-            hooks = FederatedSchemaGeneratorHooks(emptyList())
+            hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = false)
         )
 
         val schema = toFederatedSchema(config, listOf(TopLevelObject(NestedQuery())))
