@@ -31,9 +31,11 @@ import graphql.schema.GraphQLArgument
  * directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
  * ```
  *
- * The @key directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. Key directive should be specified on the root entity type as
- * well as all the corresponding federated (i.e. extended) types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL interface/object.
- * Federated extended types should also instrument all the referenced key fields with @external directive.
+ * The `@key` directive is used to indicate a combination of fields that can be used to uniquely identify and fetch an object or interface. The specified field set can represent single field (e.g. `"id"`),
+ * multiple fields (e.g. `"id name"`) or nested selection sets (e.g. `"id user { name }"`). Multiple keys can be specified on a target type.
+ *
+ * Key directives should be specified on all entities (objects that can resolve its fields across multiple subgraphs). Key fields specified in the directive field set should correspond to a valid field
+ * on the underlying GraphQL interface/object.
  *
  * Example:
  * Given following entity type definition

@@ -25,14 +25,15 @@ import graphql.introspection.Introspection.DirectiveLocation
  * directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
  * ```
  *
- * The @provides directive is used to annotate the expected returned fieldset from a field on a base type that is guaranteed to be selectable by the gateway. This allows you to expose only a subset
- * of fields from the underlying federated object type to be selectable from the federated schema without the need to call other subgraphs. Provided fields specified in the directive field set should
- * correspond to a valid field on the underlying GraphQL interface/object type. @provides directive can only be used on fields returning federated extended objects.
+ * The `@provides` directive is a router optimization hint specifying field set that can be resolved locally at the given subgraph through this particular query path. This allows you to expose only a
+ * subset of fields from the underlying entity type to be selectable from the federated schema without the need to call other subgraphs. Provided fields specified in the directive field set should
+ * correspond to a valid field on the underlying GraphQL interface/object type. `@provides` directive can only be used on fields returning entities.
+ *
+ * >NOTE: Federation v2 does not require `@provides` directive if field can **always** be resolved locally. `@provides` should be omitted in this situation.
  *
  * Example 1:
  * We might want to expose only name of the user that submitted a review.
  *
- * >NOTE: Due to the smart entity type merging, Federation v2 does not require `@provides` directive if field can always be resolved locally.
  *
  * ```kotlin
  * @KeyDirective(FieldSet("id"))

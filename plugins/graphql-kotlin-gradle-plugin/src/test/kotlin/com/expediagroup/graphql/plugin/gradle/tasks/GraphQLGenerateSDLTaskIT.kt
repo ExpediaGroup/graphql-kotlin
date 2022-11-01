@@ -94,7 +94,7 @@ internal val FEDERATED_SCHEMA =
     directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
 
     "Links definitions within the document to external schemas."
-    directive @link(import: [String], url: String) repeatable on SCHEMA
+    directive @link(import: [String], url: String!) repeatable on SCHEMA
 
     "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
     directive @override(from: String!) on FIELD_DEFINITION

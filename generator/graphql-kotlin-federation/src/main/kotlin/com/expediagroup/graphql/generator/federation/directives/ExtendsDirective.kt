@@ -20,6 +20,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import graphql.introspection.Introspection.DirectiveLocation
 
 /**
+ * **`@extends` directive is deprecated**. Federation v2 no longer requires `@extends` directive due to the smart entity type
+ * merging. All usage of `@extends` directive should be removed from your Federation v2 schemas.
+ *
  * ```graphql
  * directive @extends on OBJECT | INTERFACE
  * ```

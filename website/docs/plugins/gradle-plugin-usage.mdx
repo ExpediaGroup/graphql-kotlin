@@ -335,7 +335,7 @@ Separate class is generated for each provided GraphQL query and are saved under 
 
 ```kotlin
 // build.gradle.kts
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateTestClientTask
 
 val graphqlGenerateTestClient by tasks.getting(GraphQLGenerateTestClientTask::class) {
   packageName.set("com.example.generated")

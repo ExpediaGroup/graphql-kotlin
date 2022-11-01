@@ -25,16 +25,15 @@ import graphql.introspection.Introspection.DirectiveLocation
  * directive @requires(fields: _FieldSet!) on FIELD_DEFINITON
  * ```
  *
- * The @requires directive is used to annotate the required input field set from a base type for a resolver. It is used to develop a query plan where the required fields may not be needed by the
- * client, but the service may need additional information from other services. Required fields specified in the directive field set should correspond to a valid field on the underlying GraphQL
- * interface/object and should be instrumented with @external directive. Since @requires directive specifies additional fields (besides the one specified in @key directive) that are required to
- * resolve federated type fields, this directive can only be specified on federated extended objects fields.
+ * The `@requires` directive is used to specify external (provided by other subgraphs) entity fields that are needed to resolve target field. It is used to develop a query plan where
+ * the required fields may not be needed by the client, but the service may need additional information from other subgraphs. Required fields specified in the directive field set should
+ * correspond to a valid field on the underlying GraphQL interface/object and should be instrumented with `@external` directive.
  *
- * NOTE: fields specified in the @requires directive will only be specified in the queries that reference those fields. This is problematic for Kotlin as the non nullable primitive properties have
- * to be initialized when they are declared. Simplest workaround for this problem is to initialize the underlying property to some dummy value that will be used if it is not specified. This approach
- * might become problematic though as it might be impossible to determine whether fields was initialized with the default value or the invalid/default value was provided by the federated query.
- * Another potential workaround is to rely on delegation to initialize the property after the object gets created. This will ensure that exception will be thrown if queries attempt to resolve fields
- * that reference the uninitialized property.
+ * Fields specified in the `@requires` directive will only be specified in the queries that reference those fields. This is problematic for Kotlin as the non-nullable primitive properties
+ * have to be initialized when they are declared. Simplest workaround for this problem is to initialize the underlying property to some default value (e.g. null) that will be used if
+ * it is not specified. This approach might become problematic though as it might be impossible to determine whether fields was initialized with the default value or the invalid/default
+ * value was provided by the federated query. Another potential workaround is to rely on delegation to initialize the property after the object gets created. This will ensure that exception
+ * will be thrown if queries attempt to resolve fields that reference the uninitialized property.
  *
  * Example:
  * Given
