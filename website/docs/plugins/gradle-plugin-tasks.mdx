@@ -207,12 +207,12 @@ graphql {
             options.maxTokens = 15000
             // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
             options.maxWhitespaceTokens = 200000
-            // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
-            options.captureLineComments = false
             // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
             options.captureIgnoredChars = false
             // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
             options.captureSourceLocation = true
+            // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
+            options.captureLineComments = true
         }
         // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
         useOptionalInputWrapper = false
@@ -279,20 +279,40 @@ resulting generated code will be automatically added to the project main source 
 
 **Properties**
 
-| Property | Type | Required | Description |
-| -------- | ---- | -------- | ----------- |
-| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
-| `customScalars` | `List<GraphQLScalar>` | | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
-| `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
-| `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
-| `queryFileDirectory` | Directory | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`. |
-| `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
-| `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
-| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
-| `parserOptions` | GraphQLParserOptions | | Configures the settings used when parsing GraphQL queries and schema definition language documents. |
+| Property                  | Type                  | Required | Description                                                                                                                                                                                                                              |
+|---------------------------|-----------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `allowDeprecatedFields`   | Boolean               |          | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`.                                                          |
+| `customScalars`           | `List<GraphQLScalar>` |          | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.                                                              |
+| `packageName`             | String                | yes      | Target package name for generated code.<br/>**Command line property is**: `packageName`.                                                                                                                                                 |
+| `parserOptions`           | GraphQLParserOptions  |          | Configures the settings used when parsing GraphQL queries and schema definition language documents.                                                                                                                                      |
+| `queryFiles`              | FileCollection        |          | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
+| `queryFileDirectory`      | Directory             |          | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`.                             |
+| `schemaFile`              | File                  | yes      | GraphQL schema file that will be used to generate client code.                                                                                                                                                                           |
+| `serializer`              | GraphQLSerializer     |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                   |
+| `useOptionalInputWrapper` | Boolean               |          | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper`            |
 
 By default, this task will generate Jackson compatible data models. See [client serialization documentation](../client/client-serialization.mdx)
 for details on how to update this process to use `kotlinx.serialization` instead.
+
+**Parameter Details**
+
+  * *parserOptions* - Configure options for parsing GraphQL queries and schema definition language documents. Settings here override the defaults set by GraphQL Java.
+
+  ```kotlin
+    // Override options that GraphQL Java uses when parsing GraphQL queries and schema definition language documents.
+    parserOptions {
+        // Override the maximum number of tokens read to prevent processing extremely large queries.
+        maxTokens = 15000
+        // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
+        maxWhitespaceTokens = 200000
+        // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
+        captureIgnoredChars = false
+        // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
+        captureSourceLocation = true
+        // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
+        captureLineComments = true
+    }
+  ```
 
 ### graphqlGenerateSDL
 
@@ -329,20 +349,40 @@ test source set.
 
 **Properties**
 
-| Property | Type | Required | Description |
-| -------- | ---- | -------- | ----------- |
-| `allowDeprecatedFields` | Boolean | | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`. |
-| `customScalars` | `List<GraphQLScalar>` | | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values. |
-| `packageName` | String | yes | Target package name for generated code.<br/>**Command line property is**: `packageName`. |
-| `queryFiles` | FileCollection | | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
-| `queryFileDirectory` | Directory | | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`. |
-| `serializer` | GraphQLSerializer | | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`. |
-| `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
-| `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
-| `parserOptions` | GraphQLParserOptions | | Configures the settings used when parsing GraphQL queries and schema definition language documents. |
+| Property                  | Type                  | Required | Description                                                                                                                                                                                                                              |
+|---------------------------|-----------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `allowDeprecatedFields`   | Boolean               |          | Boolean flag indicating whether selection of deprecated fields is allowed or not.<br/>**Default value is:** `false`.<br/>**Command line property is**: `allowDeprecatedFields`.                                                          |
+| `customScalars`           | `List<GraphQLScalar>` |          | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.                                                              |
+| `packageName`             | String                | yes      | Target package name for generated code.<br/>**Command line property is**: `packageName`.                                                                                                                                                 |
+| `parserOptions`           | GraphQLParserOptions  |          | Configures the settings used when parsing GraphQL queries and schema definition language documents.                                                                                                                                      |
+| `queryFiles`              | FileCollection        |          | List of query files to be processed. Instead of a list of files to be processed you can specify `queryFileDirectory` directory instead. If this property is specified it will take precedence over the corresponding directory property. |
+| `queryFileDirectory`      | Directory             |          | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/test/resources`.                             |
+| `schemaFile`              | File                  | yes      | GraphQL schema file that will be used to generate client code.                                                                                                                                                                           |
+| `serializer`              | GraphQLSerializer     |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                   |
+| `useOptionalInputWrapper` | Boolean               |          | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper`            |
 
 By default, this task will generate Jackson compatible data models. See [client serialization documentation](../client/client-serialization.mdx)
 for details on how to update this process to use `kotlinx.serialization` instead.
+
+**Parameter Details**
+
+  * *parserOptions* - Configure options for parsing GraphQL queries and schema definition language documents. Settings here override the defaults set by GraphQL Java.
+
+  ```kotlin
+    // Override options that GraphQL Java uses when parsing GraphQL queries and schema definition language documents.
+    parserOptions {
+        // Override the maximum number of tokens read to prevent processing extremely large queries.
+        maxTokens = 15000
+        // Override the maximum number of whitespace tokens read to prevent processing extremely large queries.
+        maxWhitespaceTokens = 200000
+        // Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing.
+        captureIgnoredChars = false
+        // Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing.
+        captureSourceLocation = true
+        // Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored
+        captureLineComments = true
+    }
+  ```
 
 ### graphqlIntrospectSchema
 

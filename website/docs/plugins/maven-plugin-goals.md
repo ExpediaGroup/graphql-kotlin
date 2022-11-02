@@ -68,12 +68,12 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 | `customScalars`           | `List<CustomScalar>` |          | List of custom GraphQL scalar to converter mappings containing information about corresponding Java type and converter that should be used to serialize/deserialize values.                                                                                    |
 | `outputDirectory`         | File                 |          | Target directory where to store generated files.<br/>**Default value is**: `${project.build.directory}/generated-sources/graphql`                                                                                                                              |
 | `packageName`             | String               | yes      | Target package name for generated code.<br/>**User property is**: `graphql.packageName`.                                                                                                                                                                       |
+| `parserOptions`           | GraphQLParserOptions |          | Configures the settings used when parsing GraphQL queries and schema definition language documents.                                                                                                                                                            |
 | `queryFileDirectory`      | File                 |          | Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using `queryFiles` property instead.<br/>**Default value is:** `src/main/resources`.                                                   |
 | `queryFiles`              | `List<File>`         |          | List of query files to be processed. Instead of a list of files to be processed you can also specify `queryFileDirectory` directory containing all the files. If this property is specified it will take precedence over the corresponding directory property. |
-| `serializer`              | GraphQLSerializer    |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                                         |
 | `schemaFile`              | String               |          | GraphQL schema file that will be used to generate client code.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`.                                                                           |
+| `serializer`              | GraphQLSerializer    |          | JSON serializer that will be used to generate the data classes.<br/>**Default value is:** `GraphQLSerializer.JACKSON`.                                                                                                                                         |
 | `useOptionalInputWrapper` | Boolean              |          | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value.<br/>**Default value is:** `false`.<br/>**User property is**: `graphql.useOptionalInputWrapper`                                  |
-| `parserOptions`           | GraphQLParserOptions |          | Configures the settings used when parsing GraphQL queries and schema definition language documents.                                                                                                                                                            |
 
 **Parameter Details**
 
@@ -104,7 +104,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
         <!-- Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing -->
         <captureIgnoredChars>false</captureIgnoredChars>
         <!-- Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored -->
-        <captureLineComments>false</captureLineComments>
+        <captureLineComments>true</captureLineComments>
         <!-- Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing. -->
         <captureSourceLocation>true</captureSourceLocation>
     </parserOptions>
@@ -179,6 +179,23 @@ Generate GraphQL test client code based on the provided GraphQL schema and targe
 </customScalars>
 
 ```
+
+* *parserOptions* - Configure options for parsing GraphQL queries and schema definition language documents. Settings here override the defaults set by GraphQL Java.
+
+  ```xml
+    <parserOptions>
+        <!-- Modify the maximum number of tokens read to prevent processing extremely large queries -->
+        <maxTokens>15000</maxTokens>
+        <!-- Modify the maximum number of whitespace tokens read to prevent processing extremely large queries -->
+        <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+        <!-- Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing -->
+        <captureIgnoredChars>false</captureIgnoredChars>
+        <!-- Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored -->
+        <captureLineComments>true</captureLineComments>
+        <!-- Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing. -->
+        <captureSourceLocation>true</captureSourceLocation>
+    </parserOptions>
+  ```
 
 ### introspect-schema
 
