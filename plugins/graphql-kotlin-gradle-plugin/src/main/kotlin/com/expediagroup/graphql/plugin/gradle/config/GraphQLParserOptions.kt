@@ -8,13 +8,13 @@ import java.io.Serializable
  */
 data class GraphQLParserOptions(
     /** Modify the maximum number of tokens read to prevent processing extremely large queries */
-    var maxTokens: Int? = 15000,
+    var maxTokens: Int? = null,
     /** Modify the maximum number of whitespace tokens read to prevent processing extremely large queries */
-    var maxWhitespaceTokens: Int? = 200000,
+    var maxWhitespaceTokens: Int? = null,
     /** Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing. */
-    var captureIgnoredChars: Boolean? = false,
+    var captureIgnoredChars: Boolean? = null,
     /** Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored */
-    var captureLineComments: Boolean? = true,
+    var captureLineComments: Boolean? = null,
     /** Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing. */
-    var captureSourceLocation: Boolean? = true
+    var captureSourceLocation: Boolean? = null
 ) : Serializable

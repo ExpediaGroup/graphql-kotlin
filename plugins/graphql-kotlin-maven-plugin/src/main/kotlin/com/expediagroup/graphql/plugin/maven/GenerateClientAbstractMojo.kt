@@ -88,7 +88,7 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
      * ```
      */
     @Parameter(name = "parserOptions")
-    private var parserOptions: ParserOptions? = ParserOptions()
+    private var parserOptions: ParserOptions? = null
 
     /**
      * Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using
@@ -218,21 +218,21 @@ class CustomScalar {
 class ParserOptions {
     /** Modify the maximum number of tokens read to prevent processing extremely large queries */
     @Parameter
-    var maxTokens: Int? = 15000
+    var maxTokens: Int? = null
 
     /** Modify the maximum number of whitespace tokens read to prevent processing extremely large queries */
     @Parameter
-    var maxWhitespaceTokens: Int? = 200000
+    var maxWhitespaceTokens: Int? = null
 
     /** Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing. */
     @Parameter
-    var captureIgnoredChars: Boolean? = false
+    var captureIgnoredChars: Boolean? = null
 
     /** Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored */
     @Parameter
-    var captureLineComments: Boolean? = true
+    var captureLineComments: Boolean? = null
 
     /** Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing. */
     @Parameter
-    var captureSourceLocation: Boolean? = true
+    var captureSourceLocation: Boolean? = null
 }
