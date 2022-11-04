@@ -39,8 +39,24 @@ abstract class GenerateClientAction : WorkAction<GenerateClientParameters> {
         val queryFiles = parameters.queryFiles.get()
         val targetDirectory = parameters.targetDirectory.get()
         val useOptionalInputWrapper = parameters.useOptionalInputWrapper.get()
+        val parserOptions = parameters.parserOptions.get()
 
-        generateClient(targetPackage, allowDeprecated, customScalarMap, serializer, schemaPath, queryFiles, useOptionalInputWrapper).forEach {
+        generateClient(
+            targetPackage,
+            allowDeprecated,
+            customScalarMap,
+            serializer,
+            schemaPath,
+            queryFiles,
+            useOptionalInputWrapper,
+            parserOptions = {
+                parserOptions.maxTokens?.let { maxTokens(it) }
+                parserOptions.maxWhitespaceTokens?.let { maxWhitespaceTokens(it) }
+                parserOptions.captureIgnoredChars?.let { captureIgnoredChars(it) }
+                parserOptions.captureSourceLocation?.let { captureSourceLocation(it) }
+                parserOptions.captureLineComments?.let { captureLineComments(it) }
+            }
+        ).forEach {
             it.writeTo(targetDirectory)
         }
     }
