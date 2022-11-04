@@ -20,6 +20,7 @@ import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.genera
 import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.generateServiceSDLV2
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
+import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL
@@ -88,6 +89,7 @@ open class FederatedSchemaGeneratorHooks(
         REQUIRES_DIRECTIVE_TYPE
     )
     private val federatedDirectiveV2List: List<GraphQLDirective> = listOf(
+        COMPOSE_DIRECTIVE_TYPE,
         EXTENDS_DIRECTIVE_TYPE,
         EXTERNAL_DIRECTIVE_TYPE,
         INACCESSIBLE_DIRECTIVE_TYPE,
@@ -127,6 +129,8 @@ open class FederatedSchemaGeneratorHooks(
     private fun willGenerateFederatedDirectiveV2(directiveInfo: DirectiveMetaInformation) =
         if (KEY_DIRECTIVE_NAME == directiveInfo.effectiveName) {
             KEY_DIRECTIVE_TYPE_V2
+        } else if (LINK_DIRECTIVE_NAME == directiveInfo.effectiveName) {
+            LINK_DIRECTIVE_TYPE
         } else {
             super.willGenerateDirective(directiveInfo)
         }

@@ -30,9 +30,12 @@ class FederatedSchemaV2GeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
               query: Query
             }
+
+            "Marks underlying custom directive to be included in the Supergraph schema"
+            directive @composeDirective(name: String!) repeatable on SCHEMA
 
             directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
