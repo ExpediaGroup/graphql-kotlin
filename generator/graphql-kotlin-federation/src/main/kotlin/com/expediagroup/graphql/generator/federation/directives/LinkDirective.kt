@@ -21,13 +21,14 @@ import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNonNull
 
 const val LINK_SPEC_URL = "https://specs.apollo.dev/link/v1.0/"
 const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.0"
 
 /**
  * ```graphql
- * directive @link(url: String, import: [Import]) repeatable on SCHEMA
+ * directive @link(url: String!, import: [Import]) repeatable on SCHEMA
  * ```
  *
  * The `@link` directive links definitions within the document to external schemas.
@@ -62,7 +63,7 @@ internal val LINK_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.sche
     .argument(
         GraphQLArgument.newArgument()
             .name("url")
-            .type(Scalars.GraphQLString)
+            .type(GraphQLNonNull.nonNull(Scalars.GraphQLString))
     )
     .argument(
         GraphQLArgument

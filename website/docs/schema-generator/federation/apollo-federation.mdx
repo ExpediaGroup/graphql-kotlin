@@ -127,7 +127,7 @@ directive @extends on OBJECT | INTERFACE
 directive @external on FIELD_DEFINITION
 directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
-directive @link(import: [String], url: String) repeatable on SCHEMA
+directive @link(import: [String], url: String!) repeatable on SCHEMA
 directive @override(from: String!) on FIELD_DEFINITION
 directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION

@@ -33,7 +33,9 @@ import graphql.introspection.Introspection.DirectiveLocation
  *     | ARGUMENT_DEFINITION
  * ```
  *
- * Inaccessible directive marks location within schema as inaccessible from the GraphQL Gateway. This allows you to incrementally add schema elements (e.g. fields) to multiple subgraphs without breaking composition.
+ * Inaccessible directive marks location within schema as inaccessible from the GraphQL Gateway. While `@inaccessible` fields are not exposed by the gateway to the clients, they are still available for
+ * query plans and can be referenced from `@key` and `@requires` directives. This allows you to not expose sensitive fields to your clients but still make them available for computations. Inaccessible
+ * can also be used to incrementally add schema elements (e.g. fields) to multiple subgraphs without breaking composition.
  *
  * > NOTE: Location within schema will be inaccessible from the GraphQL Gateway as long as **any** of the subgraphs marks that location as `@inacessible`.
  *

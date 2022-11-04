@@ -27,25 +27,29 @@ import graphql.introspection.Introspection.DirectiveLocation
  * The @external directive is used to mark a field as owned by another service. This allows service A to use fields from service B while also knowing at runtime the types of that field. @external
  * directive is only applicable on federated extended types. All the external fields should either be referenced from the @key, @requires or @provides directives field sets.
  *
- * Due to the smart merging of entity types, `@external` directive is no longer required on `@key` fields and can be omitted from the schema. `@external` directive is only required on fields
- * referenced by the `@requires` and `@provides` directive.
+ * Due to the smart merging of entity types, Federation v2 no longer requires `@external` directive on `@key` fields and can be safely omitted from the schema. `@external` directive is only required
+ * on fields referenced by the `@requires` and `@provides` directive.
  *
  * Example:
  * Given
  *
  * ```kotlin
  * @KeyDirective(FieldSet("id"))
- * @ExtendsDirective
- * class Product(@ExternalDirective val id: String) {
- *   fun newFunctionality(): String = "whatever"
+ * class Product(val id: String) {
+ *   @ExternalDirective
+ *   var externalField: String by Delegates.notNull()
+ *
+ *   @RequiresDirective(FieldSet("externalField"))
+ *   fun newFunctionality(): String { ... }
  * }
  * ```
  *
  * should generate
  *
  * ```graphql
- * type Product @extends @key(fields : "id") {
- *   id: String! @external
+ * type Product @key(fields : "id") {
+ *   externalField: String! @external
+ *   id: String!
  *   newFunctionality: String!
  * }
  * ```
