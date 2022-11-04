@@ -74,6 +74,23 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
     private var customScalars: List<CustomScalar> = mutableListOf()
 
     /**
+     * Configure options for parsing GraphQL queries and schema definition language documents. Settings
+     * here override the defaults set by GraphQL Java.
+     *
+     * ```xml
+     * <parserOptions>
+     *     <maxTokens>15000</maxTokens>
+     *     <maxWhitespaceTokens>200000</maxWhitespaceTokens>
+     *     <captureIgnoredChars>false</captureIgnoredChars>
+     *     <captureLineComments>false</captureLineComments>
+     *     <captureSourceLocation>true</captureSourceLocation>
+     * </parserOptions>
+     * ```
+     */
+    @Parameter(name = "parserOptions")
+    private var parserOptions: ParserOptions? = null
+
+    /**
      * Directory file containing GraphQL queries. Instead of specifying a directory you can also specify list of query file by using
      * [queryFiles] property instead.
      */
@@ -116,7 +133,15 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
 
         logConfiguration(schemaPath, targetQueryFiles)
         val customGraphQLScalars = customScalars.map { GraphQLScalar(it.scalar, it.type, it.converter) }
-        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, schemaPath, targetQueryFiles, useOptionalInputWrapper).forEach {
+        generateClient(packageName, allowDeprecatedFields, customGraphQLScalars, serializer, schemaPath, targetQueryFiles, useOptionalInputWrapper, parserOptions = {
+            parserOptions?.apply {
+                maxTokens?.let { maxTokens(it) }
+                maxWhitespaceTokens?.let { maxWhitespaceTokens(it) }
+                captureIgnoredChars?.let { captureIgnoredChars(it) }
+                captureLineComments?.let { captureLineComments(it) }
+                captureSourceLocation?.let { captureSourceLocation(it) }
+            }
+        }).forEach {
             it.writeTo(outputDirectory)
         }
 
@@ -149,6 +174,14 @@ abstract class GenerateClientAbstractMojo : AbstractMojo() {
             log.debug("      |- kotlin type = ${converterInfo.type}")
             log.debug("      |- converter = ${converterInfo.converter}")
         }
+        parserOptions?.apply {
+            log.debug("  parserOptions")
+            maxTokens?.let { log.debug("    maxTokens = $it") }
+            maxWhitespaceTokens?.let { log.debug("    maxWhitespaceTokens = $it") }
+            captureIgnoredChars?.let { log.debug("    captureIgnoredChars = $it") }
+            captureLineComments?.let { log.debug("    captureLineComments = $it") }
+            captureSourceLocation?.let { log.debug("    captureSourceLocation = $it") }
+        }
         log.debug("")
         log.debug("-- end GraphQL Client generator configuration --")
     }
@@ -176,4 +209,30 @@ class CustomScalar {
     /** Fully qualified class name of a custom converter used to convert to/from raw JSON and [type] */
     @Parameter
     lateinit var converter: String
+}
+
+/**
+ * Configure options for parsing GraphQL queries and schema definition language documents. Settings
+ * here override the defaults set by GraphQL Java.
+ */
+class ParserOptions {
+    /** Modify the maximum number of tokens read to prevent processing extremely large queries */
+    @Parameter
+    var maxTokens: Int? = null
+
+    /** Modify the maximum number of whitespace tokens read to prevent processing extremely large queries */
+    @Parameter
+    var maxWhitespaceTokens: Int? = null
+
+    /** Memory usage is significantly reduced by not capturing ignored characters, especially in SDL parsing. */
+    @Parameter
+    var captureIgnoredChars: Boolean? = null
+
+    /** Single-line comments do not have any semantic meaning in GraphQL source documents and can be ignored */
+    @Parameter
+    var captureLineComments: Boolean? = null
+
+    /** Memory usage is reduced by not setting SourceLocations on AST nodes, especially in SDL parsing. */
+    @Parameter
+    var captureSourceLocation: Boolean? = null
 }

@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.client.generator
 
 import com.squareup.kotlinpoet.ClassName
+import graphql.parser.ParserOptions
 
 /**
  * GraphQL client generator configuration.
@@ -31,7 +32,9 @@ data class GraphQLClientGeneratorConfig(
     /** Type of JSON serializer to be used. */
     val serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     /** Explicit opt-in flag to enable support for optional inputs. */
-    val useOptionalInputWrapper: Boolean = false
+    val useOptionalInputWrapper: Boolean = false,
+    /** Set parser options for processing GraphQL queries and schema definition language documents */
+    val parserOptions: ParserOptions.Builder.() -> Unit = {}
 )
 
 /**

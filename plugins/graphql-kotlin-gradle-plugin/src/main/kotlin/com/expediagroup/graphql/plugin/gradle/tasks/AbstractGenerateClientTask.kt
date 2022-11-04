@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.gradle.actions.GenerateClientAction
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLParserOptions
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import org.gradle.api.DefaultTask
@@ -117,6 +118,10 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
     @Option(option = "useOptionalInputWrapper", description = "Opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined.")
     val useOptionalInputWrapper: Property<Boolean> = project.objects.property(Boolean::class.java)
 
+    @Input
+    @Optional
+    val parserOptions: Property<GraphQLParserOptions> = project.objects.property(GraphQLParserOptions::class.java)
+
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -131,6 +136,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         customScalars.convention(emptyList())
         serializer.convention(GraphQLSerializer.JACKSON)
         useOptionalInputWrapper.convention(false)
+        parserOptions.convention(GraphQLParserOptions())
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -177,6 +183,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
             parameters.queryFiles.set(targetQueryFiles)
             parameters.targetDirectory.set(targetDirectory)
             parameters.useOptionalInputWrapper.set(useOptionalInputWrapper)
+            parameters.parserOptions.set(parserOptions)
         }
         workQueue.await()
         logger.debug("successfully generated GraphQL HTTP client")
@@ -191,6 +198,7 @@ abstract class AbstractGenerateClientTask : DefaultTask() {
         }
         logger.debug("  packageName = $packageName")
         logger.debug("  allowDeprecatedFields = $allowDeprecatedFields")
+        logger.debug("  parserOptions = $parserOptions")
         logger.debug("  converters")
         customScalars.get().forEach { (customScalar, type, converter) ->
             logger.debug("    - custom scalar = $customScalar")

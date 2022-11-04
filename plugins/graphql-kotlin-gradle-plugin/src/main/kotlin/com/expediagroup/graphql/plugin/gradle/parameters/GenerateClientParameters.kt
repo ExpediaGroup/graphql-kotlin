@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle.parameters
 
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLParserOptions
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 import org.gradle.api.provider.ListProperty
@@ -44,4 +45,6 @@ interface GenerateClientParameters : WorkParameters {
     val targetDirectory: Property<File>
     /** Explicit opt-in flag to wrap nullable arguments in OptionalInput that supports both null and undefined values. */
     val useOptionalInputWrapper: Property<Boolean>
+    /** Set parser options for processing GraphQL queries and schema definition language documents */
+    val parserOptions: Property<GraphQLParserOptions>
 }

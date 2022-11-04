@@ -16,11 +16,12 @@
 
 package com.expediagroup.graphql.plugin.client
 
-import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGenerator
-import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
 import com.expediagroup.graphql.plugin.client.generator.GraphQLScalar
 import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGeneratorConfig
+import com.expediagroup.graphql.plugin.client.generator.GraphQLClientGenerator
 import com.squareup.kotlinpoet.FileSpec
+import graphql.parser.ParserOptions
 import java.io.File
 
 /**
@@ -33,7 +34,8 @@ fun generateClient(
     serializer: GraphQLSerializer = GraphQLSerializer.JACKSON,
     schemaPath: String,
     queries: List<File>,
-    useOptionalInputWrapper: Boolean = false
+    useOptionalInputWrapper: Boolean = false,
+    parserOptions: ParserOptions.Builder.() -> Unit = {}
 ): List<FileSpec> {
     val customScalars = customScalarsMap.associateBy { it.scalar }
     val config = GraphQLClientGeneratorConfig(
@@ -41,7 +43,8 @@ fun generateClient(
         allowDeprecated = allowDeprecated,
         customScalarMap = customScalars,
         serializer = serializer,
-        useOptionalInputWrapper = useOptionalInputWrapper
+        useOptionalInputWrapper = useOptionalInputWrapper,
+        parserOptions = parserOptions
     )
     val generator = GraphQLClientGenerator(schemaPath, config)
     return generator.generate(queries)
