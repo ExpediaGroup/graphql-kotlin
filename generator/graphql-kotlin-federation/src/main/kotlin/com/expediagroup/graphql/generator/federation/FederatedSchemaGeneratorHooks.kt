@@ -204,7 +204,11 @@ open class FederatedSchemaGeneratorHooks(
      */
     override fun didGenerateQueryObject(type: GraphQLObjectType): GraphQLObjectType = GraphQLObjectType.newObject(type)
         .field(SERVICE_FIELD_DEFINITION)
-        .withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
+        .also {
+            if (!optInFederationV2) {
+                it.withAppliedDirective(EXTENDS_DIRECTIVE_TYPE.toAppliedDirective())
+            }
+        }
         .build()
 
     /**

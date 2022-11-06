@@ -62,7 +62,7 @@ type Product @key(fields : "id") {
   id: Int!
 }
 
-type Query @extends {
+type Query {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service!
   product(id: Int!): Product
@@ -121,12 +121,12 @@ schema {
 
 union _Entity = Product
 
-type Product @extends @key(fields : "id") {
-  id: Int! @external
+type Product @key(fields : "id") {
+  id: Int!
   reviews: [Review!]!
 }
 
-type Query @extends {
+type Query {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service!
 }

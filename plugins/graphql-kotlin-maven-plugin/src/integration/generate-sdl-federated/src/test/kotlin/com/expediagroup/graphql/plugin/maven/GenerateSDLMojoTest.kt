@@ -94,7 +94,7 @@ class GenerateSDLMojoTest {
             "Allows users to annotate fields and types with additional metadata information"
             directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-            type Query @extends {
+            type Query {
               _service: _Service!
               helloWorld(name: String): String!
             }

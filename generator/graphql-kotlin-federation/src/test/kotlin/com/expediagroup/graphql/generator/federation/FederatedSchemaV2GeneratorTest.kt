@@ -116,7 +116,7 @@ class FederatedSchemaV2GeneratorTest {
               value: String!
             }
 
-            type Query @extends {
+            type Query {
               "Union of all types that use the @key directive, including both types native to the schema and extended types"
               _entities(representations: [_Any!]!): [_Entity]!
               _service: _Service!

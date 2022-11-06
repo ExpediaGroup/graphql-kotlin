@@ -120,7 +120,7 @@ directive @shareable on OBJECT | FIELD_DEFINITION
 "Allows users to annotate fields and types with additional metadata information"
 directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-type Query @extends {
+type Query {
   _service: _Service!
   getSimpleNestedObject: [SelfReferenceObject]!
   hello(name: String!): String!
@@ -204,7 +204,7 @@ type CustomScalar {
   value: String!
 }
 
-type Query @extends {
+type Query {
   "Union of all types that use the @key directive, including both types native to the schema and extended types"
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service!
