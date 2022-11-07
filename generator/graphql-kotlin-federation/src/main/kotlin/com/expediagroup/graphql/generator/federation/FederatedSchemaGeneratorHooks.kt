@@ -31,7 +31,6 @@ import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TY
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE_V2
 import com.expediagroup.graphql.generator.federation.directives.LINK_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.LINK_DIRECTIVE_TYPE
-import com.expediagroup.graphql.generator.federation.directives.LINK_SPEC_URL
 import com.expediagroup.graphql.generator.federation.directives.OVERRIDE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.OVERRIDE_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.PROVIDES_DIRECTIVE_TYPE
