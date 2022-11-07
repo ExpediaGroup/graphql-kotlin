@@ -1,0 +1,15 @@
+graphql:
+  federation:
+    enabled: true
+    tracing:
+      enabled: true
+      debug: true
+  packages:
+    - "com.expediagroup.graphql.examples.federation.products"
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: products-subgraph

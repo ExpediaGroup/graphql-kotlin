@@ -29,8 +29,8 @@ include(":client-examples:maven-client-example")
 include(":client-examples:server-client-example")
 
 // federation examples
-include(":base-app")
-include(":extend-app")
+include(":federation-products-subgraph")
+include(":federation-reviews-subgraph")
 
 // server examples
 include(":ktor-server")
@@ -42,8 +42,8 @@ project(":client-examples:gradle-client-example").projectDir = file("client/grad
 project(":client-examples:maven-client-example").projectDir = file("client/maven-client")
 project(":client-examples:server-client-example").projectDir = file("client/server")
 
-project(":base-app").projectDir = file("federation/base-app")
-project(":extend-app").projectDir = file("federation/extend-app")
+project(":federation-products-subgraph").projectDir = file("federation/products-subgraph")
+project(":federation-reviews-subgraph").projectDir = file("federation/reviews-subgraph")
 
 project(":spring-server").projectDir = file("server/spring-server")
 project(":ktor-server").projectDir = file("server/ktor-server")

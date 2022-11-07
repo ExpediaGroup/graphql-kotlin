@@ -1,7 +1,0 @@
-# Ignore file for the Node.js apollo gateway app
-
-/node_modules
-/build
-/logs
-*.log
-yarn.lock
