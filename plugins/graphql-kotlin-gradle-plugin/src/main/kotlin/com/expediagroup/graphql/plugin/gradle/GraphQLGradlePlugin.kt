@@ -93,6 +93,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
                 generateClientTask.queryFiles.setFrom(extension.clientExtension.queryFiles)
                 generateClientTask.serializer.convention(extension.clientExtension.serializer)
                 generateClientTask.useOptionalInputWrapper.convention(extension.clientExtension.useOptionalInputWrapper)
+                generateClientTask.parserOptions.convention(extension.clientExtension.parserOptions)
 
                 when {
                     extension.clientExtension.endpoint != null -> {
