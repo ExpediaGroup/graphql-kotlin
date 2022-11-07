@@ -135,11 +135,11 @@ open class FederatedSchemaGeneratorHooks(private val resolvers: List<FederatedTy
 
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
         if (optInFederationV2) {
-            val fed2Imports = federatedDirectiveV2List.map { it.name }
+            val fed2Imports = federatedDirectiveV2List.map { "@${it.name}" }
+                .minus("@$LINK_DIRECTIVE_NAME")
                 .plus(FIELD_SET_SCALAR_NAME)
 
             builder.withSchemaDirective(LINK_DIRECTIVE_TYPE)
-                .withSchemaAppliedDirective(appliedLinkDirective(LINK_SPEC_URL))
                 .withSchemaAppliedDirective(appliedLinkDirective(FEDERATION_SPEC_URL, fed2Imports))
         }
 

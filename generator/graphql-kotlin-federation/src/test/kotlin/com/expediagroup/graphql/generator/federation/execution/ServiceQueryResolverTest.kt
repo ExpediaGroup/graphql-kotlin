@@ -99,7 +99,7 @@ type SelfReferenceObject {
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(url : "https://specs.apollo.dev/link/v1.0/") @link(import : ["extends", "external", "inaccessible", "key", "link", "override", "provides", "requires", "shareable", "tag", "_FieldSet"], url : "https://www.apollographql.com/docs/federation/federation-spec/"){
+schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "_FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
   query: Query
 }
 
