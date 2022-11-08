@@ -10,55 +10,9 @@ on:
       - '*.md'
 
 jobs:
-  build:
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
+  build-libraries:
+    uses: ./.github/workflows/build-libraries.yml
 
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-
-      - name: Set up Java 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: 'zulu'
-
-      - name: Set up Gradle cache
-        uses: gradle/gradle-build-action@v2
-
-      # Used by maven-plugin integration tests
-      - name: Set up Maven cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Build library with Gradle
-        run: ./gradlew clean build
-
-      - name: Archive failure build reports
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: build-reports
-          path: |
-            ./**/build/reports
-            plugins/graphql-kotlin-maven-plugin/build/integration/**/build.log
-            plugins/graphql-kotlin-maven-plugin/build/integration/**/target/surefire-reports
-          retention-days: 7
-
-      - name: Build examples with Gradle
-        working-directory: examples
-        run: ./gradlew clean build
-
-      - name: Archive examples failure build reports
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: build-examples-reports
-          path: ./examples/**/build/reports
-          retention-days: 7
+  build-examples:
+    needs: build-libraries
+    uses: ./.github/workflows/build-examples.yml
