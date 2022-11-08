@@ -1,4 +1,4 @@
-schema @link(import : ["extends", "external", "inaccessible", "key", "link", "override", "provides", "requires", "shareable", "tag", "_FieldSet"], url : "https://www.apollographql.com/docs/federation/federation-spec/"){
+schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@link", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
     query: Query
     mutation: Mutation
 }

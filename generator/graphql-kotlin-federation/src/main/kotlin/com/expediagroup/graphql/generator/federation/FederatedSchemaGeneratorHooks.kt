@@ -144,8 +144,8 @@ open class FederatedSchemaGeneratorHooks(
             builder.additionalDirective(it)
         }
         if (optInFederationV2) {
-            val fed2Imports = federatedDirectiveV2List.map { it.name }
-                .minus(LINK_DIRECTIVE_NAME)
+            val fed2Imports = federatedDirectiveV2List.map { "@${it.name}" }
+                .minus("@$LINK_DIRECTIVE_NAME")
                 .plus(FIELD_SET_SCALAR_NAME)
 
             builder.withSchemaDirective(LINK_DIRECTIVE_TYPE)
