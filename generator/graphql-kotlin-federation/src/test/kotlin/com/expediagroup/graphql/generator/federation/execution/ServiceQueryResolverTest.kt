@@ -86,7 +86,7 @@ scalar CustomScalar"""
 
 const val BASE_SERVICE_SDL =
 """
-schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
   query: Query
 }
 
@@ -142,7 +142,7 @@ scalar FieldSet
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
   query: Query
 }
 

@@ -516,7 +516,7 @@ class GraphQLGradlePluginIT : GraphQLGradlePluginAbstractIT() {
 
         val expectedFederatedSchemaWithCustomScalar =
             """
-            schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+            schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
               query: Query
             }
 
