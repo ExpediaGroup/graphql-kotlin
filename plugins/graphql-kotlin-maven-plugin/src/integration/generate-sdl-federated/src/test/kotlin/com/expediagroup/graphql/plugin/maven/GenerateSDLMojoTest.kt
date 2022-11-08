@@ -36,7 +36,7 @@ class GenerateSDLMojoTest {
         assertTrue(schemaFile.exists(), "schema file was generated")
 
         val expectedSchema = """
-            schema @link(import : ["@composeDirective", @extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet], url : "https://specs.apollo.dev/federation/v2.1"){
+            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet], url : "https://specs.apollo.dev/federation/v2.1"){
               query: Query
             }
 
