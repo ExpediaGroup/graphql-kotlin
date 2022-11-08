@@ -21,7 +21,7 @@ class ComposeDirectiveIT {
             )
 
             val expected = """
-                schema @composeDirective(name : "custom") @link(import : ["composeDirective", "extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
+                schema @composeDirective(name : "custom") @link(import : ["@composeDirective", "extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
                   query: Query
                 }
 

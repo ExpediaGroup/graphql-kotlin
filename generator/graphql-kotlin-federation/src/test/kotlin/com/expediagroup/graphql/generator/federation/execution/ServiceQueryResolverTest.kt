@@ -145,7 +145,7 @@ scalar FieldSet
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag, "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
+schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
   query: Query
 }
 
