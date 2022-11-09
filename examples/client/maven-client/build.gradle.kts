@@ -22,6 +22,7 @@ tasks {
     )
     val wireMockServerPort: Int? = ext.get("wireMockServerPort") as? Int
     val mavenBuild by register("mavenBuild") {
+        dependsOn(gradle.includedBuild("graphql-kotlin").task(":resolveIntegrationTestDependencies"))
         timeout.set(Duration.ofSeconds(500))
         doLast {
             exec {
