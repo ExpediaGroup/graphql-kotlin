@@ -1,0 +1,15 @@
+graphql:
+  federation:
+    enabled: true
+    tracing:
+      enabled: true
+      debug: true
+  packages:
+    - "com.expediagroup.graphql.examples.federation.reviews"
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: reviews-subgraph

@@ -1,0 +1,10 @@
+services:
+  router:
+    image: ghcr.io/apollographql/router:v1.2.1
+    volumes:
+      - ./router.yaml:/dist/config/router.yaml
+      - ./supergraph.graphql:/dist/config/supergraph.graphql
+    ports:
+      - 3000:3000
+      - 8088:8088
+    command: -c config/router.yaml -s config/supergraph.graphql

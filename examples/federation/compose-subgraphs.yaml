@@ -1,0 +1,27 @@
+services:
+  products:
+    build:
+      context: .
+      dockerfile: products-subgraph/Dockerfile
+      args:
+        JAR_FILE: ./products-subgraph/build/libs/products-subgraph.jar
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: [ "CMD", "curl", "http://products:8080/actuator/health" ]
+      interval: 5s
+      timeout: 1s
+      retries: 10
+  reviews:
+    build:
+      context: .
+      dockerfile: reviews-subgraph/Dockerfile
+      args:
+        JAR_FILE: ./reviews-subgraph/build/libs/reviews-subgraph.jar
+    ports:
+      - 8081:8081
+    healthcheck:
+      test: [ "CMD", "curl", "http://reviews:8081/actuator/health" ]
+      interval: 5s
+      timeout: 1s
+      retries: 10

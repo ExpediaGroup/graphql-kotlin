@@ -16,6 +16,10 @@ jobs:
     needs: build-libraries
     uses: ./.github/workflows/build-examples.yml
 
+  federation-composition:
+    needs: build-libraries
+    uses: ./.github/workflows/federation-composition.yml
+
   release-notes:
     timeout-minutes: 10
     runs-on: ubuntu-latest

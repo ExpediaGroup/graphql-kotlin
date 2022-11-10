@@ -1,0 +1,65 @@
+name: Federation Composition Test
+
+on:
+  workflow_call:
+
+jobs:
+  federation-composition-test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/federation
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'zulu'
+
+      - name: Set up Gradle cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build Subgraphs
+        working-directory: examples
+        run: ./gradlew :federation-products-subgraph:build :federation-reviews-subgraph:build
+
+      - name: Setup rover CLI
+        run: |
+          curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --elv2-license accept
+          echo "$HOME/.rover/bin" >> ${GITHUB_PATH}
+
+      - name: Compose Supergraph
+        run: APOLLO_ELV2_LICENSE=accept rover supergraph compose --config supergraph.yaml > supergraph.graphql
+
+      - name: Start router
+        run: docker compose up --build --detach --wait
+
+      - name: Federation Tests
+        run: |
+          set -x
+          echo "verify router is up"
+          curl --verbose http://localhost:8088/health
+
+          echo "sending a test query"
+          curl --request POST \
+            --verbose \
+            --header 'content-type: application/json' \
+            --url http://localhost:3000/ \
+            --data '{"query":"query($productId: ID!) {\n  product(id: $productId) {\n    id\n    reviews {\n      id\n      text\n      starRating\n    }\n    name\n    description\n  }\n}","variables":{"productId":"5"}}' \
+            > response.json
+
+          echo "received GraphQL response"
+          cat response.json
+
+          echo "verifying response"
+          jq -e '.data.product?.id == "5" and .data.product?.name == "Dragon" and (.data.product?.reviews | length == 2) and (.data.product?.reviews[0]?.text | length > 0)' response.json
+      - name: Error Logs
+        if: ${{ failure() }}
+        run: docker-compose logs
+      - name: Stop Supergraph
+        if: ${{ always() }}
+        run: docker compose down --remove-orphans
