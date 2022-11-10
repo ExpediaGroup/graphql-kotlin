@@ -36,9 +36,12 @@ class GenerateSDLMojoTest {
         assertTrue(schemaFile.exists(), "schema file was generated")
 
         val expectedSchema = """
-            schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
               query: Query
             }
+
+            "Marks underlying custom directive to be included in the Supergraph schema"
+            directive @composeDirective(name: String!) repeatable on SCHEMA
 
             "Marks the field, argument, input field or enum value as deprecated"
             directive @deprecated(

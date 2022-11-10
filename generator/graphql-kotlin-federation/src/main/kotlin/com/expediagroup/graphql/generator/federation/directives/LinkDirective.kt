@@ -24,7 +24,7 @@ import graphql.schema.GraphQLList
 import graphql.schema.GraphQLNonNull
 
 const val LINK_SPEC_URL = "https://specs.apollo.dev/link/v1.0/"
-const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.0"
+const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.1"
 
 /**
  * ```graphql

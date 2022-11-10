@@ -6,6 +6,49 @@ title: Federated Directives
 
 For more details, see the [Apollo Federation Specification](https://www.apollographql.com/docs/federation/federation-spec/).
 
+## `@composeDirective` directive
+
+```graphql
+directive @composeDirective(name: String!) repeatable on SCHEMA
+```
+
+By default, Supergraph schema excludes all custom directives. The `@composeDirective` is used to specify custom directives that should be exposed in the Supergraph schema.
+
+Example:
+Given `@custom` directive we can preserve it in the Supergraph schema
+
+```kotlin
+@GraphQLDirective(name = "custom", locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
+annotation class CustomDirective
+
+@ComposeDirective(name = "custom")
+class CustomSchema
+
+class SimpleQuery {
+  @CustomDirective
+  fun helloWorld(): String = "Hello World"
+}
+```
+
+it will generate following schema
+
+```graphql
+schema
+@composeDirective(name: "@myDirective")
+@link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1")
+{
+   query: Query
+}
+
+directive @custom on FIELD_DEFINITION
+
+type Query {
+  helloWorld: String! @custom
+}
+```
+
+See [@composeDirective definition](https://www.apollographql.com/docs/federation/federated-types/federated-directives/#composedirective) for more information.
+
 ## `@contact` directive
 
 ```graphql
@@ -250,6 +293,19 @@ External schemas are identified by their `url`, which optionally ends with a nam
 
 By default, external types should be namespaced (prefixed with `<namespace>__`, e.g. `key` directive should be namespaced as `federation__key`) unless they are explicitly imported.
 `graphql-kotlin` automatically imports ALL federation directives to avoid the need for namespacing.
+
+```kotlin
+@LinkDirective(url = "https://myspecs.company.dev/foo/v1.0", imports = ["@foo", "bar"])
+class MySchema
+```
+
+This will generate following schema:
+
+```graphql
+schema @link(import : ["@foo", "bar"], url : "https://myspecs.company.dev/foo/v1.0") {
+    query: Query
+}
+```
 
 :::danger
 We currently DO NOT support full `@link` directive capability as it requires support for namespacing and renaming imports. This functionality may be added in the future releases. See
