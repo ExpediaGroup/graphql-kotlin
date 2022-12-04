@@ -8,6 +8,7 @@ Here are some links to other blog posts and videos which may provide further exa
 
 Articles and videos specifically about `graphql-kotlin`
 
+-   📝  [GraphQL Kotlin 6.0.0 Release](https://medium.com/expedia-group-tech/graphql-kotlin-6-0-0-release-2227fd066dcd) 
 -   📝  [GraphQL Kotlin 4.0.0 Release](https://medium.com/expedia-group-tech/graphql-kotlin-4-0-0-release-eb87e150a192)
 -   📺  [Bootiful GraphQL with Kotlin (Dariusz Kuc, Guillaume Scheibel)(Spring One 2020)](https://www.youtube.com/watch?v=t9He4vHZC24) (en)
 -   📺  [Bootiful GraphQL with Kotlin (Dariusz Kuc)(GOTO Chicago 2020)](https://www.youtube.com/watch?v=1siPT1pTXFU) (en)
