@@ -188,6 +188,44 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     }
 
     @Test
+    fun `Instrumentation should batch transactions after exhausting a single ExecutionInput with async Leafs`() {
+        val queries = listOf(
+            """
+                fragment AstronautFragment on Astronaut { name missions { designation } }
+                query ComplexQuery {
+                    astronaut1: astronaut(id: 1) { ...AstronautFragment }
+                    nasa {
+                        astronaut(id: 2) {...AstronautFragment }
+                        phoneNumber
+                        twitter
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(
+            graphQL,
+            queries,
+            DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
+        )
+
+        assertEquals(1, results.size)
+
+        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
+        val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
+
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
+        assertEquals(2, astronautStatistics?.batchLoadCount)
+
+        assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
+        assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
+
+        verify(exactly = 3) {
+            kotlinDataLoaderRegistry.dispatchAll()
+        }
+    }
+
+    @Test
     fun `Instrumentation should batch transactions after exhausting multiple ExecutionInput`() {
         val queries = listOf(
             """
