@@ -67,6 +67,7 @@ object AstronautGraphQL {
             missions(ids: [ID!]): [Mission]!
             address: Address!
             phoneNumber: String!
+            twitter: String!
         }
         type Astronaut {
             id: ID!
