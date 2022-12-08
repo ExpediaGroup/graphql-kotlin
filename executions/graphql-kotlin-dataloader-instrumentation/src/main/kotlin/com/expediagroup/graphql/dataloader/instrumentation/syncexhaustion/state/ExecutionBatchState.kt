@@ -206,7 +206,7 @@ class ExecutionBatchState {
                 state.isCompletedComplexObject() -> {
                     isSyncExecutionExhausted(state.executionStrategyPaths.first())
                 }
-                state.isCompletedLeafOrNull() || state.isAsyncDispatchedNotLeaf() -> {
+                state.isCompletedLeafOrNull() || state.isAsyncDispatched() -> {
                     true
                 }
                 else -> false
