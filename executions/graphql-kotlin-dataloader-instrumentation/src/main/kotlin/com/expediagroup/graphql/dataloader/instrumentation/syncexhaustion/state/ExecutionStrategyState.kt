@@ -172,18 +172,16 @@ class ExecutionStrategyState(
          * }
          * ```
          */
-        fun addExecutionStrategyPath(
-            executionStrategyPath: String
-        ) {
+        fun addExecutionStrategyPath(executionStrategyPath: String) {
             executionStrategyPaths.add(executionStrategyPath)
         }
 
         /**
-         * field [fetchState] is completed with a non null [result] and
+         * field [fetchState] is completed with a non-null [result] and
          * [graphQLType] is not a leaf [GraphQLList] and
-         * all non null complex objects inside the [result] list started their own executionStrategy
+         * all non-null complex objects inside the [result] list started their own executionStrategy
          *
-         * @return Boolean indicating if above sentence result
+         * @return Boolean indicating if above conditions met
          */
         fun isCompletedListOfComplexObjects(): Boolean =
             fetchState == FieldFetchState.COMPLETED && result != null &&
@@ -191,10 +189,10 @@ class ExecutionStrategyState(
                 (result as? List<*>)?.filterNotNull()?.size == executionStrategyPaths.size
 
         /**
-         * field [fetchState] is completed with a non null [result] and
+         * field [fetchState] is completed with a non-null [result] and
          * [graphQLType] is not a leaf complex type which executionStrategy was started.
          *
-         * @return Boolean indicating if above sentence result
+         * @return Boolean indicating if above conditions met
          */
         fun isCompletedComplexObject(): Boolean =
             fetchState == FieldFetchState.COMPLETED && result != null &&
@@ -202,20 +200,22 @@ class ExecutionStrategyState(
                 executionStrategyPaths.isNotEmpty()
 
         /**
-         * field [fetchState] is completed and [graphQLType] is a Leaf or null.
+         * field [fetchState] is [FieldFetchState.COMPLETED]
+         * field [graphQLType] is a Leaf or null.
          *
-         * @return Boolean indicating if above sentence result
+         * @return Boolean indicating if above conditions met
          */
         fun isCompletedLeafOrNull(): Boolean =
             fetchState == FieldFetchState.COMPLETED &&
                 (GraphQLTypeUtil.isLeaf(graphQLType) || result == null)
 
         /**
-         * field [fetchType] is Async and [fetchState] is dispatched and
-         * is not a leaf
+         * field [fetchType] is [FieldFetchType.ASYNC],
+         * field [fetchState] is [FieldFetchState.DISPATCHED]
+         *
+         * @return Boolean indicating if above conditions met
          */
-        fun isAsyncDispatchedNotLeaf(): Boolean =
-            fetchType == FieldFetchType.ASYNC && fetchState == FieldFetchState.DISPATCHED &&
-                !GraphQLTypeUtil.isLeaf(graphQLType)
+        fun isAsyncDispatched(): Boolean =
+            fetchType == FieldFetchType.ASYNC && fetchState == FieldFetchState.DISPATCHED
     }
 }

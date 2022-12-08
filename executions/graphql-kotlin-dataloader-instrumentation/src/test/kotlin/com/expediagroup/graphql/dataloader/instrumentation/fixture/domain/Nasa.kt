@@ -16,12 +16,19 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.fixture.domain
 
+import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
+import java.util.concurrent.CompletableFuture
+
 data class Address(
     val street: String = "300 E Street SW",
     val zipCode: String = "98004"
 )
 
-data class Nasa(
+class Nasa(
     val address: Address = Address(),
     val phoneNumber: String = "+1 123-456-7890"
-)
+) {
+    fun getTwitter(): CompletableFuture<String> =
+        "https://twitter.com/NASA".toMono().delayElement(Duration.ofMillis(100)).toFuture()
+}
