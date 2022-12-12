@@ -21,15 +21,15 @@ module.exports = {
       {
         docs: {
           editUrl: "https://github.com/ExpediaGroup/graphql-kotlin/tree/master/website",
-          lastVersion: "current",
+          lastVersion: '6.x.x',
           remarkPlugins: [require('mdx-mermaid')],
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           sidebarPath: require.resolve('./sidebars.js'),
           versions: {
             current: {
-              label: "7.x.x",
-              path: ""
+              label: 'master',
+              path: '7.x.x'
             }
           }
         }
@@ -68,7 +68,7 @@ module.exports = {
     },
     footer: {
       links: [],
-      copyright: "Copyright © 2021 Expedia, Inc.",
+      copyright: "Copyright © 2022 Expedia, Inc.",
       logo: {
         src: "img/Expedia-Group-Logo_E-Stacked.png"
       }
