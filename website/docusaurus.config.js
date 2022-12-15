@@ -28,7 +28,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           versions: {
             current: {
-              label: '7.x.x',
+              label: 'pre-release',
               path: '7.x.x'
             }
           }
