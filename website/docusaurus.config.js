@@ -28,7 +28,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           versions: {
             current: {
-              label: '7.x.x',
+              label: 'pre-release',
               path: '7.x.x'
             }
           }
@@ -74,9 +74,9 @@ module.exports = {
       }
     },
     algolia: {
-      appId: 'B2J35I9RRE',
-      apiKey: 'f040c6941342dc872146a008495313a2',
-      indexName: 'expediagroup-graphql-kotlin'
+      appId: 'ZXPXG95H16',
+      apiKey: '0a653b3212bc40fd51d4ead119b67bd3',
+      indexName: 'graphql-kotlin'
     }
   }
 }
