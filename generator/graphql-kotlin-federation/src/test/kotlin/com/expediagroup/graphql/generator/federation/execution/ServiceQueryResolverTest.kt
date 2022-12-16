@@ -99,7 +99,7 @@ type SelfReferenceObject {
 
 const val FEDERATED_SERVICE_SDL_V2 =
 """
-schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "_FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
   query: Query
 }
 
@@ -111,20 +111,37 @@ directive @extends on OBJECT | INTERFACE
 "Marks target field as external meaning it will be resolved by federated schema"
 directive @external on FIELD_DEFINITION
 
+"Marks location within schema as inaccessible from the GraphQL Gateway"
+directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
 "Space separated list of primary keys needed to access federated object"
-directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+
+"Links definitions within the document to external schemas."
+directive @link(import: [String], url: String) repeatable on SCHEMA
+
+"Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
+directive @override(from: String!) on FIELD_DEFINITION
 
 "Specifies the base type field set that will be selectable by the gateway"
-directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 
 "Specifies required input field set from the base type for a resolver"
-directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+directive @requires(fields: FieldSet!) on FIELD_DEFINITION
+
+"Indicates that given object and/or field can be resolved by multiple subgraphs"
+directive @shareable on OBJECT | FIELD_DEFINITION
+
+"Allows users to annotate fields and types with additional metadata information"
+directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 interface Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
   id: String! @external
   reviews: [Review!]!
   upc: String! @external
 }
+
+union _Entity = Book | User
 
 type Book implements Product @extends @key(fields : "id", resolvable : true) @key(fields : "upc", resolvable : true) {
   author: User! @provides(fields : "name")
@@ -140,6 +157,8 @@ type CustomScalar {
 }
 
 type Query @extends {
+  "Union of all types that use the @key directive, including both types native to the schema and extended types"
+  _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service!
 }
 
@@ -160,7 +179,10 @@ type _Service {
 }
 
 "Federation type representing set of fields"
-scalar _FieldSet
+scalar FieldSet
+
+"Federation scalar type used to represent any external entities passed to _entities query."
+scalar _Any
 """
 
 class ServiceQueryResolverTest {

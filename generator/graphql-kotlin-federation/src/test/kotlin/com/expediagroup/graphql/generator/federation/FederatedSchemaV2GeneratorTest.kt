@@ -30,7 +30,7 @@ class FederatedSchemaV2GeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "_FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+            schema @link(import : ["extends", "external", "inaccessible", "key", "override", "provides", "requires", "shareable", "tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
               query: Query
             }
 
@@ -58,7 +58,7 @@ class FederatedSchemaV2GeneratorTest {
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             "Space separated list of primary keys needed to access federated object"
-            directive @key(fields: _FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+            directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
             "Links definitions within the document to external schemas."
             directive @link(import: [String], url: String) repeatable on SCHEMA
@@ -67,10 +67,10 @@ class FederatedSchemaV2GeneratorTest {
             directive @override(from: String!) on FIELD_DEFINITION
 
             "Specifies the base type field set that will be selectable by the gateway"
-            directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+            directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 
             "Specifies required input field set from the base type for a resolver"
-            directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+            directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
             "Indicates that given object and/or field can be resolved by multiple subgraphs"
             directive @shareable on OBJECT | FIELD_DEFINITION
@@ -133,11 +133,11 @@ class FederatedSchemaV2GeneratorTest {
               sdl: String!
             }
 
+            "Federation type representing set of fields"
+            scalar FieldSet
+
             "Federation scalar type used to represent any external entities passed to _entities query."
             scalar _Any
-
-            "Federation type representing set of fields"
-            scalar _FieldSet
             """.trimIndent()
 
         val config = FederatedSchemaGeneratorConfig(
