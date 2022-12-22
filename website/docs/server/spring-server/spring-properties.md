@@ -7,20 +7,21 @@ to provide various customizations of the auto-configuration library. All applica
 metadata](https://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html) that provide
 details on the supported configuration properties.
 
-| Property                                | Description                                                                                                      | Default Value |
-|-----------------------------------------|------------------------------------------------------------------------------------------------------------------| ------------- |
-| graphql.endpoint                        | GraphQL server endpoint                                                                                          | graphql       |
-| graphql.packages                        | List of supported packages that can contain GraphQL schema type definitions                                      |               |
-| graphql.federation.enabled              | Boolean flag indicating whether to generate federated GraphQL model                                              | false         |
-| graphql.federation.optInV2              | Boolean flag indicating whether to generate Federation v2 GraphQL model                                          | false         |
-| graphql.federation.tracing.enabled      | Boolean flag indicating whether add federated tracing data to the extensions                                     | true (if federation enabled) |
-| graphql.federation.tracing.debug        | Boolean flag to log debug info in the federated tracing                                                          | false (if federation enabled) |
-| graphql.introspection.enabled           | Boolean flag indicating whether introspection queries are enabled                                                | true          |
-| graphql.playground.enabled              | Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE                                    | true          |
-| graphql.playground.endpoint             | Prisma Labs Playground GraphQL IDE endpoint                                                                      | playground    |
-| graphql.sdl.enabled                     | Boolean flag indicating whether to expose SDL endpoint                                                           | true          |
-| graphql.sdl.endpoint                    | GraphQL SDL endpoint                                                                                             | sdl           |
-| graphql.subscriptions.endpoint          | GraphQL subscriptions endpoint                                                                                   | subscriptions |
-| graphql.subscriptions.keepAliveInterval | Keep the websocket alive and send a message to the client every interval in ms. Defaults to not sending messages | null          |
-| graphql.batching.enabled                | Boolean flag indicating whether to enable custom dataloader instrumentations for 1 or more GraphQL Operations    | false         |
-| graphql.batching.strategy               | Configure which custom dataloader instrumentation will be used (LEVEL_DISPATCHED or SYNC_EXHAUSTION)             | LEVEL_DISPATCHED |
+| Property                                | Description                                                                                                      | Default Value                                                    |
+|-----------------------------------------|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| graphql.endpoint                        | GraphQL server endpoint                                                                                          | graphql                                                          |
+| graphql.packages                        | List of supported packages that can contain GraphQL schema type definitions                                      |                                                                  |
+| graphql.federation.enabled              | Boolean flag indicating whether to generate federated GraphQL model                                              | false                                                            |
+| graphql.federation.optInV2              | Boolean flag indicating whether to generate Federation v2 GraphQL model                                          | false                                                            |
+| graphql.federation.tracing.enabled      | Boolean flag indicating whether add federated tracing data to the extensions                                     | true (if federation enabled)                                     |
+| graphql.federation.tracing.debug        | Boolean flag to log debug info in the federated tracing                                                          | false (if federation enabled)                                    |
+| graphql.introspection.enabled           | Boolean flag indicating whether introspection queries are enabled                                                | true                                                             |
+| graphql.browserIDE.enabled              | Boolean flag indicating whether to enable a GraphQL browser IDE                                                  | true                                                             |
+| graphql.browserIDE.ide                  | Enum value indicating which browser IDE will be used (GRAPHIQL, PLAYGROUND)                                      | GRAPHIQL                                                         |
+| graphql.browserIDE.endpoint             | GraphQL IDE endpoint                                                                                             | "graphiql" if ide is GRAPHIQL, "playground" if ide is PLAYGROUND |
+| graphql.sdl.enabled                     | Boolean flag indicating whether to expose SDL endpoint                                                           | true                                                             |
+| graphql.sdl.endpoint                    | GraphQL SDL endpoint                                                                                             | sdl                                                              |
+| graphql.subscriptions.endpoint          | GraphQL subscriptions endpoint                                                                                   | subscriptions                                                    |
+| graphql.subscriptions.keepAliveInterval | Keep the websocket alive and send a message to the client every interval in ms. Defaults to not sending messages | null                                                             |
+| graphql.batching.enabled                | Boolean flag indicating whether to enable custom dataloader instrumentations for 1 or more GraphQL Operations    | false                                                            |
+| graphql.batching.strategy               | Configure which custom dataloader instrumentation will be used (LEVEL_DISPATCHED or SYNC_EXHAUSTION)             | LEVEL_DISPATCHED                                                 |

@@ -30,24 +30,31 @@ import org.springframework.web.reactive.function.server.html
  */
 @ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing = true)
 @Configuration
-class PlaygroundRouteConfiguration(
+class GraphQLBrowserIDERouteConfiguration(
     private val config: GraphQLConfigurationProperties,
     @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource,
+    @Value("classpath:/graphql-graphiql.html") private val graphiQLHtml: Resource,
     @Value("\${spring.webflux.base-path:#{null}}") private val contextPath: String?
 ) {
 
-    private val body = playgroundHtml.inputStream.bufferedReader().use { reader ->
-        val graphQLEndpoint = if (contextPath.isNullOrBlank()) config.endpoint else "$contextPath/${config.endpoint}"
-        val subscriptionsEndpoint = if (contextPath.isNullOrBlank()) config.subscriptions.endpoint else "$contextPath/${config.subscriptions.endpoint}"
+    private val body = config.browserIDE.ide.let { ide ->
+        val ideHtml = when (ide) {
+            GraphQLConfigurationProperties.GraphQLBrowserIDE.PLAYGROUND -> playgroundHtml
+            GraphQLConfigurationProperties.GraphQLBrowserIDE.GRAPHIQL -> graphiQLHtml
+        }
+        ideHtml.inputStream.bufferedReader().use { reader ->
+            val graphQLEndpoint = if (contextPath.isNullOrBlank()) config.endpoint else "$contextPath/${config.endpoint}"
+            val subscriptionsEndpoint = if (contextPath.isNullOrBlank()) config.subscriptions.endpoint else "$contextPath/${config.subscriptions.endpoint}"
 
-        reader.readText()
-            .replace("\${graphQLEndpoint}", graphQLEndpoint)
-            .replace("\${subscriptionsEndpoint}", subscriptionsEndpoint)
+            reader.readText()
+                .replace("\${graphQLEndpoint}", graphQLEndpoint)
+                .replace("\${subscriptionsEndpoint}", subscriptionsEndpoint)
+        }
     }
 
     @Bean
     fun playgroundRoute() = coRouter {
-        GET(config.playground.endpoint) {
+        GET(config.browserIDE.endpoint) {
             ok().html().bodyValueAndAwait(body)
         }
     }

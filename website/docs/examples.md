@@ -34,7 +34,7 @@ integration can be found at [examples/server/ktor-server](https://github.com/Exp
 One way to run a GraphQL server is with [Spring Boot](https://github.com/spring-projects/spring-boot). A sample Spring
 Boot app that uses [Spring
 Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) together with
-`graphql-kotlin-schema-generator` and [graphql-playground](https://github.com/prisma/graphql-playground) is provided as
+`graphql-kotlin-schema-generator` and [graphiql](https://github.com/graphql/graphiql) is provided as
 a [examples/server/spring-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/examples/server/spring-server).
 All the examples used in this documentation should be available in this sample app.
 

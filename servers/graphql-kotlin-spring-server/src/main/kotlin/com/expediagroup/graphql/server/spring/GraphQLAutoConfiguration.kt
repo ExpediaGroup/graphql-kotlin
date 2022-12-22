@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Import
 @Import(
     GraphQLRoutesConfiguration::class,
     SubscriptionAutoConfiguration::class,
-    PlaygroundRouteConfiguration::class,
+    GraphQLBrowserIDERouteConfiguration::class,
     SdlRouteConfiguration::class
 )
 class GraphQLAutoConfiguration

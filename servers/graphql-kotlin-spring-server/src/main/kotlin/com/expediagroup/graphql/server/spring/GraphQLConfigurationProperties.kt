@@ -31,7 +31,7 @@ data class GraphQLConfigurationProperties(
     val packages: List<String>,
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
-    val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
+    val browserIDE: GraphQLBrowserIDEConfigurationProperties = GraphQLBrowserIDEConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
     val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
     val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
@@ -86,12 +86,22 @@ data class GraphQLConfigurationProperties(
     /**
      * Playground configuration properties.
      */
-    data class PlaygroundConfigurationProperties(
-        /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
+    data class GraphQLBrowserIDEConfigurationProperties(
+        /** Boolean flag indicating whether to enabled GraphQL browser IDE */
         val enabled: Boolean = true,
-        /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
-        val endpoint: String = "playground"
+        /** Preferred GraphQL Browser IDE, defaults to 'GRAPHIQL'*/
+        val ide: GraphQLBrowserIDE = GraphQLBrowserIDE.GRAPHIQL,
+        /** GraphQL IDE endpoint
+         * if [ide] is "GRAPHIQL" it defaults to 'graphiql',
+         * if [ide] is "PLAYGROUND" it defaults to 'playground',
+         * */
+        val endpoint: String = when (ide) {
+            GraphQLBrowserIDE.PLAYGROUND -> "playground"
+            GraphQLBrowserIDE.GRAPHIQL -> "graphiql"
+        }
     )
+
+    enum class GraphQLBrowserIDE { PLAYGROUND, GRAPHIQL }
 
     /**
      * SDL endpoint configuration properties.
