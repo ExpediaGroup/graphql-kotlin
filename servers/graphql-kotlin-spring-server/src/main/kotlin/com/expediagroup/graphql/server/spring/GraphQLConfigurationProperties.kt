@@ -32,6 +32,7 @@ data class GraphQLConfigurationProperties(
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
+    val graphiql: GraphiQLConfigurationProperties = GraphiQLConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
     val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
     val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
@@ -88,9 +89,19 @@ data class GraphQLConfigurationProperties(
      */
     data class PlaygroundConfigurationProperties(
         /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
-        val enabled: Boolean = true,
+        val enabled: Boolean = false,
         /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
         val endpoint: String = "playground"
+    )
+
+    /**
+     * GraphiQL configuration properties.
+     */
+    data class GraphiQLConfigurationProperties(
+        /** Boolean flag indicating whether to enabled GraphiQL GraphQL IDE */
+        val enabled: Boolean = true,
+        /** GraphiQL GraphQL IDE endpoint, defaults to 'graphiql' */
+        val endpoint: String = "graphiql"
     )
 
     /**

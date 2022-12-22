@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2022 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,15 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
 /**
- * SpringBoot auto-configuration that creates all beans required to start up reactive GraphQL server.
+ * SpringBoot autoconfiguration that creates all beans required to start up reactive GraphQL server.
  * This is the top level configuration class that should be exposed and loaded for integration tests.
  */
 @Configuration
 @Import(
     GraphQLRoutesConfiguration::class,
     SubscriptionAutoConfiguration::class,
+    SdlRouteConfiguration::class,
     PlaygroundRouteConfiguration::class,
-    SdlRouteConfiguration::class
+    GraphiQLRouteConfiguration::class
 )
 class GraphQLAutoConfiguration
