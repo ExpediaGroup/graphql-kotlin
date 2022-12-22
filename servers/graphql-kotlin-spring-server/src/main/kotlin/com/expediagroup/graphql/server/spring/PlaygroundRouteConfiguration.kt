@@ -21,6 +21,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.Resource
+import org.springframework.web.reactive.function.server.RouterFunction
+import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.function.server.html
@@ -28,34 +30,23 @@ import org.springframework.web.reactive.function.server.html
 /**
  * Configuration for exposing the GraphQL Playground on a specific HTTP path
  */
-@ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = ["graphql.playground.enabled"], havingValue = "true", matchIfMissing = false)
 @Configuration
-class GraphQLBrowserIDERouteConfiguration(
+class PlaygroundRouteConfiguration(
     private val config: GraphQLConfigurationProperties,
-    @Value("classpath:/graphql-playground.html") private val playgroundHtml: Resource,
-    @Value("classpath:/graphql-graphiql.html") private val graphiQLHtml: Resource,
+    @Value("classpath:/graphql-playground.html") private val html: Resource,
     @Value("\${spring.webflux.base-path:#{null}}") private val contextPath: String?
 ) {
-
-    private val body = config.browserIDE.ide.let { ide ->
-        val ideHtml = when (ide) {
-            GraphQLConfigurationProperties.GraphQLBrowserIDE.PLAYGROUND -> playgroundHtml
-            GraphQLConfigurationProperties.GraphQLBrowserIDE.GRAPHIQL -> graphiQLHtml
-        }
-        ideHtml.inputStream.bufferedReader().use { reader ->
-            val graphQLEndpoint = if (contextPath.isNullOrBlank()) config.endpoint else "$contextPath/${config.endpoint}"
-            val subscriptionsEndpoint = if (contextPath.isNullOrBlank()) config.subscriptions.endpoint else "$contextPath/${config.subscriptions.endpoint}"
-
-            reader.readText()
-                .replace("\${graphQLEndpoint}", graphQLEndpoint)
-                .replace("\${subscriptionsEndpoint}", subscriptionsEndpoint)
-        }
-    }
-
     @Bean
-    fun playgroundRoute() = coRouter {
-        GET(config.browserIDE.endpoint) {
-            ok().html().bodyValueAndAwait(body)
+    fun playgroundRoute(): RouterFunction<ServerResponse> = coRouter {
+        GET(config.playground.endpoint) {
+            ok().html().bodyValueAndAwait(
+                html.inputStream.bufferedReader().use { reader ->
+                    reader.readText()
+                        .replace("\${graphQLEndpoint}", if (contextPath.isNullOrBlank()) config.endpoint else "$contextPath/${config.endpoint}")
+                        .replace("\${subscriptionsEndpoint}", if (contextPath.isNullOrBlank()) config.subscriptions.endpoint else "$contextPath/${config.subscriptions.endpoint}")
+                }
+            )
         }
     }
 }

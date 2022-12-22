@@ -20,14 +20,15 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
 /**
- * SpringBoot auto-configuration that creates all beans required to start up reactive GraphQL server.
+ * SpringBoot autoconfiguration that creates all beans required to start up reactive GraphQL server.
  * This is the top level configuration class that should be exposed and loaded for integration tests.
  */
 @Configuration
 @Import(
     GraphQLRoutesConfiguration::class,
     SubscriptionAutoConfiguration::class,
-    GraphQLBrowserIDERouteConfiguration::class,
-    SdlRouteConfiguration::class
+    SdlRouteConfiguration::class,
+    PlaygroundRouteConfiguration::class,
+    GraphiQLRouteConfiguration::class
 )
 class GraphQLAutoConfiguration

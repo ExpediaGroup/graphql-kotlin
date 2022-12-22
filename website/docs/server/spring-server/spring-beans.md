@@ -78,7 +78,7 @@ The following beans cannot be overridden, but may have options to disable them:
 
 -   Route handler for GraphQL queries and mutations endpoint.
 -   Route handler for the SDL endpoint. Created only if sdl route is enabled.
--   Route handler for GraphQL browser IDE. Created only if IDE is enabled.
+-   Route handler for [GraphQL graphiql browser IDE](https://github.com/graphql/graphiql). Created only if graphiql is enabled.
 -   Route handler for the subscriptions endpoint. Created only if subscriptions are used.
 -   `ApolloSubscriptionProtocolHandler` for handling GraphQL subscriptions using the [`graphql-ws` protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md). Created only if subscriptions are used.
 -   `SubscriptionWebSocketHandler` that utilizes above subscription protocol handler. Created only if subscriptions are used.

@@ -31,7 +31,8 @@ data class GraphQLConfigurationProperties(
     val packages: List<String>,
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
-    val browserIDE: GraphQLBrowserIDEConfigurationProperties = GraphQLBrowserIDEConfigurationProperties(),
+    val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
+    val graphiql: GraphiQLConfigurationProperties = GraphiQLConfigurationProperties(),
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
     val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
     val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
@@ -86,22 +87,22 @@ data class GraphQLConfigurationProperties(
     /**
      * Playground configuration properties.
      */
-    data class GraphQLBrowserIDEConfigurationProperties(
-        /** Boolean flag indicating whether to enabled GraphQL browser IDE */
-        val enabled: Boolean = true,
-        /** Preferred GraphQL Browser IDE, defaults to 'GRAPHIQL'*/
-        val ide: GraphQLBrowserIDE = GraphQLBrowserIDE.GRAPHIQL,
-        /** GraphQL IDE endpoint
-         * if [ide] is "GRAPHIQL" it defaults to 'graphiql',
-         * if [ide] is "PLAYGROUND" it defaults to 'playground',
-         * */
-        val endpoint: String = when (ide) {
-            GraphQLBrowserIDE.PLAYGROUND -> "playground"
-            GraphQLBrowserIDE.GRAPHIQL -> "graphiql"
-        }
+    data class PlaygroundConfigurationProperties(
+        /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
+        val enabled: Boolean = false,
+        /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
+        val endpoint: String = "playground"
     )
 
-    enum class GraphQLBrowserIDE { PLAYGROUND, GRAPHIQL }
+    /**
+     * GraphiQL configuration properties.
+     */
+    data class GraphiQLConfigurationProperties(
+        /** Boolean flag indicating whether to enabled GraphiQL GraphQL IDE */
+        val enabled: Boolean = true,
+        /** GraphiQL GraphQL IDE endpoint, defaults to 'graphiql' */
+        val endpoint: String = "graphiql"
+    )
 
     /**
      * SDL endpoint configuration properties.
