@@ -52,17 +52,34 @@
 <div id="graphiql">Loading...</div>
 <script
         src="https://unpkg.com/graphiql/graphiql.min.js"
-        type="application/javascript"
+        integrity="sha512-FVCV2//UVo1qJ3Kg6kkHLe0Hg+IJhjrGa+aYHh8xD4KmwbbjthIzvaAcCJsQgA43+k+6u7HqORKXMyMt82Srfw=="
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://unpkg.com/@graphiql/plugin-explorer@0.1.12/dist/graphiql-plugin-explorer.umd.js"
+        integrity="sha512-Fjas/uSkzvsFjbv4jqU9nt4ulU7LDjiMAXW2YFTYD96NgKS1fhhAsGR4b2k2VaVLsE29aia3vyobAq9TNzusvA=="
+        crossorigin="anonymous"
 ></script>
 <script>
-    ReactDOM.render(
-        React.createElement(GraphiQL, {
+    function GraphiQLWithExplorer() {
+        var [query, setQuery] = React.useState('');
+        var explorerPlugin = GraphiQLPluginExplorer.useExplorerPlugin({
+            query: query,
+            onEdit: setQuery,
+        });
+        return React.createElement(GraphiQL, {
             fetcher: GraphiQL.createFetcher({
                 url: '/${graphQLEndpoint}',
                 subscriptionUrl: '/${subscriptionsEndpoint}'
             }),
             defaultEditorToolsVisibility: true,
-        }),
+            plugins: [explorerPlugin],
+            query: query,
+            onEditQuery: setQuery,
+        });
+    }
+    ReactDOM.render(
+        React.createElement(GraphiQLWithExplorer),
         document.getElementById('graphiql'),
     );
 </script>
