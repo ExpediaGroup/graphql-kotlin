@@ -30,7 +30,7 @@ dependencies {
     testImplementation(project(path = ":graphql-kotlin-client-jackson"))
     testImplementation(project(path = ":graphql-kotlin-client-serialization"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing:$compileTestingVersion")
+    testImplementation("dev.zacsweers.kctfork:core:$compileTestingVersion")
     testImplementation("com.ibm.icu:icu4j:$icuVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
