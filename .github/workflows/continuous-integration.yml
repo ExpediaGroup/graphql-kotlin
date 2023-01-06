@@ -23,6 +23,8 @@ jobs:
   federation-compatibility:
     needs: build-libraries
     uses: ./.github/workflows/federation-compatibility.yml
+#    secrets:
+#      token: ${{ secrets.GITHUB_TOKEN }}
 
   release-notes:
     timeout-minutes: 10

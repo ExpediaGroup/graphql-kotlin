@@ -1,0 +1,14 @@
+name: Pull Request Federation Check
+
+on:
+  pull_request_target:
+    branches:
+      - master
+    paths:
+      - 'generator/graphql-kotlin-federation/**'
+
+jobs:
+  federation-compatibility:
+    uses: ./.github/workflows/federation-compatibility.yml
+#    secrets:
+#      token: ${{ secrets.PAT }}
