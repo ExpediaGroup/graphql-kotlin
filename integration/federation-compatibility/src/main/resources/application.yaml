@@ -1,0 +1,12 @@
+graphql:
+  endpoint: "/"
+  packages:
+    - "com.expediagroup.federation.compatibility"
+  federation:
+    enabled: true
+    tracing:
+      enabled: true
+      debug: true
+
+server:
+  port: 4001

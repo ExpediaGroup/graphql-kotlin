@@ -21,6 +21,40 @@ sources, included inside of one of your project dependencies or through explicit
 able to deterministically choose a single hooks provider, generation of schema will fail if there are multiple providers
 on the classpath.
 
+## Federated Hooks Provider
+
+If no custom hook providers are specified, `graphql-kotlin` plugins will default to use `NoopSchemaGeneratorHooks`. If you
+want to generate Federated schemas, you need to explicitly specify a dependency on `graphql-kotlin-federated-hooks-provider`.
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+// build.gradle.kts
+graphqlSDL("com.expediagroup", "graphql-kotlin-federated-hooks-provider", latestVersion)
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<dependency>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-federated-hooks-provider</artifactId>
+    <version>${latestVersion}</version>
+</dependency>
+```
+
+</TabItem>
+</Tabs>
+
 ## Creating Custom Hooks Service Provider
 
 ### Add dependency on graphql-kotlin-hooks-provider

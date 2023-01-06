@@ -20,3 +20,7 @@ jobs:
   federation-composition:
     needs: build-libraries
     uses: ./.github/workflows/federation-composition.yml
+
+  federation-compatibility:
+    needs: build-libraries
+    uses: ./.github/workflows/federation-compatibility.yml
