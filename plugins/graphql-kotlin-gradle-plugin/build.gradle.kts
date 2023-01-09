@@ -7,22 +7,16 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
-val androidPluginVersion: String by project
-val junitVersion: String by project
-val kotlinxCoroutinesVersion: String by project
-val wireMockVersion: String by project
-val mustacheVersion: String by project
-
 dependencies {
     implementation(kotlin("gradle-plugin-api"))
-    compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
+    compileOnly(libs.android.plugin)
 
     compileOnly(project(":graphql-kotlin-client-generator"))
     compileOnly(project(":graphql-kotlin-sdl-generator"))
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
-    testImplementation("com.github.spullara.mustache.java:compiler:$mustacheVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    testImplementation(libs.wiremock.jre8)
+    testImplementation(libs.mustache)
+    testImplementation(libs.junit.params)
 }
 
 java {
@@ -96,13 +90,10 @@ tasks {
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         dependsOn(":resolveIntegrationTestDependencies")
 
-        val kotlinVersion: String by project
-        val junitVersion: String by project
-        val springBootVersion: String by project
-        systemProperty("androidPluginVersion", androidPluginVersion)
-        systemProperty("kotlinVersion", kotlinVersion)
-        systemProperty("springBootVersion", springBootVersion)
-        systemProperty("junitVersion", junitVersion)
+        systemProperty("androidPluginVersion", libs.versions.android.plugin.get())
+        systemProperty("kotlinVersion", libs.versions.kotlin.get())
+        systemProperty("springBootVersion", libs.versions.spring.boot.get())
+        systemProperty("junitVersion", libs.versions.junit.get())
     }
 
     publishing {

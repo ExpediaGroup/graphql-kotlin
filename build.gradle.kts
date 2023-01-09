@@ -37,11 +37,7 @@ allprojects {
 }
 
 subprojects {
-    val kotlinxCoroutinesVersion: String by project
     val kotlinJvmVersion: String by project
-    val kotlinVersion: String by project
-    val junitVersion: String by project
-    val mockkVersion: String by project
 
     val detektVersion: String by project
     val ktlintVersion: String by project
@@ -178,15 +174,16 @@ subprojects {
         }
     }
 
+    // typesafe accessors to version catalog do not work in the subprojects/allprojects block, need to use rootProject.project
     dependencies {
-        implementation(kotlin("stdlib", kotlinVersion))
-        implementation(kotlin("reflect", kotlinVersion))
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinxCoroutinesVersion")
-        testImplementation(kotlin("test", kotlinVersion))
-        testImplementation(kotlin("test-junit5", kotlinVersion))
-        testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-        testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-        testImplementation("io.mockk:mockk:$mockkVersion")
+        implementation(rootProject.project.libs.kotlin.stdlib)
+        implementation(rootProject.project.libs.kotlin.reflect)
+        implementation(rootProject.project.libs.kotlinx.coroutines.jdk8)
+        testImplementation(rootProject.project.libs.kotlin.test)
+        testImplementation(rootProject.project.libs.kotlin.junit.test)
+        testImplementation(rootProject.project.libs.junit.api)
+        testImplementation(rootProject.project.libs.junit.engine)
+        testImplementation(rootProject.project.libs.mockk)
     }
 }
 

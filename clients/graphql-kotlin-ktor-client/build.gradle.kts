@@ -4,18 +4,15 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-val ktorVersion: String by project
-val wireMockVersion: String by project
-
 dependencies {
     api(project(path = ":graphql-kotlin-client"))
     api(project(path = ":graphql-kotlin-client-serialization"))
-    api("io.ktor:ktor-client-cio:$ktorVersion")
-    api("io.ktor:ktor-client-serialization:$ktorVersion")
+    api(libs.ktor.client.cio)
+    api(libs.ktor.client.serialization)
     testImplementation(project(path = ":graphql-kotlin-client-jackson"))
-    testImplementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-    testImplementation("io.ktor:ktor-client-logging:$ktorVersion")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:$wireMockVersion")
+    testImplementation(libs.ktor.client.logging)
+    testImplementation(libs.ktor.client.okhttp)
+    testImplementation(libs.wiremock.jre8)
 }
 
 tasks {
