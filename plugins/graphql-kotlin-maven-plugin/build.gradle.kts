@@ -9,8 +9,10 @@ buildscript {
     }
 }
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
-    id("de.benediktritter.maven-plugin-development")
+    id("com.expediagroup.graphql.conventions")
+    alias(libs.plugins.maven.plugin.development)
 }
 
 dependencies {

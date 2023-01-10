@@ -1,9 +1,11 @@
 description = "An example spring service for federation that extends the basic types with new fields"
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
-    kotlin("plugin.spring")
-    id("org.springframework.boot")
+    id("com.expediagroup.graphql.examples.conventions")
     id("com.expediagroup.graphql")
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
 }
 
 dependencies {

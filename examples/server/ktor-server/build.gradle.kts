@@ -1,8 +1,10 @@
 description = "An Example GraphQL service served by Ktor"
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
-    id("application")
+    id("com.expediagroup.graphql.examples.conventions")
     id("com.expediagroup.graphql")
+    application
 }
 
 application {

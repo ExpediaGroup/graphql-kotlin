@@ -2,9 +2,11 @@ import java.time.LocalDate
 
 description = "Gradle Kotlin Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
+    id("com.expediagroup.graphql.conventions")
     `java-gradle-plugin`
-    id("com.gradle.plugin-publish")
+    alias(libs.plugins.plugin.publish)
 }
 
 dependencies {

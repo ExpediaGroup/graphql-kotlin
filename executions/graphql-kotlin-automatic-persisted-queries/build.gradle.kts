@@ -1,5 +1,9 @@
 description = "Automatic Persisted Queries"
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     api(libs.graphql.java)
 }

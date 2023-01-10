@@ -1,5 +1,9 @@
 description = "Graphql Kotlin Data Loader"
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     api(libs.dataloader)
     testImplementation(libs.reactor.core)
