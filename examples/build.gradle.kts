@@ -35,7 +35,6 @@ subprojects {
         this.ext[key.toString()] = value
     }
 
-
     apply(plugin = "kotlin")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")

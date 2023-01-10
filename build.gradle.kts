@@ -39,10 +39,6 @@ allprojects {
 subprojects {
     val kotlinJvmVersion: String by project
 
-    val detektVersion: String by project
-    val ktlintVersion: String by project
-    val jacocoVersion: String by project
-
     val currentProject = this
 
     apply(plugin = "kotlin")
@@ -66,14 +62,14 @@ subprojects {
             dependsOn(jacocoTestCoverageVerification)
         }
         detekt {
-            toolVersion = detektVersion
+            toolVersion = rootProject.project.libs.versions.detekt.get()
             config = files("${rootProject.projectDir}/detekt.yml")
         }
         ktlint {
-            version.set(ktlintVersion)
+            version.set(rootProject.project.libs.versions.ktlint.core.get())
         }
         jacoco {
-            toolVersion = jacocoVersion
+            toolVersion = rootProject.project.libs.versions.jacoco.get()
         }
         jar {
             manifest {
