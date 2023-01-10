@@ -1,16 +1,9 @@
 description = "Graphql Kotlin Data Loader"
 
-val junitVersion: String by project
-val graphQLJavaDataLoaderVersion: String by project
-val reactorVersion: String by project
-val reactorExtensionsVersion: String by project
-
 dependencies {
-    api("com.graphql-java:java-dataloader:$graphQLJavaDataLoaderVersion")
-    testImplementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
-    testImplementation("io.projectreactor:reactor-core:$reactorVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    api(libs.dataloader)
+    testImplementation(libs.reactor.core)
+    testImplementation(libs.reactor.extensions)
 }
 
 tasks {

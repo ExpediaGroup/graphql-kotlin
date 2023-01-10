@@ -1,14 +1,11 @@
 description = "GraphQL Kotlin SDL generator that can be used to generate GraphQL schema from source files."
 
-val classGraphVersion: String by project
-val slf4jVersion: String by project
-
 dependencies {
     implementation(project(path = ":graphql-kotlin-hooks-provider"))
     implementation(project(path = ":graphql-kotlin-server"))
     implementation(project(path = ":graphql-kotlin-federation"))
-    implementation("io.github.classgraph:classgraph:$classGraphVersion")
-    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    implementation(libs.classgraph)
+    implementation(libs.slf4j)
     testImplementation(project(path = ":graphql-kotlin-spring-server"))
 }
 

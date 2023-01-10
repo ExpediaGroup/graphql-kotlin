@@ -2,23 +2,19 @@ import java.time.Duration
 
 description = "Example usage of Maven plugin to generate GraphQL Kotlin Client"
 
-val kotlinJvmVersion: String by project
-val kotlinVersion: String by project
-val kotlinxCoroutinesVersion: String by project
-val reactorVersion: String by project
-
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-client")
 }
 
 tasks {
+    val kotlinJvmVersion: String by project
     /* Gradle is used to invoke maven wrapper */
     val mavenEnvironmentVariables = mapOf(
         "graphqlKotlinVersion" to project.version,
         "kotlinJvmTarget" to kotlinJvmVersion,
-        "kotlinVersion" to kotlinVersion,
-        "kotlinxCoroutinesVersion" to kotlinxCoroutinesVersion,
-        "reactorVersion" to reactorVersion
+        "kotlinVersion" to libs.versions.kotlin.get(),
+        "kotlinxCoroutinesVersion" to libs.versions.kotlinx.coroutines.get(),
+        "reactorVersion" to libs.versions.reactor.core.get()
     )
     val wireMockServerPort: Int? = ext.get("wireMockServerPort") as? Int
     val mavenBuild by register("mavenBuild") {

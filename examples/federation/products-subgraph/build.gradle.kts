@@ -6,10 +6,9 @@ plugins {
     id("com.expediagroup.graphql")
 }
 
-val springBootVersion: String by project
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-server")
-    testImplementation("org.springframework.boot", "spring-boot-starter-test", springBootVersion)
+    testImplementation(libs.spring.boot.test)
 
     graphqlSDL("com.expediagroup", "graphql-kotlin-federated-hooks-provider")
 }

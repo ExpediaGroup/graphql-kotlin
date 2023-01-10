@@ -1,3 +1,18 @@
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+
+            // examples specific libs
+            library("ktor-client-jvm-logging", "io.ktor", "ktor-client-logging-jvm").versionRef("ktor")
+            library("ktor-server-core", "io.ktor", "ktor-server-core").versionRef("ktor")
+            library("ktor-server-netty", "io.ktor", "ktor-server-netty").versionRef("ktor")
+            library("logback", "ch.qos.logback", "logback-classic").version("1.2.1")
+            library("spring-boot-validation", "org.springframework.boot", "spring-boot-starter-validation").versionRef("spring-boot")
+        }
+    }
+}
+
 pluginManagement {
     val properties = java.util.Properties()
     properties.load(File(rootDir.parent, "gradle.properties").inputStream())

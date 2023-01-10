@@ -2,10 +2,8 @@ import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner
 import java.net.ServerSocket
 
 buildscript {
-    // cannot access project at this time
-    val wireMockVersion: String = "2.26.2"
     dependencies {
-        classpath("com.github.tomakehurst:wiremock-jre8-standalone:$wireMockVersion")
+        classpath(libs.wiremock.standalone)
     }
 }
 

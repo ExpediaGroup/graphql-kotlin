@@ -3,26 +3,9 @@ import java.time.Duration
 
 description = "GraphQL Kotlin Maven Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
-val graphQLJavaVersion: String by project
-val junitVersion: String by project
-val kotlinJvmVersion: String by project
-val kotlinVersion: String by project
-val kotlinxCoroutinesVersion: String by project
-val kotlinPoetVersion: String by project
-val kotlinxSerializationVersion: String by project
-val ktorVersion: String by project
-val reactorVersion: String by project
-
-// maven dependencies
-val mavenPluginApiVersion: String = "3.6.3"
-val mavenPluginAnnotationVersion: String = "3.6.0"
-val mavenProjectVersion: String = "2.2.1"
-
 buildscript {
-    // cannot access project at this time
-    val wireMockVersion: String = "2.26.2"
     dependencies {
-        classpath("com.github.tomakehurst:wiremock-jre8-standalone:$wireMockVersion")
+        classpath(libs.wiremock.standalone)
     }
 }
 
@@ -33,10 +16,10 @@ plugins {
 dependencies {
     api(project(path = ":graphql-kotlin-client-generator"))
     api(project(path = ":graphql-kotlin-sdl-generator"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
-    implementation("org.apache.maven:maven-plugin-api:$mavenPluginApiVersion")
-    implementation("org.apache.maven:maven-project:$mavenProjectVersion")
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:$mavenPluginAnnotationVersion")
+    api(libs.kotlinx.coroutines.core)
+    implementation(libs.maven.plugin.annotations)
+    implementation(libs.maven.plugin.api)
+    implementation(libs.maven.project)
     testImplementation(project(path = ":graphql-kotlin-spring-server"))
     testImplementation(project(path = ":graphql-kotlin-federated-hooks-provider"))
 }
@@ -51,20 +34,21 @@ tasks {
         }
     }
 
+    val kotlinJvmVersion: String by project
     /*
     Integration tests are run through maven-invoker-plugin which will execute tests under src/integration/<scenario>
      */
     val mavenEnvironmentVariables = mapOf(
         "graphqlKotlinVersion" to project.version,
-        "graphqlJavaVersion" to graphQLJavaVersion,
+        "graphqlJavaVersion" to libs.versions.graphql.java.get(),
         "kotlinJvmTarget" to kotlinJvmVersion,
-        "kotlinVersion" to kotlinVersion,
-        "kotlinxCoroutinesVersion" to kotlinxCoroutinesVersion,
-        "kotlinPoetVersion" to kotlinPoetVersion,
-        "kotlinxSerializationVersion" to kotlinxSerializationVersion,
-        "ktorVersion" to ktorVersion,
-        "reactorVersion" to reactorVersion,
-        "junitVersion" to junitVersion
+        "kotlinVersion" to libs.versions.kotlin.get(),
+        "kotlinxCoroutinesVersion" to libs.versions.kotlinx.coroutines.get(),
+        "kotlinPoetVersion" to libs.versions.poet.get(),
+        "kotlinxSerializationVersion" to libs.versions.kotlinx.serialization.get(),
+        "ktorVersion" to libs.versions.ktor.get(),
+        "reactorVersion" to libs.versions.reactor.core.get(),
+        "junitVersion" to libs.versions.junit.get()
     )
     var wireMockServer: WireMockServerRunner? = null
     var wireMockServerPort: Int? = null

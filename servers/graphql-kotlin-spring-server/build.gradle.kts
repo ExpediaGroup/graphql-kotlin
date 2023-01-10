@@ -5,22 +5,17 @@ plugins {
     kotlin("kapt")
 }
 
-val kotlinxCoroutinesVersion: String by project
-val springBootVersion: String by project
-val reactorVersion: String by project
-val reactorExtensionsVersion: String by project
-
 dependencies {
     api(project(path = ":graphql-kotlin-server"))
     api(project(path = ":graphql-kotlin-federation"))
-    api("org.springframework.boot:spring-boot-starter-webflux:$springBootVersion")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinxCoroutinesVersion")
-    api("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorExtensionsVersion")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinxCoroutinesVersion")
-    kapt("org.springframework.boot:spring-boot-configuration-processor:$springBootVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
-    testImplementation("io.projectreactor:reactor-test:$reactorVersion")
+    api(libs.spring.boot.webflux)
+    api(libs.kotlinx.coroutines.jdk8)
+    api(libs.kotlinx.coroutines.reactor)
+    api(libs.reactor.extensions)
+    kapt(libs.spring.boot.config)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.spring.boot.test)
+    testImplementation(libs.reactor.test)
 }
 
 tasks {

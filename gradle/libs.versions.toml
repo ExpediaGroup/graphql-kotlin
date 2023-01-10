@@ -1,0 +1,123 @@
+[versions]
+android-plugin = "7.1.2"
+classgraph = "4.8.149"
+dataloader = "3.2.0"
+federation = "2.0.7"
+graphql-java = "19.2"
+jackson = "2.13.3"
+kotlin = "1.7.21"
+kotlinx-benchmark = "0.4.4"
+kotlinx-coroutines = "1.6.4"
+kotlinx-serialization = "1.4.1"
+ktor = "2.0.3"
+maven-plugin-annotation = "3.6.0"
+maven-plugin-api = "3.6.3"
+maven-project = "2.2.1"
+poet = "1.12.0"
+## reactorVersion should be the same reactor-core version pulled from spring-boot-starter-webflux
+reactor-core = "3.4.26"
+reactor-extensions = "1.1.9"
+slf4j = "1.7.36"
+spring = "5.3.24"
+spring-boot = "2.7.7"
+
+# test dependencies
+# kotlin-compile-testing has to be using the same kotlin version as the kotlinx-serialization compiler
+# https://github.com/tschuchortdev/kotlin-compile-testing the latest version targets kotlin 1.7.10 which blocks updates to newer
+# versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
+compile-testing = "0.1.0"
+icu = "71.1"
+junit = "5.8.2"
+mockk = "1.12.5"
+mustache = "0.9.10"
+rxjava = "3.1.5"
+wiremock = "2.33.2"
+
+# plugins
+detekt = "1.21.0"
+dokka = "1.6.10"
+jacoco = "0.8.8"
+# klint gradle plugin breaks with 0.46.x+
+ktlint-core = "0.45.2"
+ktlint-plugin = "10.3.0"
+maven-plugin-development = "0.4.0"
+nexus-publish-plugin = "1.1.0"
+plugin-publish = "0.21.0"
+
+# ====================
+# LIBRARIES
+# ====================
+[libraries]
+android-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android-plugin" }
+classgraph = { group = "io.github.classgraph", name = "classgraph", version.ref = "classgraph" }
+dataloader = { group = "com.graphql-java", name = "java-dataloader", version.ref = "dataloader" }
+federation = { group = "com.apollographql.federation", name = "federation-graphql-java-support", version.ref = "federation" }
+graphql-java = { group = "com.graphql-java", name = "graphql-java", version.ref = "graphql-java" }
+jackson = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref= "kotlin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-jdk8 = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-jdk8", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-reactive = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-reactor = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+ktor-client-apache = { group = "io.ktor", name = "ktor-client-apache", version.ref = "ktor" }
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-client-content = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
+ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
+maven-plugin-annotations = { group = "org.apache.maven.plugin-tools", name = "maven-plugin-annotations", version.ref = "maven-plugin-annotation" }
+maven-plugin-api = { group = "org.apache.maven", name = "maven-plugin-api", version.ref = "maven-plugin-api" }
+maven-project = { group = "org.apache.maven", name = "maven-project", version.ref = "maven-project" }
+poet = { group = "com.squareup", name = "kotlinpoet", version.ref = "poet" }
+slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+spring-boot-config = { group = "org.springframework.boot", name = "spring-boot-configuration-processor", version.ref = "spring-boot" }
+spring-boot-netty = { group = "org.springframework.boot", name = "spring-boot-starter-reactor-netty", version.ref = "spring-boot" }
+spring-boot-webflux = { group = "org.springframework.boot", name = "spring-boot-starter-webflux", version.ref = "spring-boot" }
+spring-webflux = { group = "org.springframework", name = "spring-webflux", version.ref = "spring" }
+
+# test dependencies
+compile-testing = { group = "dev.zacsweers.kctfork", name = "core", version.ref = "compile-testing" }
+icu = { group = "com.ibm.icu", name = "icu4j", version.ref = "icu" }
+junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+junit-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
+kotlin-junit-test = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5", version.ref = "kotlin" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+kotlinx-benchmark = { group = "org.jetbrains.kotlinx", name = "kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mustache = { group = "com.github.spullara.mustache.java", name = "compiler", version.ref = "mustache" }
+reactor-core = { group = "io.projectreactor", name = "reactor-core", version.ref = "reactor-core" }
+reactor-extensions = { group = "io.projectreactor.kotlin", name = "reactor-kotlin-extensions", version.ref = "reactor-extensions" }
+reactor-test = { group = "io.projectreactor", name = "reactor-test", version.ref = "reactor-core" }
+rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxjava" }
+spring-boot-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version.ref = "spring-boot" }
+wiremock-jre8 = { group = "com.github.tomakehurst", name = "wiremock-jre8", version.ref = "wiremock" }
+wiremock-standalone = { group = "com.github.tomakehurst", name = "wiremock-jre8-standalone", version.ref = "wiremock" }
+
+# ====================
+# BUNDLES
+# ====================
+[bundles]
+#groovy = ["groovy-core", "groovy-json", "groovy-nio"]
+
+# ====================
+# PLUGINS
+# ====================
+[plugins]
+benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
+maven-plugin-development = { id = "de.benediktritter.maven-plugin-development", version.ref = "maven-plugin-development" }
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish-plugin" }
+plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
