@@ -39,6 +39,7 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
         additionalInputTypes: Set<KType>,
         schemaObject: TopLevelObject?
     ): GraphQLSchema {
+        // TEST PR TO TRIGGER FEDERATION COMPATIBILITY TEST
         addAdditionalTypesWithAnnotation(KeyDirective::class, inputType = false)
         return super.generateSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes, schemaObject)
     }
