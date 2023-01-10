@@ -35,26 +35,19 @@ subprojects {
         this.ext[key.toString()] = value
     }
 
-    val icuVersion: String by project
-    val junitVersion: String by project
-    val kotlinVersion: String by project
-    val kotlinxCoroutinesVersion: String by project
-
-    val detektVersion: String by project
-    val ktlintVersion: String by project
 
     apply(plugin = "kotlin")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     dependencies {
-        implementation(kotlin("stdlib", kotlinVersion))
-        implementation(kotlin("reflect", kotlinVersion))
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinxCoroutinesVersion")
-        implementation("com.ibm.icu:icu4j:$icuVersion")
-        testImplementation(kotlin("test-junit5", kotlinVersion))
-        testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-        testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+        implementation(rootProject.project.libs.kotlin.stdlib)
+        implementation(rootProject.project.libs.kotlin.reflect)
+        implementation(rootProject.project.libs.kotlinx.coroutines.jdk8)
+        implementation(rootProject.project.libs.icu)
+        testImplementation(rootProject.project.libs.kotlin.junit.test)
+        testImplementation(rootProject.project.libs.junit.api)
+        testImplementation(rootProject.project.libs.junit.engine)
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -66,11 +59,11 @@ subprojects {
 
     tasks {
         detekt {
-            toolVersion = detektVersion
+            toolVersion = rootProject.project.libs.versions.detekt.get()
             config = files(File(rootDir.parent, "detekt.yml").absolutePath)
         }
         ktlint {
-            version.set(ktlintVersion)
+            version.set(rootProject.project.libs.versions.ktlint.core.get())
         }
         jar {
             enabled = false

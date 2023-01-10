@@ -13,8 +13,8 @@ plugins {
 val ktorVersion: String by project
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-ktor-client")
-    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.jvm.logging)
 }
 
 application {

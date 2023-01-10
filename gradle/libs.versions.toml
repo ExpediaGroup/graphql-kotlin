@@ -38,7 +38,7 @@ detekt = "1.21.0"
 dokka = "1.6.10"
 jacoco = "0.8.8"
 # klint gradle plugin breaks with 0.46.x+
-ktlint = "0.45.2"
+ktlint-core = "0.45.2"
 ktlint-plugin = "10.3.0"
 maven-plugin-development = "0.4.0"
 nexus-publish-plugin = "1.1.0"
