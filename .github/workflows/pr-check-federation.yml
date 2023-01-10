@@ -10,5 +10,5 @@ on:
 jobs:
   federation-compatibility:
     uses: ./.github/workflows/federation-compatibility.yml
-#    secrets:
-#      token: ${{ secrets.PAT }}
+    secrets:
+      token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}

@@ -12,11 +12,12 @@ buildscript {
     }
 }
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     id("com.expediagroup.graphql")
-    id("org.springframework.boot") version "2.7.7"
-	kotlin("jvm") version "1.7.21"
-	kotlin("plugin.spring") version "1.7.21"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
 }
 
 group = "com.expediagroup.federation.compatibility"
@@ -32,8 +33,8 @@ repositories {
 }
 
 dependencies {
-	implementation("org.jetbrains.kotlin", "kotlin-reflect")
-	implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+	implementation(libs.kotlin.reflect)
+	implementation(libs.kotlin.stdlib)
 	implementation("com.expediagroup", "graphql-kotlin-spring-server")
     graphqlSDL("com.expediagroup", "graphql-kotlin-federated-hooks-provider")
 }
