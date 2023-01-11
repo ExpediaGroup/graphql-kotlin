@@ -8,6 +8,29 @@ plugins {
     alias(libs.plugins.nexus.publish)
 }
 
+allprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+            mavenLocal {
+                content {
+                    includeGroup("com.expediagroup")
+                }
+            }
+        }
+    }
+
+    repositories {
+        mavenCentral()
+        google()
+        mavenLocal {
+            content {
+                includeGroup("com.expediagroup")
+            }
+        }
+    }
+}
+
 tasks {
     nexusPublishing {
         repositories {

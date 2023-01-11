@@ -15,27 +15,6 @@ plugins {
     `maven-publish`
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal {
-            content {
-                includeGroup("com.expediagroup")
-            }
-        }
-    }
-}
-
-repositories {
-    mavenCentral()
-    google()
-    mavenLocal {
-        content {
-            includeGroup("com.expediagroup")
-        }
-    }
-}
-
 // this is a workaround to enable version catalog usage in the convention plugin
 // see https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
 val libs = the<LibrariesForLibs>()

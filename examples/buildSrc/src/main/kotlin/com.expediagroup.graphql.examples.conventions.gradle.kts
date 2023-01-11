@@ -1,32 +1,11 @@
+import java.util.Properties
 import org.gradle.accessors.dm.LibrariesForLibs
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.time.Instant
 
 plugins {
     kotlin("jvm")
     id("org.jlleitschuh.gradle.ktlint")
     id("io.gitlab.arturbosch.detekt")
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal {
-            content {
-                includeGroup("com.expediagroup")
-            }
-        }
-    }
-}
-
-repositories {
-    mavenCentral()
-    mavenLocal {
-        content {
-            includeGroup("com.expediagroup")
-        }
-    }
 }
 
 // this is a workaround to enable version catalog usage in the convention plugin
@@ -35,7 +14,7 @@ val libs = the<LibrariesForLibs>()
 val properties = Properties()
 properties.load(File(rootDir.parent, "gradle.properties").inputStream())
 for ((key, value) in properties) {
-    this.ext[key.toString()] = value
+    project.ext[key.toString()] = value
 }
 
 dependencies {
