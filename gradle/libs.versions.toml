@@ -2,7 +2,7 @@
 android-plugin = "7.1.2"
 classgraph = "4.8.149"
 dataloader = "3.2.0"
-federation = "2.0.7"
+federation = "2.2.0"
 graphql-java = "19.2"
 jackson = "2.13.3"
 kotlin = "1.7.21"
