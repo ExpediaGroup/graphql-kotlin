@@ -8,8 +8,8 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-server"))
-    api(project(path = ":graphql-kotlin-federation"))
+    api(projects.graphqlKotlinServer)
+    api(projects.graphqlKotlinFederation)
     api(libs.spring.boot.webflux)
     api(libs.kotlinx.coroutines.jdk8)
     api(libs.kotlinx.coroutines.reactor)

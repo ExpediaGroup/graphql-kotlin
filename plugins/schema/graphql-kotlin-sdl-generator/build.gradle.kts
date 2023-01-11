@@ -5,12 +5,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(path = ":graphql-kotlin-hooks-provider"))
-    implementation(project(path = ":graphql-kotlin-server"))
-    implementation(project(path = ":graphql-kotlin-federation"))
+    implementation(projects.graphqlKotlinHooksProvider)
+    implementation(projects.graphqlKotlinServer)
+    implementation(projects.graphqlKotlinFederation)
     implementation(libs.classgraph)
     implementation(libs.slf4j)
-    testImplementation(project(path = ":graphql-kotlin-spring-server"))
+    testImplementation(projects.graphqlKotlinSpringServer)
 }
 
 sourceSets {

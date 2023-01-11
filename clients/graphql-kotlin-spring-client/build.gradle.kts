@@ -7,12 +7,12 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-client"))
-    api(project(path = ":graphql-kotlin-client-jackson"))
+    api(projects.graphqlKotlinClient)
+    api(projects.graphqlKotlinClientJackson)
     api(libs.kotlinx.coroutines.reactor)
     api(libs.spring.webflux)
     api(libs.spring.boot.netty)
-    testImplementation(project(path = ":graphql-kotlin-client-serialization"))
+    testImplementation(projects.graphqlKotlinClientSerialization)
     testImplementation(libs.wiremock.jre8)
 }
 

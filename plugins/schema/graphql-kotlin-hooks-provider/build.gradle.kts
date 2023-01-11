@@ -5,5 +5,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":graphql-kotlin-schema-generator"))
+    implementation(projects.graphqlKotlinSchemaGenerator)
 }

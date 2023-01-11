@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-client"))
+    api(projects.graphqlKotlinClient)
     api(libs.graphql.java) {
         exclude(group = "com.graphql-java", module = "java-dataloader")
     }
@@ -19,8 +19,8 @@ dependencies {
     }
     implementation(libs.ktor.client.content)
     implementation(libs.slf4j)
-    testImplementation(project(path = ":graphql-kotlin-client-jackson"))
-    testImplementation(project(path = ":graphql-kotlin-client-serialization"))
+    testImplementation(projects.graphqlKotlinClientJackson)
+    testImplementation(projects.graphqlKotlinClientSerialization)
     testImplementation(libs.wiremock.jre8)
     testImplementation(libs.compile.testing)
     testImplementation(libs.icu)

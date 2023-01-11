@@ -54,6 +54,7 @@ dataloader = { group = "com.graphql-java", name = "java-dataloader", version.ref
 federation = { group = "com.apollographql.federation", name = "federation-graphql-java-support", version.ref = "federation" }
 graphql-java = { group = "com.graphql-java", name = "graphql-java", version.ref = "graphql-java" }
 jackson = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+kotlin-gradle-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref= "kotlin" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }

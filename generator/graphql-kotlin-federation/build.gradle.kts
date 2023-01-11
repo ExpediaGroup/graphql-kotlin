@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-schema-generator"))
+    api(projects.graphqlKotlinSchemaGenerator)
     api(libs.federation)
     testImplementation(libs.reactor.core)
     testImplementation(libs.reactor.extensions)

@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-client"))
+    api(projects.graphqlKotlinClient)
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.serialization.json)
 }
