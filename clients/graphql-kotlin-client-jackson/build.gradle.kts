@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-client"))
+    api(projects.graphqlKotlinClient)
     api(libs.jackson)
 }
 

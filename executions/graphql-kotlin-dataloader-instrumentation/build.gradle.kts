@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-dataloader"))
+    api(projects.graphqlKotlinDataloader)
     api(libs.graphql.java) {
         exclude(group = "com.graphql-java", module = "java-dataloader")
     }

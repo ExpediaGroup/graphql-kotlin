@@ -9,9 +9,9 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-schema-generator"))
-    api(project(path = ":graphql-kotlin-dataloader-instrumentation"))
-    api(project(path = ":graphql-kotlin-automatic-persisted-queries"))
+    api(projects.graphqlKotlinSchemaGenerator)
+    api(projects.graphqlKotlinDataloaderInstrumentation)
+    api(projects.graphqlKotlinAutomaticPersistedQueries)
     api(libs.jackson)
     testImplementation(libs.kotlinx.coroutines.test)
 }

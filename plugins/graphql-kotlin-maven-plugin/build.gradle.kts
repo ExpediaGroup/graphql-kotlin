@@ -16,14 +16,14 @@ plugins {
 }
 
 dependencies {
-    api(project(path = ":graphql-kotlin-client-generator"))
-    api(project(path = ":graphql-kotlin-sdl-generator"))
+    api(projects.graphqlKotlinClientGenerator)
+    api(projects.graphqlKotlinSdlGenerator)
     api(libs.kotlinx.coroutines.core)
     implementation(libs.maven.plugin.annotations)
     implementation(libs.maven.plugin.api)
     implementation(libs.maven.project)
-    testImplementation(project(path = ":graphql-kotlin-spring-server"))
-    testImplementation(project(path = ":graphql-kotlin-federated-hooks-provider"))
+    testImplementation(projects.graphqlKotlinSpringServer)
+    testImplementation(projects.graphqlKotlinFederatedHooksProvider)
 }
 
 tasks {

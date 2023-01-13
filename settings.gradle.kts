@@ -1,5 +1,7 @@
 rootProject.name = "graphql-kotlin"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 // Clients
 include(":graphql-kotlin-client")
 include(":graphql-kotlin-client-serialization")
@@ -27,6 +29,7 @@ include(":graphql-kotlin-spring-server")
 include(":graphql-kotlin-dataloader")
 include(":graphql-kotlin-dataloader-instrumentation")
 include(":graphql-kotlin-automatic-persisted-queries")
+
 //
 // Project mappings so we don't need to create projects that group subprojects
 //

@@ -5,6 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":graphql-kotlin-federation"))
-    implementation(project(":graphql-kotlin-hooks-provider"))
+    implementation(projects.graphqlKotlinFederation)
+    implementation(projects.graphqlKotlinHooksProvider)
 }

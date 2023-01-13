@@ -10,11 +10,11 @@ plugins {
 }
 
 dependencies {
-    implementation(kotlin("gradle-plugin-api"))
+    implementation(libs.kotlin.gradle.api)
     compileOnly(libs.android.plugin)
 
-    compileOnly(project(":graphql-kotlin-client-generator"))
-    compileOnly(project(":graphql-kotlin-sdl-generator"))
+    compileOnly(projects.graphqlKotlinClientGenerator)
+    compileOnly(projects.graphqlKotlinSdlGenerator)
 
     testImplementation(libs.wiremock.jre8)
     testImplementation(libs.mustache)
