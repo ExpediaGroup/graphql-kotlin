@@ -99,6 +99,12 @@ spring-boot-test = { group = "org.springframework.boot", name = "spring-boot-sta
 wiremock-jre8 = { group = "com.github.tomakehurst", name = "wiremock-jre8", version.ref = "wiremock" }
 wiremock-standalone = { group = "com.github.tomakehurst", name = "wiremock-jre8-standalone", version.ref = "wiremock" }
 
+# build src plugin libraries
+detekt-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
+dokka-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+ktlint-plugin = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-plugin" }
+
 # ====================
 # BUNDLES
 # ====================

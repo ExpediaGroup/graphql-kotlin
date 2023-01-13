@@ -1,5 +1,9 @@
 description = "GraphQL Kotlin common utilities to generate a client."
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     api(project(path = ":graphql-kotlin-client"))
     api(libs.graphql.java) {

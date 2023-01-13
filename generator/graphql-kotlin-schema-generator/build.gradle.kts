@@ -1,5 +1,9 @@
 description = "Code-only GraphQL schema generation for Kotlin"
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     api(libs.graphql.java)
     api(libs.kotlinx.coroutines.reactive)

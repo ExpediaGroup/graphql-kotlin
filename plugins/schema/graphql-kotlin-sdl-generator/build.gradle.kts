@@ -1,5 +1,9 @@
 description = "GraphQL Kotlin SDL generator that can be used to generate GraphQL schema from source files."
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     implementation(project(path = ":graphql-kotlin-hooks-provider"))
     implementation(project(path = ":graphql-kotlin-server"))

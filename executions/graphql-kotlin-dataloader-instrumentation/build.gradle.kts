@@ -1,5 +1,9 @@
 description = "Data Loader Instrumentations"
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     api(project(path = ":graphql-kotlin-dataloader"))
     api(libs.graphql.java) {

@@ -2,6 +2,10 @@ import java.time.Duration
 
 description = "Example usage of Maven plugin to generate GraphQL Kotlin Client"
 
+plugins {
+    id("com.expediagroup.graphql.examples.conventions")
+}
+
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-client")
 }

@@ -13,25 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-pluginManagement {
-    val properties = java.util.Properties()
-    properties.load(File(rootDir.parent, "gradle.properties").inputStream())
-
-    val detektVersion: String by properties
-    val kotlinVersion: String by properties
-    val ktlintPluginVersion: String by properties
-    val springBootVersion: String by properties
-
-    plugins {
-        kotlin("jvm") version kotlinVersion
-        kotlin("plugin.spring") version kotlinVersion
-        kotlin("plugin.serialization") version kotlinVersion
-        id("io.gitlab.arturbosch.detekt") version detektVersion
-        id("org.jlleitschuh.gradle.ktlint") version ktlintPluginVersion
-        id("org.springframework.boot") version springBootVersion
-    }
-}
-
 rootProject.name = "graphql-kotlin-examples"
 
 // composite builds

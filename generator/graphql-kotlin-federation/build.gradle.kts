@@ -1,5 +1,9 @@
 description = "Federated GraphQL schema generator"
 
+plugins {
+    id("com.expediagroup.graphql.conventions")
+}
+
 dependencies {
     api(project(path = ":graphql-kotlin-schema-generator"))
     api(libs.federation)
