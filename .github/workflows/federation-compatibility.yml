@@ -39,3 +39,5 @@ jobs:
           schema: 'integration/federation-compatibility/build/schema.graphql'
           debug: true
           token: ${{ secrets.token }}
+          failOnWarning: true
+          failOnRequired: true
