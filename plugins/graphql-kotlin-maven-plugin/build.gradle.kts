@@ -4,16 +4,28 @@ import java.time.Duration
 description = "GraphQL Kotlin Maven Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
 buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal {
+            content {
+                includeGroup("de.benediktritter")
+            }
+        }
+    }
+
     dependencies {
         classpath(libs.wiremock.standalone)
+        classpath("de.benediktritter:plugin:99.99.99")
     }
 }
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     id("com.expediagroup.graphql.conventions")
-    alias(libs.plugins.maven.plugin.development)
+//    alias(libs.plugins.maven.plugin.development)
 }
+
+apply(plugin = "de.benediktritter.maven-plugin-development")
 
 dependencies {
     api(projects.graphqlKotlinClientGenerator)
