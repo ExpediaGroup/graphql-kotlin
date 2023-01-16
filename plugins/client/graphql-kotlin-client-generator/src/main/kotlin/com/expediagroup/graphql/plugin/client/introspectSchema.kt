@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,14 +135,15 @@ fun introspectSchema(
     endpoint: String,
     httpHeaders: Map<String, Any> = emptyMap(),
     connectTimeout: Long = 5_000,
-    readTimeout: Long = 15_000
+    readTimeout: Long = 15_000,
+    streamResponse: Boolean = true
 ): String = HttpClient(engineFactory = Apache) {
     install(HttpTimeout) {
         connectTimeoutMillis = connectTimeout
         requestTimeoutMillis = readTimeout
     }
     install(ContentNegotiation) {
-        jackson()
+        jackson(streamRequestBody = streamResponse)
     }
 }.use { client ->
     runBlocking {

@@ -402,4 +402,5 @@ rerun it by specifying `--rerun-tasks` option or by executing `clean` task.
 | `endpoint` | String | yes | Target GraphQL server endpoint that will be used to execute introspection queries.<br/>**Command line property is**: `endpoint`. |
 | `headers` | `Map<String, Any>` | | Optional HTTP headers to be specified on an introspection query. |
 | `outputFile` | File | | Target GraphQL schema file to be generated.<br/>**Default value is:** `${project.buildDir}/schema.graphql` |
+| `streamResponse` | Boolean | | Boolean property to indicate whether to use streamed (chunked) responses. <br/>**Default value is:** true. |
 | `timeoutConfig` | TimeoutConfig | | Timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default value are:**<br/>connect timeout = 5_000<br/>read timeout = 15_000.<br/>|
