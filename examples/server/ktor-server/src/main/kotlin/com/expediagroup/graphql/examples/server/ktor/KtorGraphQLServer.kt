@@ -20,7 +20,6 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
@@ -33,7 +32,7 @@ import io.ktor.server.request.ApplicationRequest
  */
 class KtorGraphQLServer(
     requestParser: KtorGraphQLRequestParser,
-    contextFactory: GraphQLContextFactory<GraphQLContext, ApplicationRequest>,
+    contextFactory: GraphQLContextFactory<ApplicationRequest>,
     requestHandler: GraphQLRequestHandler
 ) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
 

@@ -4,8 +4,8 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.execution.GraphQLContext
 import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
@@ -13,6 +13,7 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.schema.GraphQLSchema
 import io.ktor.events.EventDefinition
 import io.ktor.http.*
@@ -105,9 +106,9 @@ class KtorGraphQLConfig private constructor() {
         val requestParser = KtorGraphQLRequestParser(mapper)
 
         val generateContextMapLambda = generateContextLambda
-        val contextFactory = object : GraphQLContextFactory<GraphQLContext, ApplicationRequest> {
-            override suspend fun generateContextMap(request: ApplicationRequest): Map<*, Any> {
-                return generateContextMapLambda(request)
+        val contextFactory = object : GraphQLContextFactory<ApplicationRequest> {
+            override suspend fun generateContext(request: ApplicationRequest): GraphQLContext {
+                return generateContextMapLambda(request).toGraphQLContext()
             }
         }
 

@@ -5,6 +5,7 @@ dependencyResolutionManagement {
 
             // examples specific libs
             library("ktor-client-jvm-logging", "io.ktor", "ktor-client-logging-jvm").versionRef("ktor")
+            library("ktor-server-content", "io.ktor", "ktor-server-content-negotiation").versionRef("ktor")
             library("spring-boot-validation", "org.springframework.boot", "spring-boot-starter-validation").versionRef("spring-boot")
         }
     }
