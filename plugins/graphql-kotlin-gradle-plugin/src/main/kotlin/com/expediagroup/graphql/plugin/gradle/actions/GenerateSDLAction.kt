@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.gradle.workers.WorkAction
  * Action is run using Gradle classloader isolation with a custom classpath that has a dependency on `graphql-kotlin-sdl-generator`
  * and custom `SchemaGeneratorHooks` providers.
  */
-@Suppress("UnstableApiUsage")
 abstract class GenerateSDLAction : WorkAction<GenerateSDLParameters> {
 
     /**

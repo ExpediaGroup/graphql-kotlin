@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.io.File
 /**
  * WorkParameters used for generating GraphQL HTTP client.
  */
-@Suppress("UnstableApiUsage")
 interface GenerateClientParameters : WorkParameters {
     /** Target package for the generated classes. **/
     val packageName: Property<String>

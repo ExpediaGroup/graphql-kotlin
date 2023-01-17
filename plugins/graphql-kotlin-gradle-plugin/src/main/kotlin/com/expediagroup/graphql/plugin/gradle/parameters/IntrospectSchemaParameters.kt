@@ -16,17 +16,12 @@
 
 package com.expediagroup.graphql.plugin.gradle.parameters
 
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.workers.WorkParameters
-import java.io.File
 
 /**
- * WorkParameters used for generating GraphQL schema in SDL format.
+ * WorkParameters used for introspecting GraphQL server.
  */
-interface GenerateSDLParameters : WorkParameters {
-    /** List of supported packages that can contain GraphQL schema type definitions. */
-    val supportedPackages: ListProperty<String>
-    /** Target generated schema file. */
-    val schemaFile: Property<File>
+interface IntrospectSchemaParameters : RetrieveSchemaParameters {
+    /** Boolean flag to indicate whether to use streamed (chunked) responses */
+    val streamResponse: Property<Boolean>
 }

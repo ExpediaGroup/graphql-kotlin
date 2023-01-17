@@ -215,6 +215,7 @@ instead should be used to generate input for the subsequent `generate-client` go
 | `headers` | Map<String, Any> | | Optional HTTP headers to be specified on an introspection query. |
 | `timeoutConfiguration` | TimeoutConfiguration | | Optional timeout configuration (in milliseconds) to download schema from SDL endpoint before we cancel the request.<br/>**Default values are:**<br/>connect timeout = 5000<br/>read timeout = 15000.<br/> |
 | `schemaFile` | File | | Target schema file.<br/>**Default value is**: `${project.build.directory}/schema.graphql`<br/>**User property is**: `graphql.schemaFile`. |
+| `streamResponse` | Boolean | | Boolean property to indicate whether to use streamed (chunked) responses.<br/>Default value is**: true. |
 
 **Parameter Details**
 

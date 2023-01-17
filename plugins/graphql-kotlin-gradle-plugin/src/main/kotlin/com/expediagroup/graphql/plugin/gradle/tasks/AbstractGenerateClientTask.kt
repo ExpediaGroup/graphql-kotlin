@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import javax.inject.Inject
 /**
  * Generate GraphQL Kotlin client and corresponding data classes based on the provided GraphQL queries.
  */
-@Suppress("UnstableApiUsage")
 abstract class AbstractGenerateClientTask : DefaultTask() {
 
     @get:Classpath

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.expediagroup.graphql.plugin.gradle.actions
 
 import com.expediagroup.graphql.plugin.client.introspectSchema
-import com.expediagroup.graphql.plugin.gradle.parameters.RetrieveSchemaParameters
+import com.expediagroup.graphql.plugin.gradle.parameters.IntrospectSchemaParameters
 import org.gradle.workers.WorkAction
 
 /**
@@ -25,16 +25,16 @@ import org.gradle.workers.WorkAction
  *
  * Action is run using Gradle classloader isolation with a custom classpath that has a dependency on `graphql-kotlin-client-generator`.
  */
-@Suppress("UnstableApiUsage")
-abstract class IntrospectSchemaAction : WorkAction<RetrieveSchemaParameters> {
+abstract class IntrospectSchemaAction : WorkAction<IntrospectSchemaParameters> {
 
     override fun execute() {
         val endpoint = parameters.endpoint.get()
         val headers = parameters.headers.get()
         val timeout = parameters.timeoutConfiguration.get()
         val schemaFile = parameters.schemaFile.get()
+        val streamResponse = parameters.streamResponse.get()
 
-        val schema = introspectSchema(endpoint, headers, timeout.connect, timeout.read)
-        schemaFile.writeText(schema.toString())
+        val schema = introspectSchema(endpoint, headers, timeout.connect, timeout.read, streamResponse)
+        schemaFile.writeText(schema)
     }
 }

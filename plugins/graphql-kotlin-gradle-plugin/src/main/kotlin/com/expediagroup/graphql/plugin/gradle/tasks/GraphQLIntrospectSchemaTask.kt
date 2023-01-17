@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ internal const val INTROSPECT_SCHEMA_TASK_NAME: String = "graphqlIntrospectSchem
 /**
  * Task that executes GraphQL introspection query against specified endpoint and saves the underlying schema file.
  */
-@Suppress("UnstableApiUsage")
 abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
 
     @get:Classpath
@@ -65,6 +64,12 @@ abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
     val timeoutConfig: Property<TimeoutConfiguration> = project.objects.property(TimeoutConfiguration::class.java)
 
     /**
+     * Boolean property to indicate whether to use streamed (chunked) responses.
+     */
+    @Input
+    val streamResponse: Property<Boolean> = project.objects.property(Boolean::class.java)
+
+    /**
      * Target GraphQL schema file to be generated.
      */
     @OutputFile
@@ -78,6 +83,7 @@ abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
         description = "Run introspection query against target GraphQL endpoint and save schema locally."
 
         headers.convention(emptyMap())
+        streamResponse.convention(true)
         timeoutConfig.convention(TimeoutConfiguration())
         outputFile.convention(project.layout.buildDirectory.file("schema.graphql"))
     }
@@ -85,7 +91,6 @@ abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
     /**
      * Executes introspection query against specified endpoint and saves the resulting schema locally in the target output file.
      */
-    @Suppress("EXPERIMENTAL_API_USAGE")
     @TaskAction
     fun introspectSchemaAction() {
         val schemaFile = outputFile.asFile.get()
@@ -105,6 +110,7 @@ abstract class GraphQLIntrospectSchemaTask : DefaultTask() {
             parameters.headers.set(headers)
             parameters.timeoutConfiguration.set(timeoutConfig)
             parameters.schemaFile.set(schemaFile)
+            parameters.streamResponse.set(streamResponse)
         }
         workQueue.await()
         logger.debug("successfully introspected GraphQL schema")

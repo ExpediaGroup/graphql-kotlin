@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.io.File
 /**
  * WorkParameters used for downloading SDL/introspecting GraphQL server.
  */
-@Suppress("UnstableApiUsage")
 interface RetrieveSchemaParameters : WorkParameters {
     /** Target GraphQL server endpoint. */
     val endpoint: Property<String>
