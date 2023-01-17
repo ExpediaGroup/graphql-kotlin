@@ -29,6 +29,8 @@ data class GraphQLConfigurationProperties(
     val endpoint: String = "graphql",
     /** List of supported packages that can contain GraphQL schema type definitions */
     val packages: List<String>,
+    /** Boolean flag indicating whether to print the schema after generator creates it */
+    val printSchema: Boolean = false,
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),

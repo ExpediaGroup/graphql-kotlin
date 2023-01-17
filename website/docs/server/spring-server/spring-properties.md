@@ -11,6 +11,7 @@ details on the supported configuration properties.
 |-----------------------------------------|------------------------------------------------------------------------------------------------------------------|-------------------------------|
 | graphql.endpoint                        | GraphQL server endpoint                                                                                          | graphql                       |
 | graphql.packages                        | List of supported packages that can contain GraphQL schema type definitions                                      |                               |
+| graphql.printSchema                     | Boolean flag indicating whether to print the schema after generator creates it                                   | false                         |
 | graphql.federation.enabled              | Boolean flag indicating whether to generate federated GraphQL model                                              | false                         |
 | graphql.federation.optInV2              | Boolean flag indicating whether to generate Federation v2 GraphQL model                                          | false                         |
 | graphql.federation.tracing.enabled      | Boolean flag indicating whether add federated tracing data to the extensions                                     | true (if federation enabled)  |
