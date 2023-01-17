@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,27 +45,25 @@ import java.util.Optional
 @ConditionalOnProperty(value = ["graphql.federation.enabled"], havingValue = "false", matchIfMissing = true)
 @Configuration
 @Import(GraphQLExecutionConfiguration::class)
-class NonFederatedSchemaAutoConfiguration {
+class NonFederatedSchemaAutoConfiguration(
+    private val config: GraphQLConfigurationProperties
+) {
 
     private val logger = LoggerFactory.getLogger(NonFederatedSchemaAutoConfiguration::class.java)
 
     @Bean
     @ConditionalOnMissingBean
     fun schemaConfig(
-        config: GraphQLConfigurationProperties,
         topLevelNames: Optional<TopLevelNames>,
         hooks: Optional<SchemaGeneratorHooks>,
         dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
-    ): SchemaGeneratorConfig {
-        val generatorHooks = hooks.orElse(NoopSchemaGeneratorHooks)
-        return SchemaGeneratorConfig(
-            supportedPackages = config.packages,
-            topLevelNames = topLevelNames.orElse(TopLevelNames()),
-            hooks = generatorHooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider,
-            introspectionEnabled = config.introspection.enabled
-        )
-    }
+    ): SchemaGeneratorConfig = SchemaGeneratorConfig(
+        supportedPackages = config.packages,
+        topLevelNames = topLevelNames.orElse(TopLevelNames()),
+        hooks = hooks.orElse(NoopSchemaGeneratorHooks),
+        dataFetcherFactoryProvider = dataFetcherFactoryProvider,
+        introspectionEnabled = config.introspection.enabled
+    )
 
     @Bean
     @ConditionalOnMissingBean
@@ -75,17 +73,15 @@ class NonFederatedSchemaAutoConfiguration {
         subscriptions: Optional<List<Subscription>>,
         schemaConfig: SchemaGeneratorConfig,
         schemaObject: Optional<Schema>
-    ): GraphQLSchema {
-        val schema = toSchema(
-            config = schemaConfig,
-            queries = queries.orElse(emptyList()).toTopLevelObjects(),
-            mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
-            subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
-            schemaObject = schemaObject.orElse(null)?.toTopLevelObject()
-        )
-
-        logger.info("\n${schema.print()}")
-
-        return schema
+    ): GraphQLSchema = toSchema(
+        config = schemaConfig,
+        queries = queries.orElse(emptyList()).toTopLevelObjects(),
+        mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
+        subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
+        schemaObject = schemaObject.orElse(null)?.toTopLevelObject()
+    ).also { schema ->
+        if (config.printSchema) {
+            logger.info("\n${schema.print()}")
+        }
     }
 }

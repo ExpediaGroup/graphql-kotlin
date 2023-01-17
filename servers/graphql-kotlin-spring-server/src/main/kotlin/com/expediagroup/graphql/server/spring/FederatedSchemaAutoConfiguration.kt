@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,12 @@ class FederatedSchemaAutoConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
-    fun federatedSchemaGeneratorHooks(resolvers: Optional<List<FederatedTypeResolver>>): FederatedSchemaGeneratorHooks =
-        FederatedSchemaGeneratorHooks(resolvers.orElse(emptyList()), config.federation.optInV2)
+    fun federatedSchemaGeneratorHooks(
+        resolvers: Optional<List<FederatedTypeResolver>>
+    ): FederatedSchemaGeneratorHooks = FederatedSchemaGeneratorHooks(
+        resolvers.orElse(emptyList()),
+        config.federation.optInV2
+    )
 
     @Bean
     @ConditionalOnMissingBean
@@ -79,18 +83,16 @@ class FederatedSchemaAutoConfiguration(
         subscriptions: Optional<List<Subscription>>,
         schemaConfig: FederatedSchemaGeneratorConfig,
         schemaObject: Optional<Schema>
-    ): GraphQLSchema {
-        val schema = toFederatedSchema(
-            config = schemaConfig,
-            queries = queries.orElse(emptyList()).toTopLevelObjects(),
-            mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
-            subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
-            schemaObject = schemaObject.orElse(null)?.toTopLevelObject()
-        )
-
-        logger.info("\n${schema.print()}")
-
-        return schema
+    ): GraphQLSchema = toFederatedSchema(
+        config = schemaConfig,
+        queries = queries.orElse(emptyList()).toTopLevelObjects(),
+        mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
+        subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
+        schemaObject = schemaObject.orElse(null)?.toTopLevelObject()
+    ).also { federatedSchema ->
+        if (config.printSchema) {
+            logger.info("\n${federatedSchema.print()}")
+        }
     }
 
     /**
