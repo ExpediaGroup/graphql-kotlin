@@ -13,6 +13,10 @@ jobs:
   build-libraries:
     uses: ./.github/workflows/build-libraries.yml
 
+  plugin-integration:
+    needs: build-libraries
+    uses: ./.github/workflows/plugin-it.yml
+
   build-examples:
     needs: build-libraries
     uses: ./.github/workflows/build-examples.yml
