@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.extensions
 
 import com.expediagroup.graphql.server.exception.MissingDataLoaderException
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import io.mockk.every
 import io.mockk.mockk
@@ -29,7 +30,7 @@ class DataFetchingEnvironmentExtensionsKtTest {
 
     @Test
     fun `getting a dataloader passes when a matching name is found`() {
-        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
             every { getContext<Any>() } returns mockk()
             every { getDataLoader<String, String>("foo") } returns mockk {
                 every { load("bar", any()) } returns CompletableFuture.completedFuture("123")
@@ -42,8 +43,43 @@ class DataFetchingEnvironmentExtensionsKtTest {
     }
 
     @Test
+    fun `getting a dataloader with custom context passes when a matching name is found`() {
+        val customContext = mockk<CustomContext>()
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { getContext<CustomContext>() } returns customContext
+            every { getDataLoader<String, String>("foo") } returns mockk {
+                every { load("bar", ofType<CustomContext>()) } returns CompletableFuture.completedFuture("123")
+            }
+        }
+
+        val result: CompletableFuture<String> = dataFetchingEnvironment.getValueFromDataLoader("foo", "bar")
+
+        assertEquals("123", result.get())
+    }
+
+    @Test
+    fun `getting a dataloader with custom graphql context passes when a matching name is found`() {
+        val customContext = mockk<CustomContext>()
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
+            every { getContext<CustomContext>() } returns null
+            every { graphQlContext } returns GraphQLContext.of(
+                mapOf(
+                    CustomContext::class to customContext
+                )
+            )
+            every { getDataLoader<String, String>("foo") } returns mockk {
+                every { load("bar", ofType<GraphQLContext>()) } returns CompletableFuture.completedFuture("123")
+            }
+        }
+
+        val result: CompletableFuture<String> = dataFetchingEnvironment.getValueFromDataLoader("foo", "bar")
+
+        assertEquals("123", result.get())
+    }
+
+    @Test
     fun `getting values from a dataloader based on a list of keys`() {
-        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
             every { getContext<Any>() } returns mockk()
             every { getDataLoader<String, String>("foo") } returns mockk {
                 every { loadMany(listOf("bar"), any()) } returns CompletableFuture.completedFuture(listOf("123"))
@@ -58,13 +94,15 @@ class DataFetchingEnvironmentExtensionsKtTest {
 
     @Test
     fun `getting a dataloader throws exception when name not found`() {
-        val dataFetchingEnvironment: DataFetchingEnvironment = mockk {
+        val dataFetchingEnvironment = mockk<DataFetchingEnvironment> {
             every { getContext<Any>() } returns mockk()
             every { getDataLoader<String, String>("foo") } returns null
         }
 
-        assertFailsWith(MissingDataLoaderException::class) {
+        assertFailsWith<MissingDataLoaderException> {
             dataFetchingEnvironment.getValueFromDataLoader<String, String>("foo", "bar")
         }
     }
+
+    data class CustomContext(val foo: String)
 }
