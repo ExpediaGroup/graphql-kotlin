@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,17 +32,16 @@ import java.util.concurrent.CompletableFuture
 fun <K, V> DataFetchingEnvironment.getValueFromDataLoader(dataLoaderName: String, key: K): CompletableFuture<V> =
     getDataLoader<K, V>(dataLoaderName)?.load(
         key,
-        this.getContext() ?: this.graphQlContext
+        this.getContext<Any>() ?: this.graphQlContext
     ) ?: throw MissingDataLoaderException(dataLoaderName)
 
 /**
 * Helper method to get values from a registered DataLoader.
 */
-fun <K, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> =
-    getDataLoader<K, V>(dataLoaderName)?.loadMany(
-        keys,
-        listOf(this.getContext() ?: this.graphQlContext)
-    ) ?: throw MissingDataLoaderException(dataLoaderName)
+fun <K, V> DataFetchingEnvironment.getValuesFromDataLoader(dataLoaderName: String, keys: List<K>): CompletableFuture<List<V>> = getDataLoader<K, V>(dataLoaderName)?.loadMany(
+    keys,
+    listOf(this.getContext<Any>() ?: this.graphQlContext)
+) ?: throw MissingDataLoaderException(dataLoaderName)
 
 /**
  * Returns a value from the graphQLContext by KClass key
