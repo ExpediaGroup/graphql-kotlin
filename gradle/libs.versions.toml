@@ -28,6 +28,7 @@ spring-boot = "2.7.7"
 compile-testing = "0.1.0"
 icu = "71.1"
 junit = "5.8.2"
+logback = "1.2.1"
 mockk = "1.12.5"
 mustache = "0.9.10"
 rxjava = "3.1.5"
@@ -81,6 +82,7 @@ spring-webflux = { group = "org.springframework", name = "spring-webflux", versi
 # test dependencies
 compile-testing = { group = "dev.zacsweers.kctfork", name = "core", version.ref = "compile-testing" }
 icu = { group = "com.ibm.icu", name = "icu4j", version.ref = "icu" }
+logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
 junit-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
@@ -90,6 +92,10 @@ kotlinx-benchmark = { group = "org.jetbrains.kotlinx", name = "kotlinx-benchmark
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
+ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
+ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 mustache = { group = "com.github.spullara.mustache.java", name = "compiler", version.ref = "mustache" }
 reactor-core = { group = "io.projectreactor", name = "reactor-core", version.ref = "reactor-core" }
@@ -128,3 +134,7 @@ maven-plugin-development = { id = "de.benediktritter.maven-plugin-development", 
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish-plugin" }
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+
+# test projects
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "android-plugin" }

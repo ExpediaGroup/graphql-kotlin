@@ -1,17 +1,6 @@
 import com.expediagroup.graphql.plugin.gradle.graphql
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal {
-            content {
-                includeGroup("com.expediagroup")
-            }
-        }
-    }
-}
-
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
     id("com.expediagroup.graphql")
