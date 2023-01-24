@@ -1,0 +1,147 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+"Directs the executor to include this field or fragment only when the `if` argument is true"
+directive @include(
+  "Included when true."
+  if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+"Directs the executor to skip this field or fragment when the `if` argument is true."
+directive @skip(
+  "Skipped when true."
+  if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+"Marks the field, argument, input field or enum value as deprecated"
+directive @deprecated(
+    "The reason for the deprecation"
+    reason: String = "No longer supported"
+  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+"Very basic interface"
+interface BasicInterface {
+  "Unique identifier of an interface"
+  id: Int!
+  "Name field"
+  name: String!
+}
+"Very basic union of BasicObject and ComplexObject"
+union BasicUnion = BasicObject | ComplexObject
+"Some basic description"
+type BasicObject {
+  id: Int!
+  "Object name"
+  name: String!
+}
+"""
+Multi line description of a complex type.
+This is a second line of the paragraph.
+This is final line of the description.
+"""
+type ComplexObject {
+  "Some additional details"
+  details: DetailsObject!
+  "Some unique identifier"
+  id: Int!
+  "Some object name"
+  name: String!
+  """
+  Optional value
+  Second line of the description
+  """
+  optional: String
+}
+"Inner type object description"
+type DetailsObject {
+  "Boolean flag"
+  flag: Boolean!
+  "Unique identifier"
+  id: Int!
+  "Actual detail value"
+  value: String!
+}
+"Example interface implementation where value is an integer"
+type FirstInterfaceImplementation implements BasicInterface {
+  "Unique identifier of the first implementation"
+  id: Int!
+  "Custom field integer value"
+  intValue: Int!
+  "Name of the first implementation"
+  name: String!
+}
+type Mutation {
+  "Example of a muation"
+  simpleMutation(update: SimpleArgumentInput!): BasicObject!
+}
+"Example of an object self-referencing itself"
+type NestedObject {
+  "Children elements"
+  children: [NestedObject!]!
+  "Unique identifier"
+  id: Int!
+  "Name of the object"
+  name: String!
+}
+type Query {
+  "Query returning an object that references another object"
+  complexObjectQuery: ComplexObject!
+  "Deprecated query that should not be used anymore"
+  deprecatedQuery: String! @deprecated(reason : "old query should not be used")
+  "Query that returns enum value"
+  enumQuery: CustomEnum!
+  "Query that accepts some input arguments"
+  inputObjectQuery(criteria: SimpleArgumentInput!): Boolean!
+  "Query returning an interface"
+  interfaceQuery: BasicInterface!
+  "Query returning list of simple objects"
+  listQuery: [BasicObject!]!
+  "Query returning object referencing itself"
+  nestedObjectQuery: NestedObject!
+  "Query that returns wrapper object with all supported scalar types"
+  scalarQuery: ScalarWrapper!
+  "Query returning union"
+  unionQuery: BasicUnion!
+}
+"Wrapper that holds all supported scalar types"
+type ScalarWrapper {
+  "A signed 32-bit nullable integer value"
+  count: Int
+  "Custom scalar"
+  custom: UUID!
+  "ID represents unique identifier that is not intended to be human readable"
+  id: ID!
+  "UTF-8 character sequence"
+  name: String!
+  "A nullable signed double-precision floating-point value"
+  rating: Float
+  "Either true or false"
+  valid: Boolean!
+}
+"Example interface implementation where value is a float"
+type SecondInterfaceImplementation implements BasicInterface {
+  "Custom field float value"
+  floatValue: Float!
+  "Unique identifier of the second implementation"
+  id: Int!
+  "Name of the second implementation"
+  name: String!
+}
+"Custom enum description"
+enum CustomEnum {
+  "First enum value"
+  ONE
+  "Third enum value"
+  THREE @deprecated(reason : "only goes up to two")
+  "Second enum value"
+  TWO
+}
+"Custom scalar representing UUID"
+scalar UUID
+"Test input object"
+input SimpleArgumentInput {
+  "Maximum value for test criteria"
+  max: Float
+  "Minimum value for test criteria"
+  min: Float
+  "New value to be set"
+  newName: String
+}
