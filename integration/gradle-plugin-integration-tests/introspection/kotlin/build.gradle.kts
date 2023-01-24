@@ -1,7 +1,6 @@
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
-import kotlin.assert
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: re
 plugins {
     alias(libs.plugins.kotlin.jvm)
     id("com.expediagroup.graphql")
@@ -13,14 +12,14 @@ dependencies {
 }
 
 val wireMockServerPort: Int? = ext.get("wireMockServerPort") as? Int
-val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
-    endpoint.set("http://localhost:$wireMockServerPort/sdl")
+val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+    endpoint.set("http://localhost:$wireMockServerPort/graphql")
     headers.put("X-Custom-Header", "My-Custom-Header-Value")
 }
 
 tasks {
     named<Test>("test") {
-        dependsOn("graphqlDownloadSDL")
+        dependsOn("graphqlIntrospectSchema")
         assert(File(project.buildDir, "schema.graphql").exists())
     }
 }

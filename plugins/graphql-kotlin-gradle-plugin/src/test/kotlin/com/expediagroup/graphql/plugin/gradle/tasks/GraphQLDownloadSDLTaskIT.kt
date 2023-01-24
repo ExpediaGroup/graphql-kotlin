@@ -18,10 +18,8 @@ package com.expediagroup.graphql.plugin.gradle.tasks
 
 import com.expediagroup.graphql.plugin.gradle.GraphQLGradlePluginAbstractIT
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -37,28 +35,19 @@ class GraphQLDownloadSDLTaskIT : GraphQLGradlePluginAbstractIT() {
     @Test
     fun `verify downloadSDL task with timeout`(@TempDir tempDir: Path) {
         val testProjectDirectory = tempDir.toFile()
-        val sourceDirectory = File("src/integrations/download_sdl_timeout")
+        val sourceDirectory = File("src/integration/download-sdl-timeout")
         sourceDirectory.copyRecursively(testProjectDirectory)
 
         WireMock.reset()
         WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
 
-//        val buildFileContents =
-//            """
-//            |val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
-//            |  endpoint.set("${wireMockServer.baseUrl()}/sdl")
-//            |  timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
-//            |}
-//            """.trimMargin()
-//        testProjectDirectory.generateBuildFileForClient(buildFileContents)
-
         val result = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(DOWNLOAD_SDL_TASK_NAME, "--stacktrace")
+            .withEnvironment(mapOf("wireMockServerUrl" to wireMockServer.baseUrl()))
             .buildAndFail()
 
-        println(result.output)
         assertEquals(TaskOutcome.FAILED, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
         assertTrue(result.output.contains("Request timeout has expired", ignoreCase = true))
     }

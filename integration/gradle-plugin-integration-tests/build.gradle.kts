@@ -74,7 +74,7 @@ tasks {
     }
 }
 
-for (projectName in listOf(":download-sdl-groovy-it", ":download-sdl-kotlin-it")) {
+for (projectName in listOf(":download-sdl-groovy-it", ":download-sdl-kotlin-it", ":introspection-groovy-it", ":introspection-kotlin-it")) {
     project("$projectName") {
         ext.set("wireMockServerPort", extension.port)
 

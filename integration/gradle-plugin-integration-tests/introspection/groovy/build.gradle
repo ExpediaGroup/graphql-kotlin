@@ -9,14 +9,14 @@ dependencies {
 }
 
 String wireMockPort = ext.wireMockServerPort
-graphqlDownloadSDL {
-    endpoint = "http://localhost:${wireMockPort}/sdl"
-    headers["X-Custom-Header"] = "My-Custom-Header-Value"
+graphqlIntrospectSchema {
+  endpoint = "http://localhost:${wireMockPort}/graphql"
+  headers["X-Custom-Header"] = "My-Custom-Header-Value"
 }
 
 // simple test to verify file was downloaded
 tasks.named("test").configure {
-    dependsOn("graphqlDownloadSDL")
+    dependsOn("graphqlIntrospectSchema")
 
     doLast {
         assert new File(project.buildDir, "schema.graphql").exists()

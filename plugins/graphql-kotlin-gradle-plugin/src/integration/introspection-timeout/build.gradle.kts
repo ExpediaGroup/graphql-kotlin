@@ -1,5 +1,5 @@
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
-import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 
 plugins {
   kotlin("jvm") version "1.7.21"
@@ -21,7 +21,7 @@ dependencies {
 }
 
 val serverUrl = System.getenv("wireMockServerUrl") ?: System.getProperty("wireMockServerUrl")
-val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
-  endpoint.set("$serverUrl/sdl")
-  timeoutConfig.set(TimeoutConfiguration(connect = 100, read = 100))
+val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class) {
+  endpoint.set("$serverUrl/graphql")
+  timeoutConfig.set(com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration(connect = 100, read = 100))
 }

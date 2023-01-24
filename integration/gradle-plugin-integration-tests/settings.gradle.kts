@@ -34,5 +34,10 @@ project(":download-sdl-kotlin-it").projectDir = file("download-sdl/kotlin")
 project(":download-sdl-groovy-it").projectDir = file("download-sdl/groovy")
 
 // introspect schema task integration tests
+include(":introspection-kotlin-it")
+include(":introspection-groovy-it")
+
+project(":introspection-kotlin-it").projectDir = file("introspection/kotlin")
+project(":introspection-groovy-it").projectDir = file("introspection/groovy")
 
 // sdl generator integration tests
