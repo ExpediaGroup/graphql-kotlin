@@ -74,12 +74,25 @@ tasks {
     }
 }
 
-for (projectName in listOf(":download-sdl-groovy-it", ":download-sdl-kotlin-it", ":introspection-groovy-it", ":introspection-kotlin-it")) {
+for (projectName in listOf(":download-sdl-groovy-it", ":download-sdl-kotlin-it")) {
     project("$projectName") {
         ext.set("wireMockServerPort", extension.port)
 
         project.afterEvaluate {
             tasks.getByName("graphqlDownloadSDL") {
+                dependsOn(":startWireMock")
+                finalizedBy(":stopWireMock")
+            }
+        }
+    }
+}
+
+for (projectName in listOf(":introspection-groovy-it", ":introspection-kotlin-it")) {
+    project("$projectName") {
+        ext.set("wireMockServerPort", extension.port)
+
+        project.afterEvaluate {
+            tasks.getByName("graphqlIntrospectSchema") {
                 dependsOn(":startWireMock")
                 finalizedBy(":stopWireMock")
             }
