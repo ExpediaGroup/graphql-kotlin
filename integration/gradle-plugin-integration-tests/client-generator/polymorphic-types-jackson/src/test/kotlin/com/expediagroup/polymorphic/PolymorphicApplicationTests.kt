@@ -10,7 +10,7 @@ import com.expediagroup.polymorphic.generated.partialpolymorphicquery.DefaultBas
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
