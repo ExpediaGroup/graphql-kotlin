@@ -21,8 +21,10 @@ tasks {
     named<Test>("test") {
         dependsOn("graphqlIntrospectSchema")
 
-        if (!File(project.buildDir, "schema.graphql").exists()) {
-            throw RuntimeException("failed to introspect the schema and generate schema.graphql file")
+        doLast {
+            if (!File(project.buildDir, "schema.graphql").exists()) {
+                throw RuntimeException("failed to introspect the schema and generate schema.graphql file")
+            }
         }
     }
 }

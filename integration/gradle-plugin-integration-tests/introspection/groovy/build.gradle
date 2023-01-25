@@ -18,7 +18,9 @@ graphqlIntrospectSchema {
 tasks.named("test", Test) {
     dependsOn("graphqlIntrospectSchema")
 
-    if (!new File(project.buildDir, "schema.graphql").exists()) {
-        throw new RuntimeException("failed to download schema.graphql file")
+    doLast {
+        if (!new File(project.buildDir, "schema.graphql").exists()) {
+            throw new RuntimeException("failed to download schema.graphql file")
+        }
     }
 }

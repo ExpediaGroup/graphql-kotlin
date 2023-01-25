@@ -21,8 +21,10 @@ tasks {
     named<Test>("test") {
         dependsOn("graphqlDownloadSDL")
 
-        if (!File(project.buildDir, "schema.graphql").exists()) {
-            throw RuntimeException("failed to download schema.graphql file")
+        doLast {
+            if (!File(project.buildDir, "schema.graphql").exists()) {
+                throw RuntimeException("failed to download schema.graphql file")
+            }
         }
     }
 }
