@@ -1,5 +1,4 @@
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
-import kotlin.assert
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
@@ -21,6 +20,9 @@ val graphqlDownloadSDL by tasks.getting(GraphQLDownloadSDLTask::class) {
 tasks {
     named<Test>("test") {
         dependsOn("graphqlDownloadSDL")
-        assert(File(project.buildDir, "schema.graphql").exists())
+
+        if (!File(project.buildDir, "schema.graphql").exists()) {
+            throw RuntimeException("failed to download schema.graphql file")
+        }
     }
 }

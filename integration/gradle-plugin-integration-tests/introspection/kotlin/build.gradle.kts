@@ -20,6 +20,9 @@ val graphqlIntrospectSchema by tasks.getting(GraphQLIntrospectSchemaTask::class)
 tasks {
     named<Test>("test") {
         dependsOn("graphqlIntrospectSchema")
-        assert(File(project.buildDir, "schema.graphql").exists())
+
+        if (!File(project.buildDir, "schema.graphql").exists()) {
+            throw RuntimeException("failed to introspect the schema and generate schema.graphql file")
+        }
     }
 }

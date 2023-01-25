@@ -15,10 +15,10 @@ graphqlDownloadSDL {
 }
 
 // simple test to verify file was downloaded
-tasks.named("test").configure {
+tasks.named("test", Test) {
     dependsOn("graphqlDownloadSDL")
 
-    doLast {
-        assert new File(project.buildDir, "schema.graphql").exists()
+    if (!new File(project.buildDir, "schema.graphql").exists()) {
+        throw new RuntimeException("failed to download schema.graphql file")
     }
 }
