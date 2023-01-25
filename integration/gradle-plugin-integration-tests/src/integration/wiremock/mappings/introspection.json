@@ -13,7 +13,7 @@
   },
   "response": {
     "status": 200,
-    "bodyFileName": "introspectionResult.json",
+    "bodyFileName": "IntrospectionResult.json",
     "headers": {
       "Content-Type": "application/json"
     }
