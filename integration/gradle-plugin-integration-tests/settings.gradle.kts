@@ -41,3 +41,16 @@ project(":introspection-kotlin-it").projectDir = file("introspection/kotlin")
 project(":introspection-groovy-it").projectDir = file("introspection/groovy")
 
 // sdl generator integration tests
+include(":sdl-extension-kotlin-it")
+include(":sdl-extension-groovy-it")
+include(":sdl-classpath-hooks-it")
+include(":sdl-federated-hooks-it")
+include(":sdl-task-kotlin-it")
+include(":sdl-task-groovy-it")
+
+project(":sdl-extension-kotlin-it").projectDir = file("sdl/extension-kotlin")
+project(":sdl-extension-groovy-it").projectDir = file("sdl/extension-groovy")
+project(":sdl-classpath-hooks-it").projectDir = file("sdl/classpath-hooks")
+project(":sdl-federated-hooks-it").projectDir = file("sdl/federated-hooks")
+project(":sdl-task-kotlin-it").projectDir = file("sdl/task-kotlin")
+project(":sdl-task-groovy-it").projectDir = file("sdl/task-groovy")
