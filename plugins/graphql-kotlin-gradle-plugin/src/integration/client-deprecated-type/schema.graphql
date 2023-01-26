@@ -1,0 +1,4 @@
+type Query {
+  "Deprecated query that should not be used anymore"
+  deprecatedQuery: String! @deprecated(reason : "old query should not be used")
+}

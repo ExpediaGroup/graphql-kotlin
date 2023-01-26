@@ -30,7 +30,6 @@ icu = "71.1"
 junit = "5.8.2"
 logback = "1.2.1"
 mockk = "1.12.5"
-mustache = "0.9.10"
 rxjava = "3.1.5"
 wiremock = "2.33.2"
 
@@ -97,7 +96,6 @@ ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
 ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-mustache = { group = "com.github.spullara.mustache.java", name = "compiler", version.ref = "mustache" }
 reactor-core = { group = "io.projectreactor", name = "reactor-core", version.ref = "reactor-core" }
 reactor-extensions = { group = "io.projectreactor.kotlin", name = "reactor-kotlin-extensions", version.ref = "reactor-extensions" }
 reactor-test = { group = "io.projectreactor", name = "reactor-test", version.ref = "reactor-core" }

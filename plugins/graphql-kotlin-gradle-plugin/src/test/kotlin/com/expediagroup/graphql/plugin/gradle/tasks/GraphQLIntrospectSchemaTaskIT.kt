@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.plugin.gradle.tasks
 
-import com.expediagroup.graphql.plugin.gradle.GraphQLGradlePluginAbstractIT
+import com.expediagroup.graphql.plugin.gradle.WireMockAbstractIT
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 /**
  * Verifies failure scenarios only. Happy path scenarios are tested as part of integration/gradle-plugin-integration-tests composite build.
  */
-class GraphQLIntrospectSchemaTaskIT : GraphQLGradlePluginAbstractIT() {
+class GraphQLIntrospectSchemaTaskIT : WireMockAbstractIT() {
 
     @Test
     fun `verify introspectSchema with timeout (kts)`(@TempDir tempDir: Path) {

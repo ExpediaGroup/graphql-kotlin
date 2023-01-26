@@ -1,0 +1,7 @@
+type Query {
+    helloWorld(name: String): String!
+}
+
+type Mutation {
+    updateName(name: String!): String!
+}
