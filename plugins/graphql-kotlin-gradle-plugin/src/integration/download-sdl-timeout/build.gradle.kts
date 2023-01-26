@@ -1,9 +1,10 @@
 import com.expediagroup.graphql.plugin.gradle.config.TimeoutConfiguration
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fi
 plugins {
     id("com.expediagroup.graphql")
-    kotlin("jvm") version "1.7.21"
+    alias(libs.plugins.kotlin.jvm)
 }
 
 repositories {
@@ -17,7 +18,7 @@ repositories {
 
 dependencies {
     implementation("com.expediagroup:graphql-kotlin-spring-client")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.21")
+    implementation(libs.kotlin.stdlib)
 }
 
 val serverUrl = System.getenv("wireMockServerUrl") ?: System.getProperty("wireMockServerUrl")

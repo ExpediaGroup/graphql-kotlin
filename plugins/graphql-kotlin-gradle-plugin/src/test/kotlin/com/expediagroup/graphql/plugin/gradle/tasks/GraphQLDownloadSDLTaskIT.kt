@@ -38,6 +38,9 @@ class GraphQLDownloadSDLTaskIT : WireMockAbstractIT() {
         val sourceDirectory = File("src/integration/download-sdl-timeout")
         sourceDirectory.copyRecursively(testProjectDirectory)
 
+        // version catalog setup
+        File("../../gradle/libs.versions.toml").copyTo(File(testProjectDirectory, "gradle/libs.versions.toml"))
+
         WireMock.reset()
         WireMock.stubFor(stubSdlEndpoint(delay = 10_000))
 
