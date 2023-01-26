@@ -2,7 +2,6 @@ package com.expediagroup.scalars
 
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
@@ -13,8 +12,6 @@ import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.scalars.queries.ScalarQuery
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
-import graphql.execution.DefaultValueUnboxer
-import graphql.execution.ValueUnboxer
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.receiveText
 import java.io.IOException

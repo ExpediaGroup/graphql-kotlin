@@ -1,0 +1,11 @@
+query TestQuery($name: String) {
+    helloWorld
+    helloJunit : helloWorld(name: $name)
+    objectQuery {
+        id
+        description
+        count
+        flag
+        choice
+    }
+}
