@@ -1,4 +1,5 @@
 import com.expediagroup.graphql.plugin.gradle.graphql
+import gradle.kotlin.dsl.accessors._57aaf39497a80bae1f1ff99594dbd68a.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
@@ -33,6 +34,7 @@ tasks {
     }
     withType<KotlinCompile> {
         kotlinOptions {
+            jvmTarget = "17"
             freeCompilerArgs = listOf("-Xjsr305=strict")
         }
     }
