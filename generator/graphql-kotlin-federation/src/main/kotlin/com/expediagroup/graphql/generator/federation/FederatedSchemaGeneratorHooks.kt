@@ -20,6 +20,7 @@ import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.genera
 import com.apollographql.federation.graphqljava.printer.ServiceSDLPrinter.generateServiceSDLV2
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
+import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
@@ -27,6 +28,8 @@ import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.INTERFACE_OBJECT_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.INTERFACE_OBJECT_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_TYPE_V2
@@ -75,7 +78,9 @@ open class FederatedSchemaGeneratorHooks(
     private val validator = FederatedSchemaValidator()
 
     private val federationV2OnlyDirectiveNames: Set<String> = setOf(
+        COMPOSE_DIRECTIVE_NAME,
         INACCESSIBLE_DIRECTIVE_NAME,
+        INTERFACE_OBJECT_DIRECTIVE_NAME,
         LINK_DIRECTIVE_NAME,
         OVERRIDE_DIRECTIVE_NAME,
         SHAREABLE_DIRECTIVE_NAME
@@ -93,6 +98,7 @@ open class FederatedSchemaGeneratorHooks(
         EXTENDS_DIRECTIVE_TYPE,
         EXTERNAL_DIRECTIVE_TYPE,
         INACCESSIBLE_DIRECTIVE_TYPE,
+        INTERFACE_OBJECT_DIRECTIVE_TYPE,
         KEY_DIRECTIVE_TYPE,
         LINK_DIRECTIVE_TYPE,
         OVERRIDE_DIRECTIVE_TYPE,
