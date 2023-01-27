@@ -1,5 +1,5 @@
 [versions]
-android-plugin = "7.1.2"
+android-plugin = "8.0.0-alpha11"
 classgraph = "4.8.149"
 dataloader = "3.2.0"
 federation = "2.2.0"
