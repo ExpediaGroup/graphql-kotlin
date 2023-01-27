@@ -4,8 +4,8 @@ import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateTestClientTas
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
 plugins {
+    id("com.expediagroup.it-conventions")
     id("com.expediagroup.graphql")
-    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     // issue https://github.com/ExpediaGroup/graphql-kotlin/issues/1625
 //    alias(libs.plugins.kotlin.spring)

@@ -1,8 +1,8 @@
 import com.expediagroup.it.VerifyGenerateSDLTask
 
 plugins {
+    id 'com.expediagroup.it-conventions'
     id 'com.expediagroup.graphql'
-    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.spring.boot)
 }
