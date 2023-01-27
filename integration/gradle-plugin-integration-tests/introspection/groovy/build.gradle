@@ -1,6 +1,6 @@
 plugins {
+    id 'com.expediagroup.it-conventions'
     id 'com.expediagroup.graphql'
-    alias(libs.plugins.kotlin.jvm)
 }
 
 dependencies {

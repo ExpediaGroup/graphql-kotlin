@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.expediagroup.graphql.examples.server.spring.query
 import com.expediagroup.graphql.server.operations.Query
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
-import javax.validation.Valid
-import javax.validation.constraints.Pattern
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Pattern
 
 @Validated
 @Component

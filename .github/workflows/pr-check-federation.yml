@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'generator/graphql-kotlin-federation/**'
+      - 'integration/federation-compatibility/**'
 
 jobs:
   federation-compatibility:

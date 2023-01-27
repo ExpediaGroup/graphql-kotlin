@@ -19,9 +19,13 @@ plugins {
 // see https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
 val libs = the<LibrariesForLibs>()
 tasks {
+    kotlin {
+        jvmToolchain(17)
+    }
     val kotlinJvmVersion: String by project
     withType<KotlinCompile> {
         kotlinOptions {
+            // intellij gets confused without it
             jvmTarget = kotlinJvmVersion
             freeCompilerArgs = listOf("-Xjsr305=strict")
         }
@@ -52,12 +56,6 @@ tasks {
 
         // NOTE: in order to run gradle and maven plugin integration tests we need to have our build artifacts available in local repo
         finalizedBy("publishToMavenLocal")
-    }
-    java {
-        // even though we don't have any Java code, since we are building using Java LTS version,
-        // this is required for Gradle to set the correct JVM versions in the module metadata
-        targetCompatibility = JavaVersion.VERSION_1_8
-        sourceCompatibility = JavaVersion.VERSION_1_8
     }
 
     // published sources and javadoc artifacts

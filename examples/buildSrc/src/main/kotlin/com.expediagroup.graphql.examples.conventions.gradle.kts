@@ -27,9 +27,9 @@ dependencies {
     testImplementation(libs.junit.engine)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
         freeCompilerArgs = listOf("-Xjsr305=strict")
     }
 }
@@ -38,6 +38,9 @@ tasks {
     detekt {
         toolVersion = libs.versions.detekt.get()
         config = files(File(rootDir.parent, "detekt.yml").absolutePath)
+    }
+    kotlin {
+        jvmToolchain(17)
     }
     ktlint {
         version.set(libs.versions.ktlint.core.get())
