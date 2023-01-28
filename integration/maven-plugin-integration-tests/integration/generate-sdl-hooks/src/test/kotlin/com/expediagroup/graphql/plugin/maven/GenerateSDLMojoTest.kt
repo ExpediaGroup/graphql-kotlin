@@ -36,7 +36,7 @@ class GenerateSDLMojoTest {
         assertTrue(schemaFile.exists(), "schema file was generated")
 
         val expectedSchema = """
-            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
+            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
               query: Query
             }
 
@@ -63,6 +63,9 @@ class GenerateSDLMojoTest {
                 "Included when true."
                 if: Boolean!
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Provides meta information to the router that this entity type is an interface in the supergraph."
+            directive @interfaceObject on OBJECT
 
             "Space separated list of primary keys needed to access federated object"
             directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
