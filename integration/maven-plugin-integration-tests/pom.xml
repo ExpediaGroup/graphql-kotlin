@@ -7,7 +7,7 @@
     <!-- this pom is only used to run integration tests -->
     <groupId>com.expediagroup</groupId>
     <artifactId>graphql-kotlin-maven-plugin-integration-test</artifactId>
-    <version>${graphqlKotlinVersion}</version>
+    <version>1.0-SNAPSHOT</version>
     <description>Project for running integration tests verifying graphql-kotlin-maven-plugin</description>
 
     <properties>
@@ -105,30 +105,6 @@
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <configuration>
-                    <jvmTarget>${kotlin.jvmTarget}</jvmTarget>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-invoker-plugin</artifactId>
                 <version>3.2.2</version>
@@ -151,8 +127,8 @@
                     <pomIncludes>
                         <pomInclude>*/pom.xml</pomInclude>
                     </pomIncludes>
-                    <projectsDirectory>src/integration</projectsDirectory>
-                    <settingsFile>src/integration/settings.xml</settingsFile>
+                    <projectsDirectory>integration</projectsDirectory>
+                    <settingsFile>integration/settings.xml</settingsFile>
                     <streamLogs>true</streamLogs>
                 </configuration>
                 <executions>

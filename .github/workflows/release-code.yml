@@ -44,6 +44,4 @@ jobs:
           name: build-reports
           path: |
             ./**/build/reports
-            plugins/graphql-kotlin-maven-plugin/build/integration/**/build.log
-            plugins/graphql-kotlin-maven-plugin/build/integration/**/target/surefire-reports
           retention-days: 7
