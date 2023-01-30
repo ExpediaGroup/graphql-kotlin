@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.server.execution.context
 
+import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
+import graphql.GraphQLContext
 
 /**
- * A generic server interface that handles parsing the specific server implementation request to a [GraphQLServerRequest].
- * If the request is not valid return null.
+ * Factory that generates a GraphQL context.
  */
-interface GraphQLRequestParser<Request> {
-    suspend fun parseRequest(request: Request): GraphQLServerRequest?
+interface GraphQLContextFactory<Request> : GraphQLContextProvider<Request> {
+    /**
+     * Generate GraphQL context based on the incoming request and graphQLRequest.
+     * If no context should be generated and used in the request, return context from empty map.
+     */
+    override suspend fun generateContext(
+        request: Request,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext =
+        emptyMap<Any, Any>().toGraphQLContext()
 }

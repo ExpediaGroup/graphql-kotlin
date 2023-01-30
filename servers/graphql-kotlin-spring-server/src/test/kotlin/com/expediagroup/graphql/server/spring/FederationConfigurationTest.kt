@@ -28,7 +28,7 @@ import com.expediagroup.graphql.generator.federation.directives.ExternalDirectiv
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.GraphQLContextFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.operations.Query
 import com.fasterxml.jackson.databind.ObjectMapper

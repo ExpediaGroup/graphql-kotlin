@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.spring.execution
+package com.expediagroup.graphql.server.spring.execution.context
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
+import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
-import com.expediagroup.graphql.server.execution.GraphQLContextFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
 import org.springframework.web.reactive.function.server.ServerRequest
 
 /**
- * Wrapper class for specifically handling the Spring [ServerRequest]
+ * interface to handle the Spring [ServerRequest]
  */
-abstract class SpringGraphQLContextFactory : GraphQLContextFactory<ServerRequest>
+interface SpringGraphQLContextFactory : GraphQLContextFactory<ServerRequest>
 
 /**
  * Basic implementation of [SpringGraphQLContextFactory] that populates Apollo tracing header.
  */
-open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory() {
-    override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+open class DefaultSpringGraphQLContextFactory : SpringGraphQLContextFactory {
+    override suspend fun generateContext(
+        request: ServerRequest,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext =
         mutableMapOf<Any, Any>().also { map ->
             request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
                 map[FEDERATED_TRACING_HEADER_NAME] = headerValue

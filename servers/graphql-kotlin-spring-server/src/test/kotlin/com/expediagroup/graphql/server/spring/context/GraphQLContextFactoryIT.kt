@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package com.expediagroup.graphql.server.spring.context
 
-import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,11 +67,14 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         @Bean
         @ExperimentalCoroutinesApi
         fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
-            override suspend fun generateContext(request: ServerRequest): GraphQLContext =
-                mapOf(
+            override suspend fun generateContext(
+                request: ServerRequest,
+                graphQLRequest: GraphQLServerRequest
+            ): GraphQLContext =
+                super.generateContext(request, graphQLRequest) + mapOf(
                     "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
                     "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
-                ).toGraphQLContext()
+                )
         }
     }
 

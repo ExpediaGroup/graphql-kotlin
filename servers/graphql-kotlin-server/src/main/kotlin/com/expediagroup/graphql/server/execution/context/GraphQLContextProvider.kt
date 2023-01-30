@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.execution
+package com.expediagroup.graphql.server.execution.context
 
-import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
 
 /**
- * Factory that generates a GraphQL context.
+ * Base interface to provide a GraphQLContext
  */
-interface GraphQLContextFactory<Request> {
-    /**
-     * Generate GraphQL context based on the incoming request.
-     * If no context should be generated and used in the request, return context from empty map.
-     */
-    suspend fun generateContext(request: Request): GraphQLContext = emptyMap<Any, Any>().toGraphQLContext()
+interface GraphQLContextProvider<Request> {
+    suspend fun generateContext(
+        request: Request,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext
 }

@@ -25,8 +25,8 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
-import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.context.DefaultSpringGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLRequestParser
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
 import com.fasterxml.jackson.databind.ObjectMapper

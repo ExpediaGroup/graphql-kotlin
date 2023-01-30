@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.spring.execution
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
+import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextFactory
 import org.springframework.web.reactive.function.server.ServerRequest
 
 /**

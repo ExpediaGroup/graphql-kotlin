@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.mockk.coEvery

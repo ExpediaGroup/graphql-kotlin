@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.extensions.toGraphQLContext
+import com.expediagroup.graphql.generator.extensions.plus
+import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryFactory
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.GraphQLContext
@@ -96,11 +98,11 @@ class SubscriptionWebSocketHandlerIT(
 
         StepVerifier.create(dataOutput)
             .expectSubscription()
-            .expectNext("{\"data\":{\"counter\":1}}")
-            .expectNext("{\"data\":{\"counter\":2}}")
-            .expectNext("{\"data\":{\"counter\":3}}")
-            .expectNext("{\"data\":{\"counter\":4}}")
-            .expectNext("{\"data\":{\"counter\":5}}")
+            .expectNext("""{"data":{"counter":1}}""")
+            .expectNext("""{"data":{"counter":2}}""")
+            .expectNext("""{"data":{"counter":3}}""")
+            .expectNext("""{"data":{"counter":4}}""")
+            .expectNext("""{"data":{"counter":5}}""")
             .expectComplete()
             .verify()
 
@@ -186,11 +188,17 @@ class SubscriptionWebSocketHandlerIT(
         fun ticker(env: DataFetchingEnvironment): Flux<String> = Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
     }
 
-    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory() {
-        override suspend fun generateContext(request: WebSocketSession): GraphQLContext =
-            mapOf(
+    class CustomContextFactory(
+        override val entryFactories: List<GraphQLContextEntryFactory<WebSocketSession, Any, Any>> = emptyList()
+    ) : SpringSubscriptionGraphQLContextFactory() {
+
+        override suspend fun generateContext(
+            request: WebSocketSession,
+            graphQLRequest: GraphQLServerRequest
+        ): GraphQLContext =
+            super.generateContext(request, graphQLRequest) + mapOf(
                 "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
-            ).toGraphQLContext()
+            )
     }
 
     private fun SubscriptionOperationMessage.toJson() = objectMapper.writeValueAsString(this)

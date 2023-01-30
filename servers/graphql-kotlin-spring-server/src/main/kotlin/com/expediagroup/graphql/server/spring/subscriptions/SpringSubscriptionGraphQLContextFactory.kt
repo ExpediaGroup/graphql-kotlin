@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.generator.extensions.toGraphQLContext
-import com.expediagroup.graphql.server.execution.GraphQLContextFactory
-import graphql.GraphQLContext
+import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
  * Spring specific code to generate the context for a subscription request
  */
-abstract class SpringSubscriptionGraphQLContextFactory : GraphQLContextFactory<WebSocketSession>
+abstract class SpringSubscriptionGraphQLContextFactory(
+    override val entryFactories: List<GraphQLContextEntryFactory<WebSocketSession, Any, Any>> = emptyList()
+) : GraphQLContextFactory<WebSocketSession> {
+    constructor(vararg entryFactories: GraphQLContextEntryFactory<WebSocketSession, Any, Any>) : this(entryFactories.toList())
+}
 
 /**
- * Basic implementation of [SpringSubscriptionGraphQLContextFactory] that just returns null
+ * Basic implementation of [SpringSubscriptionGraphQLContextFactory]
  */
-class DefaultSpringSubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory() {
-    override suspend fun generateContext(request: WebSocketSession): GraphQLContext = emptyMap<Any, Any>().toGraphQLContext()
-}
+class DefaultSpringSubscriptionGraphQLContextFactory : SpringSubscriptionGraphQLContextFactory()

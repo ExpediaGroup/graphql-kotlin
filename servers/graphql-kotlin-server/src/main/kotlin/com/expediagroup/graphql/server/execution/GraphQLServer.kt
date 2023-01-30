@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.execution
 
 import com.expediagroup.graphql.generator.extensions.get
 import com.expediagroup.graphql.generator.extensions.plus
+import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +33,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 open class GraphQLServer<Request>(
     private val requestParser: GraphQLRequestParser<Request>,
-    private val contextFactory: GraphQLContextFactory<Request>,
+    private val contextProvider: GraphQLContextProvider<Request>,
     private val requestHandler: GraphQLRequestHandler
 ) {
     /**
@@ -48,7 +49,7 @@ open class GraphQLServer<Request>(
     ): GraphQLServerResponse? =
         coroutineScope {
             requestParser.parseRequest(request)?.let { graphQLRequest ->
-                val graphQLContext = contextFactory.generateContext(request)
+                val graphQLContext = contextProvider.generateContext(request, graphQLRequest)
 
                 val customCoroutineContext = (graphQLContext.get<CoroutineContext>() ?: EmptyCoroutineContext)
                 val graphQLExecutionScope = CoroutineScope(
