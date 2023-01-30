@@ -23,8 +23,8 @@ import graphql.GraphQLContext
 /**
  * Factory that generates a Pair that will be part of a GraphQL context.
  */
-fun interface GraphQLContextEntryFactory<Request, K: Any, V> {
-    suspend fun generate(
+fun interface GraphQLContextEntryProducer<Request, K: Any, V> {
+    suspend fun produce(
         request: Request,
         graphQLRequest: GraphQLServerRequest,
         accumulator: Map<Any, Any?>
@@ -32,19 +32,19 @@ fun interface GraphQLContextEntryFactory<Request, K: Any, V> {
 }
 
 /**
- * Builder that takes list of [GraphQLContextEntryFactory] used to generate entries for a GraphQL context
+ * Builder that takes list of [GraphQLContextEntryProducer] used to generate entries for a GraphQL context
  */
 interface GraphQLContextBuilder<Request> : GraphQLContextProvider<Request> {
 
-    val entryFactories: List<GraphQLContextEntryFactory<Request, Any, *>>
+    val producers: List<GraphQLContextEntryProducer<Request, Any, *>>
 
     override suspend fun generateContext(
         request: Request,
         graphQLRequest: GraphQLServerRequest,
     ): GraphQLContext =
-        entryFactories.fold(mutableMapOf<Any, Any?>()) { accumulator, entryFactory ->
+        producers.fold(mutableMapOf<Any, Any?>()) { accumulator, producer ->
             accumulator.also {
-                entryFactory.generate(request, graphQLRequest, accumulator)?.let { entry ->
+                producer.produce(request, graphQLRequest, accumulator)?.let { entry ->
                     accumulator += entry
                 }
             }

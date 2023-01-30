@@ -19,7 +19,7 @@ package com.expediagroup.graphql.server.spring.execution.context
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.execution.context.GraphQLContextBuilder
-import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryProducer
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -33,19 +33,19 @@ interface SpringGraphQLContextBuilder : GraphQLContextBuilder<ServerRequest>
  * Basic implementation of [SpringGraphQLContextBuilder] that populates Apollo tracing header.
  */
 open class DefaultSpringGraphQLContextBuilder(
-    override val entryFactories: List<GraphQLContextEntryFactory<ServerRequest, Any, *>>
+    override val producers: List<GraphQLContextEntryProducer<ServerRequest, Any, *>>
 ) : SpringGraphQLContextBuilder {
 
-    constructor(vararg entryFactories: GraphQLContextEntryFactory<ServerRequest, Any, *>) : this(entryFactories.toList())
+    constructor(vararg entryFactories: GraphQLContextEntryProducer<ServerRequest, Any, *>) : this(entryFactories.toList())
 
     override suspend fun generateContext(
         request: ServerRequest,
         graphQLRequest: GraphQLServerRequest
     ): GraphQLContext =
-        (entryFactories + tracingHeaderEntryFactory)
+        (producers + tracingHeaderEntryProducer)
             .fold(mutableMapOf<Any, Any?>()) { accumulator, entryFactory ->
                 accumulator.also {
-                    entryFactory.generate(request, graphQLRequest, accumulator)?.let { entry ->
+                    entryFactory.produce(request, graphQLRequest, accumulator)?.let { entry ->
                         accumulator += entry
                     }
                 }
@@ -53,8 +53,8 @@ open class DefaultSpringGraphQLContextBuilder(
             .toGraphQLContext()
 
     companion object {
-        val tracingHeaderEntryFactory: GraphQLContextEntryFactory<ServerRequest, Any, *> =
-            GraphQLContextEntryFactory { request, _, _ ->
+        val tracingHeaderEntryProducer: GraphQLContextEntryProducer<ServerRequest, Any, *> =
+            GraphQLContextEntryProducer { request, _, _ ->
                 request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
                     Pair(FEDERATED_TRACING_HEADER_NAME, headerValue)
                 }

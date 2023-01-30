@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.spring.subscriptions
 
-import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryProducer
 import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
 import org.springframework.web.reactive.socket.WebSocketSession
 
@@ -24,9 +24,9 @@ import org.springframework.web.reactive.socket.WebSocketSession
  * Spring specific code to generate the context for a subscription request
  */
 abstract class SpringSubscriptionGraphQLContextFactory(
-    override val entryFactories: List<GraphQLContextEntryFactory<WebSocketSession, Any, Any>> = emptyList()
+    override val entryFactories: List<GraphQLContextEntryProducer<WebSocketSession, Any, Any>> = emptyList()
 ) : GraphQLContextFactory<WebSocketSession> {
-    constructor(vararg entryFactories: GraphQLContextEntryFactory<WebSocketSession, Any, Any>) : this(entryFactories.toList())
+    constructor(vararg entryFactories: GraphQLContextEntryProducer<WebSocketSession, Any, Any>) : this(entryFactories.toList())
 }
 
 /**
