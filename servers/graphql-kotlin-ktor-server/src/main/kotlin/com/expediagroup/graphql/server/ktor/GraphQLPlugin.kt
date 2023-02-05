@@ -140,7 +140,7 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
             }
             // install routing
             pipeline.routing {
-                get(config.endpoint)  {
+                get(config.endpoint) {
                     plugin.server.execute(call.request)?.let {
                         call.respond(it)
                     } ?: call.respond(HttpStatusCode.BadRequest)

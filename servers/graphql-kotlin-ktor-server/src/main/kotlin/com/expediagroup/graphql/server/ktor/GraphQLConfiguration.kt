@@ -40,8 +40,7 @@ import io.ktor.server.config.tryGetStringList
 /**
  * Configuration properties that define supported GraphQL configuration options.
  */
-class GraphQLConfiguration(config: ApplicationConfig)
-{
+class GraphQLConfiguration(config: ApplicationConfig) {
     // required properties
     /** List of supported packages that can contain GraphQL schema type definitions */
     var packages: List<String>? = config.tryGetStringList("graphql.packages")

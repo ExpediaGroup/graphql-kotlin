@@ -41,7 +41,7 @@ class KtorGraphQLRequestParser(
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
 //    private val graphQLContentType: ContentType = ContentType.parse("application/graphql-response+json")
 
-    override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest? = when(request.local.method) {
+    override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest? = when (request.local.method) {
         HttpMethod.Get -> parseGetRequest(request)
         HttpMethod.Post -> parsePostRequest(request)
         else -> null
