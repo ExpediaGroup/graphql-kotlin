@@ -12,10 +12,7 @@ application {
 }
 
 dependencies {
-    implementation("com.expediagroup", "graphql-kotlin-server")
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.content)
-    implementation(libs.ktor.server.jackson)
+    implementation("com.expediagroup", "graphql-kotlin-ktor-server")
     implementation(libs.ktor.server.netty)
     implementation(libs.logback)
     implementation(libs.kotlinx.coroutines.jdk8)

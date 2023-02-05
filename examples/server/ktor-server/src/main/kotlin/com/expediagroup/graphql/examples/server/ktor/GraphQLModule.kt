@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,80 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:Suppress("DEPRECATION")
-
 package com.expediagroup.graphql.examples.server.ktor
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.examples.server.ktor.schema.BookQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.CourseQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.HelloQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
 import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
-import com.expediagroup.graphql.examples.server.ktor.schema.models.User
-import com.expediagroup.graphql.generator.SchemaGeneratorConfig
-import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
-import io.ktor.serialization.jackson.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
-import io.ktor.server.routing.*
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
+import com.expediagroup.graphql.server.ktor.GraphQLPlugin
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 
 fun Application.graphQLModule() {
-    install(Routing)
-    install(ContentNegotiation) {
-        jackson()
-    }
-    install(GraphQLKotlin) {
-        queries = listOf(
-            HelloQueryService(),
-            BookQueryService(),
-            CourseQueryService(),
-            UniversityQueryService(),
-        )
-        mutations = listOf(
-            LoginMutationService()
-        )
-        schemaGeneratorConfig = SchemaGeneratorConfig(
-            supportedPackages = listOf(
-                "com.expediagroup.graphql.examples.server.ktor"
-            ),
-        )
-        generateContextMap { request: ApplicationRequest ->
-            mapOf(
-                User::class to generateUser(request),
-                MyHeaders::class to generateMyHeaders(request)
+    install(GraphQLPlugin) {
+        packages = listOf("com.expediagroup.graphql.examples.server")
+        schema {
+            queries = listOf(
+                HelloQueryService(),
+                BookQueryService(),
+                CourseQueryService(),
+                UniversityQueryService(),
+            )
+            mutations = listOf(
+                LoginMutationService()
             )
         }
-
-        // OPTIONAL SETTINGS
-        configureGraphQL {
-            valueUnboxer(IDValueUnboxer())
+        engine {
+            dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
+                UniversityDataLoader, CourseDataLoader, BookDataLoader
+            )
         }
-        endpoints {
-            graphql = "graphql"
-            sdl = "sdl"
-            playground = "playground"
-
-            enableSdl = true
-            enablePlayground = true
+        server {
+            contextFactory = CustomGraphQLContextFactory()
         }
     }
-    // TODO: this should be automatically called by the plugin. No global vars should be needed
-    installEndpoints(KtorGraphQLConfig.config)
 }
-
-fun generateMyHeaders(request: ApplicationRequest) = MyHeaders(
-    myCustomHeader =  request.headers["my-custom-header"]
-)
-
-private fun generateUser(request: ApplicationRequest) = User(
-    email = "fake@site.com",
-    firstName = "Someone",
-    lastName = "You Don't know",
-    universityId = 4
-)
-
-data class MyHeaders(
-    val myCustomHeader: String?,
-)

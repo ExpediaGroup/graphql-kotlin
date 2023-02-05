@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,131 +14,193 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.spring
+package com.expediagroup.graphql.server.ktor
 
-import org.springframework.boot.context.properties.ConfigurationProperties
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.generator.TopLevelNames
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
+import com.expediagroup.graphql.server.Schema
+import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.server.operations.Query
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import graphql.execution.DataFetcherExceptionHandler
+import graphql.execution.ExecutionIdProvider
+import graphql.execution.SimpleDataFetcherExceptionHandler
+import graphql.execution.instrumentation.Instrumentation
+import graphql.execution.preparsed.PreparsedDocumentProvider
+import io.ktor.server.config.ApplicationConfig
+import io.ktor.server.config.tryGetString
+import io.ktor.server.config.tryGetStringList
 
 /**
- * [ConfigurationProperties] bean that defines supported GraphQL configuration options.
+ * Configuration properties that define supported GraphQL configuration options.
  */
-@ConfigurationProperties("graphql")
-data class GraphQLConfigurationProperties(
-    /** GraphQL server endpoint, defaults to 'graphql' */
-    val endpoint: String = "graphql",
+class GraphQLConfiguration(config: ApplicationConfig)
+{
+    // required properties
     /** List of supported packages that can contain GraphQL schema type definitions */
-    val packages: List<String>,
-    /** Boolean flag indicating whether to print the schema after generator creates it */
-    val printSchema: Boolean = false,
-    val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
-    val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
-    val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
-    val graphiql: GraphiQLConfigurationProperties = GraphiQLConfigurationProperties(),
-    val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
-    val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
-    val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
-    val automaticPersistedQueries: AutomaticPersistedQueriesConfigurationProperties = AutomaticPersistedQueriesConfigurationProperties()
-) {
+    var packages: List<String>? = config.tryGetStringList("graphql.packages")
+
+    // TODO those are programmatically set
+    val schema: SchemaConfiguration = SchemaConfiguration()
+    fun schema(schemaConfig: SchemaConfiguration.() -> Unit) {
+        schema.apply(schemaConfig)
+    }
+
+    val engine: EngineConfiguration = EngineConfiguration()
+    fun engine(engineConfig: EngineConfiguration.() -> Unit) {
+        engine.apply(engineConfig)
+    }
+    val server: ServerConfiguration = ServerConfiguration()
+    fun server(serverConfig: ServerConfiguration.() -> Unit) {
+        server.apply(serverConfig)
+    }
+
+    // properties below are optional
+    /** GraphQL server endpoint, defaults to 'graphql' */
+    var endpoint: String = config.tryGetString("graphql.endpoint") ?: "graphql"
+
+    var federation: FederationConfiguration = FederationConfiguration(config)
+    // TODO support subscriptions
+//    var subscriptions: SubscriptionConfiguration = SubscriptionConfiguration(config)
+    var graphiql: GraphiQLConfiguration = GraphiQLConfiguration(config)
+    var sdl: SDLConfiguration = SDLConfiguration(config)
+    var introspection: IntrospectionConfiguration = IntrospectionConfiguration(config)
+    var batching: BatchingConfiguration = BatchingConfiguration(config)
+    // TODO support APQ
+//    var automaticPersistedQueries: AutomaticPersistedQueriesConfiguration = AutomaticPersistedQueriesConfiguration(config)
+
+    class SchemaConfiguration {
+        var queries: List<Query> = emptyList()
+        var mutations: List<Mutation> = emptyList()
+//        var subscriptions: List<Subscription> = emptyList()
+        var schemaObject: Schema? = null
+        var topLevelNames: TopLevelNames = TopLevelNames()
+        var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks
+    }
+
+    class EngineConfiguration {
+        var dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
+        var dataLoaderRegistryFactory: KotlinDataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory()
+        var exceptionHandler: DataFetcherExceptionHandler = SimpleDataFetcherExceptionHandler()
+        var executionIdProvider: ExecutionIdProvider? = null
+        var idValueUnboxer: IDValueUnboxer = IDValueUnboxer()
+        var instrumentations: List<Instrumentation> = emptyList()
+        var preparsedDocumentProvider: PreparsedDocumentProvider? = null
+    }
+
+    class ServerConfiguration {
+        var contextFactory: KtorGraphQLContextFactory = DefaultKtorGraphQLContextFactory()
+        var requestHandler: GraphQLRequestHandler? = null
+        var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonObjectMapper())
+        var customServer: KtorGraphQLServer? = null
+    }
+
     /**
      * Apollo Federation configuration properties.
      */
-    data class FederationConfigurationProperties(
+    class FederationConfiguration(config: ApplicationConfig) {
         /**
          * Boolean flag indicating whether to generate federated GraphQL model
          */
-        val enabled: Boolean = false,
+        var enabled: Boolean = config.tryGetString("graphql.federation.enabled").toBoolean()
 
         /**
          * Boolean flag indicating whether we want to generate Federation v2 compatible schema.
          */
-        val optInV2: Boolean = true,
+        var optInV2: Boolean = config.tryGetString("graphql.federation.enabled")?.toBoolean() ?: true
 
         /**
          * Federation tracing config
          */
-        val tracing: FederationTracingConfigurationProperties = FederationTracingConfigurationProperties()
-    )
+        var tracing: FederationTracingConfiguration = FederationTracingConfiguration(config)
+    }
 
     /**
      * Apollo Federation tracing configuration properties
      */
-    data class FederationTracingConfigurationProperties(
+    class FederationTracingConfiguration(config: ApplicationConfig) {
         /**
          * Flag to enable or disable field tracing for the Apollo Gateway.
          * Default is true as this is only used if the parent config is enabled.
          */
-        val enabled: Boolean = true,
+        var enabled: Boolean = config.tryGetString("graphql.federation.tracing.enabled")?.toBoolean() ?: true
 
         /**
          * Flag to enable or disable debug logging
          */
-        val debug: Boolean = false
-    )
+        var debug: Boolean = config.tryGetString("graphql.federation.tracing.enabled").toBoolean()
+    }
 
     /**
      * GraphQL subscription configuration properties.
      */
-    data class SubscriptionConfigurationProperties(
+    class SubscriptionConfiguration(config: ApplicationConfig) {
         /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
-        val endpoint: String = "subscriptions",
-        /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
-        val keepAliveInterval: Long? = null
-    )
+        var endpoint: String = config.tryGetString("graphql.subscriptions.endpoint") ?: "subscriptions"
 
-    /**
-     * Playground configuration properties.
-     */
-    data class PlaygroundConfigurationProperties(
-        /** Boolean flag indicating whether to enabled Prisma Labs Playground GraphQL IDE */
-        val enabled: Boolean = false,
-        /** Prisma Labs Playground GraphQL IDE endpoint, defaults to 'playground' */
-        val endpoint: String = "playground"
-    )
+        /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
+        var keepAliveInterval: Long? = config.tryGetString("graphql.subscriptions.keepAliveInterval")?.toLongOrNull()
+    }
 
     /**
      * GraphiQL configuration properties.
      */
-    data class GraphiQLConfigurationProperties(
+    class GraphiQLConfiguration(config: ApplicationConfig) {
         /** Boolean flag indicating whether to enabled GraphiQL GraphQL IDE */
-        val enabled: Boolean = true,
+        var enabled: Boolean = config.tryGetString("graphql.graphiql.enabled")?.toBoolean() ?: true
+
         /** GraphiQL GraphQL IDE endpoint, defaults to 'graphiql' */
-        val endpoint: String = "graphiql"
-    )
+        var endpoint: String = config.tryGetString("graphql.graphiql.endpoint") ?: "graphiql"
+    }
 
     /**
      * SDL endpoint configuration properties.
      */
-    data class SDLConfigurationProperties(
+    class SDLConfiguration(config: ApplicationConfig) {
         /** Boolean flag indicating whether SDL endpoint is enabled */
-        val enabled: Boolean = true,
+        var enabled: Boolean = config.tryGetString("graphql.sdl.enabled")?.toBoolean() ?: true
+
         /** GraphQL SDL endpoint */
-        val endpoint: String = "sdl"
-    )
+        var endpoint: String = config.tryGetString("graphql.sdl.endpoint") ?: "sdl"
+
+        /** Boolean flag indicating whether to print the schema after generator creates it */
+        var print: Boolean = config.tryGetString("graphql.sdl.print").toBoolean()
+    }
 
     /**
      * Introspection configuration properties.
      */
-    data class IntrospectionConfigurationProperties(
+    class IntrospectionConfiguration(config: ApplicationConfig) {
         /** Boolean flag indicating whether introspection queries are enabled. */
-        val enabled: Boolean = true
-    )
+        var enabled: Boolean = config.tryGetString("graphql.introspection.enabled")?.toBoolean() ?: true
+    }
 
     /**
      * Approaches for batching transactions of a set of GraphQL Operations.
      */
     enum class BatchingStrategy { LEVEL_DISPATCHED, SYNC_EXHAUSTION }
-
     /**
      * Batching configuration properties.
      */
-    data class BatchingConfigurationProperties(
+    class BatchingConfiguration(config: ApplicationConfig) {
         /** Boolean flag to enable or disable batching for a set of GraphQL Operations. */
-        val enabled: Boolean = false,
-        /** configure the [BatchingStrategy] that will be used when batching is enabled for a set of GraphQL Operations. */
-        val strategy: BatchingStrategy = BatchingStrategy.LEVEL_DISPATCHED
-    )
+        var enabled: Boolean = config.tryGetString("graphql.batching.enabled").toBoolean()
 
-    data class AutomaticPersistedQueriesConfigurationProperties(
+        /** configure the [BatchingStrategy] that will be used when batching is enabled for a set of GraphQL Operations. */
+        var strategy: BatchingStrategy = config.tryGetString("graphql.batching.strategy").toBatchingStrategy()
+    }
+
+    class AutomaticPersistedQueriesConfiguration(config: ApplicationConfig) {
         /** Boolean flag to enable or disable Automatic Persisted Queries. */
-        val enabled: Boolean = false
-    )
+        var enabled: Boolean = config.tryGetString("graphql.automaticPersistedQueries.enabled").toBoolean()
+    }
 }
+
+private fun String?.toBatchingStrategy(): GraphQLConfiguration.BatchingStrategy =
+    GraphQLConfiguration.BatchingStrategy.values().firstOrNull { strategy -> strategy.name == this } ?: GraphQLConfiguration.BatchingStrategy.LEVEL_DISPATCHED

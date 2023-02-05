@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.examples.server.ktor
+package com.expediagroup.graphql.server.ktor
 
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
-import com.expediagroup.graphql.examples.server.ktor.schema.models.User
 import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import io.ktor.server.request.ApplicationRequest
 import graphql.GraphQLContext
+import io.ktor.server.request.header
+
+abstract class KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest>
 
 /**
- * Custom logic for how this example app should create its context given the [ApplicationRequest]
+ * Basic implementation of [KtorGraphQLContextFactory] that populates Apollo tracing header.
  */
-class KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest> {
+open class DefaultKtorGraphQLContextFactory : KtorGraphQLContextFactory() {
     override suspend fun generateContext(request: ApplicationRequest): GraphQLContext =
-        mutableMapOf<Any, Any>(
-            "user" to User(
-                email = "fake@site.com",
-                firstName = "Someone",
-                lastName = "You Don't know",
-                universityId = 4
-            )
-        ).also { map ->
-            request.headers["my-custom-header"]?.let { customHeader ->
-                map["customHeader"] = customHeader
+        mutableMapOf<Any, Any>().also { map ->
+            request.header(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
+                map[FEDERATED_TRACING_HEADER_NAME] = headerValue
             }
         }.toGraphQLContext()
 }
