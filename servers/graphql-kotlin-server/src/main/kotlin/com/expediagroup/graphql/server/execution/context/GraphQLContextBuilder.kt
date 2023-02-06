@@ -21,7 +21,7 @@ import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
 
 /**
- * Factory that generates a Pair that will be part of a GraphQL context.
+ * Generates a Pair that will be used as entry of a GraphQL context.
  */
 fun interface GraphQLContextEntryProducer<Request, K: Any, V> {
     suspend fun produce(
@@ -32,7 +32,7 @@ fun interface GraphQLContextEntryProducer<Request, K: Any, V> {
 }
 
 /**
- * Builder that takes list of [GraphQLContextEntryProducer] used to generate entries for a GraphQL context
+ * Builder that takes list of [GraphQLContextEntryProducer] used to generate entries for a GraphQL context.
  */
 interface GraphQLContextBuilder<Request> : GraphQLContextProvider<Request> {
 

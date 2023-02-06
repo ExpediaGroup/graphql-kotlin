@@ -86,7 +86,7 @@ class ApolloSubscriptionProtocolHandler(
 
     /**
      * If the keep alive configuration is set, send a message back to client at every interval until the session is terminated.
-     * Otherwise just return empty flux to append to the acknowledge message.
+     * Otherwise, just return empty flux to append to the acknowledged message.
      */
     private fun getKeepAliveFlux(session: WebSocketSession): Flux<SubscriptionOperationMessage> {
         val keepAliveInterval: Long? = config.subscriptions.keepAliveInterval
