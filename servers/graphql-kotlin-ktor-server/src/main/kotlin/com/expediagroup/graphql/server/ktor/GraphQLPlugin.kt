@@ -50,16 +50,15 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.util.AttributeKey
 
-// TODO config is mutable -> should we store those values in non-mutable fields?
 class GraphQLPlugin(config: GraphQLConfiguration) {
 
-    private val schema: GraphQLSchema = if (config.federation.enabled) {
+    private val schema: GraphQLSchema = if (config.schema.federation.enabled) {
         val schemaConfig = FederatedSchemaGeneratorConfig(
-            supportedPackages = config.packages ?: error("Missing required configuration - packages property is required"),
+            supportedPackages = config.schema.packages ?: error("Missing required configuration - packages property is required"),
             topLevelNames = config.schema.topLevelNames,
             hooks = config.schema.hooks as? FederatedSchemaGeneratorHooks ?: throw IllegalStateException("Non federated schema generator hooks were specified when generating federated schema"),
             dataFetcherFactoryProvider = config.engine.dataFetcherFactoryProvider,
-            introspectionEnabled = config.introspection.enabled
+            introspectionEnabled = config.engine.introspection.enabled
         )
         toFederatedSchema(
             config = schemaConfig,
@@ -70,11 +69,11 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
         )
     } else {
         val schemaConfig = SchemaGeneratorConfig(
-            supportedPackages = config.packages ?: error("Missing required configuration - packages property is required"),
+            supportedPackages = config.schema.packages ?: error("Missing required configuration - packages property is required"),
             topLevelNames = config.schema.topLevelNames,
             hooks = config.schema.hooks,
             dataFetcherFactoryProvider = config.engine.dataFetcherFactoryProvider,
-            introspectionEnabled = config.introspection.enabled
+            introspectionEnabled = config.engine.introspection.enabled
         )
         toSchema(
             config = schemaConfig,
@@ -95,17 +94,17 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
             config.engine.preparsedDocumentProvider?.let { builder.preparsedDocumentProvider(it) }
 
             val instrumentations = mutableListOf<Instrumentation>()
-            if (config.batching.enabled) {
+            if (config.engine.batching.enabled) {
                 builder.doNotAddDefaultInstrumentations()
                 instrumentations.add(
-                    when (config.batching.strategy) {
+                    when (config.engine.batching.strategy) {
                         GraphQLConfiguration.BatchingStrategy.LEVEL_DISPATCHED -> DataLoaderLevelDispatchedInstrumentation()
                         GraphQLConfiguration.BatchingStrategy.SYNC_EXHAUSTION -> DataLoaderSyncExecutionExhaustedInstrumentation()
                     }
                 )
             }
-            if (config.federation.enabled && config.federation.tracing.enabled) {
-                instrumentations.add(FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.federation.tracing.debug)))
+            if (config.schema.federation.enabled && config.schema.federation.tracing.enabled) {
+                instrumentations.add(FederatedTracingInstrumentation(FederatedTracingInstrumentation.Options(config.schema.federation.tracing.debug)))
             }
 
             instrumentations.addAll(config.engine.instrumentations)
@@ -113,10 +112,11 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
         }
         .build()
 
-    val server: KtorGraphQLServer = config.server.customServer ?: KtorGraphQLServer(
+    // TODO cannot override the request handler/server as it requires access to graphql engine
+    val server: KtorGraphQLServer = KtorGraphQLServer(
         requestParser = config.server.requestParser,
         contextFactory = config.server.contextFactory,
-        requestHandler = config.server.requestHandler ?: GraphQLRequestHandler(
+        requestHandler = GraphQLRequestHandler(
             graphQL = engine,
             dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory
         )
@@ -129,7 +129,7 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
             val config = GraphQLConfiguration(pipeline.environment.config).apply(configure)
             val plugin = GraphQLPlugin(config)
 
-            if (config.sdl.print) {
+            if (config.tools.sdl.printAtStartup) {
                 pipeline.log.info("\n${plugin.schema.print()}")
             }
 
@@ -140,32 +140,32 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
             }
             // install routing
             pipeline.routing {
-                get(config.endpoint) {
+                get(config.routing.endpoint) {
                     plugin.server.execute(call.request)?.let {
                         call.respond(it)
                     } ?: call.respond(HttpStatusCode.BadRequest)
                 }
-                post(config.endpoint) {
+                post(config.routing.endpoint) {
                     plugin.server.execute(call.request)?.let {
                         call.respond(it)
                     } ?: call.respond(HttpStatusCode.BadRequest)
                 }
 
-                if (config.sdl.enabled) {
+                if (config.tools.sdl.enabled) {
                     val sdl = plugin.schema.print()
-                    get(config.sdl.endpoint) {
+                    get(config.tools.sdl.endpoint) {
                         call.respondText(text = sdl)
                     }
                 }
-                if (config.graphiql.enabled) {
-                    get(config.graphiql.endpoint) {
-                        val contextPath = pipeline.environment.rootPath
-                        val graphiQL = GraphQLPlugin::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
-                            reader.readText()
-                                .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) config.endpoint else "$contextPath/${config.endpoint}")
-                                .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) "subscriptions" else "$contextPath/subscriptions")
-//                                ?.replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.subscriptions.endpoint else "$contextPath/${config.subscriptions.endpoint}")
-                        } ?: error("Unable to load GraphiQL")
+                if (config.tools.graphiql.enabled) {
+                    val contextPath = pipeline.environment.rootPath
+                    val graphiQL = GraphQLPlugin::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
+                        reader.readText()
+                            .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) config.routing.endpoint else "$contextPath/${config.routing.endpoint}")
+                            .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) "subscriptions" else "$contextPath/subscriptions")
+//                                ?.replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.routing.subscriptions.endpoint else "$contextPath/${config.routing.subscriptions.endpoint}")
+                    } ?: error("Unable to load GraphiQL")
+                    get(config.tools.graphiql.endpoint) {
                         call.respondText(graphiQL, ContentType.Text.Html)
                     }
                 }

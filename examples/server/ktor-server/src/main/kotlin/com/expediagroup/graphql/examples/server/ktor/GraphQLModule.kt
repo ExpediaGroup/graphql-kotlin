@@ -30,8 +30,8 @@ import io.ktor.server.application.install
 
 fun Application.graphQLModule() {
     install(GraphQLPlugin) {
-        packages = listOf("com.expediagroup.graphql.examples.server")
         schema {
+            packages = listOf("com.expediagroup.graphql.examples.server")
             queries = listOf(
                 HelloQueryService(),
                 BookQueryService(),

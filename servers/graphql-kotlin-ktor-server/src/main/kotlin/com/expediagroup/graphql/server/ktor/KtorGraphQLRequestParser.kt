@@ -60,11 +60,6 @@ class KtorGraphQLRequestParser(
         return GraphQLRequest(query = query, operationName = operationName, variables = graphQLVariables)
     }
 
-//    /**
-//     * We have to suppress the warning due to a jackson issue
-//     * https://github.com/FasterXML/jackson-module-kotlin/issues/221
-//     */
-//    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {
         val rawRequest = request.call.receiveText()
         mapper.readValue(rawRequest, GraphQLServerRequest::class.java)
