@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
+import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
 import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
@@ -33,11 +34,13 @@ import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
+import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.BaseApplicationPlugin
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -54,7 +57,7 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
 
     private val schema: GraphQLSchema = if (config.schema.federation.enabled) {
         val schemaConfig = FederatedSchemaGeneratorConfig(
-            supportedPackages = config.schema.packages ?: error("Missing required configuration - packages property is required"),
+            supportedPackages = config.schema.packages ?: throw IllegalStateException("Missing required configuration - packages property is required"),
             topLevelNames = config.schema.topLevelNames,
             hooks = config.schema.hooks as? FederatedSchemaGeneratorHooks ?: throw IllegalStateException("Non federated schema generator hooks were specified when generating federated schema"),
             dataFetcherFactoryProvider = config.engine.dataFetcherFactoryProvider,
@@ -69,7 +72,7 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
         )
     } else {
         val schemaConfig = SchemaGeneratorConfig(
-            supportedPackages = config.schema.packages ?: error("Missing required configuration - packages property is required"),
+            supportedPackages = config.schema.packages ?: throw IllegalStateException("Missing required configuration - packages property is required"),
             topLevelNames = config.schema.topLevelNames,
             hooks = config.schema.hooks,
             dataFetcherFactoryProvider = config.engine.dataFetcherFactoryProvider,
@@ -91,7 +94,16 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
         .valueUnboxer(config.engine.idValueUnboxer)
         .also { builder ->
             config.engine.executionIdProvider?.let { builder.executionIdProvider(it) }
-            config.engine.preparsedDocumentProvider?.let { builder.preparsedDocumentProvider(it) }
+
+            var preparsedDocumentProvider: PreparsedDocumentProvider? = config.engine.preparsedDocumentProvider
+            if (config.engine.automaticPersistedQueries.enabled) {
+                if (preparsedDocumentProvider != null) {
+                    throw IllegalStateException("Custom prepared document provider and APQ specified - disable APQ or don't specify the provider")
+                } else {
+                    preparsedDocumentProvider = AutomaticPersistedQueriesProvider(config.engine.automaticPersistedQueries.cache)
+                }
+            }
+            preparsedDocumentProvider?.let { builder.preparsedDocumentProvider(it) }
 
             val instrumentations = mutableListOf<Instrumentation>()
             if (config.engine.batching.enabled) {
@@ -141,14 +153,10 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
             // install routing
             pipeline.routing {
                 get(config.routing.endpoint) {
-                    plugin.server.execute(call.request)?.let {
-                        call.respond(it)
-                    } ?: call.respond(HttpStatusCode.BadRequest)
+                    plugin.server.executeRequest(call)
                 }
                 post(config.routing.endpoint) {
-                    plugin.server.execute(call.request)?.let {
-                        call.respond(it)
-                    } ?: call.respond(HttpStatusCode.BadRequest)
+                    plugin.server.executeRequest(call)
                 }
 
                 if (config.tools.sdl.enabled) {
@@ -164,7 +172,7 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
                             .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) config.routing.endpoint else "$contextPath/${config.routing.endpoint}")
                             .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) "subscriptions" else "$contextPath/subscriptions")
 //                                ?.replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.routing.subscriptions.endpoint else "$contextPath/${config.routing.subscriptions.endpoint}")
-                    } ?: error("Unable to load GraphiQL")
+                    } ?: throw IllegalStateException("Unable to load GraphiQL")
                     get(config.tools.graphiql.endpoint) {
                         call.respondText(graphiQL, ContentType.Text.Html)
                     }
@@ -177,4 +185,14 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
 
 internal fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {
     TopLevelObject(it)
+}
+
+internal suspend inline fun KtorGraphQLServer.executeRequest(call: ApplicationCall) = try {
+    execute(call.request)?.let {
+        call.respond(it)
+    } ?: call.respond(HttpStatusCode.BadRequest)
+} catch (e: UnsupportedOperationException) {
+    call.respond(HttpStatusCode.MethodNotAllowed)
+} catch (e: Exception) {
+    call.respond(HttpStatusCode.BadRequest)
 }

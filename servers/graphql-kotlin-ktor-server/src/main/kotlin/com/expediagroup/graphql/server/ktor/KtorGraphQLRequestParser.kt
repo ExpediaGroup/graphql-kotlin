@@ -48,7 +48,7 @@ class KtorGraphQLRequestParser(
     }
 
     private fun parseGetRequest(request: ApplicationRequest): GraphQLServerRequest? {
-        val query = request.queryParameters[REQUEST_PARAM_QUERY] ?: throw UnsupportedOperationException("Invalid HTTP request - GET request has to specify query parameter")
+        val query = request.queryParameters[REQUEST_PARAM_QUERY] ?: throw IllegalStateException("Invalid HTTP request - GET request has to specify query parameter")
         if (query.startsWith("mutation ") || query.startsWith("subscription ")) {
             throw UnsupportedOperationException("Invalid GraphQL operation - only queries are supported for GET requests")
         }
@@ -64,6 +64,6 @@ class KtorGraphQLRequestParser(
         val rawRequest = request.call.receiveText()
         mapper.readValue(rawRequest, GraphQLServerRequest::class.java)
     } catch (e: IOException) {
-        throw IOException("Unable to parse GraphQL payload.")
+        throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload")
     }
 }
