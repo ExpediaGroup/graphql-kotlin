@@ -62,7 +62,7 @@ class ConfigurationTestQuery : Query {
 }
 
 fun Application.missingPackageGraphQLModule() {
-    install(GraphQLPlugin) {
+    install(GraphQL) {
         schema {
             queries = listOf(
                 ConfigurationTestQuery(),
@@ -72,7 +72,7 @@ fun Application.missingPackageGraphQLModule() {
 }
 
 fun Application.missingQueriesGraphQLModule() {
-    install(GraphQLPlugin) {
+    install(GraphQL) {
         schema {
             packages = listOf("com.expediagroup.graphql.server.ktor")
         }
@@ -80,7 +80,7 @@ fun Application.missingQueriesGraphQLModule() {
 }
 
 fun Application.missingFederatedHooksGraphQLModule() {
-    install(GraphQLPlugin) {
+    install(GraphQL) {
         schema {
             packages = listOf("com.expediagroup.graphql.server.ktor")
             queries = listOf(
@@ -98,7 +98,7 @@ fun Application.missingFederatedHooksGraphQLModule() {
 }
 
 fun Application.misconfiguredAPQGraphQLModule() {
-    install(GraphQLPlugin) {
+    install(GraphQL) {
         schema {
             packages = listOf("com.expediagroup.graphql.server.ktor")
             queries = listOf(

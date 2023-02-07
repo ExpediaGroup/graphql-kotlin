@@ -29,7 +29,7 @@ import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHoo
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import graphql.GraphQL
+import graphql.GraphQL as GraphQLEngine
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
@@ -53,7 +53,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.util.AttributeKey
 
-class GraphQLPlugin(config: GraphQLConfiguration) {
+class GraphQL(config: GraphQLConfiguration) {
 
     private val schema: GraphQLSchema = if (config.schema.federation.enabled) {
         val schemaConfig = FederatedSchemaGeneratorConfig(
@@ -87,7 +87,7 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
         )
     }
 
-    val engine: GraphQL = GraphQL.newGraphQL(schema)
+    val engine: GraphQLEngine = GraphQLEngine.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy(config.engine.exceptionHandler))
         .mutationExecutionStrategy(AsyncSerialExecutionStrategy(config.engine.exceptionHandler))
         .subscriptionExecutionStrategy(FlowSubscriptionExecutionStrategy(config.engine.exceptionHandler))
@@ -134,28 +134,29 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
         )
     )
 
-    companion object Plugin : BaseApplicationPlugin<Application, GraphQLConfiguration, GraphQLPlugin> {
-        override val key: AttributeKey<GraphQLPlugin> = AttributeKey("GraphQLPlugin")
+    companion object Plugin : BaseApplicationPlugin<Application, GraphQLConfiguration, GraphQL> {
+        override val key: AttributeKey<GraphQL> = AttributeKey("GraphQL")
 
-        override fun install(pipeline: Application, configure: GraphQLConfiguration.() -> Unit): GraphQLPlugin {
+        override fun install(pipeline: Application, configure: GraphQLConfiguration.() -> Unit): GraphQL {
             val config = GraphQLConfiguration(pipeline.environment.config).apply(configure)
-            val plugin = GraphQLPlugin(config)
+            val plugin = GraphQL(config)
 
             if (config.tools.sdl.printAtStartup) {
                 pipeline.log.info("\n${plugin.schema.print()}")
             }
 
             // install content negotiation
-            // TODO figure out how to support kotlinx-serialization
             pipeline.install(ContentNegotiation) {
-                jackson()
+                jackson(streamRequestBody = config.server.streamingResponse) {
+                    apply(config.server.jacksonConfiguration)
+                }
             }
             // install routing
             pipeline.routing {
-                get(config.routing.endpoint) {
+                get(config.routes.endpoint) {
                     plugin.server.executeRequest(call)
                 }
-                post(config.routing.endpoint) {
+                post(config.routes.endpoint) {
                     plugin.server.executeRequest(call)
                 }
 
@@ -167,9 +168,9 @@ class GraphQLPlugin(config: GraphQLConfiguration) {
                 }
                 if (config.tools.graphiql.enabled) {
                     val contextPath = pipeline.environment.rootPath
-                    val graphiQL = GraphQLPlugin::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
+                    val graphiQL = GraphQL::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
                         reader.readText()
-                            .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) config.routing.endpoint else "$contextPath/${config.routing.endpoint}")
+                            .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) config.routes.endpoint else "$contextPath/${config.routes.endpoint}")
                             .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) "subscriptions" else "$contextPath/subscriptions")
 //                                ?.replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.routing.subscriptions.endpoint else "$contextPath/${config.routing.subscriptions.endpoint}")
                     } ?: throw IllegalStateException("Unable to load GraphiQL")

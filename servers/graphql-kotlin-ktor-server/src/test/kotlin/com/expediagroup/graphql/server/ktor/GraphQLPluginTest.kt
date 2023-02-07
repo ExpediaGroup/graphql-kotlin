@@ -144,9 +144,9 @@ class GraphQLPluginTest {
 }
 
 fun Application.testGraphQLModule() {
-    install(GraphQLPlugin) {
+    install(GraphQL) {
         schema {
-            packages = listOf("com.expediagroup.graphql.server.ktor")
+            // packages property is read from application.conf
             queries = listOf(
                 GraphQLPluginTest.TestQuery(),
             )

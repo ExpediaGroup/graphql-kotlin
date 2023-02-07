@@ -24,12 +24,12 @@ import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryServi
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
-import com.expediagroup.graphql.server.ktor.GraphQLPlugin
+import com.expediagroup.graphql.server.ktor.GraphQL
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 
 fun Application.graphQLModule() {
-    install(GraphQLPlugin) {
+    install(GraphQL) {
         schema {
             packages = listOf("com.expediagroup.graphql.examples.server")
             queries = listOf(

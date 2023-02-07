@@ -28,6 +28,7 @@ import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.ExecutionIdProvider
@@ -59,14 +60,16 @@ import io.ktor.server.config.tryGetStringList
  *   }
  * }
  * engine {
- *   introspection {
- *     enabled: true
+ *   automaticPersistedQueries {
+ *      enabled = false
  *   }
  *   batching {
  *     enabled = true
  *     strategy = SYNC_EXHAUSTION
  *   }
- *
+ *   introspection {
+ *      enabled = true
+ *   }
  *   dataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
  *   dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory()
  *   exceptionHandler = SimpleDataFetcherExceptionHandler()
@@ -77,12 +80,14 @@ import io.ktor.server.config.tryGetStringList
  * }
  * server {
  *   contextFactory = DefaultKtorGraphQLContextFactory()
+ *   jacksonConfiguration = { }
  *   requestParser = KtorGraphQLRequestParser(jacksonObjectMapper())
+ *   streamingResponse = true
  * }
- * routing {
- *   endpoint = graphql
+ * routes {
+ *   endpoint = "graphql"
  *   subscriptions {
- *     endpoint = subscriptions
+ *     endpoint = "subscriptions"
  *     keepAliveInterval = null
  *   }
  * }
@@ -113,15 +118,15 @@ class GraphQLConfiguration(config: ApplicationConfig) {
     }
 
     /** Configure GraphQL server */
-    val server: ServerConfiguration = ServerConfiguration()
+    val server: ServerConfiguration = ServerConfiguration(config)
     fun server(serverConfig: ServerConfiguration.() -> Unit) {
         server.apply(serverConfig)
     }
 
     /** Configure GraphQL routes */
-    val routing: RoutingConfiguration = RoutingConfiguration(config)
-    fun routing(routingConfig: RoutingConfiguration.() -> Unit) {
-        routing.apply(routingConfig)
+    val routes: RoutingConfiguration = RoutingConfiguration(config)
+    fun routes(routingConfig: RoutingConfiguration.() -> Unit) {
+        routes.apply(routingConfig)
     }
 
     /** Configure GraphQL tools */
@@ -192,18 +197,25 @@ class GraphQLConfiguration(config: ApplicationConfig) {
 
     /** Configuration of a GraphQL engine */
     class EngineConfiguration(config: ApplicationConfig) {
-        /** Introspection configuration */
-        val introspection: IntrospectionConfiguration = IntrospectionConfiguration(config)
-        fun introspection(introspectionConfig: IntrospectionConfiguration.() -> Unit) {
-            introspection.apply(introspectionConfig)
+        /**
+         * Configuration for automatic persisted queries support.
+         *
+         * Warning: If you need custom preparsed document provider, do not configure APQ settings.
+         */
+        val automaticPersistedQueries: AutomaticPersistedQueriesConfiguration = AutomaticPersistedQueriesConfiguration(config)
+        fun automaticPersistedQueries(apqConfig: AutomaticPersistedQueriesConfiguration.() -> Unit) {
+            automaticPersistedQueries.apply(apqConfig)
         }
-
         /** Automatic batching configuration */
         var batching: BatchingConfiguration = BatchingConfiguration(config)
         fun batching(batchingConfig: BatchingConfiguration.() -> Unit) {
             batching.apply(batchingConfig)
         }
-
+        /** Introspection configuration */
+        val introspection: IntrospectionConfiguration = IntrospectionConfiguration(config)
+        fun introspection(introspectionConfig: IntrospectionConfiguration.() -> Unit) {
+            introspection.apply(introspectionConfig)
+        }
         /** Factory for creating function and property data fetcher factories. */
         var dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider()
         /** Factory for creating data loader registry */
@@ -219,18 +231,9 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         /**
          * Preparsed document provider that allows for safe listing and/or document caching.
          *
-         * Warning: If using APQ auto-configuration settings, preparsed document provider should not be set.
+         * Warning: If using APQ auto configuration settings, preparsed document provider should not be set.
          */
         var preparsedDocumentProvider: PreparsedDocumentProvider? = null
-        /**
-         * Configuration for automatic persisted queries support.
-         *
-         * Warning: If you need custom preparsed document provider, do not configure APQ settings.
-         */
-        val automaticPersistedQueries: AutomaticPersistedQueriesConfiguration = AutomaticPersistedQueriesConfiguration(config)
-        fun automaticPersistedQueries(apqConfig: AutomaticPersistedQueriesConfiguration.() -> Unit) {
-            automaticPersistedQueries.apply(apqConfig)
-        }
     }
 
     /**
@@ -268,18 +271,22 @@ class GraphQLConfiguration(config: ApplicationConfig) {
     }
 
     /** Configuration for configuring GraphQL server */
-    class ServerConfiguration {
+    class ServerConfiguration(config: ApplicationConfig) {
         // TODO support custom servers/request handlers
         /** Custom GraphQL context factory */
         var contextFactory: KtorGraphQLContextFactory = DefaultKtorGraphQLContextFactory()
+        /** Custom Jackson ObjectMapper configuration */
+        var jacksonConfiguration: ObjectMapper.() -> Unit = {}
         /** Custom request parser */
-        var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonObjectMapper())
+        var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
+        /** Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses. */
+        var streamingResponse: Boolean = config.tryGetString("graphql.server.streamingResponse")?.toBoolean() ?: true
     }
 
     /** GraphQL routes configuration */
     class RoutingConfiguration(config: ApplicationConfig) {
         /** GraphQL server endpoint, defaults to 'graphql' */
-        var endpoint: String = config.tryGetString("graphql.routing.endpoint") ?: "graphql"
+        var endpoint: String = config.tryGetString("graphql.routes.endpoint") ?: "graphql"
         // TODO support subscriptions
 //        /** GraphQL server subscriptions endpoint, defaults to 'subscriptions' */
 //        var subscriptions: SubscriptionConfiguration = SubscriptionConfiguration(config)
