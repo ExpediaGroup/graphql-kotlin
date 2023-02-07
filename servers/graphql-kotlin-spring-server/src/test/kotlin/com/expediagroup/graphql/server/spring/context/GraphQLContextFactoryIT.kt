@@ -66,7 +66,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
 
         @Bean
         @ExperimentalCoroutinesApi
-        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
+        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory {
             override suspend fun generateContext(
                 request: ServerRequest,
                 graphQLRequest: GraphQLServerRequest

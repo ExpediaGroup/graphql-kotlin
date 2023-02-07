@@ -23,6 +23,7 @@ import org.springframework.web.reactive.socket.WebSocketSession
 
 /**
  * Spring specific code to generate the context for a subscription request
+ * GraphQLContext should be generated when connection is established
  */
 interface SpringSubscriptionGraphQLContextFactory : GraphQLContextFactory<WebSocketSession> {
     suspend fun generateContext(

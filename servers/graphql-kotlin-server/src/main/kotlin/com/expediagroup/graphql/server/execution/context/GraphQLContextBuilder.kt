@@ -23,7 +23,7 @@ import graphql.GraphQLContext
 /**
  * Generates a Pair that will be used as entry of a GraphQL context.
  */
-fun interface GraphQLContextEntryProducer<Request, K: Any, V> {
+fun interface GraphQLContextEntryProducer<Request, K : Any, V> {
     suspend fun produce(
         request: Request,
         graphQLRequest: GraphQLServerRequest,

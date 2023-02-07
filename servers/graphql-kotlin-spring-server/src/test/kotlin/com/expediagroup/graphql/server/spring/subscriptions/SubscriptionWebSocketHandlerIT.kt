@@ -188,10 +188,7 @@ class SubscriptionWebSocketHandlerIT(
         fun ticker(env: DataFetchingEnvironment): Flux<String> = Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
     }
 
-    class CustomContextFactory(
-        override val entryFactories: List<GraphQLContextEntryProducer<WebSocketSession, Any, Any>> = emptyList()
-    ) : SpringSubscriptionGraphQLContextFactory() {
-
+    class CustomContextFactory : SpringSubscriptionGraphQLContextFactory {
         override suspend fun generateContext(
             request: WebSocketSession,
             graphQLRequest: GraphQLServerRequest

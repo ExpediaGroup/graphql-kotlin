@@ -55,7 +55,7 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
         fun query(): Query = SimpleQuery()
 
         @Bean
-        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory() {
+        fun customContextFactory(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory {
             override suspend fun generateContext(
                 request: ServerRequest,
                 graphQLRequest: GraphQLServerRequest
