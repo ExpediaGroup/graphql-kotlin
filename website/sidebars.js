@@ -93,6 +93,17 @@ module.exports = {
           'server/spring-server/spring-properties',
           'server/spring-server/spring-subscriptions'
         ]
+      },
+      {
+        type: 'category',
+        label: "Ktor Server Plugin",
+        items: [
+          'server/ktor-server/ktor-overview',
+          'server/ktor-server/ktor-schema',
+          'server/ktor-server/ktor-graphql-context',
+          'server/ktor-server/ktor-http-request-response',
+          'server/ktor-server/ktor-configuration'
+        ]
       }
     ],
     'Client': [

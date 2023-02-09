@@ -1,0 +1,45 @@
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
+
+plugins {
+    id 'com.expediagroup.it-conventions'
+    id 'com.expediagroup.graphql'
+}
+
+dependencies {
+    implementation "com.expediagroup:graphql-kotlin-spring-client"
+    implementation(libs.kotlin.stdlib)
+}
+
+graphql {
+    client {
+        schemaFile = file("${project.projectDir}/schema.graphql")
+        packageName = "com.expediagroup.generated"
+        // optional configuration
+        allowDeprecatedFields = true
+        headers = ["X-Custom-Header": "My-Custom-Header-Value"]
+        queryFiles = [
+                file("${project.projectDir}/src/main/resources/queries/HelloWorldQuery.graphql"),
+                file("${project.projectDir}/src/main/resources/queries/UpdateNameMutation.graphql")
+        ]
+        serializer = GraphQLSerializer.JACKSON
+        timeout { t ->
+            t.connect = 10000
+            t.read = 30000
+        }
+    }
+}
+
+tasks.named("test", Test) {
+    dependsOn("graphqlGenerateClient")
+
+    doLast {
+        // verify files were generated
+        if (!new File(project.buildDir, "generated/source/graphql/main/com/expediagroup/generated/HelloWorldQuery.kt").exists()) {
+            throw new RuntimeException("failed to generate client for HelloWorldQuery")
+        }
+        if (!new File(project.buildDir, "generated/source/graphql/main/com/expediagroup/generated/UpdateNameMutation.kt").exists()) {
+            throw new RuntimeException("failed to generate client for UpdateNameMutation")
+        }
+    }
+}
+

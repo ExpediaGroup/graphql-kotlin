@@ -1,0 +1,30 @@
+import com.expediagroup.it.VerifyGenerateSDLTask
+
+plugins {
+    id 'com.expediagroup.it-conventions'
+    id 'com.expediagroup.graphql'
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+}
+
+dependencies {
+    implementation "com.expediagroup:graphql-kotlin-spring-server"
+    implementation(libs.kotlin.stdlib)
+}
+
+graphql {
+    schema {
+        packages = ["com.example"]
+    }
+}
+
+// integration test
+tasks.register("integrationTest", VerifyGenerateSDLTask) {
+    dependsOn("graphqlGenerateSDL")
+
+    actualSchema = new File(project.buildDir, "schema.graphql")
+    expectedSchema = new File(rootProject.projectDir, "src/integration/resources/sdl/schema.graphql")
+}
+tasks.named("build") {
+    dependsOn("integrationTest")
+}

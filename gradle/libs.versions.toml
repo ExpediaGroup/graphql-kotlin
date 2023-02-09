@@ -1,10 +1,10 @@
 [versions]
-android-plugin = "7.1.2"
+android-plugin = "8.0.0-alpha11"
 classgraph = "4.8.149"
 dataloader = "3.2.0"
 federation = "2.2.0"
 graphql-java = "19.2"
-jackson = "2.13.3"
+jackson = "2.14.1"
 kotlin = "1.7.21"
 kotlinx-benchmark = "0.4.4"
 kotlinx-coroutines = "1.6.4"
@@ -15,11 +15,11 @@ maven-plugin-api = "3.6.3"
 maven-project = "2.2.1"
 poet = "1.12.0"
 ## reactorVersion should be the same reactor-core version pulled from spring-boot-starter-webflux
-reactor-core = "3.4.26"
-reactor-extensions = "1.1.9"
+reactor-core = "3.5.1"
+reactor-extensions = "1.2.1"
 slf4j = "1.7.36"
-spring = "5.3.24"
-spring-boot = "2.7.7"
+spring = "6.0.3"
+spring-boot = "3.0.1"
 
 # test dependencies
 # kotlin-compile-testing has to be using the same kotlin version as the kotlinx-serialization compiler
@@ -27,10 +27,9 @@ spring-boot = "2.7.7"
 # versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
 compile-testing = "0.1.0"
 icu = "71.1"
-junit = "5.8.2"
+junit = "5.9.1"
 logback = "1.2.1"
-mockk = "1.12.5"
-mustache = "0.9.10"
+mockk = "1.13.3"
 rxjava = "3.1.5"
 wiremock = "2.33.2"
 
@@ -41,7 +40,7 @@ jacoco = "0.8.8"
 # klint gradle plugin breaks with 0.46.x+
 ktlint-core = "0.45.2"
 ktlint-plugin = "10.3.0"
-maven-plugin-development = "0.4.0"
+maven-plugin-development = "0.4.1"
 nexus-publish-plugin = "1.1.0"
 plugin-publish = "0.21.0"
 
@@ -69,6 +68,8 @@ ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "
 ktor-client-content = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
 ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-content = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
 maven-plugin-annotations = { group = "org.apache.maven.plugin-tools", name = "maven-plugin-annotations", version.ref = "maven-plugin-annotation" }
 maven-plugin-api = { group = "org.apache.maven", name = "maven-plugin-api", version.ref = "maven-plugin-api" }
 maven-project = { group = "org.apache.maven", name = "maven-project", version.ref = "maven-project" }
@@ -92,12 +93,10 @@ kotlinx-benchmark = { group = "org.jetbrains.kotlinx", name = "kotlinx-benchmark
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
-ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
 ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
 ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-mustache = { group = "com.github.spullara.mustache.java", name = "compiler", version.ref = "mustache" }
 reactor-core = { group = "io.projectreactor", name = "reactor-core", version.ref = "reactor-core" }
 reactor-extensions = { group = "io.projectreactor.kotlin", name = "reactor-kotlin-extensions", version.ref = "reactor-extensions" }
 reactor-test = { group = "io.projectreactor", name = "reactor-test", version.ref = "reactor-core" }

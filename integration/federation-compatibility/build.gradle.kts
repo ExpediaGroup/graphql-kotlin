@@ -10,7 +10,6 @@ plugins {
 }
 
 group = "com.expediagroup.federation.compatibility"
-java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
@@ -28,15 +27,19 @@ dependencies {
     graphqlSDL("com.expediagroup", "graphql-kotlin-federated-hooks-provider")
 }
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "11"
-	}
-}
-
-tasks.withType<Test> {
-	useJUnitPlatform()
+tasks {
+    kotlin {
+        jvmToolchain(17)
+    }
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "17"
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+        }
+    }
+    withType<Test> {
+        useJUnitPlatform()
+    }
 }
 
 graphql {

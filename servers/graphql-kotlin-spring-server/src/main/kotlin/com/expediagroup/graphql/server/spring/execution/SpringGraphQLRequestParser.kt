@@ -42,7 +42,7 @@ open class SpringGraphQLRequestParser(
 
     override suspend fun parseRequest(request: ServerRequest): GraphQLServerRequest? = when {
         request.queryParam(REQUEST_PARAM_QUERY).isPresent -> { getRequestFromGet(request) }
-        request.method() == HttpMethod.POST -> { getRequestFromPost(request) }
+        request.method().equals(HttpMethod.POST) -> { getRequestFromPost(request) }
         else -> null
     }
 

@@ -24,6 +24,7 @@ include(":graphql-kotlin-federated-hooks-provider")
 // Servers
 include(":graphql-kotlin-server")
 include(":graphql-kotlin-spring-server")
+include(":graphql-kotlin-ktor-server")
 
 // Executions
 include(":graphql-kotlin-dataloader")
@@ -56,6 +57,7 @@ project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/s
 // Servers
 project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
 project(":graphql-kotlin-spring-server").projectDir = file("servers/graphql-kotlin-spring-server")
+project(":graphql-kotlin-ktor-server").projectDir = file("servers/graphql-kotlin-ktor-server")
 
 // Executions
 project(":graphql-kotlin-dataloader").projectDir = file("executions/graphql-kotlin-dataloader")

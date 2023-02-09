@@ -15,6 +15,7 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import java.net.URL
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.junit.jupiter.api.Test
@@ -25,11 +26,12 @@ class PolymorphicKotlinxTests {
 
     @Test
     fun `verify polymorphic queries are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
             engine.start()
             runBlocking {
-                val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
+                val port = engine.resolvedConnectors().first().port
+                val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val query = CompletePolymorphicQuery(variables = CompletePolymorphicQuery.Variables(input = "foo"))
                 val response = client.execute(query)
@@ -48,9 +50,10 @@ class PolymorphicKotlinxTests {
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun `verify polymorphic queries fallbacks are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
             engine.start()
             runBlocking {
@@ -65,7 +68,8 @@ class PolymorphicKotlinxTests {
                         }
                     }
                 })
-                val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"), serializer = serializerWithFallback)
+                val port = engine.resolvedConnectors().first().port
+                val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"), serializer = serializerWithFallback)
 
                 val fallbackQuery = PartialPolymorphicQuery(variables = PartialPolymorphicQuery.Variables(input = "bar"))
                 val fallbackResponse = client.execute(fallbackQuery)

@@ -31,11 +31,12 @@ class CustomScalarKotlinxTests {
 
     @Test
     fun `verify custom scalars are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
             engine.start()
             runBlocking {
-                val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
+                val port = engine.resolvedConnectors().first().port
+                val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val undefinedLocaleQuery = LocaleQuery(variables = LocaleQuery.Variables())
                 val undefinedLocaleResult = client.execute(undefinedLocaleQuery)
@@ -56,11 +57,12 @@ class CustomScalarKotlinxTests {
 
     @Test
     fun `verify undefined optionals are correctly serialized and deserialized`() {
-        val engine = embeddedServer(CIO, port = 8080, module = Application::graphQLModule)
+        val engine = embeddedServer(CIO, port = 0, module = Application::graphQLModule)
         try {
             engine.start()
             runBlocking {
-                val client = GraphQLKtorClient(url = URL("http://localhost:8080/graphql"))
+                val port = engine.resolvedConnectors().first().port
+                val client = GraphQLKtorClient(url = URL("http://localhost:$port/graphql"))
 
                 val undefinedWrapperQuery = OptionalScalarQuery(variables = OptionalScalarQuery.Variables())
                 val undefinedWrapperResult = client.execute(undefinedWrapperQuery).data?.optionalScalarQuery

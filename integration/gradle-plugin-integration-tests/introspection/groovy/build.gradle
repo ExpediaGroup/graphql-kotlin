@@ -1,0 +1,26 @@
+plugins {
+    id 'com.expediagroup.it-conventions'
+    id 'com.expediagroup.graphql'
+}
+
+dependencies {
+    implementation "com.expediagroup:graphql-kotlin-spring-client"
+    implementation(libs.kotlin.stdlib)
+}
+
+String wireMockPort = ext.wireMockServerPort
+graphqlIntrospectSchema {
+  endpoint = "http://localhost:${wireMockPort}/graphql"
+  headers["X-Custom-Header"] = "My-Custom-Header-Value"
+}
+
+// simple test to verify file was downloaded
+tasks.named("test", Test) {
+    dependsOn("graphqlIntrospectSchema")
+
+    doLast {
+        if (!new File(project.buildDir, "schema.graphql").exists()) {
+            throw new RuntimeException("failed to download schema.graphql file")
+        }
+    }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/graphql",
+    "bodyPatterns": [{
+      "contains": "IntrospectionQuery"
+    }],
+    "headers": {
+      "X-Custom-Header": {
+        "equalTo": "My-Custom-Header-Value"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "IntrospectionResult.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

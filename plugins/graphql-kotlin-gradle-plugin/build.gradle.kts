@@ -1,5 +1,3 @@
-import java.time.LocalDate
-
 description = "Gradle Kotlin Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: remove once KTIJ-19369 / Gradle#22797 is fixed
@@ -17,7 +15,6 @@ dependencies {
     compileOnly(projects.graphqlKotlinSdlGenerator)
 
     testImplementation(libs.wiremock.jre8)
-    testImplementation(libs.mustache)
     testImplementation(libs.junit.params)
 }
 
@@ -76,26 +73,12 @@ tasks {
     compileKotlin {
         dependsOn(generateDefaultVersion)
     }
+
     publishPlugins {
         doFirst {
             System.setProperty("gradle.publish.key", System.getenv("PLUGIN_PORTAL_KEY"))
             System.setProperty("gradle.publish.secret", System.getenv("PLUGIN_PORTAL_SECRET"))
         }
-    }
-    test {
-        // ensure we always run tests by setting new inputs
-        //
-        // tests are parameterized and run IT based on projects under src/integration directories
-        // Gradle is unaware of this and does not run tests if no sources/inputs changed
-        inputs.property("integration.date", LocalDate.now())
-
-        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-        dependsOn(":resolveIntegrationTestDependencies")
-
-        systemProperty("androidPluginVersion", libs.versions.android.plugin.get())
-        systemProperty("kotlinVersion", libs.versions.kotlin.get())
-        systemProperty("springBootVersion", libs.versions.spring.boot.get())
-        systemProperty("junitVersion", libs.versions.junit.get())
     }
 
     publishing {
