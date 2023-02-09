@@ -155,7 +155,6 @@ class SubscriptionWebSocketHandlerIT(
 
     @Configuration
     class TestConfiguration {
-
         @Bean
         fun query(): Query = SimpleQuery()
 
@@ -163,7 +162,10 @@ class SubscriptionWebSocketHandlerIT(
         fun subscription(): Subscription = SimpleSubscription()
 
         @Bean
-        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory = CustomContextFactory()
+        fun customContextFactory(): SpringSubscriptionGraphQLContextFactory {
+            println("Dios Mio")
+            return CustomContextFactory()
+        }
     }
 
     // GraphQL spec requires at least single query to be present as Query type is needed to run introspection queries
@@ -184,15 +186,15 @@ class SubscriptionWebSocketHandlerIT(
             .delayElements(Duration.ofMillis(100))
 
         @Suppress("unused")
-        fun ticker(env: DataFetchingEnvironment): Flux<String> = Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
+        fun ticker(env: DataFetchingEnvironment): Flux<String> =
+            Flux.just("${env.graphQlContext.get<String>("value")}:${Random.nextInt()}")
     }
 
     class CustomContextFactory : SpringSubscriptionGraphQLContextFactory {
         override suspend fun generateContext(
-            request: WebSocketSession,
-            graphQLRequest: GraphQLServerRequest
+            request: WebSocketSession
         ): GraphQLContext =
-            super.generateContext(request, graphQLRequest) + mapOf(
+            super.generateContext(request) + mapOf(
                 "value" to (request.handshakeInfo.headers.getFirst("X-Custom-Header") ?: "default")
             )
     }

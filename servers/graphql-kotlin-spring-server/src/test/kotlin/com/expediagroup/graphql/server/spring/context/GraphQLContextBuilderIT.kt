@@ -40,7 +40,9 @@ import org.springframework.web.reactive.function.server.ServerRequest
     properties = ["graphql.packages=com.expediagroup.graphql.server.spring.context"]
 )
 @EnableAutoConfiguration
-class GraphQLContextBuilderIT(@Autowired private val testClient: WebTestClient) {
+class GraphQLContextBuilderIT(
+    @Autowired private val testClient: WebTestClient
+) {
     @Test
     fun `verify context is generated with http request headers and available to the GraphQL execution`() {
         testClient.post()

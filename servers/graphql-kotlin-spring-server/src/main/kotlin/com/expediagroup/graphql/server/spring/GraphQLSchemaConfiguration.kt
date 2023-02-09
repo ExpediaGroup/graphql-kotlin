@@ -29,6 +29,8 @@ import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
 import com.expediagroup.graphql.server.spring.execution.context.DefaultSpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLRequestParser
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
+import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextBuilder
+import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.GraphQL
 import graphql.execution.AsyncExecutionStrategy
@@ -132,12 +134,15 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLRequestParser(objectMapper: ObjectMapper): SpringGraphQLRequestParser =
-        SpringGraphQLRequestParser(objectMapper)
+    fun springGraphQLRequestParser(objectMapper: ObjectMapper): SpringGraphQLRequestParser {
+        return SpringGraphQLRequestParser(objectMapper)
+    }
 
     @Bean
-    @ConditionalOnMissingBean
-    fun springGraphQLContextFactory(): GraphQLContextProvider<ServerRequest> =
+    @ConditionalOnMissingBean(
+        value = [SpringGraphQLContextFactory::class, SpringGraphQLContextBuilder::class]
+    )
+    fun graphQLContextProvider(): SpringGraphQLContextFactory =
         DefaultSpringGraphQLContextFactory()
 
     @Bean
