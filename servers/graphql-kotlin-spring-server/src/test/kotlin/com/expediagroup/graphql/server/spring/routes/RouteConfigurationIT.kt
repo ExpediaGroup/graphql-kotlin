@@ -256,8 +256,8 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
 
         testClient.post()
             .uri("/graphql")
-            .accept(MediaType.APPLICATION_JSON_UTF8)
-            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(request)
             .exchange()
             .verifyGraphQLRoute("Hello JUNIT route with charset encoding!")

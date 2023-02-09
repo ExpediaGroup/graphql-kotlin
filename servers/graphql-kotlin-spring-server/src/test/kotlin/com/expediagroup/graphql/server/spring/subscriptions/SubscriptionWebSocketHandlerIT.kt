@@ -22,7 +22,6 @@ import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ServerMessages
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.GraphQLContext
