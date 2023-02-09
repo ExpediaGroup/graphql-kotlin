@@ -1,0 +1,98 @@
+---
+id: ktor-overview
+title: Ktor Server Overview
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+[graphql-kotlin-ktor-server](https://github.com/ExpediaGroup/graphql-kotlin/tree/master/servers/graphql-kotlin-ktor-server)
+is a Ktor Server Plugin that simplifies setup of your GraphQL server.
+
+## Setup
+
+The simplest way to create a new Ktor Server app is by generating one using https://start.ktor.io/.
+
+![Image of https://start.ktor.io/](../../assets/ktor-initializer.png)
+
+Once you get the sample application setup locally, you will need to add `graphql-kotlin-ktor-server` dependency:
+
+<Tabs
+  defaultValue="gradle"
+  values={[
+    { label: 'Gradle Kotlin', value: 'gradle' },
+    { label: 'Maven', value: 'maven' }
+  ]
+}>
+
+<TabItem value="gradle">
+
+```kotlin
+implementation("com.expediagroup", "graphql-kotlin-ktor-server", latestVersion)
+```
+
+</TabItem>
+<TabItem value="maven">
+
+```xml
+<dependency>
+    <groupId>com.expediagroup</groupId>
+    <artifactId>graphql-kotlin-ktor-server</artifactId>
+    <version>${latestVersion}</version>
+</dependency>
+```
+
+</TabItem>
+</Tabs>
+
+## Configuration
+
+`graphql-kotlin-ktor-server` is a Ktor Server Plugin and you to manually install it in your [module](https://ktor.io/docs/modules.html).
+
+```kotlin
+class HelloWorldQuery : Query {
+    fun hello(): String = "Hello World!"
+}
+
+fun Application.graphQLModule() {
+    install(GraphQL) {
+        schema {
+            packages = listOf("com.example")
+            queries = listOf(
+                HelloWorldQuery()
+            )
+        }
+    }
+}
+```
+
+If you use `EngineMain` to start your Ktor server, you can specify your module configuration in your `application.conf` (default)
+or `application.yaml` (requires additional `ktor-server-config-yaml` dependency) file.
+
+```
+ktor {
+    application {
+        modules = [ com.example.ApplicationKt.graphQLModule ]
+    }
+}
+```
+
+## Content Negotiation
+
+:::caution
+`graphql-kotlin-ktor-server` automatically configures `ContentNegotiation` plugin with [Jackson](https://github.com/FasterXML/jackson)
+serialization. `kotlinx-serialization` is currently not supported.
+:::
+
+## Default Routes
+
+:::caution
+`graphql-kotlin-ktor-server` automatically configures `Routing` plugin if it wasn't configured yet. Attempting to re-install
+(vs applying additional configuration) `Routing` after `GraphQL` plugin may result in errors.
+:::
+
+Your newly created GraphQL server starts up with following preconfigured default routes:
+
+-   **/graphql** - GraphQL server endpoint used for processing queries and mutations
+-   **/sdl** - Convenience endpoint that returns current schema in Schema Definition Language format
+-   **/graphiql** - [An official IDE](https://github.com/graphql/graphiql) under the GraphQL Foundation

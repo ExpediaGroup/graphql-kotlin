@@ -68,6 +68,8 @@ ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "
 ktor-client-content = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
 ktor-serialization-jackson = { group = "io.ktor", name = "ktor-serialization-jackson", version.ref = "ktor" }
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-content = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
 maven-plugin-annotations = { group = "org.apache.maven.plugin-tools", name = "maven-plugin-annotations", version.ref = "maven-plugin-annotation" }
 maven-plugin-api = { group = "org.apache.maven", name = "maven-plugin-api", version.ref = "maven-plugin-api" }
 maven-project = { group = "org.apache.maven", name = "maven-project", version.ref = "maven-project" }
@@ -91,7 +93,6 @@ kotlinx-benchmark = { group = "org.jetbrains.kotlinx", name = "kotlinx-benchmark
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
-ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
 ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
 ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }

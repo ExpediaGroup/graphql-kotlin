@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.expediagroup.graphql.examples.server.ktor
 
-import com.expediagroup.graphql.generator.extensions.print
-import io.ktor.http.ContentType
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.expediagroup.graphql.examples.server.ktor.schema.BookQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.CourseQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.HelloQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
+import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
+import com.expediagroup.graphql.server.ktor.GraphQL
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
 
 fun Application.graphQLModule() {
-    install(Routing)
-
-    routing {
-        post("graphql") {
-            KtorServer().handle(this.call)
+    install(GraphQL) {
+        schema {
+            packages = listOf("com.expediagroup.graphql.examples.server")
+            queries = listOf(
+                HelloQueryService(),
+                BookQueryService(),
+                CourseQueryService(),
+                UniversityQueryService(),
+            )
+            mutations = listOf(
+                LoginMutationService()
+            )
         }
-
-        get("sdl") {
-            call.respondText(graphQLSchema.print())
+        engine {
+            dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
+                UniversityDataLoader, CourseDataLoader, BookDataLoader
+            )
         }
-
-        get("playground") {
-            this.call.respondText(buildPlaygroundHtml("graphql", "subscriptions"), ContentType.Text.Html)
+        server {
+            contextFactory = CustomGraphQLContextFactory()
         }
     }
 }
-
-private fun buildPlaygroundHtml(graphQLEndpoint: String, subscriptionsEndpoint: String) =
-    Application::class.java.classLoader.getResource("graphql-playground.html")?.readText()
-        ?.replace("\${graphQLEndpoint}", graphQLEndpoint)
-        ?.replace("\${subscriptionsEndpoint}", subscriptionsEndpoint)
-        ?: throw IllegalStateException("graphql-playground.html cannot be found in the classpath")
