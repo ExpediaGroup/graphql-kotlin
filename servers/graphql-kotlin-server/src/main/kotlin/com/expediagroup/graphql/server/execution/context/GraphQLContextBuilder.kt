@@ -23,8 +23,8 @@ import graphql.GraphQLContext
 /**
  * Generates a Pair that will be used as entry of a GraphQL context.
  */
-fun interface GraphQLContextEntryProducer<Request, K : Any, V> {
-    suspend fun produce(
+fun interface GraphQLContextEntryProducer<Request, out K : Any, out V> {
+    suspend fun invoke(
         request: Request,
         graphQLRequest: GraphQLServerRequest,
         accumulator: Map<Any, Any?>
@@ -44,7 +44,7 @@ interface GraphQLContextBuilder<Request> : GraphQLContextProvider<Request> {
     ): GraphQLContext =
         producers.fold(mutableMapOf<Any, Any?>()) { accumulator, producer ->
             accumulator.also {
-                producer.produce(request, graphQLRequest, accumulator)?.let { entry ->
+                producer.invoke(request, graphQLRequest, accumulator)?.let { entry ->
                     accumulator += entry
                 }
             }

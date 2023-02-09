@@ -16,9 +16,9 @@
 
 package com.expediagroup.graphql.server.spring.context
 
-import com.expediagroup.graphql.generator.extensions.plus
+import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryProducer
 import com.expediagroup.graphql.server.operations.Query
-import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextBuilder
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
@@ -30,6 +30,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.annotation.Order
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -39,8 +40,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
     properties = ["graphql.packages=com.expediagroup.graphql.server.spring.context"]
 )
 @EnableAutoConfiguration
-class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) {
-
+class GraphQLContextBuilderIT(@Autowired private val testClient: WebTestClient) {
     @Test
     fun `verify context is generated with http request headers and available to the GraphQL execution`() {
         testClient.post()
@@ -53,7 +53,7 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
             .exchange()
             .expectBody()
             .jsonPath("$.data.contextMap").exists()
-            .jsonPath("$.data.contextMap").isEqualTo("JUNIT_FIRST,JUNIT_SECOND")
+            .jsonPath("$.data.contextMap").isEqualTo("junit_first,junit_second")
             .jsonPath("$.errors").doesNotExist()
             .jsonPath("$.extensions").doesNotExist()
     }
@@ -90,26 +90,60 @@ class GraphQLContextFactoryIT(@Autowired private val testClient: WebTestClient) 
         fun query(): Query = ContextualQuery()
 
         @Bean
+        @Order(1)
+        fun producerA(): GraphQLContextEntryProducer<ServerRequest, String, String?> =
+            GraphQLContextEntryProducer { request, _, _ ->
+                "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST")
+            }
+
+        @Bean
+        @Order(2)
+        fun producerB(): GraphQLContextEntryProducer<ServerRequest, String, String?> =
+            GraphQLContextEntryProducer { request, _, _ ->
+                "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND")
+            }
+
+        @Bean
+        @Order(3)
+        fun producerC(): GraphQLContextEntryProducer<ServerRequest, String, String?> =
+            GraphQLContextEntryProducer { _, _, accumulator ->
+                "third" to "${accumulator["first"] as? String},${accumulator["second"] as? String}".lowercase()
+            }
+
+        @Bean
+        @Order(4)
+        fun producerD(): GraphQLContextEntryProducer<ServerRequest, String, String?> =
+            GraphQLContextEntryProducer { _, graphQLRequest, _ ->
+                val graphqlRequest = (graphQLRequest as? GraphQLRequest)
+                "operationName" to (graphqlRequest?.operationName ?: "")
+            }
+
+        @Bean
+        @Order(5)
+        fun producerE(): GraphQLContextEntryProducer<ServerRequest, String, String?> =
+            GraphQLContextEntryProducer { _, graphQLRequest, _ ->
+                val graphqlRequest = (graphQLRequest as? GraphQLRequest)
+                "fooFromVariables" to (graphqlRequest?.variables?.get("foo") as? String ?: "")
+            }
+
+        @Bean
         @ExperimentalCoroutinesApi
-        fun customContextProvider(): SpringGraphQLContextFactory = object : SpringGraphQLContextFactory {
+        fun customContextProvider(
+            producers: List<GraphQLContextEntryProducer<ServerRequest, Any, Any>>
+        ): SpringGraphQLContextBuilder = object : SpringGraphQLContextBuilder {
+            override val producers = producers
+
             override suspend fun generateContext(
                 request: ServerRequest,
                 graphQLRequest: GraphQLServerRequest
-            ): GraphQLContext {
-                val graphqlRequest = (graphQLRequest as? GraphQLRequest)
-                return super.generateContext(request, graphQLRequest) + mapOf(
-                    "first" to (request.headers().firstHeader("X-First-Header") ?: "DEFAULT_FIRST"),
-                    "second" to (request.headers().firstHeader("X-Second-Header") ?: "DEFAULT_SECOND"),
-                    "operationName" to (graphqlRequest?.operationName ?: ""),
-                    "fooFromVariables" to (graphqlRequest?.variables?.get("foo") ?: "")
-                )
-            }
+            ): GraphQLContext =
+                super.generateContext(request, graphQLRequest)
         }
     }
 
     class ContextualQuery : Query {
         fun contextMap(env: DataFetchingEnvironment): String =
-            "${env.graphQlContext.getOrDefault("first", null)},${env.graphQlContext.getOrDefault("second", null)}"
+            env.graphQlContext.getOrDefault("third", "")
 
         fun operationName(env: DataFetchingEnvironment): String =
             env.graphQlContext.getOrDefault("operationName", "")

@@ -25,8 +25,8 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
 import com.expediagroup.graphql.server.spring.execution.context.DefaultSpringGraphQLContextFactory
-import com.expediagroup.graphql.server.spring.execution.context.SpringGraphQLContextFactory
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLRequestParser
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
+import org.springframework.web.reactive.function.server.ServerRequest
 import java.util.Optional
 
 /**
@@ -136,7 +137,7 @@ class GraphQLSchemaConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun springGraphQLContextFactory(): SpringGraphQLContextFactory =
+    fun springGraphQLContextFactory(): GraphQLContextProvider<ServerRequest> =
         DefaultSpringGraphQLContextFactory()
 
     @Bean
@@ -153,11 +154,11 @@ class GraphQLSchemaConfiguration {
     @ConditionalOnMissingBean
     fun springGraphQLServer(
         requestParser: SpringGraphQLRequestParser,
-        contextFactory: SpringGraphQLContextFactory,
+        contextProvider: GraphQLContextProvider<ServerRequest>,
         requestHandler: GraphQLRequestHandler
     ): SpringGraphQLServer = SpringGraphQLServer(
         requestParser,
-        contextFactory,
+        contextProvider,
         requestHandler
     )
 }

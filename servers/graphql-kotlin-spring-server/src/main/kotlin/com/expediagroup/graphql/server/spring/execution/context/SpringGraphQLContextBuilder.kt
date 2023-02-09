@@ -45,7 +45,7 @@ open class DefaultSpringGraphQLContextBuilder(
         (producers + tracingHeaderEntryProducer)
             .fold(mutableMapOf<Any, Any?>()) { accumulator, entryFactory ->
                 accumulator.also {
-                    entryFactory.produce(request, graphQLRequest, accumulator)?.let { entry ->
+                    entryFactory.invoke(request, graphQLRequest, accumulator)?.let { entry ->
                         accumulator += entry
                     }
                 }
