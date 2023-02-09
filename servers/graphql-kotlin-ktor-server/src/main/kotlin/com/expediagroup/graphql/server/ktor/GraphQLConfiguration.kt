@@ -26,6 +26,9 @@ import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.Schema
+import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
+import com.expediagroup.graphql.server.ktor.execution.KtorGraphQLRequestParser
+import com.expediagroup.graphql.server.ktor.execution.context.DefaultKtorGraphQLContextFactory
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -38,6 +41,7 @@ import graphql.execution.preparsed.PreparsedDocumentProvider
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.tryGetString
 import io.ktor.server.config.tryGetStringList
+import io.ktor.server.request.ApplicationRequest
 
 /**
  * Configuration properties that define supported GraphQL configuration options.
@@ -79,7 +83,7 @@ import io.ktor.server.config.tryGetStringList
  *   preparsedDocumentProvider = null
  * }
  * server {
- *   contextFactory = DefaultKtorGraphQLContextFactory()
+ *   contextProvider = DefaultKtorGraphQLContextFactory()
  *   jacksonConfiguration = { }
  *   requestParser = KtorGraphQLRequestParser(jacksonObjectMapper())
  *   streamingResponse = true
@@ -274,7 +278,7 @@ class GraphQLConfiguration(config: ApplicationConfig) {
     class ServerConfiguration(config: ApplicationConfig) {
         // TODO support custom servers/request handlers
         /** Custom GraphQL context factory */
-        var contextFactory: KtorGraphQLContextFactory = DefaultKtorGraphQLContextFactory()
+        var contextProvider: GraphQLContextProvider<ApplicationRequest> = DefaultKtorGraphQLContextFactory()
         /** Custom Jackson ObjectMapper configuration */
         var jacksonConfiguration: ObjectMapper.() -> Unit = {}
         /** Custom request parser */
@@ -303,7 +307,7 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         var keepAliveInterval: Long? = config.tryGetString("graphql.routing.subscriptions.keepAliveInterval")?.toLongOrNull()
     }
 
-    /** Configuration for various GraphhQL tools*/
+    /** Configuration for various GraphQL tools*/
     class ToolsConfiguration(config: ApplicationConfig) {
         /** GraphiQL IDE configuration */
         val graphiql: GraphiQLConfiguration = GraphiQLConfiguration(config)

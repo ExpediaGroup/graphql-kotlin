@@ -48,7 +48,7 @@ fun Application.graphQLModule() {
             )
         }
         server {
-            contextFactory = CustomGraphQLContextFactory()
+            contextProvider = CustomGraphQLContextFactory()
         }
     }
 }

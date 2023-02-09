@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor
+package com.expediagroup.graphql.server.ktor.execution.context
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
-import com.expediagroup.graphql.server.execution.GraphQLContextFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import io.ktor.server.request.ApplicationRequest
 import graphql.GraphQLContext
 import io.ktor.server.request.header
 
-abstract class KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest>
+interface KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest>
 
 /**
  * Basic implementation of [KtorGraphQLContextFactory] that populates Apollo tracing header.
  */
-open class DefaultKtorGraphQLContextFactory : KtorGraphQLContextFactory() {
-    override suspend fun generateContext(request: ApplicationRequest): GraphQLContext =
+open class DefaultKtorGraphQLContextFactory : KtorGraphQLContextFactory {
+    override suspend fun generateContext(
+        request: ApplicationRequest,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext =
         mutableMapOf<Any, Any>().also { map ->
             request.header(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
                 map[FEDERATED_TRACING_HEADER_NAME] = headerValue

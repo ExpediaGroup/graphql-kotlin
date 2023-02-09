@@ -154,7 +154,7 @@ All configuration options, with their default values are provided below.
 
 ```kotlin
 server {
-    contextFactory = DefaultKtorGraphQLContextFactory()
+    contextProvider = DefaultKtorGraphQLContextFactory()
     jacksonConfiguration = { }
     requestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
     streamingResponse = true

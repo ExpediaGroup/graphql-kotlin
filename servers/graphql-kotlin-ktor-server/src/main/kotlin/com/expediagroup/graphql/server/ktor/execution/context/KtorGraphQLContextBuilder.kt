@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.spring.execution.context
+package com.expediagroup.graphql.server.ktor.execution.context
 
-import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
+import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.execution.context.GraphQLContextBuilder
 import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryProducer
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import graphql.GraphQLContext
-import org.springframework.web.reactive.function.server.ServerRequest
+import io.ktor.server.request.ApplicationRequest
+import io.ktor.server.request.header
 
 /**
- *  Spring specific [ServerRequest] context builder
+ *  Ktor specific [ApplicationRequest] context builder
  */
-interface SpringGraphQLContextBuilder : GraphQLContextBuilder<ServerRequest>
+interface KtorGraphQLContextBuilder : GraphQLContextBuilder<ApplicationRequest>
 
 /**
- * Basic implementation of [SpringGraphQLContextBuilder] that populates Apollo tracing header.
+ * Basic implementation of [KtorGraphQLContextBuilder] that populates Apollo tracing header.
  */
-open class DefaultSpringGraphQLContextBuilder(
-    override val producers: List<GraphQLContextEntryProducer<ServerRequest, Any, *>>
-) : SpringGraphQLContextBuilder {
+open class DefaultKtorGraphQLContextBuilder(
+    override val producers: List<GraphQLContextEntryProducer<ApplicationRequest, Any, *>>
+) : KtorGraphQLContextBuilder {
 
-    constructor(vararg entryFactories: GraphQLContextEntryProducer<ServerRequest, Any, *>) : this(entryFactories.toList())
+    constructor(vararg entryFactories: GraphQLContextEntryProducer<ApplicationRequest, Any, *>) : this(entryFactories.toList())
 
     override suspend fun generateContext(
-        request: ServerRequest,
+        request: ApplicationRequest,
         graphQLRequest: GraphQLServerRequest
     ): GraphQLContext =
         (producers + tracingHeaderEntryProducer)
@@ -53,10 +54,10 @@ open class DefaultSpringGraphQLContextBuilder(
             .toGraphQLContext()
 
     companion object {
-        val tracingHeaderEntryProducer: GraphQLContextEntryProducer<ServerRequest, Any, *> =
+        val tracingHeaderEntryProducer: GraphQLContextEntryProducer<ApplicationRequest, Any, *> =
             GraphQLContextEntryProducer { request, _, _ ->
-                request.headers().firstHeader(FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
-                    FEDERATED_TRACING_HEADER_NAME to headerValue
+                request.header(FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME)?.let { headerValue ->
+                    FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME to headerValue
                 }
             }
     }

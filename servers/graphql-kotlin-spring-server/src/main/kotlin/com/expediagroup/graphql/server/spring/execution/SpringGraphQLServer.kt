@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
 import org.springframework.web.reactive.function.server.ServerRequest
 
 /**
- * Server object that requires the other Spring specific server implementations.
+ * Spring specific server implementation.
  */
 open class SpringGraphQLServer(
     requestParser: SpringGraphQLRequestParser,

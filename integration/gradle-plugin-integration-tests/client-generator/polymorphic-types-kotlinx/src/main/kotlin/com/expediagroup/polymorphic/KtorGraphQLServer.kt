@@ -3,10 +3,11 @@ package com.expediagroup.polymorphic
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.toSchema
-import com.expediagroup.graphql.server.execution.GraphQLContextFactory
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
 import com.expediagroup.graphql.server.execution.GraphQLServer
+import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
+import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
 import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.expediagroup.polymorphic.queries.PolymorphicQuery
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -17,9 +18,9 @@ import java.io.IOException
 
 class KtorGraphQLServer(
     requestParser: GraphQLRequestParser<ApplicationRequest>,
-    contextFactory: GraphQLContextFactory<ApplicationRequest>,
+    contextProvider: GraphQLContextProvider<ApplicationRequest>,
     requestHandler: GraphQLRequestHandler
-) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler) {
+) : GraphQLServer<ApplicationRequest>(requestParser, contextProvider, requestHandler) {
 
     companion object {
         operator fun invoke(jacksonObjectMapper: ObjectMapper): KtorGraphQLServer {
@@ -31,7 +32,7 @@ class KtorGraphQLServer(
                     throw IOException("Unable to parse GraphQL payload.")
                 }
             }
-            val contextFactory = object: GraphQLContextFactory<ApplicationRequest> {}
+            val contextProvider = object: GraphQLContextFactory<ApplicationRequest> {}
 
             val config = SchemaGeneratorConfig(
                 supportedPackages = listOf("com.expediagroup.polymorphic")
@@ -42,7 +43,7 @@ class KtorGraphQLServer(
             val graphQL: GraphQL = GraphQL.newGraphQL(graphQLSchema).build()
             val requestHandler = GraphQLRequestHandler(graphQL)
 
-            return KtorGraphQLServer(requestParser, contextFactory, requestHandler)
+            return KtorGraphQLServer(requestParser, contextProvider, requestHandler)
         }
     }
 }

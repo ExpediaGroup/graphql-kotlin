@@ -45,7 +45,7 @@ import java.time.Duration
  */
 class ApolloSubscriptionProtocolHandler(
     private val config: GraphQLConfigurationProperties,
-    private val contextFactory: SpringSubscriptionGraphQLContextFactory,
+    private val contextProvider: SpringSubscriptionGraphQLContextFactory,
     private val subscriptionHandler: SpringGraphQLSubscriptionHandler,
     private val objectMapper: ObjectMapper,
     private val subscriptionHooks: ApolloSubscriptionHooks
@@ -161,7 +161,7 @@ class ApolloSubscriptionProtocolHandler(
     private fun saveContext(operationMessage: SubscriptionOperationMessage, session: WebSocketSession) {
         runBlocking {
             val connectionParams = castToMapOfStringString(operationMessage.payload)
-            val graphQLContext = contextFactory.generateContext(session)
+            val graphQLContext = contextProvider.generateContext(session)
             val onConnectGraphQLContext = subscriptionHooks.onConnectWithContext(connectionParams, session, graphQLContext)
             sessionState.saveContext(session, onConnectGraphQLContext)
         }

@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.subscriptions
 
 import com.expediagroup.graphql.generator.extensions.plus
-import com.expediagroup.graphql.server.execution.context.GraphQLContextEntryProducer
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.spring.subscriptions.SubscriptionOperationMessage.ClientMessages

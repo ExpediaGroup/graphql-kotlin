@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor
+package com.expediagroup.graphql.server.ktor.execution
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
+import com.expediagroup.graphql.server.execution.context.GraphQLContextProvider
 import io.ktor.server.request.ApplicationRequest
 
 /**
- * Helper method for how this Ktor example creates the common [GraphQLServer] object that
- * can handle requests.
+ * Ktor specific server implementation.
  */
 class KtorGraphQLServer(
     requestParser: KtorGraphQLRequestParser,
-    contextFactory: KtorGraphQLContextFactory,
+    contextProvider: GraphQLContextProvider<ApplicationRequest>,
     requestHandler: GraphQLRequestHandler
-) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
+) : GraphQLServer<ApplicationRequest>(
+    requestParser,
+    contextProvider,
+    requestHandler
+)

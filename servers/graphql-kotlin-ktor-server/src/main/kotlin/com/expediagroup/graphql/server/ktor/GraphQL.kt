@@ -29,6 +29,7 @@ import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHoo
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.ktor.execution.KtorGraphQLServer
 import graphql.GraphQL as GraphQLEngine
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -127,7 +128,7 @@ class GraphQL(config: GraphQLConfiguration) {
     // TODO cannot override the request handler/server as it requires access to graphql engine
     val server: KtorGraphQLServer = KtorGraphQLServer(
         requestParser = config.server.requestParser,
-        contextFactory = config.server.contextFactory,
+        contextProvider = config.server.contextProvider,
         requestHandler = GraphQLRequestHandler(
             graphQL = engine,
             dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory

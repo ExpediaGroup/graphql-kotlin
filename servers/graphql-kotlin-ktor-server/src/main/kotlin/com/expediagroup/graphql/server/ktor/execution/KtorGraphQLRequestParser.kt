@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor
+package com.expediagroup.graphql.server.ktor.execution
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestParser
 import com.expediagroup.graphql.server.types.GraphQLRequest
@@ -22,6 +22,7 @@ import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.HttpMethod
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.receiveText
@@ -47,7 +48,7 @@ class KtorGraphQLRequestParser(
         else -> null
     }
 
-    private fun parseGetRequest(request: ApplicationRequest): GraphQLServerRequest? {
+    private fun parseGetRequest(request: ApplicationRequest): GraphQLServerRequest {
         val query = request.queryParameters[REQUEST_PARAM_QUERY] ?: throw IllegalStateException("Invalid HTTP request - GET request has to specify query parameter")
         if (query.startsWith("mutation ") || query.startsWith("subscription ")) {
             throw UnsupportedOperationException("Invalid GraphQL operation - only queries are supported for GET requests")
@@ -62,7 +63,7 @@ class KtorGraphQLRequestParser(
 
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {
         val rawRequest = request.call.receiveText()
-        mapper.readValue(rawRequest, GraphQLServerRequest::class.java)
+        mapper.readValue<GraphQLServerRequest>(rawRequest)
     } catch (e: IOException) {
         throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload")
     }
