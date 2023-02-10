@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.server.spring.execution.context
 
 import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrumentation.FEDERATED_TRACING_HEADER_NAME
-import com.expediagroup.graphql.generator.extensions.plus
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.execution.context.GraphQLContextFactory
 import com.expediagroup.graphql.server.types.GraphQLServerRequest

@@ -18,7 +18,8 @@ package com.expediagroup.graphql.examples.server.ktor
 
 import com.expediagroup.graphql.examples.server.ktor.schema.models.User
 import com.expediagroup.graphql.generator.extensions.plus
-import com.expediagroup.graphql.server.ktor.DefaultKtorGraphQLContextFactory
+import com.expediagroup.graphql.server.ktor.execution.context.DefaultKtorGraphQLContextFactory
+import com.expediagroup.graphql.server.types.GraphQLServerRequest
 import io.ktor.server.request.ApplicationRequest
 import graphql.GraphQLContext
 
@@ -26,8 +27,11 @@ import graphql.GraphQLContext
  * Custom logic for how this example app should create its context given the [ApplicationRequest]
  */
 class CustomGraphQLContextFactory : DefaultKtorGraphQLContextFactory() {
-    override suspend fun generateContext(request: ApplicationRequest): GraphQLContext =
-        super.generateContext(request).plus(
+    override suspend fun generateContext(
+        request: ApplicationRequest,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext =
+        super.generateContext(request, graphQLRequest).plus(
             mutableMapOf<Any, Any>(
                 "user" to User(
                     email = "fake@site.com",
