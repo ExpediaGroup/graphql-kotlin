@@ -22,7 +22,7 @@ import graphql.GraphQLContext
 /**
  * Base interface to provide a GraphQLContext
  */
-interface GraphQLContextProvider<Request> {
+sealed interface GraphQLContextProvider<Request> {
     suspend fun generateContext(
         request: Request,
         graphQLRequest: GraphQLServerRequest

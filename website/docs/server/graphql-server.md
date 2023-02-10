@@ -7,6 +7,7 @@ title: GraphQLServer
 The official reference implementations are:
 
 - [graphql-kotlin-spring-server](./spring-server/spring-overview.mdx)
+- [graphql-kotlin-ktor-server](./ktor-server/ktor-overview.mdx)
 
 We recommend using one of the implementations as the common code has very little logic but you can still use the common
 package to create implementation for other libraries (Ktor, Spark, etc).
@@ -23,10 +24,10 @@ This class is open for extensions and requires that you specify the type of the 
 
 In its simplest form, a GraphQL server has the following responsibilties:
 
--   Parse the GraphQL request info from the HTTP request
--   Create a `GraphQLContext` object from the HTTP request to be used during execution
--   Send the request and the context to the GraphQL schema to execute and get a response (may contain `data` or `errors`)
--   Send the reponse back to the client over HTTP
+-   Parse the GraphQL request info from the HTTP request.
+-   Create a `GraphQLContext` object from the HTTP request and GraphQL request to be used during execution.
+-   Send the request and the context to the GraphQL schema to execute and get a response (may contain `data` or `errors`).
+-   Send the reponse back to the client over HTTP.
 
 Most of the logic in a GraphQL server that is specific to your application is already in the schema, so if we have interfaces for all these
 common functions, we can abstract away the library specific features.

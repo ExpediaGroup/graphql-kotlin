@@ -2,21 +2,54 @@
 id: spring-graphql-context
 title: Generating GraphQL Context
 ---
-`graphql-kotlin-spring-server` provides a Spring specific implementation of [GraphQLContextFactory](../graphql-context-factory.md)
-and the context.
+`graphql-kotlin-spring-server` provides a Spring specific implementation of `GraphQLContextFactory` and `GraphQLContextBuilder`
+to generate a [context](../graphql-context-provider.md).
 
-* `SpringGraphQLContextFactory` - Generates GraphQL context map with federated tracing information per request
+* `SpringGraphQLContextFactory`
+* `SpringGraphQLContextBuilder`
 
-If you are using `graphql-kotlin-spring-server`, you should extend `DefaultSpringGraphQLContextFactory` to automatically
-support federated tracing.
+both implementations generate a GraphQL context map with federated tracing information per request.
 
+If you are using `graphql-kotlin-spring-server`, you should extend `DefaultSpringGraphQLContextFactory` or `DefaultSpringGraphQLContextBuilder`
+to automatically support federated tracing.
+
+
+Example extending `DefaultSpringGraphQLContextFactory`
 ```kotlin
 @Component
 class MyGraphQLContextFactory : DefaultSpringGraphQLContextFactory() {
-    override suspend fun generateContext(request: ServerRequest): GraphQLContext =
+    override suspend fun generateContext(
+        request: ServerRequest,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext =
         super.generateContext(request) + mapOf(
             "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
         )
+}
+```
+
+Example extending `DefaultSpringGraphQLContextFactory`
+```kotlin
+
+@Component
+class MyCustomValueProducer : GraphQLContextEntryProducer<ServerRequest, String, String> {
+    override fun invoke(
+        request: ServerRequest,
+        graphQLRequest: GraphQLServerRequest,
+        accumulator: Map<Any, Any?>
+    ): Pair<String, String> =
+        "myCustomValue" to (request.headers().firstHeader("MyHeader") ?: "defaultContext")
+}
+
+@Component
+class MyGraphQLContextBuilder(
+    override val producers: List<GraphQLContextEntryProducer<ServerRequest, Any, Any>>
+) : DefaultSpringGraphQLContextFactory() {
+    override suspend fun generateContext(
+        request: ServerRequest,
+        graphQLRequest: GraphQLServerRequest
+    ): GraphQLContext =
+        super.generateContext(request, graphQLRequest)
 }
 ```
 

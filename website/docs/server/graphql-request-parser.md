@@ -36,4 +36,4 @@ This is not the same as a GraphQL error or an exception thrown by the schema.
 Those types of errors should still parse the request and return a valid response with errors set via the [GraphQLRequestHandler](./graphql-request-handler.md).
 
 This interface should only be concerned with parsing the request, not about forwarding info to the context or execution.
-That is handled by the [GraphQLContextFactory](./graphql-context-factory.md).
+That is handled by the [GraphQLContextFactory](./graphql-context-provider.md).

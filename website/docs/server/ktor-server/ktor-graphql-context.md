@@ -3,7 +3,7 @@ id: ktor-graphql-context
 title: Generating GraphQL Context
 ---
 
-`graphql-kotlin-ktor-server` provides a Ktor specific implementation of [GraphQLContextFactory](../graphql-context-factory.md)
+`graphql-kotlin-ktor-server` provides a Ktor specific implementation of [GraphQLContextFactory](../graphql-context-provider.md)
 and the context.
 
 * `KtorGraphQLContextFactory` - Generates GraphQL context map with federated tracing information per request

@@ -69,7 +69,7 @@ module.exports = {
     'Server': [
       'server/graphql-server',
       'server/graphql-request-parser',
-      'server/graphql-context-factory',
+      'server/graphql-context-provider',
       'server/graphql-request-handler',
       'server/server-subscriptions',
       'server/automatic-persisted-queries/automatic-persisted-queries',

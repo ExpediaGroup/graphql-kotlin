@@ -18,7 +18,7 @@ val graphQL = GraphQL.newGraphQL(schema)
 ### GraphQL Context Map
 
 :::note
-Default `GraphQLContextFactory` provided by `graphql-kotlin-spring-server` populates this header information automatically.
+Default `GraphQLContextFactory` and `GraphQLContextBuilder` provided by `graphql-kotlin-spring-server` populates this header information automatically.
 :::
 
 Tracing header information can be provided by populating info directly on the GraphQL context map.
