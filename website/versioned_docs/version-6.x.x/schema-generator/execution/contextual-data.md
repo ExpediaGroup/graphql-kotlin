@@ -63,7 +63,7 @@ Note that the argument that implements `GraphQLContext` is not reflected in the 
 ## Handling Context Errors
 
 The [GraphQLContextFactory](../../server/graphql-context-factory.md) may return `null`. If your factory implementation never returns `null`, then there is no need to change your schema.
-If the factory could return `null`, then the context arugments in your schema should be nullable so a runtime exception is not thrown.
+If the factory could return `null`, then the context arguments in your schema should be nullable so a runtime exception is not thrown.
 
 ```kotlin
 class ContextualQuery : Query {
