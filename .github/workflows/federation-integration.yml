@@ -1,4 +1,4 @@
-name: Federation Composition Test
+name: Federation Integration Tests
 
 on:
   workflow_call:
@@ -6,9 +6,12 @@ on:
       fork:
         default: false
         type: boolean
+    secrets:
+      token:
+        required: true
 
 jobs:
-  federation-composition-test:
+  composition:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     defaults:
@@ -74,3 +77,45 @@ jobs:
       - name: Stop Supergraph
         if: ${{ always() }}
         run: docker compose down --remove-orphans
+
+  compatibility:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integration/federation-compatibility
+
+    steps:
+      - name: Checkout Repository
+        if: ${{ inputs.fork }} == false
+        uses: actions/checkout@v3
+      - name: Checkout Repository (fork mode)
+        if: ${{ inputs.fork }} == true
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Set up Gradle cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build compatibility app with Gradle
+        run: ./gradlew bootJar graphqlGenerateSDL
+
+      - name: Compatibility Test
+        uses: apollographql/federation-subgraph-compatibility@v1
+        with:
+          compose: 'integration/federation-compatibility/docker-compose.yaml'
+          schema: 'integration/federation-compatibility/build/schema.graphql'
+          debug: true
+          token: ${{ secrets.token }}
+          failOnWarning: true
+          failOnRequired: true
