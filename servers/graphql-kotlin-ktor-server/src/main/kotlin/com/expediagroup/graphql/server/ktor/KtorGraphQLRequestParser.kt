@@ -24,7 +24,10 @@ import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import io.ktor.http.HttpMethod
 import io.ktor.server.request.ApplicationRequest
-import io.ktor.server.request.receiveText
+import io.ktor.server.request.receiveStream
+import io.ktor.server.request.contentCharset
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 internal const val REQUEST_PARAM_QUERY = "query"
@@ -61,8 +64,18 @@ class KtorGraphQLRequestParser(
     }
 
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {
-        val rawRequest = request.call.receiveText()
-        mapper.readValue(rawRequest, GraphQLServerRequest::class.java)
+        // Ktor receiveText uses the rules for plain text, and the default encoding for plain text is ISO-8859-1:
+        // https://www.rfc-editor.org/rfc/rfc7231#appendix-B
+        // https://www.rfc-editor.org/rfc/rfc8259.html#section-8.1
+        // https://stackoverflow.com/a/49552784/430128
+        // https://youtrack.jetbrains.com/issue/KTOR-789
+        // instead -- receive the data as a stream and default to UTF-8 which is the correct encoding for GraphQL when no
+        // content type is specified (see
+        // https://github.com/graphql/graphql-over-http/blob/dd8817065728ff1db78c1ac77ff22eb516e5d3b2/spec/GraphQLOverHTTP.md?plain=1#L196-L199)
+        withContext(Dispatchers.IO) {
+            val requestReader = request.call.receiveStream().reader(request.contentCharset() ?: Charsets.UTF_8)
+            mapper.readValue(requestReader, GraphQLServerRequest::class.java)
+        }
     } catch (e: IOException) {
         throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload")
     }
