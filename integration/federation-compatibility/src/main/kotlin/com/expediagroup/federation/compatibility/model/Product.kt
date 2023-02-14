@@ -1,5 +1,6 @@
 package com.expediagroup.federation.compatibility.model
 
+import com.expediagroup.federation.compatibility.CustomDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLName
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
@@ -50,6 +51,7 @@ type Product
 @KeyDirective(fields = FieldSet("id"))
 @KeyDirective(fields = FieldSet("sku package"))
 @KeyDirective(fields = FieldSet("sku variation { id }"))
+@CustomDirective
 data class Product(
     val id: ID,
     val sku: String? = null,
