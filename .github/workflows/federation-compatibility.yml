@@ -2,6 +2,10 @@ name: Federation Compatibility
 
 on:
   workflow_call:
+    inputs:
+      fork:
+        default: false
+        type: boolean
     secrets:
       token:
         required: true
@@ -15,7 +19,14 @@ jobs:
         working-directory: integration/federation-compatibility
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        if: ${{ inputs.fork }} == false
+        uses: actions/checkout@v3
+      - name: Checkout Repository (fork mode)
+        if: ${{ inputs.fork }} == true
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1

@@ -11,5 +11,12 @@ on:
 jobs:
   federation-compatibility:
     uses: ./.github/workflows/federation-compatibility.yml
+    with:
+      fork: true
     secrets:
       token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+  federation-composition:
+    uses: ./.github/workflows/federation-composition.yml
+    with:
+      fork: true
