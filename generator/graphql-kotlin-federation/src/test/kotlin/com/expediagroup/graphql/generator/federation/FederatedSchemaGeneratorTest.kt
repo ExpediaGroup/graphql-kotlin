@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class FederatedSchemaGeneratorTest {
             directive @extends on OBJECT | INTERFACE
 
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on OBJECT | FIELD_DEFINITION
+            directive @external on FIELD_DEFINITION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
@@ -168,7 +168,7 @@ class FederatedSchemaGeneratorTest {
             directive @extends on OBJECT | INTERFACE
 
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on OBJECT | FIELD_DEFINITION
+            directive @external on FIELD_DEFINITION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(

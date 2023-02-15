@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class GenerateCustomSDLTest {
                 directive @interfaceObject on OBJECT
 
                 "Space separated list of primary keys needed to access federated object"
-                directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
+                directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
                 "Links definitions within the document to external schemas."
                 directive @link(import: [String], url: String!) repeatable on SCHEMA

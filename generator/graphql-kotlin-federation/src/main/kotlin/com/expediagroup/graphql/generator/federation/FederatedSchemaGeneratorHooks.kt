@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import com.expediagroup.graphql.generator.directives.DirectiveMetaInformation
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.COMPOSE_DIRECTIVE_TYPE
 import com.expediagroup.graphql.generator.federation.directives.EXTENDS_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE
+import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_TYPE_V2
 import com.expediagroup.graphql.generator.federation.directives.FEDERATION_SPEC_URL
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.INACCESSIBLE_DIRECTIVE_NAME
@@ -96,10 +98,10 @@ open class FederatedSchemaGeneratorHooks(
     private val federatedDirectiveV2List: List<GraphQLDirective> = listOf(
         COMPOSE_DIRECTIVE_TYPE,
         EXTENDS_DIRECTIVE_TYPE,
-        EXTERNAL_DIRECTIVE_TYPE,
+        EXTERNAL_DIRECTIVE_TYPE_V2,
         INACCESSIBLE_DIRECTIVE_TYPE,
         INTERFACE_OBJECT_DIRECTIVE_TYPE,
-        KEY_DIRECTIVE_TYPE,
+        KEY_DIRECTIVE_TYPE_V2,
         LINK_DIRECTIVE_TYPE,
         OVERRIDE_DIRECTIVE_TYPE,
         PROVIDES_DIRECTIVE_TYPE,
@@ -123,23 +125,19 @@ open class FederatedSchemaGeneratorHooks(
             willGenerateFederatedDirective(directiveInfo)
         }
 
-    private fun willGenerateFederatedDirective(directiveInfo: DirectiveMetaInformation) =
-        if (federationV2OnlyDirectiveNames.contains(directiveInfo.effectiveName)) {
-            throw IncorrectFederatedDirectiveUsage(directiveInfo.effectiveName)
-        } else if (KEY_DIRECTIVE_NAME == directiveInfo.effectiveName) {
-            KEY_DIRECTIVE_TYPE
-        } else {
-            super.willGenerateDirective(directiveInfo)
-        }
+    private fun willGenerateFederatedDirective(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = when {
+        federationV2OnlyDirectiveNames.contains(directiveInfo.effectiveName) -> throw IncorrectFederatedDirectiveUsage(directiveInfo.effectiveName)
+        EXTERNAL_DIRECTIVE_NAME == directiveInfo.effectiveName -> EXTERNAL_DIRECTIVE_TYPE
+        KEY_DIRECTIVE_NAME == directiveInfo.effectiveName -> KEY_DIRECTIVE_TYPE
+        else -> super.willGenerateDirective(directiveInfo)
+    }
 
-    private fun willGenerateFederatedDirectiveV2(directiveInfo: DirectiveMetaInformation) =
-        if (KEY_DIRECTIVE_NAME == directiveInfo.effectiveName) {
-            KEY_DIRECTIVE_TYPE_V2
-        } else if (LINK_DIRECTIVE_NAME == directiveInfo.effectiveName) {
-            LINK_DIRECTIVE_TYPE
-        } else {
-            super.willGenerateDirective(directiveInfo)
-        }
+    private fun willGenerateFederatedDirectiveV2(directiveInfo: DirectiveMetaInformation): GraphQLDirective? = when (directiveInfo.effectiveName) {
+        EXTERNAL_DIRECTIVE_NAME -> EXTERNAL_DIRECTIVE_TYPE_V2
+        KEY_DIRECTIVE_NAME -> KEY_DIRECTIVE_TYPE_V2
+        LINK_DIRECTIVE_NAME -> LINK_DIRECTIVE_TYPE
+        else -> super.willGenerateDirective(directiveInfo)
+    }
 
     override fun didGenerateGraphQLType(type: KType, generatedType: GraphQLType): GraphQLType {
         validator.validateGraphQLType(generatedType)

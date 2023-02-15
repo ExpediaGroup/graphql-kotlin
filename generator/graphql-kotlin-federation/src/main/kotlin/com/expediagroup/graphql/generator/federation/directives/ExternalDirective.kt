@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,12 @@ internal const val EXTERNAL_DIRECTIVE_NAME = "external"
 private const val EXTERNAL_DIRECTIVE_DESCRIPTION = "Marks target field as external meaning it will be resolved by federated schema"
 
 internal val EXTERNAL_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(EXTERNAL_DIRECTIVE_NAME)
+    .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .build()
+
+internal val EXTERNAL_DIRECTIVE_TYPE_V2: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(EXTERNAL_DIRECTIVE_NAME)
     .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.FIELD_DEFINITION)
