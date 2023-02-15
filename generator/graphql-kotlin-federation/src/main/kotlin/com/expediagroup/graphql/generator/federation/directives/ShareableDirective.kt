@@ -59,4 +59,5 @@ internal val SHAREABLE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql
     .name(SHAREABLE_DIRECTIVE_NAME)
     .description(SHAREABLE_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.FIELD_DEFINITION, DirectiveLocation.OBJECT)
+    .repeatable(true)
     .build()

@@ -121,7 +121,11 @@ type Product @key(fields : "id") @extends {
 ## `@external` directive
 
 ```graphql
+# federation v1 definition
 directive @external on FIELD_DEFINITION
+
+# federation v2 definition
+directive @external on OBJECT | FIELD_DEFINITION
 ```
 
 The `@external` directive is used to mark a field as owned by another service. This allows service A to use fields from

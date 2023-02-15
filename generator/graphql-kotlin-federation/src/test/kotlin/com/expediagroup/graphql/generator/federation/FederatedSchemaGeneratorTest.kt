@@ -49,7 +49,7 @@ class FederatedSchemaGeneratorTest {
             directive @extends on OBJECT | INTERFACE
 
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on FIELD_DEFINITION
+            directive @external on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(
@@ -168,7 +168,7 @@ class FederatedSchemaGeneratorTest {
             directive @extends on OBJECT | INTERFACE
 
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on FIELD_DEFINITION
+            directive @external on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to include this field or fragment only when the `if` argument is true"
             directive @include(

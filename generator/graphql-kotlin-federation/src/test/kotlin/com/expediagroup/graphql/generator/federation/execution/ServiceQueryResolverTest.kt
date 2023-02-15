@@ -97,7 +97,7 @@ directive @composeDirective(name: String!) repeatable on SCHEMA
 directive @extends on OBJECT | INTERFACE
 
 "Marks target field as external meaning it will be resolved by federated schema"
-directive @external on FIELD_DEFINITION
+directive @external on OBJECT | FIELD_DEFINITION
 
 "Marks location within schema as inaccessible from the GraphQL Gateway"
 directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -121,7 +121,7 @@ directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
 "Indicates that given object and/or field can be resolved by multiple subgraphs"
-directive @shareable on OBJECT | FIELD_DEFINITION
+directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
 "Allows users to annotate fields and types with additional metadata information"
 directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -161,7 +161,7 @@ directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFI
 directive @extends on OBJECT | INTERFACE
 
 "Marks target field as external meaning it will be resolved by federated schema"
-directive @external on FIELD_DEFINITION
+directive @external on OBJECT | FIELD_DEFINITION
 
 "Marks location within schema as inaccessible from the GraphQL Gateway"
 directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -185,7 +185,7 @@ directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
 "Indicates that given object and/or field can be resolved by multiple subgraphs"
-directive @shareable on OBJECT | FIELD_DEFINITION
+directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
 "Allows users to annotate fields and types with additional metadata information"
 directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION

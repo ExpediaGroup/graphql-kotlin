@@ -21,7 +21,11 @@ import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
+ * # federation v1 definition
  * directive @external on FIELD_DEFINITION
+ *
+ * # federation v2 definition
+ * directive @external on OBJECT | FIELD_DEFINITION
  * ```
  *
  * The @external directive is used to mark a field as owned by another service. This allows service A to use fields from service B while also knowing at runtime the types of that field. @external
@@ -60,7 +64,7 @@ import graphql.introspection.Introspection.DirectiveLocation
 @GraphQLDirective(
     name = EXTERNAL_DIRECTIVE_NAME,
     description = EXTERNAL_DIRECTIVE_DESCRIPTION,
-    locations = [DirectiveLocation.FIELD_DEFINITION]
+    locations = [DirectiveLocation.OBJECT, DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class ExternalDirective
 
@@ -70,5 +74,5 @@ private const val EXTERNAL_DIRECTIVE_DESCRIPTION = "Marks target field as extern
 internal val EXTERNAL_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
     .name(EXTERNAL_DIRECTIVE_NAME)
     .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
-    .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.FIELD_DEFINITION)
     .build()
