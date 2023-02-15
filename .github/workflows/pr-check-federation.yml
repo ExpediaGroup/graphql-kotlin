@@ -9,7 +9,9 @@ on:
       - 'integration/federation-compatibility/**'
 
 jobs:
-  federation-compatibility:
-    uses: ./.github/workflows/federation-compatibility.yml
+  federation-integration:
+    uses: ./.github/workflows/federation-integration.yml
+    with:
+      fork: true
     secrets:
       token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
