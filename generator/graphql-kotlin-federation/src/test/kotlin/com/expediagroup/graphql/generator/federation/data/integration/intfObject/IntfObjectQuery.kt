@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.generator.federation.data.integration.intfObject
 
-import com.expediagroup.graphql.generator.federation.data.queries.federated.v1.Review
 import com.expediagroup.graphql.generator.federation.directives.FieldSet
 import com.expediagroup.graphql.generator.federation.directives.InterfaceObjectDirective
 import com.expediagroup.graphql.generator.federation.directives.KeyDirective
@@ -32,3 +31,8 @@ class IntfObjectQuery {
 data class Product(val id: ID) {
     fun reviews(): List<Review> = TODO()
 }
+
+data class Review(
+    val id: String,
+    val body: String
+)
