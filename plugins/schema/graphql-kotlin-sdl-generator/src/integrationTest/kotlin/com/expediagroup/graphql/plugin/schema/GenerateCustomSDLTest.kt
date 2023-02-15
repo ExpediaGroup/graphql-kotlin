@@ -42,7 +42,7 @@ class GenerateCustomSDLTest {
                 directive @extends on OBJECT | INTERFACE
 
                 "Marks target field as external meaning it will be resolved by federated schema"
-                directive @external on FIELD_DEFINITION
+                directive @external on OBJECT | FIELD_DEFINITION
 
                 "Marks location within schema as inaccessible from the GraphQL Gateway"
                 directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -72,7 +72,7 @@ class GenerateCustomSDLTest {
                 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
                 "Indicates that given object and/or field can be resolved by multiple subgraphs"
-                directive @shareable on OBJECT | FIELD_DEFINITION
+                directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
                 "Directs the executor to skip this field or fragment when the `if` argument is true."
                 directive @skip(
