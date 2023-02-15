@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,10 @@ import graphql.Scalars
 import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.GraphQLArgument
 import graphql.schema.GraphQLList
+import graphql.schema.GraphQLNonNull
 
 const val LINK_SPEC_URL = "https://specs.apollo.dev/link/v1.0/"
-const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.0"
+const val FEDERATION_SPEC_URL = "https://specs.apollo.dev/federation/v2.3"
 
 /**
  * ```graphql
@@ -62,7 +63,7 @@ internal val LINK_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.sche
     .argument(
         GraphQLArgument.newArgument()
             .name("url")
-            .type(Scalars.GraphQLString)
+            .type(GraphQLNonNull(Scalars.GraphQLString))
     )
     .argument(
         GraphQLArgument
