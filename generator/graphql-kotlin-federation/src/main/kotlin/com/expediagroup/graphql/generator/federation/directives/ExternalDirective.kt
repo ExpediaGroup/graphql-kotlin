@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
+ * # federation v1 definition
  * directive @external on FIELD_DEFINITION
+ *
+ * # federation v2 definition
+ * directive @external on OBJECT | FIELD_DEFINITION
  * ```
  *
  * The @external directive is used to mark a field as owned by another service. This allows service A to use fields from service B while also knowing at runtime the types of that field. @external
@@ -60,7 +64,7 @@ import graphql.introspection.Introspection.DirectiveLocation
 @GraphQLDirective(
     name = EXTERNAL_DIRECTIVE_NAME,
     description = EXTERNAL_DIRECTIVE_DESCRIPTION,
-    locations = [DirectiveLocation.FIELD_DEFINITION]
+    locations = [DirectiveLocation.OBJECT, DirectiveLocation.FIELD_DEFINITION]
 )
 annotation class ExternalDirective
 
@@ -71,4 +75,10 @@ internal val EXTERNAL_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql.
     .name(EXTERNAL_DIRECTIVE_NAME)
     .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.FIELD_DEFINITION)
+    .build()
+
+internal val EXTERNAL_DIRECTIVE_TYPE_V2: graphql.schema.GraphQLDirective = graphql.schema.GraphQLDirective.newDirective()
+    .name(EXTERNAL_DIRECTIVE_NAME)
+    .description(EXTERNAL_DIRECTIVE_DESCRIPTION)
+    .validLocations(DirectiveLocation.OBJECT, DirectiveLocation.FIELD_DEFINITION)
     .build()

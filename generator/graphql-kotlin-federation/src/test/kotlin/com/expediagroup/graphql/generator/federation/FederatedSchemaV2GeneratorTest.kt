@@ -30,7 +30,7 @@ class FederatedSchemaV2GeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
+            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
               query: Query
             }
 
@@ -49,7 +49,7 @@ class FederatedSchemaV2GeneratorTest {
             directive @extends on OBJECT | INTERFACE
 
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on FIELD_DEFINITION
+            directive @external on OBJECT | FIELD_DEFINITION
 
             "Marks location within schema as inaccessible from the GraphQL Gateway"
             directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -59,6 +59,9 @@ class FederatedSchemaV2GeneratorTest {
                 "Included when true."
                 if: Boolean!
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+            "Provides meta information to the router that this entity type is an interface in the supergraph."
+            directive @interfaceObject on OBJECT
 
             "Space separated list of primary keys needed to access federated object"
             directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
@@ -76,7 +79,7 @@ class FederatedSchemaV2GeneratorTest {
             directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
             "Indicates that given object and/or field can be resolved by multiple subgraphs"
-            directive @shareable on OBJECT | FIELD_DEFINITION
+            directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import graphql.introspection.Introspection.DirectiveLocation
 
 /**
  * ```graphql
- * directive @shareable on FIELD_DEFINITION | OBJECT
+ * directive @shareable repeatable on FIELD_DEFINITION | OBJECT
  * ```
  *
  * Shareable directive indicates that given object and/or field can be resolved by multiple subgraphs. If an object is marked as `@shareable` then all its fields are automatically shareable without the
@@ -44,6 +44,7 @@ import graphql.introspection.Introspection.DirectiveLocation
  * }
  * ```
  */
+@Repeatable
 @GraphQLDirective(
     name = SHAREABLE_DIRECTIVE_NAME,
     description = SHAREABLE_DIRECTIVE_DESCRIPTION,
@@ -58,4 +59,5 @@ internal val SHAREABLE_DIRECTIVE_TYPE: graphql.schema.GraphQLDirective = graphql
     .name(SHAREABLE_DIRECTIVE_NAME)
     .description(SHAREABLE_DIRECTIVE_DESCRIPTION)
     .validLocations(DirectiveLocation.FIELD_DEFINITION, DirectiveLocation.OBJECT)
+    .repeatable(true)
     .build()

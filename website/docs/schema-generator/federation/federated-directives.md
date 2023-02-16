@@ -35,7 +35,7 @@ it will generate following schema
 ```graphql
 schema
 @composeDirective(name: "@myDirective")
-@link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1")
+@link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3")
 {
    query: Query
 }
@@ -121,7 +121,11 @@ type Product @key(fields : "id") @extends {
 ## `@external` directive
 
 ```graphql
+# federation v1 definition
 directive @external on FIELD_DEFINITION
+
+# federation v2 definition
+directive @external on OBJECT | FIELD_DEFINITION
 ```
 
 The `@external` directive is used to mark a field as owned by another service. This allows service A to use fields from
@@ -208,6 +212,60 @@ but will be exposed on the GraphQL Gateway as
 ```graphql
 type Product {
   id: String!
+}
+```
+
+## `@interfaceObject` directive
+
+:::note
+Only available in Federation v2.
+:::
+
+```graphql
+directive @interfaceObject on OBJECT
+```
+
+This directive provides meta information to the router that this entity type defined within this subgraph is an interface in the supergraph. This allows you to extend functionality
+of an interface across the supergraph without having to implement (or even be aware of) all its implementing types.
+
+Example:
+Given an interface that is defined somewhere in our supergraph
+
+```graphql
+interface Product @key(fields: "id") {
+  id: ID!
+  description: String
+}
+
+type Book implements Product @key(fields: "id") {
+  id: ID!
+  description: String
+  pages: Int!
+}
+
+type Movie implements Product @key(fields: "id") {
+  id: ID!
+  description: String
+  duration: Int!
+}
+```
+
+We can extend `Product` entity in our subgraph and a new field directly to it. This will result in making this new field available to ALL implementing types.
+
+```kotlin
+@InterfaceObjectDirective
+@KeyDirective(fields = FieldSet("id"))
+data class Product(val id: ID) {
+    fun reviews(): List<Review> = TODO()
+}
+```
+
+Which generates the following subgraph schema
+
+```graphql
+type Product @key(fields: "id") @interfaceObject {
+  id: ID!
+  reviews: [Review!]!
 }
 ```
 
@@ -470,7 +528,7 @@ Only available in Federation v2.
 :::
 
 ```graphql
-directive @shareable on FIELD_DEFINITION | OBJECT
+directive @shareable repeatable on FIELD_DEFINITION | OBJECT
 ```
 
 Shareable directive indicates that given object and/or field can be resolved by multiple subgraphs. If an object is marked as `@shareable` then all its fields are automatically shareable without the

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ class GenerateCustomSDLTest {
     fun `verify we can generate SDL using custom hooks provider`() {
         val expectedSchema =
             """
-                schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
+                schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
                   query: Query
                 }
 
@@ -42,7 +42,7 @@ class GenerateCustomSDLTest {
                 directive @extends on OBJECT | INTERFACE
 
                 "Marks target field as external meaning it will be resolved by federated schema"
-                directive @external on FIELD_DEFINITION
+                directive @external on OBJECT | FIELD_DEFINITION
 
                 "Marks location within schema as inaccessible from the GraphQL Gateway"
                 directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -53,8 +53,11 @@ class GenerateCustomSDLTest {
                     if: Boolean!
                   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+                "Provides meta information to the router that this entity type is an interface in the supergraph."
+                directive @interfaceObject on OBJECT
+
                 "Space separated list of primary keys needed to access federated object"
-                directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
+                directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
                 "Links definitions within the document to external schemas."
                 directive @link(import: [String], url: String!) repeatable on SCHEMA
@@ -69,7 +72,7 @@ class GenerateCustomSDLTest {
                 directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
                 "Indicates that given object and/or field can be resolved by multiple subgraphs"
-                directive @shareable on OBJECT | FIELD_DEFINITION
+                directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
                 "Directs the executor to skip this field or fragment when the `if` argument is true."
                 directive @skip(

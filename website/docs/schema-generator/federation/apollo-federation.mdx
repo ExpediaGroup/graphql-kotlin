@@ -119,7 +119,7 @@ toFederatedSchema(
 will generate
 
 ```graphql
-schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.1"){
+schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
   query: Query
 }
 
@@ -127,6 +127,7 @@ directive @composeDirective(name: String!) repeatable on SCHEMA
 directive @extends on OBJECT | INTERFACE
 directive @external on FIELD_DEFINITION
 directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @interfaceObject on OBJECT
 directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 directive @link(import: [String], url: String!) repeatable on SCHEMA
 directive @override(from: String!) on FIELD_DEFINITION
