@@ -19,8 +19,8 @@ package com.expediagroup.graphql.generator.federation.validation.integration
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 
-fun federatedTestConfig(supportedPackage: String) =
+fun federatedTestConfig(supportedPackage: String, optInV2: Boolean = false) =
     FederatedSchemaGeneratorConfig(
         supportedPackages = listOf(supportedPackage),
-        hooks = FederatedSchemaGeneratorHooks(emptyList())
+        hooks = FederatedSchemaGeneratorHooks(emptyList(), optInFederationV2 = optInV2)
     )

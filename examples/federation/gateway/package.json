@@ -1,9 +1,10 @@
 {
   "name": "federation-gateway",
   "description": "A sample gateway from apollo-federation",
+  "type": "module",
   "dependencies": {
     "@apollo/gateway": "latest",
-    "apollo-server": "latest",
+    "@apollo/server": "latest",
     "graphql": "latest"
   },
   "license": "Apache-2.0",

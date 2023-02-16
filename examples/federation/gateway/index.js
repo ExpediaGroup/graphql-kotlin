@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-const { ApolloServer } = require("apollo-server");
-const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
-const { ApolloGateway, IntrospectAndCompose } = require("@apollo/gateway");
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { ApolloGateway, IntrospectAndCompose } from '@apollo/gateway';
 
 const server = new ApolloServer({
   gateway: new ApolloGateway({
@@ -29,11 +30,11 @@ const server = new ApolloServer({
     })
   }),
   plugins: [
-    ApolloServerPluginLandingPageGraphQLPlayground()
+    ApolloServerPluginLandingPageLocalDefault({ embed: false })
   ],
   subscriptions: false,
 });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
-});
+startStandaloneServer(server, {
+  listen: { port: 4000 },
+}).then(({ url }) => console.log(`🚀  Gateway  ready at ${url}`));

@@ -30,9 +30,12 @@ class FederatedSchemaV2GeneratorTest {
     fun `verify can generate federated schema`() {
         val expectedSchema =
             """
-            schema @link(import : ["@extends", "@external", "@inaccessible", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.0"){
+            schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
               query: Query
             }
+
+            "Marks underlying custom directive to be included in the Supergraph schema"
+            directive @composeDirective(name: String!) repeatable on SCHEMA
 
             directive @custom on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
@@ -46,7 +49,7 @@ class FederatedSchemaV2GeneratorTest {
             directive @extends on OBJECT | INTERFACE
 
             "Marks target field as external meaning it will be resolved by federated schema"
-            directive @external on FIELD_DEFINITION
+            directive @external on OBJECT | FIELD_DEFINITION
 
             "Marks location within schema as inaccessible from the GraphQL Gateway"
             directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
@@ -57,11 +60,14 @@ class FederatedSchemaV2GeneratorTest {
                 if: Boolean!
               ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+            "Provides meta information to the router that this entity type is an interface in the supergraph."
+            directive @interfaceObject on OBJECT
+
             "Space separated list of primary keys needed to access federated object"
             directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
 
             "Links definitions within the document to external schemas."
-            directive @link(import: [String], url: String) repeatable on SCHEMA
+            directive @link(import: [String], url: String!) repeatable on SCHEMA
 
             "Overrides fields resolution logic from other subgraph. Used for migrating fields from one subgraph to another."
             directive @override(from: String!) on FIELD_DEFINITION
@@ -73,7 +79,7 @@ class FederatedSchemaV2GeneratorTest {
             directive @requires(fields: FieldSet!) on FIELD_DEFINITION
 
             "Indicates that given object and/or field can be resolved by multiple subgraphs"
-            directive @shareable on OBJECT | FIELD_DEFINITION
+            directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
             "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(
@@ -111,7 +117,7 @@ class FederatedSchemaV2GeneratorTest {
               value: String!
             }
 
-            type Query @extends {
+            type Query {
               "Union of all types that use the @key directive, including both types native to the schema and extended types"
               _entities(representations: [_Any!]!): [_Entity]!
               _service: _Service!
