@@ -99,7 +99,7 @@ class User(val id: ID) {
 
 ## DataLoaders and Coroutines
 
-`graphql-java` relies on `CompletableFuture`s for scheduling and asynchronously execute of all GraphQL calls.
+`graphql-java` relies on `CompletableFuture`s for scheduling and asynchronously execute GraphQL operations.
 While we can provide native support for coroutines for data fetchers (aka field resolvers) because they are resolved
 independently, we cannot easily provide native support for the `DataLoader` pattern as it relies
 on `CompletableFuture` and we cannot update it to use coroutines state machine logic without fully rewriting
