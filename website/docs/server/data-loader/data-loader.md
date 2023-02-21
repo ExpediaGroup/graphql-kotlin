@@ -99,12 +99,14 @@ class User(val id: ID) {
 
 ## DataLoaders and Coroutines
 
-`graphql-java` relies on `CompletableFuture` for scheduling and execute asynchronous field resolvers (aka data fetchers),
-`graphql-java` deliberately aims for near zero dependencies which means no Kotlin / WebFlux / RxJava.
+`graphql-java` relies on `CompletableFuture`s for scheduling and asynchronously execute of all GraphQL calls.
+While we can provide native support for coroutines for data fetchers (aka field resolvers) because they are resolved
+independently, we cannot easily provide native support for the `DataLoader` pattern as it relies
+on `CompletableFuture` and we cannot update it to use coroutines state machine logic without fully rewriting
+GraphQL Java execution engine.
 
-Similar to `asynchronous` field resolvers (aka data fetcher), `DataLoader` pattern implementation in `graphql-java` works with `CompletableFuture`,
-and because of the listed `graphql-java` constrains we don't provide any native support for `DataLoader` pattern using suspendable functions. Instead, return
-the `CompletableFuture` directly from your `DataLoader`s. See issue [#986](https://github.com/ExpediaGroup/graphql-kotlin/issues/986).
+If you would like to use `DataLoader` pattern in your project, you have to update your data fetchers (aka field resolvers) to return
+`CompletableFuture` from the invoked `DataLoader` instead of marking it a `suspend`.
 
 ### Example
 
@@ -140,37 +142,39 @@ class UserService {
 }
 ```
 
-When the execution of the query completes we will have a total of 2 requests to the `UserService`, this is where the usage of
-`DataLoader` pattern can help to make the execution of query more performant by making only 1 request.
+When we execute the above query, we will end up calling `UserService#getUser` twice which will result in two independent
+downstream service/database calls. This problem is called N+1 problem. By using `DataLoader` pattern,
+we can solve this problem and only make a single downstream request/query.
 
 Lets create the `UserDataLoader`:
 
 ```kotlin
-class UserDataLoader : KotlinDataLoader<ID, User> {
+class UserDataLoader : KotlinDataLoader<ID, User> {  // 1
     override val dataLoaderName = "UserDataLoader"
-    override fun getDataLoader() =
+    override fun getDataLoader() = // 2
         DataLoaderFactory.newDataLoader<Int, User> { ids, batchLoaderEnvironment ->
-            val coroutineScope =
+            val coroutineScope = // 3
                 batchLoaderEnvironment.getGraphQLContext()?.get<CoroutineScope>()
-                    ?: CoroutineScope(EmptyCoroutineContext)
+                    ?: CoroutineScope(EmptyCoroutineContext) // 4
 
-            coroutineScope.future {
+            coroutineScope.future { // 5
                 userService.getUsers(ids)
             }
         }
 }
+
 ```
 
 There are some things going on here:
 
 1. We define the `UserDataLoader` with name "UserDataLoader"
-2. The `getLoader()` method returns a `DataLoader<Int, User>`, which `BatchLoader` function should return a `List<User>`
-3. Given that we **don't want** to change our `UserService` async model that is using coroutines, we need a `CoroutineScope`, [which is conveniently available](../../schema-generator/execution/async-models/#coroutines) in the `GraphQLContext`, which is provided in the `DataFetchingEnvironment` and accessible with the [getGraphQLContext()](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/main/kotlin/com/expediagroup/graphql/dataloader/instrumentation/extensions/BatchLoaderEnvironmentExtensions.kt#L43) extension function.
+2. The `KotlinDataLoader#getDataLoader()` method returns a `DataLoader<Int, User>`, which `BatchLoader` function should return a `List<User>`
+3. Given that we **don't want** to change our `UserService` async model that is using coroutines, we need a `CoroutineScope`, [which is conveniently available](../../schema-generator/execution/async-models/#coroutines) in the `GraphQLContext` and accessible through [`DataFetchingEnvironment#getGraphQLContext()`](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/main/kotlin/com/expediagroup/graphql/dataloader/instrumentation/extensions/BatchLoaderEnvironmentExtensions.kt#L43) extension function.
 4. After retrieving the `CoroutineScope` from the `batchLoaderEnvironment` we will be able to execute the `userService.getUsers(ids)` suspendable function.
 5. We interoperate the suspendable function result to a `CompletableFuture` using [coroutineScope.future](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-jdk8/kotlinx.coroutines.future/future.html)
 
-Finally, the only thing that we need to change is the `user` field resolver, to not be suspendable and
-just return the `CompletableFuture<User>` that the `DataLoader`, make sure to pass the `dataFetchingEnvironment` as `keyContext` which is the second argument of `DataLoader.load`
+Finally, we need to update `user` field resolver, to return the `CompletableFuture<User>` from the invoked `DataLoader`.
+Make sure to update method signature to also accept the `dataFetchingEnvironment` as you need to pass it to `DataLoader#load` method to be able to execute the request in appropriate coroutine scope.
 
 ```kotlin
 class MyQuery(
