@@ -170,7 +170,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
             val configuration = project.configurations.getAt(GENERATE_SDL_CONFIGURATION)
             generateSDLTask.pluginClasspath.setFrom(configuration)
-            generateSDLTask.dependsOn(project.tasks.named("compileKotlin"))
+            generateSDLTask.dependsOn(project.tasks.findByName("compileKotlin") ?: project.tasks.named("compileKotlinJvm"))
         }
 
         if (isAndroidProject) {
