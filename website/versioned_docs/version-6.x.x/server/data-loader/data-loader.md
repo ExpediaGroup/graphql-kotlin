@@ -149,8 +149,8 @@ we can solve this problem and only make a single downstream request/query.
 Lets create the `UserDataLoader`:
 
 ```kotlin
-class UserDataLoader : KotlinDataLoader<ID, User> {  // 1
-    override val dataLoaderName = "UserDataLoader"
+class UserDataLoader : KotlinDataLoader<ID, User> {
+    override val dataLoaderName = "UserDataLoader" // 1
     override fun getDataLoader() = // 2
         DataLoaderFactory.newDataLoader<Int, User> { ids, batchLoaderEnvironment ->
             val coroutineScope = // 3
@@ -167,11 +167,11 @@ class UserDataLoader : KotlinDataLoader<ID, User> {  // 1
 
 There are some things going on here:
 
-1. We define the `UserDataLoader` with name "UserDataLoader"
-2. The `KotlinDataLoader#getDataLoader()` method returns a `DataLoader<Int, User>`, which `BatchLoader` function should return a `List<User>`
+1. We define the `UserDataLoader` with name "UserDataLoader".
+2. The `KotlinDataLoader#getDataLoader()` method returns a `DataLoader<Int, User>`, which `BatchLoader` function should return a `List<User>`.
 3. Given that we **don't want** to change our `UserService` async model that is using coroutines, we need a `CoroutineScope`, [which is conveniently available](../../schema-generator/execution/async-models/#coroutines) in the `GraphQLContext` and accessible through [`DataFetchingEnvironment#getGraphQLContext()`](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/main/kotlin/com/expediagroup/graphql/dataloader/instrumentation/extensions/BatchLoaderEnvironmentExtensions.kt#L43) extension function.
 4. After retrieving the `CoroutineScope` from the `batchLoaderEnvironment` we will be able to execute the `userService.getUsers(ids)` suspendable function.
-5. We interoperate the suspendable function result to a `CompletableFuture` using [coroutineScope.future](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-jdk8/kotlinx.coroutines.future/future.html)
+5. We interoperate the suspendable function result to a `CompletableFuture` using [coroutineScope.future](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-jdk8/kotlinx.coroutines.future/future.html).
 
 Finally, we need to update `user` field resolver, to return the `CompletableFuture<User>` from the invoked `DataLoader`.
 Make sure to update method signature to also accept the `dataFetchingEnvironment` as you need to pass it to `DataLoader#load` method to be able to execute the request in appropriate coroutine scope.
