@@ -180,7 +180,7 @@ Make sure to update method signature to also accept the `dataFetchingEnvironment
 class MyQuery(
     private val userService: UserService
 ) : Query {
-    suspend fun getUser(id: Int, dataFetchingEnvironment: DataFetchingEnvironment): User =
+    fun getUser(id: Int, dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<User> =
         dataFetchingEnvironment
             .getDataLoader<Int, Mission>("UserDataLoader")
             .load(id, dataFetchingEnvironment)
