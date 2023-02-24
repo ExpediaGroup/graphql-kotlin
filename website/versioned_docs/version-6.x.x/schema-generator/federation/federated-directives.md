@@ -6,6 +6,49 @@ title: Federated Directives
 
 For more details, see the [Apollo Federation Specification](https://www.apollographql.com/docs/federation/federation-spec/).
 
+## `@composeDirective` directive
+
+```graphql
+directive @composeDirective(name: String!) repeatable on SCHEMA
+```
+
+By default, Supergraph schema excludes all custom directives. The `@composeDirective` is used to specify custom directives that should be exposed in the Supergraph schema.
+
+Example:
+Given `@custom` directive we can preserve it in the Supergraph schema
+
+```kotlin
+@GraphQLDirective(name = "custom", locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
+annotation class CustomDirective
+
+@ComposeDirective(name = "custom")
+class CustomSchema
+
+class SimpleQuery {
+  @CustomDirective
+  fun helloWorld(): String = "Hello World"
+}
+```
+
+it will generate following schema
+
+```graphql
+schema
+@composeDirective(name: "@myDirective")
+@link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3")
+{
+   query: Query
+}
+
+directive @custom on FIELD_DEFINITION
+
+type Query {
+  helloWorld: String! @custom
+}
+```
+
+See [@composeDirective definition](https://www.apollographql.com/docs/federation/federated-types/federated-directives/#composedirective) for more information.
+
 ## `@contact` directive
 
 ```graphql
@@ -78,32 +121,40 @@ type Product @key(fields : "id") @extends {
 ## `@external` directive
 
 ```graphql
+# federation v1 definition
 directive @external on FIELD_DEFINITION
+
+# federation v2 definition
+directive @external on OBJECT | FIELD_DEFINITION
 ```
 
 The `@external` directive is used to mark a field as owned by another service. This allows service A to use fields from
-service B while also knowing at runtime the types of that field. `@external` directive is only applicable on federated
-extended types. All the external fields should either be referenced from the `@key`, `@requires` or `@provides`
-directives field sets.
+service B while also knowing at runtime the types of that field. All the external fields should either be referenced from
+the `@key`, `@requires` or `@provides` directives field sets.
 
-Due to the smart merging of entity types, `@external` directive is no longer required on `@key` fields and can be omitted
-from the schema. `@external` directive is only required on fields referenced by the `@requires` and `@provides` directive.
+Due to the smart merging of entity types, Federation v2 no longer requires `@external` directive on `@key` fields and can
+be safely omitted from the schema. `@external` directive is only required on fields referenced by the `@requires` and
+`@provides` directive.
 
 #### Example
 
 ```kotlin
 @KeyDirective(FieldSet("id"))
-@ExtendsDirective
-class Product(@ExternalDirective val id: String) {
-  fun newFunctionality(): String = "whatever"
+class Product(val id: String) {
+  @ExternalDirective
+  var externalField: String by Delegates.notNull()
+
+  @RequiresDirective(FieldSet("externalField"))
+  fun newFunctionality(): String { ... }
 }
 ```
 
 will generate
 
 ```graphql
-type Product @key(fields : "id") @extends {
-  id: String! @external
+type Product @key(fields : "id") {
+  externalField: String! @external
+  id: String!
   newFunctionality: String!
 }
 ```
@@ -127,7 +178,10 @@ directive @inaccessible on FIELD_DEFINITION
     | ARGUMENT_DEFINITION
 ```
 
-Inaccessible directive marks location within schema as inaccessible from the GraphQL Gateway. This allows you to incrementally add schema elements (e.g. fields) to multiple subgraphs without breaking composition.
+Inaccessible directive marks location within schema as inaccessible from the GraphQL Gateway. While `@inaccessible` fields are not exposed by the gateway to the clients,
+they are still available for query plans and can be referenced from `@key` and `@requires` directives. This allows you to not expose sensitive fields to your clients but
+still make them available for computations. Inaccessible can also be used to incrementally add schema elements (e.g. fields) to multiple subgraphs without breaking composition.
+
 See [@inaccessible specification](https://specs.apollo.dev/inaccessible/v0.2) for additional details.
 
 :::caution
@@ -161,6 +215,60 @@ type Product {
 }
 ```
 
+## `@interfaceObject` directive
+
+:::note
+Only available in Federation v2.
+:::
+
+```graphql
+directive @interfaceObject on OBJECT
+```
+
+This directive provides meta information to the router that this entity type defined within this subgraph is an interface in the supergraph. This allows you to extend functionality
+of an interface across the supergraph without having to implement (or even be aware of) all its implementing types.
+
+Example:
+Given an interface that is defined somewhere in our supergraph
+
+```graphql
+interface Product @key(fields: "id") {
+  id: ID!
+  description: String
+}
+
+type Book implements Product @key(fields: "id") {
+  id: ID!
+  description: String
+  pages: Int!
+}
+
+type Movie implements Product @key(fields: "id") {
+  id: ID!
+  description: String
+  duration: Int!
+}
+```
+
+We can extend `Product` entity in our subgraph and a new field directly to it. This will result in making this new field available to ALL implementing types.
+
+```kotlin
+@InterfaceObjectDirective
+@KeyDirective(fields = FieldSet("id"))
+data class Product(val id: ID) {
+    fun reviews(): List<Review> = TODO()
+}
+```
+
+Which generates the following subgraph schema
+
+```graphql
+type Product @key(fields: "id") @interfaceObject {
+  id: ID!
+  reviews: [Review!]!
+}
+```
+
 ## `@key` directive
 
 ```graphql
@@ -175,10 +283,9 @@ The `@key` directive is used to indicate a combination of fields that can be use
 object or interface. The specified field set can represent single field (e.g. `"id"`), multiple fields (e.g. `"id name"`) or
 nested selection sets (e.g. `"id user { name }"`). Multiple keys can be specified on a target type.
 
-Key directives should be specified on the root base type as well as all the corresponding federated (i.e. extended)
-types. Key fields specified in the directive field set should correspond to a valid field on the underlying GraphQL
-interface/object. Federated extended types should also instrument all the referenced key fields with `@external`
-directive.
+Key directives should be specified on all entities (objects that can resolve its fields across multiple subgraphs). Key
+fields specified in the directive field set should correspond to a valid field on the underlying GraphQL interface/object.
+Federated extended types should also instrument all the referenced key fields with `@external` directive.
 
 #### Basic Example
 
@@ -236,7 +343,7 @@ Only available in Federation v2.
 :::
 
 ```graphql
-directive @link(url: String, import: [String!]) repeatable on SCHEMA
+directive @link(url: String!, import: [String]) repeatable on SCHEMA
 ```
 
 The `@link` directive links definitions within the document to external schemas. See [@link specification](https://specs.apollo.dev/link/v1.0) for details.
@@ -245,6 +352,19 @@ External schemas are identified by their `url`, which optionally ends with a nam
 
 By default, external types should be namespaced (prefixed with `<namespace>__`, e.g. `key` directive should be namespaced as `federation__key`) unless they are explicitly imported.
 `graphql-kotlin` automatically imports ALL federation directives to avoid the need for namespacing.
+
+```kotlin
+@LinkDirective(url = "https://myspecs.company.dev/foo/v1.0", imports = ["@foo", "bar"])
+class MySchema
+```
+
+This will generate following schema:
+
+```graphql
+schema @link(import : ["@foo", "bar"], url : "https://myspecs.company.dev/foo/v1.0") {
+    query: Query
+}
+```
 
 :::danger
 We currently DO NOT support full `@link` directive capability as it requires support for namespacing and renaming imports. This functionality may be added in the future releases. See
@@ -300,17 +420,15 @@ directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 directive @provides(fields: FieldSet!) on FIELD_DEFINITION
 ```
 
-The `@provides` directive is used to annotate the expected returned field set from a field on a base type that is
-guaranteed to be selectable by the gateway. This allows you to expose only a subset of fields from the underlying
-federated object type to be selectable from the federated schema. Provided fields specified in the directive field set
-should correspond to a valid field on the underlying GraphQL interface/object type. `@provides` directive can only be
-used on fields returning federated extended objects.
-
-#### Example 1:
+The `@provides` directive is a router optimization hint specifying field set that can be resolved locally at the given subgraph through this particular query path. This allows you to
+expose only a subset of fields from the underlying entity type to be selectable from the federated schema without the need to call other subgraphs. Provided fields specified in the
+directive field set should correspond to a valid field on the underlying GraphQL interface/object type. `@provides` directive can only be used on fields returning entities.
 
 :::info
-Due to the smart entity type merging, Federation v2 does not require `@provides` directive if field can always be resolved locally.
+Federation v2 does not require `@provides` directive if field can **always** be resolved locally. `@provides` should be omitted in this situation.
 :::
+
+#### Example 1:
 
 We might want to expose only name of the user that submitted a review.
 
@@ -322,9 +440,8 @@ class Review(val id: String) {
 }
 
 @KeyDirective(FieldSet("userId"))
-@ExtendsDirective
 class User(
-  @ExternalDirective val userId: String,
+  val userId: String,
   @ExternalDirective val name: String
 )
 ```
@@ -337,8 +454,8 @@ type Review @key(fields : "id") {
   user: User! @provides(fields : "name")
 }
 
-type User @key(fields : "userId") @extends {
-  userId: String! @external
+type User @key(fields : "userId") {
+  userId: String!
   name: String! @external
 }
 ```
@@ -372,43 +489,34 @@ directive @requires(fields: _FieldSet!) on FIELD_DEFINITON
 directive @requires(fields: FieldSet!) on FIELD_DEFINITON
 ```
 
-The `@requires` directive is used to annotate the required input field set from a base type for a resolver. It is used
-to develop a query plan where the required fields may not be needed by the client, but the service may need additional
-information from other services. Required fields specified in the directive field set should correspond to a valid field
-on the underlying GraphQL interface/object and should be instrumented with `@external` directive. Since `@requires`
-directive specifies additional fields (besides the one specified in `@key` directive) that are required to resolve
-federated type fields, this directive can only be specified on federated extended objects fields.
+The `@requires` directive is used to specify external (provided by other subgraphs) entity fields that are needed to resolve target field. It is used to develop a query plan where
+the required fields may not be needed by the client, but the service may need additional information from other subgraphs. Required fields specified in the directive field set should
+correspond to a valid field on the underlying GraphQL interface/object and should be instrumented with `@external` directive.
 
-Fields specified in the `@requires` directive will only be specified in the queries that reference those fields.
-This is problematic for Kotlin as the non nullable primitive properties have to be initialized when they are declared.
-Simplest workaround for this problem is to initialize the underlying property to some dummy value that will be used if
-it is not specified. This approach might become problematic though as it might be impossible to determine whether fields
-was initialized with the default value or the invalid/default value was provided by the federated query. Another
-potential workaround is to rely on delegation to initialize the property after the object gets created. This will ensure
-that exception will be thrown if queries attempt to resolve fields that reference the uninitialized property.
+Fields specified in the `@requires` directive will only be specified in the queries that reference those fields. This is problematic for Kotlin as the non-nullable primitive properties
+have to be initialized when they are declared. Simplest workaround for this problem is to initialize the underlying property to some default value (e.g. null) that will be used if
+it is not specified. This approach might become problematic though as it might be impossible to determine whether fields was initialized with the default value or the invalid/default
+value was provided by the federated query. Another potential workaround is to rely on delegation to initialize the property after the object gets created. This will ensure that exception
+will be thrown if queries attempt to resolve fields that reference the uninitialized property.
 
 #### Example
 
 ```kotlin
 @KeyDirective(FieldSet("id"))
-@ExtendsDirective
-class Product(@ExternalDirective val id: String) {
+class Product(val id: String) {
   @ExternalDirective
   var weight: Double by Delegates.notNull()
 
   @RequiresDirective(FieldSet("weight"))
   fun shippingCost(): String { ... }
-
-  fun additionalInfo(): String { ... }
 }
 ```
 
 will generate
 
 ```graphql
-type Product @key(fields : "id") @extends  {
-  additionalInfo: String!
-  id: String! @external
+type Product @key(fields : "id") {
+  id: String!
   shippingCost: String! @requires(fields : "weight")
   weight: Float! @external
 }
@@ -421,7 +529,7 @@ Only available in Federation v2.
 :::
 
 ```graphql
-directive @shareable on FIELD_DEFINITION | OBJECT
+directive @shareable repeatable on FIELD_DEFINITION | OBJECT
 ```
 
 Shareable directive indicates that given object and/or field can be resolved by multiple subgraphs. If an object is marked as `@shareable` then all its fields are automatically shareable without the
@@ -474,5 +582,6 @@ type Product @tag(name: "MyCustomTag") {
 ```
 
 :::caution
-Apollo Contracts behave slightly differently depending on which version of Apollo Federation your graph uses (1 or 2). See [documentation](https://www.apollographql.com/docs/studio/contracts/#federation-1-limitations) for details.
+Apollo Contracts behave slightly differently depending on which version of Apollo Federation your graph uses (1 or 2). See [documentation](https://www.apollographql.com/docs/studio/contracts/#federation-1-limitations)
+for details.
 :::
