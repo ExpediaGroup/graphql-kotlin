@@ -117,34 +117,43 @@ toFederatedSchema(
 will generate
 
 ```graphql
-# Federation spec types
-scalar _Any
-scalar FieldSet
-
-union _Entity
-
-type _Service {
-   sdl: String!
+schema @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3"){
+  query: Query
 }
 
-directive @external on FIELD_DEFINITION
-directive @requires(fields: FieldSet) on FIELD_DEFINITION
-directive @provides(fields: FieldSet) on FIELD_DEFINITION
-directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+directive @composeDirective(name: String!) repeatable on SCHEMA
 directive @extends on OBJECT | INTERFACE
+directive @external on FIELD_DEFINITION
+directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @interfaceObject on OBJECT
+directive @key(fields: FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE
+directive @link(import: [String], url: String!) repeatable on SCHEMA
+directive @override(from: String!) on FIELD_DEFINITION
+directive @provides(fields: FieldSet!) on FIELD_DEFINITION
+directive @requires(fields: FieldSet!) on FIELD_DEFINITION
+directive @shareable on OBJECT | FIELD_DEFINITION
+directive @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
-# Schema types
-type Query @extends {
+type Query {
    getUsers: [User!]!
 
    _entities(representations: [_Any!]!): [_Entity]!
    _service: _Service!
 }
 
-type User @key(fields : "id") {
+type User @key(fields : "id", resolvable : true) {
    id: ID!
    name: String!
 }
+
+union _Entity = User
+
+type _Service {
+   sdl: String!
+}
+
+scalar FieldSet
+scalar _Any
 ```
 
 ## Limitations
