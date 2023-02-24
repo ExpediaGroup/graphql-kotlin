@@ -145,14 +145,14 @@ class GraphQL(config: GraphQLConfiguration) {
                 pipeline.log.info("\n${plugin.schema.print()}")
             }
 
-            // install content negotiation
-            pipeline.install(ContentNegotiation) {
-                jackson(streamRequestBody = config.server.streamingResponse) {
-                    apply(config.server.jacksonConfiguration)
-                }
-            }
             // install routing
             pipeline.routing {
+                // install content negotiation
+                install(ContentNegotiation) {
+                    jackson(streamRequestBody = config.server.streamingResponse) {
+                        apply(config.server.jacksonConfiguration)
+                    }
+                }
                 get(config.routes.endpoint) {
                     plugin.server.executeRequest(call)
                 }
