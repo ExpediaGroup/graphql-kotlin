@@ -1,6 +1,5 @@
 services:
   products:
-    # must be relative to the root of the project
-    build: integration/federation-compatibility
+    build: .
     ports:
       - 4001:4001
