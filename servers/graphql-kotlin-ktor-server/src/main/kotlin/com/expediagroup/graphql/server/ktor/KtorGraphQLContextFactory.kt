@@ -23,6 +23,9 @@ import io.ktor.server.request.ApplicationRequest
 import graphql.GraphQLContext
 import io.ktor.server.request.header
 
+/**
+ * Wrapper class for specifically handling the Ktor [ApplicationRequest]
+ */
 abstract class KtorGraphQLContextFactory : GraphQLContextFactory<ApplicationRequest>
 
 /**

@@ -30,6 +30,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.routing.Routing
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -151,5 +152,10 @@ fun Application.testGraphQLModule() {
                 GraphQLPluginTest.TestQuery(),
             )
         }
+    }
+    install(Routing) {
+        graphQLGetRoute()
+        graphQLPostRoute()
+        graphQLSDLRoute()
     }
 }

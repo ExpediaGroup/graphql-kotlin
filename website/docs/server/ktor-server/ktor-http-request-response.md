@@ -22,13 +22,20 @@ for details.
 ```kotlin
 fun Application.myModule() {
     // install additional plugins
-    install(CORS)
+    install(CORS) { ... }
+    install(Authentication) { ... }
 
     // install graphql plugin
     install(GraphQL) {
         schema {
             packages = listOf("com.example")
             queries = listOf(TestQuery())
+        }
+    }
+    // install authenticated GraphQL routes
+    install(Routing) {
+        authenticate("auth-basic") {
+            graphQLPostRoute()
         }
     }
 }
@@ -46,6 +53,9 @@ fun Application.myModule() {
             packages = listOf("com.example")
             queries = listOf(TestQuery())
         }
+    }
+    install(Routing) {
+        graphQLPostRoute()
     }
 
     intercept(ApplicationCallPipeline.Monitoring) {

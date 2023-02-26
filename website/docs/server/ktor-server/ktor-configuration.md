@@ -67,23 +67,6 @@ graphql {
             enabled = true
         }
     }
-    server {
-        streamingResponse = true
-    }
-    routes {
-        endpoint = "graphql"
-    }
-    tools {
-        graphiql {
-            enabled = true
-            endpoint = "graphiql"
-        }
-        sdl {
-            enabled = true
-            endpoint = "sdl"
-            printAtStartup = false
-        }
-    }
 }
 ```
 
@@ -157,7 +140,6 @@ server {
     contextFactory = DefaultKtorGraphQLContextFactory()
     jacksonConfiguration = { }
     requestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
-    streamingResponse = true
 }
 ```
 
@@ -167,33 +149,46 @@ server {
 Subscriptions are currently not supported.
 :::
 
-This section configures your GraphQL HTTP routes.
+GraphQL Kotlin Ktor Plugin DOES NOT automatically configure any routes. You need to explicitly configure `Routing`
+plugin with GraphQL routes. This allows you to selectively enable routes and wrap them in some additional logic (e.g. `Authentication`).
 
-All configuration options, with their default values are provided below.
+GraphQL Kotlin Ktor Plugin provides following `Route` extensions that can be called when configuring `Routing` plugin.
 
-```kotlin
-routes {
-    endpoint = "graphql"
-}
-```
+### GraphQL POST route
 
-## Tools Configuration
-
-This section configures various GraphQL tools to improve your developer experience. Currently, we provide support for
-[GraphiQL IDE](https://github.com/graphql/graphiql) and an SDL endpoint.
-
-All configuration options, with their default values are provided below.
+This is the main route for processing your GraphQL requests. By default, it will use `/graphql` endpoint and respond
+using chunked encoding.
 
 ```kotlin
-tools {
-    graphiql {
-        enabled = true
-        endpoint = "graphiql"
-    }
-    sdl {
-        enabled = true
-        endpoint = "sdl"
-        printAtStartup = false
-    }
-}
+fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route
 ```
+
+### GraphQL GET route
+
+:::caution
+Only `Query` operations are supported by the GET route.
+:::
+
+GraphQL route for processing GET requests. By default, it will use `/graphql` endpoint and respond using chunked encoding.
+
+```kotlin
+fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route
+```
+
+### GraphQL SDL route
+
+Convenience route to expose endpoint that returns your GraphQL schema in SDL format.
+
+```kotlin
+fun Route.graphQLSDLRoute(endpoint: String = "sdl"): Route
+```
+
+### GraphiQL IDE route
+
+[GraphiQL IDE](https://github.com/graphql/graphiql) is a convenient tool that helps you to easily interact
+with your GraphQL server.
+
+```kotlin
+fun Route.graphiQLRoute(endpoint: String = "graphiql", graphQLEndpoint: String = "graphql"): Route
+```
+

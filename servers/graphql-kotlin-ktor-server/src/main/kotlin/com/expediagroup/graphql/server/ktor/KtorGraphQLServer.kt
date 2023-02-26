@@ -21,8 +21,7 @@ import com.expediagroup.graphql.server.execution.GraphQLServer
 import io.ktor.server.request.ApplicationRequest
 
 /**
- * Helper method for how this Ktor example creates the common [GraphQLServer] object that
- * can handle requests.
+ * Server object that requires the other Ktor specific server implementations.
  */
 class KtorGraphQLServer(
     requestParser: KtorGraphQLRequestParser,
