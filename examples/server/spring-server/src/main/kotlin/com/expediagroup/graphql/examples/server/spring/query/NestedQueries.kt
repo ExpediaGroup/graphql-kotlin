@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component
 class NestedQueries(private val coffeeBean: CoffeeBean) : Query {
     fun findAnimal(): NestedAnimal = NestedAnimal(1, "cat")
 
-    @GraphQLDescription("An exmaple of using data fetcher with out a bean factory")
+    @GraphQLDescription("An example of using data fetcher with out a bean factory")
     fun getCoffeeBean(beanName: String) = coffeeBean
 }
 
