@@ -32,7 +32,7 @@ internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
 
 /**
- * Custom logic for how Ktor parses the incoming [ApplicationRequest] into the [GraphQLServerRequest]
+ * GraphQL Ktor [ApplicationRequest] parser.
  */
 class KtorGraphQLRequestParser(
     private val mapper: ObjectMapper

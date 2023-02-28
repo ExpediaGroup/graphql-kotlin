@@ -23,39 +23,48 @@ import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLo
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
-import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import graphql.GraphQL as GraphQLEngine
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.preparsed.PreparsedDocumentProvider
 import graphql.schema.GraphQLSchema
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.BaseApplicationPlugin
-import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.server.application.log
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
 import io.ktor.util.AttributeKey
+import graphql.GraphQL as GraphQLEngine
 
+/**
+ * Ktor plugin that creates GraphQL server based on the provided [GraphQLConfiguration].
+ *
+ * A configuration of the `GraphQL` plugin might look as follows:
+ * 1. Configure and install plugin
+ *   ```kotlin
+ *   install(GraphQL) {
+ *      // your schema, engine and server configuration goes here
+ *   }
+ *   ```
+ *
+ * 2. Configure GraphQL routes
+ *   ```kotlin
+ *   routing {
+ *      graphQLPostRoute()
+ *   }
+ *   ```
+ *
+ * @param config GraphQL configuration
+ */
 class GraphQL(config: GraphQLConfiguration) {
 
-    private val schema: GraphQLSchema = if (config.schema.federation.enabled) {
+    val schema: GraphQLSchema = if (config.schema.federation.enabled) {
         val schemaConfig = FederatedSchemaGeneratorConfig(
             supportedPackages = config.schema.packages ?: throw IllegalStateException("Missing required configuration - packages property is required"),
             topLevelNames = config.schema.topLevelNames,
@@ -139,47 +148,7 @@ class GraphQL(config: GraphQLConfiguration) {
 
         override fun install(pipeline: Application, configure: GraphQLConfiguration.() -> Unit): GraphQL {
             val config = GraphQLConfiguration(pipeline.environment.config).apply(configure)
-            val plugin = GraphQL(config)
-
-            if (config.tools.sdl.printAtStartup) {
-                pipeline.log.info("\n${plugin.schema.print()}")
-            }
-
-            // install routing
-            pipeline.routing {
-                // install content negotiation
-                install(ContentNegotiation) {
-                    jackson(streamRequestBody = config.server.streamingResponse) {
-                        apply(config.server.jacksonConfiguration)
-                    }
-                }
-                get(config.routes.endpoint) {
-                    plugin.server.executeRequest(call)
-                }
-                post(config.routes.endpoint) {
-                    plugin.server.executeRequest(call)
-                }
-
-                if (config.tools.sdl.enabled) {
-                    val sdl = plugin.schema.print()
-                    get(config.tools.sdl.endpoint) {
-                        call.respondText(text = sdl)
-                    }
-                }
-                if (config.tools.graphiql.enabled) {
-                    val contextPath = pipeline.environment.rootPath
-                    val graphiQL = GraphQL::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
-                        reader.readText()
-                            .replace("\${graphQLEndpoint}", if (contextPath.isBlank()) config.routes.endpoint else "$contextPath/${config.routes.endpoint}")
-                            .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) "subscriptions" else "$contextPath/subscriptions")
-//                                ?.replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.routing.subscriptions.endpoint else "$contextPath/${config.routing.subscriptions.endpoint}")
-                    } ?: throw IllegalStateException("Unable to load GraphiQL")
-                    get(config.tools.graphiql.endpoint) {
-                        call.respondText(graphiQL, ContentType.Text.Html)
-                    }
-                }
-            }
-            return plugin
+            return GraphQL(config)
         }
     }
 }

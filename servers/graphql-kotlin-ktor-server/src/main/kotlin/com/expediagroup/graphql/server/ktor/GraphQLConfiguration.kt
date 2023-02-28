@@ -82,25 +82,6 @@ import io.ktor.server.config.tryGetStringList
  *   contextFactory = DefaultKtorGraphQLContextFactory()
  *   jacksonConfiguration = { }
  *   requestParser = KtorGraphQLRequestParser(jacksonObjectMapper())
- *   streamingResponse = true
- * }
- * routes {
- *   endpoint = "graphql"
- *   subscriptions {
- *     endpoint = "subscriptions"
- *     keepAliveInterval = null
- *   }
- * }
- * tools {
- *   graphiql {
- *     enabled = true
- *     endpoint = "graphiql"
- *   }
- *   sdl {
- *     enabled = true
- *     endpoint = "sdl"
- *     printAtStartup = true
- *   }
  * }
  * ```
  */
@@ -121,18 +102,6 @@ class GraphQLConfiguration(config: ApplicationConfig) {
     val server: ServerConfiguration = ServerConfiguration(config)
     fun server(serverConfig: ServerConfiguration.() -> Unit) {
         server.apply(serverConfig)
-    }
-
-    /** Configure GraphQL routes */
-    val routes: RoutingConfiguration = RoutingConfiguration(config)
-    fun routes(routingConfig: RoutingConfiguration.() -> Unit) {
-        routes.apply(routingConfig)
-    }
-
-    /** Configure GraphQL tools */
-    val tools: ToolsConfiguration = ToolsConfiguration(config)
-    fun tools(toolsConfig: ToolsConfiguration.() -> Unit) {
-        tools.apply(toolsConfig)
     }
 
     /**
@@ -279,68 +248,6 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         var jacksonConfiguration: ObjectMapper.() -> Unit = {}
         /** Custom request parser */
         var requestParser: KtorGraphQLRequestParser = KtorGraphQLRequestParser(jacksonObjectMapper().apply(jacksonConfiguration))
-        /** Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses. */
-        var streamingResponse: Boolean = config.tryGetString("graphql.server.streamingResponse")?.toBoolean() ?: true
-    }
-
-    /** GraphQL routes configuration */
-    class RoutingConfiguration(config: ApplicationConfig) {
-        /** GraphQL server endpoint, defaults to 'graphql' */
-        var endpoint: String = config.tryGetString("graphql.routes.endpoint") ?: "graphql"
-        // TODO support subscriptions
-//        /** GraphQL server subscriptions endpoint, defaults to 'subscriptions' */
-//        var subscriptions: SubscriptionConfiguration = SubscriptionConfiguration(config)
-    }
-
-    /**
-     * GraphQL subscription configuration properties.
-     */
-    class SubscriptionConfiguration(config: ApplicationConfig) {
-        /** GraphQL subscriptions endpoint, defaults to 'subscriptions' */
-        var endpoint: String = config.tryGetString("graphql.routing.subscriptions.endpoint") ?: "subscriptions"
-
-        /** Keep the websocket alive and send a message to the client every interval in ms. Default to not sending messages */
-        var keepAliveInterval: Long? = config.tryGetString("graphql.routing.subscriptions.keepAliveInterval")?.toLongOrNull()
-    }
-
-    /** Configuration for various GraphhQL tools*/
-    class ToolsConfiguration(config: ApplicationConfig) {
-        /** GraphiQL IDE configuration */
-        val graphiql: GraphiQLConfiguration = GraphiQLConfiguration(config)
-        fun graphiql(graphiqlConfig: GraphiQLConfiguration.() -> Unit) {
-            graphiql.apply(graphiqlConfig)
-        }
-
-        /** SDL endpoint configuration */
-        val sdl: SDLConfiguration = SDLConfiguration(config)
-        fun sdl(sdlConfig: SDLConfiguration.() -> Unit) {
-            sdl.apply(sdlConfig)
-        }
-    }
-
-    /**
-     * GraphiQL configuration properties.
-     */
-    class GraphiQLConfiguration(config: ApplicationConfig) {
-        /** Boolean flag indicating whether to enabled GraphiQL GraphQL IDE */
-        var enabled: Boolean = config.tryGetString("graphql.tools.graphiql.enabled")?.toBoolean() ?: true
-
-        /** GraphiQL GraphQL IDE endpoint, defaults to 'graphiql' */
-        var endpoint: String = config.tryGetString("graphql.tools.graphiql.endpoint") ?: "graphiql"
-    }
-
-    /**
-     * SDL endpoint configuration properties.
-     */
-    class SDLConfiguration(config: ApplicationConfig) {
-        /** Boolean flag indicating whether SDL endpoint is enabled */
-        var enabled: Boolean = config.tryGetString("graphql.tools.sdl.enabled")?.toBoolean() ?: true
-
-        /** GraphQL SDL endpoint */
-        var endpoint: String = config.tryGetString("graphql.tools.sdl.endpoint") ?: "sdl"
-
-        /** Boolean flag indicating whether to print the schema after generator creates it */
-        var printAtStartup: Boolean = config.tryGetString("graphql.tools.sdl.print").toBoolean()
     }
 }
 

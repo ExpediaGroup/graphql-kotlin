@@ -63,6 +63,9 @@ fun Application.graphQLModule() {
             )
         }
     }
+    install(Routing) {
+        graphQLPostRoute()
+    }
 }
 ```
 
@@ -81,18 +84,17 @@ ktor {
 
 :::caution
 `graphql-kotlin-ktor-server` automatically configures `ContentNegotiation` plugin with [Jackson](https://github.com/FasterXML/jackson)
-serialization. `kotlinx-serialization` is currently not supported.
+serialization for GraphQL GET/POST routes. `kotlinx-serialization` is currently not supported.
 :::
 
-## Default Routes
+## Routing
 
-:::caution
-`graphql-kotlin-ktor-server` automatically configures `Routing` plugin if it wasn't configured yet. Attempting to re-install
-(vs applying additional configuration) `Routing` after `GraphQL` plugin may result in errors.
-:::
+`graphql-kotlin-ktor-server` plugin DOES NOT automatically configure any routes. You need to explicitly configure `Routing`
+plugin with GraphQL routes. This allows you to selectively enable routes and wrap them in some additional logic (e.g. `Authentication`).
 
-Your newly created GraphQL server starts up with following preconfigured default routes:
+GraphQL plugin provides following `Route` extension functions
 
--   **/graphql** - GraphQL server endpoint used for processing queries and mutations
--   **/sdl** - Convenience endpoint that returns current schema in Schema Definition Language format
--   **/graphiql** - [An official IDE](https://github.com/graphql/graphiql) under the GraphQL Foundation
+- `Route#graphQLGetRoute` - GraphQL route for processing GET query requests
+- `Route#graphQLPostRoute` - GraphQL route for processing POST query requests
+- `Route#graphQLSDLRoute` - GraphQL route for exposing schema in Schema Definition Language (SDL) format
+- `Route#graphiQLRoute` - GraphQL route for exposing [an official IDE](https://github.com/graphql/graphiql) from the GraphQL Foundation

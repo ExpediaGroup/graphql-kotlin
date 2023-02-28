@@ -25,8 +25,13 @@ import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookData
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.server.ktor.GraphQL
+import com.expediagroup.graphql.server.ktor.graphQLGetRoute
+import com.expediagroup.graphql.server.ktor.graphQLPostRoute
+import com.expediagroup.graphql.server.ktor.graphQLSDLRoute
+import com.expediagroup.graphql.server.ktor.graphiQLRoute
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.routing.Routing
 
 fun Application.graphQLModule() {
     install(GraphQL) {
@@ -50,5 +55,11 @@ fun Application.graphQLModule() {
         server {
             contextFactory = CustomGraphQLContextFactory()
         }
+    }
+    install(Routing) {
+        graphQLGetRoute()
+        graphQLPostRoute()
+        graphiQLRoute()
+        graphQLSDLRoute()
     }
 }
