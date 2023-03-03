@@ -14,14 +14,21 @@ directive @composeDirective(name: String!) repeatable on SCHEMA
 
 By default, Supergraph schema excludes all custom directives. The `@composeDirective` is used to specify custom directives that should be exposed in the Supergraph schema.
 
+In order to use composed directive, you subgraph needs to
+1. contain your custom directive definition
+2. import your custom directive from a corresponding link spec
+3. apply `@composeDirective` with custom directive name on your schema
+
 Example:
 Given `@custom` directive we can preserve it in the Supergraph schema
 
 ```kotlin
+// 1. directive definition
 @GraphQLDirective(name = "custom", locations = [Introspection.DirectiveLocation.FIELD_DEFINITION])
 annotation class CustomDirective
 
-@ComposeDirective(name = "custom")
+@LinkDirective(url = "https://myspecs.dev/myCustomDirective/v1.0", import = ["@custom"]) // 2. import custom directive from a spec
+@ComposeDirective(name = "custom") // 3. apply @composeDirective to preserve it in the schema
 class CustomSchema
 
 class SimpleQuery {
@@ -34,7 +41,8 @@ it will generate following schema
 
 ```graphql
 schema
-@composeDirective(name: "@myDirective")
+@composeDirective(name: "@custom")
+@link(import : ["@custom"], url: "https://myspecs.dev/myCustomDirective/v1.0")
 @link(import : ["@composeDirective", "@extends", "@external", "@inaccessible", "@interfaceObject", "@key", "@override", "@provides", "@requires", "@shareable", "@tag", "FieldSet"], url : "https://specs.apollo.dev/federation/v2.3")
 {
    query: Query
