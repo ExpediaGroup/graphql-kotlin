@@ -1,6 +1,4 @@
 # GraphQL Kotlin Federated Schema Generator
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-federation.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-federation%22)
-[![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-federation.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-federation)
 
 `graphql-kotlin-federation` extends the functionality of `graphql-kotlin-schema-generator` and allows you to easily
 generate federated GraphQL schemas directly from the code. Federated schemas rely on a number of directives to
