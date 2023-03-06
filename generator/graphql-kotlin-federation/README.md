@@ -9,6 +9,7 @@ Once all the federated objects are annotated, you will also have to configure co
 that are used to instantiate federated objects and finally generate the schema using `toFederatedSchema` function
 ([link](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/generator/graphql-kotlin-federation/src/main/kotlin/com/expediagroup/graphql/generator/federation/toFederatedSchema.kt#L34)).
 
+// TEST FED PR CHECK
 ```mermaid
 graph TD;
   gateway([Supergraph<br/>Gateway]);
