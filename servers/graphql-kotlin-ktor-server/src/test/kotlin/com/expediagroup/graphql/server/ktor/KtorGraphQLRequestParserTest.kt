@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.HttpMethod
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.testing.TestApplicationRequest
-import io.ktor.utils.io.ByteReadChannel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -93,7 +92,7 @@ class KtorGraphQLRequestParserTest {
         val serverRequest = mockk<TestApplicationRequest>(relaxed = true) {
             every { call } returns mockk(relaxed = true) {
                 every { attributes.getOrNull<Any>(any()) } returns null
-                coEvery { request.pipeline.execute(any(), any()) } returns ByteReadChannel(mapper.writeValueAsBytes(mockRequest))
+                coEvery { request.pipeline.execute(any(), any()) } returns mockRequest
             }
             every { local.method } returns HttpMethod.Post
         }
@@ -115,7 +114,7 @@ class KtorGraphQLRequestParserTest {
         val serverRequest = mockk<TestApplicationRequest>(relaxed = true) {
             every { call } returns mockk(relaxed = true) {
                 every { attributes.getOrNull<Any>(any()) } returns null
-                coEvery { request.pipeline.execute(any(), any()) } returns ByteReadChannel(mapper.writeValueAsBytes(mockRequest))
+                coEvery { request.pipeline.execute(any(), any()) } returns mockRequest
             }
             every { local.method } returns HttpMethod.Post
         }
@@ -138,8 +137,3 @@ class KtorGraphQLRequestParserTest {
         assertNull(secondRequest.variables)
     }
 }
-
-/*
-    @Suppress("BlockingMethodInNonBlockingContext")
-
- */

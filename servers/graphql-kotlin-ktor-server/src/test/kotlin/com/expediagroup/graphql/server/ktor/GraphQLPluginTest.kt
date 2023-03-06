@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
@@ -38,7 +39,7 @@ import kotlin.test.assertEquals
 class GraphQLPluginTest {
 
     class TestQuery : Query {
-        fun hello(name: String?): String = if (name == null) {
+        fun hello(name: String? = null): String = if (name == null) {
             "Hello World"
         } else {
             "Hello $name"
@@ -132,6 +133,30 @@ class GraphQLPluginTest {
             }
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals("""{"data":{"hello":"Hello junit"}}""", response.bodyAsText().trim())
+        }
+    }
+
+    @Test
+    fun `server should handle valid POST batch requests`() {
+        testApplication {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    jackson()
+                }
+            }
+            val response = client.post("/graphql") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GraphQLBatchRequest(
+                        listOf(
+                            GraphQLRequest(query = "query HelloWorldQuery { hello }"),
+                            GraphQLRequest(query = "query HelloQuery(\$name: String){ hello(name: \$name) }", operationName = "HelloQuery", variables = mapOf("name" to "junit"))
+                        )
+                    )
+                )
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("""[{"data":{"hello":"Hello World"}},{"data":{"hello":"Hello junit"}}]""", response.bodyAsText().trim())
         }
     }
 
