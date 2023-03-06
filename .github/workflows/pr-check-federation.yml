@@ -10,4 +10,8 @@ on:
 
 jobs:
   federation-integration:
+    permissions:
+      issues: write
     uses: ./.github/workflows/federation-integration.yml
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
