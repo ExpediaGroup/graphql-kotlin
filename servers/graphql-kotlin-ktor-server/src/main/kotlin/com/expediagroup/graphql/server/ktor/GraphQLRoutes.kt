@@ -26,6 +26,7 @@ import io.ktor.server.application.plugin
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.accept
 import io.ktor.server.routing.application
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -56,14 +57,24 @@ fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boole
  * @param endpoint GraphQL server POST endpoint, defaults to 'graphql'
  * @param streamingResponse Enable streaming response body without keeping it fully in memory. If set to true (default) it will set `Transfer-Encoding: chunked` header on the responses.
  * @param jacksonConfiguration Jackson Object Mapper customizations
+ * @param acceptContentType Only route requests with accept headers that match this parameter
+ * @param responseContentType Respond by this parameter
  */
-fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route {
+fun Route.graphQLPostRoute(
+    endpoint: String = "graphql",
+    streamingResponse: Boolean = true,
+    jacksonConfiguration: ObjectMapper.() -> Unit = {},
+    acceptContentType: ContentType = ContentType("application", "graphql-response+json"),
+    responseContentType: ContentType = acceptContentType
+): Route {
     val graphQLPlugin = this.application.plugin(GraphQL)
-    val route = post(endpoint) {
-        graphQLPlugin.server.executeRequest(call)
+    val route = accept(acceptContentType) {
+        post(endpoint) {
+            graphQLPlugin.server.executeRequest(call)
+        }
     }
     route.install(ContentNegotiation) {
-        jackson(streamRequestBody = streamingResponse) {
+        jackson(contentType = responseContentType, streamRequestBody = streamingResponse) {
             apply(jacksonConfiguration)
         }
     }
