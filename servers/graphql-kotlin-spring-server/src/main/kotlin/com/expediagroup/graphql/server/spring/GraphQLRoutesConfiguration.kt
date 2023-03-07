@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
-import org.springframework.web.reactive.function.server.json
 
 /**
  * Default route configuration for GraphQL endpoints.
@@ -45,8 +45,14 @@ class GraphQLRoutesConfiguration(
 
         (isEndpointRequest and isNotWebSocketRequest).invoke { serverRequest ->
             val graphQLResponse = graphQLServer.execute(serverRequest)
+            val acceptMediaType = serverRequest
+                .headers()
+                .accept()
+                .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
+                ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
+                ?: MediaType.APPLICATION_JSON
             if (graphQLResponse != null) {
-                ok().json().bodyValueAndAwait(graphQLResponse)
+                ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
             } else {
                 badRequest().buildAndAwait()
             }
