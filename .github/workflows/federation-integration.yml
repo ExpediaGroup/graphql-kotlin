@@ -2,6 +2,9 @@ name: Federation Integration Tests
 
 on:
   workflow_call:
+    secrets:
+      token:
+        required: false
 
 jobs:
   composition:
@@ -71,8 +74,6 @@ jobs:
     defaults:
       run:
         working-directory: integration/federation-compatibility
-    permissions:
-      issues: write
 
     steps:
       - name: Checkout Repository
@@ -101,4 +102,4 @@ jobs:
           failOnWarning: true
           failOnRequired: true
           workingDirectory: 'integration/federation-compatibility'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.token }}
