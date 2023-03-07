@@ -19,7 +19,6 @@ package com.expediagroup.graphql.server.ktor
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -129,31 +128,9 @@ class GraphQLPluginTest {
             }
             val response = client.post("/graphql") {
                 contentType(ContentType.Application.Json)
-                accept(ContentType("application", "graphql-response+json"))
                 setBody(GraphQLRequest(query = "query HelloQuery(\$name: String){ hello(name: \$name) }", operationName = "HelloQuery", variables = mapOf("name" to "junit")))
             }
             assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(ContentType("application", "graphql-response+json").contentType, response.contentType()?.contentType)
-            assertEquals(ContentType("application", "graphql-response+json").contentSubtype, response.contentType()?.contentSubtype)
-            assertEquals("""{"data":{"hello":"Hello junit"}}""", response.bodyAsText().trim())
-        }
-    }
-
-    @Test
-    fun `server should handle valid POST requests with specific accept type`() {
-        testApplication {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    jackson()
-                }
-            }
-            val response = client.post("/graphql") {
-                contentType(ContentType.Application.Json)
-                setBody(GraphQLRequest(query = "query HelloQuery(\$name: String){ hello(name: \$name) }", operationName = "HelloQuery", variables = mapOf("name" to "junit")))
-            }
-            assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(ContentType.Application.Json.contentType, response.contentType()?.contentType)
-            assertEquals(ContentType.Application.Json.contentSubtype, response.contentType()?.contentSubtype)
             assertEquals("""{"data":{"hello":"Hello junit"}}""", response.bodyAsText().trim())
         }
     }
@@ -179,7 +156,6 @@ fun Application.testGraphQLModule() {
     install(Routing) {
         graphQLGetRoute()
         graphQLPostRoute()
-        graphQLPostRoute(acceptContentType = ContentType.Application.Json, responseContentType = ContentType.Application.Json)
         graphQLSDLRoute()
     }
 }
