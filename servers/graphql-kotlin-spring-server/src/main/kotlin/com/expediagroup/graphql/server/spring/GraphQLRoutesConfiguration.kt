@@ -45,9 +45,14 @@ class GraphQLRoutesConfiguration(
 
         (isEndpointRequest and isNotWebSocketRequest).invoke { serverRequest ->
             val graphQLResponse = graphQLServer.execute(serverRequest)
-            val accept = serverRequest.headers().accept().find { it == MediaType.APPLICATION_JSON } ?: MediaType.APPLICATION_GRAPHQL_RESPONSE
+            val acceptMediaType = serverRequest
+                .headers()
+                .accept()
+                .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
+                ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
+                ?: MediaType.APPLICATION_JSON
             if (graphQLResponse != null) {
-                ok().contentType(accept).bodyValueAndAwait(graphQLResponse)
+                ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
             } else {
                 badRequest().buildAndAwait()
             }
