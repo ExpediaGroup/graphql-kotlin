@@ -59,7 +59,7 @@ jobs:
           ./gradlew :${server}:build
 
           echo "starting server"
-          ./gradlew :${server}:bootRun &
+          ./gradlew :${server}:run &
           echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
         env:
           server: ${{ matrix.server }}

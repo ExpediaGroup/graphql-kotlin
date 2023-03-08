@@ -8,3 +8,7 @@ plugins {
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-spring-server")
 }
+
+tasks.register("run") {
+    dependsOn("bootRun")
+}
