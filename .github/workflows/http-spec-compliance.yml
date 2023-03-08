@@ -54,7 +54,6 @@ jobs:
 
       - name: Start server
         id: start_server
-      - name: Verify HTTP spec compliance
         run: |
           set -x
           echo "building server"
