@@ -30,7 +30,7 @@ jobs:
           node-version: 16
 
       - name: Setup NPM cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
@@ -50,7 +50,6 @@ jobs:
 
       - name: Set up Gradle cache
         uses: gradle/gradle-build-action@v2
-
 
       - name: Start server
         id: start_server
