@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,22 +123,6 @@ class SpringGraphQLRequestParserTest {
         assertEquals(1, graphQLRequest.variables?.get("a"))
     }
 
-    @Test
-    fun `parseRequest should return request if method is POST with content-type graphql`() = runBlockingTest {
-        val serverRequest = MockServerRequest.builder()
-            .method(HttpMethod.POST)
-            .header(HttpHeaders.CONTENT_TYPE, "application/graphql")
-            .body(Mono.justOrEmpty("{ foo }"))
-
-        val graphQLRequest = parser.parseRequest(serverRequest)
-        assertNotNull(graphQLRequest)
-        assertTrue(graphQLRequest is GraphQLRequest)
-        assertEquals("{ foo }", graphQLRequest.query)
-        assertNull(graphQLRequest.operationName)
-        assertNull(graphQLRequest.variables)
-    }
-
-    @Suppress("BlockingMethodInNonBlockingContext")
     @Test
     fun `parseRequest should return list of requests if method is POST with array body`() = runBlockingTest {
         val mockRequest1 = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))

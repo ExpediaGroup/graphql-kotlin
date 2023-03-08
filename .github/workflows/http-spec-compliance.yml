@@ -1,0 +1,66 @@
+name: GraphQL over HTTP spec server compliance
+
+on:
+  workflow_call:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'servers/**'
+      - 'integration/graphql-http-spec/**'
+
+jobs:
+  http-spec-compliance:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integration/graphql-http-spec
+    strategy:
+      matrix:
+        server: ['spring-server', 'ktor-server']
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Setup NPM cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Set up Gradle cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: Start server
+        id: start_server
+        run: |
+          ./gradlew :${server}:bootRun &
+          echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
+        env:
+          server: ${{ matrix.server }}
+
+      - name: Verify HTTP spec compliance
+        run: |
+          npm install
+          npm run test
+
+      - name: Stop server
+        if: ${{ always() }}
+        run: kill -9 ${{ steps.start_server.outputs.SERVER_PID }}

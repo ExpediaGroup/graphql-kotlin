@@ -25,6 +25,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
+import org.springframework.web.server.ResponseStatusException
 
 /**
  * Default route configuration for GraphQL endpoints.
@@ -44,16 +45,20 @@ class GraphQLRoutesConfiguration(
         val isNotWebSocketRequest = headers { isWebSocketHeaders(it) }.not()
 
         (isEndpointRequest and isNotWebSocketRequest).invoke { serverRequest ->
-            val graphQLResponse = graphQLServer.execute(serverRequest)
-            val acceptMediaType = serverRequest
-                .headers()
-                .accept()
-                .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
-                ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
-                ?: MediaType.APPLICATION_JSON
-            if (graphQLResponse != null) {
-                ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
-            } else {
+            try {
+                val graphQLResponse = graphQLServer.execute(serverRequest)
+                val acceptMediaType = serverRequest
+                    .headers()
+                    .accept()
+                    .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
+                    ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
+                    ?: MediaType.APPLICATION_JSON
+                if (graphQLResponse != null) {
+                    ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
+                } else {
+                    badRequest().buildAndAwait()
+                }
+            } catch (e: Exception) {
                 badRequest().buildAndAwait()
             }
         }

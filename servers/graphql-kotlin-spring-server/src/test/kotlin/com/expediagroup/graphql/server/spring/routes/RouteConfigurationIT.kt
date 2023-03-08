@@ -22,7 +22,6 @@ import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_OPERATION_
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_QUERY
 import com.expediagroup.graphql.server.spring.execution.REQUEST_PARAM_VARIABLES
 import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
-import com.expediagroup.graphql.server.spring.execution.graphQLMediaType
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQLContext
@@ -182,23 +181,12 @@ class RouteConfigurationIT(@Autowired private val testClient: WebTestClient) {
     }
 
     @Test
-    fun `verify POST graphQL request with graphql content type`() {
-        testClient.post()
-            .uri("/graphql")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(graphQLMediaType)
-            .bodyValue("query { hello(name: \"POST application/graphql\") }")
-            .exchange()
-            .verifyGraphQLRoute("Hello POST application/graphql!")
-    }
-
-    @Test
     fun `verify POST graphQL request with application graphql response content type`() {
         testClient.post()
             .uri("/graphql")
             .accept(MediaType.APPLICATION_GRAPHQL_RESPONSE)
-            .contentType(graphQLMediaType)
-            .bodyValue("query { hello(name: \"POST application/graphql\") }")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(GraphQLRequest("query { hello(name: \"POST application/graphql\") }"))
             .exchange()
             .expectHeader()
             .contentType(MediaType.APPLICATION_GRAPHQL_RESPONSE)
