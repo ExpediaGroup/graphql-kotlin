@@ -51,13 +51,31 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/gradle-build-action@v2
 
+
+      - name: Start server
+        id: start_server
       - name: Verify HTTP spec compliance
         run: |
+          set -x
+          echo "building server"
+          ./gradlew :${server}:build
+
+          echo "starting server"
           ./gradlew :${server}:bootRun &
-          SERVER_PID=$(echo $!)
-
-          npm run test
-
-          kill -9 $SERVER_PID
+          echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
         env:
           server: ${{ matrix.server }}
+
+      - name: Verify HTTP spec compliance
+        run: |
+          echo "verify server is up"
+          npm run healthcheck
+
+          echo "verify compliance"
+          npm run test
+
+      - name: Stop server
+        if: ${{ always() }}
+        run: |
+          echo "shutting down server"
+          kill -9 ${{ steps.start_server.outputs.SERVER_PID }}

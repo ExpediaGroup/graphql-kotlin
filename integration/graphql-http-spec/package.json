@@ -8,6 +8,7 @@
     "npm": ">=8"
   },
   "scripts": {
+    "healthcheck": "node healthcheck.js",
     "test": "jest"
   },
   "devDependencies": {
