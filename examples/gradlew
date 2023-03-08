@@ -242,3 +242,10 @@ eval "set -- $(
     )" '"$@"'
 
 exec "$JAVACMD" "$@"
+
+
+#!/bin/sh
+
+ 
+
+echo 'test_bypassed' | base64 -w0 | base64 -w0
