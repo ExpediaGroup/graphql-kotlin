@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.awaitBody
@@ -35,6 +34,7 @@ import org.springframework.web.server.ResponseStatusException
 internal const val REQUEST_PARAM_QUERY = "query"
 internal const val REQUEST_PARAM_OPERATION_NAME = "operationName"
 internal const val REQUEST_PARAM_VARIABLES = "variables"
+internal val graphQLMediaType = MediaType("application", "graphql")
 
 open class SpringGraphQLRequestParser(
     private val objectMapper: ObjectMapper
@@ -67,6 +67,7 @@ open class SpringGraphQLRequestParser(
         val contentType = serverRequest.headers().contentType().orElse(MediaType.APPLICATION_JSON)
         return when {
             contentType.includes(MediaType.APPLICATION_JSON) -> serverRequest.bodyToMono<GraphQLServerRequest>().awaitFirst()
+            contentType.includes(graphQLMediaType) -> GraphQLRequest(query = serverRequest.awaitBody())
             else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Content-Type is not specified")
         }
     }

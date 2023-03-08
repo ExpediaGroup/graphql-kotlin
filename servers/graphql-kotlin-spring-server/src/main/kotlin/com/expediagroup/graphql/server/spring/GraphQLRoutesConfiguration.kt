@@ -25,7 +25,6 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
-import org.springframework.web.server.ResponseStatusException
 
 /**
  * Default route configuration for GraphQL endpoints.

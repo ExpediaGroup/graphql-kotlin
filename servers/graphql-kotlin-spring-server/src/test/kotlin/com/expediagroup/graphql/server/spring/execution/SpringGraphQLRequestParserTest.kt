@@ -23,6 +23,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -61,7 +62,7 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return request if method is GET with simple query`() = runBlockingTest {
+    fun `parseRequest should return request if method is GET with simple query`() = runTest {
         val serverRequest = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.of("{ foo }")
             every { queryParam(REQUEST_PARAM_OPERATION_NAME) } returns Optional.empty()
@@ -77,7 +78,7 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return request if method is GET with full query`() = runBlockingTest {
+    fun `parseRequest should return request if method is GET with full query`() = runTest {
         val serverRequest = mockk<ServerRequest>(relaxed = true) {
             every { queryParam(REQUEST_PARAM_QUERY) } returns Optional.of("query MyFoo { foo }")
             every { queryParam(REQUEST_PARAM_OPERATION_NAME) } returns Optional.of("MyFoo")
@@ -93,7 +94,7 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return request if method is POST with no content-type`() = runBlockingTest {
+    fun `parseRequest should return request if method is POST with no content-type`() = runTest {
         val mockRequest = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
         val serverRequest = MockServerRequest.builder()
             .method(HttpMethod.POST)
@@ -108,7 +109,7 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return request if method is POST with content-type json`() = runBlockingTest {
+    fun `parseRequest should return request if method is POST with content-type json`() = runTest {
         val mockRequest = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
         val serverRequest = MockServerRequest.builder()
             .method(HttpMethod.POST)
@@ -124,7 +125,22 @@ class SpringGraphQLRequestParserTest {
     }
 
     @Test
-    fun `parseRequest should return list of requests if method is POST with array body`() = runBlockingTest {
+    fun `parseRequest should return request if method is POST with content-type graphql`() = runTest {
+        val serverRequest = MockServerRequest.builder()
+            .method(HttpMethod.POST)
+            .header(HttpHeaders.CONTENT_TYPE, "application/graphql")
+            .body(Mono.justOrEmpty("{ foo }"))
+
+        val graphQLRequest = parser.parseRequest(serverRequest)
+        assertNotNull(graphQLRequest)
+        assertTrue(graphQLRequest is GraphQLRequest)
+        assertEquals("{ foo }", graphQLRequest.query)
+        assertNull(graphQLRequest.operationName)
+        assertNull(graphQLRequest.variables)
+    }
+
+    @Test
+    fun `parseRequest should return list of requests if method is POST with array body`() = runTest {
         val mockRequest1 = GraphQLRequest("query MyFoo { foo }", "MyFoo", mapOf("a" to 1))
         val mockRequest2 = GraphQLRequest("query MyBar { bar }", "MyBar")
         val mockRequest = GraphQLBatchRequest(listOf(mockRequest1, mockRequest2))
