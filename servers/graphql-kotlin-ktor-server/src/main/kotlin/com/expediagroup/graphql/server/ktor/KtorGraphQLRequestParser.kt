@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.type.MapType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import io.ktor.http.HttpMethod
 import io.ktor.server.request.ApplicationRequest
-import io.ktor.server.request.receiveText
+import io.ktor.server.request.receive
 import java.io.IOException
 
 internal const val REQUEST_PARAM_QUERY = "query"
@@ -39,7 +39,6 @@ class KtorGraphQLRequestParser(
 ) : GraphQLRequestParser<ApplicationRequest> {
 
     private val mapTypeReference: MapType = TypeFactory.defaultInstance().constructMapType(HashMap::class.java, String::class.java, Any::class.java)
-//    private val graphQLContentType: ContentType = ContentType.parse("application/graphql-response+json")
 
     override suspend fun parseRequest(request: ApplicationRequest): GraphQLServerRequest? = when (request.local.method) {
         HttpMethod.Get -> parseGetRequest(request)
@@ -61,9 +60,8 @@ class KtorGraphQLRequestParser(
     }
 
     private suspend fun parsePostRequest(request: ApplicationRequest): GraphQLServerRequest? = try {
-        val rawRequest = request.call.receiveText()
-        mapper.readValue(rawRequest, GraphQLServerRequest::class.java)
+        request.call.receive()
     } catch (e: IOException) {
-        throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload")
+        throw IllegalStateException("Invalid HTTP request - unable to parse GraphQL request from POST payload", e)
     }
 }
