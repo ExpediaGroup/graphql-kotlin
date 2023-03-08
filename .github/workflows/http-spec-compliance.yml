@@ -36,6 +36,9 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('website/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
 
+      - name: Install node dependencies
+        run: npm install
+
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
@@ -48,19 +51,13 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/gradle-build-action@v2
 
-      - name: Start server
-        id: start_server
-        run: |
-          ./gradlew :${server}:bootRun &
-          echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
-        env:
-          server: ${{ matrix.server }}
-
       - name: Verify HTTP spec compliance
         run: |
-          npm install
+          ./gradlew :${server}:bootRun &
+          SERVER_PID=$(echo $!)
+
           npm run test
 
-      - name: Stop server
-        if: ${{ always() }}
-        run: kill -9 ${{ steps.start_server.outputs.SERVER_PID }}
+          kill -9 $SERVER_PID
+        env:
+          server: ${{ matrix.server }}
