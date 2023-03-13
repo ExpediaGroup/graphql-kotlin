@@ -24,6 +24,10 @@ jobs:
     needs: build-libraries
     uses: ./.github/workflows/federation-integration.yml
 
+  http-spec-compliance:
+    needs: build-libraries
+    uses: ./.github/workflows/http-spec-compliance.yml
+
   release-notes:
     timeout-minutes: 10
     runs-on: ubuntu-latest

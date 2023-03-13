@@ -44,16 +44,20 @@ class GraphQLRoutesConfiguration(
         val isNotWebSocketRequest = headers { isWebSocketHeaders(it) }.not()
 
         (isEndpointRequest and isNotWebSocketRequest).invoke { serverRequest ->
-            val graphQLResponse = graphQLServer.execute(serverRequest)
-            val acceptMediaType = serverRequest
-                .headers()
-                .accept()
-                .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
-                ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
-                ?: MediaType.APPLICATION_JSON
-            if (graphQLResponse != null) {
-                ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
-            } else {
+            try {
+                val graphQLResponse = graphQLServer.execute(serverRequest)
+                val acceptMediaType = serverRequest
+                    .headers()
+                    .accept()
+                    .find { it.includes(MediaType.APPLICATION_GRAPHQL_RESPONSE) }
+                    ?.let { MediaType.APPLICATION_GRAPHQL_RESPONSE }
+                    ?: MediaType.APPLICATION_JSON
+                if (graphQLResponse != null) {
+                    ok().contentType(acceptMediaType).bodyValueAndAwait(graphQLResponse)
+                } else {
+                    badRequest().buildAndAwait()
+                }
+            } catch (e: Exception) {
                 badRequest().buildAndAwait()
             }
         }
