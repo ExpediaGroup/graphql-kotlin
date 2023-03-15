@@ -3,7 +3,7 @@ id: generator-config
 title: Generator Configuration & Hooks
 ---
 
-`graphql-kotlin-schema-generator` provides a single function, `toSchema,` to generate a schema from Kotlin objects. This
+`graphql-kotlin-schema-generator` provides a single function, `toSchema`, to generate a schema from Kotlin objects. This
 function accepts four arguments: config, queries, mutations and subscriptions.
 
 ## TopLevelObjects
