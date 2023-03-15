@@ -31,6 +31,9 @@ jobs:
   release-notes:
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
     steps:
       - name: Release Drafter
         uses: release-drafter/release-drafter@v5
