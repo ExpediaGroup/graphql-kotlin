@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ internal fun generateMutations(generator: SchemaGenerator, mutations: List<TopLe
 
         mutation.kClass.getValidFunctions(generator.config.hooks)
             .forEach {
-                val function = generateFunction(generator, it, generator.config.topLevelNames.mutation, mutation.obj)
+                val function = generateFunction(generator, mutation.kClass, it, generator.config.topLevelNames.mutation, mutation.obj)
                 val functionFromHook = generator.config.hooks.didGenerateMutationField(mutation.kClass, it, function)
                 if (mutationBuilder.hasField(functionFromHook.name)) {
                     throw ConflictingFieldsException("Mutation(class: ${mutation.kClass})", it.name)

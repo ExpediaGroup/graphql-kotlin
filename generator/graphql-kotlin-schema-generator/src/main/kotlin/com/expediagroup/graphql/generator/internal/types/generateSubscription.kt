@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ internal fun generateSubscriptions(generator: SchemaGenerator, subscriptions: Li
                     throw InvalidSubscriptionTypeException(kClass, it)
                 }
 
-                val function = generateFunction(generator, it, generator.config.topLevelNames.subscription, subscription.obj)
+                val function = generateFunction(generator, kClass, it, generator.config.topLevelNames.subscription, subscription.obj)
                 val functionFromHook = generator.config.hooks.didGenerateSubscriptionField(kClass, it, function)
                 if (subscriptionBuilder.hasField(functionFromHook.name)) {
                     throw ConflictingFieldsException("Subscription(class: ${subscription.kClass})", it.name)

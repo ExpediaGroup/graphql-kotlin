@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,10 @@ import graphql.introspection.Introspection.DirectiveLocation
 import graphql.schema.FieldCoordinates
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLOutputType
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
-internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
+internal fun generateFunction(generator: SchemaGenerator, kClass: KClass<*>, fn: KFunction<*>, parentName: String, target: Any? = null, abstract: Boolean = false): GraphQLFieldDefinition {
     val builder = GraphQLFieldDefinition.newFieldDefinition()
     val functionName = fn.getFunctionName()
     builder.name(functionName)
@@ -57,7 +58,7 @@ internal fun generateFunction(generator: SchemaGenerator, fn: KFunction<*>, pare
     val coordinates = FieldCoordinates.coordinates(parentName, functionName)
 
     if (!abstract) {
-        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kFunction = fn)
+        val dataFetcherFactory = generator.config.dataFetcherFactoryProvider.functionDataFetcherFactory(target = target, kClass = kClass, kFunction = fn)
         generator.codeRegistry.dataFetcher(coordinates, dataFetcherFactory)
     }
 

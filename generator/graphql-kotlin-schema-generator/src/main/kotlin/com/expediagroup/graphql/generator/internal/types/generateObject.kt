@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ internal fun generateObject(generator: SchemaGenerator, kClass: KClass<*>): Grap
         .forEach { builder.field(generateProperty(generator, it, kClass)) }
 
     kClass.getValidFunctions(generator.config.hooks)
-        .forEach { builder.field(generateFunction(generator, it, name)) }
+        .forEach { builder.field(generateFunction(generator, kClass, it, name)) }
 
     return generator.config.hooks.onRewireGraphQLType(builder.build(), null, generator.codeRegistry).safeCast()
 }
