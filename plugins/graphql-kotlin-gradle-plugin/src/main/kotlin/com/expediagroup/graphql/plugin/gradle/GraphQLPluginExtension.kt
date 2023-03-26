@@ -40,6 +40,12 @@ open class GraphQLPluginExtension {
         GraphQLPluginSchemaExtension()
     }
 
+    private var graalVmExtensionConfigured: Boolean = false
+    internal val graalVmExtension: GraphQLPluginGraalVmExtension by lazy {
+        graalVmExtensionConfigured = true
+        GraphQLPluginGraalVmExtension()
+    }
+
     /** Plugin configuration for generating GraphQL client. */
     fun client(action: Action<GraphQLPluginClientExtension>) {
         action.execute(clientExtension)
@@ -49,9 +55,15 @@ open class GraphQLPluginExtension {
 
     internal fun isSchemaConfigurationAvailable(): Boolean = schemaExtensionConfigured
 
+    internal fun isGraalVmConfigurationAvailable(): Boolean = graalVmExtensionConfigured
+
     /** Plugin configuration for generating GraphQL schema artifact. */
     fun schema(action: Action<GraphQLPluginSchemaExtension>) {
         action.execute(schemaExtension)
+    }
+
+    fun graalVm(action: Action<GraphQLPluginGraalVmExtension>) {
+        action.execute(graalVmExtension)
     }
 }
 
@@ -101,4 +113,11 @@ open class GraphQLPluginClientExtension {
 open class GraphQLPluginSchemaExtension {
     /** List of supported packages that can contain GraphQL schema type definitions. */
     var packages: List<String> = emptyList()
+}
+
+open class GraphQLPluginGraalVmExtension {
+    /** List of supported packages that can contain GraphQL schema type definitions. */
+    var packages: List<String> = emptyList()
+    /** Application main class name. */
+    var mainClassName: String? = null
 }

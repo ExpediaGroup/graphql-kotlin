@@ -29,27 +29,43 @@ import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ScanResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.nio.file.Files
 import java.util.ServiceLoader
 
 private val logger: Logger = LoggerFactory.getLogger("generateGraalVmMetadata")
+private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
 /**
  * Generate GraalVM reflect metadata for the underlying GraphQL schema.
  */
-fun generateGraalVmMetadata(supportedPackages: List<String>): List<ClassMetadata> {
-    val defaultMetadata: List<ClassMetadata> = loadDefaultReflectMetadata()
-    val reflectMetadata: List<ClassMetadata> = generateGraalVmReflectMetadata(supportedPackages)
-    return reflectMetadata + defaultMetadata
+fun generateGraalVmMetadata(targetDirectory: File, supportedPackages: List<String>, mainClassName: String? = null) {
+    if (mainClassName != null) {
+        val nativeImageConfiguration = generateNativeImageConfiguration(mainClassName)
+        File(targetDirectory, "native-image.properties").writeText(nativeImageConfiguration)
+    }
+
+    val reflectMetadata: List<ClassMetadata> = generateGraalVmReflectMetadata(supportedPackages) + loadDefaultReflectMetadata()
+    objectMapper.writerWithDefaultPrettyPrinter().writeValue(File(targetDirectory, "reflect-config.json"), reflectMetadata)
+
+    val resourceConfigMetadata = DefaultMetadataLoader.defaultResourceMetadataStream()
+    resourceConfigMetadata.use { resourceConfigStream ->
+        Files.copy(resourceConfigStream, targetDirectory.toPath().resolve("resource-config.json"))
+    }
 }
 
 /**
  * Generate GraalVM reflect metadata for the underlying GraphQL schema.
  */
-internal fun generateGraalVmReflectMetadata(supportedPackages: List<String>): List<ClassMetadata> {
+fun generateGraalVmReflectMetadata(supportedPackages: List<String>): List<ClassMetadata> {
     val hooksProviders = ServiceLoader.load(SchemaGeneratorHooksProvider::class.java).toList()
     val hooks = when {
         hooksProviders.isEmpty() -> {

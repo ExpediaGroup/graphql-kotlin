@@ -17,9 +17,8 @@
 package com.expediagroup.graphql.plugin.graalvm.custom
 
 import com.expediagroup.graphql.plugin.graalvm.ClassMetadata
-import com.expediagroup.graphql.plugin.graalvm.DefaultMetadataLoader.loadDefaultReflectMetadata
 import com.expediagroup.graphql.plugin.graalvm.MethodMetadata
-import com.expediagroup.graphql.plugin.graalvm.generateGraalVmMetadata
+import com.expediagroup.graphql.plugin.graalvm.generateGraalVmReflectMetadata
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions
@@ -53,12 +52,11 @@ class GenerateGraalVmCustomScalarMetadataTest {
             )
         )
 
-        val actual = generateGraalVmMetadata(supportedPackages = listOf("com.expediagroup.graphql.plugin.graalvm.custom"))
-        val defaults = loadDefaultReflectMetadata()
+        val actual = generateGraalVmReflectMetadata(supportedPackages = listOf("com.expediagroup.graphql.plugin.graalvm.custom"))
 
         val mapper = jacksonObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
         val writer = mapper.writerWithDefaultPrettyPrinter()
-        Assertions.assertEquals(writer.writeValueAsString(expected + defaults), writer.writeValueAsString(actual))
+        Assertions.assertEquals(writer.writeValueAsString(expected), writer.writeValueAsString(actual))
     }
 }

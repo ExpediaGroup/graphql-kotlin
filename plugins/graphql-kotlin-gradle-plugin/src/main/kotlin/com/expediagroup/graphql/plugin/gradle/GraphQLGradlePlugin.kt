@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,33 @@ import com.expediagroup.graphql.plugin.gradle.tasks.DOWNLOAD_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_CLIENT_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_SDL_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GENERATE_TEST_CLIENT_TASK_NAME
+import com.expediagroup.graphql.plugin.gradle.tasks.GRAALVM_METADATA_TASK_NAME
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLDownloadSDLTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateSDLTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateTestClientTask
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGraalVmMetadataTask
 import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLIntrospectSchemaTask
 import com.expediagroup.graphql.plugin.gradle.tasks.INTROSPECT_SCHEMA_TASK_NAME
+import org.graalvm.buildtools.gradle.NativeImagePlugin.NATIVE_COMPILE_TASK_NAME
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.jvm.tasks.Jar
 import java.io.File
 
 private const val PLUGIN_EXTENSION_NAME = "graphql"
 private const val GENERATE_CLIENT_CONFIGURATION = "graphqlClient"
 private const val GENERATE_SDL_CONFIGURATION = "graphqlSDL"
+private const val GRAALVM_METADATA_CONFIGURATION = "graphqlGraalVM"
+private const val GRAALVM_PLUGIN_NAME = "org.graalvm.buildtools.native"
 
 /**
  * GraphQL Kotlin Gradle Plugin
  */
-@Suppress("UnstableApiUsage")
 class GraphQLGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
@@ -49,7 +56,7 @@ class GraphQLGradlePlugin : Plugin<Project> {
         val extension = project.extensions.create(PLUGIN_EXTENSION_NAME, GraphQLPluginExtension::class.java)
         project.afterEvaluate {
             processExtensionConfiguration(project, extension)
-            configureTaskClasspaths(project)
+            configureTasks(project)
         }
     }
 
@@ -69,6 +76,14 @@ class GraphQLGradlePlugin : Plugin<Project> {
 
             configuration.dependencies.add(project.dependencies.create("com.expediagroup:graphql-kotlin-sdl-generator:$DEFAULT_PLUGIN_VERSION"))
         }
+
+        project.configurations.create(GRAALVM_METADATA_CONFIGURATION) { configuration ->
+            configuration.isVisible = true
+            configuration.isTransitive = true
+            configuration.description = "Configuration for generating GraalVM reflect metadata"
+
+            configuration.dependencies.add(project.dependencies.create("com.expediagroup:graphql-kotlin-graalvm-metadata-generator:$DEFAULT_PLUGIN_VERSION"))
+        }
     }
 
     private fun registerTasks(project: Project) {
@@ -77,6 +92,15 @@ class GraphQLGradlePlugin : Plugin<Project> {
         project.tasks.register(GENERATE_TEST_CLIENT_TASK_NAME, GraphQLGenerateTestClientTask::class.java)
         project.tasks.register(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java)
         project.tasks.register(INTROSPECT_SCHEMA_TASK_NAME, GraphQLIntrospectSchemaTask::class.java)
+        project.tasks.register(GRAALVM_METADATA_TASK_NAME, GraphQLGraalVmMetadataTask::class.java)
+
+        // create new source for GraalVM metadata task
+        if (project.plugins.hasPlugin(GRAALVM_PLUGIN_NAME)) {
+            val graphQLGraalVmSource = project.extensions.getByType(SourceSetContainer::class.java).create("graphqlGraalVm")
+            project.tasks.withType(Jar::class.java).configureEach { jarTask ->
+                jarTask.from(graphQLGraalVmSource.runtimeClasspath)
+            }
+        }
     }
 
     private fun processExtensionConfiguration(project: Project, extension: GraphQLPluginExtension) {
@@ -131,9 +155,22 @@ class GraphQLGradlePlugin : Plugin<Project> {
             val generateSchemaTask = project.tasks.named(GENERATE_SDL_TASK_NAME, GraphQLGenerateSDLTask::class.java).get()
             generateSchemaTask.packages.set(supportedPackages)
         }
+
+        if (extension.isGraalVmConfigurationAvailable()) {
+            val supportedPackages = extension.graalVmExtension.packages
+            if (supportedPackages.isEmpty()) {
+                throw RuntimeException("Invalid GraphQL graalVm extension configuration - missing required supportedPackages property")
+            }
+
+            val graalVmMetadataTask = project.tasks.named(GRAALVM_METADATA_TASK_NAME, GraphQLGraalVmMetadataTask::class.java).get()
+            graalVmMetadataTask.packages.set(supportedPackages)
+            extension.graalVmExtension.mainClassName?.let {
+                graalVmMetadataTask.mainClassName.set(it)
+            }
+        }
     }
 
-    private fun configureTaskClasspaths(project: Project) {
+    private fun configureTasks(project: Project) {
         val isAndroidProject = project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")
         val clientGeneratingTaskNames = mutableListOf<GraphQLGenerateClientTask>()
         val testClientGeneratingTaskNames = mutableListOf<GraphQLGenerateTestClientTask>()
@@ -182,6 +219,43 @@ class GraphQLGradlePlugin : Plugin<Project> {
             // Android plugins are eagerly configured so just adding the tasks outputs to the source set is not enough,
             // we also need to explicitly configure compile dependencies
             configureAndroidCompileTasks(project, clientGeneratingTaskNames, testClientGeneratingTaskNames)
+        }
+
+        // auto-configure graphQLGraalVmMetadata task if GraalVM native plugin is applied
+        if (project.plugins.hasPlugin(GRAALVM_PLUGIN_NAME)) {
+            project.tasks.withType(GraphQLGraalVmMetadataTask::class.java).configureEach { graalVmMetadataTask ->
+                // set GraalVM application info
+                if (project.plugins.hasPlugin(ApplicationPlugin.APPLICATION_PLUGIN_NAME)) {
+                    project.extensions.findByType(JavaApplication::class.java)?.let { javaApplication ->
+                        javaApplication.mainClass.orNull?.let { mainClass ->
+                            graalVmMetadataTask.mainClassName.convention(mainClass)
+                        }
+                    }
+                }
+
+                // create task dependencies
+                val compileKotlinTask = project.tasks.findByName("compileKotlin") ?: project.tasks.findByName("compileKotlinJvm")
+                if (compileKotlinTask != null) {
+                    graalVmMetadataTask.dependsOn(compileKotlinTask)
+                } else {
+                    project.logger.warn("compileKotlin/compileKotlinJvm tasks not found. Unable to auto-configure the generateSDLTask dependency on compile task.")
+                }
+                project.tasks.findByName(NATIVE_COMPILE_TASK_NAME)?.dependsOn(graalVmMetadataTask)
+
+                // configure source sets
+                val sourceSetContainer = project.extensions.getByType(SourceSetContainer::class.java)
+                val graalVmSource = sourceSetContainer.getByName("graphqlGraalVm")
+                graalVmSource.resources {
+                    it.setSrcDirs(listOf(graalVmMetadataTask.outputDirectory))
+                }
+
+                val mainSourceSet = sourceSetContainer.getByName("main")
+                graalVmMetadataTask.source(mainSourceSet.output)
+                graalVmMetadataTask.projectClasspath.setFrom(mainSourceSet.runtimeClasspath)
+
+                val configuration = project.configurations.getAt(GRAALVM_METADATA_CONFIGURATION)
+                graalVmMetadataTask.pluginClasspath.setFrom(configuration)
+            }
         }
     }
 
