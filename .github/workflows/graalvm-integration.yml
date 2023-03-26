@@ -1,0 +1,78 @@
+name: GraaLVM Integration Tests
+
+on:
+  workflow_call:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'generator/**'
+      - 'servers/**'
+      - 'plugins/**'
+      - 'integration/graalvm/**'
+
+jobs:
+  graalvm-integration:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integration/graalvm
+    strategy:
+      matrix:
+        server: ['ktor-graalvm-server']
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.1'
+          java-version: '17'
+          components: 'native-image'
+          native-image-job-reports: 'true'
+
+      - name: Set up Gradle cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: Build server
+        run: ./gradlew :${server}:build :${server}:nativeCompile
+        env:
+          server: ${{ matrix.server }}
+
+      - name: Build and start the native image
+        id: start_server
+        run: |
+          set -x
+          echo "starting server"
+          ./${server}/build/native/nativeCompile/${server} &
+          echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
+        env:
+          server: ${{ matrix.server }}
+
+      - name: Integration Test
+        run: |
+          echo "sending a test query"
+          curl --request POST \
+            --verbose \
+            --header 'content-type: application/json' \
+            --url http://localhost:8080/graphql \
+            --data '{"query":"query($inputArg: InputOnlyInput){ inputTypeQuery(arg: $inputArg) }","variables":{"inputArg": { "id": 123 }}}' \
+            > response.json
+
+          echo "received GraphQL response"
+          cat response.json
+
+          echo "verifying response"
+          jq -e '.data.inputTypeQuery == "InputOnly(id=123)"' response.json
+
+      - name: Stop server
+        if: ${{ always() }}
+        run: |
+          echo "shutting down server"
+          kill -9 ${{ steps.start_server.outputs.SERVER_PID }}

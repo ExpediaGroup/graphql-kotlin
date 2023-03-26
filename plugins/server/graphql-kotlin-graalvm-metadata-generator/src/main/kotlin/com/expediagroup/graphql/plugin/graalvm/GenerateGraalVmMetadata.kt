@@ -38,6 +38,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.ServiceLoader
 
 private val logger: Logger = LoggerFactory.getLogger("generateGraalVmMetadata")
@@ -58,7 +59,7 @@ fun generateGraalVmMetadata(targetDirectory: File, supportedPackages: List<Strin
 
     val resourceConfigMetadata = DefaultMetadataLoader.defaultResourceMetadataStream()
     resourceConfigMetadata.use { resourceConfigStream ->
-        Files.copy(resourceConfigStream, targetDirectory.toPath().resolve("resource-config.json"))
+        Files.copy(resourceConfigStream, targetDirectory.toPath().resolve("resource-config.json"), StandardCopyOption.REPLACE_EXISTING)
     }
 }
 
