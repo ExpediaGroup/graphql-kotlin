@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 package com.expediagroup.graphql.generator.internal.state
 
 import com.expediagroup.graphql.generator.defaultSupportedPackages
+import com.expediagroup.graphql.generator.exceptions.InvalidPackagesException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
 
 class ClassScannerTest {
 
@@ -76,16 +77,6 @@ class ClassScannerTest {
     }
 
     @Test
-    fun `subtypes of non-supported packages`() {
-        val classScannerOfOtherPackages = ClassScanner(listOf("com.example"))
-        classScannerOfOtherPackages.use {
-            assertTrue(classScannerOfOtherPackages.isEmptyScan())
-            val list = classScannerOfOtherPackages.getSubTypesOf(MyInterface::class)
-            assertEquals(expected = 0, actual = list.size)
-        }
-    }
-
-    @Test
     fun `interface with no subtypes`() {
         val list = basicClassScanner.getSubTypesOf(NoSubTypesInterface::class)
         assertEquals(expected = 0, actual = list.size)
@@ -104,6 +95,12 @@ class ClassScannerTest {
 
         val validClasses = basicClassScanner.getClassesWithAnnotation(SimpleAnnotation::class)
         assertEquals(1, validClasses.size)
+    }
+
+    fun `verifies class scanner will fail if it cannot find any valid classes`() {
+        assertFailsWith<InvalidPackagesException> {
+            ClassScanner(listOf("com.example"))
+        }
     }
 
     companion object {

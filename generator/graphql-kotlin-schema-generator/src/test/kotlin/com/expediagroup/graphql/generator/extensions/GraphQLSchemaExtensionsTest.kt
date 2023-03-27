@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a simple schema`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig())
 
         val sdl = schema.print(includeDirectives = false).trim()
         val expected =
@@ -61,7 +61,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a simple schema with no scalars`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(SimpleQuery())), config = testSchemaConfig())
 
         val sdl = schema.print(includeDirectives = false, includeScalarTypes = false).trim()
         val expected =
@@ -91,7 +91,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with renamed fields`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(RenamedQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(RenamedQuery())), config = testSchemaConfig())
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected =
@@ -118,7 +118,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with GraphQL ID`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig())
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected =
@@ -153,7 +153,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a schema with ignored elements`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithExcludedFields())), config = testSchemaConfig)
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(QueryWithExcludedFields())), config = testSchemaConfig())
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected =
@@ -189,7 +189,7 @@ class GraphQLSchemaExtensionsTest {
 
     @Test
     fun `verify print result of a documented schema`() {
-        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(DocumentedQuery())), config = testSchemaConfig)
+        val schema: GraphQLSchema = toSchema(queries = listOf(TopLevelObject(DocumentedQuery())), config = testSchemaConfig())
 
         val sdl = schema.print(includeDefaultSchemaDefinition = false, includeDirectives = false).trim()
         val expected =

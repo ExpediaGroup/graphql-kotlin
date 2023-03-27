@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package com.expediagroup.graphql.generator
 
-import com.expediagroup.graphql.generator.exceptions.InvalidPackagesException
 import com.expediagroup.graphql.generator.internal.extensions.getGraphQLDescription
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.state.AdditionalType
-import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.generator.internal.state.TypesCache
 import com.expediagroup.graphql.generator.internal.types.GraphQLKTypeMetadata
 import com.expediagroup.graphql.generator.internal.types.generateGraphQLType
@@ -36,9 +34,7 @@ import graphql.schema.GraphQLTypeUtil
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlin.reflect.full.createType
 
 /**
  * Generate a schema object given some configuration and top level objects for the queries, mutations, and subscriptions.
@@ -52,19 +48,9 @@ import kotlin.reflect.full.createType
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
     internal val additionalTypes: MutableSet<AdditionalType> = mutableSetOf()
-    internal val classScanner = ClassScanner(config.supportedPackages)
     internal val cache = TypesCache(config.supportedPackages)
-    internal val codeRegistry = GraphQLCodeRegistry.newCodeRegistry()
+    internal val codeRegistry: GraphQLCodeRegistry.Builder = GraphQLCodeRegistry.newCodeRegistry()
     internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
-
-    /**
-     * Validate that the supported packages contain classes
-     */
-    init {
-        if (classScanner.isEmptyScan()) {
-            throw InvalidPackagesException(config.supportedPackages)
-        }
-    }
 
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.
@@ -77,7 +63,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
         additionalInputTypes: Set<KType> = emptySet(),
         schemaObject: TopLevelObject? = null
     ): GraphQLSchema {
-
         this.additionalTypes.addAll(additionalTypes.map { AdditionalType(it, inputType = false) })
         this.additionalTypes.addAll(additionalInputTypes.map { AdditionalType(it, inputType = true) })
 
@@ -107,19 +92,6 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
     }
 
     /**
-     * Add all types with the following annotation to the schema.
-     *
-     * This is helpful for things like federation or combining external schemas.
-     */
-    protected fun addAdditionalTypesWithAnnotation(annotation: KClass<*>, inputType: Boolean = false) {
-        classScanner.getClassesWithAnnotation(annotation).forEach { kClass ->
-            if (config.hooks.isValidAdditionalType(kClass, inputType)) {
-                additionalTypes.add(AdditionalType(kClass.createType(), inputType))
-            }
-        }
-    }
-
-    /**
      * Generate the GraphQL type for all the `additionalTypes`.
      *
      * If you need to provide more custom additional types that were not picked up from reflection of the schema objects,
@@ -127,7 +99,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      *
      * This function loops because while generating the additionalTypes it is possible to create more additional types that need to be processed.
      */
-    protected fun generateAdditionalTypes(): Set<GraphQLType> {
+    internal fun generateAdditionalTypes(): Set<GraphQLType> {
         val graphqlTypes = this.config.additionalTypes.toMutableSet()
         while (this.additionalTypes.isNotEmpty()) {
             val currentlyProcessedTypes = LinkedHashSet(this.additionalTypes)
@@ -152,7 +124,7 @@ open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeab
      * clean up of resources for you.
      */
     override fun close() {
-        classScanner.close()
+        config.close()
         cache.close()
         additionalTypes.clear()
         directives.clear()

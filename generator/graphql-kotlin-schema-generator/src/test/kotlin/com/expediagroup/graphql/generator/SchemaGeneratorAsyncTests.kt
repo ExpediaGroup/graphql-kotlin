@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class SchemaGeneratorAsyncTests {
 
     @Test
     fun `SchemaGenerator strips type argument from CompletableFuture to support async servlet`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(AsyncQuery())), config = testSchemaConfig())
         val returnType =
             (schema.getObjectType("Query").getFieldDefinition("asynchronouslyDo").type as? GraphQLNonNull)?.wrappedType
         assertNotNull(returnType)

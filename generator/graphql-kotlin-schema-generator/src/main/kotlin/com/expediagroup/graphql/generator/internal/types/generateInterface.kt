@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
     kClass.getValidFunctions(generator.config.hooks)
         .forEach { builder.field(generateFunction(generator, it, kClass.getSimpleName(), null, abstract = true)) }
 
-    generator.classScanner.getSubTypesOf(kClass)
+    generator.config.typeResolver.getSubTypesOf(kClass)
         .filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
         .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 

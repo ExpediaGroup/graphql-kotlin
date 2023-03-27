@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class NodeGraphTest {
     fun nodeGraph() {
         val queries = listOf(TopLevelObject(NodeQuery()))
 
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
 
         assertEquals(expected = 1, actual = schema.queryType.fieldDefinitions.size)
         assertEquals(expected = "nodeGraph", actual = schema.queryType.fieldDefinitions.first().name)

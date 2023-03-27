@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,23 @@
 
 package com.expediagroup.graphql.generator.test.integration
 
-import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLUnion
 import com.expediagroup.graphql.generator.extensions.deepName
-import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.testSchemaConfig
 import com.expediagroup.graphql.generator.toSchema
-import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLUnionType
 import org.junit.jupiter.api.Test
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertNotNull
-import kotlin.test.assertSame
 
 class CustomUnionAnnotationTest {
 
     @Test
     fun `custom unions can be defined with a variety of return types`() {
-        val schema = toSchema(testSchemaConfig, listOf(TopLevelObject(Query())))
+        val schema = toSchema(testSchemaConfig(), listOf(TopLevelObject(Query())))
         assertNotNull(schema)
         assertNotNull(schema.getType("One"))
         assertNotNull(schema.getType("Two"))
@@ -68,33 +62,18 @@ class CustomUnionAnnotationTest {
     @Test
     fun `verify exception is thrown when union returns different types`() {
         assertFails {
-            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidQuery())))
+            toSchema(testSchemaConfig(), listOf(TopLevelObject(InvalidQuery())))
         }
     }
 
     @Test
     fun `verify exception is thrown when custom union return type is not Any`() {
         assertFails {
-            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidReturnTypeNumber())))
+            toSchema(testSchemaConfig(), listOf(TopLevelObject(InvalidReturnTypeNumber())))
         }
         assertFails {
-            toSchema(testSchemaConfig, listOf(TopLevelObject(InvalidReturnTypePrime())))
+            toSchema(testSchemaConfig(), listOf(TopLevelObject(InvalidReturnTypePrime())))
         }
-    }
-
-    @Test
-    fun `verify Meta Union Annotation when adding as additional type`() {
-        val generator = CustomSchemaGenerator(testSchemaConfig)
-        generator.addTypes(MyAnnotation::class)
-        val types = generator.generateCustomAdditionalTypes()
-
-        assertEquals(2, types.size)
-        val metaUnion = types.find { it.deepName == "Prime" } as GraphQLUnionType
-        assertNotNull(metaUnion)
-        assertNotNull(metaUnion.appliedDirectives)
-        assertEquals(1, metaUnion.appliedDirectives.size)
-        assertEquals("TestDirective", metaUnion.appliedDirectives[0].name)
-        assertSame(metaUnion, (types.find { it.deepName != "Prime" } as GraphQLObjectType).getField("union").type.unwrapType())
     }
 
     class One(val value: String)
@@ -169,22 +148,7 @@ class CustomUnionAnnotationTest {
     @GraphQLDirective(name = "TestDirective")
     annotation class TestDirective
 
-    annotation class MyAnnotation
-
     @TestDirective
-    @MyAnnotation
     @GraphQLUnion(name = "Prime", possibleTypes = [Two::class, Three::class])
     annotation class PrimeUnion
-
-    @MyAnnotation
-    data class MyType(
-        @PrimeUnion
-        val union: Any
-    )
-
-    class CustomSchemaGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
-        internal fun addTypes(annotation: KClass<*>) = addAdditionalTypesWithAnnotation(annotation)
-
-        internal fun generateCustomAdditionalTypes() = generateAdditionalTypes()
-    }
 }

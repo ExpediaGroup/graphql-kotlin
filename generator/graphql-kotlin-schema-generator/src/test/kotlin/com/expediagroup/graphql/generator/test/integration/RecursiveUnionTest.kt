@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class RecursiveUnionTest {
     @Test
     fun recursiveUnion() {
         val queries = listOf(TopLevelObject(RecursiveUnionQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
         assertEquals(1, schema.queryType.fieldDefinitions.size)
         val field = schema.queryType.fieldDefinitions.first()
         assertEquals("getRoot", field.name)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.expediagroup.graphql.generator.hooks
 
 import com.expediagroup.graphql.generator.SchemaGenerator
-import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
@@ -141,34 +140,6 @@ class SchemaGeneratorHooksTest {
     }
 
     @Test
-    fun `calls hook to filter additionalTypes`() {
-        class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
-            var calledFilterFunction = false
-
-            override fun isValidAdditionalType(kClass: KClass<*>, inputType: Boolean): Boolean {
-                calledFilterFunction = true
-                return true
-            }
-        }
-
-        class CustomGenerator(config: SchemaGeneratorConfig) : SchemaGenerator(config) {
-            fun addTypesWithAnnotation(annotation: KClass<*>) = super.addAdditionalTypesWithAnnotation(annotation, false)
-            fun getAdditionalTypesCount() = additionalTypes.size
-        }
-
-        val hooks = MockSchemaGeneratorHooks()
-        val generator = CustomGenerator(getTestSchemaConfigWithHooks(hooks))
-
-        assertFalse(hooks.calledFilterFunction)
-        assertEquals(0, generator.getAdditionalTypesCount())
-
-        generator.addTypesWithAnnotation(CustomAnnotation::class)
-
-        assertTrue(hooks.calledFilterFunction)
-        assertEquals(1, generator.getAdditionalTypesCount())
-    }
-
-    @Test
     fun `calls hook after generating object type`() {
         class MockSchemaGeneratorHooks : SchemaGeneratorHooks {
             val seenTypes = mutableSetOf<KType>()
@@ -193,7 +164,7 @@ class SchemaGeneratorHooksTest {
         assertThrows<EmptyObjectTypeException> {
             toSchema(
                 queries = listOf(TopLevelObject(TestWithEmptyObjectQuery())),
-                config = testSchemaConfig
+                config = testSchemaConfig()
             )
         }
     }
@@ -203,7 +174,7 @@ class SchemaGeneratorHooksTest {
         assertThrows<EmptyInputObjectTypeException> {
             toSchema(
                 queries = listOf(TopLevelObject(TestWithEmptyInputObjectQuery())),
-                config = testSchemaConfig
+                config = testSchemaConfig()
             )
         }
     }
@@ -213,7 +184,7 @@ class SchemaGeneratorHooksTest {
         assertThrows<EmptyInterfaceTypeException> {
             toSchema(
                 queries = listOf(TopLevelObject(TestWithEmptyInterfaceQuery())),
-                config = testSchemaConfig
+                config = testSchemaConfig()
             )
         }
     }
@@ -437,9 +408,6 @@ class SchemaGeneratorHooksTest {
         fun emptyInterface(): EmptyInterface = EmptyImplementation("123")
     }
 
-    annotation class CustomAnnotation
-
-    @CustomAnnotation
     interface EmptyInterface {
         @GraphQLIgnore
         val id: String
