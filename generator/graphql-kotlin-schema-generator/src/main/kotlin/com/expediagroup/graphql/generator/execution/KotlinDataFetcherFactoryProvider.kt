@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,10 @@ interface KotlinDataFetcherFactoryProvider {
      *
      * @param target target object that performs the data fetching or NULL if target object should be dynamically
      * retrieved during data fetcher execution from [graphql.schema.DataFetchingEnvironment]
+     * @param kClass parent class that contains this property
      * @param kFunction Kotlin function being invoked
      */
-    fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any?>
+    fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>): DataFetcherFactory<Any?>
 
     /**
      * Retrieve an instance of [DataFetcherFactory] that will be used to resolve target property.
@@ -51,7 +52,7 @@ interface KotlinDataFetcherFactoryProvider {
  */
 open class SimpleKotlinDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider {
 
-    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
+    override fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>) = DataFetcherFactory {
         FunctionDataFetcher(
             target = target,
             fn = kFunction

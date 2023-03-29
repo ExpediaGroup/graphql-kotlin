@@ -31,7 +31,7 @@ class CustomDataFetcherFactoryProvider(
     private val applicationContext: ApplicationContext
 ) : SimpleKotlinDataFetcherFactoryProvider() {
 
-    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
+    override fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>) = DataFetcherFactory {
         CustomFunctionDataFetcher(
             target = target,
             fn = kFunction,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ package com.expediagroup.graphql.server.spring.execution
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import graphql.schema.DataFetcherFactory
 import org.springframework.context.ApplicationContext
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
 /**
  * This provides a wrapper around the [SimpleKotlinDataFetcherFactoryProvider] to call the [SpringDataFetcher] on functions.
  * This allows you to use Spring beans as function arugments and they will be populated by the data fetcher.
  */
-class SpringKotlinDataFetcherFactoryProvider(
+open class SpringKotlinDataFetcherFactoryProvider(
     private val applicationContext: ApplicationContext
 ) : SimpleKotlinDataFetcherFactoryProvider() {
-    override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>): DataFetcherFactory<Any?> =
+    override fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>): DataFetcherFactory<Any?> =
         DataFetcherFactory { SpringDataFetcher(target, kFunction, applicationContext) }
 }
