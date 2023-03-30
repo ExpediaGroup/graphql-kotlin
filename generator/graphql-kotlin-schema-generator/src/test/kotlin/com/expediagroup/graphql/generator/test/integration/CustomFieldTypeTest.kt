@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ class CustomFieldTypeTest {
     @Test
     fun `generate a custom nullable by default scalar type`() {
         val queries = listOf(TopLevelObject(CustomScalar()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         val returnType = schema.queryType.getField("scalarType").type
         assertIsNot<GraphQLNonNull>(returnType)
         assertEquals("String", returnType.deepName)
@@ -50,7 +50,7 @@ class CustomFieldTypeTest {
     @Test
     fun `generate a custom non-null scalar type`() {
         val queries = listOf(TopLevelObject(CustomNonNullScalar()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         val returnType = schema.queryType.getField("nonNullScalarType").type
         assertIs<GraphQLNonNull>(returnType)
         assertEquals("String!", returnType.deepName)

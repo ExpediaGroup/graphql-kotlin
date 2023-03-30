@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,19 @@ import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.internal.state.ClassScanner
+import graphql.schema.GraphQLType
 
 /**
  * Settings for generating the federated schema.
  */
+@Suppress("LongParameterList")
 class FederatedSchemaGeneratorConfig(
     override val supportedPackages: List<String>,
     override val topLevelNames: TopLevelNames = TopLevelNames(),
     override val hooks: FederatedSchemaGeneratorHooks,
     override val dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider = SimpleKotlinDataFetcherFactoryProvider(),
-    override val introspectionEnabled: Boolean = true
-) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider, introspectionEnabled)
+    override val introspectionEnabled: Boolean = true,
+    override val additionalTypes: Set<GraphQLType> = emptySet(),
+    override val typeResolver: FederatedGraphQLTypeResolver = FederatedClasspathTypeResolver(ClassScanner(supportedPackages))
+) : SchemaGeneratorConfig(supportedPackages, topLevelNames, hooks, dataFetcherFactoryProvider, introspectionEnabled, additionalTypes, typeResolver)

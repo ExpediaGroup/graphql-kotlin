@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class RecursiveInputTest {
     @Test
     fun `Input type with a recursive argument should work`() {
         val queries = listOf(TopLevelObject(RecursiveInputQueries()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("RecursivePerson"))
         assertNotNull(schema.getType("RecursivePersonInput"))

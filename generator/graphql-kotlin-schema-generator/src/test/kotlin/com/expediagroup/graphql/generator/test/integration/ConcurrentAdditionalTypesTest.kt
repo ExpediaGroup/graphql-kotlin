@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class ConcurrentAdditionalTypesTest {
     @Test
     fun `verify a concurrent exception is not thrown if there are additionalTypes added when generating the additionalTypes`() {
         val queries = listOf(TopLevelObject(SimpleQuery()))
-        val schema = toSchema(testSchemaConfig, queries)
+        val schema = toSchema(testSchemaConfig(), queries)
         assertNotNull(schema)
         assertNotNull(schema.getType("InterfaceOne"))
         assertNotNull(schema.getType("InterfaceTwo"))

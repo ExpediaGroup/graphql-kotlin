@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.generator.internal.state
 
+import com.expediagroup.graphql.generator.exceptions.InvalidPackagesException
 import io.github.classgraph.ClassGraph
 import io.github.classgraph.ClassInfo
 import io.github.classgraph.ClassInfoList
@@ -27,13 +28,22 @@ import kotlin.reflect.jvm.jvmName
  * This class should be used from a try-with-resouces block
  * or another closable object as the internal scan result can take up a lot of resources.
  */
-internal class ClassScanner(supportedPackages: List<String>) : Closeable {
+open class ClassScanner(supportedPackages: List<String>) : Closeable {
 
     @Suppress("Detekt.SpreadOperator")
     private val scanResult = ClassGraph()
         .enableAllInfo()
         .acceptPackages(*supportedPackages.toTypedArray())
         .scan()
+
+    /**
+     * Validate that the supported packages contain classes
+     */
+    init {
+        if (isEmptyScan()) {
+            throw InvalidPackagesException(supportedPackages)
+        }
+    }
 
     /**
      * Return true if there are no valid packages scanned

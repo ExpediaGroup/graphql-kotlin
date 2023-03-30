@@ -60,7 +60,7 @@ internal fun generateInterface(generator: SchemaGenerator, kClass: KClass<*>): G
     kClass.getValidFunctions(generator.config.hooks)
         .forEach { builder.field(generateFunction(generator, kClass, it, kClass.getSimpleName(), null, abstract = true)) }
 
-    generator.classScanner.getSubTypesOf(kClass)
+    generator.config.typeResolver.getSubTypesOf(kClass)
         .filter { generator.config.hooks.isValidAdditionalType(it, inputType = false) }
         .forEach { generator.additionalTypes.add(AdditionalType(it.createType(), inputType = false)) }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class InterfaceOfInterfaceTest {
     @Test
     fun `interface of interface`() {
         val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
         assertEquals(expected = 2, actual = schema.queryType.fieldDefinitions.size)
 
         val implementation = schema.getObjectType("MyClass")
@@ -55,7 +55,7 @@ class InterfaceOfInterfaceTest {
     @Test
     fun `ignore class and use interface as type`() {
         val queries = listOf(TopLevelObject(InterfaceOfInterfaceQuery()))
-        val schema = toSchema(queries = queries, config = testSchemaConfig)
+        val schema = toSchema(queries = queries, config = testSchemaConfig())
 
         // The ignored class should not be in the schema at all
         assertNull(schema.getType("IgnoredClass"))

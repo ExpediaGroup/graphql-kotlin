@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class ToSchemaTest {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig()
         )
         val graphQL = GraphQL.newGraphQL(schema).build()
 
@@ -73,7 +73,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator generates a simple GraphQL schema with default builder`() {
-        val schemaGenerator = SchemaGenerator(testSchemaConfig)
+        val schemaGenerator = SchemaGenerator(testSchemaConfig())
         val schema = schemaGenerator.use {
             it.generateSchema(
                 queries = listOf(TopLevelObject(QueryObject())),
@@ -92,7 +92,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator ignores fields and functions with @Ignore`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnored())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithIgnored())), config = testSchemaConfig())
 
         assertTrue(
             schema.queryType.fieldDefinitions.none {
@@ -116,7 +116,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator generates a GraphQL schema with repeated types to test conflicts`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithRepeatedTypes())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithRepeatedTypes())), config = testSchemaConfig())
         val resultType = schema.getObjectType("Result")
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("Result!", topLevelQuery.getFieldDefinition("query").type.deepName)
@@ -129,7 +129,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator generates a GraphQL schema with mixed nullity`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithNullableAndNonNullTypes())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithNullableAndNonNullTypes())), config = testSchemaConfig())
         val resultType = schema.getObjectType("MixedNullityResult")
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("MixedNullityResult!", topLevelQuery.getFieldDefinition("query").type.deepName)
@@ -139,7 +139,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator generates a GraphQL schema where the input types differ from the output types`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputObject())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputObject())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals(
             "SomeObjectInput!",
@@ -150,7 +150,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator generates a GraphQL schema where the input and output enum is the same`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputEnum())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithInputEnum())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").getArgument("someEnum").type.deepName)
         assertEquals("SomeEnum!", topLevelQuery.getFieldDefinition("query").type.deepName)
@@ -158,7 +158,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator names types according to custom name in @GraphQLName`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithCustomName())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithCustomName())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
 
         assertEquals("SomeInputObjectRenamedInput!", topLevelQuery.getFieldDefinition("query").getArgument("someInputObjectWithCustomName").type.deepName)
@@ -169,7 +169,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator names self-referencing types according to custom name in @GraphQLName`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QuerySelfReferencingWithCustomName())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QuerySelfReferencingWithCustomName())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         val resultType = schema.getObjectType("ObjectSelfReferencingRenamed")
 
@@ -182,7 +182,7 @@ class ToSchemaTest {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig()
         )
         val geo = schema.getObjectType("Geography")
         assertTrue(geo.description?.startsWith("A place") == true)
@@ -193,7 +193,7 @@ class ToSchemaTest {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig()
         )
         val documentation = schema.queryType.fieldDefinitions.first().arguments.first().description
         assertEquals("A GraphQL value", documentation)
@@ -204,7 +204,7 @@ class ToSchemaTest {
         val schema = toSchema(
             queries = listOf(TopLevelObject(QueryObject())),
             mutations = listOf(TopLevelObject(MutationObject())),
-            config = testSchemaConfig
+            config = testSchemaConfig()
         )
         val documentation = schema.queryType.fieldDefinitions.first().description
         assertEquals("A GraphQL query method", documentation)
@@ -212,7 +212,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator can expose functions on result classes`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig())
         val resultWithFunction = schema.getObjectType("ResultWithFunction")
         val repeatFieldDefinition = resultWithFunction.getFieldDefinition("repeat")
         assertEquals("repeat", repeatFieldDefinition.name)
@@ -223,7 +223,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator can execute functions on result classes`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataThatContainsFunction())), config = testSchemaConfig())
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ query(something: \"thing\") { repeat(n: 3) } }")
         val data: Map<String, Map<String, Any>> = result.getData()
@@ -234,7 +234,7 @@ class ToSchemaTest {
     @Test
     fun `SchemaGenerator ignores private fields`() {
         val schema =
-            toSchema(queries = listOf(TopLevelObject(QueryWithPrivateParts())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithPrivateParts())), config = testSchemaConfig())
         val topLevelQuery = schema.getObjectType("Query")
         val query = topLevelQuery.getFieldDefinition("query")
         val resultWithPrivateParts = query.type as? GraphQLObjectType
@@ -247,28 +247,28 @@ class ToSchemaTest {
     @Test
     fun `SchemaGenerator throws when encountering java stdlib`() {
         assertFailsWith(GraphQLKotlinException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithJavaClass())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithJavaClass())), config = testSchemaConfig())
         }
     }
 
     @Test
     fun `SchemaGenerator throws when encountering list of java stdlib`() {
         assertFailsWith(GraphQLKotlinException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithListOfJavaClass())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithListOfJavaClass())), config = testSchemaConfig())
         }
     }
 
     @Test
     fun `SchemaGenerator throws when encountering conflicting types`() {
         assertFailsWith(ConflictingTypesException::class) {
-            toSchema(queries = listOf(TopLevelObject(QueryWithConflictingTypes())), config = testSchemaConfig)
+            toSchema(queries = listOf(TopLevelObject(QueryWithConflictingTypes())), config = testSchemaConfig())
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     @Test
     fun `SchemaGenerator supports type references`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithParentChildRelationship())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithParentChildRelationship())), config = testSchemaConfig())
 
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ query { name children { name } } }")
@@ -287,7 +287,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator support GraphQLID scalar`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithId())), config = testSchemaConfig())
 
         val placeType = schema.getObjectType("PlaceOfIds")
         assertEquals(Scalars.GraphQLID, (placeType.getFieldDefinition("id").type as? GraphQLNonNull)?.wrappedType)
@@ -295,7 +295,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator supports Scalar GraphQLID for input types`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), mutations = listOf(TopLevelObject(MutationWithId())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryObject())), mutations = listOf(TopLevelObject(MutationWithId())), config = testSchemaConfig())
 
         val furnitureType = schema.getObjectType("Furniture")
         val serialField = furnitureType.getFieldDefinition("serial").type as? GraphQLNonNull
@@ -304,7 +304,7 @@ class ToSchemaTest {
 
     @Test
     fun `SchemaGenerator supports DataFetcherResult as a return type`() {
-        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataFetcherResult())), config = testSchemaConfig)
+        val schema = toSchema(queries = listOf(TopLevelObject(QueryWithDataFetcherResult())), config = testSchemaConfig())
 
         val graphQL = GraphQL.newGraphQL(schema).build()
         val result = graphQL.execute("{ dataAndErrors }")
@@ -337,7 +337,7 @@ class ToSchemaTest {
         val schema = toSchema(
             queries = listOf(TopLevelObject(SimpleQuery())),
             schemaObject = TopLevelObject(SimpleSchema()),
-            config = testSchemaConfig
+            config = testSchemaConfig()
         )
 
         val schemaString = schema.print()

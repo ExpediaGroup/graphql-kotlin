@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,16 @@ package com.expediagroup.graphql.generator.federation
 
 import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.federation.directives.KeyDirective
 import graphql.schema.GraphQLSchema
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 
 /**
  * Generates federated GraphQL schemas based on the specified configuration.
  */
-open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorConfig) : SchemaGenerator(generatorConfig) {
+open class FederatedSchemaGenerator(
+    private val generatorConfig: FederatedSchemaGeneratorConfig
+) : SchemaGenerator(generatorConfig) {
 
     /**
      * Scans specified packages for all the federated (extended) types and adds them to the schema additional types,
@@ -39,7 +41,7 @@ open class FederatedSchemaGenerator(generatorConfig: FederatedSchemaGeneratorCon
         additionalInputTypes: Set<KType>,
         schemaObject: TopLevelObject?
     ): GraphQLSchema {
-        addAdditionalTypesWithAnnotation(KeyDirective::class, inputType = false)
-        return super.generateSchema(queries, mutations, subscriptions, additionalTypes, additionalInputTypes, schemaObject)
+        val entityTypes = generatorConfig.typeResolver.locateEntities().map { it.createType() }
+        return super.generateSchema(queries, mutations, subscriptions, additionalTypes + entityTypes, additionalInputTypes, schemaObject)
     }
 }
