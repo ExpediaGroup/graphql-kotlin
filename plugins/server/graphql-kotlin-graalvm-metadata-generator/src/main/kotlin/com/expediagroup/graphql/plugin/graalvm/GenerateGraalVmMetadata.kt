@@ -49,7 +49,7 @@ fun generateGraalVmMetadata(supportedPackages: List<String>): List<ClassMetadata
 /**
  * Generate GraalVM reflect metadata for the underlying GraphQL schema.
  */
-fun generateGraalVmReflectMetadata(supportedPackages: List<String>): List<ClassMetadata> {
+internal fun generateGraalVmReflectMetadata(supportedPackages: List<String>): List<ClassMetadata> {
     val hooksProviders = ServiceLoader.load(SchemaGeneratorHooksProvider::class.java).toList()
     val hooks = when {
         hooksProviders.isEmpty() -> {
