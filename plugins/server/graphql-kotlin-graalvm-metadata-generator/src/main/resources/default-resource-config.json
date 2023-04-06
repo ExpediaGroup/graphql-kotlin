@@ -1,0 +1,21 @@
+{
+  "resources":{
+    "includes":[
+      {
+        "condition": {
+          "typeReachable": "ch.qos.logback.classic.Logger"
+        },
+        "pattern":"\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
+      },
+      {
+        "condition": {
+          "typeReachable": "org.slf4j.Logger"
+        },
+        "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
+      },
+      {
+        "pattern":"\\Qgraphql-graphiql.html\\E"
+      }
+    ]
+  }
+}

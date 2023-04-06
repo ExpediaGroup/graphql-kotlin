@@ -20,6 +20,7 @@ include(":graphql-kotlin-client-generator")
 include(":graphql-kotlin-sdl-generator")
 include(":graphql-kotlin-hooks-provider")
 include(":graphql-kotlin-federated-hooks-provider")
+include(":graphql-kotlin-graalvm-metadata-generator")
 
 // Servers
 include(":graphql-kotlin-server")
@@ -53,6 +54,7 @@ project(":graphql-kotlin-client-generator").projectDir = file("plugins/client/gr
 project(":graphql-kotlin-sdl-generator").projectDir = file("plugins/schema/graphql-kotlin-sdl-generator")
 project(":graphql-kotlin-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-hooks-provider")
 project(":graphql-kotlin-federated-hooks-provider").projectDir = file("plugins/schema/graphql-kotlin-federated-hooks-provider")
+project(":graphql-kotlin-graalvm-metadata-generator").projectDir = file("plugins/server/graphql-kotlin-graalvm-metadata-generator")
 
 // Servers
 project(":graphql-kotlin-server").projectDir = file("servers/graphql-kotlin-server")
