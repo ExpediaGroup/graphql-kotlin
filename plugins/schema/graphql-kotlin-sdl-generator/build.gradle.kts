@@ -13,7 +13,6 @@ dependencies {
     testImplementation(projects.graphqlKotlinSpringServer)
 }
 
-
 testing {
     suites {
         val test by getting(JvmTestSuite::class) {
