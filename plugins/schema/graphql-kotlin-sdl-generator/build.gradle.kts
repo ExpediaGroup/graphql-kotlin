@@ -13,29 +13,40 @@ dependencies {
     testImplementation(projects.graphqlKotlinSpringServer)
 }
 
-sourceSets {
-    create("integrationTest") {
-        withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-            kotlin.srcDir("src/integrationTest/kotlin")
-            resources.srcDir("src/integrationTest/resources")
-            compileClasspath += sourceSets["main"].output + sourceSets["test"].compileClasspath
-            runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
+testing {
+    suites {
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+        }
+
+        val integrationTest by registering(JvmTestSuite::class) {
+            dependencies {
+                implementation(project())
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+
+            sources {
+                java {
+                    setSrcDirs(listOf("src/integrationTest/kotlin"))
+                }
+                resources {
+                    setSrcDirs(listOf("src/integrationTest/resources"))
+                }
+                compileClasspath += sourceSets["test"].compileClasspath
+                runtimeClasspath += compileClasspath + sourceSets["test"].runtimeClasspath
+            }
         }
     }
 }
 
 tasks {
-    val integrationTest by registering(Test::class) {
-        description = "Runs the integration tests"
-        group = "verification"
-
-        testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-        classpath = sourceSets["integrationTest"].runtimeClasspath
-        mustRunAfter("test")
-        finalizedBy("jacocoTestReport")
-        useJUnitPlatform()
-    }
-
     jacocoTestReport {
         // we need to explicitly add integrationTest coverage info
         executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
@@ -59,6 +70,6 @@ tasks {
         }
     }
     check {
-        dependsOn("integrationTest")
+        dependsOn(testing.suites.named("integrationTest"))
     }
 }

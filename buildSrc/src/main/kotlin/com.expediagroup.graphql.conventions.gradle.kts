@@ -53,9 +53,6 @@ tasks {
             attributes["Implementation-Title"] = project.name
             attributes["Implementation-Version"] = project.version
         }
-
-        // NOTE: in order to run gradle and maven plugin integration tests we need to have our build artifacts available in local repo
-        finalizedBy("publishToMavenLocal")
     }
 
     // published sources and javadoc artifacts
