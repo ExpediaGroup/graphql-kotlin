@@ -1,0 +1,76 @@
+[
+{
+  "name":"com.expediagroup.graphql.generator.scalars.ID",
+  "methods":[
+    {"name":"box-impl","parameterTypes":["java.lang.String"] },
+    {"name":"constructor-impl","parameterTypes":["java.lang.String"] },
+    {"name":"unbox-impl","parameterTypes":[] }
+  ]
+},
+{
+  "name":"com.expediagroup.graphql.server.operations.Mutation"
+},
+{
+  "name":"com.expediagroup.graphql.server.operations.Query"
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLRequest",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":["java.lang.String","java.lang.String","java.util.Map","java.util.Map"] },
+    {"name":"<init>","parameterTypes":["java.lang.String","java.lang.String","java.util.Map","java.util.Map","int","kotlin.jvm.internal.DefaultConstructorMarker"] }
+  ]
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLResponse",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":["java.lang.Object","java.util.List","java.util.Map"] },
+    {"name":"getData","parameterTypes":[] },
+    {"name":"getErrors","parameterTypes":[] },
+    {"name":"getExtensions","parameterTypes":[] }
+  ]
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLServerError",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":["java.lang.String","java.util.List","java.util.List","java.util.Map"] },
+    {"name":"getExtensions","parameterTypes":[] },
+    {"name":"getLocations","parameterTypes":[] },
+    {"name":"getMessage","parameterTypes":[] },
+    {"name":"getPath","parameterTypes":[] }
+  ]
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLServerRequest",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLServerRequestDeserializer",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLServerResponse",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.expediagroup.graphql.server.types.GraphQLSourceLocation",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":["int","int"] },
+    {"name":"getColumn","parameterTypes":[] },
+    {"name":"getLine","parameterTypes":[] }
+  ]
+}
+]
