@@ -37,6 +37,7 @@ object DefaultMetadataLoader {
     /**
      * Open up InputStream to default GraalVM resource config file to be used with graphql-kotlin servers.
      */
+    // TODO we could find application.properties/yaml/conf files using class scanner and add it to the resources
     fun defaultResourceMetadataStream(): InputStream =
         DefaultMetadataLoader.javaClass.classLoader.getResourceAsStream(DEFAULT_RESOURCE_CONFIG)
             ?: throw IllegalStateException("Unable to load graphql-kotlin GraalVM resources metadata")

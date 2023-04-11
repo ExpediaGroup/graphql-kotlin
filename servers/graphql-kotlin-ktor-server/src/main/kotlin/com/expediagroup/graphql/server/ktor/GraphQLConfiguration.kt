@@ -38,6 +38,7 @@ import graphql.execution.preparsed.PreparsedDocumentProvider
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.tryGetString
 import io.ktor.server.config.tryGetStringList
+import kotlin.reflect.KClass
 
 /**
  * Configuration properties that define supported GraphQL configuration options.
@@ -128,6 +129,8 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         fun federation(federationConfig: FederationConfiguration.() -> Unit) {
             federation.apply(federationConfig)
         }
+
+        var typeHierarchy: Map<KClass<*>, List<KClass<*>>>? = null
     }
 
     /**
@@ -138,6 +141,9 @@ class GraphQLConfiguration(config: ApplicationConfig) {
          * Boolean flag indicating whether to generate federated GraphQL model
          */
         var enabled: Boolean = config.tryGetString("graphql.schema.federation.enabled").toBoolean()
+
+        /** Explicit list of entity classes */
+        var entities: List<KClass<*>>? = null
 
         /**
          * Federation tracing config

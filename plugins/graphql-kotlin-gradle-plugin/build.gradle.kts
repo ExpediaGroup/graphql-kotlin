@@ -9,10 +9,12 @@ plugins {
 
 dependencies {
     implementation(libs.kotlin.gradle.api)
-    compileOnly(libs.android.plugin)
 
+    compileOnly(libs.android.plugin)
+    compileOnly(libs.graalvm.plugin)
     compileOnly(projects.graphqlKotlinClientGenerator)
     compileOnly(projects.graphqlKotlinSdlGenerator)
+    compileOnly(projects.graphqlKotlinGraalvmMetadataGenerator)
 
     testImplementation(libs.wiremock.jre8)
     testImplementation(libs.junit.params)

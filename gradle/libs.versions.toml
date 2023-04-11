@@ -4,6 +4,7 @@ classgraph = "4.8.149"
 dataloader = "3.2.0"
 federation = "2.2.0"
 graphql-java = "19.2"
+graalvm = "0.9.20"
 jackson = "2.14.1"
 kotlin = "1.7.21"
 kotlinx-benchmark = "0.4.4"
@@ -108,6 +109,7 @@ wiremock-standalone = { group = "com.github.tomakehurst", name = "wiremock-jre8-
 # build src plugin libraries
 detekt-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 dokka-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
+graalvm-plugin = { group = "org.graalvm.buildtools.native", name = "org.graalvm.buildtools.native.gradle.plugin", version.ref = "graalvm" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ktlint-plugin = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-plugin" }
 
@@ -135,5 +137,6 @@ plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publi
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 
 # test projects
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
+graalvm-native = { id = "org.graalvm.buildtools.native", version.ref = "graalvm" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

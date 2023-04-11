@@ -21,8 +21,11 @@ package com.expediagroup.graphql.plugin.graalvm
  */
 data class ClassMetadata(
     val name: String,
+    val allDeclaredConstructors: Boolean? = null,
     val allDeclaredFields: Boolean? = null,
+    val allDeclaredMethods: Boolean? = null,
     val allPublicConstructors: Boolean? = null,
+    val allPublicMethods: Boolean? = null,
     val queryAllDeclaredMethods: Boolean? = null,
     val queryAllDeclaredConstructors: Boolean? = null,
     val fields: List<FieldMetadata>? = null,
@@ -31,8 +34,11 @@ data class ClassMetadata(
 
 internal data class MutableClassMetadata(
     val name: String,
+    var allDeclaredConstructors: Boolean? = null,
     var allDeclaredFields: Boolean? = null,
+    var allDeclaredMethods: Boolean? = null,
     var allPublicConstructors: Boolean? = null,
+    var allPublicMethods: Boolean? = null,
     var queryAllDeclaredMethods: Boolean? = null,
     var queryAllDeclaredConstructors: Boolean? = null,
     val fields: List<FieldMetadata>? = null,
@@ -41,8 +47,11 @@ internal data class MutableClassMetadata(
 
 internal fun MutableClassMetadata.toClassMetadata() = ClassMetadata(
     name,
+    allDeclaredConstructors,
     allDeclaredFields,
+    allDeclaredMethods,
     allPublicConstructors,
+    allPublicMethods,
     queryAllDeclaredMethods,
     queryAllDeclaredConstructors,
     fields,

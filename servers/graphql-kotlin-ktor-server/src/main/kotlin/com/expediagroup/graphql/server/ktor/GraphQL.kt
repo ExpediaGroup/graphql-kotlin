@@ -20,13 +20,18 @@ import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrume
 import com.expediagroup.graphql.apq.provider.AutomaticPersistedQueriesProvider
 import com.expediagroup.graphql.dataloader.instrumentation.level.DataLoaderLevelDispatchedInstrumentation
 import com.expediagroup.graphql.dataloader.instrumentation.syncexhaustion.DataLoaderSyncExecutionExhaustedInstrumentation
+import com.expediagroup.graphql.generator.ClasspathTypeResolver
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
+import com.expediagroup.graphql.generator.SimpleTypeResolver
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.execution.FlowSubscriptionExecutionStrategy
+import com.expediagroup.graphql.generator.federation.FederatedClasspathTypeResolver
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.federation.FederatedSimpleTypeResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
-import com.expediagroup.graphql.generator.toSchema
+import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -40,6 +45,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.BaseApplicationPlugin
 import io.ktor.server.response.respond
 import io.ktor.util.AttributeKey
+import kotlin.reflect.KClass
 import graphql.GraphQL as GraphQLEngine
 
 /**
@@ -64,13 +70,21 @@ import graphql.GraphQL as GraphQLEngine
  */
 class GraphQL(config: GraphQLConfiguration) {
 
+    private val supportedPackages: List<String> = config.schema.packages ?: throw IllegalStateException("Missing required configuration - packages property is required")
+    private val typeHierarchy: Map<KClass<*>, List<KClass<*>>>? = config.schema.typeHierarchy
     val schema: GraphQLSchema = if (config.schema.federation.enabled) {
         val schemaConfig = FederatedSchemaGeneratorConfig(
-            supportedPackages = config.schema.packages ?: throw IllegalStateException("Missing required configuration - packages property is required"),
+            supportedPackages = supportedPackages,
             topLevelNames = config.schema.topLevelNames,
             hooks = config.schema.hooks as? FederatedSchemaGeneratorHooks ?: throw IllegalStateException("Non federated schema generator hooks were specified when generating federated schema"),
             dataFetcherFactoryProvider = config.engine.dataFetcherFactoryProvider,
-            introspectionEnabled = config.engine.introspection.enabled
+            introspectionEnabled = config.engine.introspection.enabled,
+            typeResolver = if (typeHierarchy != null) {
+                val entities = config.schema.federation.entities ?: emptyList()
+                FederatedSimpleTypeResolver(typeHierarchy, entities)
+            } else {
+                FederatedClasspathTypeResolver(ClassScanner(supportedPackages))
+            }
         )
         toFederatedSchema(
             config = schemaConfig,
@@ -81,19 +95,22 @@ class GraphQL(config: GraphQLConfiguration) {
         )
     } else {
         val schemaConfig = SchemaGeneratorConfig(
-            supportedPackages = config.schema.packages ?: throw IllegalStateException("Missing required configuration - packages property is required"),
+            supportedPackages = supportedPackages,
             topLevelNames = config.schema.topLevelNames,
             hooks = config.schema.hooks,
             dataFetcherFactoryProvider = config.engine.dataFetcherFactoryProvider,
-            introspectionEnabled = config.engine.introspection.enabled
+            introspectionEnabled = config.engine.introspection.enabled,
+            typeResolver = typeHierarchy?.let { SimpleTypeResolver(it) } ?: ClasspathTypeResolver(ClassScanner(supportedPackages))
         )
-        toSchema(
-            config = schemaConfig,
-            queries = config.schema.queries.toTopLevelObjects(),
-            mutations = config.schema.mutations.toTopLevelObjects(),
-            subscriptions = emptyList(),
-            schemaObject = config.schema.schemaObject?.let { TopLevelObject(it) }
-        )
+        val generator = SchemaGenerator(schemaConfig)
+        generator.use { gen ->
+            gen.generateSchema(
+                queries = config.schema.queries.toTopLevelObjects(),
+                mutations = config.schema.mutations.toTopLevelObjects(),
+                subscriptions = emptyList(),
+                schemaObject = config.schema.schemaObject?.let { TopLevelObject(it) }
+            )
+        }
     }
 
     val engine: GraphQLEngine = GraphQLEngine.newGraphQL(schema)
