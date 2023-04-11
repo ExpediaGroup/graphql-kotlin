@@ -49,6 +49,7 @@ class GraphQLIntrospectSchemaTaskIT : WireMockAbstractIT() {
             .withPluginClasspath()
             .withArguments(INTROSPECT_SCHEMA_TASK_NAME, "--stacktrace")
             .withEnvironment(mapOf("wireMockServerUrl" to wireMockServer.baseUrl()))
+            .forwardOutput()
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, result.task(":$INTROSPECT_SCHEMA_TASK_NAME")?.outcome)

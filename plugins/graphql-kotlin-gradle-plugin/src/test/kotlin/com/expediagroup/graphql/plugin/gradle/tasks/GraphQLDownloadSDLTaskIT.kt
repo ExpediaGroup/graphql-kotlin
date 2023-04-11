@@ -49,6 +49,7 @@ class GraphQLDownloadSDLTaskIT : WireMockAbstractIT() {
             .withPluginClasspath()
             .withArguments(DOWNLOAD_SDL_TASK_NAME, "--stacktrace")
             .withEnvironment(mapOf("wireMockServerUrl" to wireMockServer.baseUrl()))
+            .forwardOutput()
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, result.task(":$DOWNLOAD_SDL_TASK_NAME")?.outcome)
