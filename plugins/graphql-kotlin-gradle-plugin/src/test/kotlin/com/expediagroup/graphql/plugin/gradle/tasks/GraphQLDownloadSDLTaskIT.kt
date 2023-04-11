@@ -23,6 +23,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -40,6 +41,9 @@ class GraphQLDownloadSDLTaskIT : WireMockAbstractIT() {
 
         // version catalog setup
         File("../../gradle/libs.versions.toml").copyTo(File(testProjectDirectory, "gradle/libs.versions.toml"))
+        // main project dir
+        val compositeProjectDir = File("../../")
+        Files.writeString(tempDir.resolve("settings.gradle.kts"), """includeBuild("${compositeProjectDir.absolutePath}")""")
 
         WireMock.reset()
         WireMock.stubFor(stubSdlEndpoint(delay = 10_000))

@@ -22,6 +22,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -40,10 +41,15 @@ class GraphQLGenerateClientTaskIT : WireMockAbstractIT() {
         // version catalog setup
         File("../../gradle/libs.versions.toml").copyTo(File(testProjectDirectory, "gradle/libs.versions.toml"))
 
+        // main project dir
+        val compositeProjectDir = File("../../")
+        Files.writeString(tempDir.resolve("settings.gradle.kts"), """includeBuild("${compositeProjectDir.absolutePath}")""")
+
         val buildResult = GradleRunner.create()
             .withProjectDir(testProjectDirectory)
             .withPluginClasspath()
             .withArguments(GENERATE_CLIENT_TASK_NAME, "--stacktrace")
+            .forwardOutput()
             .buildAndFail()
 
         assertEquals(TaskOutcome.FAILED, buildResult.task(":$GENERATE_CLIENT_TASK_NAME")?.outcome)
