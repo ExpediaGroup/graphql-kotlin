@@ -27,6 +27,10 @@ jobs:
   http-spec-compliance:
     needs: build-libraries
     uses: ./.github/workflows/http-spec-compliance.yml
+    
+  graalvm-integration:
+    needs: build-libraries
+    uses: ./.github/workflows/graalvm-integration.yml
 
   release-notes:
     timeout-minutes: 10
