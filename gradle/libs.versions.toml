@@ -28,7 +28,7 @@ spring-boot = "3.0.1"
 # versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
 compile-testing = "0.1.0"
 icu = "71.1"
-junit = "5.9.1"
+junit = "5.9.2"
 logback = "1.2.1"
 mockk = "1.13.3"
 rxjava = "3.1.5"
