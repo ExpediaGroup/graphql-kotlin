@@ -25,12 +25,16 @@ import com.expediagroup.graphql.generator.federation.data.queries.simple.SimpleQ
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import graphql.ExecutionInput
 import graphql.GraphQL
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import org.junit.jupiter.api.Test
+import java.util.Locale
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.test.assertEquals
@@ -265,14 +269,24 @@ class ServiceQueryResolverTest {
             .coercing(CustomScalarCoercing()).build()
 
         private class CustomScalarCoercing : Coercing<CustomScalar, String> {
+
+            override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+                serialize(dataFetcherResult)
+
+            override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): CustomScalar =
+                parseValue(input)
+
+            override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): CustomScalar =
+                parseLiteral(input)
+
+            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
+
             override fun parseValue(input: Any): CustomScalar = CustomScalar(serialize(input))
 
             override fun parseLiteral(input: Any): CustomScalar {
                 val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("Cannot parse $input to CustomScalar")
                 return CustomScalar(customValue)
             }
-
-            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
         }
     }
 

@@ -16,6 +16,8 @@
 
 package com.expediagroup.graphql.generator.federation.types
 
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
 import graphql.language.ArrayValue
 import graphql.language.BooleanValue
 import graphql.language.EnumValue
@@ -23,9 +25,11 @@ import graphql.language.FloatValue
 import graphql.language.IntValue
 import graphql.language.ObjectValue
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.GraphQLScalarType
+import java.util.Locale
 
 /**
  * The _Any scalar is used to pass representations of entities from external services into the root _entities field for execution.
@@ -39,6 +43,15 @@ internal val ANY_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar()
 
 private object AnyCoercing : Coercing<Any, Any> {
 
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): Any =
+        serialize(dataFetcherResult)
+
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): Any =
+        parseValue(input)
+
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Any =
+        parseLiteral(input)
+
     override fun serialize(dataFetcherResult: Any): Any = dataFetcherResult
 
     override fun parseValue(input: Any): Any = input
@@ -51,8 +64,8 @@ private object AnyCoercing : Coercing<Any, Any> {
             is IntValue -> input.value
             is BooleanValue -> input.isValue
             is EnumValue -> input.name
-            is ArrayValue -> input.values.map { parseLiteral(it) }
-            is ObjectValue -> input.objectFields.associateBy({ it.name }, { parseLiteral(it.value) })
+            is ArrayValue -> input.values.map(::parseLiteral)
+            is ObjectValue -> input.objectFields.associateBy({ it.name }) { parseLiteral(it.value) }
             else -> throw CoercingParseLiteralException("Cannot parse $input to Any scalar")
         }
 }

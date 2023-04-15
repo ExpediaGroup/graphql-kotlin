@@ -28,14 +28,14 @@ import graphql.GraphQL
 import graphql.GraphQLError
 import graphql.GraphqlErrorBuilder
 import graphql.execution.DataFetcherResult
-import graphql.execution.instrumentation.SimpleInstrumentation
+import graphql.execution.instrumentation.Instrumentation
+import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.runBlocking
@@ -191,10 +191,11 @@ class FlowSubscriptionExecutionStrategyTest {
         fun query(): String = "hello"
     }
 
-    class TestInstrumentation : SimpleInstrumentation() {
+    class TestInstrumentation : Instrumentation {
         override fun instrumentExecutionResult(
             executionResult: ExecutionResult,
-            parameters: InstrumentationExecutionParameters?
+            parameters: InstrumentationExecutionParameters,
+            state: InstrumentationState?
         ): CompletableFuture<ExecutionResult> {
             return CompletableFuture.completedFuture(
                 ExecutionResultImpl.newExecutionResult()
