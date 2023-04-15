@@ -106,7 +106,6 @@ class DataFetcherIT(@Autowired private val testClient: WebTestClient) {
                 } catch (e: Exception) {
                     throw CoercingParseLiteralException("Cannot parse literal $input to LocalDate", e)
                 }
-
         }
     }
 
