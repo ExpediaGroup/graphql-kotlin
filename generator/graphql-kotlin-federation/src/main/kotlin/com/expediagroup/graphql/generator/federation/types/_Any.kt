@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,28 +44,25 @@ internal val ANY_SCALAR_TYPE: GraphQLScalarType = GraphQLScalarType.newScalar()
 private object AnyCoercing : Coercing<Any, Any> {
 
     override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): Any =
-        serialize(dataFetcherResult)
+        dataFetcherResult
 
     override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): Any =
-        parseValue(input)
-
-    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Any =
-        parseLiteral(input)
-
-    override fun serialize(dataFetcherResult: Any): Any = dataFetcherResult
-
-    override fun parseValue(input: Any): Any = input
+        input
 
     @Suppress("ComplexMethod")
-    override fun parseLiteral(input: Any): Any =
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Any =
         when (input) {
             is FloatValue -> input.value
             is StringValue -> input.value
             is IntValue -> input.value
             is BooleanValue -> input.isValue
             is EnumValue -> input.name
-            is ArrayValue -> input.values.map(::parseLiteral)
-            is ObjectValue -> input.objectFields.associateBy({ it.name }) { parseLiteral(it.value) }
+            is ArrayValue -> input.values.map {
+                parseLiteral(it, variables, graphQLContext, locale)
+            }
+            is ObjectValue -> input.objectFields.associateBy({ it.name }) {
+                parseLiteral(it.value, variables, graphQLContext, locale)
+            }
             else -> throw CoercingParseLiteralException("Cannot parse $input to Any scalar")
         }
 }

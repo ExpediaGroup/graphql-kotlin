@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,16 @@
 package com.expediagroup.graphql.examples.client.server.scalars
 
 import com.ibm.icu.util.ULocale
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
+import java.util.Locale
 
 internal val graphqlULocaleType = GraphQLScalarType.newScalar()
     .name("Locale")
@@ -31,24 +35,26 @@ internal val graphqlULocaleType = GraphQLScalarType.newScalar()
     .build()
 
 private object ULocaleCoercing : Coercing<ULocale, String> {
-    override fun parseValue(input: Any): ULocale = runCatching {
-        ULocale(serialize(input))
-    }.getOrElse {
-        throw CoercingParseValueException("Expected valid ULocale but was $input")
-    }
-
-    override fun parseLiteral(input: Any): ULocale {
-        val locale = (input as? StringValue)?.value
-        return runCatching {
-            ULocale(locale)
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): ULocale =
+        runCatching {
+            ULocale(serialize(input, graphQLContext, locale))
         }.getOrElse {
-            throw CoercingParseLiteralException("Expected valid ULocale literal but was $locale")
+            throw CoercingParseValueException("Expected valid ULocale but was $input")
+        }
+
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): ULocale {
+        val inputLocale = (input as? StringValue)?.value
+        return runCatching {
+            ULocale(inputLocale)
+        }.getOrElse {
+            throw CoercingParseLiteralException("Expected valid ULocale literal but was $inputLocale")
         }
     }
 
-    override fun serialize(dataFetcherResult: Any): String = runCatching {
-        dataFetcherResult.toString()
-    }.getOrElse {
-        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
-    }
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+        runCatching {
+            dataFetcherResult.toString()
+        }.getOrElse {
+            throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+        }
 }

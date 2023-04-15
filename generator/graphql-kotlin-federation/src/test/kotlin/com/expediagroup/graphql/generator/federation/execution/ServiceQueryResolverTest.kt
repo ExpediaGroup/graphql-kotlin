@@ -271,19 +271,12 @@ class ServiceQueryResolverTest {
         private class CustomScalarCoercing : Coercing<CustomScalar, String> {
 
             override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
-                serialize(dataFetcherResult)
+                dataFetcherResult.toString()
 
             override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): CustomScalar =
-                parseValue(input)
+                CustomScalar(serialize(input, graphQLContext, locale))
 
-            override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): CustomScalar =
-                parseLiteral(input)
-
-            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
-
-            override fun parseValue(input: Any): CustomScalar = CustomScalar(serialize(input))
-
-            override fun parseLiteral(input: Any): CustomScalar {
+            override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): CustomScalar {
                 val customValue = (input as? StringValue)?.value ?: throw CoercingParseValueException("Cannot parse $input to CustomScalar")
                 return CustomScalar(customValue)
             }

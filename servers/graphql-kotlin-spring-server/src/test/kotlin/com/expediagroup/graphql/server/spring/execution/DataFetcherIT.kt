@@ -90,28 +90,23 @@ class DataFetcherIT(@Autowired private val testClient: WebTestClient) {
 
         private object LocalDateCoercing : Coercing<LocalDate, String> {
 
+            override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+                dataFetcherResult.toString()
+
             override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): LocalDate =
-                parseValue(input)
+                try {
+                    LocalDate.parse(serialize(input, graphQLContext, locale))
+                } catch (e: Exception) {
+                    throw CoercingParseValueException("Cannot parse value $input to LocalDate", e)
+                }
 
             override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): LocalDate =
-                parseLiteral(input)
+                try {
+                    LocalDate.parse((input as? StringValue)?.value)
+                } catch (e: Exception) {
+                    throw CoercingParseLiteralException("Cannot parse literal $input to LocalDate", e)
+                }
 
-            override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
-                serialize(dataFetcherResult)
-
-            override fun parseValue(input: Any): LocalDate = try {
-                LocalDate.parse(serialize(input))
-            } catch (e: Exception) {
-                throw CoercingParseValueException("Cannot parse value $input to LocalDate", e)
-            }
-
-            override fun parseLiteral(input: Any): LocalDate = try {
-                LocalDate.parse((input as? StringValue)?.value)
-            } catch (e: Exception) {
-                throw CoercingParseLiteralException("Cannot parse literal $input to LocalDate", e)
-            }
-
-            override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
         }
     }
 

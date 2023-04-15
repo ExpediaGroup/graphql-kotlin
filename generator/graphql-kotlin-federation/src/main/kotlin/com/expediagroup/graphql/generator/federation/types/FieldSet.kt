@@ -57,21 +57,6 @@ internal val FIELD_SET_ARGUMENT = GraphQLArgument.newArgument()
 
 private object FieldSetCoercing : Coercing<FieldSet, String> {
     override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
-        serialize(dataFetcherResult)
-
-    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): FieldSet =
-        parseValue(input)
-
-    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): FieldSet =
-        parseLiteral(input)
-
-    override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> =
-        when (input) {
-            is FieldSet -> StringValue.newStringValue(input.value).build()
-            else -> throw CoercingValueToLiteralException(_FieldSet::class, input)
-        }
-
-    override fun serialize(dataFetcherResult: Any): String =
         when (dataFetcherResult) {
             is FieldSet -> dataFetcherResult.value
             else -> throw CoercingSerializeException(
@@ -79,7 +64,7 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
             )
         }
 
-    override fun parseValue(input: Any): FieldSet =
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): FieldSet =
         when (input) {
             is FieldSet -> input
             is StringValue -> FieldSet::class.constructors.first().call(input.value)
@@ -88,12 +73,18 @@ private object FieldSetCoercing : Coercing<FieldSet, String> {
             )
         }
 
-    override fun parseLiteral(input: Any): FieldSet =
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): FieldSet =
         when (input) {
             is StringValue -> FieldSet::class.constructors.first().call(input.value)
             else -> throw CoercingParseLiteralException(
                 "Cannot parse $input to FieldSet. Expected AST type 'StringValue' but was '${input.javaClass.simpleName}'."
             )
+        }
+
+    override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> =
+        when (input) {
+            is FieldSet -> StringValue.newStringValue(input.value).build()
+            else -> throw CoercingValueToLiteralException(_FieldSet::class, input)
         }
 }
 
