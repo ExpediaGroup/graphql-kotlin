@@ -40,6 +40,7 @@ class CustomScalarKotlinxTests {
 
                 val undefinedLocaleQuery = LocaleQuery(variables = LocaleQuery.Variables())
                 val undefinedLocaleResult = client.execute(undefinedLocaleQuery)
+                println(undefinedLocaleResult.data?.localeQuery)
                 assertEquals(ULocale.US, undefinedLocaleResult.data?.localeQuery)
 
                 val nullLocaleQuery = LocaleQuery(variables = LocaleQuery.Variables(optional = OptionalInput.Defined(null)))

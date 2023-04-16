@@ -19,7 +19,7 @@ package com.expediagroup.graphql.generator.test.integration
 import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
-import com.expediagroup.graphql.generator.test.utils.graphQLUUIDType
+import com.expediagroup.graphql.generator.test.utils.graphqlUUIDType
 import com.expediagroup.graphql.generator.toSchema
 import graphql.GraphQL
 import graphql.schema.GraphQLType
@@ -86,7 +86,7 @@ class CustomScalarExecutionTest {
     class CustomScalarHooks : SchemaGeneratorHooks {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? {
             return when (type.classifier as? KClass<*>) {
-                UUID::class -> graphQLUUIDType
+                UUID::class -> graphqlUUIDType
                 else -> null
             }
         }

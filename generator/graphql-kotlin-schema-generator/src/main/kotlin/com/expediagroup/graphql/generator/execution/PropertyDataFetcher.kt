@@ -44,8 +44,8 @@ class PropertyDataFetcher(private val propertyGetter: KProperty.Getter<*>) : Lig
     /**
      * Invokes target getter function.
      */
-    override fun get(environment: DataFetchingEnvironment): Any? = environment.getSource<Any?>()?.let { instance ->
-        environment.fieldDefinition
-        propertyGetter.call(instance)
-    }
+    override fun get(environment: DataFetchingEnvironment): Any? =
+        environment.getSource<Any?>()?.let { instance ->
+            propertyGetter.call(instance)
+        }
 }

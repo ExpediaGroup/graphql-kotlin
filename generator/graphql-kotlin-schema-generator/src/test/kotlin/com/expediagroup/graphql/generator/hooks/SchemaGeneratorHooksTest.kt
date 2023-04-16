@@ -29,7 +29,7 @@ import com.expediagroup.graphql.generator.extensions.deepName
 import com.expediagroup.graphql.generator.getTestSchemaConfigWithHooks
 import com.expediagroup.graphql.generator.internal.extensions.getKClass
 import com.expediagroup.graphql.generator.internal.extensions.getSimpleName
-import com.expediagroup.graphql.generator.test.utils.graphQLUUIDType
+import com.expediagroup.graphql.generator.test.utils.graphqlUUIDType
 import com.expediagroup.graphql.generator.testSchemaConfig
 import com.expediagroup.graphql.generator.toSchema
 import graphql.Scalars
@@ -317,7 +317,7 @@ class SchemaGeneratorHooksTest {
                 hookCalled = true
 
                 return when (type.classifier as? KClass<*>) {
-                    UUID::class -> graphQLUUIDType
+                    UUID::class -> graphqlUUIDType
                     else -> null
                 }
             }

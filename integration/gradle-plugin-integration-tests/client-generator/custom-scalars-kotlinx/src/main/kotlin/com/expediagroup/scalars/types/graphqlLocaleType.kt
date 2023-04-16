@@ -18,17 +18,17 @@ val graphqlLocaleType: GraphQLScalarType = GraphQLScalarType.newScalar()
     .coercing(object : Coercing<ULocale, String> {
         override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): ULocale =
             runCatching {
-                ULocale(serialize(input))
+                ULocale(serialize(input, graphQLContext, locale))
             }.getOrElse {
                 throw CoercingParseValueException("Expected valid ULocale but was $input")
             }
 
         override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): ULocale {
-            val locale = (input as? StringValue)?.value
+            val localeInput = (input as? StringValue)?.value
             return runCatching {
-                ULocale(locale)
+                ULocale(localeInput)
             }.getOrElse {
-                throw CoercingParseLiteralException("Expected valid ULocale literal but was $locale")
+                throw CoercingParseLiteralException("Expected valid ULocale literal but was $localeInput")
             }
         }
 

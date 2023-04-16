@@ -30,7 +30,7 @@ import java.util.UUID
 /**
  * Custom scalar to parse a string as a [UUID] for both input and output.
  */
-internal val graphQLUUIDType = GraphQLScalarType.newScalar()
+internal val graphqlUUIDType = GraphQLScalarType.newScalar()
     .name("UUID")
     .description("A type representing a formatted java.util.UUID")
     .coercing(UUIDCoercing)
