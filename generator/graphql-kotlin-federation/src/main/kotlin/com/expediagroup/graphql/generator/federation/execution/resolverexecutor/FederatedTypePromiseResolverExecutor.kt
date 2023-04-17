@@ -28,9 +28,11 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
         resolvableEntities: List<ResolvableEntity<FederatedTypePromiseResolver<*>>>,
         environment: DataFetchingEnvironment
     ): CompletableFuture<List<Map<Int, Any?>>> =
-        resolvableEntities.map { resolvableEntity ->
-            resolveEntity(resolvableEntity, environment)
-        }.joinAll()
+        resolvableEntities
+            .map { resolvableEntity ->
+                resolveEntity(resolvableEntity, environment)
+            }
+            .joinAll()
 
     @Suppress("TooGenericExceptionCaught")
     private fun resolveEntity(
@@ -39,33 +41,36 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
     ): CompletableFuture<Map<Int, Any?>> {
         val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
         val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)
-        val resultsPromise = representations.map { representation ->
-            // TODO decide if keeping this, nothing stops users to synchronously throw an exception
-            try {
-                resolvableEntity.resolver.resolve(environment, representation)
-            } catch (e: Exception) {
-                CompletableFuture.completedFuture(
-                    FederatedRequestFailure(
-                        "Exception was thrown while trying to resolve federated type, representation=$representation",
-                        e
-                    )
-                )
-            }
-        }.allSettled()
-
-        return resultsPromise.thenApply { results ->
-            indexes.zip(
-                results.mapIndexed { index, result ->
-                    try {
-                        result.getOrThrow()
-                    } catch (e: Exception) {
+        return representations
+            .map { representation ->
+                // synchronous exceptions while returning CompletableFuture
+                // as nothing stops users to synchronously throw an exception
+                try {
+                    resolvableEntity.resolver.resolve(environment, representation)
+                } catch (e: Exception) {
+                    CompletableFuture.completedFuture(
                         FederatedRequestFailure(
-                            "Exception was thrown while trying to resolve federated type, representation=${representations[index]}",
+                            "Exception was thrown while trying to resolve federated type, representation=$representation",
                             e
                         )
-                    }
+                    )
                 }
-            ).toMap()
-        }
+            }
+            .allSettled()
+            .thenApply { results ->
+                indexes.zip(
+                    results.mapIndexed { index, result ->
+                        // asynchronous exceptions while completing CompletableFuture
+                        try {
+                            result.getOrThrow()
+                        } catch (e: Exception) {
+                            FederatedRequestFailure(
+                                "Exception was thrown while trying to resolve federated type, representation=${representations[index]}",
+                                e
+                            )
+                        }
+                    }
+                ).toMap()
+            }
     }
 }

@@ -34,7 +34,6 @@ class CompletableFutureExtensionsKtTest {
         val secondPromise = "second promise".toMono().delayElement(Duration.ofMillis(400)).toFuture()
         val thirdPromise = CompletableFuture.completedFuture("third promise")
 
-
         val result = listOf(firstPromise, secondPromise, thirdPromise).joinAll().join()
 
         assertEquals(3, result.size)
@@ -61,7 +60,6 @@ class CompletableFutureExtensionsKtTest {
         val firstPromise = "first promise".toMono().delayElement(Duration.ofMillis(500)).toFuture()
         val secondPromise = "second promise".toMono().delayElement(Duration.ofMillis(400)).toFuture()
         val thirdPromise = CompletableFuture.completedFuture("third promise")
-
 
         val result = listOf(firstPromise, secondPromise, thirdPromise).allSettled().join()
 

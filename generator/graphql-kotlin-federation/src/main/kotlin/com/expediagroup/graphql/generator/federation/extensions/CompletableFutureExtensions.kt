@@ -16,12 +16,15 @@
 package com.expediagroup.graphql.generator.federation.extensions
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 
 /**
- * Returns a new CompletableFuture of a list with the resolved values of the given CompletableFutures.
- * the returned completableFuture will complete when all given CompletableFutures complete.
- * If any of the given CompletableFutures complete exceptionally, then the returned CompletableFuture also does so,
- * with a CompletionException holding this exception as its cause.
+ * Returns a [CompletableFuture] that completes when all the input futures have completed,
+ * with a list of the resolved values obtained from the completed futures.
+ * If any of the input futures complete exceptionally, then the returned [CompletableFuture] also completes exceptionally
+ * with a [java.util.concurrent.CompletionException] holding the exception as its cause.
+ *
+ * @return a [CompletableFuture] that completes with a list of resolved values.
  */
 internal fun <T : Any?> List<CompletableFuture<out T>>.joinAll(): CompletableFuture<List<T>> =
     CompletableFuture.allOf(
@@ -30,6 +33,13 @@ internal fun <T : Any?> List<CompletableFuture<out T>>.joinAll(): CompletableFut
         map(CompletableFuture<out T>::join)
     }
 
+/**
+ * Returns a [CompletableFuture] that completes when all the input futures have completed,
+ * with a list of [Result] objects that indicate whether each future completed successfully or with an error.
+ * If a future completed with an error, the corresponding [Result] object will contain the exception that was thrown.
+ *
+ * @return a [CompletableFuture] that completes with a list of [Result] objects.
+ */
 @Suppress("TooGenericExceptionCaught")
 internal fun <T : Any?> List<CompletableFuture<out T>>.allSettled(): CompletableFuture<List<Result<T>>> {
     val resultFutures = map { future ->
@@ -48,4 +58,3 @@ internal fun <T : Any?> List<CompletableFuture<out T>>.allSettled(): Completable
         resultFutures.map(CompletableFuture<Result<T>>::join)
     }
 }
-
