@@ -20,7 +20,7 @@ import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedR
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypePromiseResolverExecutor
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.FederatedTypeSuspendResolverExecutor
 import com.expediagroup.graphql.generator.federation.execution.resolverexecutor.ResolvableEntity
-import com.expediagroup.graphql.generator.federation.extensions.collectAll
+import com.expediagroup.graphql.generator.federation.extensions.joinAll
 import com.expediagroup.graphql.generator.federation.extensions.toDataFetcherResult
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetcher
@@ -91,7 +91,7 @@ open class EntitiesDataFetcher(
         )
 
         return promises
-            .collectAll()
+            .joinAll()
             .thenApply { results ->
                 results.asSequence()
                     .flatten()

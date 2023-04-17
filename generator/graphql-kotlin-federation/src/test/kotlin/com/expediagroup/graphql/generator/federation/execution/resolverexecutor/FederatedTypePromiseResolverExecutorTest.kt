@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toMono
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
@@ -82,7 +83,7 @@ class FederatedTypePromiseResolverExecutorTest {
     }
 
     @Test
-    fun `resolver maps the value to a failure when the federated resolver throws an exception`() {
+    fun `resolver maps the value to a failure when the federated resolver throws an exception synchronously`() {
         val representation1 = mapOf("__typename" to "MyType", "id" to 1)
         val representation2 = mapOf("__typename" to "MyType", "id" to 2)
 
@@ -95,6 +96,43 @@ class FederatedTypePromiseResolverExecutorTest {
             every { typeName } returns "MyType"
             every { resolve(any(), representation1) } returns "MyType1".toMono().delayElement(Duration.ofMillis(100)).toFuture()
             every { resolve(any(), representation2) } throws Exception("custom exception")
+        }
+
+        val resolvableEntity = ResolvableEntity("MyType", indexedRequests, mockResolver)
+        val environment = mockk<DataFetchingEnvironment> {
+            every { graphQlContext } returns GraphQLContext.newContext().build()
+        }
+
+        val result = FederatedTypePromiseResolverExecutor.execute(listOf(resolvableEntity), environment).get()
+        assertEquals(1, result.size)
+
+        val resolverResults = result[0]
+
+        assertEquals("MyType1", resolverResults[1])
+        assertIs<FederatedRequestFailure>(resolverResults[2])
+
+        verify(exactly = 1) {
+            mockResolver.resolve(any(), representation1)
+            mockResolver.resolve(any(), representation2)
+        }
+    }
+
+    @Test
+    fun `resolver maps the value to a failure when the federated resolver throws an exception asynchronously`() {
+        val representation1 = mapOf("__typename" to "MyType", "id" to 1)
+        val representation2 = mapOf("__typename" to "MyType", "id" to 2)
+
+        val indexedRequests: List<IndexedValue<Map<String, Any>>> = listOf(
+            IndexedValue(1, representation1),
+            IndexedValue(2, representation2)
+        )
+
+        val mockResolver = mockk<FederatedTypePromiseResolver<*>> {
+            every { typeName } returns "MyType"
+            every { resolve(any(), representation1) } returns "MyType1".toMono().delayElement(Duration.ofMillis(100)).toFuture()
+            every { resolve(any(), representation2) } returns CompletableFuture.supplyAsync {
+                throw Exception("async exception")
+            }
         }
 
         val resolvableEntity = ResolvableEntity("MyType", indexedRequests, mockResolver)

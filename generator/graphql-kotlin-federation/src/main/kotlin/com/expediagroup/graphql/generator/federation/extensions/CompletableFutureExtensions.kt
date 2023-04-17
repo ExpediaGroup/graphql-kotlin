@@ -20,10 +20,32 @@ import java.util.concurrent.CompletableFuture
 /**
  * Returns a new CompletableFuture of a list with the resolved values of the given CompletableFutures.
  * the returned completableFuture will complete when all given CompletableFutures complete.
+ * If any of the given CompletableFutures complete exceptionally, then the returned CompletableFuture also does so,
+ * with a CompletionException holding this exception as its cause.
  */
-internal fun <T : Any?> List<CompletableFuture<out T>>.collectAll(): CompletableFuture<List<T>> =
+internal fun <T : Any?> List<CompletableFuture<out T>>.joinAll(): CompletableFuture<List<T>> =
     CompletableFuture.allOf(
         *toTypedArray()
     ).thenApply {
         map(CompletableFuture<out T>::join)
     }
+
+@Suppress("TooGenericExceptionCaught")
+internal fun <T : Any?> List<CompletableFuture<out T>>.allSettled(): CompletableFuture<List<Result<T>>> {
+    val resultFutures = map { future ->
+        CompletableFuture.supplyAsync {
+            try {
+                Result.success(future.get())
+            } catch (e: Exception) {
+                Result.failure<T>(e)
+            }
+        }
+    }
+
+    return CompletableFuture.allOf(
+        *resultFutures.toTypedArray()
+    ).thenApply {
+        resultFutures.map(CompletableFuture<Result<T>>::join)
+    }
+}
+
