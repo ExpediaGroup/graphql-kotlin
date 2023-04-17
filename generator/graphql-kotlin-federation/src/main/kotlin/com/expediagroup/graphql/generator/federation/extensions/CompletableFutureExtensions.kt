@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.expediagroup.graphql.generator.federation.extensions
 
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionException
 
 /**
  * Returns a [CompletableFuture] that completes when all the input futures have completed,
