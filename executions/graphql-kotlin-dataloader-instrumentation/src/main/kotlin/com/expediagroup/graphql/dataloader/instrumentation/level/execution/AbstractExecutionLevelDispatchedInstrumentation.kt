@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import graphql.ExecutionInput
 import graphql.ExecutionResult
 import graphql.execution.ExecutionContext
 import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
-import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
+import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -39,7 +39,7 @@ internal typealias OnLevelDispatchedCallback = (Level, List<ExecutionInput>) -> 
  * Custom GraphQL [graphql.execution.instrumentation.Instrumentation] that calculate the state of executions
  * of all queries sharing the same GraphQLContext map
  */
-abstract class AbstractExecutionLevelDispatchedInstrumentation : Instrumentation {
+abstract class AbstractExecutionLevelDispatchedInstrumentation : SimplePerformantInstrumentation() {
     /**
      * This is invoked each time instrumentation attempts to calculate a level dispatched state, this can be called from either
      * `beginFieldField` or `beginExecutionStrategy`.

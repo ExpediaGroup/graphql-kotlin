@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import graphql.execution.instrumentation.ExecutionStrategyInstrumentationContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
+import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -39,7 +40,7 @@ internal typealias OnSyncExecutionExhaustedCallback = (List<ExecutionInput>) -> 
  * Custom GraphQL [Instrumentation] that calculate the synchronous execution exhaustion
  * of all GraphQL operations sharing the same [GraphQLContext]
  */
-abstract class AbstractSyncExecutionExhaustedInstrumentation : Instrumentation {
+abstract class AbstractSyncExecutionExhaustedInstrumentation : SimplePerformantInstrumentation() {
     /**
      * This is invoked each time instrumentation attempts to calculate exhaustion state, this can be called from either
      * `beginFieldField.dispatch` or `beginFieldFetch.complete`.

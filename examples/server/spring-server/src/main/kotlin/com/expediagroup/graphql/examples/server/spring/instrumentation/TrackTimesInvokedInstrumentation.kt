@@ -20,8 +20,8 @@ import com.expediagroup.graphql.examples.server.spring.directives.TRACK_TIMES_IN
 import graphql.ExecutionResult
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
-import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.SimpleInstrumentationContext
+import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import org.slf4j.LoggerFactory
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Adds field count tracking in the instrumentation layer if [com.expediagroup.graphql.examples.directives.TrackTimesInvoked] is present.
  */
 @Component
-class TrackTimesInvokedInstrumentation : Instrumentation {
+class TrackTimesInvokedInstrumentation : SimplePerformantInstrumentation() {
 
     private val logger = LoggerFactory.getLogger(TrackTimesInvokedInstrumentation::class.java)
 
@@ -50,7 +50,7 @@ class TrackTimesInvokedInstrumentation : Instrumentation {
     override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
         val count = (state as? TrackTimesInvokedInstrumenationState)?.getCount()
         logger.info("Fields invoked: $count")
-        return super.instrumentExecutionResult(executionResult, parameters)
+        return super.instrumentExecutionResult(executionResult, parameters, state)
     }
 
     /**
