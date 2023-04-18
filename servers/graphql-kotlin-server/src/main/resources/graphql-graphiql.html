@@ -45,7 +45,8 @@
 
 <script>
     var serverUrl = '/${graphQLEndpoint}';
-    var subscriptionUrl = '/${subscriptionsEndpoint}';
+    var subscriptionUrl = new URL("/${subscriptionsEndpoint}", location.href);
+    subscriptionUrl.protocol = location.protocol === "https:" ? "wss" : "ws";
     var fetcher = GraphiQL.createFetcher({
         url: serverUrl,
         subscriptionUrl
