@@ -18,13 +18,17 @@ package com.expediagroup.graalvm.ktor.hooks
 
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
 import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import java.util.Locale
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -47,13 +51,14 @@ val graphqlUUIDType: GraphQLScalarType = GraphQLScalarType.newScalar()
     .build()
 
 object UUIDCoercing : Coercing<UUID, String> {
-    override fun parseValue(input: Any): UUID = runCatching {
-        UUID.fromString(serialize(input))
-    }.getOrElse {
-        throw CoercingParseValueException("Expected valid UUID but was $input")
-    }
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): UUID =
+        runCatching {
+            UUID.fromString(serialize(input, graphQLContext, locale))
+        }.getOrElse {
+            throw CoercingParseValueException("Expected valid UUID but was $input")
+        }
 
-    override fun parseLiteral(input: Any): UUID {
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): UUID {
         val uuidString = (input as? StringValue)?.value
         return runCatching {
             UUID.fromString(uuidString)
@@ -62,9 +67,10 @@ object UUIDCoercing : Coercing<UUID, String> {
         }
     }
 
-    override fun serialize(dataFetcherResult: Any): String = runCatching {
-        dataFetcherResult.toString()
-    }.getOrElse {
-        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
-    }
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+        runCatching {
+            dataFetcherResult.toString()
+        }.getOrElse {
+            throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+        }
 }

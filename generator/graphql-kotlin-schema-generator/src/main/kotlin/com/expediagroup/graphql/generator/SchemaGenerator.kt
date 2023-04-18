@@ -48,9 +48,9 @@ import kotlin.reflect.KType
 open class SchemaGenerator(internal val config: SchemaGeneratorConfig) : Closeable {
 
     internal val additionalTypes: MutableSet<AdditionalType> = mutableSetOf()
-    internal val cache = TypesCache(config.supportedPackages)
+    internal val cache: TypesCache = TypesCache(config.supportedPackages)
     internal val codeRegistry: GraphQLCodeRegistry.Builder = GraphQLCodeRegistry.newCodeRegistry()
-    internal val directives = ConcurrentHashMap<String, GraphQLDirective>()
+    internal val directives: ConcurrentHashMap<String, GraphQLDirective> = ConcurrentHashMap<String, GraphQLDirective>()
 
     /**
      * Generate a schema given a list of objects to parse for the queries, mutations, and subscriptions.

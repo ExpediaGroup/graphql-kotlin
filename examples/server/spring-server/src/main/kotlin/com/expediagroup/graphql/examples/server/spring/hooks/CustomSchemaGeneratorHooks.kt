@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ package com.expediagroup.graphql.examples.server.spring.hooks
 import com.expediagroup.graphql.examples.server.spring.model.MyValueClass
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
 import graphql.Scalars
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
@@ -30,6 +33,7 @@ import graphql.schema.GraphQLType
 import org.springframework.beans.factory.BeanFactoryAware
 import reactor.core.publisher.Mono
 import java.time.LocalDate
+import java.util.Locale
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -83,13 +87,14 @@ internal val graphqlUUIDType = GraphQLScalarType.newScalar()
     .build()
 
 private object UUIDCoercing : Coercing<UUID, String> {
-    override fun parseValue(input: Any): UUID = runCatching {
-        UUID.fromString(serialize(input))
-    }.getOrElse {
-        throw CoercingParseValueException("Expected valid UUID but was $input")
-    }
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): UUID =
+        runCatching {
+            UUID.fromString(serialize(input, graphQLContext, locale))
+        }.getOrElse {
+            throw CoercingParseValueException("Expected valid UUID but was $input")
+        }
 
-    override fun parseLiteral(input: Any): UUID {
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): UUID {
         val uuidString = (input as? StringValue)?.value
         return runCatching {
             UUID.fromString(uuidString)
@@ -98,11 +103,12 @@ private object UUIDCoercing : Coercing<UUID, String> {
         }
     }
 
-    override fun serialize(dataFetcherResult: Any): String = runCatching {
-        dataFetcherResult.toString()
-    }.getOrElse {
-        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
-    }
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+        runCatching {
+            dataFetcherResult.toString()
+        }.getOrElse {
+            throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+        }
 }
 
 internal val graphqlPeriodType: GraphQLScalarType = GraphQLScalarType.newScalar()
@@ -114,23 +120,26 @@ internal val graphqlPeriodType: GraphQLScalarType = GraphQLScalarType.newScalar(
 typealias Period = ClosedRange<LocalDate>
 
 private object PeriodCoercing : Coercing<Period, String> {
-    override fun parseValue(input: Any): Period = runCatching {
-        input.toString().parseAsPeriod()
-    }.getOrElse {
-        throw CoercingParseValueException("Expected valid Period but was $input")
-    }
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): Period =
+        runCatching {
+            input.toString().parseAsPeriod()
+        }.getOrElse {
+            throw CoercingParseValueException("Expected valid Period but was $input")
+        }
 
-    override fun parseLiteral(input: Any): Period = runCatching {
-        (input as? StringValue)?.value?.parseAsPeriod() ?: throw CoercingParseLiteralException("Expected valid Period literal but was $input")
-    }.getOrElse {
-        throw CoercingParseLiteralException("Expected valid Period literal but was $input")
-    }
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): Period =
+        runCatching {
+            (input as? StringValue)?.value?.parseAsPeriod() ?: throw CoercingParseLiteralException("Expected valid Period literal but was $input")
+        }.getOrElse {
+            throw CoercingParseLiteralException("Expected valid Period literal but was $input")
+        }
 
-    override fun serialize(dataFetcherResult: Any): String = kotlin.runCatching {
-        toString()
-    }.getOrElse {
-        throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
-    }
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+        kotlin.runCatching {
+            toString()
+        }.getOrElse {
+            throw CoercingSerializeException("Data fetcher result $dataFetcherResult cannot be serialized to a String")
+        }
 
     private fun String.parseAsPeriod(): Period = split("..").let {
         if (it.size != 2) error("Cannot parse input $this as Period")

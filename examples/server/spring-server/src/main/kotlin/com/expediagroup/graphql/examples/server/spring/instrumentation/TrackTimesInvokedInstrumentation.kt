@@ -20,8 +20,8 @@ import com.expediagroup.graphql.examples.server.spring.directives.TRACK_TIMES_IN
 import graphql.ExecutionResult
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.InstrumentationState
-import graphql.execution.instrumentation.SimpleInstrumentation
 import graphql.execution.instrumentation.SimpleInstrumentationContext
+import graphql.execution.instrumentation.SimplePerformantInstrumentation
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
 import org.slf4j.LoggerFactory
@@ -33,24 +33,24 @@ import java.util.concurrent.ConcurrentHashMap
  * Adds field count tracking in the instrumentation layer if [com.expediagroup.graphql.examples.directives.TrackTimesInvoked] is present.
  */
 @Component
-class TrackTimesInvokedInstrumentation : SimpleInstrumentation() {
+class TrackTimesInvokedInstrumentation : SimplePerformantInstrumentation() {
 
     private val logger = LoggerFactory.getLogger(TrackTimesInvokedInstrumentation::class.java)
 
     override fun createState(): InstrumentationState = TrackTimesInvokedInstrumenationState()
 
-    override fun beginFieldFetch(parameters: InstrumentationFieldFetchParameters): InstrumentationContext<Any> {
+    override fun beginFieldFetch(parameters: InstrumentationFieldFetchParameters, state: InstrumentationState?): InstrumentationContext<Any> {
         if (parameters.field.getDirective(TRACK_TIMES_INVOKED_DIRECTIVE_NAME) != null) {
-            (parameters.getInstrumentationState() as? TrackTimesInvokedInstrumenationState)?.incrementCount(parameters.field.name)
+            (state as? TrackTimesInvokedInstrumenationState)?.incrementCount(parameters.field.name)
         }
 
         return SimpleInstrumentationContext<Any>()
     }
 
-    override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters): CompletableFuture<ExecutionResult> {
-        val count = (parameters.getInstrumentationState() as? TrackTimesInvokedInstrumenationState)?.getCount()
+    override fun instrumentExecutionResult(executionResult: ExecutionResult, parameters: InstrumentationExecutionParameters, state: InstrumentationState?): CompletableFuture<ExecutionResult> {
+        val count = (state as? TrackTimesInvokedInstrumenationState)?.getCount()
         logger.info("Fields invoked: $count")
-        return super.instrumentExecutionResult(executionResult, parameters)
+        return super.instrumentExecutionResult(executionResult, parameters, state)
     }
 
     /**

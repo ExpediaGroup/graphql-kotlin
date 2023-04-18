@@ -26,7 +26,6 @@ import kotlin.reflect.KProperty
  * for target function and property resolution.
  */
 interface KotlinDataFetcherFactoryProvider {
-
     /**
      * Retrieve an instance of [DataFetcherFactory] that will be used to resolve target function.
      *
@@ -41,7 +40,7 @@ interface KotlinDataFetcherFactoryProvider {
      * Retrieve an instance of [DataFetcherFactory] that will be used to resolve target property.
      *
      * @param kClass parent class that contains this property
-     * @param kProperty Kotlin property that should be resolved
+     * @param kProperty Kotlin's property that should be resolved
      */
     fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?>
 }
@@ -52,14 +51,16 @@ interface KotlinDataFetcherFactoryProvider {
  */
 open class SimpleKotlinDataFetcherFactoryProvider : KotlinDataFetcherFactoryProvider {
 
-    override fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>) = DataFetcherFactory {
-        FunctionDataFetcher(
-            target = target,
-            fn = kFunction
-        )
-    }
+    override fun functionDataFetcherFactory(target: Any?, kClass: KClass<*>, kFunction: KFunction<*>): DataFetcherFactory<Any?> =
+        DataFetcherFactory {
+            FunctionDataFetcher(
+                target = target,
+                fn = kFunction
+            )
+        }
 
-    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>) = DataFetcherFactory {
-        PropertyDataFetcher(kProperty.getter)
-    }
+    override fun propertyDataFetcherFactory(kClass: KClass<*>, kProperty: KProperty<*>): DataFetcherFactory<Any?> =
+        DataFetcherFactory {
+            PropertyDataFetcher(kProperty.getter)
+        }
 }

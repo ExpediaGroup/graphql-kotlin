@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package com.expediagroup.graphql.generator.test.utils
 
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
 import graphql.language.StringValue
+import graphql.language.Value
 import graphql.schema.Coercing
 import graphql.schema.CoercingParseLiteralException
 import graphql.schema.CoercingParseValueException
 import graphql.schema.GraphQLScalarType
+import java.util.Locale
 import java.util.UUID
 
 /**
@@ -33,20 +37,16 @@ internal val graphqlUUIDType = GraphQLScalarType.newScalar()
     .build()
 
 private object UUIDCoercing : Coercing<UUID, String> {
-    override fun parseValue(input: Any): UUID = try {
-        UUID.fromString(serialize(input))
-    } catch (e: Exception) {
-        throw CoercingParseValueException("Cannot parse $input to UUID", e)
-    }
-
-    override fun parseLiteral(input: Any): UUID {
-        val uuidString: String? = (input as? StringValue)?.value
-        return if (uuidString != null) {
-            UUID.fromString(uuidString)
-        } else {
-            throw CoercingParseLiteralException("Cannot parse $input to UUID")
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): UUID =
+        try {
+            UUID.fromString(serialize(input, graphQLContext, locale))
+        } catch (e: Exception) {
+            throw CoercingParseValueException("Cannot parse $input to UUID", e)
         }
-    }
 
-    override fun serialize(dataFetcherResult: Any): String = dataFetcherResult.toString()
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): UUID =
+        (input as? StringValue)?.value?.let(UUID::fromString) ?: throw CoercingParseLiteralException("Cannot parse $input to UUID")
+
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String =
+        dataFetcherResult.toString()
 }
