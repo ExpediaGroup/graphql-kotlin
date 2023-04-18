@@ -16,6 +16,11 @@
 
 package com.expediagroup.graphql.generator.federation.extensions
 
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.asCompletableFuture
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import reactor.kotlin.core.publisher.toMono
@@ -27,11 +32,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@OptIn(DelicateCoroutinesApi::class)
 class CompletableFutureExtensionsKtTest {
     @Test
     fun `joinAll asynchronously collects a list of completable futures of elements into a completable future list of elements`() {
         val firstPromise = "first promise".toMono().delayElement(Duration.ofMillis(500)).toFuture()
-        val secondPromise = "second promise".toMono().delayElement(Duration.ofMillis(400)).toFuture()
+        val secondPromise = GlobalScope.async {
+            delay(400)
+            "second promise"
+        }.asCompletableFuture()
         val thirdPromise = CompletableFuture.completedFuture("third promise")
 
         val result = listOf(firstPromise, secondPromise, thirdPromise).joinAll().join()
@@ -45,7 +54,10 @@ class CompletableFutureExtensionsKtTest {
     @Test
     fun `joinAll throws an exception with a completableFuture completes exceptionally`() {
         val firstPromise = "first promise".toMono().delayElement(Duration.ofMillis(500)).toFuture()
-        val secondPromise = "second promise".toMono().delayElement(Duration.ofMillis(400)).toFuture()
+        val secondPromise = GlobalScope.async {
+            delay(400)
+            "second promise"
+        }.asCompletableFuture()
         val thirdPromise = CompletableFuture.supplyAsync {
             throw Exception("async exception")
         }
@@ -58,7 +70,10 @@ class CompletableFutureExtensionsKtTest {
     @Test
     fun `allSettled asynchronously collects a list of completable futures of elements into a completable future list of elements`() {
         val firstPromise = "first promise".toMono().delayElement(Duration.ofMillis(500)).toFuture()
-        val secondPromise = "second promise".toMono().delayElement(Duration.ofMillis(400)).toFuture()
+        val secondPromise = GlobalScope.async {
+            delay(400)
+            "second promise"
+        }.asCompletableFuture()
         val thirdPromise = CompletableFuture.completedFuture("third promise")
 
         val result = listOf(firstPromise, secondPromise, thirdPromise).allSettled().join()
@@ -72,7 +87,10 @@ class CompletableFutureExtensionsKtTest {
     @Test
     fun `allSettled asynchronously collects a list of completable futures of elements even if a completable future completes exceptionally`() {
         val firstPromise = "first promise".toMono().delayElement(Duration.ofMillis(500)).toFuture()
-        val secondPromise = "second promise".toMono().delayElement(Duration.ofMillis(400)).toFuture()
+        val secondPromise = GlobalScope.async {
+            delay(400)
+            "second promise"
+        }.asCompletableFuture()
         val thirdPromise = CompletableFuture.supplyAsync {
             throw Exception("async exception")
         }
