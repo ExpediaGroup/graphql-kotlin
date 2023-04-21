@@ -21,8 +21,8 @@ import graphql.schema.DataFetcherFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
-import kotlin.reflect.javaType
 import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.javaType
 
 internal class MetadataCapturingDataFetcherFactoryProvider(val supportedPackages: List<String>) : SimpleKotlinDataFetcherFactoryProvider() {
 
@@ -68,7 +68,7 @@ internal class MetadataCapturingDataFetcherFactoryProvider(val supportedPackages
                 name = kProperty.getter.javaMethod!!.name
             )
         )
-        additionalTypes.add(kProperty.returnType.javaClass.name)
+        additionalTypes.add(kProperty.returnType.javaType.typeName)
         return super.propertyDataFetcherFactory(kClass, kProperty)
     }
 
