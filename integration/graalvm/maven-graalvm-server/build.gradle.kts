@@ -49,7 +49,7 @@ tasks {
         doLast {
             exec {
                 environment(mavenEnvironmentVariables)
-                commandLine("${project.projectDir}/mvnw", "-Pnative", "clean", "package")
+                commandLine("${project.projectDir}/mvnw", "-Pnative", "clean", "package", "--no-transfer-progress")
             }
         }
         finalizedBy(copyNativeImage.path)

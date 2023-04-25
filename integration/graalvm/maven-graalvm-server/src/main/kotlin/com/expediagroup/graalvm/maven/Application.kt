@@ -47,7 +47,7 @@ fun main() {
     embeddedServer(CIO, port = 8080, host = "0.0.0.0") {
         install(GraphQL) {
             schema {
-                packages = listOf("com.expediagroup.graalvm.ktor")
+                packages = listOf("com.expediagroup.graalvm")
                 queries = listOf(
                     ArgumentQuery(),
                     AsyncQuery(),
