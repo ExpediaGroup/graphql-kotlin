@@ -1,5 +1,5 @@
 # GraphQL Kotlin Automatic Persisted Queries Support (APQ)
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-automatic-persisted-queries.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-automatic-persisted-queries%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-automatic-persisted-queries.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-automatic-persisted-queries)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-automatic-persisted-queries.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-automatic-persisted-queries)
 
 `graphql-kotlin-automatic-persisted-queries` is the `graphql-kotlin` implementation of Automatic Persisted Queries (APQ).
@@ -74,3 +74,10 @@ val graphQL = GraphQL
     .preparsedDocumentProvider(automaticPersistedQueryProvider)
     .build()
 ```
+
+## Documentation
+
+Additional information can be found in our [https://opensource.expediagroup.com/graphql-kotlin/docs/server/automatic-persisted-queries/)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-automatic-persisted-queries) of all published library versions.
+
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

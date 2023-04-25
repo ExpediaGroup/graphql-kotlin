@@ -1,7 +1,7 @@
 ---
 id: gradle-plugin-tasks
 title: Gradle Plugin Tasks
-sidebar_label: Tasks
+sidebar_label: Tasks Overiew
 ---
 
 
@@ -158,6 +158,12 @@ graphql {
     // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
     useOptionalInputWrapper = false
   }
+  graalVm {
+    // List of supported packages that can contain GraphQL schema type definitions
+    packages = listOf("com.example")
+    // Application main class name
+    mainClassName = "com.example.ApplicationKt"
+  }
   schema {
     // List of supported packages that can contain GraphQL schema type definitions
     packages = listOf("com.example")
@@ -217,6 +223,12 @@ graphql {
         // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
         useOptionalInputWrapper = false
     }
+    graalVm {
+        // List of supported packages that can contain GraphQL schema type definitions
+        packages = ["com.example"]
+        // Application main class name
+        mainClassName = "com.example.ApplicationKt"
+    }
     schema {
         packages = ["com.example"]
     }
@@ -245,6 +257,7 @@ graphqlDownloadSDL - Download schema in SDL format from target endpoint.
 graphqlGenerateClient - Generate HTTP client from the specified GraphQL queries.
 graphqlGenerateSDL - Generate GraphQL schema in SDL format.
 graphqlGenerateTestClient - Generate HTTP test client from the specified GraphQL queries.
+graphqLGraalVmMetadata - Generate GraalVM reflect metadata for GraphQL Kotlin servers.
 graphqlIntrospectSchema - Run introspection query against target GraphQL endpoint and save schema locally.--&gt;
 ```
 
@@ -383,6 +396,21 @@ for details on how to update this process to use `kotlinx.serialization` instead
         captureLineComments = true
     }
   ```
+
+### graphqLGraalVmMetadata
+
+Task that generates [GraalVM Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/)
+for `graphql-kotlin` servers. Based on the GraphQL schema it will generate `native-image.properties`, `reflect-config.json`
+and `resource-config.json` metadata files under `build/generated/graphqlGraalVmResources/META-INF/native-image/<groupId>/<projectName>`
+
+Task will be automatically applied if the project applies [GraalVM Native Plugin](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html).
+
+**Properties**
+
+| Property | Type | Required | Description |
+| -------- |------| -------- |-------------|
+| `packages` | `List<String>` | yes | List of supported packages that can be can contain GraphQL schema. |
+| `mainClassName` | String | | Application main class name. |
 
 ### graphqlIntrospectSchema
 

@@ -17,12 +17,6 @@ install(GraphQL) {
     server {
         // configurations that control GraphQL HTTP server
     }
-    routes {
-        // routing configurations
-    }
-    tools {
-        // configurations for various tools
-    }
 }
 ```
 
@@ -96,6 +90,8 @@ schema {
             debug = false
         }
     }
+    // required for GraalVM native servers
+    typeHierarchy = null
 }
 ```
 

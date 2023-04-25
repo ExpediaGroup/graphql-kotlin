@@ -1,9 +1,10 @@
 # GraphQL Kotlin Gradle Plugin
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-gradle-plugin.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-gradle-plugin%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-gradle-plugin.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-gradle-plugin)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-gradle-plugin.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-gradle-plugin)
 [![Plugin Portal](https://img.shields.io/maven-metadata/v?label=Plugin%20Portal&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fcom%2Fexpediagroup%2Fgraphql-kotlin-gradle-plugin%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/com.expediagroup.graphql)
 
-GraphQL gradle plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.
+GraphQL Kotlin Gradle plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client
+as well as generate SDL and GraalVM reachability metadata for GraphQL Kotlin servers.
 
 ## Usage
 
@@ -57,6 +58,12 @@ graphql {
       }
       // Opt-in flag to wrap nullable arguments in OptionalInput that distinguish between null and undefined value.
       useOptionalInputWrapper = false
+  }
+  graalVm {
+      // List of supported packages that can contain GraphQL schema type definitions
+      packages = listOf("com.example")
+      // Application main class name
+      mainClassName = "com.example.ApplicationKt"
   }
   schema {
       // List of supported packages that can contain GraphQL schema type definitions
@@ -155,6 +162,21 @@ test source set.
 | `schemaFile` | File | yes | GraphQL schema file that will be used to generate client code. |
 | `useOptionalInputWrapper` | Boolean | | Boolean opt-in flag to wrap nullable arguments in `OptionalInput` that distinguish between `null` and undefined/omitted value. <br/>**Default value is:** `false`.<br/>**Command line property is**: `useOptionalInputWrapper` |
 
+### graphqLGraalVmMetadata
+
+Task that generates [GraalVM Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/)
+for `graphql-kotlin` servers. Based on the GraphQL schema it will generate `native-image.properties`, `reflect-config.json`
+and `resource-config.json` metadata files under `build/generated/graphqlGraalVmResources/META-INF/native-image/<groupId>/<projectName>`
+
+Task will be automatically applied if the project applies [GraalVM Native Plugin](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html).
+
+**Properties**
+
+| Property | Type | Required | Description |
+| -------- |------| -------- |-------------|
+| `packages` | List<String> | yes | List of supported packages that can be can contain GraphQL schema. |
+| `mainClassName` | String | | Application main class name. |
+
 ### graphqlIntrospectSchema
 
 Task that executes GraphQL introspection query against specified `endpoint` and saves the underlying schema file as
@@ -174,12 +196,13 @@ should be used to generate input for the subsequent `graphqlGenerateClient` task
 
 This project uses [Gradle TestKit](https://docs.gradle.org/current/userguide/test_kit.html) to run functional integration
 tests using `GradleRunner`. Integration tests apply plugin and verifies its correctness by running embedded Gradle against
-auto-generated projects. Since tests are run in separate JVMs, there is no JaCoCo coverage calculated for those tests.
+projects under `src/integration` directory. Since tests are run in separate JVMs, there is no JaCoCo coverage calculated
+for those tests. **NOTE: Due to the big overhead of running `GradleRunner` only failure scenarios are tested in this project.
+All other integration tests can be found under various [composite builds available in the integration directory](../../integration).**
 
 ## Documentation
 
-Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/plugins/gradle-plugin)
-and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-gradle-plugin) of all published versions.
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/plugins/gradle-plugin-tasks)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-gradle-plugin) of all published library versions.
 
-If you have a question about something you can not find in our documentation or Javadocs, feel free to
-[create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

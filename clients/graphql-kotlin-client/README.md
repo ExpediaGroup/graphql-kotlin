@@ -1,5 +1,5 @@
 # GraphQL Kotlin Client
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-client%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-client)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client)
 
 This module defines an interface for a lightweight, typesafe GraphQL HTTP clients. See [graphql-kotlin-ktor-client](../graphql-kotlin-ktor-client)
@@ -22,8 +22,7 @@ together with one of the GraphQL Kotlin build plugins to auto-generate type safe
 
 ## Documentation
 
-Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/client/client-overview)
-and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client) of all published versions.
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/client/client-overview)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client) of all published library versions.
 
-If you have a question about something you can not find in our documentation or Javadocs, feel free to
-[create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

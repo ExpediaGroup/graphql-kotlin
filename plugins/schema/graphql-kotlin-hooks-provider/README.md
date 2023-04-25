@@ -1,5 +1,8 @@
 # GraphQL Kotlin Hooks Provider
 
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-hooks-provider.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-hooks-provider)
+[![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-hooks-provider.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-hooks-provider)
+
 This module provides `SchemaGeneratorHooksProvider` Service Provider Interface that is used by the GraphQL Kotlin Plugins
 to obtain an instance of `SchemaGeneratorHooks` that will be used to generate GraphQL schema.
 
