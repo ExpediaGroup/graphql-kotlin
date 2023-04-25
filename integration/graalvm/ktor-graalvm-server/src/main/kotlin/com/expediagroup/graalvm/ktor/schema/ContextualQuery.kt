@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graalvm.maven.context
+package com.expediagroup.graalvm.ktor.schema
 
-import com.expediagroup.graphql.generator.extensions.plus
-import com.expediagroup.graphql.server.ktor.DefaultKtorGraphQLContextFactory
-import graphql.GraphQLContext
-import io.ktor.server.request.ApplicationRequest
-import java.util.UUID
+import com.expediagroup.graphql.server.operations.Query
+import graphql.schema.DataFetchingEnvironment
 
-class CustomContextFactory : DefaultKtorGraphQLContextFactory() {
-    override suspend fun generateContext(request: ApplicationRequest): GraphQLContext {
-        return super.generateContext(request).plus(mapOf("custom" to (request.headers["X-Custom-Header"] ?: UUID.randomUUID().toString())))
-    }
+/**
+ * Query verifying ability to retrieve contextual data.
+ */
+class ContextualQuery : Query {
+    fun contextualQuery(env: DataFetchingEnvironment): String = env.graphQlContext.getOrDefault("custom", "defaultValue")
 }

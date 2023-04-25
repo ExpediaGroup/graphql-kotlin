@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graalvm.maven
+package com.expediagroup.graalvm.ktor
 
 import com.expediagroup.graalvm.hooks.CustomHooks
-import com.expediagroup.graalvm.maven.context.CustomContextFactory
-import com.expediagroup.graalvm.maven.schema.ContextualQuery
+import com.expediagroup.graalvm.ktor.context.CustomContextFactory
+import com.expediagroup.graalvm.ktor.schema.ContextualQuery
 import com.expediagroup.graalvm.schema.ArgumentQuery
 import com.expediagroup.graalvm.schema.AsyncQuery
 import com.expediagroup.graalvm.schema.BasicMutation
