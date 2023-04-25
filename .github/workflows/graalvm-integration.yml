@@ -40,7 +40,7 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/gradle-build-action@v2
 
-      - name: Build server
+      - name: Build native image
         id: build_server
         run: |
           ./gradlew :${server}:buildGraalVmNativeImage
@@ -48,7 +48,7 @@ jobs:
         env:
           server: ${{ matrix.server }}
 
-      - name: Build and start the native image
+      - name: Start the native image
         id: start_server
         run: |
           set -x
