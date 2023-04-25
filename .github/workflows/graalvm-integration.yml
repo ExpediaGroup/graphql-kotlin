@@ -44,7 +44,7 @@ jobs:
         id: build_server
         run: |
           ./gradlew :${server}:buildGraalVmNativeImage
-          echo "NATIVE_IMAGE=$(${server}/build/native/nativeCompile/${server})" >> $GITHUB_OUTPUT
+          echo "NATIVE_IMAGE=$(echo "${server}/build/native/nativeCompile/${server}")" >> $GITHUB_OUTPUT
         env:
           server: ${{ matrix.server }}
 
