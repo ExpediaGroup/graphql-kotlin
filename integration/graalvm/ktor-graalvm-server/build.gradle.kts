@@ -11,7 +11,7 @@ plugins {
 
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-ktor-server")
-    implementation("com.expediagroup", "graphql-kotlin-hooks-provider")
+    implementation(projects.commonGraalvmServer)
     implementation(libs.logback)
     implementation(libs.ktor.server.cio)
     testImplementation(libs.junit.api)
@@ -48,6 +48,11 @@ graalvmNative {
 
 graphql {
     graalVm {
-        packages = listOf("com.expediagroup.graalvm.ktor")
+        packages = listOf("com.expediagroup.graalvm")
     }
+}
+
+tasks.register("buildGraalVmNativeImage") {
+    dependsOn("build")
+    dependsOn("nativeCompile")
 }

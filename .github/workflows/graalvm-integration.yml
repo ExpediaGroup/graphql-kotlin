@@ -41,7 +41,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Build server
-        run: ./gradlew :${server}:build :${server}:nativeCompile
+        id: build_server
+        run: |
+          ./gradlew :${server}:buildGraalVmNativeImage
+          echo "NATIVE_IMAGE=$(${server}/build/native/nativeCompile/${server})" >> $GITHUB_OUTPUT
         env:
           server: ${{ matrix.server }}
 
@@ -50,10 +53,10 @@ jobs:
         run: |
           set -x
           echo "starting server"
-          ./${server}/build/native/nativeCompile/${server} &
+          ./${nativeImage} &
           echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
         env:
-          server: ${{ matrix.server }}
+          nativeImage: ${{ steps.build_server.outputs.NATIVE_IMAGE }}
 
       - name: Integration Test
         run: |

@@ -9,6 +9,7 @@ plugins {
 dependencies {
     api(projects.graphqlKotlinClientGenerator)
     api(projects.graphqlKotlinSdlGenerator)
+    api(projects.graphqlKotlinGraalvmMetadataGenerator)
     api(libs.kotlinx.coroutines.core)
     implementation(libs.maven.plugin.annotations)
     implementation(libs.maven.plugin.api)

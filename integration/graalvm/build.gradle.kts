@@ -17,4 +17,5 @@ allprojects {
             project.ext[key.toString()] = value
         }
     }
+    project.version = project.ext["version"]!!
 }
