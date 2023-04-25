@@ -30,12 +30,16 @@ class GenerateGraalVmMetadataMojo : AbstractSourceMojo() {
     /**
      * Target directory where to store generated files, defaults to `target`.
      */
-    @Parameter(defaultValue = "\${project.build.directory}/generated-resources/graphqlGraalVmResources/META-INF/native-image/\${project.groupId}/\${project.name}", name = "outputDirectory")
+    @Parameter(defaultValue = "\${project.build.outputDirectory}", name = "outputDirectory")
     override lateinit var outputDirectory: File
 
     override fun generate() {
+        val metadataDirectory = File(outputDirectory, "META-INF/native-image/${project.groupId}/${project.name}")
+        if (!metadataDirectory.isDirectory && !metadataDirectory.mkdirs()) {
+            throw RuntimeException("failed to create reachability metadata directory")
+        }
         log.debug("attempting to generate GraalVM using custom classloader")
-        generateGraalVmMetadata(outputDirectory, packages, mainClassName)
+        generateGraalVmMetadata(metadataDirectory, packages, mainClassName)
         log.debug("successfully generated GraalVM metadata")
     }
 }

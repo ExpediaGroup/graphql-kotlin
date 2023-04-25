@@ -53,9 +53,8 @@ abstract class AbstractSourceMojo : AbstractMojo() {
             .toTypedArray()
         val classLoader = URLClassLoader(urls, AbstractSourceMojo::class.java.classLoader)
 
-        println("OUTPUT DIR: $outputDirectory")
         if (!outputDirectory.isDirectory && !outputDirectory.mkdirs()) {
-            throw RuntimeException("failed to generate generated source directory")
+            throw RuntimeException("failed to create generated source directory")
         }
         executeWithClassloader(classLoader) {
             generate()

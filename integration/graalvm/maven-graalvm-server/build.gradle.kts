@@ -57,4 +57,7 @@ tasks {
     check {
         dependsOn(buildGraalVmNativeImage.path)
     }
+    clean {
+        delete("target")
+    }
 }
