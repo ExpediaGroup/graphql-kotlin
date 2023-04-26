@@ -21,9 +21,8 @@ cd /path/to/graphql-kotlin/examples
 ```
 
 Once the app has started you can:
-- send GraphQL requests by opening the Playground endpoint at http://localhost:8080/playground
-- send GraphQL requests directly to the endpoint at http://localhost:8080/graphql
-- explore and interact with the example schema by opening the Playground IDE endpoint at http://localhost:8080/playground
+- Explore and interact with the example schema by opening the Playground IDE endpoint at http://localhost:8080/graphiql
+- Send GraphQL requests directly to the endpoint at http://localhost:8080/graphql
 
 #### Example query
 
