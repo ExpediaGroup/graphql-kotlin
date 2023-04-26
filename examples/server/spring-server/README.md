@@ -28,4 +28,4 @@ Then to start the server:
 ./gradlew :spring-server:bootRun
 ```
 
-Once the app has started you can explore the example schema by opening the GraphQL Playground endpoint at http://localhost:8080/playground.
+Once the app has started you can explore the example schema by opening the GraphQL Playground endpoint at http://localhost:8080/graphiql.
