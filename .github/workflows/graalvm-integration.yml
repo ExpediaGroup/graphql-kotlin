@@ -1,4 +1,4 @@
-name: GraaLVM Integration Tests
+name: GraalVM Integration Tests
 
 on:
   workflow_call:
