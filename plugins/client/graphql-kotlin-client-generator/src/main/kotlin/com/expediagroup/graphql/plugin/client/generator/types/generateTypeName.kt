@@ -229,9 +229,10 @@ private fun calculateSelectedFields(
     selectionSet.selections.forEach { selection ->
         when (selection) {
             is Field -> {
-                result.add(path + selection.name)
+                val fieldName = selection.alias ?: selection.name
+                result.add(path + fieldName)
                 if (selection.selectionSet != null) {
-                    result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, "$path${selection.name}."))
+                    result.addAll(calculateSelectedFields(context, targetType, selection.selectionSet, "$path$fieldName."))
                 }
             }
             is InlineFragment -> {

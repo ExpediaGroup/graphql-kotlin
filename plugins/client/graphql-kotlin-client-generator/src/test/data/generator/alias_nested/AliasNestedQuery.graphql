@@ -1,0 +1,8 @@
+query AliasNestedQuery {
+  first: complexObjectQuery {
+    nameA: name
+  }
+  second: complexObjectQuery {
+    nameB: name
+  }
+}
