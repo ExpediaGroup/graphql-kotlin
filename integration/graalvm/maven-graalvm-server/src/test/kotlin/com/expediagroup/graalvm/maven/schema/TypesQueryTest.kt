@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.expediagroup.graalvm.ktor.schema
+package com.expediagroup.graalvm.maven.schema
 
 import com.expediagroup.graalvm.schema.TypesQuery
 import com.expediagroup.graalvm.schema.model.InputOnly

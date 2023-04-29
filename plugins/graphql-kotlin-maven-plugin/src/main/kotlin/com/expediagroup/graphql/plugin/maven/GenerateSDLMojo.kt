@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,17 @@
 package com.expediagroup.graphql.plugin.maven
 
 import com.expediagroup.graphql.plugin.schema.generateSDL
-import org.apache.maven.plugin.AbstractMojo
-import org.apache.maven.plugin.descriptor.PluginDescriptor
 import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.plugins.annotations.ResolutionScope
-import org.apache.maven.project.MavenProject
 import java.io.File
-import java.net.URLClassLoader
 
 /**
  * Download GraphQL schema from a specified SDL endpoint.
  */
 @Mojo(name = "generate-sdl", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE)
-class GenerateSDLMojo : AbstractMojo() {
-
-    /**
-     * The current Maven project.
-     */
-    @Parameter(property = "project", required = true, readonly = true)
-    private lateinit var project: MavenProject
-
-    /**
-     * Descriptor that holds current plugin information.
-     */
-    @Parameter(defaultValue = "\${plugin}", required = true, readonly = true)
-    private lateinit var pluginDescriptor: PluginDescriptor
+class GenerateSDLMojo : AbstractSourceMojo() {
 
     /**
      * List of supported packages that can be scanned to generate schema.
@@ -52,39 +36,25 @@ class GenerateSDLMojo : AbstractMojo() {
     private lateinit var packages: List<String>
 
     /**
-     * Target GraphQL schema file.
+     * Target GraphQL schema file. Defaults to `schema.graphql`.
      */
     @Parameter(defaultValue = "\${graphql.schemaFile}", name = "schemaFile")
     private var schemaFile: File? = null
 
-    override fun execute() {
-        val urls = project.compileClasspathElements
-            .map { File(it.toString()).toURI() }
-            .map { it.toURL() }
-            .plus(pluginDescriptor.classRealm.urLs)
-            .toTypedArray()
-        val classLoader = URLClassLoader(urls, GenerateSDLMojo::class.java.classLoader)
+    /**
+     * Target directory where to store generated SDL file, defaults to `target`.
+     */
+    @Parameter(defaultValue = "\${project.build.directory}", name = "outputDirectory")
+    override lateinit var outputDirectory: File
 
-        val outputDirectory = File(project.build.directory)
-        if (!outputDirectory.isDirectory) {
-            outputDirectory.mkdirs()
-        }
+    /**
+     * Generate GraphQL schema file in SDL format.
+     */
+    override fun generate() {
         val graphQLSchemaFile = schemaFile ?: File("${outputDirectory.absolutePath}/schema.graphql")
         log.debug("attempting to generate SDL using custom classloader")
-        executeWithClassloader(classLoader) {
-            val schema = generateSDL(supportedPackages = packages)
-            graphQLSchemaFile.writeText(schema)
-        }
+        val schema = generateSDL(supportedPackages = packages)
+        graphQLSchemaFile.writeText(schema)
         log.debug("successfully generated SDL")
-    }
-
-    private fun executeWithClassloader(classLoader: ClassLoader, action: () -> Unit) {
-        val originalClassLoader = Thread.currentThread().contextClassLoader
-        try {
-            Thread.currentThread().contextClassLoader = classLoader
-            action.invoke()
-        } finally {
-            Thread.currentThread().contextClassLoader = originalClassLoader
-        }
     }
 }

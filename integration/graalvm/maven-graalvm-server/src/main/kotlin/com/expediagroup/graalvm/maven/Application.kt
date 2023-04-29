@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graalvm.ktor
+package com.expediagroup.graalvm.maven
 
-import com.expediagroup.graalvm.hooks.CustomHooks
-import com.expediagroup.graalvm.ktor.context.CustomContextFactory
-import com.expediagroup.graalvm.ktor.schema.ContextualQuery
 import com.expediagroup.graalvm.schema.ArgumentQuery
 import com.expediagroup.graalvm.schema.AsyncQuery
 import com.expediagroup.graalvm.schema.BasicMutation
-import com.expediagroup.graalvm.schema.CustomScalarQuery
 import com.expediagroup.graalvm.schema.EnumQuery
 import com.expediagroup.graalvm.schema.ErrorQuery
 import com.expediagroup.graalvm.schema.IdQuery
+import com.expediagroup.graalvm.schema.model.ExampleInterface
+import com.expediagroup.graalvm.schema.model.ExampleUnion
 import com.expediagroup.graalvm.schema.InnerClassQuery
 import com.expediagroup.graalvm.schema.ListQuery
 import com.expediagroup.graalvm.schema.PolymorphicQuery
 import com.expediagroup.graalvm.schema.ScalarQuery
 import com.expediagroup.graalvm.schema.TypesQuery
-import com.expediagroup.graalvm.schema.dataloader.ExampleDataLoader
-import com.expediagroup.graalvm.schema.model.ExampleInterface
-import com.expediagroup.graalvm.schema.model.ExampleUnion
 import com.expediagroup.graalvm.schema.model.FirstImpl
 import com.expediagroup.graalvm.schema.model.FirstUnionMember
 import com.expediagroup.graalvm.schema.model.SecondImpl
 import com.expediagroup.graalvm.schema.model.SecondUnionMember
-import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.server.ktor.GraphQL
 import com.expediagroup.graphql.server.ktor.graphQLGetRoute
 import com.expediagroup.graphql.server.ktor.graphQLPostRoute
@@ -57,8 +51,6 @@ fun main() {
                 queries = listOf(
                     ArgumentQuery(),
                     AsyncQuery(),
-                    ContextualQuery(),
-                    CustomScalarQuery(),
                     EnumQuery(),
                     ErrorQuery(),
                     IdQuery(),
@@ -71,19 +63,10 @@ fun main() {
                 mutations = listOf(
                     BasicMutation()
                 )
-                hooks = CustomHooks()
                 typeHierarchy = mapOf(
                     ExampleInterface::class to listOf(FirstImpl::class, SecondImpl::class),
                     ExampleUnion::class to listOf(FirstUnionMember::class, SecondUnionMember::class)
                 )
-            }
-            engine {
-                dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
-                    ExampleDataLoader
-                )
-            }
-            server {
-                contextFactory = CustomContextFactory()
             }
         }
         routing {

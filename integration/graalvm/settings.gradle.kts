@@ -1,5 +1,7 @@
 rootProject.name = "graalvm-integration-tests"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         mavenCentral()
@@ -18,5 +20,7 @@ dependencyResolutionManagement {
 // composite graphql-kotlin library build
 includeBuild("../..")
 
+include(":common-graalvm-server")
 //include(":spring-graalvm-server")
 include(":ktor-graalvm-server")
+include(":maven-graalvm-server")

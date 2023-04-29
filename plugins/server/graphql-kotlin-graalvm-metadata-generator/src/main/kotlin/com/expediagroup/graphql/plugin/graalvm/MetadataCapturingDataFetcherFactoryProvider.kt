@@ -18,13 +18,14 @@ package com.expediagroup.graphql.plugin.graalvm
 
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import graphql.schema.DataFetcherFactory
+import io.github.classgraph.ScanResult
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.javaType
 
-internal class MetadataCapturingDataFetcherFactoryProvider(val supportedPackages: List<String>) : SimpleKotlinDataFetcherFactoryProvider() {
+internal class MetadataCapturingDataFetcherFactoryProvider(val scanResult: ScanResult, val supportedPackages: List<String>) : SimpleKotlinDataFetcherFactoryProvider() {
 
     private val reflectMetadataMap: MutableMap<String, MutableClassMetadata> = HashMap()
     private val additionalInputTypes: MutableSet<String> = HashSet()
@@ -76,7 +77,7 @@ internal class MetadataCapturingDataFetcherFactoryProvider(val supportedPackages
         additionalTypes.filter { kClass -> supportedPackages.any { pkg -> kClass.startsWith(pkg) } }
             .forEach { kClass ->
                 val existingMetadata = reflectMetadataMap[kClass]
-                val javaClass = Class.forName(kClass)
+                val javaClass = scanResult.loadClass(kClass, false)
                 if (javaClass.isEnum && existingMetadata == null) {
                     val fields = javaClass.enumConstants.map { it as Enum<*> }.map { enumValue -> FieldMetadata(enumValue.name) }.sortedBy { it.name }
                     reflectMetadataMap[kClass] = MutableClassMetadata(name = kClass, fields = fields)
@@ -86,7 +87,7 @@ internal class MetadataCapturingDataFetcherFactoryProvider(val supportedPackages
         additionalInputTypes.filter { kClass -> supportedPackages.any { pkg -> kClass.startsWith(pkg) } }
             .forEach { kClass ->
                 val existingMetadata = reflectMetadataMap[kClass]
-                val javaClass = Class.forName(kClass)
+                val javaClass = scanResult.loadClass(kClass, false)
                 if (existingMetadata == null) {
                     if (javaClass.isEnum) {
                         val fields = javaClass.enumConstants.map { it as Enum<*> }.map { enumValue -> FieldMetadata(enumValue.name) }.sortedBy { it.name }

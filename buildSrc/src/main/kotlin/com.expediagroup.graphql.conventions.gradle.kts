@@ -1,7 +1,6 @@
 import org.gradle.accessors.dm.LibrariesForLibs
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.time.Duration
 import java.time.Instant
 
 plugins {

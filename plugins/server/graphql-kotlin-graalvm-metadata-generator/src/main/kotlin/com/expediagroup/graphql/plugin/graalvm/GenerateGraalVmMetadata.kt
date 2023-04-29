@@ -83,65 +83,65 @@ fun generateGraalVmReflectMetadata(supportedPackages: List<String>): List<ClassM
         }
     }
 
-    val rootObjects: TopLevelObjects = defaultTopLevelObjects(supportedPackages)
-    val dataFetcherFactoryProvider = MetadataCapturingDataFetcherFactoryProvider(supportedPackages)
-    val typeResolver = MetadataCapturingGraphQLTypeResolver(supportedPackages)
-
-    if (hooks is FederatedSchemaGeneratorHooks) {
-        logger.debug("Generating federated schema using hooks = ${hooks.javaClass.simpleName}")
-        logger.debug("  query classes = ${rootObjects.queries.map { it.kClass }}")
-        logger.debug("  mutation classes = ${rootObjects.mutations.map { it.kClass }}")
-        logger.debug("  subscription classes = ${rootObjects.subscriptions.map { it.kClass }}")
-        val config = FederatedSchemaGeneratorConfig(
-            supportedPackages = supportedPackages,
-            hooks = hooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider,
-            typeResolver = typeResolver
-        )
-        toFederatedSchema(
-            config = config,
-            queries = rootObjects.queries,
-            mutations = rootObjects.mutations,
-            subscriptions = rootObjects.subscriptions,
-            schemaObject = rootObjects.schemaObject
-        )
-    } else {
-        logger.debug("Generating schema using hooks = ${hooks.javaClass.simpleName}")
-        logger.debug("  query classes = ${rootObjects.queries.map { it.kClass }}")
-        logger.debug("  mutation classes = ${rootObjects.mutations.map { it.kClass }}")
-        logger.debug("  subscription classes = ${rootObjects.subscriptions.map { it.kClass }}")
-        val config = SchemaGeneratorConfig(
-            supportedPackages = supportedPackages,
-            hooks = hooks,
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider,
-            typeResolver = typeResolver
-        )
-        toSchema(
-            config = config,
-            queries = rootObjects.queries,
-            mutations = rootObjects.mutations,
-            subscriptions = rootObjects.subscriptions,
-            schemaObject = rootObjects.schemaObject
-        )
-    }
-
-    typeResolver.close()
-    val result = dataFetcherFactoryProvider.reflectMetadata() + typeResolver.supertypes.map { ClassMetadata(name = it) }
-    return result.sortedBy { it.name }
-}
-
-private fun defaultTopLevelObjects(supportedPackages: List<String>): TopLevelObjects {
     val scanResult = ClassGraph()
         .enableAllInfo()
         .acceptPackages(*supportedPackages.toTypedArray())
         .scan()
 
+    val result = scanResult.use {
+        val rootObjects: TopLevelObjects = findTopLevelObjects(scanResult, supportedPackages)
+        val dataFetcherFactoryProvider = MetadataCapturingDataFetcherFactoryProvider(scanResult, supportedPackages)
+        val typeResolver = MetadataCapturingGraphQLTypeResolver(supportedPackages)
+
+        if (hooks is FederatedSchemaGeneratorHooks) {
+            logger.debug("Generating federated schema using hooks = ${hooks.javaClass.simpleName}")
+            logger.debug("  query classes = ${rootObjects.queries.map { it.kClass }}")
+            logger.debug("  mutation classes = ${rootObjects.mutations.map { it.kClass }}")
+            logger.debug("  subscription classes = ${rootObjects.subscriptions.map { it.kClass }}")
+            val config = FederatedSchemaGeneratorConfig(
+                supportedPackages = supportedPackages,
+                hooks = hooks,
+                dataFetcherFactoryProvider = dataFetcherFactoryProvider,
+                typeResolver = typeResolver
+            )
+            toFederatedSchema(
+                config = config,
+                queries = rootObjects.queries,
+                mutations = rootObjects.mutations,
+                subscriptions = rootObjects.subscriptions,
+                schemaObject = rootObjects.schemaObject
+            )
+        } else {
+            logger.debug("Generating schema using hooks = ${hooks.javaClass.simpleName}")
+            logger.debug("  query classes = ${rootObjects.queries.map { it.kClass }}")
+            logger.debug("  mutation classes = ${rootObjects.mutations.map { it.kClass }}")
+            logger.debug("  subscription classes = ${rootObjects.subscriptions.map { it.kClass }}")
+            val config = SchemaGeneratorConfig(
+                supportedPackages = supportedPackages,
+                hooks = hooks,
+                dataFetcherFactoryProvider = dataFetcherFactoryProvider,
+                typeResolver = typeResolver
+            )
+            toSchema(
+                config = config,
+                queries = rootObjects.queries,
+                mutations = rootObjects.mutations,
+                subscriptions = rootObjects.subscriptions,
+                schemaObject = rootObjects.schemaObject
+            )
+        }
+
+        typeResolver.close()
+        dataFetcherFactoryProvider.reflectMetadata() + typeResolver.supertypes.map { ClassMetadata(name = it) }
+    }
+    return result.sortedBy { it.name }
+}
+
+private fun findTopLevelObjects(scanResult: ScanResult, supportedPackages: List<String>): TopLevelObjects {
     val queries = findTopLevelObjects(scanResult, Query::class.java)
     val mutations = findTopLevelObjects(scanResult, Mutation::class.java)
     val subscriptions = findTopLevelObjects(scanResult, Subscription::class.java)
     val schemaObject = findTopLevelObjects(scanResult, Schema::class.java).firstOrNull()
-
-    scanResult.close()
     return TopLevelObjects(queries, mutations, subscriptions, schemaObject)
 }
 

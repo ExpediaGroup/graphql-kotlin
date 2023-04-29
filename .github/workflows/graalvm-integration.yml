@@ -1,4 +1,4 @@
-name: GraaLVM Integration Tests
+name: GraalVM Integration Tests
 
 on:
   workflow_call:
@@ -20,7 +20,7 @@ jobs:
         working-directory: integration/graalvm
     strategy:
       matrix:
-        server: ['ktor-graalvm-server']
+        server: ['ktor-graalvm-server', 'maven-graalvm-server']
 
     steps:
       - name: Checkout Repository
@@ -40,20 +40,23 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/gradle-build-action@v2
 
-      - name: Build server
-        run: ./gradlew :${server}:build :${server}:nativeCompile
+      - name: Build native image
+        id: build_server
+        run: |
+          ./gradlew :${server}:buildGraalVmNativeImage
+          echo "NATIVE_IMAGE=$(echo "${server}/build/native/nativeCompile/${server}")" >> $GITHUB_OUTPUT
         env:
           server: ${{ matrix.server }}
 
-      - name: Build and start the native image
+      - name: Start the native image
         id: start_server
         run: |
           set -x
           echo "starting server"
-          ./${server}/build/native/nativeCompile/${server} &
+          ./${nativeImage} &
           echo "SERVER_PID=$(echo $!)" >> $GITHUB_OUTPUT
         env:
-          server: ${{ matrix.server }}
+          nativeImage: ${{ steps.build_server.outputs.NATIVE_IMAGE }}
 
       - name: Integration Test
         run: |
