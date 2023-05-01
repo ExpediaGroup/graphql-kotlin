@@ -1,5 +1,5 @@
 # GraphQL Kotlin Client Kotlinx Serialization
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client-serialization.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-client-serialization%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client-serialization.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-client-serialization)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-client-serialization.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client-serialization)
 
 `graphql-kotlin-client-serialization` is a [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) based
@@ -10,4 +10,8 @@ and handle actual request/response serialization logic allowing clients to POST 
 >for additional details.
 
 ## Documentation
-For the latest documentation, see our GitHub pages docs site: [https://expediagroup.github.io/graphql-kotlin](https://expediagroup.github.io/graphql-kotlin)
+
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/client/client-serialization)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-client-serialization) of all published library versions.
+
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

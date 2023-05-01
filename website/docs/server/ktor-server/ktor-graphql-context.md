@@ -18,6 +18,21 @@ class CustomGraphQLContextFactory : DefaultKtorGraphQLContextFactory() {
             mapOf("myCustomValue" to (request.headers["my-custom-header"] ?: "defaultContext"))
         )
 }
+
+fun Application.graphQLModule() {
+    install(GraphQL) {
+        schema {
+            packages = listOf("com.example")
+            queries = listOf(...)
+        }
+        server {
+            contextFactory = CustomGraphQLContextFactory()
+        }
+    }
+    routing {
+        graphQLPostRoute()
+    }
+}
 ```
 
 Once your application is configured to build your custom GraphQL context, you can then access it through a data fetching
@@ -28,6 +43,6 @@ For more details, see the [Contextual Data Documentation](../../schema-generator
 
 ## Federated Context
 
-If you need [federation tracing support](../../schema-generator/federation/federation-tracing.md), you can set the appropriate [configuration properties](./ktor-configuration.md).
-The provided `DefaultKtorGraphQLContextFactory` populates the required information for federated tracing, so as long as
-you extend this context class you will maintain feature support.
+If you need [federation tracing support](../../schema-generator/federation/federation-tracing.md), you can set the appropriate
+[configuration properties](./ktor-configuration.md). The provided `DefaultKtorGraphQLContextFactory` populates the required
+information for federated tracing, so as long as you extend this context class you will maintain feature support.

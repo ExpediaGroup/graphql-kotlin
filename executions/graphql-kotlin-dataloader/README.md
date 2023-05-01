@@ -1,5 +1,5 @@
 # GraphQL Kotlin Data Loader
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-dataloader.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-dataloader%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-dataloader.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-dataloader)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-dataloader.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-dataloader)
 
 Data Loaders are a popular caching pattern from the [JavaScript GraphQL implementation](https://github.com/graphql/dataloader).
@@ -82,3 +82,10 @@ Use `KotlinDataLoaderRegistryFactory`
 
     val result = graphQL.executeAsync(executionInput)
 ```
+
+## Documentation
+
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/server/data-loader/)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-data-loader) of all published library versions.
+
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

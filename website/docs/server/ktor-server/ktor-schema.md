@@ -37,6 +37,9 @@ fun Application.graphQLModule() {
             schemaObject = MySchema()
         }
     }
+    routing {
+        graphQLPostRoute()
+    }
 }
 ```
 

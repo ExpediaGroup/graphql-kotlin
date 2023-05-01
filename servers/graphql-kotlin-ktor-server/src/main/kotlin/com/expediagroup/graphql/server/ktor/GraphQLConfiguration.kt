@@ -59,6 +59,7 @@ import kotlin.reflect.KClass
  *       debug = false
  *     }
  *   }
+ *   typeHierarchy = null
  * }
  * engine {
  *   automaticPersistedQueries {

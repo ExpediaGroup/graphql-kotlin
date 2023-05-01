@@ -39,7 +39,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://expediagroup.github.io/graphql-kotlin"
+    website = "https://opensource.expediagroup.com/graphql-kotlin/docs/"
     vcsUrl = "https://github.com/ExpediaGroup/graphql-kotlin"
     tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
 }

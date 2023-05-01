@@ -118,7 +118,9 @@ module.exports = {
         label: 'Gradle Plugin',
         items: [
           'plugins/gradle-plugin-tasks',
-          'plugins/gradle-plugin-usage'
+          'plugins/gradle-plugin-usage-client',
+          'plugins/gradle-plugin-usage-sdl',
+          'plugins/gradle-plugin-usage-graalvm'
         ]
       },
       {
@@ -126,7 +128,9 @@ module.exports = {
         label: 'Maven Plugin',
         items: [
           'plugins/maven-plugin-goals',
-          'plugins/maven-plugin-usage'
+          'plugins/maven-plugin-usage-client',
+          'plugins/maven-plugin-usage-sdl',
+          'plugins/maven-plugin-usage-graalvm'
         ]
       },
       'plugins/hooks-provider'

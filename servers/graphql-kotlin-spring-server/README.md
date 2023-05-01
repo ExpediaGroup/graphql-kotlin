@@ -1,5 +1,5 @@
 # GraphQL Kotlin Spring Server
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-spring-server.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-spring-server%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-spring-server.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-spring-server)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-spring-server.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server)
 
 `graphql-kotlin-spring-server` is a Spring Boot autoconfiguration library that automatically configures beans required to start up reactive GraphQL web server.
@@ -75,7 +75,7 @@ type Widget {
 
 ## Documentation
 
-There are more examples and documentation in our
-[documentation](https://expediagroup.github.io/graphql-kotlin), or you can view the [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server) for all published versions.
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/server/spring-server/spring-overview)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-spring-server) of all published library versions.
 
-If you have a question about something you can not find in our documentation or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

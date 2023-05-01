@@ -1,7 +1,7 @@
 ---
-id: maven-plugin-usage
-title: Maven Plugin Usage
-sidebar_label: Usage
+id: maven-plugin-usage-client
+title: Maven Plugin Client Usage
+sidebar_label: Generating Client
 ---
 
 ## Downloading Schema SDL

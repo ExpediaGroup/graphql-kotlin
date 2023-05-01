@@ -32,7 +32,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
-internal const val GRAALVM_METADATA_TASK_NAME: String = "graphQLGraalVmMetadata"
+internal const val GRAALVM_METADATA_TASK_NAME: String = "graphqLGraalVmMetadata"
 
 abstract class GraphQLGraalVmMetadataTask : SourceTask() {
 
@@ -62,7 +62,9 @@ abstract class GraphQLGraalVmMetadataTask : SourceTask() {
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     init {
+        group = "GraphQL"
         description = "Generate GraalVM reflect metadata for GraphQL Kotlin servers."
+
         outputDirectory.convention(
             project.layout.buildDirectory.dir(
                 "generated/graphqlGraalVmResources"

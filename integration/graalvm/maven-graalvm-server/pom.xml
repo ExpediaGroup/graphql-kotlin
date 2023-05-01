@@ -159,13 +159,13 @@
                                 </goals>
                                 <phase>package</phase>
                             </execution>
-<!--                            <execution>-->
-<!--                                <id>test-native</id>-->
-<!--                                <goals>-->
-<!--                                    <goal>test</goal>-->
-<!--                                </goals>-->
-<!--                                <phase>test</phase>-->
-<!--                            </execution>-->
+                            <!--                            <execution>-->
+                            <!--                                <id>test-native</id>-->
+                            <!--                                <goals>-->
+                            <!--                                    <goal>test</goal>-->
+                            <!--                                </goals>-->
+                            <!--                                <phase>test</phase>-->
+                            <!--                            </execution>-->
                         </executions>
                         <configuration>
                             <verbose>true</verbose>

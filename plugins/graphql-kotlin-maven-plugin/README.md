@@ -1,9 +1,10 @@
 # GraphQL Kotlin Maven Plugin
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-maven-plugin.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-maven-plugin%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-maven-plugin.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-maven-plugin)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-maven-plugin.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-maven-plugin)
 
-GraphQL Kotlin Maven Plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client.
+GraphQL Kotlin Maven plugin provides functionality to introspect GraphQL schemas and generate a lightweight GraphQL HTTP client
+as well as generate SDL and GraalVM reachability metadata for GraphQL Kotlin servers.
 
 ## Usage
 
@@ -134,6 +135,27 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
     </customScalars>
     ```
 
+### generate-graalvm-metadata
+
+Generates [GraalVM Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/) for
+`graphql-kotlin` servers. Based on the GraphQL schema it will generate `native-image.properties`, `reflect-config.json`
+and `resource-config.json` metadata files under `target/classes/META-INF/native-image/<groupId>/<projectName>`
+
+This task should be used in tandem with [GraalVM Native Plugin](https://graalvm.github.io/native-build-tools/latest/maven-plugin.html)
+to simplify generation of GraalVM native `graphql-kotlin` servers.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `process-classes`
+* *Requires Maven Project*
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- |------| -------- |-------------|
+| `packages` | List<String> | yes | List of supported packages that can be can contain GraphQL schema. |
+| `mainClassName` | String | | Application main class name. |
+
 ### generate-sdl
 
 Generates GraphQL schema in SDL format from your source code using reflections. Utilizes `graphql-kotlin-schema-generator`
@@ -232,10 +254,15 @@ and instead should be used to generate input for the subsequent `generate-client
     </timeoutConfiguration>
     ```
 
+## Testing
+
+This project is tested using [Maven Invoker](https://maven.apache.org/plugins/maven-invoker-plugin/) to run functional integration
+tests using separate Maven processes. **NOTE: All integration tests are located outside of this project and can be found under
+various [composite builds available in the integration directory](../../integration).
+
 ## Documentation
 
-Additional information can be found in our [documentation](https://expediagroup.github.io/graphql-kotlin/docs/plugins/maven-plugin)
-and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-maven-plugin) of all published versions.
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/plugins/maven-plugin-goals)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-maven-plugin) of all published library versions.
 
-If you have a question about something you can not find in our documentation or Javadocs, feel free to
-[create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).

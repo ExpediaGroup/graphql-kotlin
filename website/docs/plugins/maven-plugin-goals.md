@@ -1,7 +1,7 @@
 ---
 id: maven-plugin-goals
 title: Maven Plugin Goals
-sidebar_label: Goals
+sidebar_label: Goals Overview
 ---
 
 GraphQL Kotlin Maven Plugin provides functionality to generate a lightweight GraphQL HTTP client and generate GraphQL
@@ -109,6 +109,27 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
         <captureSourceLocation>true</captureSourceLocation>
     </parserOptions>
   ```
+
+### generate-graalvm-metadata
+
+Generates [GraalVM Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/) for
+`graphql-kotlin` servers. Based on the GraphQL schema it will generate `native-image.properties`, `reflect-config.json`
+and `resource-config.json` metadata files under `target/classes/META-INF/native-image/<groupId>/<projectName>`
+
+This task should be used in tandem with [GraalVM Native Plugin](https://graalvm.github.io/native-build-tools/latest/maven-plugin.html)
+to simplify generation of GraalVM native `graphql-kotlin` servers.
+
+**Attributes**
+
+* *Default Lifecycle Phase*: `process-classes`
+* *Requires Maven Project*
+
+**Parameters**
+
+| Property | Type | Required | Description |
+| -------- |------| -------- |-------------|
+| `packages` | `List<String>` | yes | List of supported packages that can be can contain GraphQL schema. |
+| `mainClassName` | String | | Application main class name. |
 
 ### generate-sdl
 

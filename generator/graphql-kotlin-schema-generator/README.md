@@ -1,12 +1,12 @@
 # GraphQL Kotlin Schema Generator
-[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-schema-generator.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.expediagroup%22%20AND%20a:%22graphql-kotlin-schema-generator%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-schema-generator.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.expediagroup&q=name%3Agraphql-kotlin-schema-generator)
 [![Javadocs](https://img.shields.io/maven-central/v/com.expediagroup/graphql-kotlin-schema-generator.svg?label=javadoc&colorB=brightgreen)](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator)
 
 Most GraphQL libraries require developers to maintain two sources of truth for their GraphQL API: the schema and the corresponding code (data fetchers or resolvers, and types). Given the similarities between Kotlin and GraphQL, such as the ability to define nullable/non-nullable types, a schema can be generated from Kotlin code without any separate schema specification. `graphql-kotlin` builds upon `graphql-java` to allow code-only, or resolver-first, GraphQL services to be built.
 
 For information on GraphQL, please visit [the GraphQL website](https://graphql.org/).
 
-For information on `graphql-java`, please visit [GraphQL Java](https://www.graphql-java.com/documentation/latest/).
+For information on `graphql-java`, please visit [GraphQL Java](https://www.graphql-java.com/documentation/getting-started).
 
 ## Installation
 
@@ -88,7 +88,7 @@ type Widget {
 
 ## Documentation
 
-There are more examples and documentation in our [documentation](https://expediagroup.github.io/graphql-kotlin)
-or you can view the [javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator) for all published versions.
+Additional information can be found in our [documentation](https://opensource.expediagroup.com/graphql-kotlin/docs/schema-generator/schema-generator-getting-started)
+and the [Javadocs](https://www.javadoc.io/doc/com.expediagroup/graphql-kotlin-schema-generator) of all published library versions.
 
-If you have a question about something you can not find in our documentation or javadocs, feel free to [create an issue](https://github.com/ExpediaGroup/graphql-kotlin/issues) and tag it with the question label.
+If you have a question about something you can not find in our documentation or javadocs, feel free to [start a new discussion](https://github.com/ExpediaGroup/graphql-kotlin/discussions).
