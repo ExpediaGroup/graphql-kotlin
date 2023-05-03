@@ -27,16 +27,14 @@ import org.dataloader.DataLoader
 import java.util.concurrent.CompletableFuture
 
 /**
- * Check if all futures collected on [KotlinDataLoaderRegistry.dispatchAll] were handled and we have more futures than we
- * had when we started to dispatch, if so, means that [DataLoader]s were chained
+ * Check if all futures collected on [KotlinDataLoaderRegistry.dispatchAll] were handled
+ * and if we have more futures than we had when we started to dispatch, if so,
+ * means that [DataLoader]s were chained, so we need to dispatch the dataLoaderRegistry.
  */
 fun <V> CompletableFuture<V>.dispatchIfNeeded(
     environment: DataFetchingEnvironment
 ): CompletableFuture<V> {
-    val dataLoaderRegistry =
-        environment
-            .graphQlContext.get<KotlinDataLoaderRegistry>(KotlinDataLoaderRegistry::class)
-            ?: throw MissingKotlinDataLoaderRegistryException()
+    val dataLoaderRegistry = environment.dataLoaderRegistry as? KotlinDataLoaderRegistry ?: throw MissingKotlinDataLoaderRegistryException()
 
     if (dataLoaderRegistry.dataLoadersInvokedOnDispatch()) {
         val cantContinueExecution = when {
