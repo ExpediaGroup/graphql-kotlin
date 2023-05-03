@@ -4,7 +4,11 @@ title: Maven Plugin SDL Usage
 sidebar_label: Generating SDL
 ---
 
-## Generating SDL Example
+GraphQL Kotlin follows a code-first approach where schema is auto generated from your source code at runtime. GraphQL Kotlin
+plugins can be used to generate schema as a build time artifact. This allows you to seamlessly integrate with various
+GraphQL tools that may require a schema artifact as an input (e.g. to perform backwards compatibility checks, etc).
+
+## Generating SDL
 
 GraphQL schema can be generated directly from your source code using reflections. `generate-sdl` mojo will scan your
 classpath looking for classes implementing `Query`, `Mutation` and `Subscription` marker interfaces and then generates the
@@ -32,7 +36,7 @@ types.
 </plugin>
 ```
 
-## Generating SDL with Custom Hooks Provider Example
+## Using Custom Hooks Provider
 
 Plugin will default to use `NoopSchemaGeneratorHooks` to generate target GraphQL schema. If your project uses custom hooks
 or needs to generate the federated GraphQL schema, you will need to provide an instance of `SchemaGeneratorHooksProvider`
