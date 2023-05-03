@@ -114,7 +114,7 @@ Generate GraphQL client code based on the provided GraphQL schema and target que
 
 Generates [GraalVM Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/) for
 `graphql-kotlin` servers. Based on the GraphQL schema it will generate `native-image.properties`, `reflect-config.json`
-and `resource-config.json` metadata files under `target/classes/META-INF/native-image/<groupId>/<projectName>`
+and `resource-config.json` metadata files under `target/classes/META-INF/native-image/<groupId>/<projectName>/graphql`
 
 This task should be used in tandem with [GraalVM Native Plugin](https://graalvm.github.io/native-build-tools/latest/maven-plugin.html)
 to simplify generation of GraalVM native `graphql-kotlin` servers.

@@ -42,10 +42,7 @@ import com.expediagroup.graphql.generator.GraphQLTypeResolver
 import com.expediagroup.graphql.generator.SimpleTypeResolver
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.annotation.Bean
-import org.springframework.context.support.GenericApplicationContext
-import org.springframework.context.support.beans
 
 @SpringBootApplication
 class Application {
@@ -65,29 +62,47 @@ class Application {
             ExampleUnion::class to listOf(FirstUnionMember::class, SecondUnionMember::class)
         )
     )
-}
 
-// registers all queries from common module using functional style
-class GraphQLInitializer : ApplicationContextInitializer<GenericApplicationContext> {
-    override fun initialize(applicationContext: GenericApplicationContext) {
-        beans {
-            // queries
-            bean<ArgumentQuery>()
-            bean<AsyncQuery>()
-            bean<ContextualQuery>()
-            bean<CustomScalarQuery>()
-            bean<EnumQuery>()
-            bean<ErrorQuery>()
-            bean<IdQuery>()
-            bean<InnerClassQuery>()
-            bean<ListQuery>()
-            bean<PolymorphicQuery>()
-            bean<ScalarQuery>()
-            bean<TypesQuery>()
-            // mutations
-            bean<BasicMutation>()
-        }.initialize(applicationContext)
-    }
+    // queries
+    @Bean
+    fun argumentQuery() = ArgumentQuery()
+
+    @Bean
+    fun asyncQuery() = AsyncQuery()
+
+    @Bean
+    fun contextualQuery() = ContextualQuery()
+
+    @Bean
+    fun customScalarQuery() = CustomScalarQuery()
+
+    @Bean
+    fun enumQuery() = EnumQuery()
+
+    @Bean
+    fun errorQuery() = ErrorQuery()
+
+    @Bean
+    fun idQuery() = IdQuery()
+
+    @Bean
+    fun innerClassQuery() = InnerClassQuery()
+
+    @Bean
+    fun listQuery() = ListQuery()
+
+    @Bean
+    fun polymorphicQuery() = PolymorphicQuery()
+
+    @Bean
+    fun scalarQuery() = ScalarQuery()
+
+    @Bean
+    fun typesQuery() = TypesQuery()
+
+    // mutations
+    @Bean
+    fun basicMutation() = BasicMutation()
 }
 
 fun main(args: Array<String>) {

@@ -80,7 +80,7 @@ abstract class GraphQLGraalVmMetadataTask : SourceTask() {
             throw RuntimeException("attempt to generate SDL failed - missing required supportedPackages property")
         }
 
-        val targetDirectory = outputDirectory.dir("META-INF/native-image/${project.group}/${project.name}").get().asFile
+        val targetDirectory = outputDirectory.dir("META-INF/native-image/${project.group}/${project.name}/graphql").get().asFile
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("failed to generate target resource directory = $targetDirectory")
         }
