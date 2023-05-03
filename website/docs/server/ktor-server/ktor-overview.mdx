@@ -98,3 +98,9 @@ GraphQL plugin provides following `Route` extension functions
 - `Route#graphQLPostRoute` - GraphQL route for processing POST query requests
 - `Route#graphQLSDLRoute` - GraphQL route for exposing schema in Schema Definition Language (SDL) format
 - `Route#graphiQLRoute` - GraphQL route for exposing [an official IDE](https://github.com/graphql/graphiql) from the GraphQL Foundation
+
+## GraalVm Native Image Support
+
+GraphQL Kotlin Ktor Server can be compiled to a [native image](https://www.graalvm.org/latest/reference-manual/native-image/)
+using GraalVM Ahead-of-Time compilation. See [Gradle plugin](../../plugins/gradle-plugin-usage-graalvm.mdx) and/or
+[Maven plugin](../../plugins/maven-plugin-usage-graalvm.md) documentation for details.

@@ -77,3 +77,9 @@ Your newly created GraphQL server starts up with following preconfigured default
 
 Note: **/playground** - [Prisma Labs GraphQL Playground IDE](https://github.com/graphql/graphql-playground) endpoint
 is still available, but need to be configured through the [Spring Properties](./spring-properties.md)
+
+## GraalVm Native Image Support
+
+GraphQL Kotlin Spring Server can be compiled to a [native image](https://www.graalvm.org/latest/reference-manual/native-image/)
+using GraalVM Ahead-of-Time compilation. See [Gradle plugin](../../plugins/gradle-plugin-usage-graalvm.mdx) and/or
+[Maven plugin](../../plugins/maven-plugin-usage-graalvm.md) documentation for details.

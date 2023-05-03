@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.spring
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 
 /**
  * [ConfigurationProperties] bean that defines supported GraphQL configuration options.
@@ -29,13 +30,21 @@ data class GraphQLConfigurationProperties(
     val packages: List<String>,
     /** Boolean flag indicating whether to print the schema after generator creates it */
     val printSchema: Boolean = false,
+    @NestedConfigurationProperty
     val federation: FederationConfigurationProperties = FederationConfigurationProperties(),
+    @NestedConfigurationProperty
     val subscriptions: SubscriptionConfigurationProperties = SubscriptionConfigurationProperties(),
+    @NestedConfigurationProperty
     val playground: PlaygroundConfigurationProperties = PlaygroundConfigurationProperties(),
+    @NestedConfigurationProperty
     val graphiql: GraphiQLConfigurationProperties = GraphiQLConfigurationProperties(),
+    @NestedConfigurationProperty
     val sdl: SDLConfigurationProperties = SDLConfigurationProperties(),
+    @NestedConfigurationProperty
     val introspection: IntrospectionConfigurationProperties = IntrospectionConfigurationProperties(),
+    @NestedConfigurationProperty
     val batching: BatchingConfigurationProperties = BatchingConfigurationProperties(),
+    @NestedConfigurationProperty
     val automaticPersistedQueries: AutomaticPersistedQueriesConfigurationProperties = AutomaticPersistedQueriesConfigurationProperties()
 ) {
     /**
@@ -55,6 +64,7 @@ data class GraphQLConfigurationProperties(
         /**
          * Federation tracing config
          */
+        @NestedConfigurationProperty
         val tracing: FederationTracingConfigurationProperties = FederationTracingConfigurationProperties()
     )
 

@@ -1,0 +1,7 @@
+graphql:
+  packages:
+    - "com.expediagroup.graalvm"
+
+context:
+  initializer:
+    classes: com.expediagroup.graalvm.spring.GraphQLInitializer

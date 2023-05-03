@@ -6,9 +6,6 @@ on:
     branches:
       - master
     paths:
-      - 'generator/**'
-      - 'servers/**'
-      - 'plugins/**'
       - 'integration/graalvm/**'
 
 jobs:
@@ -20,7 +17,7 @@ jobs:
         working-directory: integration/graalvm
     strategy:
       matrix:
-        server: ['ktor-graalvm-server', 'maven-graalvm-server']
+        server: ['ktor-graalvm-server', 'maven-graalvm-server', 'spring-graalvm-server']
 
     steps:
       - name: Checkout Repository

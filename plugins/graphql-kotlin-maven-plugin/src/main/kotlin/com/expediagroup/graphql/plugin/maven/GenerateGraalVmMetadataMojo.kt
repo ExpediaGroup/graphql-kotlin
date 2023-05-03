@@ -34,7 +34,7 @@ class GenerateGraalVmMetadataMojo : AbstractSourceMojo() {
     override lateinit var outputDirectory: File
 
     override fun generate() {
-        val metadataDirectory = File(outputDirectory, "META-INF/native-image/${project.groupId}/${project.name}")
+        val metadataDirectory = File(outputDirectory, "META-INF/native-image/${project.groupId}/${project.name}/graphql")
         if (!metadataDirectory.isDirectory && !metadataDirectory.mkdirs()) {
             throw RuntimeException("failed to create reachability metadata directory")
         }

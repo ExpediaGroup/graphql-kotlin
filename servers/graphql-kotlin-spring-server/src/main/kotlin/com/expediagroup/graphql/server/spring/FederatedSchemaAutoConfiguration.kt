@@ -20,10 +20,13 @@ import com.apollographql.federation.graphqljava.tracing.FederatedTracingInstrume
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.generator.federation.FederatedClasspathTypeResolver
+import com.expediagroup.graphql.generator.federation.FederatedGraphQLTypeResolver
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorConfig
 import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.federation.execution.FederatedTypeResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
+import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
@@ -63,16 +66,22 @@ class FederatedSchemaAutoConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
+    fun federatedGraphQLTypeResolver(): FederatedGraphQLTypeResolver = FederatedClasspathTypeResolver(ClassScanner(config.packages))
+
+    @Bean
+    @ConditionalOnMissingBean
     fun federatedSchemaConfig(
         hooks: FederatedSchemaGeneratorHooks,
         topLevelNames: Optional<TopLevelNames>,
-        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
+        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider,
+        typeResolver: FederatedGraphQLTypeResolver
     ): FederatedSchemaGeneratorConfig = FederatedSchemaGeneratorConfig(
         supportedPackages = config.packages,
         topLevelNames = topLevelNames.orElse(TopLevelNames()),
         hooks = hooks,
         dataFetcherFactoryProvider = dataFetcherFactoryProvider,
-        introspectionEnabled = config.introspection.enabled
+        introspectionEnabled = config.introspection.enabled,
+        typeResolver = typeResolver
     )
 
     @Bean
