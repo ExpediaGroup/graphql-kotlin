@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DataLoaderSyncExecutionExhaustedInstrumentationTest {
     private val dataLoaderSyncExecutionExhaustedInstrumentation = DataLoaderSyncExecutionExhaustedInstrumentation()
@@ -387,6 +388,10 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
 
         assertEquals(3, results.size)
 
+        results.forEach { result ->
+            assertTrue(result.errors.isEmpty())
+        }
+
         val missionStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionDataLoader"]?.statistics
         val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
@@ -424,10 +429,15 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
         )
 
         assertEquals(3, results.size)
+        results.forEach { result ->
+            assertTrue(result.errors.isEmpty())
+        }
 
+        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
         val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
         val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(1, planetStatistics?.batchInvokeCount)
     }
@@ -466,11 +476,16 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
             DataLoaderInstrumentationStrategy.SYNC_EXHAUSTION
         )
 
+        val astronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["AstronautDataLoader"]?.statistics
         val missionsByAstronautStatistics = kotlinDataLoaderRegistry.dataLoadersMap["MissionsByAstronautDataLoader"]?.statistics
         val planetStatistics = kotlinDataLoaderRegistry.dataLoadersMap["PlanetsByMissionDataLoader"]?.statistics
 
         assertEquals(2, results.size)
+        results.forEach { result ->
+            assertTrue(result.errors.isEmpty())
+        }
 
+        assertEquals(1, astronautStatistics?.batchInvokeCount)
         assertEquals(1, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(1, planetStatistics?.batchInvokeCount)
     }
