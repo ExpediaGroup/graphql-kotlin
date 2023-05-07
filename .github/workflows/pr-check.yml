@@ -20,3 +20,7 @@ jobs:
   build-examples:
     needs: build-libraries
     uses: ./.github/workflows/build-examples.yml
+
+  graalvm-integration:
+    needs: build-libraries
+    uses: ./.github/workflows/graalvm-integration.yml

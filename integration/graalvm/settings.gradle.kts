@@ -21,6 +21,6 @@ dependencyResolutionManagement {
 includeBuild("../..")
 
 include(":common-graalvm-server")
-//include(":spring-graalvm-server")
 include(":ktor-graalvm-server")
+include(":spring-graalvm-server")
 include(":maven-graalvm-server")

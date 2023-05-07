@@ -16,12 +16,15 @@
 
 package com.expediagroup.graphql.server.spring
 
+import com.expediagroup.graphql.generator.ClasspathTypeResolver
+import com.expediagroup.graphql.generator.GraphQLTypeResolver
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.generator.toSchema
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
@@ -53,16 +56,22 @@ class NonFederatedSchemaAutoConfiguration(
 
     @Bean
     @ConditionalOnMissingBean
+    fun typeResolver(): GraphQLTypeResolver = ClasspathTypeResolver(ClassScanner(config.packages))
+
+    @Bean
+    @ConditionalOnMissingBean
     fun schemaConfig(
         topLevelNames: Optional<TopLevelNames>,
         hooks: Optional<SchemaGeneratorHooks>,
-        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider
+        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider,
+        typeResolver: GraphQLTypeResolver
     ): SchemaGeneratorConfig = SchemaGeneratorConfig(
         supportedPackages = config.packages,
         topLevelNames = topLevelNames.orElse(TopLevelNames()),
         hooks = hooks.orElse(NoopSchemaGeneratorHooks),
         dataFetcherFactoryProvider = dataFetcherFactoryProvider,
-        introspectionEnabled = config.introspection.enabled
+        introspectionEnabled = config.introspection.enabled,
+        typeResolver = typeResolver
     )
 
     @Bean

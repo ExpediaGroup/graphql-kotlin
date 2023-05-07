@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graalvm.ktor.schema
+package com.expediagroup.graalvm.schema
 
 import com.expediagroup.graphql.server.operations.Query
 import graphql.schema.DataFetchingEnvironment

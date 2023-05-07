@@ -18,10 +18,10 @@ package com.expediagroup.graalvm.ktor
 
 import com.expediagroup.graalvm.hooks.CustomHooks
 import com.expediagroup.graalvm.ktor.context.CustomContextFactory
-import com.expediagroup.graalvm.ktor.schema.ContextualQuery
 import com.expediagroup.graalvm.schema.ArgumentQuery
 import com.expediagroup.graalvm.schema.AsyncQuery
 import com.expediagroup.graalvm.schema.BasicMutation
+import com.expediagroup.graalvm.schema.ContextualQuery
 import com.expediagroup.graalvm.schema.CustomScalarQuery
 import com.expediagroup.graalvm.schema.EnumQuery
 import com.expediagroup.graalvm.schema.ErrorQuery

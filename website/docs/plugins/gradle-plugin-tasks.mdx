@@ -401,7 +401,7 @@ for details on how to update this process to use `kotlinx.serialization` instead
 
 Task that generates [GraalVM Reachability Metadata](https://www.graalvm.org/latest/reference-manual/native-image/metadata/)
 for `graphql-kotlin` servers. Based on the GraphQL schema it will generate `native-image.properties`, `reflect-config.json`
-and `resource-config.json` metadata files under `build/generated/graphqlGraalVmResources/META-INF/native-image/<groupId>/<projectName>`
+and `resource-config.json` metadata files under `build/generated/graphqlGraalVmResources/META-INF/native-image/<groupId>/<projectName>/graphql`
 
 Task will be automatically applied if the project applies [GraalVM Native Plugin](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html).
 
