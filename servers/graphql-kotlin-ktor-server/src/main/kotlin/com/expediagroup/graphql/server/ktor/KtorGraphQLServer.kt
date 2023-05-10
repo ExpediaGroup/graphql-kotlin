@@ -18,6 +18,7 @@ package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
 import io.ktor.server.request.ApplicationRequest
 
 /**
@@ -26,5 +27,5 @@ import io.ktor.server.request.ApplicationRequest
 class KtorGraphQLServer(
     requestParser: KtorGraphQLRequestParser,
     contextFactory: KtorGraphQLContextFactory,
-    requestHandler: GraphQLRequestHandler
+    requestHandler: GraphQLRequestHandler,
 ) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)

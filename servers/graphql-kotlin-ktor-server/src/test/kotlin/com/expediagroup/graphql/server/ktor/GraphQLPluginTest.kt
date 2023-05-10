@@ -17,24 +17,27 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.serialization.jackson.jackson
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
-import io.ktor.server.routing.Routing
-import io.ktor.server.testing.testApplication
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.testing.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class GraphQLPluginTest {
 
@@ -44,6 +47,10 @@ class GraphQLPluginTest {
         } else {
             "Hello $name"
         }
+    }
+
+    class TestSubscription : Subscription {
+        fun flow() = flowOf(1, 2, 3)
     }
 
     @Test
@@ -167,6 +174,33 @@ class GraphQLPluginTest {
             assertEquals(HttpStatusCode.BadRequest, response.status)
         }
     }
+
+    @Test
+    fun `server should handle subscription requests`() {
+        testApplication {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    jackson()
+                }
+                install(WebSockets)
+            }
+
+            client.webSocket("/subscriptions") {
+                outgoing.send(Frame.Text("""{"type": "connection_init"}"""))
+
+                val ack = incoming.receive()
+                assertIs<Frame.Text>(ack)
+                assertEquals("""{"type":"connection_ack"}""", ack.readText())
+
+                outgoing.send(Frame.Text("""{"type": "subscribe", "id": "unique-id", "payload": { "query": "subscription { flow }" }}"""))
+
+                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":1}}}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":2}}}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":3}}}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"type":"complete","id":"unique-id"}""", (incoming.receive() as? Frame.Text)?.readText())
+            }
+        }
+    }
 }
 
 fun Application.testGraphQLModule() {
@@ -176,11 +210,16 @@ fun Application.testGraphQLModule() {
             queries = listOf(
                 GraphQLPluginTest.TestQuery(),
             )
+            subscriptions = listOf(
+                GraphQLPluginTest.TestSubscription(),
+            )
         }
     }
+    install(io.ktor.server.websocket.WebSockets)
     install(Routing) {
         graphQLGetRoute()
         graphQLPostRoute()
+        graphQLSubscriptionsRoute()
         graphQLSDLRoute()
     }
 }

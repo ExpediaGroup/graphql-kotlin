@@ -102,7 +102,8 @@ module.exports = {
           'server/ktor-server/ktor-schema',
           'server/ktor-server/ktor-graphql-context',
           'server/ktor-server/ktor-http-request-response',
-          'server/ktor-server/ktor-configuration'
+          'server/ktor-server/ktor-configuration',
+          'server/ktor-server/ktor-subscriptions'
         ]
       }
     ],

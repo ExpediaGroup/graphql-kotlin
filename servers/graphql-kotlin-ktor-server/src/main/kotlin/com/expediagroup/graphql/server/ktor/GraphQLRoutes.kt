@@ -17,18 +17,15 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.ktor.http.ContentType
-import io.ktor.serialization.jackson.jackson
-import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.server.application.plugin
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.application
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 
 /**
  * Configures GraphQL GET route
@@ -68,6 +65,27 @@ fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Bool
         }
     }
     return route
+}
+
+/**
+ * Configures GraphQL subscriptions route
+ *
+ * @param endpoint GraphQL server subscriptions endpoint, defaults to 'subscriptions'
+ * @param handlerOverride Alternative KtorGraphQLSubscriptionHandler to handle subscriptions logic
+ */
+fun Route.graphQLSubscriptionsRoute(
+    endpoint: String = "subscriptions",
+    protocol: String? = null,
+    handlerOverride: KtorGraphQLSubscriptionHandler? = null,
+) {
+    val handler = handlerOverride ?: run {
+        val graphQLPlugin = this.application.plugin(GraphQL)
+        graphQLPlugin.subscriptionsHandler
+    }
+
+    webSocket(path = endpoint, protocol = protocol) {
+        handler.handle(this)
+    }
 }
 
 /**

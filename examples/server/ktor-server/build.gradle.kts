@@ -14,6 +14,8 @@ application {
 dependencies {
     implementation("com.expediagroup", "graphql-kotlin-ktor-server")
     implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.websockets)
+    implementation(libs.ktor.server.cors)
     implementation(libs.logback)
     implementation(libs.kotlinx.coroutines.jdk8)
 }

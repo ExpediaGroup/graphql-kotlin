@@ -18,6 +18,7 @@ package com.expediagroup.graphql.examples.server.ktor
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.examples.server.ktor.schema.BookQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.CourseQueryService
+import com.expediagroup.graphql.examples.server.ktor.schema.ExampleSubscriptionService
 import com.expediagroup.graphql.examples.server.ktor.schema.HelloQueryService
 import com.expediagroup.graphql.examples.server.ktor.schema.LoginMutationService
 import com.expediagroup.graphql.examples.server.ktor.schema.UniversityQueryService
@@ -28,12 +29,25 @@ import com.expediagroup.graphql.server.ktor.GraphQL
 import com.expediagroup.graphql.server.ktor.graphQLGetRoute
 import com.expediagroup.graphql.server.ktor.graphQLPostRoute
 import com.expediagroup.graphql.server.ktor.graphQLSDLRoute
+import com.expediagroup.graphql.server.ktor.graphQLSubscriptionsRoute
 import com.expediagroup.graphql.server.ktor.graphiQLRoute
+import io.ktor.serialization.jackson.JacksonWebsocketContentConverter
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.Routing
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.pingPeriod
+import java.time.Duration
 
 fun Application.graphQLModule() {
+    install(WebSockets) {
+        pingPeriod = Duration.ofSeconds(1)
+        contentConverter = JacksonWebsocketContentConverter()
+    }
+    install(CORS) {
+        anyHost()
+    }
     install(GraphQL) {
         schema {
             packages = listOf("com.expediagroup.graphql.examples.server")
@@ -45,6 +59,9 @@ fun Application.graphQLModule() {
             )
             mutations = listOf(
                 LoginMutationService()
+            )
+            subscriptions = listOf(
+                ExampleSubscriptionService()
             )
         }
         engine {
@@ -59,6 +76,7 @@ fun Application.graphQLModule() {
     install(Routing) {
         graphQLGetRoute()
         graphQLPostRoute()
+        graphQLSubscriptionsRoute()
         graphiQLRoute()
         graphQLSDLRoute()
     }
