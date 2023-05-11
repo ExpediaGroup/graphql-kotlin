@@ -47,7 +47,7 @@ interface KtorGraphQLSubscriptionHooks {
     ): Unit = Unit
 
     /**
-     * Called when client's unsubscribes
+     * Called when client unsubscribes
      */
     fun onOperationComplete(
         operationId: String,

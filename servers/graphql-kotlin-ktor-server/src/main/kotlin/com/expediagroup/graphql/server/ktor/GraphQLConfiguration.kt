@@ -117,7 +117,7 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         var queries: List<Query> = emptyList()
         /** List of GraphQL mutations supported by this server */
         var mutations: List<Mutation> = emptyList()
-//        /** List of GraphQL subscriptions supported by this server */
+        /** List of GraphQL subscriptions supported by this server */
         var subscriptions: List<Subscription> = emptyList()
         /** GraphQL schema object with any custom directives */
         var schemaObject: Schema? = null
