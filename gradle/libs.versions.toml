@@ -12,7 +12,7 @@ kotlinx-coroutines = "1.6.4"
 kotlinx-serialization = "1.4.1"
 ktor = "2.2.4"
 maven-plugin-annotation = "3.6.0"
-maven-plugin-api = "3.6.3"
+maven-plugin-api = "3.9.2"
 maven-project = "2.2.1"
 poet = "1.12.0"
 ## reactorVersion should be the same reactor-core version pulled from spring-boot-starter-webflux
