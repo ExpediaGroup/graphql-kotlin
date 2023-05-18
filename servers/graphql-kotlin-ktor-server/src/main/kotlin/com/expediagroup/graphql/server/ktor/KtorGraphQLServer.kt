@@ -18,7 +18,6 @@ package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.execution.GraphQLServer
-import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
 import io.ktor.server.request.ApplicationRequest
 
 /**
