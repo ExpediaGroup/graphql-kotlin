@@ -11,34 +11,20 @@ To start using Subscriptions, you may need install [WebSockets](https://ktor.io/
 ```kotlin
 install(WebSockets)
 ```
-See the [plugin docs](https://ktor.io/docs/websocket.html#configure) to get more info about the WebSocketOptions configuration.
+See [plugin docs](https://ktor.io/docs/websocket.html#configure) to get more info about the `WebSocketOptions` configuration.
 
 ## Flow Support
 
-`graphql-kotlin-ktor-server` provides automatic support for Kotlin `Flow` by automatically configuring `FlowSubscriptionSchemaGeneratorHooks`
+`graphql-kotlin-ktor-server` provides support for Kotlin `Flow` by automatically configuring `FlowSubscriptionSchemaGeneratorHooks`
 and `FlowSubscriptionExecutionStrategy` beans.
 
 :::info
 If you define your subscriptions using Kotlin `Flow`, make sure to extend `FlowSubscriptionSchemaGeneratorHooks` whenever you need to provide some custom hooks.
 :::
 
-## WebSocket Protocols
+## WebSocket Sub-protocols
 
-There are two default GraphQL over WebSocket protocol implementations supported out of the box.
-
-If you would like to implement your own subscription handler, you can provide it to the `graphQLSubscriptionsRoute`
-as shown below:
-
-```kotlin
-install(Routing) {
-    graphQLSubscriptionsRoute(handlerOverride = MyOwnSubscriptionsHandler(...))
-}
-```
-
-### `graphql-transport-ws` (default)
-
-See [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md)
-
+We have implemented subscriptions in Ktor WebSockets following the [`graphql-transport-ws`](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) sub-protocol.
 This one is enabled by default if you don't override the config:
 
 ```kotlin
@@ -47,19 +33,12 @@ install(Routing) {
 }
 ```
 
-### `subscriptions-transport-ws` (legacy)
-
-:::caution
-`subscriptions-transport-ws` was deprecated in favor of [`graphql-ws` protocol](https://github.com/enisdenjo/graphql-ws).
-:::
-
-See [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md)
-
-To enable this protocol handler, provide an instance of `KtorGraphQLLegacySubscriptionProtocolHandler`:
+If you would like to implement your own subscription handler, e.g. to support another sub-protocol, you can provide your implementation to the `graphQLSubscriptionsRoute`
+as shown below:
 
 ```kotlin
 install(Routing) {
-    graphQLSubscriptionsRoute(handlerOverride = KtorGraphQLLegacySubscriptionProtocolHandler(...))
+    graphQLSubscriptionsRoute(handlerOverride = MyOwnSubscriptionsHandler())
 }
 ```
 

@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor.subscriptions
+package com.expediagroup.graphql.server.ktor.subscriptions.graphqlws
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
- * This class is used in both `graphql-transport-ws` and `subscriptions-transport-ws` (Legacy) protocol
- * since their message structure is the same.
+ * The `graphql-transport-ws` protocol message format
  *
  * https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
- * https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)

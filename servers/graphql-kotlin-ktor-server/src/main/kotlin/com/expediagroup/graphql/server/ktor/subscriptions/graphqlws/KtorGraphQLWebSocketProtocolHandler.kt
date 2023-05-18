@@ -19,7 +19,6 @@ package com.expediagroup.graphql.server.ktor.subscriptions.graphqlws
 import com.expediagroup.graphql.server.execution.GraphQLSubscriptionExecutor
 import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHooks
-import com.expediagroup.graphql.server.ktor.subscriptions.SubscriptionOperationMessage
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
