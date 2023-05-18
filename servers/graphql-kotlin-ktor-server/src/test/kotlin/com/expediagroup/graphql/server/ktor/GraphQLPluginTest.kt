@@ -62,6 +62,7 @@ class GraphQLPluginTest {
         val expectedSchema = """
             schema {
               query: Query
+              subscription: Subscription
             }
 
             "Marks the field, argument, input field or enum value as deprecated"
@@ -90,6 +91,10 @@ class GraphQLPluginTest {
 
             type Query {
               hello(name: String): String!
+            }
+
+            type Subscription {
+              flow: Int!
             }
         """.trimIndent()
         testApplication {
