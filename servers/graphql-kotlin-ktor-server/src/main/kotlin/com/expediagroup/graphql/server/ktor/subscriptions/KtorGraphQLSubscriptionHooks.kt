@@ -18,8 +18,7 @@ package com.expediagroup.graphql.server.ktor.subscriptions
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQLContext
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
+import io.ktor.server.websocket.WebSocketServerSession
 
 /**
  * GraphQL subscription lifecycle hooks.
@@ -45,7 +44,7 @@ interface KtorGraphQLSubscriptionHooks {
     fun onOperation(
         operationId: String,
         payload: GraphQLRequest,
-        session: WebSocketSession,
+        session: WebSocketServerSession,
         graphQLContext: GraphQLContext,
     ): Unit = Unit
 
@@ -54,7 +53,7 @@ interface KtorGraphQLSubscriptionHooks {
      */
     fun onOperationComplete(
         operationId: String,
-        session: WebSocketSession,
+        session: WebSocketServerSession,
         graphQLContext: GraphQLContext,
     ): Unit = Unit
 
@@ -62,7 +61,7 @@ interface KtorGraphQLSubscriptionHooks {
      * Called when the client disconnects
      */
     fun onDisconnect(
-        session: WebSocketSession,
+        session: WebSocketServerSession,
         graphQLContext: GraphQLContext
     ): Unit = Unit
 }

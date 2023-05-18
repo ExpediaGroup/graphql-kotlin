@@ -22,7 +22,10 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQLContext
-import io.ktor.websocket.*
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readReason
+import io.ktor.websocket.readText
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.server.ktor.subscriptions
 
-import io.ktor.server.websocket.*
+import io.ktor.server.websocket.WebSocketServerSession
 
 interface KtorGraphQLSubscriptionHandler {
     suspend fun handle(session: WebSocketServerSession)

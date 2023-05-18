@@ -25,8 +25,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.GraphQLContext
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
+import io.ktor.server.websocket.WebSocketServerSession
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.WebSocketSession
+import io.ktor.websocket.close
+import io.ktor.websocket.closeExceptionally
+import io.ktor.websocket.readText
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.map

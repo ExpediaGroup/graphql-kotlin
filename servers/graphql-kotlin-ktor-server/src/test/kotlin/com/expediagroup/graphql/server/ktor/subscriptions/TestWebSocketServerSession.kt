@@ -15,9 +15,10 @@
  */
 package com.expediagroup.graphql.server.ktor.subscriptions
 
-import io.ktor.server.application.*
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.websocket.WebSocketServerSession
+import io.ktor.websocket.Frame
+import io.ktor.websocket.WebSocketExtension
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlin.coroutines.CoroutineContext
