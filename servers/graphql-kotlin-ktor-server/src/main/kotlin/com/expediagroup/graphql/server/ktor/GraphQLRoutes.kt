@@ -19,13 +19,18 @@ package com.expediagroup.graphql.server.ktor
 import com.expediagroup.graphql.generator.extensions.print
 import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
+import io.ktor.http.ContentType
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.application.plugin
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.application
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.websocket.webSocket
 
 /**
  * Configures GraphQL GET route
