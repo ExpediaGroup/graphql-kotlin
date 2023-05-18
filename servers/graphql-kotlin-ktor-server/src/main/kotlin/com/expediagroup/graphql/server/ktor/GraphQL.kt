@@ -165,14 +165,16 @@ class GraphQL(config: GraphQLConfiguration) {
         )
     )
 
-    val subscriptionsHandler: KtorGraphQLSubscriptionHandler = KtorGraphQLWebSocketProtocolHandler(
-        subscriptionExecutor = DefaultGraphQLSubscriptionExecutor(
-            graphQL = engine,
-            dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory,
-        ),
-        objectMapper = jacksonObjectMapper().apply(config.server.jacksonConfiguration),
-        subscriptionHooks = DefaultKtorGraphQLSubscriptionHooks(),
-    )
+    val subscriptionsHandler: KtorGraphQLSubscriptionHandler by lazy {
+        KtorGraphQLWebSocketProtocolHandler(
+            subscriptionExecutor = DefaultGraphQLSubscriptionExecutor(
+                graphQL = engine,
+                dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory,
+            ),
+            objectMapper = jacksonObjectMapper().apply(config.server.jacksonConfiguration),
+            subscriptionHooks = DefaultKtorGraphQLSubscriptionHooks(),
+        )
+    }
 
     companion object Plugin : BaseApplicationPlugin<Application, GraphQLConfiguration, GraphQL> {
         override val key: AttributeKey<GraphQL> = AttributeKey("GraphQL")
