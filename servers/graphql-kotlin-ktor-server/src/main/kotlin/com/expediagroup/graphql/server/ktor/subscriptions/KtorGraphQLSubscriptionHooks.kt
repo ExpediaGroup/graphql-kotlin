@@ -22,7 +22,10 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 
 /**
- * Implementation of Apollo Subscription Server Lifecycle Events
+ * GraphQL subscription lifecycle hooks.
+ * Allows API user to add custom callbacks on subscription events, e.g. to add validation, context tracking etc.
+ *
+ * Inspired by Apollo Subscription Server Lifecycle Events.
  * https://www.apollographql.com/docs/graphql-subscriptions/lifecycle-events/
  */
 interface KtorGraphQLSubscriptionHooks {
@@ -65,6 +68,6 @@ interface KtorGraphQLSubscriptionHooks {
 }
 
 /**
- * Default implementation of Apollo Subscription Lifecycle Events (No-op).
+ * Default implementation of lifecycle event hooks (No-op).
  */
-open class DefaultKtorGraphQLLegacySubscriptionHooks : KtorGraphQLSubscriptionHooks
+open class DefaultKtorGraphQLSubscriptionHooks : KtorGraphQLSubscriptionHooks

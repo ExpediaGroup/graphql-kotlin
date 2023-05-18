@@ -35,9 +35,8 @@ import com.expediagroup.graphql.generator.internal.state.ClassScanner
 import com.expediagroup.graphql.server.execution.DefaultGraphQLSubscriptionExecutor
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
 import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
-import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLLegacySubscriptionHooks
+import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionHooks
 import com.expediagroup.graphql.server.ktor.subscriptions.graphqlws.KtorGraphQLWebSocketProtocolHandler
-import com.expediagroup.graphql.server.ktor.subscriptions.legacy.KtorGraphQLLegacySubscriptionProtocolHandler
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
@@ -172,7 +171,7 @@ class GraphQL(config: GraphQLConfiguration) {
             dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory,
         ),
         objectMapper = jacksonObjectMapper().apply(config.server.jacksonConfiguration),
-        subscriptionHooks = DefaultKtorGraphQLLegacySubscriptionHooks(),
+        subscriptionHooks = DefaultKtorGraphQLSubscriptionHooks(),
     )
 
     companion object Plugin : BaseApplicationPlugin<Application, GraphQLConfiguration, GraphQL> {
