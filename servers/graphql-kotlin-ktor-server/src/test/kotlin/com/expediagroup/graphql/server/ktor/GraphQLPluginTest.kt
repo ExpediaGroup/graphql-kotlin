@@ -40,6 +40,7 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
@@ -210,6 +211,18 @@ class GraphQLPluginTest {
             }
         }
     }
+
+    @Test
+    fun `server should provide GraphiQL endpoint`() {
+        testApplication {
+            val response = client.get("/graphiql")
+            assertEquals(HttpStatusCode.OK, response.status)
+
+            val html = response.bodyAsText()
+            assertContains(html, "var serverUrl = '/graphql';")
+            assertContains(html, """var subscriptionUrl = new URL("/subscriptions", location.href);""")
+        }
+    }
 }
 
 fun Application.testGraphQLModule() {
@@ -230,5 +243,6 @@ fun Application.testGraphQLModule() {
         graphQLPostRoute()
         graphQLSubscriptionsRoute()
         graphQLSDLRoute()
+        graphiQLRoute()
     }
 }
