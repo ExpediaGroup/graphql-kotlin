@@ -111,14 +111,18 @@ fun Route.graphQLSDLRoute(endpoint: String = "sdl"): Route {
  *
  * @param endpoint GET endpoint that will return instance of GraphiQL IDE, defaults to 'graphiql'
  * @param graphQLEndpoint your GraphQL endpoint for processing requests
+ * @param subscriptionsEndpoint your GraphQL subscriptions endpoint
  */
-fun Route.graphiQLRoute(endpoint: String = "graphiql", graphQLEndpoint: String = "graphql"): Route {
+fun Route.graphiQLRoute(
+    endpoint: String = "graphiql",
+    graphQLEndpoint: String = "graphql",
+    subscriptionsEndpoint: String = "subscriptions",
+): Route {
     val contextPath = this.environment?.rootPath
     val graphiQL = GraphQL::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
         reader.readText()
             .replace("\${graphQLEndpoint}", if (contextPath.isNullOrBlank()) graphQLEndpoint else "$contextPath/$graphQLEndpoint")
-            .replace("\${subscriptionsEndpoint}", if (contextPath.isNullOrBlank()) "subscriptions" else "$contextPath/subscriptions")
-//            .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.routing.subscriptions.endpoint else "$contextPath/${config.routing.subscriptions.endpoint}")
+            .replace("\${subscriptionsEndpoint}", if (contextPath.isNullOrBlank()) subscriptionsEndpoint else "$contextPath/$subscriptionsEndpoint")
     } ?: throw IllegalStateException("Unable to load GraphiQL")
     return get(endpoint) {
         call.respondText(graphiQL, ContentType.Text.Html)
