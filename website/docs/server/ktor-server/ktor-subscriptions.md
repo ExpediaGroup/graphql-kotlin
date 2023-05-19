@@ -42,10 +42,10 @@ install(Routing) {
 }
 ```
 
-## Subscription Hooks
+## Subscription Execution Hooks
 
-In line with the Apollo protocol, we have implemented hooks to execute functions at different stages of the connection lifecycle.
-If you would like to implement your own subscription hooks, you can provide your own implementation of `KtorGraphQLSubscriptionHooks`. The default implementation does not perform any actions.
+Subscription execution hooks allow you to "hook-in" to the various stages of the connection lifecycle and execute custom logic based on the event. By default, all subscription execution hooks are no-op.
+If you would like to provide some custom hooks, you can do so by providing your own implementation of `KtorGraphQLSubscriptionHooks`.
 
 ### `onConnect`
 Allows validation of connectionParams prior to starting the connection.
