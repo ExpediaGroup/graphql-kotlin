@@ -79,6 +79,7 @@ schema {
     // non-federated schemas, require at least a single query
     queries = listOf()
     mutations = listOf()
+    subscriptions = listOf()
     schemaObject = null
     // federated schemas require federated hooks
     hooks = NoopSchemaGeneratorHooks
@@ -141,10 +142,6 @@ server {
 
 ## Routes Configuration
 
-:::info
-Subscriptions are currently not supported.
-:::
-
 GraphQL Kotlin Ktor Plugin DOES NOT automatically configure any routes. You need to explicitly configure `Routing`
 plugin with GraphQL routes. This allows you to selectively enable routes and wrap them in some additional logic (e.g. `Authentication`).
 
@@ -171,6 +168,21 @@ GraphQL route for processing GET requests. By default, it will use `/graphql` en
 fun Route.graphQLGetRoute(endpoint: String = "graphql", streamingResponse: Boolean = true, jacksonConfiguration: ObjectMapper.() -> Unit = {}): Route
 ```
 
+### GraphQL Subscriptions route
+
+GraphQL route for processing subscriptions. By default, it will use `/subscriptions` endpoint and handle
+requests using [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) protocol handler.
+
+```kotlin
+fun Route.graphQLSubscriptionsRoute(
+    endpoint: String = "subscriptions",
+    protocol: String? = null,
+    handlerOverride: KtorGraphQLSubscriptionHandler? = null,
+)
+```
+
+See related [Subscriptions](./ktor-subscriptions.md) document for more info.
+
 ### GraphQL SDL route
 
 Convenience route to expose endpoint that returns your GraphQL schema in SDL format.
@@ -187,4 +199,3 @@ with your GraphQL server.
 ```kotlin
 fun Route.graphiQLRoute(endpoint: String = "graphiql", graphQLEndpoint: String = "graphql"): Route
 ```
-

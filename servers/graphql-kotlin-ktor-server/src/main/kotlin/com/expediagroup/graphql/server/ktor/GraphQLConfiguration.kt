@@ -22,12 +22,13 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.TopLevelNames
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks
+import com.expediagroup.graphql.generator.hooks.FlowSubscriptionSchemaGeneratorHooks
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.execution.DataFetcherExceptionHandler
@@ -116,15 +117,14 @@ class GraphQLConfiguration(config: ApplicationConfig) {
         var queries: List<Query> = emptyList()
         /** List of GraphQL mutations supported by this server */
         var mutations: List<Mutation> = emptyList()
-        // TODO support subscriptions
-//        /** List of GraphQL subscriptions supported by this server */
-//        var subscriptions: List<Subscription> = emptyList()
+        /** List of GraphQL subscriptions supported by this server */
+        var subscriptions: List<Subscription> = emptyList()
         /** GraphQL schema object with any custom directives */
         var schemaObject: Schema? = null
         /** The names of the top level objects in the schema, defaults to Query, Mutation and Subscription */
         var topLevelNames: TopLevelNames = TopLevelNames()
         /** Custom hooks that will be used when generating the schema */
-        var hooks: SchemaGeneratorHooks = NoopSchemaGeneratorHooks
+        var hooks: SchemaGeneratorHooks = FlowSubscriptionSchemaGeneratorHooks()
         /** Apollo Federation configuration */
         val federation: FederationConfiguration = FederationConfiguration(config)
         fun federation(federationConfig: FederationConfiguration.() -> Unit) {

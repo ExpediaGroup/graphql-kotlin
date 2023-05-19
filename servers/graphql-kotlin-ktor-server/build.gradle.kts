@@ -10,8 +10,10 @@ dependencies {
     api(libs.ktor.serialization.jackson)
     api(libs.ktor.server.core)
     api(libs.ktor.server.content)
+    api(libs.ktor.server.websockets)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.content)
+    testImplementation(libs.ktor.client.websockets)
     testImplementation(libs.ktor.server.cio)
     testImplementation(libs.ktor.server.test.host)
 }

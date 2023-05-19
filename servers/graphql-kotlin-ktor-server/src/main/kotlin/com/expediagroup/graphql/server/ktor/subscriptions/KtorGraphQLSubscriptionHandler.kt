@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor
+package com.expediagroup.graphql.server.ktor.subscriptions
 
-import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.execution.GraphQLServer
-import io.ktor.server.request.ApplicationRequest
+import io.ktor.server.websocket.WebSocketServerSession
 
-/**
- * Server object that requires the other Ktor specific server implementations.
- */
-class KtorGraphQLServer(
-    requestParser: KtorGraphQLRequestParser,
-    contextFactory: KtorGraphQLContextFactory,
-    requestHandler: GraphQLRequestHandler,
-) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
+interface KtorGraphQLSubscriptionHandler {
+    suspend fun handle(session: WebSocketServerSession)
+}

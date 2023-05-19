@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.generator.extensions.print
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.jackson
@@ -29,6 +30,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.application
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.websocket.webSocket
 
 /**
  * Configures GraphQL GET route
@@ -71,6 +73,27 @@ fun Route.graphQLPostRoute(endpoint: String = "graphql", streamingResponse: Bool
 }
 
 /**
+ * Configures GraphQL subscriptions route
+ *
+ * @param endpoint GraphQL server subscriptions endpoint, defaults to 'subscriptions'
+ * @param handlerOverride Alternative KtorGraphQLSubscriptionHandler to handle subscriptions logic
+ */
+fun Route.graphQLSubscriptionsRoute(
+    endpoint: String = "subscriptions",
+    protocol: String? = null,
+    handlerOverride: KtorGraphQLSubscriptionHandler? = null,
+) {
+    val handler = handlerOverride ?: run {
+        val graphQLPlugin = this.application.plugin(GraphQL)
+        graphQLPlugin.subscriptionsHandler
+    }
+
+    webSocket(path = endpoint, protocol = protocol) {
+        handler.handle(this)
+    }
+}
+
+/**
  * Configures GraphQL SDL route.
  *
  * @param endpoint GET endpoint that will return GraphQL schema in SDL format, defaults to 'sdl'
@@ -88,14 +111,18 @@ fun Route.graphQLSDLRoute(endpoint: String = "sdl"): Route {
  *
  * @param endpoint GET endpoint that will return instance of GraphiQL IDE, defaults to 'graphiql'
  * @param graphQLEndpoint your GraphQL endpoint for processing requests
+ * @param subscriptionsEndpoint your GraphQL subscriptions endpoint
  */
-fun Route.graphiQLRoute(endpoint: String = "graphiql", graphQLEndpoint: String = "graphql"): Route {
+fun Route.graphiQLRoute(
+    endpoint: String = "graphiql",
+    graphQLEndpoint: String = "graphql",
+    subscriptionsEndpoint: String = "subscriptions",
+): Route {
     val contextPath = this.environment?.rootPath
     val graphiQL = GraphQL::class.java.classLoader.getResourceAsStream("graphql-graphiql.html")?.bufferedReader()?.use { reader ->
         reader.readText()
             .replace("\${graphQLEndpoint}", if (contextPath.isNullOrBlank()) graphQLEndpoint else "$contextPath/$graphQLEndpoint")
-            .replace("\${subscriptionsEndpoint}", if (contextPath.isNullOrBlank()) "subscriptions" else "$contextPath/subscriptions")
-//            .replace("\${subscriptionsEndpoint}", if (contextPath.isBlank()) config.routing.subscriptions.endpoint else "$contextPath/${config.routing.subscriptions.endpoint}")
+            .replace("\${subscriptionsEndpoint}", if (contextPath.isNullOrBlank()) subscriptionsEndpoint else "$contextPath/$subscriptionsEndpoint")
     } ?: throw IllegalStateException("Unable to load GraphiQL")
     return get(endpoint) {
         call.respondText(graphiQL, ContentType.Text.Html)

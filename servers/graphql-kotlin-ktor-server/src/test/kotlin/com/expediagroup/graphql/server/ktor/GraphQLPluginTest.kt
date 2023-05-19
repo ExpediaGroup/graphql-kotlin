@@ -17,9 +17,12 @@
 package com.expediagroup.graphql.server.ktor
 
 import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
 import com.expediagroup.graphql.server.types.GraphQLBatchRequest
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
@@ -33,8 +36,13 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.routing.Routing
 import io.ktor.server.testing.testApplication
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class GraphQLPluginTest {
 
@@ -46,11 +54,16 @@ class GraphQLPluginTest {
         }
     }
 
+    class TestSubscription : Subscription {
+        fun flow() = flowOf(1, 2, 3)
+    }
+
     @Test
     fun `SDL route test`() {
         val expectedSchema = """
             schema {
               query: Query
+              subscription: Subscription
             }
 
             "Marks the field, argument, input field or enum value as deprecated"
@@ -79,6 +92,10 @@ class GraphQLPluginTest {
 
             type Query {
               hello(name: String): String!
+            }
+
+            type Subscription {
+              flow: Int!
             }
         """.trimIndent()
         testApplication {
@@ -167,6 +184,45 @@ class GraphQLPluginTest {
             assertEquals(HttpStatusCode.BadRequest, response.status)
         }
     }
+
+    @Test
+    fun `server should handle subscription requests`() {
+        testApplication {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    jackson()
+                }
+                install(WebSockets)
+            }
+
+            client.webSocket("/subscriptions") {
+                outgoing.send(Frame.Text("""{"type": "connection_init"}"""))
+
+                val ack = incoming.receive()
+                assertIs<Frame.Text>(ack)
+                assertEquals("""{"type":"connection_ack"}""", ack.readText())
+
+                outgoing.send(Frame.Text("""{"type": "subscribe", "id": "unique-id", "payload": { "query": "subscription { flow }" }}"""))
+
+                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":1}}}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":2}}}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"type":"next","id":"unique-id","payload":{"data":{"flow":3}}}""", (incoming.receive() as? Frame.Text)?.readText())
+                assertEquals("""{"type":"complete","id":"unique-id"}""", (incoming.receive() as? Frame.Text)?.readText())
+            }
+        }
+    }
+
+    @Test
+    fun `server should provide GraphiQL endpoint`() {
+        testApplication {
+            val response = client.get("/graphiql")
+            assertEquals(HttpStatusCode.OK, response.status)
+
+            val html = response.bodyAsText()
+            assertContains(html, "var serverUrl = '/graphql';")
+            assertContains(html, """var subscriptionUrl = new URL("/subscriptions", location.href);""")
+        }
+    }
 }
 
 fun Application.testGraphQLModule() {
@@ -176,11 +232,17 @@ fun Application.testGraphQLModule() {
             queries = listOf(
                 GraphQLPluginTest.TestQuery(),
             )
+            subscriptions = listOf(
+                GraphQLPluginTest.TestSubscription(),
+            )
         }
     }
+    install(io.ktor.server.websocket.WebSockets)
     install(Routing) {
         graphQLGetRoute()
         graphQLPostRoute()
+        graphQLSubscriptionsRoute()
         graphQLSDLRoute()
+        graphiQLRoute()
     }
 }

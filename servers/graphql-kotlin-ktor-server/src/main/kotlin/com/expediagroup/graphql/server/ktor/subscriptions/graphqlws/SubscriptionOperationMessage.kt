@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package com.expediagroup.graphql.server.ktor
+package com.expediagroup.graphql.server.ktor.subscriptions.graphqlws
 
-import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
-import com.expediagroup.graphql.server.execution.GraphQLServer
-import io.ktor.server.request.ApplicationRequest
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
- * Server object that requires the other Ktor specific server implementations.
+ * The `graphql-transport-ws` protocol message format
+ *
+ * https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
  */
-class KtorGraphQLServer(
-    requestParser: KtorGraphQLRequestParser,
-    contextFactory: KtorGraphQLContextFactory,
-    requestHandler: GraphQLRequestHandler,
-) : GraphQLServer<ApplicationRequest>(requestParser, contextFactory, requestHandler)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SubscriptionOperationMessage(
+    val type: String,
+    val id: String? = null,
+    val payload: Any? = null
+)

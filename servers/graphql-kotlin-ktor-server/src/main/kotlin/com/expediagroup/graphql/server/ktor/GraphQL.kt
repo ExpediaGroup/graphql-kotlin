@@ -32,7 +32,12 @@ import com.expediagroup.graphql.generator.federation.FederatedSchemaGeneratorHoo
 import com.expediagroup.graphql.generator.federation.FederatedSimpleTypeResolver
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
 import com.expediagroup.graphql.generator.internal.state.ClassScanner
+import com.expediagroup.graphql.server.execution.DefaultGraphQLSubscriptionExecutor
 import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.ktor.subscriptions.KtorGraphQLSubscriptionHandler
+import com.expediagroup.graphql.server.ktor.subscriptions.DefaultKtorGraphQLSubscriptionHooks
+import com.expediagroup.graphql.server.ktor.subscriptions.graphqlws.KtorGraphQLWebSocketProtocolHandler
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.AsyncSerialExecutionStrategy
 import graphql.execution.instrumentation.ChainedInstrumentation
@@ -90,7 +95,7 @@ class GraphQL(config: GraphQLConfiguration) {
             config = schemaConfig,
             queries = config.schema.queries.toTopLevelObjects(),
             mutations = config.schema.mutations.toTopLevelObjects(),
-            subscriptions = emptyList(),
+            subscriptions = config.schema.subscriptions.toTopLevelObjects(),
             schemaObject = config.schema.schemaObject?.let { TopLevelObject(it) }
         )
     } else {
@@ -107,7 +112,7 @@ class GraphQL(config: GraphQLConfiguration) {
             gen.generateSchema(
                 queries = config.schema.queries.toTopLevelObjects(),
                 mutations = config.schema.mutations.toTopLevelObjects(),
-                subscriptions = emptyList(),
+                subscriptions = config.schema.subscriptions.toTopLevelObjects(),
                 schemaObject = config.schema.schemaObject?.let { TopLevelObject(it) }
             )
         }
@@ -159,6 +164,17 @@ class GraphQL(config: GraphQLConfiguration) {
             dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory
         )
     )
+
+    val subscriptionsHandler: KtorGraphQLSubscriptionHandler by lazy {
+        KtorGraphQLWebSocketProtocolHandler(
+            subscriptionExecutor = DefaultGraphQLSubscriptionExecutor(
+                graphQL = engine,
+                dataLoaderRegistryFactory = config.engine.dataLoaderRegistryFactory,
+            ),
+            objectMapper = jacksonObjectMapper().apply(config.server.jacksonConfiguration),
+            subscriptionHooks = DefaultKtorGraphQLSubscriptionHooks(),
+        )
+    }
 
     companion object Plugin : BaseApplicationPlugin<Application, GraphQLConfiguration, GraphQL> {
         override val key: AttributeKey<GraphQL> = AttributeKey("GraphQL")
