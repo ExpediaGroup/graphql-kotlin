@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,18 @@
 
 package com.expediagroup.graphql.generator.federation.validation.integration
 
+import com.expediagroup.graphql.generator.federation.directives.EXTERNAL_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.KEY_DIRECTIVE_NAME
+import com.expediagroup.graphql.generator.federation.directives.REQUIRES_DIRECTIVE_NAME
 import com.expediagroup.graphql.generator.federation.exception.InvalidFederatedSchema
 import com.expediagroup.graphql.generator.federation.toFederatedSchema
+import graphql.schema.GraphQLObjectType
+import graphql.schema.GraphQLTypeUtil
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -32,13 +38,13 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._1"))
             val validatedType = schema.getObjectType("SimpleRequires")
-            assertTrue(validatedType.hasAppliedDirective("key"))
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val weightField = validatedType.getFieldDefinition("weight")
             assertNotNull(weightField)
-            assertNotNull(weightField.hasAppliedDirective("external"))
+            assertTrue(weightField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
             val requiresField = validatedType.getFieldDefinition("shippingCost")
             assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
         }
     }
 
@@ -47,13 +53,13 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._2"))
             val validatedType = schema.getObjectType("RequiresSelectionOnList")
-            assertTrue(validatedType.hasAppliedDirective("key"))
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
-            assertNotNull(externalField.hasAppliedDirective("external"))
+            assertTrue(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
             val requiresField = validatedType.getFieldDefinition("reviews")
             assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
         }
     }
 
@@ -62,13 +68,13 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._3"))
             val validatedType = schema.getObjectType("RequiresSelectionOnInterface")
-            assertTrue(validatedType.hasAppliedDirective("key"))
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
-            assertNotNull(externalField.hasAppliedDirective("external"))
+            assertTrue(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
             val requiresField = validatedType.getFieldDefinition("review")
             assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
         }
     }
 
@@ -77,13 +83,13 @@ class FederatedRequiresDirectiveIT {
         assertDoesNotThrow {
             val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._4"))
             val validatedType = schema.getObjectType("RequiresSelectionOnUnion")
-            assertTrue(validatedType.hasAppliedDirective("key"))
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
             val externalField = validatedType.getFieldDefinition("email")
             assertNotNull(externalField)
-            assertNotNull(externalField.hasAppliedDirective("external"))
+            assertTrue(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
             val requiresField = validatedType.getFieldDefinition("review")
             assertNotNull(requiresField)
-            assertNotNull(requiresField.hasAppliedDirective("requires"))
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
         }
     }
 
@@ -111,5 +117,66 @@ class FederatedRequiresDirectiveIT {
                  - @requires(fields = "zipCode") directive on RequiresNonExistentField.shippingCost specifies invalid field set - field set specifies field that does not exist, field=zipCode
             """.trimIndent()
         assertEquals(expected, exception.message)
+    }
+
+    @Test
+    fun `verifies @requires needs @external leaf fields only`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._5"))
+            val validatedType = schema.getObjectType("LeafRequires")
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
+            val localType = validatedType.getFieldDefinition("complexType")?.type
+            assertNotNull(localType)
+            val unwrappedType = GraphQLTypeUtil.unwrapAll(localType) as GraphQLObjectType
+            assertFalse(unwrappedType.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+            val externalField = unwrappedType.getField("weight")
+            assertTrue(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+
+            val requiresField = validatedType.getFieldDefinition("shippingCost")
+            assertNotNull(requiresField)
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
+        }
+    }
+
+    @Test
+    fun `verifies @external is recursively applied for @requires selection set`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._6"))
+            val validatedType = schema.getObjectType("RecursiveExternalRequires")
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
+            val externalField = validatedType.getFieldDefinition("complexType")
+            assertNotNull(externalField)
+            assertTrue(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+
+            val unwrappedType = GraphQLTypeUtil.unwrapAll(externalField.type) as GraphQLObjectType
+            assertFalse(unwrappedType.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+            val leafField = unwrappedType.getField("weight")
+            assertFalse(leafField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+
+            val requiresField = validatedType.getFieldDefinition("shippingCost")
+            assertNotNull(requiresField)
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
+        }
+    }
+
+    @Test
+    fun `verifies @external is applied on all fields within external type`() {
+        assertDoesNotThrow {
+            val schema = toFederatedSchema(config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.requires.success._7"))
+            val validatedType = schema.getObjectType("ExternalRequiresType")
+            assertTrue(validatedType.hasAppliedDirective(KEY_DIRECTIVE_NAME))
+            val externalField = validatedType.getFieldDefinition("externalType")
+            assertNotNull(externalField)
+            assertFalse(externalField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+
+            val unwrappedType = GraphQLTypeUtil.unwrapAll(externalField.type) as GraphQLObjectType
+            assertTrue(unwrappedType.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+            val leafField = unwrappedType.getField("weight")
+            assertFalse(leafField.hasAppliedDirective(EXTERNAL_DIRECTIVE_NAME))
+
+            val requiresField = validatedType.getFieldDefinition("shippingCost")
+            assertNotNull(requiresField)
+            assertTrue(requiresField.hasAppliedDirective(REQUIRES_DIRECTIVE_NAME))
+        }
     }
 }

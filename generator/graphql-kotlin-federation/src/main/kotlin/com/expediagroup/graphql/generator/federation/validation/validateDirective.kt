@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ internal fun validateDirective(
     validatedType: String,
     targetDirective: String,
     directiveMap: Map<String, List<GraphQLAppliedDirective>>,
-    fieldMap: Map<String, GraphQLFieldDefinition>,
+    fieldMap: Map<String, GraphQLFieldDefinition>
 ): List<String> {
     val validationErrors = mutableListOf<String>()
     val directives = directiveMap[targetDirective]
