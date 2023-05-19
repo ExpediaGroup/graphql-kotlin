@@ -15,8 +15,8 @@ See [plugin docs](https://ktor.io/docs/websocket.html#configure) to get more inf
 
 ## Flow Support
 
-`graphql-kotlin-ktor-server` provides support for Kotlin `Flow` by automatically configuring `FlowSubscriptionSchemaGeneratorHooks`
-and `FlowSubscriptionExecutionStrategy` beans.
+`graphql-kotlin-ktor-server` provides support for Kotlin `Flow` by automatically configuring schema generation process with `FlowSubscriptionSchemaGeneratorHooks`
+and GraphQL execution with `FlowSubscriptionExecutionStrategy`.
 
 :::info
 If you define your subscriptions using Kotlin `Flow`, make sure to extend `FlowSubscriptionSchemaGeneratorHooks` whenever you need to provide some custom hooks.
