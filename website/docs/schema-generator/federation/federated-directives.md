@@ -500,6 +500,8 @@ The `@requires` directive is used to specify external (provided by other subgrap
 the required fields may not be needed by the client, but the service may need additional information from other subgraphs. Required fields specified in the directive field set should
 correspond to a valid field on the underlying GraphQL interface/object and should be instrumented with `@external` directive.
 
+All the leaf fields from the specified in the `@requires` selection set have to be marked as `@external` OR any of the parent fields on the path to the leaf is marked as `@external`.
+
 Fields specified in the `@requires` directive will only be specified in the queries that reference those fields. This is problematic for Kotlin as the non-nullable primitive properties
 have to be initialized when they are declared. Simplest workaround for this problem is to initialize the underlying property to some default value (e.g. null) that will be used if
 it is not specified. This approach might become problematic though as it might be impossible to determine whether fields was initialized with the default value or the invalid/default

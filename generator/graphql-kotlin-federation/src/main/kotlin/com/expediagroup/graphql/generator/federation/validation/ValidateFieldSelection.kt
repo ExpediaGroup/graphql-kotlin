@@ -26,7 +26,7 @@ import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeUtil
 import graphql.schema.GraphQLUnionType
 
-internal fun validateFieldSelection(validatedDirective: DirectiveInfo, selection: FieldSetSelection, targetType: GraphQLType, errors: MutableList<String>) {
+internal fun validateFieldSelection(validatedDirective: DirectiveInfo, selection: FieldSetSelection, targetType: GraphQLType, errors: MutableList<String>, isExternalPath: Boolean = false) {
     when (val unwrapped = GraphQLTypeUtil.unwrapNonNull(targetType)) {
         is GraphQLScalarType, is GraphQLEnumType -> {
             if (selection.subSelections.isNotEmpty()) {
@@ -38,7 +38,7 @@ internal fun validateFieldSelection(validatedDirective: DirectiveInfo, selection
             if (KEY_DIRECTIVE_NAME == validatedDirective.directiveName) {
                 errors.add("$validatedDirective specifies invalid field set - field set references GraphQLList, field=${selection.field}")
             } else {
-                validateFieldSelection(validatedDirective, selection, GraphQLTypeUtil.unwrapOne(targetType), errors)
+                validateFieldSelection(validatedDirective, selection, GraphQLTypeUtil.unwrapOne(targetType), errors, isExternalPath)
             }
         }
         is GraphQLInterfaceType -> {
@@ -51,7 +51,8 @@ internal fun validateFieldSelection(validatedDirective: DirectiveInfo, selection
                     validatedDirective,
                     selection.subSelections,
                     unwrapped.fieldDefinitions.associateBy { it.name },
-                    errors
+                    errors,
+                    isExternalPath
                 )
             }
         }
@@ -63,7 +64,8 @@ internal fun validateFieldSelection(validatedDirective: DirectiveInfo, selection
                     validatedDirective,
                     selection.subSelections,
                     unwrapped.fieldDefinitions.associateBy { it.name },
-                    errors
+                    errors,
+                    isExternalPath
                 )
             }
         }
