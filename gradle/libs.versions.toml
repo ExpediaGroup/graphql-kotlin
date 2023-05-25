@@ -1,49 +1,57 @@
 [versions]
+# TODO gradle 8 upgrade -> android-plugin v8 requires gradle 8
 android-plugin = "8.0.0-alpha11"
-classgraph = "4.8.149"
+classgraph = "4.8.160"
 dataloader = "3.2.0"
-federation = "3.0.0"
+federation = "3.0.1"
 graphql-java = "20.2"
 graalvm = "0.9.21"
-jackson = "2.14.1"
+jackson = "2.15.0"
 kotlin = "1.7.21"
-kotlinx-benchmark = "0.4.4"
+# TODO kotlin 1.8 upgrade -> kotlinx-benchmark 0.4.7+ uses kotlin 1.8
+kotlinx-benchmark = "0.4.6"
+# TODO kotlin 1.8 upgrade -> kotlinx-coroutines 1.7.0+ uses kotlin 1.8
 kotlinx-coroutines = "1.6.4"
+# TODO kotlin 1.8 upgrade -> kotlinx-serialization 1.5.0+ uses kotlin 1.8
 kotlinx-serialization = "1.4.1"
+# TODO kotlin 1.8 upgrade -> ktor 2.3.0+ uses kotlin 1.8
 ktor = "2.2.4"
-maven-plugin-annotation = "3.6.0"
-maven-plugin-api = "3.6.3"
+maven-plugin-annotation = "3.9.0"
+maven-plugin-api = "3.9.2"
 maven-project = "2.2.1"
+# TODO kotlin 1.8 upgrade -> kotlinpoet 1.13.0+ uses kotlin 1.8
 poet = "1.12.0"
-## reactorVersion should be the same reactor-core version pulled from spring-boot-starter-webflux
-reactor-core = "3.5.5"
+## reactor and spring versions should be the same as defined in spring-boot-dependencies
+reactor-core = "3.5.6"
 reactor-extensions = "1.2.2"
-slf4j = "1.7.36"
-spring = "6.0.8"
-spring-boot = "3.0.6"
+slf4j = "2.0.7"
+spring = "6.0.9"
+spring-boot = "3.1.0"
 
 # test dependencies
 # kotlin-compile-testing has to be using the same kotlin version as the kotlinx-serialization compiler
 # https://github.com/tschuchortdev/kotlin-compile-testing the latest version targets kotlin 1.7.10 which blocks updates to newer
 # versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
 compile-testing = "0.1.0"
-icu = "71.1"
-junit = "5.9.2"
-logback = "1.2.1"
+icu = "73.1"
+junit = "5.9.3"
+logback = "1.4.7"
+# TODO kotlin 1.8 upgrade -> mock 1.13.4+ uses kotlin 1.8
 mockk = "1.13.3"
-rxjava = "3.1.5"
-wiremock = "2.33.2"
+rxjava = "3.1.6"
+wiremock = "2.35.0"
 
 # plugins
+# TODO kotlin 1.8 upgrade -> detekt 1.22.0+ uses kotlin 1.8
 detekt = "1.21.0"
-dokka = "1.6.10"
-jacoco = "0.8.8"
+dokka = "1.7.20"
+jacoco = "0.8.10"
 # klint gradle plugin breaks with 0.46.x+
 ktlint-core = "0.45.2"
 ktlint-plugin = "10.3.0"
 maven-plugin-development = "0.4.1"
-nexus-publish-plugin = "1.1.0"
-plugin-publish = "0.21.0"
+nexus-publish-plugin = "1.3.0"
+plugin-publish = "1.2.0"
 
 # ====================
 # LIBRARIES
