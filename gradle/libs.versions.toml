@@ -1,5 +1,6 @@
 [versions]
-android-plugin = "8.0.1"
+# TODO gradle 8 upgrade -> android-plugin v8 requires gradle 8
+android-plugin = "8.0.0-alpha11"
 classgraph = "4.8.160"
 dataloader = "3.2.0"
 federation = "3.0.1"
