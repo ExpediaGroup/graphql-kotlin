@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 
 package com.expediagroup.graphql.examples.server.ktor.schema
 
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.models.University
 import com.expediagroup.graphql.server.operations.Query
-import graphql.GraphQLException
+import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 
 class UniversityQueryService : Query {
-    @Throws(GraphQLException::class)
-    suspend fun searchUniversities(params: UniversitySearchParameters): List<University> =
-        University.search(params.ids)
+    fun searchUniversities(params: UniversitySearchParameters, dfe: DataFetchingEnvironment): CompletableFuture<List<University>> =
+        dfe.getDataLoader<Int, University>(UniversityDataLoader.dataLoaderName)
+            .loadMany(params.ids)
 }
 
 data class UniversitySearchParameters(val ids: List<Int>)

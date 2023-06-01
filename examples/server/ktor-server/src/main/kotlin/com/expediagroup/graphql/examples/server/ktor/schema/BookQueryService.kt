@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package com.expediagroup.graphql.examples.server.ktor.schema
 
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.models.Book
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Query
+import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 
 /**
  * Provide Search options for book data
@@ -26,7 +29,9 @@ import com.expediagroup.graphql.server.operations.Query
 class BookQueryService : Query {
     @GraphQLDescription("Return list of books based on BookSearchParameter options")
     @Suppress("unused")
-    fun searchBooks(params: BookSearchParameters) = Book.search(params.ids)
+    fun searchBooks(params: BookSearchParameters, dfe: DataFetchingEnvironment): CompletableFuture<List<Book>> =
+        dfe.getDataLoader<Int, Book>(BookDataLoader.dataLoaderName)
+            .loadMany(params.ids)
 }
 
 data class BookSearchParameters(val ids: List<Int>)
