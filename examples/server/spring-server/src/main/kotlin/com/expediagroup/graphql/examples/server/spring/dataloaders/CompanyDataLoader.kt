@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.examples.server.spring.model.Company
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import org.dataloader.DataLoaderFactory
 import org.springframework.stereotype.Component
+import graphql.GraphQLContext
 import java.util.concurrent.CompletableFuture
 
 @Component
@@ -29,7 +30,8 @@ class CompanyDataLoader(private val service: CompanyService) : KotlinDataLoader<
     }
 
     override val dataLoaderName = name
-    override fun getDataLoader() = DataLoaderFactory.newDataLoader<Int, Company> { ids ->
-        CompletableFuture.supplyAsync { service.getCompanies(ids) }
-    }
+    override fun getDataLoader(graphQLContext: GraphQLContext) =
+        DataLoaderFactory.newDataLoader<Int, Company> { ids ->
+            CompletableFuture.supplyAsync { service.getCompanies(ids) }
+        }
 }

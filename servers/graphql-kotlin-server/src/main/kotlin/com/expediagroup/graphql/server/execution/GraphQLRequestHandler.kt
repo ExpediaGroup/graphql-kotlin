@@ -71,7 +71,7 @@ open class GraphQLRequestHandler(
         graphQLRequest: GraphQLServerRequest,
         graphQLContext: GraphQLContext = GraphQLContext.of(emptyMap<Any, Any>())
     ): GraphQLServerResponse {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
         return when (graphQLRequest) {
             is GraphQLRequest -> {
                 val batchGraphQLContext = graphQLContext + getBatchContext(1, dataLoaderRegistry)

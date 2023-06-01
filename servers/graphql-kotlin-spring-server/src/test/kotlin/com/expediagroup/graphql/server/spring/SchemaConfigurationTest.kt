@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFact
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.tracing.TracingInstrumentation
 import graphql.schema.DataFetchingEnvironment
@@ -88,7 +89,7 @@ class SchemaConfigurationTest {
 
                 assertThat(ctx).hasSingleBean(KotlinDataLoaderRegistryFactory::class.java)
                 val registryFactory = ctx.getBean(KotlinDataLoaderRegistryFactory::class.java)
-                val registry = registryFactory.generate()
+                val registry = registryFactory.generate(mockk())
                 assertEquals(1, registry.dataLoaders.size)
                 assertEquals(FooDataLoader.name, registry.keys.first())
                 assertThat(ctx).hasSingleBean(GraphQLRequestHandler::class.java)
@@ -193,10 +194,11 @@ class SchemaConfigurationTest {
         }
 
         override val dataLoaderName = name
-        override fun getDataLoader(): DataLoader<String, Foo> = DataLoaderFactory.newDataLoader { keys ->
-            CompletableFuture.supplyAsync {
-                keys.mapNotNull { Foo(it) }
+        override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, Foo> =
+            DataLoaderFactory.newDataLoader { keys ->
+                CompletableFuture.supplyAsync {
+                    keys.mapNotNull { Foo(it) }
+                }
             }
-        }
     }
 }

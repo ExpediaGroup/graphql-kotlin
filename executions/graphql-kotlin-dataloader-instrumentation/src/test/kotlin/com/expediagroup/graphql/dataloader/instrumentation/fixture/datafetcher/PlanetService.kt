@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.expediagroup.graphql.dataloader.instrumentation.fixture.datafetcher
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.PlanetRepository
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -30,15 +31,16 @@ data class PlanetServiceRequest(val id: Int, val missionId: Int = -1)
 
 class PlanetsByMissionDataLoader : KotlinDataLoader<PlanetServiceRequest, List<Planet>> {
     override val dataLoaderName: String = "PlanetsByMissionDataLoader"
-    override fun getDataLoader(): DataLoader<PlanetServiceRequest, List<Planet>> = DataLoaderFactory.newDataLoader(
-        { keys ->
-            PlanetRepository
-                .getPlanetsByMissionIds(keys.map(PlanetServiceRequest::missionId))
-                .collectList()
-                .toFuture()
-        },
-        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
-    )
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<PlanetServiceRequest, List<Planet>> =
+        DataLoaderFactory.newDataLoader(
+            { keys ->
+                PlanetRepository
+                    .getPlanetsByMissionIds(keys.map(PlanetServiceRequest::missionId))
+                    .collectList()
+                    .toFuture()
+            },
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+        )
 }
 
 class PlanetService {

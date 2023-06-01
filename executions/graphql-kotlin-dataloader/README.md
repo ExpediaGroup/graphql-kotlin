@@ -18,7 +18,7 @@ To help in the registration of  `DataLoaders`, we have created a basic interface
 ```kotlin
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+    fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<K, V>
 }
 ```
 
@@ -28,14 +28,19 @@ and its various configuration options.
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
-    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, User>(
-        { ids ->
-            CompletableFuture.supplyAsync {
-                ids.map { id -> userService.getUser(id) }
-            }
-        },
-        DataLoaderOptions.newOptions().setCachingEnabled(false)
-    )
+    override fun getDataLoader(graphQLContext: GraphQLContext) =
+        DataLoaderFactory.newDataLoader<ID, User>(
+            { ids, batchLoaderEnvironment ->
+                val context = batchLoaderEnvironment.getContext<GraphQLContext>()
+                // do something with graphQLContext
+                CompletableFuture.supplyAsync {
+                    ids.map { id -> userService.getUser(id) }
+                }
+            },
+            DataLoaderOptions.newOptions()
+                .setCachingEnabled(false)
+                .setBatchLoaderContextProvider { graphQLContext }
+        )
 }
 ```
 
@@ -73,7 +78,7 @@ Use `KotlinDataLoaderRegistryFactory`
 ```kotlin
     val kotlinDataLoaderRegistry = KotlinDataLoaderRegistryFactory(
         UserDataLoader()
-    ).generate()
+    ).generate(graphQLContext)
 
     val executionInput = ExecutionInput.newExecutionInput()
         .query("query MyAwesomeQuery { foo { bar } }")

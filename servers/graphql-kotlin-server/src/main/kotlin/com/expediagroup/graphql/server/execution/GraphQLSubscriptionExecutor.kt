@@ -47,7 +47,7 @@ open class DefaultGraphQLSubscriptionExecutor(
         graphQLRequest: GraphQLRequest,
         graphQLContext: GraphQLContext,
     ): Flow<GraphQLResponse<*>> {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
         val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
 
         return graphQL.execute(input)
