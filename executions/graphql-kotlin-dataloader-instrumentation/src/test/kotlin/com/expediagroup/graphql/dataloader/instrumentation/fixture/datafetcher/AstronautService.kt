@@ -23,6 +23,7 @@ import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Missio
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Planet
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.AstronautRepository
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -38,7 +39,7 @@ data class CreateAstronautServiceRequest(val name: String)
 
 class AstronautDataLoader : KotlinDataLoader<AstronautServiceRequest, Astronaut?> {
     override val dataLoaderName: String = "AstronautDataLoader"
-    override fun getDataLoader(): DataLoader<AstronautServiceRequest, Astronaut?> =
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<AstronautServiceRequest, Astronaut?> =
         DataLoaderFactory.newDataLoader(
             { keys ->
                 AstronautRepository

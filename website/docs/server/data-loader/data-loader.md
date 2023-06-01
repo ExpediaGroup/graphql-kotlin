@@ -32,12 +32,15 @@ To help in the registration of `DataLoaders`, we have created an interface `Kotl
 ```kotlin
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+    fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<K, V>
 }
 ```
 
 This allows for library users to still have full control over the creation of the `DataLoader` and its various configuration
 options but also allows common server code to handle the registration, generation and execution of the request.
+
+Additionally, the `getDataLoader` method provides access to the `graphQLContext` that was created from the [GraphQLContextFactory](../graphql-context-factory.md),
+allowing you to use the `graphQLContext` as [context of the DataLoader](https://www.graphql-java.com/documentation/batching/#passing-context-to-your-data-loader).
 
 ## `KotlinDataLoaderRegistryFactory`
 
@@ -48,26 +51,32 @@ A `DataLoader` caches the types by some unique value, usually by the type id, an
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader"
-    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, User> { ids ->
-        CompletableFuture.supplyAsync {
-            ids.map { id -> userService.getUser(id) }
+    override fun getDataLoader(graphQLContext: GraphQLContext) =
+        DataLoaderFactory.newDataLoader<ID, User> { ids ->
+            CompletableFuture.supplyAsync {
+                ids.map { id -> userService.getUser(id) }
+            }
         }
-    }
 }
 
 class FriendsDataLoader : KotlinDataLoader<ID, List<User>> {
     override val dataLoaderName = "FriendsDataLoader"
-    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, User>(
-        { ids ->
-            CompletableFuture.supplyAsync {
-                ids.map { id ->
-                    val friends: List<ID> = friendService.getFriends(id)
-                    userService.getUsers(friends)
+    override fun getDataLoader(graphQLContext: GraphQLContext) =
+        DataLoaderFactory.newDataLoader<ID, User>(
+            { ids, batchLoaderEnvironment ->
+                val context = batchLoaderEnvironment.getContext<GraphQLContext>()
+                // do something with graphQLContext
+                CompletableFuture.supplyAsync {
+                    ids.map { id ->
+                        val friends: List<ID> = friendService.getFriends(id)
+                        userService.getUsers(friends)
+                    }
                 }
-            }
-        },
-        DataLoaderOptions.newOptions().setCachingEnabled(false)
-    )
+            },
+            DataLoaderOptions.newOptions()
+                .setCachingEnabled(false)
+                .setBatchLoaderContextProvider { graphQLContext }
+        )
 }
 
 val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(
@@ -151,16 +160,20 @@ Lets create the `UserDataLoader`:
 ```kotlin
 class UserDataLoader : KotlinDataLoader<ID, User> {
     override val dataLoaderName = "UserDataLoader" // 1
-    override fun getDataLoader() = // 2
-        DataLoaderFactory.newDataLoader<Int, User> { ids, batchLoaderEnvironment ->
-            val coroutineScope = // 3
-                batchLoaderEnvironment.getGraphQLContext()?.get<CoroutineScope>()
-                    ?: CoroutineScope(EmptyCoroutineContext) // 4
+    override fun getDataLoader(graphQLContext: GraphQLContext) = // 2
+        DataLoaderFactory.newDataLoader<Int, User>(
+            { ids, batchLoaderEnvironment ->
+                val coroutineScope = // 3
+                    batchLoaderEnvironment.getContext<GraphQLContext>()?.get<CoroutineScope>()
+                        ?: CoroutineScope(EmptyCoroutineContext) // 4
 
-            coroutineScope.future { // 5
-                userService.getUsers(ids)
-            }
-        }
+                coroutineScope.future { // 5
+                    userService.getUsers(ids)
+                }
+            },
+            DataLoaderOptions.newOptions()
+                .setBatchLoaderContextProvider { graphQLContext }
+        )
 }
 
 ```
@@ -168,8 +181,8 @@ class UserDataLoader : KotlinDataLoader<ID, User> {
 There are some things going on here:
 
 1. We define the `UserDataLoader` with name "UserDataLoader".
-2. The `KotlinDataLoader#getDataLoader()` method returns a `DataLoader<Int, User>`, which `BatchLoader` function should return a `List<User>`.
-3. Given that we **don't want** to change our `UserService` async model that is using coroutines, we need a `CoroutineScope`, [which is conveniently available](../../schema-generator/execution/async-models/#coroutines) in the `GraphQLContext` and accessible through [`DataFetchingEnvironment#getGraphQLContext()`](https://github.com/ExpediaGroup/graphql-kotlin/blob/master/executions/graphql-kotlin-dataloader-instrumentation/src/main/kotlin/com/expediagroup/graphql/dataloader/instrumentation/extensions/BatchLoaderEnvironmentExtensions.kt#L43) extension function.
+2. The `KotlinDataLoader#getDataLoader(GraphQLContext)` method returns a `DataLoader<Int, User>`, which `BatchLoader` function should return a `List<User>` and `BatchLoaderEnvironment` context is the `GraphQLContext`.
+3. Given that we **don't want** to change our `UserService` async model that is using coroutines, we need a `CoroutineScope`, [which is conveniently available](../../schema-generator/execution/async-models/#coroutines) in the `GraphQLContext` and accessible through the `BatchLoaderEnvironment`.
 4. After retrieving the `CoroutineScope` from the `batchLoaderEnvironment` we will be able to execute the `userService.getUsers(ids)` suspendable function.
 5. We interoperate the suspendable function result to a `CompletableFuture` using [coroutineScope.future](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-jdk8/kotlinx.coroutines.future/future.html).
 

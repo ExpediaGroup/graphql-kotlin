@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
 import com.expediagroup.graphql.server.spring.subscriptions.SpringGraphQLSubscriptionHandler
 import com.expediagroup.graphql.server.types.GraphQLRequest
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLSchema
 import kotlinx.coroutines.reactor.asFlux
@@ -58,11 +59,12 @@ class SpringGraphQLSubscriptionHandlerTest {
         .build()
     private val mockLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
         override val dataLoaderName: String = "MockDataLoader"
-        override fun getDataLoader(): DataLoader<String, String> = DataLoaderFactory.newDataLoader { ids ->
-            CompletableFuture.supplyAsync {
-                ids.map { "$it:value" }
+        override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+            DataLoaderFactory.newDataLoader { ids ->
+                CompletableFuture.supplyAsync {
+                    ids.map { "$it:value" }
+                }
             }
-        }
     }
     private val dataLoaderRegistryFactory = KotlinDataLoaderRegistryFactory(listOf(mockLoader))
     private val subscriptionHandler = SpringGraphQLSubscriptionHandler(testGraphQL, dataLoaderRegistryFactory)

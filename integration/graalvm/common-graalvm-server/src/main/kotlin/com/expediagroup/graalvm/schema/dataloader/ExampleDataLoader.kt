@@ -18,6 +18,7 @@ package com.expediagroup.graalvm.schema.dataloader
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.generator.scalars.ID
+import graphql.GraphQLContext
 import org.dataloader.DataLoaderFactory
 import java.util.concurrent.CompletableFuture
 
@@ -25,9 +26,10 @@ const val EXAMPLE_LOADER = "EXAMPLE_LOADER"
 
 val ExampleDataLoader = object : KotlinDataLoader<ID, String> {
     override val dataLoaderName = EXAMPLE_LOADER
-    override fun getDataLoader() = DataLoaderFactory.newDataLoader<ID, String> { ids ->
-        CompletableFuture.supplyAsync {
-            ids.map { it.value }
+    override fun getDataLoader(graphQLContext: GraphQLContext) =
+        DataLoaderFactory.newDataLoader<ID, String> { ids ->
+            CompletableFuture.supplyAsync {
+                ids.map { it.value }
+            }
         }
-    }
 }

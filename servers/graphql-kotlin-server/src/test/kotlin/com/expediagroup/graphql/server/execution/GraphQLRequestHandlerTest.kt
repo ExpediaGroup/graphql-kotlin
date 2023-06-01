@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import graphql.ExecutionInput
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.execution.AbortExecutionException
 import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.execution.instrumentation.Instrumentation
@@ -63,14 +64,15 @@ class GraphQLRequestHandlerTest {
             KotlinDataLoaderRegistryFactory(
                 object : KotlinDataLoader<Int, User> {
                     override val dataLoaderName: String = "UserDataLoader"
-                    override fun getDataLoader(): DataLoader<Int, User> = DataLoaderFactory.newDataLoader { _ ->
-                        CompletableFuture.completedFuture(
-                            listOf(
-                                User(1, "John Doe"),
-                                User(2, "Jane Doe")
+                    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<Int, User> =
+                        DataLoaderFactory.newDataLoader { _ ->
+                            CompletableFuture.completedFuture(
+                                listOf(
+                                    User(1, "John Doe"),
+                                    User(2, "Jane Doe")
+                                )
                             )
-                        )
-                    }
+                        }
                 }
             )
         )

@@ -42,6 +42,7 @@ import graphql.schema.idl.RuntimeWiring
 import graphql.schema.idl.SchemaGenerator
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeRuntimeWiring
+import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -206,7 +207,7 @@ object AstronautGraphQL {
                 AstronautDataLoader(),
                 MissionDataLoader(), MissionsByAstronautDataLoader(),
                 PlanetsByMissionDataLoader()
-            ).generate()
+            ).generate(mockk())
         )
 
         val graphQLContext = mapOf(

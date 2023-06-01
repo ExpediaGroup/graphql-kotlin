@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.expediagroup.graphql.generator.extensions.toGraphQLContext
 import com.expediagroup.graphql.server.types.GraphQLRequest
+import graphql.GraphQLContext
 import io.mockk.mockk
 import org.dataloader.DataLoader
 import org.junit.jupiter.api.Test
@@ -65,9 +66,9 @@ class RequestExtensionsKtTest {
         val dataLoaderRegistry = KotlinDataLoaderRegistryFactory(
             object : KotlinDataLoader<String, String> {
                 override val dataLoaderName: String = "abc"
-                override fun getDataLoader(): DataLoader<String, String> = mockk()
+                override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> = mockk()
             }
-        ).generate()
+        ).generate(mockk())
 
         val executionInput = request.toExecutionInput(dataLoaderRegistry = dataLoaderRegistry)
         assertEquals(request.query, executionInput.query)

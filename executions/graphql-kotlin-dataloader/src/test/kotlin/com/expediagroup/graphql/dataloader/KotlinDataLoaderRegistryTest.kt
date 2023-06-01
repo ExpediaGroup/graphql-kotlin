@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package com.expediagroup.graphql.dataloader
 
+import graphql.GraphQLContext
+import io.mockk.mockk
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
+import org.dataloader.DataLoaderOptions
 import org.junit.jupiter.api.Test
 import reactor.kotlin.core.publisher.toFlux
 import java.time.Duration
@@ -30,21 +33,23 @@ class KotlinDataLoaderRegistryTest {
     fun `Decorator will keep track of DataLoaders futures`() {
         val stringToUpperCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToUppercaseDataLoader"
-            override fun getDataLoader(): DataLoader<String, String> = DataLoaderFactory.newDataLoader { keys ->
-                keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
-            }
+            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                DataLoaderFactory.newDataLoader { keys ->
+                    keys.toFlux().map(String::uppercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
+                }
         }
 
         val stringToLowerCaseDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
             override val dataLoaderName: String = "ToLowercaseDataLoader"
-            override fun getDataLoader(): DataLoader<String, String> = DataLoaderFactory.newDataLoader { keys ->
-                keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
-            }
+            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                DataLoaderFactory.newDataLoader { keys ->
+                    keys.toFlux().map(String::lowercase).collectList().delayElement(Duration.ofMillis(300)).toFuture()
+                }
         }
 
         val registry = KotlinDataLoaderRegistryFactory(
             stringToUpperCaseDataLoader, stringToLowerCaseDataLoader
-        ).generate()
+        ).generate(mockk())
 
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ -> }
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase2").handle { _, _ -> }
@@ -68,5 +73,48 @@ class KotlinDataLoaderRegistryTest {
 
         Thread.sleep(500)
         assertTrue(registry.onDispatchFuturesHandled())
+    }
+
+    @Test
+    fun `BatchLoaderEnvironment will contain GraphQLContext as context`() {
+        val prefixDataLoader: KotlinDataLoader<String, String> = object : KotlinDataLoader<String, String> {
+            override val dataLoaderName: String = "PrefixDataLoader"
+            override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<String, String> =
+                DataLoaderFactory.newDataLoader(
+                    { keys, batchLoaderEnvironment ->
+                        val context = batchLoaderEnvironment.getContext<GraphQLContext>()
+                        keys.toFlux()
+                            .map { "${context.get<String>("prefix")}-$it" }
+                            .collectList()
+                            .delayElement(Duration.ofMillis(300))
+                            .toFuture()
+                    },
+                    DataLoaderOptions.newOptions().setBatchLoaderContextProvider { graphQLContext }
+                )
+        }
+
+        val graphQLContext = GraphQLContext.of(
+            mapOf(
+                "prefix" to "foo"
+            )
+        )
+
+        val registry = KotlinDataLoaderRegistryFactory(
+            prefixDataLoader
+        ).generate(graphQLContext)
+
+        registry.getDataLoader<String, String>("PrefixDataLoader").load("toprefix1").handle { _, _ -> }
+        registry.getDataLoader<String, String>("PrefixDataLoader").load("toprefix2").handle { _, _ -> }
+        registry.getDataLoader<String, String>("PrefixDataLoader").load("toprefix1").handle { _, _ -> }
+
+        val futures = registry.getCurrentFutures()
+
+        assertEquals(2, futures.size)
+        registry.dispatchAll()
+
+        Thread.sleep(500)
+        assertTrue(registry.onDispatchFuturesHandled())
+        assertEquals("foo-toprefix1", futures[0].get())
+        assertEquals("foo-toprefix2", futures[1].get())
     }
 }

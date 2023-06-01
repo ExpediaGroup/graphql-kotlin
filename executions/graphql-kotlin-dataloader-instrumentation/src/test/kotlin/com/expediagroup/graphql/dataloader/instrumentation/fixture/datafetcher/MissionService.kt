@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.domain.Mission
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.extensions.toListOfNullables
 import com.expediagroup.graphql.dataloader.instrumentation.fixture.repository.MissionRepository
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -32,28 +33,30 @@ data class MissionServiceRequest(val id: Int, val astronautId: Int = -1)
 
 class MissionDataLoader : KotlinDataLoader<MissionServiceRequest, Mission?> {
     override val dataLoaderName: String = "MissionDataLoader"
-    override fun getDataLoader(): DataLoader<MissionServiceRequest, Mission?> = DataLoaderFactory.newDataLoader(
-        { keys ->
-            MissionRepository
-                .getMissions(keys.map(MissionServiceRequest::id))
-                .collectList()
-                .map(List<Optional<Mission>>::toListOfNullables)
-                .toFuture()
-        },
-        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
-    )
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, Mission?> =
+        DataLoaderFactory.newDataLoader(
+            { keys ->
+                MissionRepository
+                    .getMissions(keys.map(MissionServiceRequest::id))
+                    .collectList()
+                    .map(List<Optional<Mission>>::toListOfNullables)
+                    .toFuture()
+            },
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+        )
 }
 
 class MissionsByAstronautDataLoader : KotlinDataLoader<MissionServiceRequest, List<Mission>> {
     override val dataLoaderName: String = "MissionsByAstronautDataLoader"
-    override fun getDataLoader(): DataLoader<MissionServiceRequest, List<Mission>> = DataLoaderFactory.newDataLoader(
-        { keys ->
-            MissionRepository
-                .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
-                .collectList().toFuture()
-        },
-        DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
-    )
+    override fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<MissionServiceRequest, List<Mission>> =
+        DataLoaderFactory.newDataLoader(
+            { keys ->
+                MissionRepository
+                    .getMissionsByAstronautIds(keys.map(MissionServiceRequest::astronautId))
+                    .collectList().toFuture()
+            },
+            DataLoaderOptions.newOptions().setStatisticsCollector(::SimpleStatisticsCollector)
+        )
 }
 
 class MissionService {

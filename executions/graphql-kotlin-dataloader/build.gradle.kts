@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     api(libs.dataloader)
+    api(libs.graphql.java)
     testImplementation(libs.reactor.core)
     testImplementation(libs.reactor.extensions)
 }

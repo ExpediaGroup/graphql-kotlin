@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ open class SpringGraphQLSubscriptionHandler(
         graphQLRequest: GraphQLRequest,
         graphQLContext: GraphQLContext = GraphQLContext.of(emptyMap<Any, Any>())
     ): Flow<GraphQLResponse<*>> {
-        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate()
+        val dataLoaderRegistry = dataLoaderRegistryFactory?.generate(graphQLContext)
         val input = graphQLRequest.toExecutionInput(graphQLContext, dataLoaderRegistry)
 
         return graphQL.execute(input)

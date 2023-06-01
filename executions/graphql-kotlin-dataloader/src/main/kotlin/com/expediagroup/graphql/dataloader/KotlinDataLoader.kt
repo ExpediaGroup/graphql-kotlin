@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.dataloader
 
+import graphql.GraphQLContext
 import org.dataloader.DataLoader
 
 /**
@@ -24,5 +25,5 @@ import org.dataloader.DataLoader
  */
 interface KotlinDataLoader<K, V> {
     val dataLoaderName: String
-    fun getDataLoader(): DataLoader<K, V>
+    fun getDataLoader(graphQLContext: GraphQLContext): DataLoader<K, V>
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,16 @@ package com.expediagroup.graphql.examples.server.ktor.schema.dataloaders
 import com.expediagroup.graphql.examples.server.ktor.schema.models.University
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import kotlinx.coroutines.runBlocking
+import graphql.GraphQLContext
 import org.dataloader.DataLoaderFactory
 import java.util.concurrent.CompletableFuture
 
 val UniversityDataLoader = object : KotlinDataLoader<Int, University?> {
     override val dataLoaderName = "UNIVERSITY_LOADER"
-    override fun getDataLoader() = DataLoaderFactory.newDataLoader<Int, University?> { ids ->
-        CompletableFuture.supplyAsync {
-            runBlocking { University.search(ids).toMutableList() }
+    override fun getDataLoader(graphQLContext: GraphQLContext) =
+        DataLoaderFactory.newDataLoader<Int, University?> { ids ->
+            CompletableFuture.supplyAsync {
+                runBlocking { University.search(ids).toMutableList() }
+            }
         }
-    }
 }
