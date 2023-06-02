@@ -23,18 +23,12 @@ import graphql.GraphQLContext
 import org.dataloader.DataLoaderFactory
 import java.util.concurrent.CompletableFuture
 
-val BookDataLoader = object : KotlinDataLoader<List<Int>, List<Book>> {
-    override val dataLoaderName = "BATCH_BOOK_LOADER"
+val BookDataLoader = object : KotlinDataLoader<Int, Book?> {
+    override val dataLoaderName = "BOOK_LOADER"
     override fun getDataLoader(graphQLContext: GraphQLContext) =
-        DataLoaderFactory.newDataLoader<List<Int>, List<Book>> { ids ->
+        DataLoaderFactory.newDataLoader { ids ->
             CompletableFuture.supplyAsync {
-                val allBooks = runBlocking { Book.search(ids.flatten()).toMutableList() }
-                // produce lists of results from returned books
-                ids.fold(mutableListOf()) { acc: MutableList<List<Book>>, idSet ->
-                    val matchingBooks = allBooks.filter { idSet.contains(it.id) }
-                    acc.add(matchingBooks)
-                    acc
-                }
+                runBlocking { Book.search(ids).toMutableList() }
             }
         }
 }

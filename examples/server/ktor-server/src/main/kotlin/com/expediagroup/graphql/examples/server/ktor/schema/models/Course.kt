@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.expediagroup.graphql.examples.server.ktor.schema.models
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.BookDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.UniversityDataLoader
 import com.expediagroup.graphql.server.extensions.getValueFromDataLoader
+import com.expediagroup.graphql.server.extensions.getValuesFromDataLoader
 import graphql.schema.DataFetchingEnvironment
 import java.util.concurrent.CompletableFuture
 
@@ -35,7 +36,7 @@ data class Course(
     }
 
     fun books(dataFetchingEnvironment: DataFetchingEnvironment): CompletableFuture<List<Book>> {
-        return dataFetchingEnvironment.getValueFromDataLoader(BookDataLoader.dataLoaderName, bookIds)
+        return dataFetchingEnvironment.getValuesFromDataLoader(BookDataLoader.dataLoaderName, bookIds)
     }
 
     companion object {

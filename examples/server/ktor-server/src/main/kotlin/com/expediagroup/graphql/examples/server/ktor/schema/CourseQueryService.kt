@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@
 
 package com.expediagroup.graphql.examples.server.ktor.schema
 
+import com.expediagroup.graphql.examples.server.ktor.schema.dataloaders.CourseDataLoader
 import com.expediagroup.graphql.examples.server.ktor.schema.models.Course
 import com.expediagroup.graphql.server.operations.Query
+import graphql.schema.DataFetchingEnvironment
+import java.util.concurrent.CompletableFuture
 
 class CourseQueryService : Query {
-    fun searchCourses(params: CourseSearchParameters) = Course.search(params.ids)
+    fun searchCourses(params: CourseSearchParameters, dfe: DataFetchingEnvironment): CompletableFuture<List<Course>> =
+        dfe.getDataLoader<Int, Course>(CourseDataLoader.dataLoaderName)
+            .loadMany(params.ids)
 }
 
 data class CourseSearchParameters(val ids: List<Int>)

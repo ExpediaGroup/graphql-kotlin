@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture
 val CourseDataLoader = object : KotlinDataLoader<Int, Course?> {
     override val dataLoaderName = "COURSE_LOADER"
     override fun getDataLoader(graphQLContext: GraphQLContext) =
-        DataLoaderFactory.newDataLoader<Int, Course?> { ids ->
+        DataLoaderFactory.newDataLoader { ids ->
             CompletableFuture.supplyAsync {
                 runBlocking { Course.search(ids).toMutableList() }
             }
