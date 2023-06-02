@@ -500,6 +500,7 @@ class KtorGraphQLWebSocketProtocolHandlerTest {
             block.invoke(session)
             handlerJob.cancelAndJoin()
         } finally {
+            delay(300)
             session.closeChannels()
         }
     }
