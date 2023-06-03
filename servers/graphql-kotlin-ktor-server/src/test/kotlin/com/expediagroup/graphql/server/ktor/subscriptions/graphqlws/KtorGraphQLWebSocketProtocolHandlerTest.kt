@@ -94,7 +94,7 @@ class KtorGraphQLWebSocketProtocolHandlerTest {
         assertNull(outgoing.tryReceive().getOrNull())
     }
 
-   //  @Test
+    // @Test
     fun `runs two subscriptions consequently`() = doInSession {
         val graphQLContext = mockk<GraphQLContext>("graphQlContext")
         coEvery { subscriptionHooks.onConnect(mapOf("foo" to "bar"), session) } returns graphQLContext
