@@ -18,7 +18,7 @@ type Query {
 }
 ```
 
-This behavior is true for all arguments except for the special classes for the [GraphQLContext](../execution/contextual-data) and the [DataFetchingEnvironment](../execution/data-fetching-environment)
+This behavior is true for all arguments except for the special class [DataFetchingEnvironment](../execution/data-fetching-environment)
 
 ## Input Types
 
