@@ -7,7 +7,7 @@ federation = "3.0.1"
 graphql-java = "20.2"
 graalvm = "0.9.21"
 jackson = "2.15.0"
-kotlin = "1.7.21"
+kotlin = "1.8.21"
 # TODO kotlin 1.8 upgrade -> kotlinx-benchmark 0.4.7+ uses kotlin 1.8
 kotlinx-benchmark = "0.4.6"
 # TODO kotlin 1.8 upgrade -> kotlinx-coroutines 1.7.0+ uses kotlin 1.8
