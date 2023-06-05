@@ -32,7 +32,7 @@ spring-boot = "3.1.0"
 # kotlin-compile-testing has to be using the same kotlin version as the kotlinx-serialization compiler
 # https://github.com/tschuchortdev/kotlin-compile-testing the latest version targets kotlin 1.7.10 which blocks updates to newer
 # versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
-compile-testing = "0.1.0"
+compile-testing = "0.2.1"
 icu = "73.1"
 junit = "5.9.3"
 logback = "1.4.7"
