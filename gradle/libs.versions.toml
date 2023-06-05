@@ -15,7 +15,7 @@ kotlinx-coroutines = "1.6.4"
 # TODO kotlin 1.8 upgrade -> kotlinx-serialization 1.5.0+ uses kotlin 1.8
 kotlinx-serialization = "1.4.1"
 # TODO kotlin 1.8 upgrade -> ktor 2.3.0+ uses kotlin 1.8
-ktor = "2.2.4"
+ktor = "2.3.1"
 maven-plugin-annotation = "3.9.0"
 maven-plugin-api = "3.9.2"
 maven-project = "2.2.1"
