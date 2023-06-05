@@ -11,7 +11,7 @@ kotlin = "1.7.21"
 # TODO kotlin 1.8 upgrade -> kotlinx-benchmark 0.4.7+ uses kotlin 1.8
 kotlinx-benchmark = "0.4.6"
 # TODO kotlin 1.8 upgrade -> kotlinx-coroutines 1.7.0+ uses kotlin 1.8
-kotlinx-coroutines = "1.6.4"
+kotlinx-coroutines = "1.7.1"
 # TODO kotlin 1.8 upgrade -> kotlinx-serialization 1.5.0+ uses kotlin 1.8
 kotlinx-serialization = "1.4.1"
 # TODO kotlin 1.8 upgrade -> ktor 2.3.0+ uses kotlin 1.8
