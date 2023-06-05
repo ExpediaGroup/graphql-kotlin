@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.dataloader.instrumentation.level.state
 
 import graphql.schema.DataFetcher
+import graphql.schema.LightDataFetcher
 
 enum class LevelState { NOT_DISPATCHED, DISPATCHED }
 
@@ -50,7 +51,7 @@ class ExecutionBatchState(documentHeight: Int) {
         *Array(documentHeight) { number -> Level(number + 1) to 0 }
     )
 
-    private val manuallyCompletableDataFetchers: MutableMap<Level, MutableList<ManuallyCompletableDataFetcher>> =
+    private val manuallyCompletableDataFetchers: MutableMap<Level, MutableList<ManualDataFetcher>> =
         mutableMapOf(
             *Array(documentHeight) { number -> Level(number + 1) to mutableListOf() }
         )
@@ -59,7 +60,7 @@ class ExecutionBatchState(documentHeight: Int) {
      * Check if the [ExecutionBatchState] contains a level
      *
      * @param level to check if his state is being calculated
-     * @return whether or not state contains the level
+     * @return whether state contains the level
      */
     fun contains(level: Level): Boolean = levelsState.containsKey(level)
 
@@ -117,8 +118,14 @@ class ExecutionBatchState(documentHeight: Int) {
      * @param dataFetcher to be instrumented
      * @return instrumented dataFetcher
      */
-    fun toManuallyCompletableDataFetcher(level: Level, dataFetcher: DataFetcher<*>): ManuallyCompletableDataFetcher =
-        ManuallyCompletableDataFetcher(dataFetcher).also { manuallyCompletableDataFetchers[level]?.add(it) }
+    fun toManuallyCompletableDataFetcher(level: Level, dataFetcher: DataFetcher<*>): ManualDataFetcher {
+        val manualDataFetcher = when (dataFetcher) {
+            is LightDataFetcher<*> -> ManuallyCompletableLightDataFetcher(dataFetcher)
+            else -> ManuallyCompletableDataFetcher(dataFetcher)
+        }
+        manuallyCompletableDataFetchers[level]?.add(manualDataFetcher)
+        return manualDataFetcher
+    }
 
     /**
      * Complete all the [manuallyCompletableDataFetchers]
@@ -126,7 +133,7 @@ class ExecutionBatchState(documentHeight: Int) {
      * @param level which level should complete dataFetchers
      */
     fun completeDataFetchers(level: Level) {
-        manuallyCompletableDataFetchers[level]?.forEach(ManuallyCompletableDataFetcher::complete)
+        manuallyCompletableDataFetchers[level]?.forEach(ManualDataFetcher::complete)
     }
 
     /**
