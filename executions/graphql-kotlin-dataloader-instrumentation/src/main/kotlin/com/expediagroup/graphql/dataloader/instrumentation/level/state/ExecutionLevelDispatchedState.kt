@@ -124,7 +124,7 @@ class ExecutionLevelDispatchedState(
         onLevelDispatched: OnLevelDispatchedCallback
     ): InstrumentationContext<Any> {
         val executionInput = parameters.executionContext.executionInput
-        val path = parameters.environment.executionStepInfo.path
+        val path = parameters.executionStepInfo.path
         val level = Level(path.level)
 
         return object : InstrumentationContext<Any> {
