@@ -86,7 +86,7 @@ class SyncExecutionExhaustedState(
     /**
      * This is called just before a field [DataFetcher] is invoked
      *
-     * @param parameters contains information of which field will starting the fetching
+     * @param parameters contains information of which field will start the fetching
      * @param onSyncExecutionExhausted invoke when the sync execution fo all operations is exhausted
      * @return a [InstrumentationContext] object that will be called back when the [DataFetcher]
      * dispatches and completes
@@ -96,10 +96,9 @@ class SyncExecutionExhaustedState(
         onSyncExecutionExhausted: OnSyncExecutionExhaustedCallback
     ): InstrumentationContext<Any> {
         val executionInput = parameters.executionContext.executionInput
-        val executionStepInfo = parameters.executionStepInfo
         val field = parameters.executionStepInfo.field.singleField
-        val fieldExecutionStrategyPath = parameters.environment.executionStepInfo.path.parent
-        val fieldGraphQLType = executionStepInfo.unwrappedNonNullType
+        val fieldExecutionStrategyPath = parameters.executionStepInfo.path.parent
+        val fieldGraphQLType = parameters.executionStepInfo.unwrappedNonNullType
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
