@@ -63,7 +63,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2 + PLUS_ONE_LEVEL) {
+        verify(exactly = 2 + ONE_LEVEL) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -94,7 +94,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 3 + PLUS_ONE_LEVEL) {
+        verify(exactly = 3 + ONE_LEVEL) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -136,7 +136,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         assertEquals(2, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
-        verify(exactly = 4 + PLUS_ONE_LEVEL) {
+        verify(exactly = 4 + ONE_LEVEL) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -160,6 +160,6 @@ class DataLoaderLevelDispatchedInstrumentationTest {
     }
 
     companion object {
-        private const val PLUS_ONE_LEVEL = 1
+        private const val ONE_LEVEL = 1
     }
 }
