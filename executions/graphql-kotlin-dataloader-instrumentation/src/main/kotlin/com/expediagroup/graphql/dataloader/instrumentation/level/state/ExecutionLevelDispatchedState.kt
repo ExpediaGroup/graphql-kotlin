@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.expediagroup.graphql.dataloader.instrumentation.level.state
 
-import com.expediagroup.graphql.dataloader.instrumentation.extensions.getDocumentHeight
 import com.expediagroup.graphql.dataloader.instrumentation.extensions.getExpectedStrategyCalls
 import com.expediagroup.graphql.dataloader.instrumentation.level.execution.OnLevelDispatchedCallback
 import graphql.ExecutionInput
@@ -41,16 +40,16 @@ class ExecutionLevelDispatchedState(
     val executions = ConcurrentHashMap<ExecutionInput, ExecutionBatchState>()
 
     /**
-     * When a specific [ExecutionInput] starts his execution, calculate the height of the AST Document
+     * Initialize the [ExecutionBatchState] of this [ExecutionInput]
      *
      * @param parameters contains information of which [ExecutionInput] will start his execution
-     * @return a non null [InstrumentationContext] object
+     * @return a nullable [InstrumentationContext]
      */
     fun beginExecuteOperation(
         parameters: InstrumentationExecuteOperationParameters
     ): InstrumentationContext<ExecutionResult>? {
         executions.computeIfAbsent(parameters.executionContext.executionInput) {
-            ExecutionBatchState(parameters.executionContext.getDocumentHeight())
+            ExecutionBatchState()
         }
         return null
     }
@@ -71,6 +70,7 @@ class ExecutionLevelDispatchedState(
 
         executions.computeIfPresent(executionInput) { _, executionState ->
             executionState.also {
+                it.initializeLevelStateIfNeeded(level)
                 it.increaseExpectedFetches(level, fieldCount)
                 it.increaseDispatchedExecutionStrategies(level)
             }
@@ -174,9 +174,8 @@ class ExecutionLevelDispatchedState(
 
     /**
      * calculate if all executions sharing a graphQLContext was dispatched, by
-     * 1. Checking if the height of  all executions was already calculated.
-     * 2. Filter all executions sharing the same Level
-     * 3. check if all executions sharing the same level dispatched that level.
+     * 1. Checking if all executions started.
+     * 3. check if all executions dispatched the provided [level].
      *
      * @param level that execution state will be calculated
      * @return Boolean for allExecutionsDispatched statement
@@ -184,8 +183,6 @@ class ExecutionLevelDispatchedState(
     fun allExecutionsDispatched(level: Level): Boolean =
         executions
             .takeIf { executions -> executions.size == totalExecutions }
-            ?.filter { (_, executionState) -> executionState.contains(level) }
-            ?.takeIf { executionsWithSameLevel -> executionsWithSameLevel.isNotEmpty() }
             ?.all { (_, executionState) -> executionState.isLevelDispatched(level) }
             ?: false
 }
