@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,37 +24,34 @@ enum class LevelState { NOT_DISPATCHED, DISPATCHED }
 /**
  * Handle the state of an [graphql.ExecutionInput]
  */
-class ExecutionBatchState(documentHeight: Int) {
+class ExecutionBatchState {
+    private val levelsState: MutableMap<Level, LevelState> = mutableMapOf()
 
-    private val levelsState: MutableMap<Level, LevelState> = mutableMapOf(
-        *Array(documentHeight) { number -> Level(number + 1) to LevelState.NOT_DISPATCHED }
-    )
+    private val expectedFetches: MutableMap<Level, Int> = mutableMapOf()
+    private val dispatchedFetches: MutableMap<Level, Int> = mutableMapOf()
 
-    private val expectedFetches: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { number -> Level(number + 1) to 0 }
-    )
-    private val dispatchedFetches: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { number -> Level(number + 1) to 0 }
-    )
+    private val expectedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf()
+    private val dispatchedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf()
 
-    private val expectedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { number ->
-            val level = Level(number + 1)
-            level to if (level.isFirst()) 1 else 0
+    private val onFieldValueInfos: MutableMap<Level, Int> = mutableMapOf()
+
+    private val manuallyCompletableDataFetchers: MutableMap<Level, MutableList<ManualDataFetcher>> = mutableMapOf()
+
+    /**
+     * Initializes a level state in the [ExecutionBatchState]
+     * @param level to be initialized
+     */
+    fun initializeLevelStateIfNeeded(level: Level) {
+        if (!this.contains(level)) {
+            levelsState[level] = LevelState.NOT_DISPATCHED
+            expectedFetches[level] = 0
+            dispatchedFetches[level] = 0
+            expectedExecutionStrategies[level] = if (level.isFirst()) 1 else 0
+            dispatchedExecutionStrategies[level] = 0
+            onFieldValueInfos[level] = 0
+            manuallyCompletableDataFetchers[level] = mutableListOf()
         }
-    )
-    private val dispatchedExecutionStrategies: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { number -> Level(number + 1) to 0 }
-    )
-
-    private val onFieldValueInfos: MutableMap<Level, Int> = mutableMapOf(
-        *Array(documentHeight) { number -> Level(number + 1) to 0 }
-    )
-
-    private val manuallyCompletableDataFetchers: MutableMap<Level, MutableList<ManualDataFetcher>> =
-        mutableMapOf(
-            *Array(documentHeight) { number -> Level(number + 1) to mutableListOf() }
-        )
+    }
 
     /**
      * Check if the [ExecutionBatchState] contains a level

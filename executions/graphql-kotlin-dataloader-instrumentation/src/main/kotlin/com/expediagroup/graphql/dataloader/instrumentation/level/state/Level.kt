@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ data class Level(private val number: Int) {
 
     /**
      * calculate if this [Level] is the first
-     * @return whether or not this is the first [Level]
+     * @return whether this is the first [Level]
      */
     fun isFirst(): Boolean = number == 1
 }

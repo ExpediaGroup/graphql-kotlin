@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 2) {
+        verify(exactly = 2 + ONE_LEVEL) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -96,7 +96,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         assertEquals(1, missionStatistics?.batchInvokeCount)
         assertEquals(2, missionStatistics?.batchLoadCount)
 
-        verify(exactly = 3) {
+        verify(exactly = 3 + ONE_LEVEL) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -138,7 +138,7 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         assertEquals(2, missionsByAstronautStatistics?.batchInvokeCount)
         assertEquals(2, missionsByAstronautStatistics?.batchLoadCount)
 
-        verify(exactly = 4) {
+        verify(exactly = 4 + ONE_LEVEL) {
             kotlinDataLoaderRegistry.dispatchAll()
         }
     }
@@ -159,5 +159,9 @@ class DataLoaderLevelDispatchedInstrumentationTest {
         verify {
             dataLoaderLevelDispatchedInstrumentation.getOnLevelDispatchedCallback(ofType()) wasNot Called
         }
+    }
+
+    companion object {
+        private const val ONE_LEVEL = 1
     }
 }
