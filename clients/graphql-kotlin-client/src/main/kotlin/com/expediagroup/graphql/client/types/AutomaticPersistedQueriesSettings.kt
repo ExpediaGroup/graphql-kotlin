@@ -16,24 +16,12 @@
 
 package com.expediagroup.graphql.client.types
 
-import kotlin.reflect.KClass
+interface AutomaticPersistedQueriesSettings {
+    val enabled: Boolean
+    val version: Int
+}
 
-/**
- * Interface representing GraphQL request that follows the common GraphQL HTTP request format.
- *
- * @see [GraphQL Over HTTP](https://graphql.org/learn/serving-over-http/#post-request) for additional details
- */
-interface GraphQLClientRequest<T : Any> {
-    val query: String
-    val operationName: String?
-        get() = null
-    val variables: Any?
-        get() = null
-    val extensions: Any?
-        get() = null
-
-    /**
-     * Parameterized type of a corresponding GraphQLResponse.
-     */
-    fun responseType(): KClass<T>
+val defaultAutomaticPersistedQueriesSettings = object : AutomaticPersistedQueriesSettings {
+    override val enabled = false
+    override val version = 1
 }

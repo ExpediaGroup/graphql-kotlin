@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Expedia, Inc
+ * Copyright 2023 Expedia, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.expediagroup.graphql.client
 
+import com.expediagroup.graphql.client.types.AutomaticPersistedQueriesSettings
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 
@@ -23,6 +24,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientResponse
  * A lightweight typesafe GraphQL HTTP client.
  */
 interface GraphQLClient<RequestCustomizer> {
+    val automaticPersistedQueriesSettings: AutomaticPersistedQueriesSettings
 
     /**
      * Executes [GraphQLClientRequest] and returns corresponding [GraphQLClientResponse].
