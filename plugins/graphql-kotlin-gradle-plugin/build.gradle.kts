@@ -28,20 +28,17 @@ java {
 }
 
 gradlePlugin {
+    website.set("https://opensource.expediagroup.com/graphql-kotlin/docs/")
+    vcsUrl.set("https://github.com/ExpediaGroup/graphql-kotlin")
     plugins {
         register("graphQLPlugin") {
             id = "com.expediagroup.graphql"
             displayName = "GraphQL Kotlin Gradle Plugin"
             description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
             implementationClass = "com.expediagroup.graphql.plugin.gradle.GraphQLGradlePlugin"
+            tags.set(listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl"))
         }
     }
-}
-
-pluginBundle {
-    website = "https://opensource.expediagroup.com/graphql-kotlin/docs/"
-    vcsUrl = "https://github.com/ExpediaGroup/graphql-kotlin"
-    tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
 }
 
 val generateDefaultVersion by tasks.registering {
@@ -49,7 +46,7 @@ val generateDefaultVersion by tasks.registering {
     val defaultVersionFile = File("$buildDir/generated/src/com/expediagroup/graphql/plugin/gradle", fileName)
 
     inputs.property(fileName, project.version)
-    outputs.file(defaultVersionFile.parent)
+    outputs.dir(defaultVersionFile.parent)
 
     doFirst {
         defaultVersionFile.parentFile.mkdirs()
