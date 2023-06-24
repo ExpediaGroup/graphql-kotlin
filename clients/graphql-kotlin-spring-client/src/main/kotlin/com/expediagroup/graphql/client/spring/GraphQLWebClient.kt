@@ -56,15 +56,13 @@ open class GraphQLWebClient(
         }.build()
 
     override suspend fun <T : Any> execute(request: GraphQLClientRequest<T>, requestCustomizer: WebClient.RequestBodyUriSpec.() -> Unit): GraphQLClientResponse<T> {
-        val queryId = request.getQueryId()
-        val automaticPersistedQueriesExtension = object : AutomaticPersistedQueriesExtension {
-            override val version: Int
-                get() = automaticPersistedQueriesSettings.version
-            override val sha256Hash: String
-                get() = queryId
-        }
-
         return if (automaticPersistedQueriesSettings.enabled) {
+            val queryId = request.getQueryId()
+            val automaticPersistedQueriesExtension = AutomaticPersistedQueriesExtension(
+                version = automaticPersistedQueriesSettings.version,
+                sha256Hash = queryId
+            )
+
             val apqRawResultWithoutQuery = client
                 .get()
                 .uri {
