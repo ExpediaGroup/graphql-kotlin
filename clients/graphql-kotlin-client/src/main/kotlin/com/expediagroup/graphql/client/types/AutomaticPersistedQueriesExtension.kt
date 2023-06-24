@@ -16,7 +16,7 @@
 
 package com.expediagroup.graphql.client.types
 
-interface AutomaticPersistedQueriesExtension {
-    val version: Int
+data class AutomaticPersistedQueriesExtension(
+    val version: Int,
     val sha256Hash: String
-}
+)

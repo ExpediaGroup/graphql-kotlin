@@ -259,10 +259,10 @@ class GraphQLKtorClientTest {
         val client = GraphQLKtorClient(
             url = URL("${wireMockServer.baseUrl()}/graphql"),
             serializer = GraphQLClientJacksonSerializer(),
-            automaticPersistedQueriesSettings = object : AutomaticPersistedQueriesSettings {
-                override val enabled = true
-                override val version = 1
-            }
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(
+                enabled = true,
+                version = 1
+            )
         )
 
         runBlocking {
@@ -320,10 +320,10 @@ class GraphQLKtorClientTest {
         val client = GraphQLKtorClient(
             url = URL("${wireMockServer.baseUrl()}/graphql"),
             serializer = GraphQLClientJacksonSerializer(),
-            automaticPersistedQueriesSettings = object : AutomaticPersistedQueriesSettings {
-                override val enabled = true
-                override val version = 1
-            }
+            automaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(
+                enabled = true,
+                version = 1
+            )
         )
 
         runBlocking {

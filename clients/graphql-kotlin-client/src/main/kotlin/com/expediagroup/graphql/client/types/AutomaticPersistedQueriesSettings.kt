@@ -16,12 +16,12 @@
 
 package com.expediagroup.graphql.client.types
 
-interface AutomaticPersistedQueriesSettings {
-    val enabled: Boolean
+data class AutomaticPersistedQueriesSettings(
+    val enabled: Boolean,
     val version: Int
-}
+)
 
-val defaultAutomaticPersistedQueriesSettings = object : AutomaticPersistedQueriesSettings {
-    override val enabled = false
-    override val version = 1
-}
+val defaultAutomaticPersistedQueriesSettings = AutomaticPersistedQueriesSettings(
+    enabled = false,
+    version = 1
+)
