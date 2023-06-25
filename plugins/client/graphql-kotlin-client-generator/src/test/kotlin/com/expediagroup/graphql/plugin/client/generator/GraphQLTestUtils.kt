@@ -20,6 +20,7 @@ import com.expediagroup.graphql.client.converter.ScalarConverter
 import com.ibm.icu.util.ULocale
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationComponentRegistrar
 import org.junit.jupiter.params.provider.Arguments
 import java.io.File
@@ -54,6 +55,7 @@ internal fun locateTestFiles(directory: File): Pair<List<File>, Map<String, File
 
 internal const val TEST_SCHEMA_PATH = "testSchema.graphql"
 
+@OptIn(ExperimentalCompilerApi::class)
 internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDirectory: File) {
     val (queries, expectedFiles) = locateTestFiles(testDirectory)
 
@@ -76,7 +78,7 @@ internal fun verifyClientGeneration(config: GraphQLClientGeneratorConfig, testDi
         sources = generatedSources
         inheritClassPath = true
         if (config.serializer == GraphQLSerializer.KOTLINX) {
-            compilerPlugins = listOf(SerializationComponentRegistrar())
+            compilerPluginRegistrars = listOf(SerializationComponentRegistrar())
         }
     }.compile()
     if (compilationResult.exitCode != KotlinCompilation.ExitCode.OK) {
