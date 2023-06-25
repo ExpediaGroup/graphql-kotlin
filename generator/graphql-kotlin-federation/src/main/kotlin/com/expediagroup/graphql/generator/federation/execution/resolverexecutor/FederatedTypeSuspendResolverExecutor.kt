@@ -50,7 +50,7 @@ internal object FederatedTypeSuspendResolverExecutor : TypeResolverExecutor<Fede
     @Suppress("TooGenericExceptionCaught")
     private suspend fun resolveEntity(
         resolvableEntity: ResolvableEntity<FederatedTypeSuspendResolver<*>>,
-        environment: DataFetchingEnvironment,
+        environment: DataFetchingEnvironment
     ): Map<Int, Any?> =
         supervisorScope {
             resolvableEntity.indexedRepresentations.associateBy(

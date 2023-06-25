@@ -90,7 +90,7 @@ class FederatedKeyDirectiveIT {
     fun `verifies valid @key directive on entity type without query`() {
         assertDoesNotThrow {
             val schema = toFederatedSchema(
-                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.success._5"),
+                config = federatedTestConfig("com.expediagroup.graphql.generator.federation.data.integration.key.success._5")
             )
             validateTypeWasCreatedWithKeyDirective(schema, "FederatedKey")
         }

@@ -39,6 +39,7 @@ interface Product @extends @key(fields : "id") @key(fields : "upc") {
 @ExtendsDirective
 interface Product {
     @ExternalDirective val id: String
+
     @ExternalDirective val upc: String
     fun reviews(): List<Review>
 }

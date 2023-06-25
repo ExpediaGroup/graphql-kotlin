@@ -43,7 +43,6 @@ class FieldSetTest {
 
     @Test
     fun `serialize should return the value when a FieldSet`() {
-
         @FieldSet("1")
         class MyClass
 

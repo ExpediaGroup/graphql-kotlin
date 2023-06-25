@@ -37,7 +37,7 @@ object FederatedTypePromiseResolverExecutor : TypeResolverExecutor<FederatedType
     @Suppress("TooGenericExceptionCaught")
     private fun resolveEntity(
         resolvableEntity: ResolvableEntity<FederatedTypePromiseResolver<*>>,
-        environment: DataFetchingEnvironment,
+        environment: DataFetchingEnvironment
     ): CompletableFuture<Map<Int, Any?>> {
         val indexes = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::index)
         val representations = resolvableEntity.indexedRepresentations.map(IndexedValue<Map<String, Any>>::value)

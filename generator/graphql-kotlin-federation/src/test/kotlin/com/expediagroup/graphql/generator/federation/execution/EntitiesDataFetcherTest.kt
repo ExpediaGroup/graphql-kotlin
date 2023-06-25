@@ -205,7 +205,7 @@ class EntitiesDataFetcherTest {
             User(123, "testName"),
             User(456, "testName 2"),
             Author(1, "Author 1"),
-            Author(2, "Author 2"),
+            Author(2, "Author 2")
         )
         verifyErrors(result.errors)
     }

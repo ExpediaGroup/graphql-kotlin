@@ -40,7 +40,7 @@ internal fun generateKotlinxOptionalInputSerializer(
     elementClassName: ClassName,
     typeName: String,
     customSerializerClassName: ClassName? = null,
-    isList: Boolean = false,
+    isList: Boolean = false
 ): TypeSpec {
     val optionalClassName = if (isList) {
         LIST.parameterizedBy(elementClassName)

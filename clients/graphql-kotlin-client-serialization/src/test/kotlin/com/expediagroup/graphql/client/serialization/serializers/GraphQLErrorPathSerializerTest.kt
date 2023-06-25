@@ -61,6 +61,9 @@ class GraphQLErrorPathSerializerTest {
 
     @Serializable
     data class ErrorPathWrapper(
-        val path: List<@Serializable(with = GraphQLErrorPathSerializer::class) Any>? = null
+        val path: List<
+            @Serializable(with = GraphQLErrorPathSerializer::class)
+            Any
+            >? = null
     )
 }

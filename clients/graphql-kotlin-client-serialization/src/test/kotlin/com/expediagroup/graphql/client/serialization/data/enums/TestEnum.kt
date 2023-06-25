@@ -23,6 +23,7 @@ import kotlinx.serialization.Serializable
 enum class TestEnum {
     ONE,
     TWO,
+
     @SerialName("three")
     THREE,
     __UNKNOWN

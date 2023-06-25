@@ -50,6 +50,9 @@ class ScalarQuery(
         val scalarAlias: ID,
         @Serializable(with = UUIDSerializer::class)
         val customScalar: UUID,
-        val customScalarList: List<@Serializable(with = UUIDSerializer::class) UUID>
+        val customScalarList: List<
+            @Serializable(with = UUIDSerializer::class)
+            UUID
+            >
     )
 }

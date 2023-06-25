@@ -24,5 +24,9 @@ import kotlinx.serialization.Serializable
 data class KotlinxGraphQLResponse<T>(
     override val data: T? = null,
     override val errors: List<KotlinxGraphQLError>? = null,
-    override val extensions: Map<String, @Serializable(with = AnyKSerializer::class) Any?>? = null
+    override val extensions: Map<
+        String,
+        @Serializable(with = AnyKSerializer::class)
+        Any?
+        >? = null
 ) : GraphQLClientResponse<T>

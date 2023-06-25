@@ -25,5 +25,5 @@ data class InputObject(
     @get:JsonProperty("NOT")
     val NOT: Boolean = false,
     @get:JsonProperty("pID")
-    val pID: ID = "1",
+    val pID: ID = "1"
 )

@@ -49,9 +49,17 @@ class OptionalInputQuery(
         @Serializable(with = OptionalScalarSerializer::class)
         val optionalBooleanInput: OptionalInput<Boolean> = OptionalInput.Undefined,
         @Serializable(with = OptionalUUIDSerializer::class)
-        val optionalUUIDInput: OptionalInput<@Serializable(with = UUIDSerializer::class) UUID> = OptionalInput.Undefined,
+        val optionalUUIDInput: OptionalInput<
+            @Serializable(with = UUIDSerializer::class)
+            UUID
+            > = OptionalInput.Undefined,
         @Serializable(with = OptionalUUIDListSerializer::class)
-        val optionalUUIDListInput: OptionalInput<List<@Serializable(with = UUIDSerializer::class) UUID>> = OptionalInput.Undefined,
+        val optionalUUIDListInput: OptionalInput<
+            List<
+                @Serializable(with = UUIDSerializer::class)
+                UUID
+                >
+            > = OptionalInput.Undefined
     )
 
     @Serializable

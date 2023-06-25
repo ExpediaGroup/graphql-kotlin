@@ -38,6 +38,7 @@ open class EntitiesDataFetcher(
 ) : DataFetcher<CompletableFuture<DataFetcherResult<List<Any?>>>> {
 
     constructor(vararg resolvers: FederatedTypeResolver) : this(resolvers.toList())
+
     /**
      * Pre-compute resolvers by typename so, we don't have to search on every request
      */

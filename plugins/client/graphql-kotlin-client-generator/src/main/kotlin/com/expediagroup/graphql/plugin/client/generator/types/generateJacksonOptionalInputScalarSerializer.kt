@@ -105,7 +105,8 @@ internal fun generateJacksonOptionalInputScalarSerializer(customScalars: Collect
                         |  }
                         |}
                         """.trimMargin(),
-                        jacksonUndefinedInput, jacksonDefinedInput
+                        jacksonUndefinedInput,
+                        jacksonDefinedInput
                     )
                 )
                 .build()

@@ -25,6 +25,13 @@ import kotlinx.serialization.Serializable
 data class KotlinxGraphQLError(
     override val message: String,
     override val locations: List<KotlinxGraphQLSourceLocation>? = null,
-    override val path: List<@Serializable(with = GraphQLErrorPathSerializer::class) Any>? = null,
-    override val extensions: Map<String, @Serializable(with = AnyKSerializer::class) Any?>? = null
+    override val path: List<
+        @Serializable(with = GraphQLErrorPathSerializer::class)
+        Any
+        >? = null,
+    override val extensions: Map<
+        String,
+        @Serializable(with = AnyKSerializer::class)
+        Any?
+        >? = null
 ) : GraphQLClientError

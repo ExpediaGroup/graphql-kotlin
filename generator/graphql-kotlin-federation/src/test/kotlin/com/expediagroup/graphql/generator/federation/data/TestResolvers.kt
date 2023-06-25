@@ -60,7 +60,7 @@ internal class AuthorResolver : FederatedTypePromiseResolver<Author> {
     companion object {
         private val authors = mapOf(
             1 to Author(1, "Author 1"),
-            2 to Author(2, "Author 2"),
+            2 to Author(2, "Author 2")
         )
     }
 }

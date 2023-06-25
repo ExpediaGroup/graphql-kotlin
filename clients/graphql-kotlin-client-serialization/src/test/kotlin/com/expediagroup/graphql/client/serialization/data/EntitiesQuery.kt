@@ -29,7 +29,7 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable
 class EntitiesQuery(
-    override val variables: Variables,
+    override val variables: Variables
 ) : GraphQLClientRequest<EntitiesQuery.Result> {
     @Required
     override val query: String = "ENTITIES_QUERY"
@@ -42,7 +42,10 @@ class EntitiesQuery(
     @Generated
     @Serializable
     public data class Variables(
-        public val representations: List<@Serializable(with = JsonObjectSerializer::class) JsonObject>,
+        public val representations: List<
+            @Serializable(with = JsonObjectSerializer::class)
+            JsonObject
+            >
     )
 
     @Generated
@@ -52,6 +55,6 @@ class EntitiesQuery(
          * Union of all types that use the @key directive, including both types native to the schema and
          * extended types
          */
-        public val _entities: List<_Entity?>,
+        public val _entities: List<_Entity?>
     )
 }

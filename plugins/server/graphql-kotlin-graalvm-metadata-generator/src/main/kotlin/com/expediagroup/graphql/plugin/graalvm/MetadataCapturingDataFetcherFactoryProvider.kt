@@ -29,6 +29,7 @@ internal class MetadataCapturingDataFetcherFactoryProvider(val scanResult: ScanR
 
     private val reflectMetadataMap: MutableMap<String, MutableClassMetadata> = HashMap()
     private val additionalInputTypes: MutableSet<String> = HashSet()
+
     // we need to capture enums
     private val additionalTypes: MutableSet<String> = HashSet()
 

@@ -99,8 +99,13 @@ class AnyKSerializerTest {
 
     @Serializable
     data class AnyMap(
-        val data: Map<String, @Serializable(with = AnyKSerializer::class) Any?>
+        val data: Map<
+            String,
+            @Serializable(with = AnyKSerializer::class)
+            Any?
+            >
     )
+
     @Serializable
     data class Foo(val bar: String)
 }

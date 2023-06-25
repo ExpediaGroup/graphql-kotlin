@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 enum class TestEnum {
     ONE,
     TWO,
+
     @JsonProperty("three")
     THREE,
+
     @JsonEnumDefaultValue
     __UNKNOWN
 }

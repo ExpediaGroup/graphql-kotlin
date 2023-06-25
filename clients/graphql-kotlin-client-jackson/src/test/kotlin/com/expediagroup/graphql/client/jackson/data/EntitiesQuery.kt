@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import kotlin.reflect.KClass
 
 class EntitiesQuery(
-    override val variables: Variables,
+    override val variables: Variables
 ) : GraphQLClientRequest<EntitiesQuery.Result> {
     override val query: String = "ENTITIES_QUERY"
 
@@ -37,7 +37,7 @@ class EntitiesQuery(
         @JsonSerialize(contentConverter = AnyToAnyConverter::class)
         @JsonDeserialize(contentConverter = AnyToAnyConverter::class)
         @get:JsonProperty("representations")
-        public val representations: List<Any>,
+        public val representations: List<Any>
     )
 
     data class Result(
@@ -45,6 +45,6 @@ class EntitiesQuery(
          * Union of all types that use the @key directive, including both types native to the schema and
          * extended types
          */
-        val _entities: List<_Entity?>,
+        val _entities: List<_Entity?>
     )
 }

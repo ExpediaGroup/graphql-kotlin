@@ -24,7 +24,7 @@ import kotlin.String
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = "__typename",
-    defaultImpl = Default_EntityImplementation::class,
+    defaultImpl = Default_EntityImplementation::class
 )
 @JsonSubTypes(
     value = [
