@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization.data.scalars
 
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.util.UUID
 import kotlin.collections.List
 import kotlinx.serialization.KSerializer
@@ -33,6 +34,7 @@ object OptionalUUIDListSerializer : KSerializer<OptionalInput<List<UUID>>> {
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("OptionalUUIDListSerializer")
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, `value`: OptionalInput<List<UUID>>) {
         when (value) {
             is OptionalInput.Undefined -> return
@@ -44,6 +46,7 @@ object OptionalUUIDListSerializer : KSerializer<OptionalInput<List<UUID>>> {
     /**
      * undefined is only supported during client serialization, this code should never be invoked
      */
+    @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(decoder: Decoder): OptionalInput<List<UUID>> =
         OptionalInput.Defined(decoder.decodeNullableSerializableValue(delegate.nullable))
 }
