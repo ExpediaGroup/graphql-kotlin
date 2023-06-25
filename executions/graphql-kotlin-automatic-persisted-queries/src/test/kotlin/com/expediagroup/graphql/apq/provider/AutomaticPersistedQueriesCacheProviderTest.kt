@@ -38,7 +38,6 @@ class AutomaticPersistedQueriesCacheProviderTest {
 
     @Test
     fun `AutomaticPersistedQueriesProvider should return error when no query with provided hash is in the cache`() {
-
         // First execution fails to find persisted query string
 
         val extensions = mapOf(

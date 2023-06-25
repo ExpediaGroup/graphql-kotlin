@@ -205,7 +205,8 @@ object AstronautGraphQL {
         val kotlinDataLoaderRegistry = spyk(
             KotlinDataLoaderRegistryFactory(
                 AstronautDataLoader(),
-                MissionDataLoader(), MissionsByAstronautDataLoader(),
+                MissionDataLoader(),
+                MissionsByAstronautDataLoader(),
                 PlanetsByMissionDataLoader()
             ).generate(mockk())
         )

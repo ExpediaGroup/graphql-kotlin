@@ -48,7 +48,8 @@ class KotlinDataLoaderRegistryTest {
         }
 
         val registry = KotlinDataLoaderRegistryFactory(
-            stringToUpperCaseDataLoader, stringToLowerCaseDataLoader
+            stringToUpperCaseDataLoader,
+            stringToLowerCaseDataLoader
         ).generate(mockk())
 
         registry.getDataLoader<String, String>("ToUppercaseDataLoader").load("touppercase1").handle { _, _ -> }

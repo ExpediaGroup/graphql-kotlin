@@ -16,8 +16,8 @@
 
 package com.expediagroup.graphql.dataloader
 
-import org.dataloader.DataLoaderRegistry
 import graphql.GraphQLContext
+import org.dataloader.DataLoaderRegistry
 
 /**
  * Generates a [KotlinDataLoaderRegistry] with the configuration provided by all [KotlinDataLoader]s.

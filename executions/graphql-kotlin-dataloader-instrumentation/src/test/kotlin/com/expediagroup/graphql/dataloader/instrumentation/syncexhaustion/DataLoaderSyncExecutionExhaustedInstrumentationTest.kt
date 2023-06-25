@@ -467,7 +467,7 @@ class DataLoaderSyncExecutionExhaustedInstrumentationTest {
                         }
                     }
                 }
-            """.trimIndent(),
+            """.trimIndent()
         )
 
         val (results, kotlinDataLoaderRegistry) = AstronautGraphQL.execute(

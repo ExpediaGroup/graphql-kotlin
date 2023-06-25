@@ -129,7 +129,6 @@ class ExecutionLevelDispatchedState(
 
         return object : InstrumentationContext<Any> {
             override fun onDispatched(result: CompletableFuture<Any?>) {
-
                 executions.computeIfPresent(executionInput) { _, executionState ->
                     executionState.also { it.increaseDispatchedFetches(level) }
                 }

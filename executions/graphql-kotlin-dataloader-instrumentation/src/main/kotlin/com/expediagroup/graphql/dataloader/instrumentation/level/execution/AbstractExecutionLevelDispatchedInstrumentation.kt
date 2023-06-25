@@ -35,6 +35,7 @@ import graphql.schema.DataFetcher
  * Represents the signature of a callback that will be executed when a [Level] is dispatched
  */
 internal typealias OnLevelDispatchedCallback = (Level, List<ExecutionInput>) -> Unit
+
 /**
  * Custom GraphQL [graphql.execution.instrumentation.Instrumentation] that calculate the state of executions
  * of all queries sharing the same GraphQLContext map

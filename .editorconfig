@@ -22,4 +22,8 @@ max_line_length = 200
 
 # ktlint rules
 # https://github.com/pinterest/ktlint/issues/527
-disabled_rules=import-ordering
+ktlint_standard_import-ordering = disabled
+ktlint_standard_filename = disabled
+ktlint_standard_no-unused-parameters = disabled
+ij_kotlin_allow_trailing_comma_on_call_site=false
+ij_kotlin_allow_trailing_comma=false
