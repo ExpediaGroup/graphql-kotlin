@@ -17,6 +17,7 @@
 package com.expediagroup.graphql.client.serialization.serializers
 
 import com.expediagroup.graphql.client.serialization.types.OptionalInput
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.nullable
@@ -33,6 +34,7 @@ object OptionalScalarListSerializer : KSerializer<OptionalInput<List<Any?>>> {
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("OptionalScalarList")
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: OptionalInput<List<Any?>>) {
         when (value) {
             is OptionalInput.Undefined -> { return }
@@ -43,6 +45,7 @@ object OptionalScalarListSerializer : KSerializer<OptionalInput<List<Any?>>> {
     }
 
     // undefined is only supported during client serialization
+    @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(decoder: Decoder): OptionalInput<List<Any?>> = OptionalInput.Defined(
         decoder.decodeNullableSerializableValue(delegate.nullable)
     )

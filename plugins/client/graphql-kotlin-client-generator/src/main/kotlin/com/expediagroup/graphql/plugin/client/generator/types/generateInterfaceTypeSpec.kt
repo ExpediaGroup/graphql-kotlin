@@ -23,16 +23,8 @@ import com.expediagroup.graphql.plugin.client.generator.exceptions.InvalidFragme
 import com.expediagroup.graphql.plugin.client.generator.exceptions.MissingTypeNameException
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
-import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 import graphql.language.Field
 import graphql.language.FieldDefinition
 import graphql.language.FragmentDefinition
@@ -58,6 +50,7 @@ private val logger: Logger = LoggerFactory.getLogger("com.expediagroup.graphql.p
  * @see generateInterfaceTypeSpec
  * @see generateGraphQLUnionTypeSpec
  */
+@OptIn(DelicateKotlinPoetApi::class)
 internal fun generateInterfaceTypeSpec(
     context: GraphQLClientGeneratorContext,
     interfaceName: String,

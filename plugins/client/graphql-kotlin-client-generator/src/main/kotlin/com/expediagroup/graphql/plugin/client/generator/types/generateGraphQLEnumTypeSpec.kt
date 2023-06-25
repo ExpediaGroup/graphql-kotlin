@@ -22,6 +22,7 @@ import com.expediagroup.graphql.plugin.client.generator.GraphQLSerializer
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.DelicateKotlinPoetApi
 import com.squareup.kotlinpoet.TypeSpec
 import graphql.Directives.DeprecatedDirective
 import graphql.language.EnumTypeDefinition
@@ -34,6 +35,7 @@ internal const val UNKNOWN_VALUE = "__UNKNOWN_VALUE"
 /**
  * Generate enum [TypeSpec] from the specified GraphQL enum definition. Adds default `__UNKNOWN_VALUE` relying on Jackson annotation to handle new/unknown enum values.
  */
+@OptIn(DelicateKotlinPoetApi::class)
 internal fun generateGraphQLEnumTypeSpec(context: GraphQLClientGeneratorContext, enumDefinition: EnumTypeDefinition): TypeSpec {
     val enumTypeSpecBuilder = TypeSpec.enumBuilder(enumDefinition.name)
         .addAnnotation(Generated::class)
