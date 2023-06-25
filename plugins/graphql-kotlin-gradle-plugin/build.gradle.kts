@@ -28,20 +28,17 @@ java {
 }
 
 gradlePlugin {
+    website.set("https://opensource.expediagroup.com/graphql-kotlin/docs/")
+    vcsUrl.set("https://github.com/ExpediaGroup/graphql-kotlin")
     plugins {
-        register("graphQLPlugin") {
+        create("graphQLPlugin") {
             id = "com.expediagroup.graphql"
             displayName = "GraphQL Kotlin Gradle Plugin"
             description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
             implementationClass = "com.expediagroup.graphql.plugin.gradle.GraphQLGradlePlugin"
+            tags.set(listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl"))
         }
     }
-}
-
-pluginBundle {
-    website = "https://opensource.expediagroup.com/graphql-kotlin/docs/"
-    vcsUrl = "https://github.com/ExpediaGroup/graphql-kotlin"
-    tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
 }
 
 sourceSets {

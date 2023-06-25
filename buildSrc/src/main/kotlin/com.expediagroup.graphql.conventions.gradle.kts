@@ -35,7 +35,7 @@ tasks {
     }
     detekt {
         toolVersion = libs.versions.detekt.get()
-        config = files("${rootProject.projectDir}/detekt.yml")
+        config.setFrom("${rootProject.projectDir}/detekt.yml")
     }
     ktlint {
         version.set(libs.versions.ktlint.core.get())

@@ -1,50 +1,42 @@
 [versions]
-# TODO gradle 8 upgrade -> android-plugin v8 requires gradle 8
-android-plugin = "8.0.0-alpha11"
+android-plugin = "8.0.0"
 classgraph = "4.8.160"
 dataloader = "3.2.0"
 federation = "3.0.1"
 graphql-java = "20.2"
 graalvm = "0.9.21"
 jackson = "2.15.0"
-kotlin = "1.7.21"
-# TODO kotlin 1.8 upgrade -> kotlinx-benchmark 0.4.7+ uses kotlin 1.8
-kotlinx-benchmark = "0.4.6"
-# TODO kotlin 1.8 upgrade -> kotlinx-coroutines 1.7.0+ uses kotlin 1.8
-kotlinx-coroutines = "1.6.4"
-# TODO kotlin 1.8 upgrade -> kotlinx-serialization 1.5.0+ uses kotlin 1.8
-kotlinx-serialization = "1.4.1"
-# TODO kotlin 1.8 upgrade -> ktor 2.3.0+ uses kotlin 1.8
-ktor = "2.2.4"
+kotlin = "1.8.22"
+kotlinx-benchmark = "0.4.7"
+kotlinx-coroutines = "1.7.1"
+kotlinx-serialization = "1.5.1"
+ktor = "2.3.1"
 maven-plugin-annotation = "3.9.0"
 maven-plugin-api = "3.9.2"
 maven-project = "2.2.1"
-# TODO kotlin 1.8 upgrade -> kotlinpoet 1.13.0+ uses kotlin 1.8
-poet = "1.12.0"
+poet = "1.14.2"
 ## reactor and spring versions should be the same as defined in spring-boot-dependencies
-reactor-core = "3.5.6"
+reactor-core = "3.5.7"
 reactor-extensions = "1.2.2"
 slf4j = "2.0.7"
-spring = "6.0.9"
-spring-boot = "3.1.0"
+spring = "6.0.10"
+spring-boot = "3.1.1"
 
 # test dependencies
 # kotlin-compile-testing has to be using the same kotlin version as the kotlinx-serialization compiler
 # https://github.com/tschuchortdev/kotlin-compile-testing the latest version targets kotlin 1.7.10 which blocks updates to newer
 # versions of kotlin, switching to a fork https://github.com/ZacSweers/kotlin-compile-testing
-compile-testing = "0.1.0"
-icu = "73.1"
+compile-testing = "0.2.1"
+icu = "73.2"
 junit = "5.9.3"
-logback = "1.4.7"
-# TODO kotlin 1.8 upgrade -> mock 1.13.4+ uses kotlin 1.8
-mockk = "1.13.3"
+logback = "1.4.8"
+mockk = "1.13.5"
 rxjava = "3.1.6"
 wiremock = "2.35.0"
 
 # plugins
-# TODO kotlin 1.8 upgrade -> detekt 1.22.0+ uses kotlin 1.8
-detekt = "1.21.0"
-dokka = "1.7.20"
+detekt = "1.23.0"
+dokka = "1.8.20"
 jacoco = "0.8.10"
 # klint gradle plugin breaks with 0.46.x+
 ktlint-core = "0.45.2"
