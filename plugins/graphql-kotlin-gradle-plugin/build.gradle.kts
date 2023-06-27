@@ -28,54 +28,47 @@ java {
 }
 
 gradlePlugin {
+    website.set("https://opensource.expediagroup.com/graphql-kotlin/docs/")
+    vcsUrl.set("https://github.com/ExpediaGroup/graphql-kotlin")
     plugins {
         register("graphQLPlugin") {
             id = "com.expediagroup.graphql"
             displayName = "GraphQL Kotlin Gradle Plugin"
             description = "Gradle Plugin that can generate type-safe GraphQL Kotlin client and GraphQL schema in SDL format using reflections"
             implementationClass = "com.expediagroup.graphql.plugin.gradle.GraphQLGradlePlugin"
+            tags.set(listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl"))
         }
     }
 }
 
-pluginBundle {
-    website = "https://opensource.expediagroup.com/graphql-kotlin/docs/"
-    vcsUrl = "https://github.com/ExpediaGroup/graphql-kotlin"
-    tags = listOf("graphql", "kotlin", "graphql-client", "schema-generator", "sdl")
+val generateDefaultVersion by tasks.registering {
+    val fileName = "PluginVersion.kt"
+    val defaultVersionFile = File("$buildDir/generated/src/com/expediagroup/graphql/plugin/gradle", fileName)
+
+    inputs.property(fileName, project.version)
+    outputs.dir(defaultVersionFile.parent)
+
+    doFirst {
+        defaultVersionFile.parentFile.mkdirs()
+        defaultVersionFile.writeText(
+            """
+                package com.expediagroup.graphql.plugin.gradle
+                internal const val DEFAULT_PLUGIN_VERSION = "${project.version}"
+
+            """.trimIndent()
+        )
+    }
 }
 
 sourceSets {
     main {
         java {
-            srcDir("$buildDir/generated/src")
+            srcDir(generateDefaultVersion)
         }
     }
 }
 
 tasks {
-    val generateDefaultVersion by registering {
-        val fileName = "PluginVersion.kt"
-        val defaultVersionFile = File("$buildDir/generated/src/com/expediagroup/graphql/plugin/gradle", fileName)
-
-        inputs.property(fileName, project.version)
-        outputs.file(defaultVersionFile)
-
-        doFirst {
-            defaultVersionFile.parentFile.mkdirs()
-            defaultVersionFile.writeText(
-                """
-                package com.expediagroup.graphql.plugin.gradle
-                internal const val DEFAULT_PLUGIN_VERSION = "${project.version}"
-
-                """.trimIndent()
-            )
-        }
-    }
-
-    compileKotlin {
-        dependsOn(generateDefaultVersion)
-    }
-
     publishPlugins {
         doFirst {
             System.setProperty("gradle.publish.key", System.getenv("PLUGIN_PORTAL_KEY"))
